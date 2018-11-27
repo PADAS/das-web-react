@@ -1,0 +1,68 @@
+import axios from 'axios';
+import { API_URL } from '../constants';
+
+export const MAPS_API_URL = `${API_URL}maps/`;
+
+// actions
+export const FETCH_MAPS = 'FETCH_MAPS';
+export const FETCH_MAPS_SUCCESS = 'FETCH_MAPS_SUCCESS';
+export const FETCH_MAPS_ERROR = 'FETCH_MAPS_ERROR';
+export const SET_HOME_MAP = 'SET_HOME_MAP';
+
+// action creators
+export const fetchMaps = () => {
+  return function(dispatch) {
+    return axios.get(MAPS_API_URL)
+      .then((response) => {
+        dispatch(fetchMapsSuccess(response));
+      })
+      .catch((error) => {
+        dispatch(fetchMapsError(error));
+      });
+  }
+};
+
+export const setHomeMap = (payload) => ({
+  type: SET_HOME_MAP,
+  payload,
+
+});
+
+const fetchMapsSuccess = (response) => ({
+  type: FETCH_MAPS_SUCCESS,
+  payload: response.data,
+});
+
+const fetchMapsError = (error) => ({
+  type: FETCH_MAPS_ERROR,
+  payload: error,
+});
+
+
+// reducers
+const INITIAL_MAPS_STATE = [];
+export default function reducer(state = INITIAL_MAPS_STATE, action = {}) {
+  switch (action.type) {
+    case FETCH_MAPS_SUCCESS: {
+      return action.payload.data;
+    }
+    case FETCH_MAPS_ERROR: {
+      return action.payload;
+    }
+    default: {
+      return state;
+    }
+  }
+};
+
+const INITIAL_HOME_MAP_STATE = null;
+export const homeMapReducer = function homeMapReducer(state = INITIAL_HOME_MAP_STATE, action = {}) {
+  switch (action.type) {
+    case SET_HOME_MAP: {
+      return action.payload;
+    }
+    default: {
+      return state;
+    }
+  }
+};

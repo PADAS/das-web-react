@@ -1,0 +1,20 @@
+nav {
+  background: #333;
+  color: white;
+  display: flex;
+  height: 4rem;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  z-index: 1;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}

@@ -1,0 +1,15 @@
+
+.App {
+  height: 100vh;
+  overflow: hidden;
+  width: 100vw;
+}
+
+.container {
+  display: flex;
+  position: relative;
+}
+
+.container .mapboxgl-map {
+  flex-grow: 1;
+}
