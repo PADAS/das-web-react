@@ -16,7 +16,7 @@ import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
-const store = createStoreWithMiddleware(reducers);
+export const store = createStoreWithMiddleware(reducers);
 const persistor = persistStore(store);
 
 ReactDOM.render(

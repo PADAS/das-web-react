@@ -1,0 +1,27 @@
+.main-map .subject-marker-icon, .main-map .event-marker-icon {
+  height: 2rem;
+  width: 2rem;
+}
+
+.main-map .mapboxgl-marker {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-map h5 {
+  line-height: normal;
+  margin: .1rem 0 0;
+}
+
+/* .main-map .spider-leg-line {
+  width: 2px;
+  background-color: #343434;
+}
+
+.main-map .spider-leg-pin {
+  height: 1rem;
+  width: 1rem;
+  background: red;
+  border-radius: .5rem;
+} */

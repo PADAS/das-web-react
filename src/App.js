@@ -7,6 +7,8 @@ import { fetchEvents/* , fetchEventTypes */ } from './ducks/events';
 import { fetchMaps } from './ducks/maps';
 import { fetchEventTypes } from './ducks/event-types';
 import SideBar from './SideBar';
+import 'axios-progress-bar/dist/nprogress.css'
+import { loadProgressBar } from 'axios-progress-bar';
 
 class App extends Component {
 
@@ -15,6 +17,7 @@ class App extends Component {
     this.props.fetchEvents();
     this.props.fetchMaps();
     this.props.fetchEventTypes();
+    loadProgressBar();
   }
   
   render() {
@@ -23,7 +26,7 @@ class App extends Component {
         <Nav />
         <div className="container">
           <Map />
-          <SideBar events={this.props.events} />
+          {/* <SideBar events={this.props.events} /> */}
         </div>
       </div>
     );

@@ -2,8 +2,10 @@ import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import tokenReducer from '../ducks/auth';
-import eventsReducer from '../ducks/events';
+import eventsReducer, { mapEventsReducer } from '../ducks/events';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
+import tracksReducer from '../ducks/tracks';
+import mapSubjectReducer from '../ducks/subjects';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -19,7 +21,10 @@ const rootReducer = combineReducers({
   data: combineReducers({
     events: eventsReducer,
     maps: mapsReducer,
+    tracks: tracksReducer,
     token: persistReducer(tokenPersistanceConfig, tokenReducer),
+    mapSubjects: mapSubjectReducer,
+    mapEvents: mapEventsReducer,
   }),
   view: combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
