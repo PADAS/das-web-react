@@ -6,6 +6,7 @@ import eventsReducer, { mapEventsReducer } from '../ducks/events';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer from '../ducks/subjects';
+import { eventFilterReducer, eventFilterSchemaReducer } from '../ducks/filters';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -20,14 +21,18 @@ const homeMapPersistanceConfig = {
 const rootReducer = combineReducers({
   data: combineReducers({
     events: eventsReducer,
+    eventTypes: null,
+    eventSchemas: null,
     maps: mapsReducer,
-    tracks: tracksReducer,
-    token: persistReducer(tokenPersistanceConfig, tokenReducer),
-    mapSubjects: mapSubjectReducer,
     mapEvents: mapEventsReducer,
+    mapSubjects: mapSubjectReducer,
+    token: persistReducer(tokenPersistanceConfig, tokenReducer),
+    tracks: tracksReducer,
   }),
   view: combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
+    eventFilter: eventFilterReducer,
+    eventFilterSchema: eventFilterSchemaReducer,
   }),
 });
 

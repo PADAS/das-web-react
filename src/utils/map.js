@@ -13,7 +13,7 @@ const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = Object.assign({}, item);
   const clone2 = Object.assign({}, item);
   delete clone2[key];
-  clone[key].properties = Object.assign(clone2, clone[key].properties);
+  clone[key].properties = { ...clone2, ...clone[key].properties };
   return clone;
 };
 
@@ -21,7 +21,7 @@ const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map(i
 const addTitleToGeoJson = (geojson, title) => (geojson.properties.display_title = title) && geojson;
 
 const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleToGeoJson(addIconToGeoJson(geojson), title || event_type));
-const setUpSubjectGeoJson = (subjects) => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
+const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));

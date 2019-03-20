@@ -5,6 +5,8 @@ import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents 
 
 const mapEvents = ({ mapEvents }) => mapEvents;
 const mapSubjects = ({ mapSubjects }) => mapSubjects;
+const events = ({ events }) => events;
+const eventFilter = ({ eventFilter }) => eventFilter;
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents],
@@ -15,3 +17,8 @@ export const getMapSubjectFeatureCollection = createSelector(
   [mapSubjects],
   mapSubjects => createFeatureCollectionFromSubjects(mapSubjects)
 );
+
+// export const getEvents = createSelector(
+//   [events, eventFilter],
+//   (events, eventFilter) => 
+// ) 

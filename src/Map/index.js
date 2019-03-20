@@ -17,9 +17,7 @@ import MapboxglSpiderifier from 'mapboxgl-spiderifier';
 import createSocket, { unbindSocketEvents } from '../socket';
 import ReactMapboxGl, { ZoomControl, RotationControl, GeoJSONLayer, Marker, Source } from 'react-mapbox-gl';
 import DrawControl from 'react-mapbox-gl-draw/lib';
-import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents } from '../utils/map';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
-import { featureCollection } from '@turf/helpers';
 
 let spiderifier;
 
@@ -88,12 +86,10 @@ class Map extends Component {
 
     if (!trackCollection.length) return null;
 
-    console.log('trackCollection', trackCollection);
-
     return trackCollection.map((feature) => {
       return (
         <Fragment key={`${feature.id}-tracks`}>
-          {
+          {/* {
             this.state.layers.showTimePoints &&
             <GeoJSONLayer
               data={feature.tracks}
@@ -101,12 +97,16 @@ class Map extends Component {
                 "circle-color": feature.tracks.features[0].properties.stroke || 'orange',
                 "circle-radius": 3,
               }} />
-          }
+          } */}
           <GeoJSONLayer
             data={feature.tracks}
             linePaint={{
               'line-color': feature.tracks.features[0].properties.stroke || 'orange',
               'line-width': feature.tracks.features[0].properties['stroke-width'],
+            }}
+            circlePaint={{
+              "circle-color": feature.tracks.features[0].properties.stroke || 'orange',
+              "circle-radius": 3,
             }}
             lineLayout={{
               'line-join': 'round',
