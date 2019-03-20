@@ -10,7 +10,6 @@ export const fetchEventTypes = () => {
   return function (dispatch) {
     return axios.get(EVENT_TYPE_API_URL)
       .then((response) => {
-        console.log('event types', response);
         dispatch(fetchEventTypesSucess(response));
       })
       .catch((error) => {

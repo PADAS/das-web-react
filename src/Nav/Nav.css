@@ -1,20 +1,96 @@
 nav {
+  align-items: center;
   background: #333;
   color: white;
   display: flex;
-  height: 4rem;
-  left: 0;
-  top: 0;
+  height: var(--nav-height);
+  justify-content: space-around;
+  position: relative;
   width: 100vw;
-  z-index: 1;
+  z-index: 2;
 }
 
 nav ul {
+  --standard-gutter: .5rem;
+  --border-radius-size: var(--standard-gutter);
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: space-around;
   list-style-type: none;
   margin: 0;
-  padding: 0;
+  padding-left: 0;
+}
+
+nav ul h6 + h6 {
+  display: none;
+}
+
+nav ul h6 {
+  font-size: 1rem;
+  font-weight: normal;
+  margin: 0;
+  text-align: left;
   width: 100%;
+}
+
+nav ul li {
+  align-items: center;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+}
+
+nav ul img {
+  max-height: calc(var(--nav-height) - (var(--standard-gutter) * 2));
+}
+
+nav ul h6 {
+  margin-left: var(--standard-gutter);
+}
+
+nav ul.open {
+  align-self: flex-start;
+  flex-direction: column;
+  align-items: center;
+}
+
+nav ul.open li:not(.selected) {
+  background: white;
+  color: black;
+  padding: var(--standard-gutter) var(--standard-gutter) var(--standard-gutter) 0;
+  width: 100%;
+}
+
+nav ul.open li:not(.selected) h6 {
+  font-size: .9rem;
+}
+
+nav ul.open li:not(.selected):hover {
+  background: #EEE;
+}
+
+nav ul.open li.current {
+  background: #f7f7f7;
+}
+
+nav ul.open li.current::after {
+  content: "✔";
+}
+
+nav ul.open li:not(.selected) img {
+  display: none;
+}
+
+nav ul.open .selected {
+  height: var(--nav-height);
+}
+
+nav ul.open .selected + li {
+  border-radius: var(--border-radius-size) var(--border-radius-size) 0 0;
+}
+
+nav ul.open li:last-of-type {
+  border-radius: 0 0 var(--border-radius-size) var(--border-radius-size);
 }

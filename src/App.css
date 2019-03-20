@@ -1,15 +1,20 @@
 
-.App {
-  height: 100vh;
-  overflow: hidden;
-  width: 100vw;
+:root {
+  --nav-height: 3rem;
 }
 
-.container {
+.App {
+  overflow: hidden;
+}
+
+.app-container {
   display: flex;
   position: relative;
+  height: calc(100vh - var(--nav-height));
+  width: 100vw;
+  z-index: 1;
 }
 
-.container .mapboxgl-map {
+.app-container .mapboxgl-map {
   flex-grow: 1;
 }

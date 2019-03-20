@@ -1,21 +1,17 @@
 import React, { Component } from 'react';
-import { REACT_APP_DAS_HOST } from '../../constants';
-
-const urlContainsOwnHost = url => url.includes('http');
-
-const calcUrlForImage = (imagePath) => {
-  if (urlContainsOwnHost(imagePath)) return imagePath;
-  return `${REACT_APP_DAS_HOST}/${imagePath}`;
-};
+import { calcUrlForImage } from '../../utils/img';
 
 export default class extends Component {
   render() {
-    const { id, icon, title, name, ...rest } = this.props;
+    const { id, icon, title, name, menu, ...rest } = this.props;
+    const iconImg = icon ? <img alt={title} src={calcUrlForImage(icon.src)} /> : null;
+    const titleEl = title ? <h6 className="title">{title}</h6> : null;
+    const nameEl = name ? <h6 className="name">{name}</h6> : null;
     return (
-      <li {...rest} key={id}>
-        {icon ?
-          (<img alt={title} src={calcUrlForImage(icon.src)} />)
-          : (<h6>{title || name}</h6>)}
+      <li {...rest}>
+        {iconImg}
+        {titleEl}
+        {nameEl}
       </li>
     )
   }

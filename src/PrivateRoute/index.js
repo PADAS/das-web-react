@@ -1,19 +1,23 @@
 import axios from 'axios'
 
+import authConfig from '../utils/auth';
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
+
+authConfig();
 
 class PrivateRoute extends Component {
   setToken({ access_token }) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
   }
-  
+
   render() {
     const { component: Component, token, ...rest } = this.props;
-    const isAuthed = !!token;
+    const hasToken = !!token;
 
-    if (isAuthed) {
+    if (hasToken) {
       this.setToken(token);
     }
 
