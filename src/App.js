@@ -11,6 +11,7 @@ import 'axios-progress-bar/dist/nprogress.css'
 import { loadProgressBar } from 'axios-progress-bar';
 
 class App extends Component {
+
   componentDidMount() {
     /* data initialization */
     this.props.fetchEvents(this.props.eventFilter);
