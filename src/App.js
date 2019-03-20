@@ -16,7 +16,7 @@ class App extends Component {
     this.props.fetchEvents(this.props.eventFilter);
     this.props.fetchMaps();
     this.props.fetchEventTypes();
-    loadProgressBar(); 
+    loadProgressBar();
   }
 
   render() {
