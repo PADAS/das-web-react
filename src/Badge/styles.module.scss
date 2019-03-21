@@ -1,0 +1,18 @@
+.badge {
+  border-radius: 100%;
+  display: block;
+  height: 1rem;
+  width: 1rem;
+  &.red {
+    background: red;
+  }
+  &.orange {
+    background: orange;
+  }
+  &.green {
+    background: green;
+  }
+  &.gray {
+    background: gray;
+  }
+}

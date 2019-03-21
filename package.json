@@ -7,12 +7,13 @@
     "@turf/turf": "^5.1.6",
     "axios": "^0.18.0",
     "axios-progress-bar": "^1.2.0",
-    "bootstrap": "^4.2.1",
+    "bootstrap": "^4.3.1",
     "lodash-es": "^4.17.11",
     "mapbox-gl": "^0.49.0",
     "mapboxgl-spiderifier": "^1.0.9",
     "prop-types": "^15.6.2",
     "react": "^16.5.1",
+    "react-bootstrap": "^1.0.0-beta.6",
     "react-click-outside": "^3.0.1",
     "react-dom": "^16.5.1",
     "react-infinite-scroller": "^1.2.4",
@@ -21,7 +22,8 @@
     "react-mapbox-gl-draw": "^1.0.4",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "1.1.5",
+    "react-scripts": "2.1.5",
+    "react-timeago": "^4.4.0",
     "reactstrap": "^7.0.2",
     "redux": "^4.0.0",
     "redux-persist": "^5.10.0",
@@ -38,7 +40,14 @@
   },
   "devDependencies": {
     "enzyme": "^3.7.0",
+    "node-sass": "^4.11.0",
     "redux-mock-store": "^1.5.3",
     "sinon": "^7.1.1"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

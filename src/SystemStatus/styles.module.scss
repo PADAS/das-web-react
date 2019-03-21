@@ -1,0 +1,22 @@
+.toggle, .toggle::after {
+  all: unset;
+}
+
+.listItem {
+  align-items: center;
+  display: flex;
+  cursor: default;
+  padding: .5rem 1rem;
+  user-select: text;
+  [class*=badge] {
+    margin-right: 1rem;
+  }
+  &:hover {
+    background: none;
+  }
+  &:active, &:visited, &:focus {
+    background-color: unset;
+    color: unset;
+    outline: none;
+  }
+}
