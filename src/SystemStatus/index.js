@@ -56,7 +56,7 @@ class SystemStatusComponent extends Component {
           <Badge status={statusSummary} />
         </Toggle>
 
-        <Menu>
+        <Menu className={styles.menu}>
           {this.renderStatusList()}
         </Menu>
       </Dropdown>

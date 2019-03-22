@@ -65,9 +65,9 @@ class NavHomeMenu extends Component {
     return (
       <Dropdown className="home-select">
         <Toggle className={styles.toggle}>
-          <NavHomeItem className={`selected ${styles.listItem}`} {...this.state.selectedItem} />
+          <NavHomeItem {...this.state.selectedItem} />
         </Toggle>
-        <Menu>
+        <Menu className={styles.menu}>
           {this.renderList()}
         </Menu>
       </Dropdown>

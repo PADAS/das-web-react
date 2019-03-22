@@ -1,12 +1,14 @@
 nav {
   .toggle {
     img {
-      height: 2.5rem;
+      height: 2rem;
       margin-right: 1rem;
+    }
+    &:hover, &:hover::after {
+      color: darken(white, 7%);
     }
     &::after {
       display: inline-block;
-      margin-left: 1rem;
     }
   }
   .listItem {
@@ -21,5 +23,9 @@ nav {
       flex-grow: 1;
       text-align: right;
     }
+  }
+  .menu {
+    padding-bottom: 0;
+    padding-top: 0;
   }
 }
