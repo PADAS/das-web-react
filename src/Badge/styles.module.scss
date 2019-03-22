@@ -1,27 +1,32 @@
 @import '../common/styles/vars/colors';
 
+@mixin badge-box-shadow ($color: $unknown-border) {
+  box-shadow: 0 0 .333rem $color;
+}
+
 .badge {
+  @include badge-box-shadow;
   border-radius: 100%;
   background: $unknown;
   border: 2px solid $unknown-border;
   border-style: solid;
-  box-shadow: 0 0 3px $unknown;
+  box-shadow: 0 0 .5rem $unknown-border;
   display: block;
   height: 1rem;
   width: 1rem;
   &.red {
     background: $error;
     border-color: $error-border;
-    box-shadow: 0 0 3px $error;
+    @include badge-box-shadow($error-border);
   }
   &.orange {
     background: $warning;
     border-color: $warning-border;
-    box-shadow: 0 0 3px $warning;
+    @include badge-box-shadow($warning-border);
   }
   &.green {
     background: $healthy;
     border-color: $healthy-border;
-    box-shadow: 0 0 3px $healthy;
+    @include badge-box-shadow($healthy-border);
   }
 }
