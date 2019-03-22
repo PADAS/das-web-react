@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Dropdown } from 'react-bootstrap';
+
 import NavHomeItem from '../NavHomeItem';
 import { setHomeMap } from '../../ducks/maps';
-import enhanceWithOutsideClick from 'react-click-outside';
+
+import styles from './styles.module.scss';
+
+const { Toggle, Menu, Item } = Dropdown;
 
 class NavHomeMenu extends Component {
   constructor(props) {
@@ -13,11 +18,16 @@ class NavHomeMenu extends Component {
       listShown: false,
       selectedItem: null,
     };
+    this.renderList = this.renderList.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
   }
   componentDidMount() {
     this.setState({
       selectedItem: this.props.homeMap.id ? this.props.homeMap : this.props.maps[0],
+    }, () => {
+      if (!this.props.homeMap.id) {
+        this.onItemSelect(this.state.selectedItem);
+      }
     });
   }
   toggleMenu() {
@@ -46,18 +56,25 @@ class NavHomeMenu extends Component {
     this.props.setHomeMap(selectedItem);
   }
   renderList() {
-    return this.props.maps.map(map => <NavHomeItem className={map.id === this.state.selectedItem.id ? 'current' : null} onClick={() => this.onItemSelect(map)} key={map.id} {...map} />);
+    return this.props.maps.map(map =>
+    <Item className={styles.listItem} key={map.id} onClick={() => this.onItemSelect(map)}>
+      <NavHomeItem {...map} />
+    </Item>);
   }
   render() {
     return (
-      <ul className={this.state.listShown ? 'open' : 'closed'}>
-        <NavHomeItem className="selected" onClick={this.toggleMenu} {...this.state.selectedItem} />
-        { this.state.listShown ? this.renderList() : null }
-      </ul>
+      <Dropdown className="home-select">
+        <Toggle className={styles.toggle}>
+          <NavHomeItem className={`selected ${styles.listItem}`} {...this.state.selectedItem} />
+        </Toggle>
+        <Menu>
+          {this.renderList()}
+        </Menu>
+      </Dropdown>
     );
   }
 }
 
 const mapStateToProps = ({ view: { homeMap } }) => ({ homeMap });
 
-export default connect(mapStateToProps, { setHomeMap })(enhanceWithOutsideClick(NavHomeMenu));
+export default connect(mapStateToProps, { setHomeMap })(NavHomeMenu);

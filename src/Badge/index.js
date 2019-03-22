@@ -26,6 +26,6 @@ const calcBadgeColorFromStatus = status => {
 
 export default (props) => {
   console.log('styles', styles);
-  const { status, ...rest } = props;
-  return <span className={`${styles[calcBadgeColorFromStatus(status)]} ${styles.badge}`}></span>;
+  const { status, className, ...rest } = props;
+  return <span className={`${styles[calcBadgeColorFromStatus(status)]} ${styles.badge} ${props.className}`}></span>;
 };

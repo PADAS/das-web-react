@@ -14,7 +14,6 @@
     "prop-types": "^15.6.2",
     "react": "^16.5.1",
     "react-bootstrap": "^1.0.0-beta.6",
-    "react-click-outside": "^3.0.1",
     "react-dom": "^16.5.1",
     "react-infinite-scroller": "^1.2.4",
     "react-jsonschema-form": "1.0.6",

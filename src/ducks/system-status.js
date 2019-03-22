@@ -168,7 +168,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
 
 const INITIAL_REALTIME_STATUS_STATE = genericStatusModel({
   title: 'EarthRanger Realtime',
-  details: 'Activity:',
+  details: 'Activity',
   timestamp: null,
 });
 const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STATUS_STATE, { type, payload }) => {

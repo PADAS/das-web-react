@@ -1,18 +1,27 @@
+@import '../common/styles/vars/colors';
+
 .badge {
   border-radius: 100%;
+  background: $unknown;
+  border: 2px solid $unknown-border;
+  border-style: solid;
+  box-shadow: 0 0 3px $unknown;
   display: block;
   height: 1rem;
   width: 1rem;
   &.red {
-    background: red;
+    background: $error;
+    border-color: $error-border;
+    box-shadow: 0 0 3px $error;
   }
   &.orange {
-    background: orange;
+    background: $warning;
+    border-color: $warning-border;
+    box-shadow: 0 0 3px $warning;
   }
   &.green {
-    background: green;
-  }
-  &.gray {
-    background: gray;
+    background: $healthy;
+    border-color: $healthy-border;
+    box-shadow: 0 0 3px $healthy;
   }
 }

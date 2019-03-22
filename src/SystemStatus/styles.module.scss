@@ -1,22 +1,31 @@
-.toggle, .toggle::after {
-  all: unset;
-}
+
+@import '../common/styles/vars/colors';
 
 .listItem {
-  align-items: center;
-  display: flex;
   cursor: default;
-  padding: .5rem 1rem;
-  user-select: text;
-  [class*=badge] {
-    margin-right: 1rem;
-  }
+  // border-bottom: 1px solid $light-gray;
+  justify-content: space-between;
   &:hover {
     background: none;
   }
-  &:active, &:visited, &:focus {
-    background-color: unset;
-    color: unset;
-    outline: none;
-  }
+}
+
+.listItem, .summary, .details {
+  display: flex;
+}
+
+.badge, .summary {
+  margin-right: 1rem;
+}
+
+.details {
+  color: $dark-gray;
+  flex-flow: column;
+  font-size: .8rem;
+  text-align: right;
+}
+
+.timestamp {
+  color: $medium-gray;
+  margin-left: .5rem;
 }

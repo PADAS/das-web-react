@@ -17,27 +17,38 @@ class SystemStatusComponent extends Component {
       if (key === 'services') {
         return value.map((item) =>
           <Item className={styles.listItem} key={item.provider_key}>
-            <Badge status={item.status} />
-            {item.title}
-            {item.heartbeat.title}
-            {!!item.heartbeat.timestamp && <TimeAgo date={item.heartbeat.timestamp} />}
-            {item.datasource.title}
-            {!!item.datasource.timestamp && <TimeAgo date={item.datasource.timestamp} />}
+            <div className={styles.summary}>
+              <Badge className={styles.badge} status={item.status} />
+              {item.title}
+            </div>
+            <div className={styles.details}>
+              <span>
+                {item.heartbeat.title}{!!item.heartbeat.timestamp && ':'}<span className={styles.timestamp}>{!!item.heartbeat.timestamp && <TimeAgo date={item.heartbeat.timestamp} />}</span>
+              </span>
+              <span>
+                {item.datasource.title}{!!item.datasource.timestamp && ':'}<span className={styles.timestamp}>{!!item.datasource.timestamp && <TimeAgo date={item.datasource.timestamp} />}</span>
+              </span>
+            </div>
           </Item>
         );
       }
       return <Item className={styles.listItem} key={index}>
-        <Badge status={value.status} />
-        {value.title}
-        {value.details}
-        {!!value.timestamp && <TimeAgo date={value.timestamp} />}
+        <div className={styles.summary}>
+          <Badge className={styles.badge} status={value.status} />
+          {value.title}
+        </div>
+        <div className={styles.details}>
+          <span>
+            {value.details}{!!value.timestamp && ':'}<span className={styles.timestamp}>{!!value.timestamp && <TimeAgo date={value.timestamp} />}</span>
+          </span>
+        </div>
       </Item>
     });
   }
   render() {
     const statusSummary = calcPrimaryStatusIndicator(this.props.systemStatus);
     return (
-      <Dropdown>
+      <Dropdown alignRight>
         <Toggle id="dropdown-basic" className={styles.toggle}>
           <Badge status={statusSummary} />
         </Toggle>

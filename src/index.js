@@ -10,7 +10,7 @@ import ReduxThunk from 'redux-thunk';
 
 import registerServiceWorker from './registerServiceWorker';
 import 'bootstrap/dist/css/bootstrap.css';
-import './index.css';
+import './index.scss';
 import reducers from './reducers';
 import App from './App';
 import Login from './Login';

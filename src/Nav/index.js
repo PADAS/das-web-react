@@ -1,11 +1,10 @@
-import './Nav.css';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import NavHomeMenu from './NavHomeMenu';
 import SystemStatusComponent from '../SystemStatus';
 
-import { connect } from 'react-redux';
-
-
+import './Nav.scss';
 
 class Nav extends Component {
   render() {
@@ -13,6 +12,7 @@ class Nav extends Component {
       <nav>
         <SystemStatusComponent />
         {!!this.props.maps.length && <NavHomeMenu maps={this.props.maps} />}
+        <div></div>
       </nav>
     )
   }
