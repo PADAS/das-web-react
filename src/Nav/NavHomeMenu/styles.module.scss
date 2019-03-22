@@ -1,0 +1,25 @@
+nav {
+  .toggle {
+    img {
+      height: 2.5rem;
+      margin-right: 1rem;
+    }
+    &::after {
+      display: inline-block;
+      margin-left: 1rem;
+    }
+  }
+  .listItem {
+    display: flex;
+    height: 3rem;
+    justify-content: space-between;
+    img {
+      height: 2.5rem;
+      margin-right: 1rem;
+    }
+    h6 {
+      flex-grow: 1;
+      text-align: right;
+    }
+  }
+}
