@@ -6,9 +6,6 @@ const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STA
 
 const calcBadgeColorFromStatus = status => {
   switch (status) {
-    case (UNKNOWN_STATUS): {
-      return 'gray';
-    }
     case (UNHEALTHY_STATUS): {
       return 'red';
     }
@@ -25,7 +22,6 @@ const calcBadgeColorFromStatus = status => {
 }
 
 export default (props) => {
-  console.log('styles', styles);
   const { status, className, ...rest } = props;
   return <span className={`${styles[calcBadgeColorFromStatus(status)]} ${styles.badge} ${props.className}`}></span>;
 };

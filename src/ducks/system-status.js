@@ -9,7 +9,7 @@ const STATUS_API_URL = `${API_URL}status`;
 const FETCH_SYSTEM_STATUS_SUCCESS = 'FETCH_SYSTEM_STATUS_SUCCESS';
 const FETCH_SYSTEM_STATUS_ERROR = 'FETCH_SYSTEM_STATUS_ERROR';
 
-export const NETWORK_STATUS_CHANGE = 'NETWORK_STATUS_CHANGE';
+const NETWORK_STATUS_CHANGE = 'NETWORK_STATUS_CHANGE';
 const SERVER_VERSION_CHANGE = 'SERVER_VERSION_CHANGE';
 const SERVER_STATUS_CHANGE = 'SERVER_STATUS_CHANGE';
 
@@ -32,6 +32,11 @@ export const fetchSystemStatus = () => {
     return dispatch(fetchSystemStatusSuccess(response));
   };
 };
+
+export const updateNetworkStatus = (status) => ({
+  type: NETWORK_STATUS_CHANGE,
+  payload: status,
+});
 
 const fetchSystemStatusSuccess = ({ data: { data } }) => ({
   type: FETCH_SYSTEM_STATUS_SUCCESS,

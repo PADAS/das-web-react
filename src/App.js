@@ -12,7 +12,7 @@ import 'axios-progress-bar/dist/nprogress.css'
 import { loadProgressBar } from 'axios-progress-bar';
 
 import { STATUSES } from './constants';
-import { NETWORK_STATUS_CHANGE } from './ducks/system-status';
+import { updateNetworkStatus } from './ducks/system-status';
 import { store } from './index';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
@@ -27,16 +27,10 @@ class App extends Component {
     loadProgressBar();
 
     window.addEventListener('online', () => {
-      store.dispatch({
-        type: NETWORK_STATUS_CHANGE,
-        payload: HEALTHY_STATUS,
-      });
+      this.props.updateNetworkStatus(HEALTHY_STATUS);
     });
     window.addEventListener('offline', () => {
-      store.dispatch({
-        type: NETWORK_STATUS_CHANGE,
-        payload: UNHEALTHY_STATUS,
-      });
+      this.props.updateNetworkStatus(UNHEALTHY_STATUS);
     });
   }
 
@@ -60,4 +54,4 @@ class App extends Component {
 
 const mapStateToProps = ({ view: { eventFilter } }) => ({ eventFilter });
 
-export default connect(mapStateToProps, { fetchEvents, fetchMaps, fetchEventTypes, fetchSystemStatus })(App);
+export default connect(mapStateToProps, { fetchEvents, fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus })(App);
