@@ -23,10 +23,12 @@ class SystemStatusComponent extends Component {
             </div>
             <div className={styles.details}>
               <span>
-                {item.heartbeat.title}{!!item.heartbeat.timestamp && ':'}<span className={styles.timestamp}>{!!item.heartbeat.timestamp && <TimeAgo date={item.heartbeat.timestamp} />}</span>
+                {item.heartbeat.title}{!!item.heartbeat.timestamp &&':'}
+                {!!item.heartbeat.timestamp &&  <span className={styles.timestamp}><TimeAgo date={item.heartbeat.timestamp} /></span>}
               </span>
               <span>
-                {item.datasource.title}{!!item.datasource.timestamp && ':'}<span className={styles.timestamp}>{!!item.datasource.timestamp && <TimeAgo date={item.datasource.timestamp} />}</span>
+                {item.datasource.title}{!!item.datasource.timestamp && ':'}
+                {!!item.datasource.timestamp && <span className={styles.timestamp}><TimeAgo date={item.datasource.timestamp} /></span>}
               </span>
             </div>
           </Item>
@@ -39,7 +41,8 @@ class SystemStatusComponent extends Component {
         </div>
         <div className={styles.details}>
           <span>
-            {value.details}{!!value.timestamp && ':'}<span className={styles.timestamp}>{!!value.timestamp && <TimeAgo date={value.timestamp} />}</span>
+            {value.details}{!!value.timestamp && ':'}
+            {!!value.timestamp && <span className={styles.timestamp}><TimeAgo date={value.timestamp} /></span>}
           </span>
         </div>
       </Item>
@@ -49,7 +52,7 @@ class SystemStatusComponent extends Component {
     const statusSummary = calcPrimaryStatusIndicator(this.props.systemStatus);
     return (
       <Dropdown alignRight>
-        <Toggle id="dropdown-basic" className={styles.toggle}>
+        <Toggle id="system-status" className={styles.toggle}>
           <Badge status={statusSummary} />
         </Toggle>
 
