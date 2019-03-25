@@ -1,16 +1,18 @@
-import './Nav.css';
 import React, { Component } from 'react';
-import NavHomeMenu from './NavHomeMenu';
-
 import { connect } from 'react-redux';
 
+import NavHomeMenu from './NavHomeMenu';
+import SystemStatusComponent from '../SystemStatus';
 
+import './Nav.scss';
 
 class Nav extends Component {
   render() {
     return (
       <nav>
-        {this.props.maps.length && <NavHomeMenu maps={this.props.maps} />}
+        <SystemStatusComponent />
+        {!!this.props.maps.length && <NavHomeMenu maps={this.props.maps} />}
+        <div></div>
       </nav>
     )
   }

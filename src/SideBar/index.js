@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import SchemaForm from "react-jsonschema-form";
+// import SchemaForm from "react-jsonschema-form";
 import { fetchEventFilterSchema } from '../ducks/filters';
 import { fetchNextEventPage } from '../ducks/events';
 import EventFeed from '../EventFeed';

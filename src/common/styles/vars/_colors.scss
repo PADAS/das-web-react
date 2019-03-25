@@ -1,0 +1,16 @@
+$bright-green: #7fd320;
+$bright-red: #D0031B;
+$mustard-yellow: #d1c22e;
+
+$dark-gray: #676767;
+$medium-gray: lighten($dark-gray, 20%);
+$light-gray: lighten($medium-gray, 30%);
+
+$healthy: $bright-green;
+$healthy-border: lighten($bright-green, 15%);
+$error: $bright-red;
+$error-border: lighten($bright-red, 15%);
+$warning: $mustard-yellow;
+$warning-border: lighten($mustard-yellow, 15%);
+$unknown: $dark-gray;
+$unknown-border: lighten($dark-gray, 15%);

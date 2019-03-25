@@ -54,6 +54,7 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
     }
     case SOCKET_SUBJECT_STATUS: {
       const { payload } = action;
+      console.log('subject update', payload);
       payload.properties.image = calcUrlForImage(payload.properties.image);
       return state.map((subject) => {
         if (subject.id === payload.properties.id) {

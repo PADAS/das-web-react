@@ -8,3 +8,10 @@ export const {
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
+
+export const STATUSES = {
+  HEALTHY_STATUS: 'HEALTHY',
+  WARNING_STATUS: 'WARNING',
+  UNHEALTHY_STATUS: 'UNHEALTHY',
+  UNKNOWN_STATUS: 'UNKNOWN',
+};

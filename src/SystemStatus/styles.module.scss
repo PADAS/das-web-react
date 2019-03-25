@@ -1,0 +1,42 @@
+
+@import '../common/styles/vars/colors';
+
+.listItem {
+  border-bottom: 1px solid $light-gray;
+  cursor: default;
+  // border-bottom: 1px solid $light-gray;
+  justify-content: space-between;
+  &:hover {
+    background: none;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.menu {
+  padding-bottom: 0;
+  padding-top: 0;
+}
+
+.listItem, .summary, .details {
+  align-items: center;
+  display: flex;
+}
+
+.badge, .summary {
+  margin-right: 1rem;
+}
+
+.details {
+  align-items: flex-end;
+  color: $dark-gray;
+  flex-flow: column;
+  font-size: .8rem;
+  text-align: right;
+}
+
+.timestamp {
+  color: $medium-gray;
+  margin-left: .5rem;
+}

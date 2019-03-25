@@ -87,19 +87,9 @@ class Map extends Component {
     if (!trackCollection.length) return null;
 
     return trackCollection.map((feature) => {
-      return (
-        <Fragment key={`${feature.id}-tracks`}>
-          {/* {
-            this.state.layers.showTimePoints &&
-            <GeoJSONLayer
+      return <GeoJSONLayer
+             key={`${feature.id}-tracks`}
               data={feature.tracks}
-              circlePaint={{
-                "circle-color": feature.tracks.features[0].properties.stroke || 'orange',
-                "circle-radius": 3,
-              }} />
-          } */}
-          <GeoJSONLayer
-            data={feature.tracks}
             linePaint={{
               'line-color': feature.tracks.features[0].properties.stroke || 'orange',
               'line-width': feature.tracks.features[0].properties['stroke-width'],
@@ -112,8 +102,6 @@ class Map extends Component {
               'line-join': 'round',
               'line-cap': 'round',
             }} />
-        </Fragment>
-      )
     });
   }
   renderSubjectMarkers() {
@@ -190,9 +178,8 @@ class Map extends Component {
         }));
 
     await Promise.all(images).then(() => {
-      if (images.length) {
         debounce(this.forceUpdate, 300);
-      }
+        debounce(this.forceUpdate, 300);
     });
   }
   onMapSubjectClick(e) {

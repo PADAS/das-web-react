@@ -20,9 +20,9 @@ const bindSocketEvents = (socket, store) => {
     if (status.code === 401) {
       return store.dispatch(clearAuth());
     }
-    Object.entries(events).forEach(([type, event_name]) => {
+    Object.entries(events).forEach(([event_name, actionTypes]) => {
       socket.on(event_name, (payload) => {
-        store.dispatch({ type, payload });
+        actionTypes.forEach(type => store.dispatch({ type, payload }));
       })
     });
   });

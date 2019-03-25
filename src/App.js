@@ -6,18 +6,37 @@ import { connect } from 'react-redux';
 import { fetchEvents } from './ducks/events';
 import { fetchMaps } from './ducks/maps';
 import { fetchEventTypes } from './ducks/event-types';
+import { fetchSystemStatus } from './ducks/system-status';
 import SideBar from './SideBar';
 import 'axios-progress-bar/dist/nprogress.css'
 import { loadProgressBar } from 'axios-progress-bar';
 
-class App extends Component {
+import { STATUSES } from './constants';
+import { updateNetworkStatus } from './ducks/system-status';
+import { store } from './index';
 
+const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+class App extends Component {
   componentDidMount() {
     /* data initialization */
     this.props.fetchEvents(this.props.eventFilter);
     this.props.fetchMaps();
     this.props.fetchEventTypes();
+    this.props.fetchSystemStatus();
     loadProgressBar();
+
+    window.addEventListener('online', () => {
+      this.props.updateNetworkStatus(HEALTHY_STATUS);
+    });
+    window.addEventListener('offline', () => {
+      this.props.updateNetworkStatus(UNHEALTHY_STATUS);
+    });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('online');
+    window.removeEventListener('offline');
   }
 
   render() {
@@ -26,7 +45,7 @@ class App extends Component {
         <Nav />
         <div className="app-container">
           <Map />
-          <SideBar />
+          {/* <SideBar /> */}
         </div>
       </div>
     );
@@ -35,4 +54,4 @@ class App extends Component {
 
 const mapStateToProps = ({ view: { eventFilter } }) => ({ eventFilter });
 
-export default connect(mapStateToProps, { fetchEvents, fetchMaps, fetchEventTypes })(App);
+export default connect(mapStateToProps, { fetchEvents, fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus })(App);
