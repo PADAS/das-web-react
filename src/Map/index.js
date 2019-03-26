@@ -6,7 +6,7 @@ import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { CancelToken } from 'axios';
-import { svgSrcToPngImg } from '../utils/img';
+import { addFeatureCollectionImagesToMap } from '../utils/map';
 import debounce from 'lodash/debounce';
 import set from 'lodash/set';
 import uniq from 'lodash/uniq';
@@ -16,8 +16,12 @@ import 'mapboxgl-spiderifier/index.css';
 import MapboxglSpiderifier from 'mapboxgl-spiderifier';
 import createSocket, { unbindSocketEvents } from '../socket';
 import ReactMapboxGl, { ZoomControl, RotationControl, GeoJSONLayer, Marker, Source } from 'react-mapbox-gl';
-import DrawControl from 'react-mapbox-gl-draw/lib';
+// import DrawControl from 'react-mapbox-gl-draw/lib';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
+
+import EventsLayer from '../EventsLayer';
+import SubjectsLayer from '../SubjectLayer';
+import TrackLayer from '../TrackLayer';
 
 let spiderifier;
 
@@ -26,18 +30,6 @@ const MapboxMap = ReactMapboxGl({
   minZoom: 4,
   maxZoom: 18,
 });
-
-const MAP_EVENT_CLUSTER_SOURCE_OPTIONS = {
-  cluster: true,
-  clusterMaxZoom: 20, // Max zoom to cluster points on
-  clusterRadius: 40,
-};
-
-
-const MAP_ICON_SIZE = {
-  height: 30,
-  width: 30,
-};
 
 class Map extends Component {
   constructor(props) {
@@ -49,8 +41,6 @@ class Map extends Component {
       map: null,
       mapDataLoadingCancelToken: null,
       layers: {
-        showEvents: true,
-        showTimePoints: true,
         tracks: {
           visibleIDs: [],
           pinnedIDs: [],
@@ -86,23 +76,7 @@ class Map extends Component {
 
     if (!trackCollection.length) return null;
 
-    return trackCollection.map((feature) => {
-      return <GeoJSONLayer
-             key={`${feature.id}-tracks`}
-              data={feature.tracks}
-            linePaint={{
-              'line-color': feature.tracks.features[0].properties.stroke || 'orange',
-              'line-width': feature.tracks.features[0].properties['stroke-width'],
-            }}
-            circlePaint={{
-              "circle-color": feature.tracks.features[0].properties.stroke || 'orange',
-              "circle-radius": 3,
-            }}
-            lineLayout={{
-              'line-join': 'round',
-              'line-cap': 'round',
-            }} />
-    });
+    return trackCollection.map((feature) => <TrackLayer map={this.state.map} key={`${feature.id}-tracks`} id={feature.id} tracks={feature.tracks} />);
   }
   renderSubjectMarkers() {
     if (this.props.mapSubjects.length) return this.props.mapSubjects.map(subject => (
@@ -115,10 +89,6 @@ class Map extends Component {
         <h5>{subject.name}</h5>
       </Marker>
     ));
-  }
-  renderEventMarkers() {
-    if (!this.props.mapEvents.length) return null;
-
   }
   onMapMoveEnd() {
     if (this.state.mapDataLoadingCancelToken) {
@@ -139,8 +109,22 @@ class Map extends Component {
   fetchMapEvents() {
     this.props.fetchMapEvents(this.state.map, this.state.mapDataLoadingCancelToken);
   }
-  onMapClick() {
+  onMapClick(map, event) {
     spiderifier && spiderifier.unspiderfy();
+    this.hideUnpinnedTrackLayers(event);
+  }
+  hideUnpinnedTrackLayers(event) {
+    if (!this.state.layers.tracks.visibleIDs) return;
+
+    const clickedLayerIDs = this.state.map.queryRenderedFeatures(event.point)
+      .filter(({ properties }) => !!properties && properties.id)
+      .map(({ properties: { id } }) => id);
+
+    return this.setState(prevState => uniq(set(
+      prevState,
+      ['layers', 'tracks', 'visibleIDs'],
+      this.state.layers.tracks.visibleIDs.filter(id => clickedLayerIDs.includes(id)),
+    )));
   }
   onClusterClick(e) {
     spiderifier && spiderifier.unspiderfy();
@@ -165,38 +149,18 @@ class Map extends Component {
       }
     });
   }
-  async createMapImages({ features }) {
-    if (!this.state.map || !features.length) return;
-    const mapImageIDs = this.state.map.listImages();
-    let images = features
-      .filter(({ properties: { image } }) => !!image)
-      .map(({ properties: { image, icon_id } }) => ({ icon_id, image }))
-      .filter(({ icon_id }, index, array) => !mapImageIDs.includes(icon_id) && (array.findIndex(item => item.icon_id === icon_id) === index))
-      .map(({ image, icon_id }) => svgSrcToPngImg(image, MAP_ICON_SIZE)
-        .then((img) => {
-          if (!this.state.map.hasImage(icon_id)) this.state.map.addImage(icon_id, img);
-        }));
+  async createMapImages(featureCollection) {
+    await addFeatureCollectionImagesToMap(featureCollection, this.state.map);
 
-    await Promise.all(images).then(() => {
-        debounce(this.forceUpdate, 300);
-        debounce(this.forceUpdate, 300);
-    });
+    debounce(this.forceUpdate, 1500);
   }
-  onMapSubjectClick(e) {
+  async onMapSubjectClick(e) {
     const [{ properties }] = this.state.map.queryRenderedFeatures(e.point, { layers: ['subject_symbols-symbol'] });
     const { id, tracks_available } = properties;
 
     if (!tracks_available) return;
 
-    if (this.state.layers.tracks.visibleIDs.includes(id)) {
-      return this.setState(prevState => uniq(set(
-        prevState,
-        ['layers', 'tracks', 'visibleIDs'],
-        this.state.layers.tracks.visibleIDs.filter(val => val !== id),
-      )));
-    }
-
-    this.props.fetchTracks(id);
+    await this.props.fetchTracks(id);
 
     return this.setState(prevState => uniq(set(
       prevState,
@@ -218,82 +182,14 @@ class Map extends Component {
   }
   renderEventLayers() {
     this.createMapImages(this.props.mapEventFeatureCollection);
-    return (
-      <Fragment>
-        <GeoJSONLayer
-          id="event_clusters"
-          data={this.props.mapEventFeatureCollection}
-          circleOnClick={this.onClusterClick}
-          sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={{
-            filter: ['has', 'point_count'],
-          }}
-          circlePaint={{
-            "circle-color": [
-              "step",
-              ["get", "point_count"],
-              "#51bbd6",
-              25,
-              "#f28cb1"
-            ],
-            "circle-radius": [
-              "case",
-              ['<', ['get', 'point_count'], 10], 15,
-              ['>', ['get', 'point_count'], 10], 25,
-              15,
-            ]
-          }} />
-        <GeoJSONLayer
-          id="event_cluster_count"
-          data={this.props.mapEventFeatureCollection}
-          sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={{
-            filter: ['has', 'point_count'],
-          }}
-          symbolLayout={{
-            "text-field": "{point_count_abbreviated}",
-            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-            "text-size": 12
-          }} />
-
-        <GeoJSONLayer
-          id="event_symbols"
-          data={this.props.mapEventFeatureCollection}
-          sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={{
-            filter: ['!has', 'point_count'],
-          }}
-          symbolLayout={{
-            'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
-            'icon-anchor': 'bottom',
-            'icon-image': ["get", "icon_id"],
-            'text-allow-overlap': ["step", ["zoom"], false, 12, true],
-            'text-anchor': 'top',
-            'text-field': '{display_title}',
-            'text-justify': 'center',
-            'text-size': 12,
-          }} />
-      </Fragment>
-    );
+    return <EventsLayer events={this.props.mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
   }
   renderSubjectLayers() {
     this.createMapImages(this.props.mapSubjectFeatureCollection);
-    return (
-      <GeoJSONLayer
-        id="subject_symbols"
-        symbolOnClick={this.onMapSubjectClick}
-        data={this.props.mapSubjectFeatureCollection}
-        symbolLayout={{
-          'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
-          'icon-anchor': 'bottom',
-          'icon-image': ["get", "icon_id"],
-          'text-allow-overlap': ["step", ["zoom"], false, 12, true],
-          'text-anchor': 'top',
-          'text-field': '{name}',
-          'text-justify': 'center',
-          'text-size': 12,
-        }} />
-    );
+    return <SubjectsLayer 
+        subjects={this.props.mapSubjectFeatureCollection}
+        onSubjectIconClick={this.onMapSubjectClick}
+      />;
   }
   render() {
     if (!this.props.maps.length) return null;
@@ -318,16 +214,16 @@ class Map extends Component {
           }}
         />
 
-        <Source
-          id='event_source'
-          geoJsonSource={{
-            type: 'geojson',
-            data: this.props.mapEventFeatureCollection,
-          }}
-        />
-        {(this.state.layers.tracks.visibleIDs.length || this.state.layers.tracks.pinnedIDs.length) && this.renderTrackLayers()}
-        {this.renderEventLayers()}
-        {this.renderSubjectLayers()}
+        {this.state.map && (
+          <Fragment>
+            {this.renderTrackLayers()}
+            {this.renderEventLayers()}
+            {this.renderSubjectLayers()}
+            <RotationControl position='top-left' />
+            <ZoomControl position='bottom-right' />
+            {/* <DrawControl map={this.state.map} position='bottom-left' /> */}
+          </Fragment>
+        )}
 
         {/* <Layer
           type='fill-extrusion'
@@ -350,10 +246,6 @@ class Map extends Component {
             'fill-extrusion-height': ["/", ['get', 'ele'], 1],
           }}
         /> */}
-
-        <RotationControl position='top-left' />
-        <ZoomControl position='bottom-right' />
-        <DrawControl position='bottom-left' />
       </MapboxMap>
     )
   }

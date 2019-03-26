@@ -33,7 +33,7 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
   switch (action.type) {
     case FETCH_TRACKS_SUCCESS: {
       const { payload: { id, tracks } } = action;
-      return Object.assign(state, { [id]: tracks });
+      return { ...state, [id]: tracks };
     }
 
     default: {

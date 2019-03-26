@@ -98,12 +98,12 @@ export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
     case FETCH_EVENTS_NEXT_PAGE_SUCCESS: {
       const { payload: { data } } = action;
       const { results:events, count, next, previous } = data;
-      return Object.assign({}, state, {
+      return { ...state,
         count,
         next,
         previous,
         results: uniqBy([...state.results, ...events], 'id'),
-      })
+      };
     }
     default: {
       return state;
