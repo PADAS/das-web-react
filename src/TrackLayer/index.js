@@ -5,7 +5,7 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 export default class TrackLayer extends Component {
   render() {
     const { tracks, map, id, ...rest } = this.props;
-    return <GeoJSONLayer id={`track-layer-${id}`} data={tracks} {...rest}
+    return <GeoJSONLayer before="subject_symbols-symbol" id={`track-layer-${id}`} data={tracks} {...rest}
       linePaint={{
         'line-color': tracks.features[0].properties.stroke || 'orange',
         'line-width': ["step", ["zoom"], 0, 8, tracks.features[0].properties['stroke-width']],

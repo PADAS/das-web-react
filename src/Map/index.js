@@ -15,7 +15,7 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapboxgl-spiderifier/index.css';
 import MapboxglSpiderifier from 'mapboxgl-spiderifier';
 import createSocket, { unbindSocketEvents } from '../socket';
-import ReactMapboxGl, { ZoomControl, RotationControl, GeoJSONLayer, Marker, Source } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, RotationControl, Source } from 'react-mapbox-gl';
 // import DrawControl from 'react-mapbox-gl-draw/lib';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
 
@@ -76,19 +76,9 @@ class Map extends Component {
 
     if (!trackCollection.length) return null;
 
-    return trackCollection.map((feature) => <TrackLayer map={this.state.map} key={`${feature.id}-tracks`} id={feature.id} tracks={feature.tracks} />);
-  }
-  renderSubjectMarkers() {
-    if (this.props.mapSubjects.length) return this.props.mapSubjects.map(subject => (
-      <Marker
-        key={subject.id}
-        coordinates={subject.last_position.geometry.coordinates}
-        anchor='top-left'
-      >
-        <img className='subject-marker-icon' src={subject.last_position.properties.image} />
-        <h5>{subject.name}</h5>
-      </Marker>
-    ));
+    return trackCollection.map(({ id, tracks }) =>
+      <TrackLayer map={this.state.map} key={`${id}-tracks`} id={id} tracks={tracks} />
+    );
   }
   onMapMoveEnd() {
     if (this.state.mapDataLoadingCancelToken) {

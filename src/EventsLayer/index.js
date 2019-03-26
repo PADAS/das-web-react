@@ -60,11 +60,12 @@ export default class EventsLayer extends Component {
             filter: ['!has', 'point_count'],
           }}
           symbolLayout={{
-            'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
-            'icon-anchor': 'bottom',
+            'icon-allow-overlap': ["step", ["zoom"], false, 10, true],
+            'icon-anchor': 'center',
             'icon-image': ["get", "icon_id"],
-            'text-allow-overlap': ["step", ["zoom"], false, 12, true],
+            'text-allow-overlap': ["step", ["zoom"], false, 10, true],
             'text-anchor': 'top',
+            'text-offset': [0, .5],
             'text-field': '{display_title}',
             'text-justify': 'center',
             'text-size': 12,
