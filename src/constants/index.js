@@ -15,3 +15,8 @@ export const STATUSES = {
   UNHEALTHY_STATUS: 'UNHEALTHY',
   UNKNOWN_STATUS: 'UNKNOWN',
 };
+
+export const MAP_ICON_SIZE = {
+  height: 30,
+  width: 30,
+};

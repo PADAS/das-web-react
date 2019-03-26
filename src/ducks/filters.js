@@ -54,7 +54,7 @@ export function eventFilterReducer(state = INITIAL_EVENT_FILTER_STATE, action = 
   const { type, payload } = action;
   switch (type) {
     case EVENT_FILTER_UPDATED: {
-      return Object.assign({}, state, payload);
+      return { ...state, ...payload };
     }
     default: {
       return state;
@@ -66,7 +66,7 @@ export function eventFilterSchemaReducer(state = {}, action = {}) {
   const { type, payload } = action;
   switch (type) {
     case FETCH_EVENT_FILTER_SCHEMA_SUCCESS: {
-      return Object.assign({}, state, payload);
+      return { ...state, ...payload };
     }
     default: {
       return state;
