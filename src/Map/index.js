@@ -15,13 +15,13 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import 'mapboxgl-spiderifier/index.css';
 import MapboxglSpiderifier from 'mapboxgl-spiderifier';
 import createSocket, { unbindSocketEvents } from '../socket';
-import ReactMapboxGl, { ZoomControl, RotationControl, Source } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, RotationControl, Source, Image } from 'react-mapbox-gl';
 // import DrawControl from 'react-mapbox-gl-draw/lib';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
 
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
-import TrackLayer from '../TrackLayer';
+import TrackLayers from '../TrackLayer';
 
 let spiderifier;
 
@@ -45,6 +45,10 @@ class Map extends Component {
           visibleIDs: [],
           pinnedIDs: [],
         },
+        popups: {
+          subject: null,
+          timepoint: null,
+        }
       },
       socket: null,
     };
@@ -76,10 +80,9 @@ class Map extends Component {
 
     if (!trackCollection.length) return null;
 
-    return trackCollection.map(({ id, tracks }) =>
-      <TrackLayer map={this.state.map} key={`${id}-tracks`} id={id} tracks={tracks} />
-    );
+    return <TrackLayers trackCollection={trackCollection} map={this.state.map} />
   }
+
   onMapMoveEnd() {
     if (this.state.mapDataLoadingCancelToken) {
       this.state.mapDataLoadingCancelToken.cancel();
@@ -145,8 +148,11 @@ class Map extends Component {
     debounce(this.forceUpdate, 1500);
   }
   async onMapSubjectClick(e) {
-    const [{ properties }] = this.state.map.queryRenderedFeatures(e.point, { layers: ['subject_symbols-symbol'] });
+    const [{ geometry, properties }] = this.state.map.queryRenderedFeatures(e.point, { layers: ['subject_symbols-symbol'] });
     const { id, tracks_available } = properties;
+    const { coordinates } = geometry;
+
+    console.log('you clicked', coordinates);
 
     if (!tracks_available) return;
 
@@ -162,6 +168,7 @@ class Map extends Component {
     this.setState({
       map,
     });
+    window.map = map;
     this.onMapMoveEnd();
     spiderifier = new MapboxglSpiderifier(this.state.map, {
       onClick: function (e, spiderLeg) {
