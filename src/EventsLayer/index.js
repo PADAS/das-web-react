@@ -5,7 +5,7 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 
 const MAP_EVENT_CLUSTER_SOURCE_OPTIONS = {
   cluster: true,
-  clusterMaxZoom: 20, // Max zoom to cluster points on
+  // clusterMaxZoom: 20, // Max zoom to cluster points on
   clusterRadius: 40,
 };
 
