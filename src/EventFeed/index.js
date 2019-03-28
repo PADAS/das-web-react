@@ -3,7 +3,6 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 export default class EventFeed extends Component {
   onEventClick(event) {
-    console.log('event click', event);
   }
   renderEventList() {
     return this.props.events.map((event) => (

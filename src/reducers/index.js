@@ -8,6 +8,8 @@ import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer from '../ducks/subjects';
 import systemStatusReducer from '../ducks/system-status';
 import { eventFilterReducer, eventFilterSchemaReducer } from '../ducks/filters';
+import popupReducer from '../ducks/map-ui';
+import userPreferencesReducer from '../ducks/user-preferences';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -18,6 +20,11 @@ const homeMapPersistanceConfig = {
   key: 'homeMap',
   storage,
 };
+
+const userPrefPersistanceConfig = {
+  key: 'userPreferences',
+  storage,
+}
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -35,6 +42,8 @@ const rootReducer = combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     eventFilter: eventFilterReducer,
     eventFilterSchema: eventFilterSchemaReducer,
+    popups: popupReducer,
+    userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
   }),
 });
 

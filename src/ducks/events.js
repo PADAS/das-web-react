@@ -1,5 +1,6 @@
 import axios from 'axios';
 import uniqBy from 'lodash/uniqBy';
+import unionBy from 'lodash/unionBy';
 
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
@@ -116,22 +117,21 @@ const INITIAL_MAP_EVENTS_STATE = [];
 export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, action = {}) {
   switch (action.type) {
     case FETCH_MAP_EVENTS_SUCCESS: {
-      return action.payload;
+      return unionBy(action.payload, state, 'id');
     }
     case SOCKET_NEW_EVENT: {
       const { payload: { event_data } } = action;
-      console.log('new event', event_data);
-      event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+      console.log('realtime: new event', event_data);
+      if (event_data.geojson) {
+        event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+      }
       return [...state, event_data];
     }
     case SOCKET_UPDATE_EVENT: {
       const { payload: { event_data } } = action;
-      console.log('event update', event_data);
+      console.log('realtime: event update', event_data);
       event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-      return state.map((event) => {
-        if (event.id === event_data.id) event = event_data;
-        return event;
-      });
+      return unionBy([event_data], state, 'id');
     }
     default: {
       return state;

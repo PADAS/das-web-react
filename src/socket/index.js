@@ -11,10 +11,10 @@ const bindSocketEvents = (socket, store) => {
     socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
   });
   socket.on('disconnect', (msg) => {
-    console.log('disconnected', msg);
+    console.log('realtime: disconnected', msg);
   });
   socket.on('connect_error', () => {
-    console.log('socket ain\'t workin');
+    console.log('realtime: connection error');
   });
   socket.on('resp_authorization', ({ status }) => {
     if (status.code === 401) {

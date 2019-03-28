@@ -30,6 +30,7 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
     .map(({ image, icon_id }) => svgSrcToPngImg(image, MAP_ICON_SIZE)
       .then((img) => {
         if (!map.hasImage(icon_id)) map.addImage(icon_id, img);
+        return img;
       }));
 
   const results = await Promise.all(images);
