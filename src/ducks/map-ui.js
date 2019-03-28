@@ -1,3 +1,4 @@
+import { SOCKET_SUBJECT_STATUS } from './subjects';
 import { uuid } from '../utils/string';
 
 const SHOW_POPUP = 'SHOW_POPUP';
@@ -16,15 +17,31 @@ export const hidePopup = (id) => ({
   payload: id,
 });
 
-export default (state = [], action = {}) => {
+export default (state = null, action = {}) => {
   const { type, payload } = action;
   switch (type) {
     case SHOW_POPUP: {
-      const popup = { ...payload, id: uuid() }
-      return [ ...state, popup ];
+      const popup = { ...payload, id: uuid() };
+      return popup;
     }
     case HIDE_POPUP: {
-      return state.filter(popup => popup.id !== payload);
+      return null;
+    }
+    case SOCKET_SUBJECT_STATUS: {
+      if (!state
+        || state.type !== 'subject'
+        || !state.data.properties
+        || state.data.properties.id !== payload.properties.id) {
+        return state;
+      }
+      const { geometry, properties } = payload;
+      return {
+        ...state, data: {
+          ...state.data,
+          geometry,
+          properties,
+        }
+      };
     }
     default: {
       return state;

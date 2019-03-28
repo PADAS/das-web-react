@@ -1,4 +1,4 @@
-import './Map.css';
+import './Map.scss';
 import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
@@ -43,10 +43,6 @@ class Map extends Component {
         tracks: {
           visibleIDs: [],
           pinnedIDs: [],
-        },
-        popups: {
-          subject: null,
-          timepoint: null,
         }
       },
       socket: null,
@@ -107,12 +103,13 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (!this.state.map) return;
-    // spiderifier && spiderifier.unspiderfy();
-    this.props.popups.forEach(({ id }) => this.props.hidePopup(id));
+    if (this.props.popup) {
+      this.props.hidePopup(this.props.popup.id)
+    }
     this.hideUnpinnedTrackLayers(event);
   }
   hideUnpinnedTrackLayers(event) {
-    if (!this.state.layers.tracks.visibleIDs) return;
+    if (!this.state.layers.tracks.visibleIDs.length) return;
 
     const clickedLayerIDs = this.state.map.queryRenderedFeatures(event.point)
       .filter(({ properties }) => !!properties && properties.id)
@@ -217,7 +214,7 @@ class Map extends Component {
             {this.renderEventLayers()}
             {this.renderSubjectLayers()}
 
-            {!!this.props.popups.length && <PopupLayer popups={this.props.popups} />}
+            {!!this.props.popup && <PopupLayer popup={this.props.popup} />}
 
             <RotationControl position='top-left' />
             <ZoomControl position='bottom-right' />
@@ -230,9 +227,9 @@ class Map extends Component {
   }
 }
 
-const mapStatetoProps = ({ data, view: { homeMap, popups } }) => {
+const mapStatetoProps = ({ data, view: { homeMap, popup } }) => {
   const { mapSubjects, mapEvents, maps, tracks } = data;
-  return { maps, mapSubjects, mapEvents, tracks, homeMap, popups, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection(data) };
+  return { maps, mapSubjects, mapEvents, tracks, homeMap, popup, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection(data) };
 };
 
 export default connect(mapStatetoProps, { fetchMapSubjects, fetchMapEvents, fetchTracks, hidePopup, showPopup })(Map);

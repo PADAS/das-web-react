@@ -3,6 +3,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import tokenReducer from '../ducks/auth';
 import eventsReducer, { mapEventsReducer } from '../ducks/events';
+import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer from '../ducks/subjects';
@@ -29,7 +30,7 @@ const userPrefPersistanceConfig = {
 const rootReducer = combineReducers({
   data: combineReducers({
     events: eventsReducer,
-    eventTypes: null,
+    eventTypes: eventTypesReducer,
     eventSchemas: null,
     maps: mapsReducer,
     mapEvents: mapEventsReducer,
@@ -42,7 +43,7 @@ const rootReducer = combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     eventFilter: eventFilterReducer,
     eventFilterSchema: eventFilterSchemaReducer,
-    popups: popupReducer,
+    popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
   }),
 });

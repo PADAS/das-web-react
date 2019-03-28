@@ -1,0 +1,29 @@
+.container {
+  font-size: .8rem;
+  line-height: normal;
+}
+
+.choices {
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+  list-style-type: none;
+  margin: .5rem 0;
+  padding: 0;
+  li {
+    cursor: pointer;
+    opacity: 0.7;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.value {
+  display: block;
+  text-align: center;
+}

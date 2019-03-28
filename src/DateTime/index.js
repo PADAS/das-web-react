@@ -3,23 +3,25 @@ import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import TimeAgo from 'react-timeago'
 
-export default class DisplayTime extends PureComponent {
+import styles from './styles.module.scss';
+
+export default class DateTime extends PureComponent {
   render() {
     const { date, showElapsed, ...rest } = this.props;
     return (
-      <div {...rest}>
-        <h6>{format(new Date(date), 'D MMM YYYY hh:mm')}</h6>
-        {showElapsed && <TimeAgo date={date} />}
+      <div className={styles.container} {...rest}>
+        <h6 className={styles.date}>{format(new Date(date), 'D MMM YYYY hh:mm')}</h6>
+        {showElapsed && <TimeAgo className={styles.elapsed} date={date} />}
       </div>
     )
   }
 }
 
-DisplayTime.defaultProps = {
+DateTime.defaultProps = {
   showElapsed: true,
 };
 
-DisplayTime.propTypes = {
+DateTime.propTypes = {
   date: PropTypes.string.isRequired,
   showElapsed: PropTypes.bool,
 };

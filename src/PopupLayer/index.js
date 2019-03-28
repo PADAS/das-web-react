@@ -15,11 +15,11 @@ export default class PopupLayer extends PureComponent {
     return Template && <Template key={id} {...rest} />
   }
   render() {
-    const { popups, ...rest } = this.props;
-    return popups.map(popup => this.renderPopupContentByType(popup));
+    const { popup, ...rest } = this.props;
+    return this.renderPopupContentByType(popup);
   }
 }
 
 PopupLayer.propTypes = {
-  popups: PropTypes.array.isRequired,
+  popup: PropTypes.object.isRequired,
 };

@@ -11,7 +11,7 @@ const addIconToGeoJson = (geojson) => {
   return geojson;
 };
 
-const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
+export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
   const clone2 = { ...item };
   delete clone2[key];
@@ -37,7 +37,13 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
   return results;
 };
 
-const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map(item => (item[key].properties.id = item.id) && item);
+const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
+  item[key] = item[key] || {};
+  item[key].properties = item[key].properties || {};
+  item[key].properties.id = item.id;
+  return item;
+});
+
 const addTitleToGeoJson = (geojson, title) => (geojson.properties.display_title = title) && geojson;
 
 const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleToGeoJson(addIconToGeoJson(geojson), title || event_type));

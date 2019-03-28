@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString, GPS_FORMATS } from '../utils/location';
 
+import styles from './styles.module.scss';
+
 
 const gpsFormats = Object.values(GPS_FORMATS);
 
@@ -16,14 +18,14 @@ class GpsFormatToggle extends PureComponent {
   }
   renderGpsDisplayString() {
     const { lat, lng, userPreferences: { gpsFormat } } = this.props;
-    return <span>{calcGpsDisplayString(lat, lng, gpsFormat)}</span>
+    return <span className={styles.value}>{calcGpsDisplayString(lat, lng, gpsFormat)}</span>
   }
   renderFormatSelections() {
     const { userPreferences: { gpsFormat }, ...rest } = this.props;
     return (
-      <ul>
+      <ul className={styles.choices}>
         {gpsFormats.map(format =>
-          <li key={format} className={format === gpsFormat ? 'active' : ''} onClick={() => this.onFormatChange(format)}>{format}</li>
+          <li key={format} className={format === gpsFormat ? styles.active : ''} onClick={() => this.onFormatChange(format)}>{format}</li>
         )}
       </ul>
     )
@@ -31,7 +33,7 @@ class GpsFormatToggle extends PureComponent {
   render() {
     const { userPreferences, updateUserPreferences, lat, lng, onFormatChange, ...rest } = this.props;
     return (
-      <div {...rest}>
+      <div className={styles.container} {...rest}>
         {this.renderFormatSelections()}
         {this.renderGpsDisplayString()}
       </div>

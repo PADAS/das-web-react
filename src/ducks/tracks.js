@@ -1,4 +1,6 @@
 import axios from 'axios';
+import isEqual from 'lodash/isEqual';
+
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
 
@@ -37,24 +39,37 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
       const { properties: { id } } = payload;
       const tracks = state[id];
       if (!tracks) return state;
+
+      const [trackFeature] = tracks.features;
+
+      if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)) {
+        return state;
+      }
+      
       return {
         ...state,
         [id]: {
           ...tracks,
-          properties: {
-            ...tracks.properties,
-            coordinateProperties: {
-              ...tracks.properties.coordinateProperties,
-              times: [payload.properties.coordinateProperties.time, ...tracks.properties.coordinateProperties.times],
-            },
-          },
-          geometry: {
-            ...tracks.geometry,
-            coordinates: [
-              payload.geometry.coordinates,
-              ...tracks.geometry.coordinates,
-            ],
-          }
+          features: [
+            {
+              ...trackFeature,
+              properties: {
+                ...trackFeature.properties,
+                coordinateProperties: {
+                  ...trackFeature.coordinateProperties,
+                  times: [payload.properties.coordinateProperties.time, ...trackFeature.properties.coordinateProperties.times],
+                },
+              },
+              geometry: {
+                ...trackFeature.geometry,
+                coordinates: [
+                  payload.geometry.coordinates,
+                  ...trackFeature.geometry.coordinates,
+                ],
+              }
+            }
+          ]
+          
         }
       };
 

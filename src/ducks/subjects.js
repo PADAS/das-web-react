@@ -61,7 +61,14 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
       payload.properties.image = calcUrlForImage(payload.properties.image);
       return state.map((subject) => {
         if (subject.id === payload.properties.id) {
-          subject.last_position = { ...subject.last_position, ...payload };
+          return {
+            ...subject,
+            last_position: { ...subject.last_position, ...payload, properties: {
+              ...subject.last_position.properties,
+              ...payload.properties,
+              radio_state: payload.properties.state, // API incongruency band-aid :(
+            } },
+          };
         }
         return subject;
       });

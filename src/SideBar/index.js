@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { fetchEventFilterSchema } from '../ducks/filters';
 import { fetchNextEventPage } from '../ducks/events';
 import EventFeed from '../EventFeed';
-import './SideBar.css';
+import './SideBar.scss';
 
 class SideBar extends Component {
   constructor(props) {

@@ -65,7 +65,7 @@ export default class TracksLayer extends Component {
           symbolLayout={{
             'icon-allow-overlap': true,
             'icon-anchor': 'bottom',
-            'icon-size': ['step', ['zoom'], 0, 10, .2, 12, .35, 15, .5],
+            'icon-size': ['step', ['zoom'], 0, 12, .35, 15, .5],
             'icon-rotate': ['get', 'bearing'],
             'icon-image': 'track_arrow',
             'icon-pitch-alignment': 'map',
