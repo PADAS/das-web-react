@@ -37,8 +37,7 @@ export default class TracksLayer extends Component {
           const returnValue = { geometry: item.geometry, properties: { ...item.properties, bearing: measuredBearing, time: coordinateTime }};
           delete returnValue.properties.coordinateProperties;
           return returnValue;
-        })
-        .filter(({ properties: { bearing } }) => !!bearing);
+        }).filter((feature, index) => index !== 0 || !!(index % 2));
         return feature;
       });
     return (
@@ -65,7 +64,7 @@ export default class TracksLayer extends Component {
           symbolLayout={{
             'icon-allow-overlap': true,
             'icon-anchor': 'bottom',
-            'icon-size': ['step', ['zoom'], 0, 12, .35, 15, .5],
+            'icon-size': ['step', ['zoom'], 0, 14, .3, 16, .5],
             'icon-rotate': ['get', 'bearing'],
             'icon-image': 'track_arrow',
             'icon-pitch-alignment': 'map',

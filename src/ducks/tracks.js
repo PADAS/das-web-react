@@ -45,6 +45,10 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
       if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)) {
         return state;
       }
+
+      if (isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
+        return state;
+      }
       
       return {
         ...state,
