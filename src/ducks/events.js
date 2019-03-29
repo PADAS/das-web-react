@@ -128,8 +128,11 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
       return [...state, event_data];
     }
     case SOCKET_UPDATE_EVENT: {
-      const { payload: { event_data } } = action;
+      const { payload: { event_data, event_id } } = action;
       console.log('realtime: event update', event_data);
+
+      if (!state.find(item => item.id === event_id)) return state;
+
       event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
       return unionBy([event_data], state, 'id');
     }
