@@ -2,7 +2,8 @@ import { REACT_APP_DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
 
-export const svgSrcToPngImg = (svgSrc, { width = 36, height = 36 }) => new Promise((resolve, reject) => {
+export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => new Promise((resolve, reject) => {
+  const { width, height } = config;
   try {
     let img = new Image();
     img.setAttribute('crossorigin', 'anonymous');

@@ -20,7 +20,7 @@ export const fetchEventTypes = () => {
 
 const fetchEventTypesSucess = response => ({
   type: FETCH_EVENT_TYPES_SUCCESS,
-  payload: response.data,
+  payload: response.data.data,
 });
 
 const fetchEventTypesError = error => ({

@@ -9,7 +9,16 @@ const MAP_EVENT_CLUSTER_SOURCE_OPTIONS = {
   clusterRadius: 40,
 };
 
+const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
 export default class EventsLayer extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onEventClick = this.onEventClick.bind(this);
+  }
+  onEventClick(e) {
+    this.props.onEventClick(getEventLayer(e, this.props.map));
+  }
   render() {
     const { events, onClusterClick, onEventClick, enableClustering, ...rest } = this.props;
     return (
@@ -21,6 +30,9 @@ export default class EventsLayer extends Component {
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
           layerOptions={{
             filter: ['has', 'point_count'],
+          }}
+          symbolLayout={{
+            'icon-pitch-alignment': 'map',
           }}
           circlePaint={{
             "circle-color": [
@@ -54,7 +66,7 @@ export default class EventsLayer extends Component {
           id="event_symbols"
           {...rest}
           data={events}
-          symbolOnClick={onEventClick}
+          symbolOnClick={this.onEventClick}
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
           layerOptions={{
             filter: ['!has', 'point_count'],
@@ -77,16 +89,15 @@ export default class EventsLayer extends Component {
 
 EventsLayer.defaultProps = {
   onClusterClick() {
-    console.log('cluster click');
   },
   onEventClick() {
-    console.log('event click');
   },
   enableClustering: true,
 };
 
 EventsLayer.propTypes = {
   events: PropTypes.object.isRequired,
+  map: PropTypes.object.isRequired,
   onEventClick: PropTypes.func,
   onClusterClick: PropTypes.func,
   enableClustering: PropTypes.bool,

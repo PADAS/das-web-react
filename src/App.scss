@@ -22,3 +22,18 @@
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
+
+div.mapboxgl-popup-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 0.5rem;
+  text-align: center;
+  width: 12rem;
+  h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+div.mapboxgl-popup-tip {
+  border-top-color: rgba(255, 255, 255, 0.95);
+ }

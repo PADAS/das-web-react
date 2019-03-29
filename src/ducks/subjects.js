@@ -1,4 +1,6 @@
 import axios from 'axios';
+import unionBy from 'lodash/unionBy';
+
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
@@ -47,18 +49,26 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
   switch (action.type) {
     case FETCH_MAP_SUBJECTS_SUCCESS: {
       const { payload: { data: subjects } } = action;
-      return subjects.map((subject) => {
-        subject.last_position.properties.name = subject.last_position.properties.name || subject.last_position.properties.title;
+      const newSubjects = subjects.map((subject) => {
+        subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
         return subject;
       });
+      return unionBy(newSubjects, state, 'id');
     }
     case SOCKET_SUBJECT_STATUS: {
       const { payload } = action;
-      console.log('subject update', payload);
+      console.log('realtime: subject update', payload);
       payload.properties.image = calcUrlForImage(payload.properties.image);
       return state.map((subject) => {
         if (subject.id === payload.properties.id) {
-          subject.last_position = { ...subject.last_position, ...payload };
+          return {
+            ...subject,
+            last_position: { ...subject.last_position, ...payload, properties: {
+              ...subject.last_position.properties,
+              ...payload.properties,
+              radio_state: payload.properties.state, // API incongruency band-aid :(
+            } },
+          };
         }
         return subject;
       });

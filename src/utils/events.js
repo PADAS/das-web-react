@@ -1,0 +1,1 @@
+export const displayTitleForEventByEventType = (event, eventTypes) => event.title || eventTypes.find(t => t.value === event.event_type).display;

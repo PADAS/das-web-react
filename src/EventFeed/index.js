@@ -1,23 +1,28 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
 
-export default class EventFeed extends Component {
+import { displayTitleForEventByEventType } from '../utils/events';
+
+class EventFeed extends Component {
   onEventClick(event) {
-    console.log('event click', event);
   }
   renderEventList() {
-    return this.props.events.map((event) => (
+    const { events, eventTypes } = this.props;
+    return events.map((event) => (
       <li key={event.id}>
-        <a onClick={() => this.onEventClick(event)}>{event.title}</a>
+        <a onClick={() => this.onEventClick(event)}>{displayTitleForEventByEventType(event, eventTypes)}</a>
       </li>
     ));
   }
   render() {
+    const { hasMore, onScroll } = this.props;
     return (
       <ul>
         <InfiniteScroll
-          hasMore={this.props.hasMore}
-          loadMore={this.props.onScroll}
+          hasMore={hasMore}
+          loadMore={onScroll}
           useWindow={false}
           loader={<div className="loader" key={0}>Loading more events...</div>}
         >
@@ -27,3 +32,13 @@ export default class EventFeed extends Component {
     )
   }
 }
+
+const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+
+export default connect(mapStateToProps, null)(EventFeed);
+
+EventFeed.propTypes = {
+  events: PropTypes.array.isRequired,
+  hasMore: PropTypes.bool.isRequired,
+  onScroll: PropTypes.func.isRequired,
+};

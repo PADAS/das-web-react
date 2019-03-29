@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import React, { Component } from 'react';
 import Map from './Map';
 import Nav from './Nav';
@@ -32,11 +32,6 @@ class App extends Component {
     window.addEventListener('offline', () => {
       this.props.updateNetworkStatus(UNHEALTHY_STATUS);
     });
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('online');
-    window.removeEventListener('offline');
   }
 
   render() {

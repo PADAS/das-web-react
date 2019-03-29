@@ -2,14 +2,24 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
+const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];
+
 export default class SubjectsLayer extends Component {
+  constructor(props) {
+    super(props);
+
+    this.onIconClick = this.onIconClick.bind(this);
+  }
+  onIconClick(e) {
+    this.props.onSubjectIconClick(getSubjectLayer(e, this.props.map));
+  }
   render() {
     const { onSubjectIconClick, subjects, ...rest } = this.props;
     return (
       <GeoJSONLayer
         id="subject_symbols"
         {...rest}
-        symbolOnClick={onSubjectIconClick}
+        symbolOnClick={this.onIconClick}
         data={subjects}
         symbolLayout={{
           'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
@@ -28,5 +38,6 @@ export default class SubjectsLayer extends Component {
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
+  map: PropTypes.object.isRequired,
   onSubjectIconClick: PropTypes.func,
 };
