@@ -6,13 +6,15 @@ import explode from '@turf/explode';
 import bearing from '@turf/bearing';
 
 import { svgSrcToPngImg } from '../utils/img';
+import { neighboringPointFeatureIsEqualWithNoBearing } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
-const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
+const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-timepoint'))[0];
+
 
 export default class TracksLayer extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
 
     this.onTimepointClick = this.onTimepointClick.bind(this);
@@ -34,10 +36,10 @@ export default class TracksLayer extends Component {
         feature.features = feature.features.map((item, index, collection) => {
           const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
           const coordinateTime = item.properties.coordinateProperties.times[index];
-          const returnValue = { geometry: item.geometry, properties: { ...item.properties, bearing: measuredBearing, time: coordinateTime }};
+          const returnValue = { geometry: item.geometry, properties: { ...item.properties, bearing: measuredBearing, time: coordinateTime } };
           delete returnValue.properties.coordinateProperties;
           return returnValue;
-        }).filter((feature, index) => index !== 0 || !!(index % 2));
+        }).filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
         return feature;
       });
     return (

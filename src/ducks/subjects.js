@@ -66,7 +66,7 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
             last_position: { ...subject.last_position, ...payload, properties: {
               ...subject.last_position.properties,
               ...payload.properties,
-              radio_state: payload.properties.state, // API incongruency band-aid :(
+              radio_state: payload.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
             } },
           };
         }
