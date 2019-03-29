@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 
@@ -9,50 +9,15 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
-class NavHomeMenu extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onItemSelect = this.onItemSelect.bind(this);
-    this.state = {
-      listShown: false,
-      selectedItem: null,
-    };
-    this.renderList = this.renderList.bind(this);
-    this.toggleMenu = this.toggleMenu.bind(this);
+class NavHomeMenu extends PureComponent {
+  calculateSelectedMap() {
+    return this.props.homeMap.id ? this.props.homeMap : this.props.maps[0];
   }
   componentDidMount() {
-    this.setState({
-      selectedItem: this.props.homeMap.id ? this.props.homeMap : this.props.maps[0],
-    }, () => {
-      if (!this.props.homeMap.id) {
-        this.onItemSelect(this.state.selectedItem);
-      }
-    });
+    this.onItemSelect(this.calculateSelectedMap());
   }
-  toggleMenu() {
-    this.setState({
-      listShown: !this.state.listShown,
-    });
-  }
-  openMenu() {
-    this.setState({
-      listShown: true,
-    });
-  }
-  closeMenu() {
-    this.setState({
-      listShown: false,
-    });
-  }
-  handleClickOutside() {
-    this.closeMenu();
-  }
+
   onItemSelect(selectedItem) {
-    this.closeMenu();
-    this.setState({
-      selectedItem,
-    });
     this.props.setHomeMap(selectedItem);
   }
   renderList() {
@@ -65,7 +30,7 @@ class NavHomeMenu extends Component {
     return (
       <Dropdown className="home-select">
         <Toggle className={styles.toggle}>
-          <NavHomeItem {...this.state.selectedItem} />
+          <NavHomeItem {...this.calculateSelectedMap()} />
         </Toggle>
         <Menu className={styles.menu}>
           {this.renderList()}
