@@ -194,8 +194,7 @@ class Map extends Component {
   async createMapImages(featureCollection) {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.state.map);
 
-    if (!!newImages.length) {
-      // this.forceUpdate();
+    if (newImages.length) {
       setTimeout(this.state.map.triggerRepaint, 200);
     }
   }

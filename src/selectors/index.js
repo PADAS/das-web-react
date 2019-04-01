@@ -25,6 +25,15 @@ export const getTrackPointsFromTrackFeatureArray = createSelector(
   trackCollection => trackCollection.map(tracks => convertTrackLineStringToPoints(tracks))
 );
 
+export const removePersistKey = createSelector(
+  [data => data],
+  data => {
+    const clone = { ...data };
+    delete clone._persist;
+    return clone;
+  },
+);
+
 // export const getEvents = createSelector(
 //   [events, eventFilter],
 //   (events, eventFilter) => 
