@@ -2,11 +2,9 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-import explode from '@turf/explode';
-import bearing from '@turf/bearing';
-
 import { svgSrcToPngImg } from '../utils/img';
-import { neighboringPointFeatureIsEqualWithNoBearing } from '../utils/tracks';
+import { getTrackPointsFromTrackFeatureArray } from '../selectors';
+import { convertTrackLineStringToPoints, getSubjectIDFromFirstFeatureInCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -30,22 +28,13 @@ export default class TracksLayer extends Component {
   }
   render() {
     const { trackCollection, onPointClick, map, ...rest } = this.props;
-    const tracksAsPoints = trackCollection
-      .map(({ tracks }) => explode(tracks))
-      .map((feature) => {
-        feature.features = feature.features.map((item, index, collection) => {
-          const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
-          const coordinateTime = item.properties.coordinateProperties.times[index];
-          const returnValue = { geometry: item.geometry, properties: { ...item.properties, bearing: measuredBearing, time: coordinateTime } };
-          delete returnValue.properties.coordinateProperties;
-          return returnValue;
-        }).filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
-        return feature;
-      });
+    const tracksAsPoints = getTrackPointsFromTrackFeatureArray(trackCollection);
+
     return (
       <Fragment>
-        {trackCollection.map(({ id, tracks }) =>
-          <GeoJSONLayer key={`track-layer-${id}`} before="subject_symbols-symbol" id={`track-layer-${id}`} data={tracks} {...rest}
+        {trackCollection.map((tracks) => {
+          const id = getSubjectIDFromFirstFeatureInCollection(tracks);
+          return <GeoJSONLayer key={`track-layer-${id}`} before="subject_symbols-symbol" id={`track-layer-${id}`} data={tracks} {...rest}
             linePaint={{
               'line-color': tracks.features[0].properties.stroke || 'orange',
               'line-width': ["step", ["zoom"], 0, 8, tracks.features[0].properties['stroke-width']],
@@ -55,25 +44,28 @@ export default class TracksLayer extends Component {
               'line-cap': 'round',
             }}
           />
-        )}
+        })}
         {
 
         }
-        {tracksAsPoints.map((feature, index) => <GeoJSONLayer before="subject_symbols-symbol" key={`track-timepoints-${index}`} id={`track-layer-timepoint-${index}`} data={feature} {...rest}
-          symbolOnMouseEnter={() => map.getCanvas().style.cursor = 'pointer'}
-          symbolOnClick={this.onTimepointClick}
-          symbolOnMouseLeave={() => map.getCanvas().style.cursor = ''}
-          symbolLayout={{
-            'icon-allow-overlap': true,
-            'icon-anchor': 'bottom',
-            'icon-size': ['step', ['zoom'], 0, 14, .3, 16, .5],
-            'icon-rotate': ['get', 'bearing'],
-            'icon-image': 'track_arrow',
-            'icon-pitch-alignment': 'map',
-            'icon-rotation-alignment': 'map',
-          }}
-        />
-        )}
+        {tracksAsPoints.map((feature, index) => {
+          const id = getSubjectIDFromFirstFeatureInCollection(feature);
+          return <GeoJSONLayer before="subject_symbols-symbol" key={`track-timepoints-${id}-${index}`} id={`track-layer-timepoint-${id}-${index}`} data={feature} {...rest}
+            symbolOnMouseEnter={() => map.getCanvas().style.cursor = 'pointer'}
+            symbolOnClick={this.onTimepointClick}
+            symbolOnMouseLeave={() => map.getCanvas().style.cursor = ''}
+            symbolLayout={{
+              'icon-allow-overlap': true,
+              'icon-anchor': 'bottom',
+              'icon-size': ['step', ['zoom'], 0, 14, .3, 16, .5],
+              'icon-rotate': ['get', 'bearing'],
+              'icon-image': 'track_arrow',
+              'icon-pitch-alignment': 'map',
+              'icon-rotation-alignment': 'map',
+            }}
+          />
+        })
+        }
       </Fragment>
     );
   }

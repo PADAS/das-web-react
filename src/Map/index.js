@@ -75,7 +75,7 @@ class Map extends Component {
   renderTrackLayers() {
     const trackCollection = uniq([...this.state.layers.tracks.visibleIDs, ...this.state.layers.tracks.pinnedIDs])
       .filter(id => !!this.props.tracks[id])
-      .map(id => ({ id, tracks: this.props.tracks[id] }));
+      .map(id => (this.props.tracks[id]));
 
     if (!trackCollection.length) return null;
 

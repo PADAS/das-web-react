@@ -2,11 +2,13 @@
 
 import { createSelector } from 'reselect';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents } from '../utils/map';
+import { convertTrackLineStringToPoints } from '../utils/tracks';
 
 const mapEvents = ({ mapEvents }) => mapEvents;
 const mapSubjects = ({ mapSubjects }) => mapSubjects;
 const events = ({ events }) => events;
 const eventFilter = ({ eventFilter }) => eventFilter;
+const trackCollection = trackCollection => trackCollection;
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents],
@@ -16,6 +18,11 @@ export const getMapEventFeatureCollection = createSelector(
 export const getMapSubjectFeatureCollection = createSelector(
   [mapSubjects],
   mapSubjects => createFeatureCollectionFromSubjects(mapSubjects)
+);
+
+export const getTrackPointsFromTrackFeatureArray = createSelector(
+  [trackCollection],
+  trackCollection => trackCollection.map(tracks => convertTrackLineStringToPoints(tracks))
 );
 
 // export const getEvents = createSelector(
