@@ -1,0 +1,24 @@
+$dimension: 2.5rem;
+$background_image_url: '../common/images/icons/';
+
+@mixin button($image: 'heatmap') {
+  background: url('#{$background-image_url+$image}.svg');
+  background-size: cover;
+  border: none;
+  display: block;
+  filter: saturate(50%) grayscale(100%);
+  height: $dimension;
+  outline: none;
+  width: $dimension;
+}
+
+.button {
+  @include button;
+  &.heatmap-on {
+    filter: unset;
+  }
+}
+
+.heatmap-on {
+  @include button;
+}
