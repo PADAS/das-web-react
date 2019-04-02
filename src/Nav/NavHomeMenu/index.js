@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 
@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
-const NavHomeMenu = memo(function NavHomeMenu(props) {
+const NavHomeMenu = function NavHomeMenu(props) {
   const { homeMap, maps, setHomeMap } = props;
 
   const calculateSelectedMap = () => {
@@ -33,7 +33,7 @@ const NavHomeMenu = memo(function NavHomeMenu(props) {
       </Menu>
     </Dropdown>
   )
-});
+};
 
 
 const mapStateToProps = ({ view: { homeMap } }) => ({ homeMap });

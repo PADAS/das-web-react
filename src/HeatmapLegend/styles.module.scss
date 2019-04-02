@@ -1,8 +1,38 @@
 .legend {
   background: rgba(255, 255, 255, 0.9);
-  padding: 1rem;
+  padding: 0.5rem;
   position: absolute;
   top: 1rem;
   left: 1rem;
+  width: 20rem;
   z-index: 11;
+  span {
+    display: block;
+  }
+  h6 {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .icon {
+    max-height: 2.5rem;
+    margin-right: .5rem;
+    max-width: 2.5rem;
+  }
+}
+
+.gradient {
+  background: linear-gradient(to right, rgba(127, 104, 255, .5)0, #0ff 15%, #ff0 35%, orange 70%, red 95%);
+  height: 1.5rem;
+  margin: .25rem 0;
+  width: 100%;
+}
+
+.close {
+  background: none;
+  border: none;
+  right: 0;
+  outline: none;
+  position: absolute;
+  top: .25rem;
 }

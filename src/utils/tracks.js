@@ -1,6 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
+import { featureCollection } from '@turf/helpers';
 
 /* tracks come in a variety of linestring formats, which we explode into points to generate timepoint layers and heatmap data.
    as such, the exploded version of a track can have duplicate entries, causing strange side effects. the nature of the duplicates
@@ -31,6 +32,9 @@ export const convertTrackLineStringToPoints = feature => {
     .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
   });
 };
+
+export const convertArrayOfTracksIntoFeatureCollection = trackArray => featureCollection(trackArray.reduce((accumulator, array) => [...accumulator, array.features[0]], []));
+
 
 
 

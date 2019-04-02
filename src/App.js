@@ -40,7 +40,7 @@ class App extends Component {
         <Nav />
         <div className="app-container">
           <Map />
-          <SideBar />
+          {/* <SideBar /> */}
         </div>
       </div>
     );

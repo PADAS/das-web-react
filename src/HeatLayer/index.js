@@ -5,13 +5,11 @@ import { Feature, Layer } from 'react-mapbox-gl';
 import isEqual from 'lodash/isEqual';
 
 const HeatLayer = memo(function HeatLayer({ trackCollection, heatmapStyles }) {
-  const tracksAsPoints = getTrackPointsFromTrackFeatureArray(trackCollection).reduce((accumulator, trackPointFeatureCollection) => {
-    return [...accumulator, ...trackPointFeatureCollection.features];
-  }, []);
+  const tracksAsPoints = getTrackPointsFromTrackFeatureArray(trackCollection);
 
   return (
     <Layer before="subject_symbols-symbol" type="heatmap" paint={heatmapStyles}>
-      {tracksAsPoints.map((point, index) => {
+      {tracksAsPoints.features.map((point, index) => {
         return <Feature key={index} coordinates={point.geometry.coordinates} properties={point.properties} />
       })}
     </Layer>

@@ -3,6 +3,7 @@
 import { createSelector } from 'reselect';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents } from '../utils/map';
 import { convertTrackLineStringToPoints } from '../utils/tracks';
+import { featureCollection } from '@turf/helpers';
 
 const mapEvents = ({ mapEvents }) => mapEvents;
 const mapSubjects = ({ mapSubjects }) => mapSubjects;
@@ -22,8 +23,15 @@ export const getMapSubjectFeatureCollection = createSelector(
 
 export const getTrackPointsFromTrackFeatureArray = createSelector(
   [trackCollection],
-  trackCollection => trackCollection.map(tracks => convertTrackLineStringToPoints(tracks))
-);
+  trackCollection => trackCollection
+    .map(tracks => convertTrackLineStringToPoints(tracks))
+    .reduce((accumulator, featureCollection) => {
+      return {
+        ...accumulator,
+        features: [...accumulator.features, ...featureCollection.features],
+      };
+    }, featureCollection([])),
+  );
 
 export const removePersistKey = createSelector(
   [data => data],
