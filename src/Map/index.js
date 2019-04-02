@@ -22,6 +22,7 @@ import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
+import HeatmapLegend from '../HeatmapLegend';
 
 const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
@@ -78,9 +79,7 @@ class Map extends Component {
       .filter(id => !!this.props.tracks[id])
       .map(id => (this.props.tracks[id]));
 
-    if (!trackCollection.length) return null;
-
-    return <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={this.state.map} />;
+    return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={this.state.map} /> : null;
   }
   renderHeatmapLayers() {
     const { heatmapIDs } = this.state;
@@ -91,9 +90,10 @@ class Map extends Component {
       .filter(id => !!this.props.tracks[id])
       .map(id => (this.props.tracks[id]));
 
-    if (!trackCollection.length) return null;
-
-    return <HeatLayer trackCollection={trackCollection} />
+    return !!trackCollection.length ? <Fragment>
+      <HeatmapLegend onClose={() => this.setState({ heatmapIDs: [] })} tracks={trackCollection} />
+      <HeatLayer trackCollection={trackCollection} />
+    </Fragment> : null;
 
   }
 

@@ -45,8 +45,14 @@ export const popupReducer = (state = null, action = {}) => {
       return {
         ...state, data: {
           ...state.data,
-          geometry,
-          properties,
+          geometry: {
+            ...state.data.geometry,
+            ...geometry,
+          },
+          properties: {
+            ...state.data.properties,
+            ...properties,
+          },
         }
       };
     }

@@ -17,7 +17,7 @@ const HeatLayer = memo(function HeatLayer({ trackCollection, heatmapStyles }) {
     </Layer>
   );
 }, (prev, current) => {
-  return isEqual(prev.trackCollection, current.trackCollection) && isEqual(prev.heatmapStyles, current.heatmapStyles);
+  return isEqual(prev.heatmapStyles, current.heatmapStyles) && isEqual(prev.trackCollection, current.trackCollection);
 });
 
 const mapStateToProps = ({ view: { heatmapStyles } }) => ({ heatmapStyles: removePersistKey(heatmapStyles) });
