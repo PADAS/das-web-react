@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 
@@ -9,36 +9,32 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
-class NavHomeMenu extends PureComponent {
-  calculateSelectedMap() {
-    return this.props.homeMap.id ? this.props.homeMap : this.props.maps[0];
-  }
-  componentDidMount() {
-    this.onItemSelect(this.calculateSelectedMap());
-  }
+const NavHomeMenu = function NavHomeMenu(props) {
+  const { homeMap, maps, setHomeMap } = props;
 
-  onItemSelect(selectedItem) {
-    this.props.setHomeMap(selectedItem);
-  }
-  renderList() {
-    return this.props.maps.map(map =>
-    <Item className={styles.listItem} key={map.id} onClick={() => this.onItemSelect(map)}>
-      <NavHomeItem {...map} />
-    </Item>);
-  }
-  render() {
-    return (
-      <Dropdown className="home-select">
-        <Toggle className={styles.toggle}>
-          <NavHomeItem {...this.calculateSelectedMap()} />
-        </Toggle>
-        <Menu className={styles.menu}>
-          {this.renderList()}
-        </Menu>
-      </Dropdown>
-    );
-  }
-}
+  const calculateSelectedMap = () => {
+    return homeMap.id ? homeMap : maps[0];
+  };
+
+  useEffect(() => {
+    setHomeMap(calculateSelectedMap());
+  });
+
+  return (
+    <Dropdown className="home-select">
+      <Toggle className={styles.toggle}>
+        <NavHomeItem {...calculateSelectedMap()} />
+      </Toggle>
+      <Menu className={styles.menu}>
+        {maps.map(map =>
+          <Item className={styles.listItem} key={map.id} onClick={() => setHomeMap(map)}>
+            <NavHomeItem {...map} />
+          </Item>)}
+      </Menu>
+    </Dropdown>
+  )
+};
+
 
 const mapStateToProps = ({ view: { homeMap } }) => ({ homeMap });
 

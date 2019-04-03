@@ -4,6 +4,8 @@ import { uuid } from '../utils/string';
 const SHOW_POPUP = 'SHOW_POPUP';
 const HIDE_POPUP = 'HIDE_POPUP';
 
+const UPDATE_HEATMAP_CONFIG = 'UPDATE_HEATMAP_CONFIG';
+
 export const showPopup = (type, data) => ({
   type: SHOW_POPUP,
   payload: {
@@ -17,7 +19,12 @@ export const hidePopup = (id) => ({
   payload: id,
 });
 
-export default (state = null, action = {}) => {
+export const updateHeatmapDisplay = (config) => ({
+  type: UPDATE_HEATMAP_CONFIG,
+  payload: config,
+});
+
+export const popupReducer = (state = null, action = {}) => {
   const { type, payload } = action;
   switch (type) {
     case SHOW_POPUP: {
@@ -38,8 +45,14 @@ export default (state = null, action = {}) => {
       return {
         ...state, data: {
           ...state.data,
-          geometry,
-          properties,
+          geometry: {
+            ...state.data.geometry,
+            ...geometry,
+          },
+          properties: {
+            ...state.data.properties,
+            ...properties,
+          },
         }
       };
     }
@@ -47,4 +60,10 @@ export default (state = null, action = {}) => {
       return state;
     }
   }
+}
+
+export const heatmapReducer = (state = {}, action) => {
+  const { type, payload } = action;
+  if (type === UPDATE_HEATMAP_CONFIG) return { ...state, ...payload };
+  return state;
 }

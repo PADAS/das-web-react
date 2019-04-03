@@ -1,5 +1,5 @@
 import './Map.scss';
-import React, { Component, createRef, Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
@@ -13,16 +13,16 @@ import set from 'lodash/set';
 import uniq from 'lodash/uniq';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-// import 'mapboxgl-spiderifier/index.css';
-// import MapboxglSpiderifier from 'mapboxgl-spiderifier';
 import createSocket, { unbindSocketEvents } from '../socket';
-import ReactMapboxGl, { ZoomControl, RotationControl, Source } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
 
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
 import PopupLayer from '../PopupLayer';
+import HeatLayer from '../HeatLayer';
+import HeatmapLegend from '../HeatmapLegend';
 
 const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
@@ -39,12 +39,9 @@ class Map extends Component {
       },
       map: null,
       mapDataLoadingCancelToken: null,
-      layers: {
-        tracks: {
-          visibleIDs: [],
-          pinnedIDs: [],
-        }
-      },
+      visibleTrackIDs: [],
+      pinnedTrackIDs: [],
+      heatmapIDs: [],
       socket: null,
     };
     this.setMap = this.setMap.bind(this);
@@ -53,6 +50,8 @@ class Map extends Component {
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
+    this.toggleTrackState = this.toggleTrackState.bind(this);
+    this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
   }
   componentDidMount() {
     this.setState({
@@ -73,13 +72,29 @@ class Map extends Component {
     this.props.showPopup('timepoint', { geometry, properties });
   }
   renderTrackLayers() {
-    const trackCollection = uniq([...this.state.layers.tracks.visibleIDs, ...this.state.layers.tracks.pinnedIDs])
+    const trackLayerState = uniq([...this.state.visibleTrackIDs, ...this.state.pinnedTrackIDs]);
+    if (!trackLayerState.length) return null;
+
+    const trackCollection = trackLayerState
       .filter(id => !!this.props.tracks[id])
-      .map(id => ({ id, tracks: this.props.tracks[id] }));
+      .map(id => (this.props.tracks[id]));
 
-    if (!trackCollection.length) return null;
+    return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={this.state.map} /> : null;
+  }
+  renderHeatmapLayers() {
+    const { heatmapIDs } = this.state;
 
-    return <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={this.state.map} />
+    if (!heatmapIDs.length) return null;
+
+    const trackCollection = heatmapIDs
+      .filter(id => !!this.props.tracks[id])
+      .map(id => (this.props.tracks[id]));
+
+    return !!trackCollection.length ? <Fragment>
+      <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => this.setState({ heatmapIDs: [] })} tracks={trackCollection} />
+      <HeatLayer trackCollection={trackCollection} />
+    </Fragment> : null;
+
   }
 
   onMapMoveEnd() {
@@ -109,17 +124,15 @@ class Map extends Component {
     this.hideUnpinnedTrackLayers(event);
   }
   hideUnpinnedTrackLayers(event) {
-    if (!this.state.layers.tracks.visibleIDs.length) return;
+    if (!this.state.visibleTrackIDs.length) return;
 
     const clickedLayerIDs = this.state.map.queryRenderedFeatures(event.point)
       .filter(({ properties }) => !!properties && properties.id)
       .map(({ properties: { id } }) => id);
 
-    return this.setState(prevState => uniq(set(
-      prevState,
-      ['layers', 'tracks', 'visibleIDs'],
-      this.state.layers.tracks.visibleIDs.filter(id => clickedLayerIDs.includes(id)),
-    )));
+    return this.setState({
+      visibleTrackIDs: this.state.visibleTrackIDs.filter(id => clickedLayerIDs.includes(id)),
+    });
   }
   onClusterClick(e) {
     // spiderifier && spiderifier.unspiderfy();
@@ -144,11 +157,44 @@ class Map extends Component {
       }
     });
   }
+  toggleTrackState(id) {
+    const { pinnedTrackIDs, visibleTrackIDs } = this.state;
+    const pinned = pinnedTrackIDs.includes(id);
+    const visible = visibleTrackIDs.includes(id);
+
+    if (pinned) {
+      return this.setState({
+        pinnedTrackIDs: pinnedTrackIDs.filter(item => item !== id),
+        visibleTrackIDs: visibleTrackIDs.filter(item => item !== id),
+      });
+    }
+    if (visible) {
+      return this.setState({
+        pinnedTrackIDs: [...pinnedTrackIDs, id],
+        visibleTrackIDs: visibleTrackIDs.filter(item => item !== id),
+      });
+    }
+    return this.setState({
+      visibleTrackIDs: [...visibleTrackIDs, id],
+    });
+  }
+  toggleHeatmapState(id) {
+    const { heatmapIDs } = this.state;
+    const visible = heatmapIDs.includes(id);
+
+    if (visible) {
+      return this.setState({
+        heatmapIDs: heatmapIDs.filter(item => item !== id),
+      });
+    }
+    return this.setState({
+      heatmapIDs: [...heatmapIDs, id],
+    });
+  }
   async createMapImages(featureCollection) {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.state.map);
 
-    if (!!newImages.length) {
-      // this.forceUpdate();
+    if (newImages.length) {
       setTimeout(this.state.map.triggerRepaint, 200);
     }
   }
@@ -161,11 +207,9 @@ class Map extends Component {
     await (tracks_available) ? this.props.fetchTracks(id) : new Promise((resolve, reject) => resolve());
 
     if (tracks_available) {
-      this.setState(prevState => uniq(set(
-        prevState,
-        ['layers', 'tracks', 'visibleIDs'],
-        [...this.state.layers.tracks.visibleIDs, id],
-      )));
+      this.setState({
+        visibleTrackIDs: [...this.state.visibleTrackIDs, id]
+      });
     }
 
   }
@@ -210,13 +254,24 @@ class Map extends Component {
 
         {this.state.map && (
           <Fragment>
-            {this.renderTrackLayers()}
-            {this.renderEventLayers()}
             {this.renderSubjectLayers()}
+            {this.renderTrackLayers()}
+            {this.renderHeatmapLayers()}
+            {this.renderEventLayers()}
 
-            {!!this.props.popup && <PopupLayer popup={this.props.popup} />}
+            {!!this.props.popup && <PopupLayer
+              popup={this.props.popup}
+              onTrackToggle={this.toggleTrackState}
+              onHeatmapToggle={this.toggleHeatmapState}
+              heatmapState={this.state.heatmapIDs}
+              trackState={{
+                visible: this.state.visibleTrackIDs,
+                pinned: this.state.pinnedTrackIDs,
+              }} />
+            }
 
-            <RotationControl position='top-left' />
+            <RotationControl position='bottom-left' />
+            <ScaleControl />
             <ZoomControl position='bottom-right' />
             {/* <DrawControl map={this.state.map} position='bottom-left' /> */}
           </Fragment>

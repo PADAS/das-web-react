@@ -1,0 +1,34 @@
+$dimension: 2.5rem;
+$background_image_url: '../common/images/icons/';
+
+@mixin button($image: 'tracks_on') {
+  background: url('#{$background-image_url+$image}.svg');
+  background-size: cover;
+  border: none;
+  display: block;
+  filter: grayscale(100%);
+  height: $dimension;
+  outline: none;
+  width: $dimension;
+}
+
+.button {
+  @include button;
+  &.visible, &.pinned { 
+    filter: unset;
+  }
+}
+
+.container {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+}
+
+.visible {
+  @include button;
+}
+
+.pinned {
+  @include button('tracks_pinned');
+}
