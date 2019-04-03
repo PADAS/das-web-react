@@ -44,10 +44,12 @@ EventFeed.defaultProps = {
     console.log('title click', event);
   },
   onIconClick(event) {
-    console.log('icon click', event);
   },
-  onJumpClick(event) {
-    console.log('jump click', event);
+  onJumpClick({ is_collection, location: { latitude, longitude }}) {
+    console.log('jump click');
+    window.map.jumpTo({
+      center: [longitude,latitude],
+    });
   },
 };
 

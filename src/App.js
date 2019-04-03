@@ -1,11 +1,9 @@
 import './App.scss';
-import React, { Component } from 'react';
+import React, { memo, useEffect } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
-import { fetchEvents } from './ducks/events';
 import { fetchMaps } from './ducks/maps';
-import { fetchEventTypes } from './ducks/event-types';
 import { fetchSystemStatus } from './ducks/system-status';
 import SideBar from './SideBar';
 import 'axios-progress-bar/dist/nprogress.css'
@@ -18,37 +16,31 @@ import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-class App extends Component {
-  componentDidMount() {
-    /* data initialization */
-    this.props.fetchEvents(this.props.eventFilter);
-    this.props.fetchMaps();
-    this.props.fetchEventTypes();
-    this.props.fetchSystemStatus();
-    loadProgressBar();
+const App = memo((props) => {
+  const { fetchMaps, fetchSystemStatus, updateNetworkStatus, ...rest } = props;
 
+  useEffect(() => {
+    fetchMaps();
+    fetchSystemStatus();
+    loadProgressBar();
     window.addEventListener('online', () => {
       this.props.updateNetworkStatus(HEALTHY_STATUS);
     });
     window.addEventListener('offline', () => {
       this.props.updateNetworkStatus(UNHEALTHY_STATUS);
     });
-  }
+  }, []);
 
-  render() {
-    return (
-      <div className="App">
-        <Nav />
-        <div className="app-container">
-          <Map />
-          <SideBar />
-        </div>
-        <ReportTypeIconSprite id="reportTypeIconSprite" />
+  return (
+    <div className="App">
+      <Nav />
+      <div className="app-container">
+        <Map />
+        <SideBar />
       </div>
-    );
-  }
-}
+      <ReportTypeIconSprite id="reportTypeIconSprite" />
+    </div>
+  );
+});
 
-const mapStateToProps = ({ view: { eventFilter } }) => ({ eventFilter });
-
-export default connect(mapStateToProps, { fetchEvents, fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus })(App);
+export default connect(null, { fetchMaps, fetchSystemStatus, updateNetworkStatus })(App);
