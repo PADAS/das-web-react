@@ -26,7 +26,11 @@ const EventFeed = (props) => {
               <div className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></div>
               <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
               <DateTime className={styles.date} date={item.updated_at} />
-              {eventHasLocation && <button type="button" className={styles.jump} onClick={() => onJumpClick(item)}>jumplink</button>}
+              {eventHasLocation &&
+                <div className={styles.jump}>
+                  <button title="Jump to the location for this event" type="button" className={styles.jump} onClick={() => onJumpClick(item)}></button>
+                </div>
+              }
             </li>
           ))
         }

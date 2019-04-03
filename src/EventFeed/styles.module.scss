@@ -5,7 +5,9 @@
   align-content: center;
   color: $dark-gray;
   display: flex;
-  
+  + .listItem {
+    border-top: 1px solid $medium-light-gray;
+  }
   > * {
     padding: 1rem;
     align-items: center;
@@ -48,6 +50,17 @@ $color in $priorities {
   text-align: left;
 }
 
-.title, .jump {
-@include unstyledButton;
+.title {
+  @include unstyledButton;
+}
+
+
+.jump button {
+  background:  $light-gray url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
+  background-size: 1rem;
+  border: 1px solid $medium-light-gray;
+  border-radius: .25rem;
+  height: 2.5rem;
+  padding: 0;
+  width: 2.5rem;
 }
