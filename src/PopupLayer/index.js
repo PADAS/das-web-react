@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'react-mapbox-gl';
 
 import SubjectPopup from '../SubjectPopup';
 import TimepointPopup from '../TimepointPopup';

@@ -3,7 +3,7 @@ import { calcUrlForImage } from '../../utils/img';
 
 export default class extends Component {
   render() {
-    const { id, icon, title, name, menu, ...rest } = this.props;
+    const { icon, title, name } = this.props;
     const displayTitle = title || name || null;
 
     return (

@@ -1,4 +1,13 @@
-export const displayTitleForEventByEventType = (event, eventTypes) => event.title || eventTypes.find(t => t.value === event.event_type).display;
+export const displayTitleForEventByEventType = (event, eventTypes) => {
+  if (event.title) return event.title;
+
+  const matchingType = eventTypes.find(t => t.value === event.event_type);
+
+  if (matchingType) return matchingType.display;
+  if (event.event_type) return event.event_type;
+
+  return 'Unknown event type';
+}
 
 export const getCoordinatesForEvent = evt => evt.geojson
   && evt.geojson.geometry

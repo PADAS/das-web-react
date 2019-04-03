@@ -17,7 +17,7 @@ const SubjectPopup = memo(function SubjectPopup(props) {
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
   return (
-    <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
+    <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
       <h4>{properties.name}</h4>
       {coordProps.time && <DateTime date={coordProps.time} />}
       {<GpsFormatToggle lat={geometry.coordinates[1]} lng={geometry.coordinates[0]} />}

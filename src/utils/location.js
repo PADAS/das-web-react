@@ -76,8 +76,8 @@ export const calcGpsDisplayString = (lat, lon, gpsFormat) => {
   return null;
 };
 
-const calcActualGpsPositionForRawText = (rawText, formatKey) => {
-  let actualGps, latLonString;
+export const calcActualGpsPositionForRawText = (rawText, formatKey) => {
+  let latLonString;
 
     if (formatKey === GPS_FORMATS.DEG) latLonString = degToLatLon(rawText);
     if (formatKey === GPS_FORMATS.DMS) latLonString = dmsToLatLon(rawText);
@@ -87,4 +87,4 @@ const calcActualGpsPositionForRawText = (rawText, formatKey) => {
     return latLonString ? this.calcActualGpsPositionFromLatLonString(latLonString) : null;
 }
 
-const validateLatLon = (lat, lon) => isLatitude(lat) && isLongitude(lon);
+export const validateLatLon = (lat, lon) => isLatitude(lat) && isLongitude(lon);

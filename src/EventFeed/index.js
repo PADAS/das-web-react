@@ -24,9 +24,9 @@ const EventFeed = (props) => {
           events.map((item, index) => (
             <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
               <div className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></div>
-              <a className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</a>
+              <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
               <DateTime className={styles.date} date={item.updated_at} />
-              {eventHasLocation && <a className={styles.jump} onClick={() => onJumpClick(item)}>jumplink</a>}
+              {eventHasLocation && <button type="button" className={styles.jump} onClick={() => onJumpClick(item)}>jumplink</button>}
             </li>
           ))
         }
@@ -45,11 +45,8 @@ EventFeed.defaultProps = {
   },
   onIconClick(event) {
   },
-  onJumpClick({ is_collection, location: { latitude, longitude }}) {
-    console.log('jump click');
-    window.map.jumpTo({
-      center: [longitude,latitude],
-    });
+  onJumpClick(event) {
+    console.log('jump click', event);
   },
 };
 

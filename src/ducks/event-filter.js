@@ -1,6 +1,6 @@
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
-const RESET_EVENT_FILTER = 'RESET_EVENT_FILTER';
+// const RESET_EVENT_FILTER = 'RESET_EVENT_FILTER';
 
 // ACTION CREATORS
 export const updateEventFilter = config => (dispatch, getState) => {

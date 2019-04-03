@@ -9,7 +9,6 @@ import { showPopup, hidePopup } from '../ducks/map-ui';
 import { CancelToken } from 'axios';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import debounce from 'lodash/debounce';
-import set from 'lodash/set';
 import uniq from 'lodash/uniq';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -37,7 +36,6 @@ class Map extends Component {
       mapConfig: {
         style: 'mapbox://styles/vjoelm/ciobuir0n0061bdnj1c54oakh',
       },
-      map: null,
       mapDataLoadingCancelToken: null,
       visibleTrackIDs: [],
       pinnedTrackIDs: [],
@@ -72,23 +70,25 @@ class Map extends Component {
     this.props.showPopup('timepoint', { geometry, properties });
   }
   renderTrackLayers() {
+    const { tracks, map } = this.props;
     const trackLayerState = uniq([...this.state.visibleTrackIDs, ...this.state.pinnedTrackIDs]);
     if (!trackLayerState.length) return null;
 
     const trackCollection = trackLayerState
-      .filter(id => !!this.props.tracks[id])
-      .map(id => (this.props.tracks[id]));
+      .filter(id => !!tracks[id])
+      .map(id => (tracks[id]));
 
-    return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={this.state.map} /> : null;
+    return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} /> : null;
   }
   renderHeatmapLayers() {
+    const { tracks } = this.props;
     const { heatmapIDs } = this.state;
 
     if (!heatmapIDs.length) return null;
 
     const trackCollection = heatmapIDs
-      .filter(id => !!this.props.tracks[id])
-      .map(id => (this.props.tracks[id]));
+      .filter(id => !!tracks[id])
+      .map(id => (tracks[id]));
 
     return !!trackCollection.length ? <Fragment>
       <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => this.setState({ heatmapIDs: [] })} tracks={trackCollection} />
@@ -111,22 +111,21 @@ class Map extends Component {
     this.fetchMapEvents();
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.state.map, this.state.mapDataLoadingCancelToken);
+    this.props.fetchMapSubjects(this.props.map, this.state.mapDataLoadingCancelToken);
   }
   fetchMapEvents() {
-    this.props.fetchMapEvents(this.state.map, this.state.mapDataLoadingCancelToken);
+    this.props.fetchMapEvents(this.props.map, this.state.mapDataLoadingCancelToken);
   }
   onMapClick(map, event) {
-    if (!this.state.map) return;
     if (this.props.popup) {
       this.props.hidePopup(this.props.popup.id)
     }
-    this.hideUnpinnedTrackLayers(event);
+    this.hideUnpinnedTrackLayers(map, event);
   }
-  hideUnpinnedTrackLayers(event) {
+  hideUnpinnedTrackLayers(map, event) {
     if (!this.state.visibleTrackIDs.length) return;
 
-    const clickedLayerIDs = this.state.map.queryRenderedFeatures(event.point)
+    const clickedLayerIDs = map.queryRenderedFeatures(event.point)
       .filter(({ properties }) => !!properties && properties.id)
       .map(({ properties: { id } }) => id);
 
@@ -137,20 +136,20 @@ class Map extends Component {
   onClusterClick(e) {
     // spiderifier && spiderifier.unspiderfy();
 
-    const features = this.state.map.queryRenderedFeatures(e.point, { layers: ['event_clusters-circle'] });
+    const features = this.props.map.queryRenderedFeatures(e.point, { layers: ['event_clusters-circle'] });
     const clusterId = features[0].properties.cluster_id;
-    const clusterSource = this.state.map.getSource('event_clusters');
+    const clusterSource = this.props.map.getSource('event_clusters');
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
-      if (this.state.map.getZoom() >= zoom) {
+      if (this.props.map.getZoom() >= zoom) {
         // clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
         //   if (err) return;
         //   var markers = features.map(feature => feature.properties);
         //   spiderifier.spiderfy(features[0].geometry.coordinates, markers);
         // });
       } else {
-        this.state.map.easeTo({
+        this.props.map.easeTo({
           center: features[0].geometry.coordinates,
           zoom: zoom
         });
@@ -192,10 +191,10 @@ class Map extends Component {
     });
   }
   async createMapImages(featureCollection) {
-    const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.state.map);
+    const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
 
     if (newImages.length) {
-      setTimeout(this.state.map.triggerRepaint, 200);
+      setTimeout(this.props.map.triggerRepaint, 200);
     }
   }
   async onMapSubjectClick(layer) {
@@ -214,10 +213,7 @@ class Map extends Component {
 
   }
   setMap(map) {
-    this.setState({
-      map,
-    });
-    window.map = map;
+    this.props.onMapLoad(map);
     this.onMapMoveEnd();
     // spiderifier = new MapboxglSpiderifier(this.state.map, {
     //   onClick: function (e, spiderLeg) {
@@ -227,19 +223,22 @@ class Map extends Component {
     // });
   }
   renderEventLayers() {
-    this.createMapImages(this.props.mapEventFeatureCollection);
-    return <EventsLayer map={this.state.map} events={this.props.mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
+    const { map, mapEventFeatureCollection } = this.props;
+    this.createMapImages(mapEventFeatureCollection);
+    return <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
   }
   renderSubjectLayers() {
-    this.createMapImages(this.props.mapSubjectFeatureCollection);
+    const { mapSubjectFeatureCollection, map } = this.props;
+    this.createMapImages(mapSubjectFeatureCollection);
     return <SubjectsLayer
-      map={this.state.map}
-      subjects={this.props.mapSubjectFeatureCollection}
+      map={map}
+      subjects={mapSubjectFeatureCollection}
       onSubjectIconClick={this.onMapSubjectClick}
     />;
   }
   render() {
-    if (!this.props.maps.length) return null;
+    const { maps, map, popup } = this.props;
+    if (!maps.length) return null;
     return (
       <MapboxMap
         id='map'
@@ -252,15 +251,15 @@ class Map extends Component {
         onStyleLoad={this.setMap}
         {...this.state.mapConfig}>
 
-        {this.state.map && (
+        {map && (
           <Fragment>
             {this.renderSubjectLayers()}
             {this.renderTrackLayers()}
             {this.renderHeatmapLayers()}
             {this.renderEventLayers()}
 
-            {!!this.props.popup && <PopupLayer
-              popup={this.props.popup}
+            {!!popup && <PopupLayer
+              popup={popup}
               onTrackToggle={this.toggleTrackState}
               onHeatmapToggle={this.toggleHeatmapState}
               heatmapState={this.state.heatmapIDs}
@@ -273,7 +272,7 @@ class Map extends Component {
             <RotationControl position='bottom-left' />
             <ScaleControl />
             <ZoomControl position='bottom-right' />
-            {/* <DrawControl map={this.state.map} position='bottom-left' /> */}
+            {/* <DrawControl map={map} position='bottom-left' /> */}
           </Fragment>
         )}
 
