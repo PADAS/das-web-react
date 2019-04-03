@@ -21,14 +21,15 @@ export const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
-
 // action creators
-export const fetchEvents = (config = {}) => {
-  return function (dispatch) {
-    return axios.get(EVENT_API_URL, config)
-      .then(response => dispatch(fetchEventsSucess(response)))
-      .catch(error => dispatch(fetchEventsError(error)));
-  };
+export const fetchEvents = (config = {}) => (dispatch, getState) => {
+  const { data: { eventFilter } } = getState();
+  return axios.get(EVENT_API_URL, { ...config, params: {
+    ...eventFilter,
+    ...config.params,
+  } })
+  .then(response => dispatch(fetchEventsSucess(response)))
+  .catch(error => dispatch(fetchEventsError(error)));
 };
 
 export const fetchNextEventPage = (url, config = {}) => {
@@ -39,15 +40,18 @@ export const fetchNextEventPage = (url, config = {}) => {
   };
 };
 
-export const fetchMapEvents = (map, { token }) => function (dispatch) {
+export const fetchMapEvents = (map, { token }) => (dispatch, getState) => {
   if (!map) return;
 
   const bbox = getBboxParamsFromMap(map);
+
+  const { data: { eventFilter } } = getState();
 
   return recursivePaginatedQuery(axios.get(EVENT_API_URL, {
     cancelToken: token,
     params: {
       bbox,
+      ...eventFilter,
     },
   }), [], token)
     .then((results) => {
@@ -98,8 +102,9 @@ export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
     }
     case FETCH_EVENTS_NEXT_PAGE_SUCCESS: {
       const { payload: { data } } = action;
-      const { results:events, count, next, previous } = data;
-      return { ...state,
+      const { results: events, count, next, previous } = data;
+      return {
+        ...state,
         count,
         next,
         previous,

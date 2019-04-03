@@ -1,0 +1,55 @@
+@import '../common/styles/vars/colors';
+
+.listItem {
+  align-content: center;
+  color: $dark-gray;
+  display: flex;
+  
+  > * {
+    padding: 1rem;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+@each $priority,
+$color in $priorities {
+  .priority-#{$priority} {
+    background-color: lighten($color, 50%);
+
+    .icon {
+      background-color: $color;
+     
+    }
+  }
+}
+
+.icon {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  svg, svg > svg {
+    fill: white;
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+// .jump {
+// }
+
+.date {
+  align-items: flex-end;
+  flex-flow: column;
+  margin-left: auto;
+  text-align: right;
+}
+
+.title {
+  // width: 50%;
+}
+
+// .title {
+  
+// }

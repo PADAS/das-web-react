@@ -13,7 +13,8 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import { STATUSES } from './constants';
 import { updateNetworkStatus } from './ducks/system-status';
-import { store } from './index';
+
+import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -40,8 +41,9 @@ class App extends Component {
         <Nav />
         <div className="app-container">
           <Map />
-          {/* <SideBar /> */}
+          <SideBar />
         </div>
+        <ReportTypeIconSprite id="reportTypeIconSprite" />
       </div>
     );
   }

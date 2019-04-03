@@ -1,10 +1,17 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
 :root {
   --nav-height: 3rem;
 }
 
-.App {
+.App, #root {
   overflow: hidden;
+}
+
+#reportTypeIconSprite {
+  display: none;
 }
 
 .app-container {

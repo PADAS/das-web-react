@@ -1,6 +1,8 @@
+$amber: #FFAB24;
 $bright-blue: #006cd9;
 $bright-green: #7fd320;
 $bright-red: #D0031B;
+$green: #4F8317;
 $mustard-yellow: #d1c22e;
 
 $dark-gray: #676767;
@@ -15,3 +17,10 @@ $warning: $mustard-yellow;
 $warning-border: lighten($mustard-yellow, 15%);
 $unknown: $dark-gray;
 $unknown-border: lighten($dark-gray, 15%);
+
+$no-priority: $medium-gray;
+$low-priority: $green;
+$medium-priority: $amber;
+$high-priority: $bright-red;
+
+$priorities: ((0, $no-priority), (100, $low-priority), (200, $medium-priority), (300, $high-priority));
