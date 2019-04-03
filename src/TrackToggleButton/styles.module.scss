@@ -19,6 +19,12 @@ $background_image_url: '../common/images/icons/';
   }
 }
 
+.container {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+}
+
 .visible {
   @include button;
 }

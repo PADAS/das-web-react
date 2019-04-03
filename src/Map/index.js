@@ -14,7 +14,7 @@ import uniq from 'lodash/uniq';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import createSocket, { unbindSocketEvents } from '../socket';
-import ReactMapboxGl, { ZoomControl, RotationControl } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
 
 import EventsLayer from '../EventsLayer';
@@ -91,7 +91,7 @@ class Map extends Component {
       .map(id => (this.props.tracks[id]));
 
     return !!trackCollection.length ? <Fragment>
-      <HeatmapLegend onClose={() => this.setState({ heatmapIDs: [] })} tracks={trackCollection} />
+      <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => this.setState({ heatmapIDs: [] })} tracks={trackCollection} />
       <HeatLayer trackCollection={trackCollection} />
     </Fragment> : null;
 
@@ -270,7 +270,8 @@ class Map extends Component {
               }} />
             }
 
-            <RotationControl position='top-left' />
+            <RotationControl position='bottom-left' />
+            <ScaleControl />
             <ZoomControl position='bottom-right' />
             {/* <DrawControl map={this.state.map} position='bottom-left' /> */}
           </Fragment>

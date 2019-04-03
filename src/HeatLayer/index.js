@@ -8,7 +8,7 @@ const HeatLayer = memo(function HeatLayer({ trackCollection, heatmapStyles }) {
   const tracksAsPoints = getTrackPointsFromTrackFeatureArray(trackCollection);
 
   return (
-    <Layer before="subject_symbols-symbol" type="heatmap" paint={heatmapStyles}>
+    <Layer before="subject_symbols-symbol" type="heatmap">
       {tracksAsPoints.features.map((point, index) => {
         return <Feature key={index} coordinates={point.geometry.coordinates} properties={point.properties} />
       })}

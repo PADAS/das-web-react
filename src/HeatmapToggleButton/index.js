@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 
-export default function HeatmapToggleButton (props) {
+const HeatmapToggleButton = memo(function HeatmapToggleButton (props) {
   const { heatmapVisible, subjectId, onButtonClick } = props;
   const className = heatmapVisible ? 'heatmap-on' : '';
-  const hoverText = className ? 'Heatmap visible' : 'Heatmap off';
+  const hoverText = className ? 'Heatmap on' : 'Heatmap off';
 
-  return <button title={hoverText} type="button" className={`${styles.button} ${styles[className]}`} onClick={() => onButtonClick(subjectId)}></button>
-}
+  return <div className={styles.container}>
+    <button title={hoverText} type="button" className={`${styles.button} ${styles[className]}`} onClick={() => onButtonClick(subjectId)}></button>
+    {hoverText}
+    </div>
+});
+
+export default HeatmapToggleButton;
 
 HeatmapToggleButton.defaultProps = {
   onButtonClick() {
