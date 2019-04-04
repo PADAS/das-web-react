@@ -37,10 +37,7 @@ export default (state = INITIAL_FILTER_STATE, action) => {
 
   switch (type) {
     case (UPDATE_EVENT_FILTER): {
-      return {
-        ...state,
-        ...payload,
-      };
+      return Object.assign({}, state, payload);
     }
     case (RESET_EVENT_FILTER): {
       return INITIAL_FILTER_STATE;
