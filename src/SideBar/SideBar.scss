@@ -1,28 +1,6 @@
-.side-menu {
-  background: #999;
-  color: white;
-  display: flex;
-  flex-flow: column;
-  flex-grow: 0;
-  height: calc(100vh - var(--nav-height));
-  position: relative;
-  right: 0;
-  top: 0;
-  width: 20rem;
-  z-index: 1;
-}
-
 .side-menu ul {
   list-style-type: none;
   margin: 0;
-  overflow: scroll;
-  padding: 0 0 2rem;
-}
-
-.side-menu li {
-  padding: 1rem;
-}
-
-.side-menu li:hover {
-  background: #888;
+  overflow-y: auto;
+  padding: 0;
 }

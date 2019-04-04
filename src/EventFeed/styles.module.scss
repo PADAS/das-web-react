@@ -1,0 +1,73 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+
+.listItem {
+  align-content: center;
+  color: $dark-gray;
+  display: flex;
+  + .listItem {
+    border-top: 1px solid $medium-light-gray;
+  }
+  > * {
+    padding: 0.5rem 1rem;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.loadMessage {
+  font-size: .75rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem;
+}
+
+@each $priority,
+$color in $priorities {
+  .priority-#{$priority} {
+    background-color: lighten($color, 50%);
+
+    .icon {
+      background-color: $color;
+     
+    }
+  }
+}
+
+.icon {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  svg, svg > svg {
+    fill: white;
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+.date {
+  align-items: flex-end;
+  flex-flow: column;
+  margin-left: auto;
+  text-align: right;
+}
+
+.title {
+  text-align: left;
+}
+
+.title {
+  @include unstyledButton;
+}
+
+
+.jump button {
+  background:  $light-gray url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
+  background-size: 1rem;
+  border: 1px solid $medium-light-gray;
+  border-radius: .25rem;
+  height: 2.5rem;
+  padding: 0;
+  width: 2.5rem;
+}

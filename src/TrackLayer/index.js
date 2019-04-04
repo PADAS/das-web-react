@@ -1,12 +1,11 @@
-import React, { memo, Component, Fragment, useEffect } from 'react';
+import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 import isEqual from 'lodash/isEqual';
-import { featureCollection } from '@turf/helpers';
 
 import { svgSrcToPngImg } from '../utils/img';
 import { getTrackPointsFromTrackFeatureArray } from '../selectors';
-import { getSubjectIDFromFirstFeatureInCollection, convertArrayOfTracksIntoFeatureCollection } from '../utils/tracks';
+import { convertArrayOfTracksIntoFeatureCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -37,7 +36,6 @@ const TracksLayer = memo(function TracksLayer(props) {
             ['has', 'stroke'], ['get', 'stroke'],
             'orange',
           ],
-          // 'line-color': ['get', 'stroke'] || 'orange',
           'line-width': ["step", ["zoom"], 0, 8, ['get', 'stroke-width']],
         }}
         lineLayout={{
@@ -45,8 +43,6 @@ const TracksLayer = memo(function TracksLayer(props) {
           'line-cap': 'round',
         }}
       />
-      {/* {tracksAsPoints.map((feature) => { */}
-      {/* const id = getSubjectIDFromFirstFeatureInCollection(feature); */}
       <GeoJSONLayer before="subject_symbols-symbol" id={`track-layer-timepoints`} data={tracksAsPoints} {...rest}
         symbolOnMouseEnter={() => map.getCanvas().style.cursor = 'pointer'}
         symbolOnClick={e => onPointClick(getPointLayer(e, map))}
@@ -61,8 +57,6 @@ const TracksLayer = memo(function TracksLayer(props) {
           'icon-rotation-alignment': 'map',
         }}
       />
-      // })
-      }
     </Fragment>
   );
 }, (prev, current) => isEqual(prev.trackCollection, current.trackCollection));

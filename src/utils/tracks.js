@@ -15,8 +15,8 @@ export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, coll
 
   if (!next && !previous) return false;
 
-  return (next && isEqual(feature.geometry.coordinates, next.geometry.coordinates)
-    || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates));
+  return (next && isEqual(feature.geometry.coordinates, next.geometry.coordinates) // eslint-disable-line no-mixed-operators
+    || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
 }
 
 export const convertTrackLineStringToPoints = feature => {

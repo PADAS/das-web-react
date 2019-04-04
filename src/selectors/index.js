@@ -7,8 +7,6 @@ import { featureCollection } from '@turf/helpers';
 
 const mapEvents = ({ mapEvents }) => mapEvents;
 const mapSubjects = ({ mapSubjects }) => mapSubjects;
-const events = ({ events }) => events;
-const eventFilter = ({ eventFilter }) => eventFilter;
 const trackCollection = trackCollection => trackCollection;
 
 export const getMapEventFeatureCollection = createSelector(

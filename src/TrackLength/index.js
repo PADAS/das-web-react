@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import length from '@turf/length';
-import isEqual from 'lodash/isEqual';
 
 function TrackLength(props) {
-  const { tracks, id, className, ...rest } = props;
+  const { tracks, id, className } = props;
 
   if (!tracks) return null;
   return <span className={className || ''}>Track length: {length(tracks).toFixed(2)} kilometers</span>;

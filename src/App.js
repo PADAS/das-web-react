@@ -1,52 +1,82 @@
-import './App.scss';
-import React, { Component } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
-import { fetchEvents } from './ducks/events';
-import { fetchMaps } from './ducks/maps';
-import { fetchEventTypes } from './ducks/event-types';
-import { fetchSystemStatus } from './ducks/system-status';
-import SideBar from './SideBar';
-import 'axios-progress-bar/dist/nprogress.css'
 import { loadProgressBar } from 'axios-progress-bar';
+import debounce from 'lodash/debounce';
 
-import { STATUSES } from './constants';
+import 'axios-progress-bar/dist/nprogress.css'
+
+import { fetchMaps } from './ducks/maps';
+import { fetchSystemStatus } from './ducks/system-status';
+import { fetchEventTypes } from './ducks/event-types';
+import { setSidebarState } from './ducks/map-ui';
 import { updateNetworkStatus } from './ducks/system-status';
-import { store } from './index';
+
+import SideBar from './SideBar';
+import { STATUSES } from './constants';
+import './App.scss';
+import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-class App extends Component {
-  componentDidMount() {
-    /* data initialization */
-    this.props.fetchEvents(this.props.eventFilter);
-    this.props.fetchMaps();
-    this.props.fetchEventTypes();
-    this.props.fetchSystemStatus();
-    loadProgressBar();
+const resizeInterval = (map) => {
+  const transitionLength = 300;
+  const frameRate = 10;
+  let count = 0;
+  const interval = setInterval(() => {
+    count += 1;
+    map.resize();
+    if (count > (transitionLength / frameRate)) clearInterval(interval);
+  }, frameRate);
+};
 
+let mapResized = false;
+
+const App = memo((props) => {
+  const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, setSidebarState } = props;
+  const [map, setMap] = useState(null);
+
+  setInterval(() => {
+    if (!mapResized || !map) return;
+    mapResized && map && map.resize();
+    mapResized = false;
+  }, 3000);
+
+  useEffect(() => {
+    fetchMaps();
+    fetchSystemStatus();
+    fetchEventTypes();
+    loadProgressBar();
     window.addEventListener('online', () => {
-      this.props.updateNetworkStatus(HEALTHY_STATUS);
+      updateNetworkStatus(HEALTHY_STATUS);
     });
     window.addEventListener('offline', () => {
-      this.props.updateNetworkStatus(UNHEALTHY_STATUS);
+      updateNetworkStatus(UNHEALTHY_STATUS);
     });
-  }
+    window.addEventListener('resize', () => {
+      mapResized = true;
+    });
+  }, []);
 
-  render() {
-    return (
-      <div className="App">
-        <Nav />
-        <div className="app-container">
-          <Map />
-          {/* <SideBar /> */}
-        </div>
+  return (
+    <div className="App">
+      <Nav />
+      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <Map map={map} onMapLoad={(map) => {
+          setMap(map);
+          window.map = map;
+        }} />
+        <SideBar onHandleClick={() => {
+          setSidebarState(!sidebarOpen);
+          resizeInterval(map);
+        }} map={map} />
       </div>
-    );
-  }
-}
+      <ReportTypeIconSprite id="reportTypeIconSprite" />
+    </div>
+  );
+});
 
-const mapStateToProps = ({ view: { eventFilter } }) => ({ eventFilter });
+const mapStateToProps = ({ view: { sidebarState: { open } } }) => ({ sidebarOpen: open })
 
-export default connect(mapStateToProps, { fetchEvents, fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSystemStatus, setSidebarState, updateNetworkStatus })(App);

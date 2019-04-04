@@ -149,6 +149,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
           status: HEALTHY_STATUS,
         };
       }
+      return state;
     }
     case (SERVER_STATUS_CHANGE): {
       const { status } = payload;
@@ -194,6 +195,7 @@ const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STA
           status: UNKNOWN_STATUS,
         }
       }
+      return state;
     }
     case (SOCKET_UNHEALTHY_STATUS): {
       return {
@@ -224,6 +226,7 @@ const serviceStatusReducer = genericStatusReducer((state = INITIAL_SERVICES_STAT
       if (payload === UNKNOWN_STATUS) {
         return state.map(service => ({ ...service, status: UNKNOWN_STATUS }));
       }
+      return state;
     }
     default: {
       return state;
