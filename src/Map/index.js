@@ -270,8 +270,8 @@ class Map extends Component {
             }
 
             <RotationControl position='bottom-left' />
-            <ScaleControl className="mapboxgl-ctrl-bottom-right mapbox-scale-ctrl" position='bottom-right' />
-            <ZoomControl className="mapboxgl-ctrl-bottom-right" position='bottom-right' />
+            <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
+            <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
             {/* <DrawControl map={map} position='bottom-left' /> */}
           </Fragment>
         )}

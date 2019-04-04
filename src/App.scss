@@ -30,9 +30,15 @@
         transform: rotate(0);
       }
     }
-    .mapboxgl-ctrl-bottom-right {
-      transform: translateX(-30rem);
+
+    .mapbox-scale-ctrl, .mapbox-zoom-ctrl {
+      transform: translate(-4rem, -1rem);
     }
+
+    .mapboxgl-ctrl-bottom-right {
+      transform: translateX(-4.5rem);
+    }
+    
     .mapboxgl-map {
       width: calc(100vw - 26rem);
     }
@@ -44,9 +50,17 @@
   }
 }
 
-.mapboxgl-ctrl-bottom-right, .side-menu {
-  transform: translateX(-4rem);
+.mapboxgl-ctrl-bottom-right, .mapbox-scale-ctrl, .mapbox-zoom-ctrl {
   transition: transform .3s ease-in-out;
+
+}
+
+.mapboxgl-ctrl-bottom-right {
+  transform: translateX(-0.5rem);
+}
+
+.mapbox-scale-ctrl, .mapbox-zoom-ctrl {
+  transform: translate(0rem, -1rem);
 }
 
 .mapbox-scale-ctrl {

@@ -68,7 +68,6 @@ const App = memo((props) => {
           window.map = map;
         }} />
         <SideBar onHandleClick={() => {
-
           setSidebarState(!sidebarOpen);
           resizeInterval(map);
         }} map={map} />
