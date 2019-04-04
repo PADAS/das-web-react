@@ -39,8 +39,3 @@ export const removePersistKey = createSelector(
     return clone;
   },
 );
-
-// export const getEvents = createSelector(
-//   [events, eventFilter],
-//   (events, eventFilter) => 
-// ) 

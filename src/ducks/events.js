@@ -9,7 +9,7 @@ import { calcUrlForImage } from '../utils/img';
 const EVENT_API_URL = `${API_URL}activity/events/`;
 
 // actions
-export const FETCH_EVENTS = 'FETCH_EVENTS';
+export const FETCH_EVENTS_START = 'FETCH_EVENTS_START';
 export const FETCH_EVENTS_SUCCESS = 'FETCH_EVENTS_SUCCESS';
 export const FETCH_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_EVENTS_NEXT_PAGE_SUCCESS';
 export const FETCH_EVENTS_ERROR = 'FETCH_EVENTS_ERROR';
@@ -23,12 +23,16 @@ export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
 // action creators
 export const fetchEvents = (config = {}) => (dispatch, getState) => {
+  dispatch({
+    type: FETCH_EVENTS_START,
+  });
+  
   const { data: { eventFilter } } = getState();
   return axios.get(EVENT_API_URL, { ...config, params: {
     ...eventFilter,
     ...config.params,
   } })
-  .then(response => dispatch(fetchEventsSucess(response)))
+  .then(response => dispatch(fetchEventsSuccess(response)))
   .catch(error => dispatch(fetchEventsError(error)));
 };
 
@@ -62,7 +66,7 @@ export const fetchMapEvents = (map, { token }) => (dispatch, getState) => {
     });
 }
 
-const fetchEventsSucess = response => ({
+const fetchEventsSuccess = response => ({
   type: FETCH_EVENTS_SUCCESS,
   payload: response.data,
 });
@@ -97,6 +101,9 @@ const INITIAL_EVENTS_STATE = {
 
 export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
   switch (action.type) {
+    case FETCH_EVENTS_START: {
+      return INITIAL_EVENTS_STATE;
+    }
     case FETCH_EVENTS_SUCCESS: {
       return action.payload.data;
     }

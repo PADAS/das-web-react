@@ -15,6 +15,7 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import createSocket, { unbindSocketEvents } from '../socket';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
+import isEqual from 'lodash/isEqual';
 
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
@@ -55,6 +56,11 @@ class Map extends Component {
     this.setState({
       socket: createSocket(),
     });
+  }
+  componentDidUpdate(prev) {
+    if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
+      this.fetchMapEvents();
+    }
   }
   componentWillUnmount() {
     unbindSocketEvents(this.state.socket);
@@ -281,9 +287,9 @@ class Map extends Component {
   }
 }
 
-const mapStatetoProps = ({ data, view: { homeMap, popup } }) => {
+const mapStatetoProps = ({ data, view: { homeMap, popup, eventFilter } }) => {
   const { maps, tracks } = data;
-  return { maps, tracks, homeMap, popup, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection(data) };
+  return { maps, tracks, homeMap, popup, eventFilter, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection(data) };
 };
 
 export default connect(mapStatetoProps, { fetchMapSubjects, fetchMapEvents, fetchTracks, hidePopup, showPopup })(Map);
