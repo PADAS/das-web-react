@@ -23,7 +23,7 @@ const EventFeed = (props) => {
         {
           events.map((item, index) => (
             <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
-              <div className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></div>
+              <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
               <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
               <DateTime className={styles.date} date={item.updated_at} />
               {eventHasLocation &&

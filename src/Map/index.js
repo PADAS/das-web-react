@@ -282,8 +282,8 @@ class Map extends Component {
 }
 
 const mapStatetoProps = ({ data, view: { homeMap, popup } }) => {
-  const { mapSubjects, mapEvents, maps, tracks } = data;
-  return { maps, mapSubjects, mapEvents, tracks, homeMap, popup, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection(data) };
+  const { maps, tracks } = data;
+  return { maps, tracks, homeMap, popup, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection(data) };
 };
 
 export default connect(mapStatetoProps, { fetchMapSubjects, fetchMapEvents, fetchTracks, hidePopup, showPopup })(Map);

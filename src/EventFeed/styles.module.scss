@@ -55,9 +55,12 @@ $color in $priorities {
 
 .title {
   text-align: left;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
-.title {
+.title, .icon {
   @include unstyledButton;
 }
 

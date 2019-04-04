@@ -12,6 +12,16 @@ nav {
   .dropdown-toggle {
     max-height: var(--nav-height);
   }
+  .left-controls {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    max-width: 9rem;
+  }
+  .logo {
+    margin-left: 0.75rem;
+    max-height: var(--nav-height);
+  }
 }
 
 .dropdown.show {
