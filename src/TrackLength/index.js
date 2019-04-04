@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 import length from '@turf/length';
 
 function TrackLength(props) {
-  const { tracks, id, className, ...rest } = props;
+  const { tracks, id, className } = props;
 
   if (!tracks) return null;
-  return <span className={className || ''} {...rest}>Track length: {length(tracks).toFixed(2)} kilometers</span>;
+  return <span className={className || ''}>Track length: {length(tracks).toFixed(2)} kilometers</span>;
 
 }
 

@@ -5,7 +5,7 @@ import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
-import { showPopup, hidePopup } from '../ducks/map-ui';
+import { showPopup, hidePopup } from '../ducks/popup';
 import { CancelToken } from 'axios';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import debounce from 'lodash/debounce';
@@ -270,8 +270,8 @@ class Map extends Component {
             }
 
             <RotationControl position='bottom-left' />
-            <ScaleControl />
-            <ZoomControl position='bottom-right' />
+            <ScaleControl className="mapboxgl-ctrl-bottom-right mapbox-scale-ctrl" position='bottom-right' />
+            <ZoomControl className="mapboxgl-ctrl-bottom-right" position='bottom-right' />
             {/* <DrawControl map={map} position='bottom-left' /> */}
           </Fragment>
         )}

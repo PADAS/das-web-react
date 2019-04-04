@@ -16,6 +16,13 @@
   }
 }
 
+.loadMessage {
+  font-size: .75rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem;
+}
+
 @each $priority,
 $color in $priorities {
   .priority-#{$priority} {

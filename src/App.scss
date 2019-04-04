@@ -1,3 +1,6 @@
+@import './common/styles/vars/colors';
+@import './common/styles/buttons';
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -15,16 +18,80 @@
 }
 
 .app-container {
-  display: flex;
   position: relative;
   height: calc(100vh - var(--nav-height));
   width: 100vw;
   z-index: 1;
+  &.sidebar-open {
+    .side-menu {
+      // transition: transform .3s ease-in-out;
+      transform: translateX(0);
+      span {
+        transform: rotate(0);
+      }
+    }
+    .mapboxgl-ctrl-bottom-right {
+      transform: translateX(-30rem);
+    }
+    .mapboxgl-map {
+      width: calc(100vw - 26rem);
+    }
+  }
+  .mapboxgl-map {
+    height: calc(100vh - var(--nav-height));
+    transition: width .3s ease-in-out;
+    width: calc(100vw - 4rem);
+  }
 }
 
-.app-container .mapboxgl-map {
-  flex-grow: 1;
+.mapboxgl-ctrl-bottom-right, .side-menu {
+  transform: translateX(-4rem);
+  transition: transform .3s ease-in-out;
 }
+
+.mapbox-scale-ctrl {
+  margin-right: 2rem;
+}
+
+.side-menu {
+  background: white;
+  box-shadow: 0 0 .25rem rgb(38,38,38);
+  display: flex;
+  flex-flow: column;
+  flex-grow: 0;
+  height: calc(100vh - var(--nav-height));
+  position: absolute;
+  right: 0;
+  transform: translateX(26rem);
+  transition: transform .3s ease-in-out;
+  top: 0;
+  width: 30rem;
+  z-index: 1;
+  .handle {
+    @include unstyledButton;
+    background: $dark-gray;
+    border-radius: 0.5rem 0 0 0.5rem;
+    color: white;
+    font-size: .333rem;
+    height: 3rem;
+    left: -1.5rem;
+    top: 45%;
+    position: absolute;
+    &:hover {
+      background: darken($dark-gray, 10%);
+    }
+    &:active {
+      background: darken($dark-gray, 16%);
+    }
+    span {
+      display: block;
+      transform: rotate(180deg);
+      transition: transform .2s .3s ease-in-out;
+    }
+  }
+}
+
+.app-container 
 
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
@@ -44,3 +111,4 @@ div.mapboxgl-popup-content {
 div.mapboxgl-popup-tip {
   border-top-color: rgba(255, 255, 255, 0.95);
  }
+

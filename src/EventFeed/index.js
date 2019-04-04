@@ -18,7 +18,7 @@ const EventFeed = (props) => {
         hasMore={hasMore}
         loadMore={onScroll}
         useWindow={false}
-        loader={<div className="loader" key={0}>Loading more events...</div>}
+        loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
       >
         {
           events.map((item, index) => (

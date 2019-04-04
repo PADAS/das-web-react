@@ -1,18 +1,6 @@
-.side-menu {
-  display: flex;
-  flex-flow: column;
-  flex-grow: 0;
-  height: calc(100vh - var(--nav-height));
-  position: relative;
-  right: 0;
-  top: 0;
-  width: 30rem;
-  z-index: 1;
-}
-
 .side-menu ul {
   list-style-type: none;
   margin: 0;
-  overflow: scroll;
-  padding: 0 0 2rem;
+  overflow-y: auto;
+  padding: 0;
 }
