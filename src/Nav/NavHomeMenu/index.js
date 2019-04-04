@@ -18,7 +18,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
 
   useEffect(() => {
     setHomeMap(calculateSelectedMap());
-  });
+  }, []);
 
   return (
     <Dropdown className="home-select">

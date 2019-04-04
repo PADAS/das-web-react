@@ -17,6 +17,7 @@ import SideBar from './SideBar';
 import { STATUSES } from './constants';
 import './App.scss';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
+import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -72,7 +73,12 @@ const App = memo((props) => {
           resizeInterval(map);
         }} map={map} />
       </div>
-      <ReportTypeIconSprite id="reportTypeIconSprite" />
+      <div style={{
+        display: 'none',
+      }}>
+        <ReportTypeIconSprite id="reportTypeIconSprite" />
+        <EarthRangerLogoSprite />
+      </div>
     </div>
   );
 });

@@ -50,14 +50,18 @@ $color in $priorities {
   align-items: flex-end;
   flex-flow: column;
   margin-left: auto;
+  padding-right: 0;
   text-align: right;
 }
 
 .title {
   text-align: left;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
-.title {
+.title, .icon {
   @include unstyledButton;
 }
 
