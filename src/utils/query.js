@@ -3,7 +3,7 @@ import toString from 'lodash/toString';
 
 export const getBboxParamsFromMap = map => toString(Object.entries(map.getBounds()).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []));
 
-export const recursivePaginatedQuery = (initialQuery, resultsToDate = [], cancelToken = null) => {
+export const recursivePaginatedQuery = (initialQuery, cancelToken = null, resultsToDate = []) => {
   return new Promise(async (resolve, reject) => {
     try {
       const { data: { data: res } } = await initialQuery;
@@ -12,7 +12,7 @@ export const recursivePaginatedQuery = (initialQuery, resultsToDate = [], cancel
 
       if (cancelToken) config.cancelToken = cancelToken;
       if (next) {
-        const finalValues = await recursivePaginatedQuery(get(next, config), [...resultsToDate, ...results], cancelToken);
+        const finalValues = await recursivePaginatedQuery(get(next, config), cancelToken, [...resultsToDate, ...results]);
         resolve(finalValues);
       } else {
         resolve([...resultsToDate, ...results]);

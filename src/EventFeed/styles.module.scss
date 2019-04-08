@@ -5,6 +5,9 @@
   align-content: center;
   color: $dark-gray;
   display: flex;
+  &:first-child {
+    animation: slide-down .4s ease-in;
+  }
   + .listItem {
     border-top: 1px solid $medium-light-gray;
   }
@@ -13,6 +16,19 @@
     align-items: center;
     display: flex;
     justify-content: center;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4rem);
+  }
+  100% {
+    max-height: 4rem;
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
