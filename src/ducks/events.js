@@ -5,6 +5,7 @@ import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
+import { eventBelongsToCollection } from '../utils/events';
 
 const EVENT_API_URL = `${API_URL}activity/events/`;
 
@@ -51,13 +52,15 @@ export const fetchMapEvents = (map, { token }) => (dispatch, getState) => {
 
   const { data: { eventFilter } } = getState();
 
-  return recursivePaginatedQuery(axios.get(EVENT_API_URL, {
+  const request = axios.get(EVENT_API_URL, {
     cancelToken: token,
     params: {
       bbox,
       ...eventFilter,
     },
-  }), [], token)
+  });
+
+  return recursivePaginatedQuery(request, token)
     .then((results) => {
       dispatch(fetchMapEventsSucess(results));
     })
@@ -118,11 +121,38 @@ export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
         results: uniqBy([...state.results, ...events], 'id'),
       };
     }
+    case SOCKET_NEW_EVENT: {
+      const { payload: { event_data } } = action;
+      console.log('realtime: new event', event_data);
+      if (eventBelongsToCollection(event_data)) return state;
+      
+      if (event_data.geojson) {
+        event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+      }
+      return {
+        ...state,
+        results:  [event_data, ...state.results],
+      }
+    }
+    case SOCKET_UPDATE_EVENT: {
+      const { payload: { event_data, event_id } } = action;
+      if (eventBelongsToCollection(event_data)) return state;
+
+      if (!state.results.find(item => item.id === event_id)) return state;
+
+      event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+      return {
+        ...state,
+        results: unionBy([event_data], state.results, 'id'),
+      };
+    }
     default: {
       return state;
     }
   }
 };
+
+
 
 const INITIAL_MAP_EVENTS_STATE = [];
 
@@ -133,7 +163,6 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
     }
     case SOCKET_NEW_EVENT: {
       const { payload: { event_data } } = action;
-      console.log('realtime: new event', event_data);
       if (event_data.geojson) {
         event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
       }

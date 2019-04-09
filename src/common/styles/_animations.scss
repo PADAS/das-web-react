@@ -1,0 +1,15 @@
+@mixin slide-down($height: 4rem, $duration: 0.4s) {
+  @keyframes slide-down {
+    0% {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-$height);
+    }
+    100% {
+      max-height: $height;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  animation: slide-down $duration ease-in;
+}
