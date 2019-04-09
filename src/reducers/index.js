@@ -13,6 +13,7 @@ import { heatmapReducer, sidebarStateReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
+import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -39,12 +40,15 @@ const sidebarPersistanceConfig = {
   storage,
 };
 
+const userProfilePersistanceConfig = {
+  key: 'userProfile',
+  storage,
+};
 
 const rootReducer = combineReducers({
   data: combineReducers({
     events: eventsReducer,
     eventTypes: eventTypesReducer,
-    eventSchemas: null,
     eventFilter: eventFilterReducer,
     maps: mapsReducer,
     mapEvents: mapEventsReducer,
@@ -52,6 +56,9 @@ const rootReducer = combineReducers({
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistanceConfig, tokenReducer),
     tracks: tracksReducer,
+    user: userReducer,
+    userProfiles: userProfilesReducer,
+    selectedUserProfile: persistReducer(userProfilePersistanceConfig, selectedUserProfileReducer),
   }),
   view: combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),

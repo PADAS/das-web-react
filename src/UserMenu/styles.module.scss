@@ -1,0 +1,17 @@
+@import '../common/styles/buttons';
+
+.icon {
+  height: 1rem;
+  margin-right: 0.5rem;
+  width: auto;
+}
+
+.menu {
+  button, a {
+    text-align: right;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

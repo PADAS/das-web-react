@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
+
 authConfig();
 
 class PrivateRoute extends Component {
@@ -30,7 +32,7 @@ class PrivateRoute extends Component {
           ) : (
               <Redirect
                 to={{
-                  pathname: '/login',
+                  pathname: `${REACT_APP_ROUTE_PREFIX}/login`,
                   state: { from: this.props.location, },
                 }}
               />

@@ -29,7 +29,6 @@ export const fetchEventFilterSchema = () => function (dispatch) {
 export const updateEventFilter = (filter = {}) => {
   return function (dispatch) {
     dispatch(eventFilterUpdated(filter));
-    dispatch(fetchEvents(filter));
   };
 };
 

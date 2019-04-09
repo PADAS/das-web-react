@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    ports:
-      - 9000:3000
     volumes:
       - /app/node_modules
       - .:/app
@@ -17,3 +15,23 @@ services:
       - /app/node_modules
       - .:/app
     command: yarn test
+  web_old:
+    build:
+      context: $PWD/../das-web
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - /app/client/bower_components
+      - $PWD/../das-web:/app
+    command: yarn docker_start
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    restart: always
+    depends_on:
+      - "web"
+      - "web_old"
+    ports:
+      - '9000:80'
+      - '35729:35729'

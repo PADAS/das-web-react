@@ -16,18 +16,20 @@ const NavHomeMenu = function NavHomeMenu(props) {
     return homeMap.id ? homeMap : maps[0];
   };
 
+  const selectedMap = calculateSelectedMap();
+
   useEffect(() => {
-    setHomeMap(calculateSelectedMap());
+    setHomeMap(selectedMap);
   }, []);
 
   return (
     <Dropdown className="home-select">
       <Toggle className={styles.toggle}>
-        <NavHomeItem {...calculateSelectedMap()} />
+        <NavHomeItem {...selectedMap} />
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>
-          <Item className={styles.listItem} key={map.id} onClick={() => setHomeMap(map)}>
+          <Item as="button" active={selectedMap.id === map.id ? "active" : null} className={styles.listItem} key={map.id} onClick={() => setHomeMap(map)}>
             <NavHomeItem {...map} />
           </Item>)}
       </Menu>

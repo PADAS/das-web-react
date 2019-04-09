@@ -22,7 +22,9 @@ const SideBar = memo((props) => {
   };
 
   useEffect(() => {
-    fetchEvents();
+    fetchEvents({
+      params: eventFilter,
+    });
   }, [eventFilter]);
 
   return (

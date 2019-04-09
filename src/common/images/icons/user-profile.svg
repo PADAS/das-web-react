@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="140px" height="134px" viewBox="0 0 140 134" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>Icon SVG</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon-SVG" transform="translate(5.000000, 4.000000)">
+            <path d="M0.5,125.5 L130.5,125.5" id="Line-3" stroke="#D8D8D8" stroke-width="8" stroke-linecap="square"></path>
+            <path d="M130.5,125.5 C130.263013,112.485342 126.39843,100.248689 118.90625,88.7900391 C111.41407,77.3313896 101.782885,68.9274182 90.0126953,63.578125" id="Line" stroke="#D8D8D8" stroke-width="8" stroke-linecap="square"></path>
+            <path d="M21.1007915,121.921875 C20.8638048,108.907217 16.9992215,96.6705636 9.50704146,85.2119141 C6.64924155,80.8411532 3.48022773,76.9148318 0,73.43295" id="Line" stroke="#D8D8D8" stroke-width="8" stroke-linecap="square" transform="translate(10.550396, 97.677412) scale(-1, 1) translate(-10.550396, -97.677412) "></path>
+            <circle id="Oval" stroke="#D8D8D8" stroke-width="8" cx="65.5" cy="34.5" r="34.5"></circle>
+            <path d="" id="Line-2" stroke="#979797" stroke-linecap="square"></path>
+        </g>
+    </g>
+</svg>

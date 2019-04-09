@@ -22,16 +22,12 @@ export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
 // action creators
-export const fetchEvents = (config = {}) => (dispatch, getState) => {
+export const fetchEvents = (config = {}) => (dispatch) => {
   dispatch({
     type: FETCH_EVENTS_START,
   });
   
-  const { data: { eventFilter } } = getState();
-  return axios.get(EVENT_API_URL, { ...config, params: {
-    ...eventFilter,
-    ...config.params,
-  } })
+  return axios.get(EVENT_API_URL, { ...config })
   .then(response => dispatch(fetchEventsSuccess(response)))
   .catch(error => dispatch(fetchEventsError(error)));
 };
