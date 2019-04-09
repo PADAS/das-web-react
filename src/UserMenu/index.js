@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
@@ -12,23 +12,26 @@ const UserMenu = (props) => {
   const displayUser = selectedUserProfile.username ? selectedUserProfile : user;
 
   return <Dropdown alignRight className={styles.menu} {...rest}>
-  <Toggle>
-    <UserIcon className={styles.icon} />{displayUser.username}
-  </Toggle>
-  <Menu>
-    {!!userProfiles.length && [user, ...userProfiles]
-      .filter(({ username }) => username !== displayUser.username)
-      .map((profile, index) =>
-      <Item key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
-        {profile.username}
-      </Item>
-    )}
-    <Divider />
-    <Item onClick={onLogOutClick}>Log out</Item>
-  </Menu>
-</Dropdown>;
+    <Toggle>
+      <UserIcon className={styles.icon} />{displayUser.username}
+    </Toggle>
+    <Menu>
+      {!!userProfiles.length &&
+        <Fragment>
+          {[user, ...userProfiles]
+            .filter(({ username }) => username !== displayUser.username)
+            .map((profile, index) =>
+              <Item key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
+                {profile.username}
+              </Item>
+            )}
+          <Divider />
+        </Fragment>}
+      <Item onClick={onLogOutClick}>Log out</Item>
+    </Menu>
+  </Dropdown>;
 };
- 
+
 
 UserMenu.defaultProps = {
   userProfiles: [],
