@@ -59,6 +59,7 @@ class Map extends Component {
   }
   componentDidUpdate(prev) {
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
+      this.state.socket.emit('event_filter', this.props.eventFilter);
       this.fetchMapEvents();
     }
   }

@@ -18,7 +18,7 @@ export const resetEventFilter = () => ({
 });
 
 // REDUCER
-const INITIAL_FILTER_STATE = {
+export const INITIAL_FILTER_STATE = {
   exclude_contained: true,
   include_notes: true,
   include_related_events: true,

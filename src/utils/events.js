@@ -19,3 +19,5 @@ export const eventHasLocation = (evt) => {
   }
   return !!evt.location;
 }
+
+export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;

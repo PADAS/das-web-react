@@ -1,10 +1,14 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/buttons';
+@import '../common/styles/animations';
 
 .listItem {
   align-content: center;
   color: $dark-gray;
   display: flex;
+  &:first-child {
+    @include slide-down;
+  }
   + .listItem {
     border-top: 1px solid $medium-light-gray;
   }
