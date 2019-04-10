@@ -27,14 +27,18 @@ export const fetchEvents = (config = {}) => (dispatch, getState) => {
   dispatch({
     type: FETCH_EVENTS_START,
   });
-  
+
   const { data: { eventFilter } } = getState();
-  return axios.get(EVENT_API_URL, { ...config, params: {
-    ...eventFilter,
-    ...config.params,
-  } })
-  .then(response => dispatch(fetchEventsSuccess(response)))
-  .catch(error => dispatch(fetchEventsError(error)));
+
+  return axios.get(EVENT_API_URL, {
+    ...config,
+    params: {
+      ...config.params,
+      ...eventFilter,
+    }
+  })
+    .then(response => dispatch(fetchEventsSuccess(response)))
+    .catch(error => dispatch(fetchEventsError(error)));
 };
 
 export const fetchNextEventPage = (url, config = {}) => {

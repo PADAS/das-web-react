@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { postAuth, clearAuth } from '../ducks/auth';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+
+import { postAuth, clearAuth } from '../ducks/auth';
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 class LoginPage extends Component {
   constructor(props) {
@@ -26,7 +28,7 @@ class LoginPage extends Component {
 
     this.props.postAuth(data)
       .then((success) => {
-        this.props.history.push('/');
+        this.props.history.push(REACT_APP_ROUTE_PREFIX);
       })
       .catch((error) => {
         this.props.clearAuth();
@@ -57,7 +59,7 @@ class LoginPage extends Component {
     const { access_token } = this.props.token;
     return access_token ? (<Redirect
       to={{
-        pathname: '/',
+        pathname: REACT_APP_ROUTE_PREFIX,
         state: { from: this.props.location, },
       }}
     />) : (

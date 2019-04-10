@@ -1,6 +1,7 @@
 {
   "extends": [
     "react-app",
-    "react-hooks"
+    "react-hooks",
+    "plugin:react/recommended"
   ]
 }

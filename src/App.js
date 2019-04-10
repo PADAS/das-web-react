@@ -21,11 +21,14 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
+let interval, mapInterval;
+
 const resizeInterval = (map) => {
+  clearInterval(interval);
   const transitionLength = 300;
   const frameRate = 10;
   let count = 0;
-  const interval = setInterval(() => {
+  interval = setInterval(() => {
     count += 1;
     map.resize();
     if (count > (transitionLength / frameRate)) clearInterval(interval);
@@ -38,7 +41,8 @@ const App = memo((props) => {
   const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, setSidebarState } = props;
   const [map, setMap] = useState(null);
 
-  setInterval(() => {
+  clearInterval(mapInterval);
+  mapInterval = setInterval(() => {
     if (!mapResized || !map) return;
     mapResized && map && map.resize();
     mapResized = false;
@@ -64,10 +68,7 @@ const App = memo((props) => {
     <div className="App">
       <Nav />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={(map) => {
-          setMap(map);
-          window.map = map;
-        }} />
+        <Map map={map} onMapLoad={setMap} />
         <SideBar onHandleClick={() => {
           setSidebarState(!sidebarOpen);
           resizeInterval(map);

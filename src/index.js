@@ -7,6 +7,7 @@ import { persistStore } from 'redux-persist';
 import ReduxPromise from 'redux-promise';
 import { PersistGate } from 'redux-persist/integration/react';
 import ReduxThunk from 'redux-thunk';
+import { REACT_APP_ROUTE_PREFIX } from './constants';
 
 import registerServiceWorker from './registerServiceWorker';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -25,8 +26,8 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
         <Switch>
-          <PrivateRoute exact path="/" component={App} />
-          <Route path="/login" component={Login} />
+          <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={App} />
+          <Route path={`${REACT_APP_ROUTE_PREFIX}/login`} component={Login} />
         </Switch>
       </BrowserRouter>
     </PersistGate>

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { REACT_APP_DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
+import { clearUserProfile } from '../ducks/user';
 
 const AUTH_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
@@ -39,11 +40,12 @@ const postAuthError = error => ({
   payload: error,
 });
 
-export const clearAuth = () => {
-  return {
+export const clearAuth = () => dispatch => {
+  dispatch(clearUserProfile());
+  dispatch({
     type: CLEAR_AUTH,
     payload: {},
-  };
+  });
 };
 
 // reducer
