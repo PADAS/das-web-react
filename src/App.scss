@@ -43,7 +43,7 @@
 
     .mapbox-scale-ctrl,
     .mapbox-zoom-ctrl {
-      transform: translate(-4rem, -1rem);
+      transform: translate(0rem, -1rem);
     }
 
     .mapboxgl-ctrl-bottom-right {
@@ -124,6 +124,9 @@
 .mapbox-scale-ctrl,
 .mapbox-zoom-ctrl {
   transform: translate(0rem, -1rem);
+  @media (min-width: $md-layout-width-min) {
+    transform: translate(-4rem, -1rem);
+  }
 }
 
 .mapbox-scale-ctrl {
