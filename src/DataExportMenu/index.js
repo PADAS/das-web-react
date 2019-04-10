@@ -11,7 +11,7 @@ export default (props) => {
   const [isOpen, setOpenState] = useState(false)
 
   return <Dropdown onToggle={isOpen => setOpenState(isOpen)} {...rest}>
-    <Toggle>
+    <Toggle as="div">
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>

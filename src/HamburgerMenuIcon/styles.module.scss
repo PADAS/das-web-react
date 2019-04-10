@@ -3,10 +3,10 @@
 .hamburger {
   @include unstyledButton;
   --color:var(--hamburger-menu-color, white);
-  --size: var(--hamburger-menu-size, 2.25rem);
-  --transition-time: 0.225s;
-  --spacing: calc(var(--size)/3);
-  --line-width: calc(var(--spacing) / 4);
+  --size: var(--hamburger-menu-size, 1.75rem);
+  --transition-time: var(--hamburger-menu-transition-speed, .15s);
+  --spacing: calc(var(--size)/3.5);
+  --line-width: var(--hamburger-menu-stroke, calc(1rem / 8));
 
   cursor: pointer;
   height: var(--size);
