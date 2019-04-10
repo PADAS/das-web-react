@@ -1,9 +1,11 @@
 
 @import '../common/styles/vars/colors';
+@import '../common/styles/layout';
 
 .listItem {
   border-bottom: 1px solid $light-gray;
   cursor: default;
+  line-height: normal;
   // border-bottom: 1px solid $light-gray;
   justify-content: space-between;
   &:hover {
@@ -17,11 +19,33 @@
 .menu {
   padding-bottom: 0;
   padding-top: 0;
+  min-width: 90vw;
+  max-width: 98vw;
+  @media (min-width: $md-layout-width-min) {
+    min-width: unset;
+    max-width: unset;
+  }
 }
 
 .listItem, .summary, .details {
   align-items: center;
   display: flex;
+}
+
+.itemTitle {
+  white-space: normal;
+  @media (min-width: $md-layout-width-min) {
+    white-space: nowrap;
+  }
+}
+
+.badge {
+  --badge-dimensions: .75rem;
+  height: var(--badge-dimensions);
+  width: var(--badge-dimensions);
+  @media (min-width:  $md-layout-width-min) {
+    --badge-dimensions: 1.25rem;
+  }
 }
 
 .badge, .summary {
