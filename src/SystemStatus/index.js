@@ -19,7 +19,7 @@ class SystemStatusComponent extends Component {
           <Item className={styles.listItem} key={item.provider_key}>
             <div className={styles.summary}>
               <Badge className={styles.badge} status={item.status} />
-              {item.title}
+              <span className={styles.itemTitle}>{item.title}</span>
             </div>
             <div className={styles.details}>
               <span>
@@ -37,7 +37,7 @@ class SystemStatusComponent extends Component {
       return <Item className={styles.listItem} key={index}>
         <div className={styles.summary}>
           <Badge className={styles.badge} status={value.status} />
-          {value.title}
+          <span className={styles.itemTitle}>{value.title}</span>
         </div>
         <div className={styles.details}>
           <span>
