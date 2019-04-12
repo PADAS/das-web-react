@@ -19,9 +19,9 @@ const UserMenu = (props) => {
       {!!userProfiles.length &&
         <Fragment>
           {[user, ...userProfiles]
-            .filter(({ username }) => username !== displayUser.username)
+            // .filter(({ username }) => username !== displayUser.username)
             .map((profile, index) =>
-              <Item key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
+              <Item className={profile.username === displayUser.username ? styles.selected: ''} key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
                 {profile.username}
               </Item>
             )}

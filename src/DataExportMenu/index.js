@@ -49,8 +49,8 @@ const DataExportMenu = (props) => {
     </Toggle>
     <Menu>
       <Header>Exports</Header>
-      {modals.map(({ title, modal }) =>
-        <Item onClick={() =>
+      {modals.map(({ title, modal }, index) =>
+        <Item key={index} onClick={() =>
           showModal({
             content: modal,
           })}>
