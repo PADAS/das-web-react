@@ -1,3 +1,12 @@
+$primary-teal: #6bbbae;
+$primary-brown: #63512d;
+$primary-green: #4e5e31;
+
+$secondary-medium-gray: #63666a;
+$secondary-medium-light-gray: #888b8d;
+$secondary-light-gray: #b1b3b3;
+
+
 $amber: #FFAB24;
 $bright-blue: #006cd9;
 $bright-green: #7fd320;
@@ -5,10 +14,10 @@ $bright-red: #D0031B;
 $green: #4F8317;
 $mustard-yellow: #d1c22e;
 
-$dark-gray: #676767;
-$medium-gray: lighten($dark-gray, 20%);
-$medium-light-gray: lighten($medium-gray, 15%);
-$light-gray: lighten($medium-gray, 30%);
+$off-black: #333333;
+$dark-gray: darken($secondary-medium-gray, 20%);
+$medium-light-gray: $secondary-medium-light-gray;
+$light-gray: lighten($secondary-light-gray, 25%);
 
 $healthy: $bright-green;
 $healthy-border: lighten($bright-green, 15%);
@@ -19,9 +28,16 @@ $warning-border: lighten($mustard-yellow, 15%);
 $unknown: $dark-gray;
 $unknown-border: lighten($dark-gray, 15%);
 
-$no-priority: $medium-gray;
+$no-priority: $secondary-medium-gray;
 $low-priority: $green;
 $medium-priority: $amber;
 $high-priority: $bright-red;
+
+$gray-border: $medium-light-gray;
+
+$title-bar-color: $off-black;
+$primary-modal-header: $off-black;
+
+$primary-button-color: $bright-blue;
 
 $priorities: ((0, $no-priority), (100, $low-priority), (200, $medium-priority), (300, $high-priority));

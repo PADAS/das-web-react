@@ -1,12 +1,14 @@
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import { createWriteStream } from 'streamsaver';
 
 import { uuid } from '../utils/string';
 const { get } = axios;
 
-export const downloadFileFromUrl = async (url) => {
+export const downloadFileFromUrl = async (url, params = {}, { token:cancelToken } = CancelToken.source()) => {
   const { data, headers } = await get(url, {
-    responseType: 'blob'
+    cancelToken,
+    params,
+    responseType: 'blob',
   })
     .catch(error => console.log('error downloading file', error));
   const link = document.createElement('a');
@@ -23,12 +25,14 @@ export const downloadFileFromUrl = async (url) => {
 };
 
 
-export const downloadFileStreamFromUrl = async (url) => {
+export const downloadFileStreamFromUrl = async (url, params = {}, { token:cancelToken } = CancelToken.source()) => {
   const response = await get(url, {
+    cancelToken,
+    params,
     responseType: 'stream',
   }).catch(e => console.log('error downloading file stream', e));
 
-  const { body, data, headers } = response;
+  const { data, headers } = response;
 
   const fileStream = createWriteStream(headers['x-das-download-filename']);
   const writer = fileStream.getWriter();
@@ -38,7 +42,7 @@ export const downloadFileStreamFromUrl = async (url) => {
     return data.pipeTo(fileStream);
   }
 
-  const reader = body.getReader();
+  const reader = data.getReader();
   const pump = () => reader
     .read()
     .then(({ value, done }) => (done ? writer.close() : writer.write(value).then(pump)));

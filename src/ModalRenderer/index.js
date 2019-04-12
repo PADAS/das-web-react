@@ -5,43 +5,38 @@ import { connect } from 'react-redux';
 
 import { hideModal } from '../ducks/modals';
 
-const { Header, Title, Body, Footer } = Modal;
+import styles from './styles.module.scss';
 
 const ModalRenderer = (props) => {
-  const { modals } = props;
+  const { modals, hideModal } = props;
 
-  return !!modals.length && modals.map(modal => {
-    const { title, content, footer, id } = modal;
-    return (
-      <Modal show={true} onHide={() => hideModal(id)}>
-        {!!title &&
-          <Header>
-            <Title>{title}</Title>
-          </Header>
-        }
-        {!!content &&
-          <Body>
-            {content}
-          </Body>
-        }
-        {!!footer &&
-          <Footer>
-            {footer}
-          </Footer>
-        }
-      </Modal>
-    );
-  });
+  return !!modals.length &&
+    <div className={styles.wrapper}>
+      {modals.map((item, index) => {
+        const { content: ContentComponent, id, modalProps, ...rest } = item;
+        return (!!ContentComponent &&
+          <Modal
+            backdrop={index === 0}
+            centered show={true}
+            key={id}
+            {...modalProps}
+            onHide={() => hideModal(id)}>
+
+            <ContentComponent id={id} {...rest} />
+          </Modal>
+        );
+      })}
+    </div>
 };
 
 const mapStateToProps = ({ view: { modals } }) => ({ modals });
 
-export default connect(mapStateToProps, null)(ModalRenderer);
+export default connect(mapStateToProps, { hideModal })(ModalRenderer);
 
 ModalRenderer.propTypes = {
   modals: PropTypes.arrayOf(PropTypes.shape({
     title: PropTypes.node,
-    content: PropTypes.node,
+    content: PropTypes.any.isRequired,
     footer: PropTypes.node,
     id: PropTypes.string.isRequired,
   })).isRequired,

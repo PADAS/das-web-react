@@ -24,6 +24,7 @@ const EventFeed = (props) => {
           events.map((item, index) => (
             <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
               <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
+              <span className={styles.serialNumber}>{item.serial_number}</span>
               <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
               <DateTime className={styles.date} date={item.updated_at} />
               {eventHasLocation &&
@@ -45,7 +46,7 @@ export default connect(mapStateToProps, null)(EventFeed);
 
 EventFeed.defaultProps = {
   onTitleClick(event) {
-    console.log('title click', event);
+    console.log(newFunction(), event);
   },
   onIconClick(event) {
   },
@@ -62,3 +63,7 @@ EventFeed.propTypes = {
   onIconClick: PropTypes.func,
   onJumpClick: PropTypes.func,
 };
+
+function newFunction() {
+  return 'title click';
+}

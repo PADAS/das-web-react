@@ -47,7 +47,7 @@
     }
 
     .mapboxgl-ctrl-bottom-right {
-      transform: translateX(-4.5rem);
+      transform: translateX(-0.5rem);
     }
 
     .mapboxgl-map {
@@ -118,7 +118,7 @@
 }
 
 .mapboxgl-ctrl-bottom-right {
-  transform: translateX(-0.5rem);
+  transform: translateX(-4.5rem);
 }
 
 .mapbox-scale-ctrl,
@@ -133,6 +133,19 @@
   margin-right: 2rem;
 }
 
+.modal-header {
+  background: $primary-modal-header;
+  color: white;
+  .close {
+    color: white;
+    opacity: 1;
+  }
+}
+
+.btn-primary {
+  background-color: $primary-button-color;
+  border-color: $primary-button-color;
+}
 
 
 .app-container h1,
@@ -158,4 +171,12 @@ div.mapboxgl-popup-content {
 
 div.mapboxgl-popup-tip {
   border-top-color: rgba(255, 255, 255, 0.95);
+}
+
+.modal {
+  transition: top left .2s ease-in-out;
+  + .modal {
+    left: 1rem;
+    top: 1rem;
+  }
 }

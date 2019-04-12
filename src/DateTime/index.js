@@ -11,7 +11,7 @@ export default class DateTime extends PureComponent {
     const { date, showElapsed, className, ...rest } = this.props;
     return (
       <div className={`${styles.container} ${className || ''}`} {...rest}>
-        <h6 className={styles.date}>{format(new Date(date), STANDARD_DATE_FORMAT)}</h6>
+        <span className={styles.date}>{format(new Date(date), STANDARD_DATE_FORMAT)}</span>
         {showElapsed && <TimeAgo className={styles.elapsed} date={date} />}
       </div>
     )

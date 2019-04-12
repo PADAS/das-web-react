@@ -7,9 +7,9 @@ const CLEAR_MODALS = 'CLEAR_MODALS';
 
 
 //action creators
-export const showModal = modal => ({
+export const showModal = payload => ({
   type: SHOW_MODAL,
-  payload: modal,
+  payload: { id: uuid(), ...payload },
 });
 
 export const hideModal = id => ({
@@ -27,7 +27,7 @@ const INITIAL_STATE = [];
 export default (state = INITIAL_STATE, action = {}) => {
   const { type, payload } = action;
   if (type === SHOW_MODAL) {
-    return [{ id: uuid(), ...payload }, ...state];
+    return [payload, ...state];
   }
   if (type === HIDE_MODAL) {
     return state.filter(item => item.id !== payload);

@@ -1,5 +1,8 @@
 .container {
+  display: flex;
+  flex-flow: column;
   line-height: normal;
+  white-space: nowrap;
 }
 
 .date {
