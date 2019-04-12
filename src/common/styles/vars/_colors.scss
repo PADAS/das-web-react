@@ -40,4 +40,22 @@ $primary-modal-header: $off-black;
 
 $primary-button-color: $bright-blue;
 
-$priorities: ((0, $no-priority), (100, $low-priority), (200, $medium-priority), (300, $high-priority));
+
+$priorities: (
+  (0, (
+    base: $no-priority,
+    background: lighten($no-priority, 40%)
+  )),
+  (100, (
+    base: $low-priority,
+    background: lighten($low-priority, 40%)
+  )),
+  (200, (
+    base: $medium-priority,
+    background: lighten($medium-priority, 40%)
+  )),
+  (300, (
+    base: $high-priority,
+    background: lighten($high-priority, 55%)
+  ))
+);

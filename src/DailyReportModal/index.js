@@ -11,6 +11,7 @@ import { API_URL } from '../constants';
 import { hideModal } from '../ducks/modals';
 import { downloadFileFromUrl } from '../utils/download';
 import LoadingOverlay from '../LoadingOverlay';
+import DataExportModal from '../DataExportModal';
 
 import styles from './styles.module.scss';
 
@@ -24,37 +25,22 @@ const DATEPICKER_CONFIG = {
 };
 
 
-const DailyReportModal = ({ id, hideModal }) => {
+const DailyReportModal = (props) => {
   const today = setHours(startOfToday(), 18);
   const yesterday = subDays(today, 1);
 
   const [customEndDate, setEndDate] = useState(setHours(today, 18));
   const [customStartDate, setStartDate] = useState(subDays(today, 1));
-  const [downloading, setDownloadState] = useState(false);
-  const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
-  const [formIsValid, setValidationState] = useState(true);
 
-  useEffect(() => {
-    return () => {
-      downloadCancelToken && downloadCancelToken.cancel();
-      setDownloadState(false);
+  const setParamsFor = (type) => {
+    if (type === 'today') {
+      setStartDate(yesterday);
+      setEndDate(today);
     }
-  }, []);
-
-  useEffect(() => {
-    setValidationState(!!customStartDate && !!customEndDate);
-  }, [customStartDate, customEndDate]);
-
-  const triggerDownload = (before, since) => {
-    setDownloadState(true);
-    downloadFileFromUrl(DOWNLOAD_URL, { before, since }, downloadCancelToken)
-    .finally(() => {
-      setCancelToken(CancelToken.source());
-      setDownloadState(false);
-    })
-    .then(() => {
-      hideModal(id);
-    });
+    if (type === 'yesterday') {
+      setStartDate(subDays(yesterday, 1));
+      setEndDate(yesterday);
+    }
   };
 
   const handleInputChange = (type, value) => {
@@ -62,39 +48,22 @@ const DailyReportModal = ({ id, hideModal }) => {
     if (type === 'end') setEndDate(value);
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (formIsValid) {
-      triggerDownload(customEndDate, customStartDate)
-    }
-  };
-
-
-  return <Fragment>
-    {downloading && <LoadingOverlay />}
-    <Header closeButton>
-      <Title>Daily Report</Title>
-    </Header>
-    <Body className={downloading ? styles.downloading : ''}>
-      <div className={styles.controls}>
-        <Button onClick={() => triggerDownload(yesterday, subDays(yesterday, 1))}>Yesterday's Report</Button>
-        <Button onClick={() => triggerDownload(today, yesterday)}>Today's Report</Button>
-      </div>
-      <Form className={styles.form} onSubmit={handleFormSubmit}>
-        <div className={styles.controls}>
-          <label htmlFor="dailyReportStartDate">
-            <span>Since:</span>
-            <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={value => handleInputChange('start', value)} />
-          </label>
-          <label htmlFor="dailyReportEndDate">
-            <span>Before:</span>
-            <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={value => handleInputChange('end', value)} />
-          </label>
-        </div>
-        <Button disabled={!formIsValid} variant="primary" type="submit">Get Report</Button>
-      </Form>
-    </Body>
-  </Fragment>
+  return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={{before: customEndDate, since: customStartDate} }>
+    <div className={styles.controls}>
+      <Button type="button" onClick={() => setParamsFor('yesterday')}>Yesterday's Report</Button>
+      <Button type="button" onClick={() => setParamsFor('today')}>Today's Report</Button>
+    </div>
+    <div className={styles.controls}>
+      <label htmlFor="dailyReportStartDate">
+        <span>Since:</span>
+        <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={value => handleInputChange('start', value)} />
+      </label>
+      <label htmlFor="dailyReportEndDate">
+        <span>Before:</span>
+        <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={value => handleInputChange('end', value)} />
+      </label>
+    </div>
+  </DataExportModal >;
 };
 
 DailyReportModal.propTypes = {

@@ -15,7 +15,7 @@
     border-top: 1px solid $medium-light-gray;
   }
   > * {
-    padding: 0.5rem;
+    padding: 0.75rem 0.5rem;
     align-items: center;
     display: flex;
     justify-content: center;
@@ -30,13 +30,17 @@
 }
 
 @each $priority,
-$color in $priorities {
+$colors in $priorities {
   .priority-#{$priority} {
-    background-color: lighten($color, 50%);
+    $background-color: map-get($colors, 'background');
+
+    background-color: $background-color;
     &:hover {
-      background-color: lighten($color, 52%);
+      background-color: lighten($background-color, 5%);
     }
     .icon {
+      $color: map-get($colors, 'base');
+
       background-color: $color;
       &:hover {
         background-color: lighten($color, 4%);
@@ -88,14 +92,14 @@ $color in $priorities {
 
 
 .jump button {
-  background:  $light-gray url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
+  background:  rgba($medium-light-gray, 0.15) url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
   background-size: 1rem;
-  border: 1px solid $medium-light-gray;
+  border: none;
   border-radius: .25rem;
   height: 2.5rem;
   padding: 0;
   width: 2.5rem;
   &:hover {
-    background-color: lighten($light-gray, 5%);
+    background-color: rgba(darken($medium-light-gray, 15%), 0.18);
   }
 }

@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 
-import { API_URL } from '../constants';
-import { downloadFileFromUrl } from '../utils/download';
 import { showModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
-import FieldReportModal from '../FieldReportModal';
-import MasterKmlModal from '../MasterKmlModal';
-import SubjectInfoModal from '../SubjectInfoModal';
-import SubjectReportsModal from '../SubjectReportsModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
+import DataExportModal from '../DataExportModal';
 
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
@@ -19,23 +13,27 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const modals = [
   {
     title: 'Daily Report',
-    modal: DailyReportModal,
+    content: DailyReportModal,
   },
   {
     title: 'Field Reports',
-    modal: FieldReportModal,
+    content: DataExportModal,
+    url: 'activity/events/export',
   },
   {
     title: 'Master KML',
-    modal: MasterKmlModal,
+    content: DataExportModal,
+    url: 'subjects/kml/root',
   },
   {
     title: 'Subject Information',
-    modal: SubjectInfoModal,
+    content: DataExportModal,
+    url: 'trackingmetadata/export',
   },
   {
     title: 'Subject Reports',
-    modal: SubjectReportsModal,
+    content: DataExportModal,
+    url: 'trackingdata/export',
   },
 ]
 
@@ -49,12 +47,12 @@ const DataExportMenu = (props) => {
     </Toggle>
     <Menu>
       <Header>Exports</Header>
-      {modals.map(({ title, modal }, index) =>
+      {modals.map((modal, index) =>
         <Item key={index} onClick={() =>
           showModal({
-            content: modal,
+           ...modal,
           })}>
-          <span>{title}</span>
+          <span>{modal.title}</span>
         </Item>
       )}
       <Divider />

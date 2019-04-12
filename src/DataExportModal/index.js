@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Modal, Button, Form } from 'react-bootstrap';
@@ -12,14 +12,13 @@ import LoadingOverlay from '../LoadingOverlay';
 
 
 const { Header, Title, Body, Footer } = Modal;
-const DOWNLOAD_URL = `${API_URL}activity/events/export`;
 
 
-
-
-const FieldReportModal = ({ id, hideModal, eventFilter }) => {
+const DataExportModal = memo(({ id, title, hideModal, params = {}, url, children }) => {
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
+  
+  const DOWNLOAD_URL = `${API_URL}${url}`;
 
   useEffect(() => {
     return () => {
@@ -30,7 +29,7 @@ const FieldReportModal = ({ id, hideModal, eventFilter }) => {
 
   const triggerDownload = () => {
     setDownloadState(true);
-    downloadFileFromUrl(DOWNLOAD_URL, { ...eventFilter }, downloadCancelToken)
+    downloadFileFromUrl(DOWNLOAD_URL, params, downloadCancelToken)
       .finally(() => {
         setCancelToken(CancelToken.source());
         setDownloadState(false);
@@ -42,31 +41,40 @@ const FieldReportModal = ({ id, hideModal, eventFilter }) => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    triggerDownload()
+    triggerDownload();
   };
 
 
   return <Fragment>
     {downloading && <LoadingOverlay />}
     <Header closeButton>
-      <Title>Export Field Reports</Title>
+      <Title>{title}</Title>
     </Header>
     <Form onSubmit={handleFormSubmit}>
-      <Body>
-      </Body>
+      {!!children &&
+        <Body>
+          {children}
+        </Body>
+      }
       <Footer>
         <Button variant="secondary" onClick={() => hideModal(id)}>Cancel</Button>
         <Button type="submit" variant="primary">Export</Button>
       </Footer>
     </Form>
   </Fragment>
+});
+
+DataExportModal.defaultProps = {
+  params: {},
 };
 
-FieldReportModal.propTypes = {
+DataExportModal.propTypes = {
   id: PropTypes.string.isRequired,
   hideModal: PropTypes.func.isRequired,
+  url: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  params: PropTypes.object,
 };
 
-const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
-export default connect(mapStateToProps, { hideModal })(FieldReportModal);
+export default connect(null, { hideModal })(DataExportModal);
