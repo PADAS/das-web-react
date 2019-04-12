@@ -1,0 +1,42 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
+.controls {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-evenly;
+  padding: 0 0 1rem;
+  > button + button {
+    margin-top: 1rem;
+  }
+  @media (min-width: $md-layout-width-min) {
+    flex-flow: row;
+    > button + button {
+      margin-top: 0;
+    }
+  }
+  label {
+    // align-items: flex-start;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+  }
+}
+
+
+.form {
+  border-top: 1px solid $gray-border;
+  display: flex;
+  flex-flow: column;
+  .controls {
+    padding-top: 1rem;
+  }
+  button {
+    align-self: flex-end;
+  }
+}
+
+.downloading {
+  pointer-events: none;
+}
