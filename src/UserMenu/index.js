@@ -21,7 +21,8 @@ const UserMenu = (props) => {
           {[user, ...userProfiles]
             // .filter(({ username }) => username !== displayUser.username)
             .map((profile, index) =>
-              <Item className={profile.username === displayUser.username ? styles.selected: ''} key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
+            
+              <Item active={profile.username === displayUser.username ? "active" : null} key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
                 {profile.username}
               </Item>
             )}
