@@ -24,7 +24,7 @@ const DATEPICKER_CONFIG = {
 };
 
 
-const DailyReportModal = memo(({ id, hideModal }) => {
+const DailyReportModal = ({ id, hideModal }) => {
   const today = setHours(startOfToday(), 18);
   const yesterday = subDays(today, 1);
 
@@ -32,6 +32,7 @@ const DailyReportModal = memo(({ id, hideModal }) => {
   const [customStartDate, setStartDate] = useState(subDays(today, 1));
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
+  const [formIsValid, setValidationState] = useState(true);
 
   useEffect(() => {
     return () => {
@@ -39,6 +40,10 @@ const DailyReportModal = memo(({ id, hideModal }) => {
       setDownloadState(false);
     }
   }, []);
+
+  useEffect(() => {
+    setValidationState(!!customStartDate && !!customEndDate);
+  }, [customStartDate, customEndDate]);
 
   const triggerDownload = (before, since) => {
     setDownloadState(true);
@@ -52,9 +57,16 @@ const DailyReportModal = memo(({ id, hideModal }) => {
     });
   };
 
+  const handleInputChange = (type, value) => {
+    if (type === 'start') setStartDate(value);
+    if (type === 'end') setEndDate(value);
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    triggerDownload(customEndDate, customStartDate)
+    if (formIsValid) {
+      triggerDownload(customEndDate, customStartDate)
+    }
   };
 
 
@@ -72,18 +84,18 @@ const DailyReportModal = memo(({ id, hideModal }) => {
         <div className={styles.controls}>
           <label htmlFor="dailyReportStartDate">
             <span>Since:</span>
-            <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={setStartDate} disableClock={true} />
+            <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={value => handleInputChange('start', value)} />
           </label>
           <label htmlFor="dailyReportEndDate">
             <span>Before:</span>
-            <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={setEndDate} disableClock={true} />
+            <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={value => handleInputChange('end', value)} />
           </label>
         </div>
-        <Button variant="primary" type="submit">Get Report</Button>
+        <Button disabled={!formIsValid} variant="primary" type="submit">Get Report</Button>
       </Form>
     </Body>
   </Fragment>
-});
+};
 
 DailyReportModal.propTypes = {
   id: PropTypes.string.isRequired,
