@@ -37,9 +37,16 @@ const modals = [
   },
 ]
 
+const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
+
 const DataExportMenu = (props) => {
-  const { showModal, ...rest } = props;
+  const { showModal, zendeskEnabled, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
+
+  const contactSupport = () => {
+    if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
+      return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
+  };
 
   return <Dropdown onToggle={isOpen => setOpenState(isOpen)} {...rest}>
     <Toggle as="div">
@@ -56,9 +63,11 @@ const DataExportMenu = (props) => {
         </Item>
       )}
       <Divider />
-      <Item>Contact Support</Item>
+      <Item onClick={() => contactSupport()}>Contact Support</Item>
     </Menu>
   </Dropdown>;
 };
 
-export default connect(null, { showModal })(DataExportMenu);
+const mapStateToProps = ({ view: { zendeskEnabled } }) => ({ zendeskEnabled });
+
+export default connect(mapStateToProps, { showModal })(DataExportMenu);

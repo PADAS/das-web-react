@@ -7,7 +7,7 @@ import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer from '../ducks/subjects';
-import systemStatusReducer from '../ducks/system-status';
+import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
 import { eventFilterSchemaReducer } from '../ducks/filters';
 import { heatmapReducer, sidebarStateReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
@@ -70,6 +70,7 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     sidebarState: persistReducer(sidebarPersistanceConfig, sidebarStateReducer),
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
+    zendeskEnabled: zendeskReducer,
   }),
 });
 

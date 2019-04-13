@@ -40,7 +40,7 @@ const resizeInterval = (map) => {
 let mapResized = false;
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, setSidebarState } = props;
+  const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, setSidebarState, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   clearInterval(mapInterval);
@@ -66,6 +66,12 @@ const App = memo((props) => {
     });
   }, []);
 
+  useEffect(() => {
+    if (zendeskEnabled && zendeskEnabled.enabled) {
+      window.zE(() => window.zE.hide());
+    }
+  }, [zendeskEnabled])
+
   return (
     <div className="App">
       <Nav />
@@ -87,6 +93,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { sidebarState: { open } } }) => ({ sidebarOpen: open })
+const mapStateToProps = ({ view: { sidebarState: { open }, zendeskEnabled } }) => ({ sidebarOpen: open, zendeskEnabled })
 
 export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSystemStatus, setSidebarState, updateNetworkStatus })(App);

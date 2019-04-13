@@ -18,6 +18,8 @@ export const SOCKET_UNHEALTHY_STATUS = 'SOCKET_UNHEALTHY_STATUS';
 export const SOCKET_WARNING_STATUS = 'SOCKET_WARNING_STATUS';
 export const SOCKET_SERVICE_STATUS = 'SOCKET_SERVICE_STATUS';
 
+export const SET_ZENDESK_CONFIG = 'SET_ZENDESK_CONFIG';
+
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STATUSES;
 
 // action creators
@@ -29,9 +31,30 @@ export const fetchSystemStatus = () => {
       },
     }).catch(error => dispatch(fetchSystemStatusError(error)));
 
-    return dispatch(fetchSystemStatusSuccess(response));
+    dispatch(setZendeskConfigStatus(response));
+    dispatch(fetchSystemStatusSuccess(response));
   };
 };
+
+const setZendeskConfigStatus = response => (dispatch) => {
+  let enabled;
+  try {
+    window.zE(() => {
+      window.zE.identify({
+        name: response.data.data.eus_settings.name,
+        email: response.data.data.eus_settings.email,
+        organization: response.data.data.eus_settings.organization,
+      });
+    });
+    enabled = true;
+  } catch (e) {
+    enabled = false;
+  }
+  dispatch({
+    type: SET_ZENDESK_CONFIG,
+    payload: enabled,
+  });
+} 
 
 export const updateNetworkStatus = (status) => ({
   type: NETWORK_STATUS_CHANGE,
@@ -241,3 +264,14 @@ export default combineReducers({
   realtime: realtimeStatusReducer,
   services: serviceStatusReducer,
 });
+
+const INITIAL_ZENDESK_STATE = { enabled: false };
+export const zendeskReducer = (state = INITIAL_ZENDESK_STATE, action) => {
+  const { type, payload } = action;
+  if (type === SET_ZENDESK_CONFIG) {
+    return {
+      enabled: payload,
+    };
+  }
+  return state;
+};
