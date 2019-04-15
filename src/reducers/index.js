@@ -7,13 +7,14 @@ import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer from '../ducks/subjects';
-import systemStatusReducer from '../ducks/system-status';
+import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
 import { eventFilterSchemaReducer } from '../ducks/filters';
 import { heatmapReducer, sidebarStateReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
+import modalsReducer from '../ducks/modals'
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -64,10 +65,12 @@ const rootReducer = combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     eventFilter: eventFilterReducer,
     eventFilterSchema: eventFilterSchemaReducer,
-    popup: popupReducer,
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapReducer),
+    modals: modalsReducer,
+    popup: popupReducer,
+    sidebarState: persistReducer(sidebarPersistanceConfig, sidebarStateReducer),
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
-    sidebarState: persistReducer(sidebarPersistanceConfig, sidebarStateReducer)
+    zendeskEnabled: zendeskReducer,
   }),
 });
 

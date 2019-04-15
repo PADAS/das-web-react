@@ -1,16 +1,21 @@
+@import '../common/styles/vars/colors';
 @import '../common/styles/layout';
 
 nav {
   align-items: center;
-  background: #333;
+  background: $title-bar-color;
   color: white;
   display: flex;
   height: var(--nav-height);
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
   position: relative;
   width: 100vw;
   z-index: 2;
+  .btn-primary {
+    background: none;
+    border: none;
+  }
   .dropdown-toggle {
     max-height: var(--nav-height);
   }
@@ -27,6 +32,14 @@ nav {
       margin-left: 0.75rem;
       max-height: var(--nav-height);
     }
+  }
+  .rightMenus {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .data-export-menu {
+    margin-left: 1rem;
   }
 }
 

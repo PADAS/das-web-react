@@ -1,11 +1,13 @@
 @import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
 @import '../common/styles/animations';
+@import '../common/styles/buttons';
+@import '../common/styles/layout';
 
 .listItem {
   align-content: center;
   color: $dark-gray;
   display: flex;
+  line-height: normal;
   &:first-child {
     @include slide-down;
   }
@@ -13,7 +15,7 @@
     border-top: 1px solid $medium-light-gray;
   }
   > * {
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 0.5rem;
     align-items: center;
     display: flex;
     justify-content: center;
@@ -28,12 +30,21 @@
 }
 
 @each $priority,
-$color in $priorities {
+$colors in $priorities {
   .priority-#{$priority} {
-    background-color: lighten($color, 50%);
+    $background-color: map-get($colors, 'background');
 
+    background-color: $background-color;
+    &:hover {
+      background-color: lighten($background-color, 5%);
+    }
     .icon {
+      $color: map-get($colors, 'base');
+
       background-color: $color;
+      &:hover {
+        background-color: lighten($color, 4%);
+      }
      
     }
   }
@@ -43,6 +54,7 @@ $color in $priorities {
   align-items: center;
   display: flex;
   justify-content: center;
+  padding: 0.5rem 1rem;
   svg, svg > svg {
     fill: white;
     height: 2rem;
@@ -69,13 +81,25 @@ $color in $priorities {
   @include unstyledButton;
 }
 
+.serialNumber {
+  display: none;
+  padding-left: 0.5rem;
+  padding-right: 0;
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
+  }
+}
+
 
 .jump button {
-  background:  $light-gray url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
+  background:  rgba($medium-light-gray, 0.15) url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
   background-size: 1rem;
-  border: 1px solid $medium-light-gray;
+  border: none;
   border-radius: .25rem;
   height: 2.5rem;
   padding: 0;
   width: 2.5rem;
+  &:hover {
+    background-color: rgba(darken($medium-light-gray, 15%), 0.18);
+  }
 }

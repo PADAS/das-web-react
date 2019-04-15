@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce';
 
 import 'axios-progress-bar/dist/nprogress.css'
 
+import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
@@ -14,10 +15,11 @@ import { setSidebarState } from './ducks/map-ui';
 import { updateNetworkStatus } from './ducks/system-status';
 
 import SideBar from './SideBar';
-import { STATUSES } from './constants';
-import './App.scss';
+import ModalRenderer from './ModalRenderer';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
+
+import './App.scss';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -38,7 +40,7 @@ const resizeInterval = (map) => {
 let mapResized = false;
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, setSidebarState } = props;
+  const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, setSidebarState, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   clearInterval(mapInterval);
@@ -64,6 +66,12 @@ const App = memo((props) => {
     });
   }, []);
 
+  useEffect(() => {
+    if (zendeskEnabled && zendeskEnabled.enabled) {
+      window.zE(() => window.zE.hide());
+    }
+  }, [zendeskEnabled])
+
   return (
     <div className="App">
       <Nav />
@@ -73,6 +81,7 @@ const App = memo((props) => {
           setSidebarState(!sidebarOpen);
           resizeInterval(map);
         }} map={map} />
+        <ModalRenderer />
       </div>
       <div style={{
         display: 'none',
@@ -84,6 +93,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { sidebarState: { open } } }) => ({ sidebarOpen: open })
+const mapStateToProps = ({ view: { sidebarState: { open }, zendeskEnabled } }) => ({ sidebarOpen: open, zendeskEnabled })
 
 export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSystemStatus, setSidebarState, updateNetworkStatus })(App);

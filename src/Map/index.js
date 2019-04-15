@@ -201,7 +201,12 @@ class Map extends Component {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
 
     if (newImages.length) {
-      setTimeout(this.props.map.triggerRepaint, 200);
+      // a fake flyTo coerces the map to load symbol images
+      setTimeout(() => {
+        this.props.map.flyTo({
+          center: this.props.map.getCenter(),
+        });
+      }, 200);
     }
   }
   async onMapSubjectClick(layer) {

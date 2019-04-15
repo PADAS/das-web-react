@@ -6,6 +6,7 @@ import { clearAuth } from '../ducks/auth';
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
 import EarthRangerLogo from '../EarthRangerLogo';
+import DataExportMenu from '../DataExportMenu';
 import SystemStatusComponent from '../SystemStatus';
 
 import './Nav.scss';
@@ -22,10 +23,10 @@ const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, maps,
     </div>
 
     {!!maps.length && <NavHomeMenu maps={maps} />}
-    <div>
+    <div className="rightMenus">
       <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>
-      <div className="hamburger-mehu"></div>
+      <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
     </div>
   </nav>
 });
