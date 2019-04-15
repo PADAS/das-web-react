@@ -1,10 +1,12 @@
 import React, { useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Tabs, Tab } from 'react-bootstrap';
+
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
 import { getCoordinatesForEvent } from '../utils/events';
 import EventFeed from '../EventFeed';
-import './SideBar.scss';
+import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
@@ -27,13 +29,20 @@ const SideBar = memo((props) => {
   }, [eventFilter]);
 
   return (
-    <aside className="side-menu">
+    <aside className='side-menu'>
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
-      <EventFeed
-        hasMore={!!events.next}
-        events={events.results}
-        onJumpClick={goToEventLocation}
-        onScroll={() => fetchNextEventPage(events.next)} />
+      <Tabs>
+        <Tab className={styles.tab} eventKey="events" title="Events">
+          <EventFeed
+            hasMore={!!events.next}
+            events={events.results}
+            onJumpClick={goToEventLocation}
+            onScroll={() => fetchNextEventPage(events.next)} />
+        </Tab>
+        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+          <h4>HEY LOOKIT THEM LAYERS YO</h4>
+        </Tab>
+      </Tabs>
     </aside>
   );
 });

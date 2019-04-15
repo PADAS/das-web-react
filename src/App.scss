@@ -25,6 +25,10 @@
   display: none;
 }
 
+.tab-content {
+  overflow-y: auto;
+}
+
 .app-container {
 
   position: relative;
@@ -80,6 +84,23 @@
   top: 0;
   width: var(--sidebar-width);
   z-index: 1;
+  .nav-tabs, .nav-item {
+    border: none;
+    border-radius: 0;
+  }
+  .nav-item {
+    flex-grow: 1;
+    font-weight: bold;
+    padding: 0.5rem;
+    text-align: center;
+    &:not(.active) {
+      background: lighten($title-bar-color, 15%);
+      color: white;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 
   .handle {
     @include unstyledButton;

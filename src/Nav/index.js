@@ -16,7 +16,7 @@ const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, maps,
     fetchCurrentUser();
     fetchCurrentUserProfiles();
   }, []);
-  return <nav>
+  return <nav className="primary-nav">
     <div className="left-controls">
       <SystemStatusComponent />
       <EarthRangerLogo className="logo" />

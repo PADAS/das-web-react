@@ -1,0 +1,12 @@
+@import '../common/styles/vars/colors';
+
+.tab {
+  border-top: 3px solid $gray-border;
+  height: 100%;
+  overflow-y: auto;
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+}

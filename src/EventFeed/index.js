@@ -13,30 +13,29 @@ const EventFeed = (props) => {
   const { events, eventTypes, hasMore, onScroll, onTitleClick, onIconClick, onJumpClick } = props;
 
   return (
-    <ul>
-      <InfiniteScroll
-        hasMore={hasMore}
-        loadMore={onScroll}
-        useWindow={false}
-        loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
-      >
-        {
-          events.map((item, index) => (
-            <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
-              <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
-              <span className={styles.serialNumber}>{item.serial_number}</span>
-              <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
-              <DateTime className={styles.date} date={item.updated_at} />
-              {eventHasLocation &&
-                <div className={styles.jump}>
-                  <button title="Jump to the location for this event" type="button" className={styles.jump} onClick={() => onJumpClick(item)}></button>
-                </div>
-              }
-            </li>
-          ))
-        }
-      </InfiniteScroll>
-    </ul>
+    <InfiniteScroll
+      element='ul'
+      hasMore={hasMore}
+      loadMore={onScroll}
+      useWindow={false}
+      loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
+    >
+      {
+        events.map((item, index) => (
+          <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
+            <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
+            <span className={styles.serialNumber}>{item.serial_number}</span>
+            <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
+            <DateTime className={styles.date} date={item.updated_at} />
+            {eventHasLocation &&
+              <div className={styles.jump}>
+                <button title="Jump to the location for this event" type="button" className={styles.jump} onClick={() => onJumpClick(item)}></button>
+              </div>
+            }
+          </li>
+        ))
+      }
+    </InfiniteScroll>
   )
 };
 
