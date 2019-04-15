@@ -1,23 +1,15 @@
-import React, { Fragment, memo, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CancelToken } from 'axios';
 import DateTimePicker from 'react-datetime-picker';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { subDays, startOfToday, setHours } from 'date-fns';
 
-
-import { API_URL } from '../constants';
 import { hideModal } from '../ducks/modals';
-import { downloadFileFromUrl } from '../utils/download';
-import LoadingOverlay from '../LoadingOverlay';
 import DataExportModal from '../DataExportModal';
 
 import styles from './styles.module.scss';
-
-const { Header, Title, Body, Footer } = Modal;
-const { Control } = Form;
-const DOWNLOAD_URL = `${API_URL}reports/sitrep.docx`;
 
 const DATEPICKER_CONFIG = {
   disableClock: true,

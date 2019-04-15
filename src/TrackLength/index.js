@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import length from '@turf/length';
 
 function TrackLength(props) {
-  const { tracks, id, className } = props;
+  const { tracks, className } = props;
 
   if (!tracks) return null;
   return <span className={className || ''}>Track length: {length(tracks).toFixed(2)} kilometers</span>;
@@ -17,6 +17,6 @@ export default connect(mapStateToProps, null)(TrackLength);
 
 TrackLength.propTypes = {
   id: PropTypes.string.isRequired,
-  tracks: PropTypes.object,
+  tracks: PropTypes.object.isRequired,
   className: PropTypes.string,
 }; 
