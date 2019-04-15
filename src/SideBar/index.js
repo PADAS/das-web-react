@@ -1,4 +1,5 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, memo } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
 import { getCoordinatesForEvent } from '../utils/events';
@@ -7,8 +8,6 @@ import './SideBar.scss';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
-
-  const { isOpen, setOpenState } = useState(true);
 
   const goToEventLocation = (event) => {
     if (event.is_collection) {
@@ -42,3 +41,17 @@ const SideBar = memo((props) => {
 const mapStateToProps = ({ view: { eventFilter }, data: { events } }) => ({ eventFilter, events });
 
 export default connect(mapStateToProps, { fetchEvents, fetchNextEventPage })(SideBar);
+
+SideBar.propTypes = {
+  events: PropTypes.shape({
+    count: PropTypes.number,
+    next: PropTypes.string,
+    previous: PropTypes.string,
+    results: PropTypes.array,
+  }).isRequired,
+  eventFilter: PropTypes.object.isRequired,
+  onHandleClick: PropTypes.func.isRequired,
+  fetchEvents: PropTypes.func.isRequired,
+  fetchNextEventPage: PropTypes.func.isRequired,
+  map: PropTypes.object,
+};
