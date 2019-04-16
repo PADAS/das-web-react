@@ -7,7 +7,6 @@ import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
 
-
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const modals = [
