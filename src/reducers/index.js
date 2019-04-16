@@ -6,10 +6,10 @@ import eventsReducer, { mapEventsReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
-import mapSubjectReducer from '../ducks/subjects';
+import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
 import { eventFilterSchemaReducer } from '../ducks/filters';
-import { heatmapReducer } from '../ducks/map-ui';
+import { heatmapReducer, hiddenSubjectIDsReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -50,6 +50,7 @@ const rootReducer = combineReducers({
     maps: mapsReducer,
     mapEvents: mapEventsReducer,
     mapSubjects: mapSubjectReducer,
+    subjectGroups: subjectGroupsReducer,
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistanceConfig, tokenReducer),
     tracks: tracksReducer,
@@ -62,6 +63,7 @@ const rootReducer = combineReducers({
     eventFilter: eventFilterReducer,
     eventFilterSchema: eventFilterSchemaReducer,
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapReducer),
+    hiddenSubjectIDs: hiddenSubjectIDsReducer,
     modals: modalsReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),

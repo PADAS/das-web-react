@@ -5,6 +5,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
 import { getCoordinatesForEvent } from '../utils/events';
+import Checkmark from '../Checkmark';
 import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
 
@@ -33,6 +34,7 @@ const SideBar = memo((props) => {
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
         <Tab className={styles.tab} eventKey="events" title="Events">
+          <Checkmark />
           <EventFeed
             hasMore={!!events.next}
             events={events.results}
@@ -40,6 +42,7 @@ const SideBar = memo((props) => {
             onScroll={() => fetchNextEventPage(events.next)} />
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+        <Checkmark /><Checkmark /><Checkmark />
           <h4>HEY LOOKIT THEM LAYERS YO</h4>
         </Tab>
       </Tabs>

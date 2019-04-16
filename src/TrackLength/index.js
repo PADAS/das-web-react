@@ -17,6 +17,6 @@ export default connect(mapStateToProps, null)(TrackLength);
 
 TrackLength.propTypes = {
   id: PropTypes.string.isRequired,
-  tracks: PropTypes.object.isRequired,
+  tracks: PropTypes.object,
   className: PropTypes.string,
 }; 

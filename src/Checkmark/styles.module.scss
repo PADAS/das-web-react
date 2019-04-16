@@ -1,0 +1,12 @@
+@import '../common/styles/vars/colors';
+
+.checkmark {
+  --width: 2rem;
+  fill: none;
+  stroke: $medium-light-gray;
+  stroke-width: calc(var(--width)/6);
+  width: var(--width);
+  &:checked {
+    fill: $medium-light-gray;
+  }
+}

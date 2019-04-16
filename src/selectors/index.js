@@ -6,7 +6,8 @@ import { convertTrackLineStringToPoints } from '../utils/tracks';
 import { featureCollection } from '@turf/helpers';
 
 const mapEvents = ({ mapEvents }) => mapEvents;
-const mapSubjects = ({ mapSubjects }) => mapSubjects;
+const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
+const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const trackCollection = trackCollection => trackCollection;
 
 export const getMapEventFeatureCollection = createSelector(
@@ -15,8 +16,8 @@ export const getMapEventFeatureCollection = createSelector(
 );
 
 export const getMapSubjectFeatureCollection = createSelector(
-  [mapSubjects],
-  mapSubjects => createFeatureCollectionFromSubjects(mapSubjects)
+  [mapSubjects, hiddenSubjectIDs],
+  (mapSubjects, hiddenSubjectIDs) => createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)))
 );
 
 export const getTrackPointsFromTrackFeatureArray = createSelector(

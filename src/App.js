@@ -12,6 +12,7 @@ import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
+import { fetchSubjectGroups } from './ducks/subjects';
 
 import SideBar from './SideBar';
 import ModalRenderer from './ModalRenderer';
@@ -39,7 +40,7 @@ const resizeInterval = (map) => {
 let mapResized = false;
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   clearInterval(mapInterval);
@@ -50,9 +51,10 @@ const App = memo((props) => {
   }, 3000);
 
   useEffect(() => {
-    fetchMaps();
-    fetchSystemStatus();
     fetchEventTypes();
+    fetchMaps();
+    fetchSubjectGroups();
+    fetchSystemStatus();
     loadProgressBar();
     window.addEventListener('online', () => {
       updateNetworkStatus(HEALTHY_STATUS);
@@ -94,4 +96,4 @@ const App = memo((props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
