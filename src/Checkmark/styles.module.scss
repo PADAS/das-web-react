@@ -6,7 +6,10 @@
   stroke: $medium-light-gray;
   stroke-width: calc(var(--width)/6);
   width: var(--width);
-  &:checked {
+  &.checked {
     fill: $medium-light-gray;
+  }
+  &.partial {
+    fill: rgba($medium-light-gray, 0.3);
   }
 }

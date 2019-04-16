@@ -63,6 +63,7 @@ const DataExportMenu = (props) => {
         </Item>
       )}
       <Divider />
+      <Header>Support</Header>
       <Item onClick={() => contactSupport()}>Contact Support</Item>
     </Menu>
   </Dropdown>;

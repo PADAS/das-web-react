@@ -47,11 +47,11 @@ const DailyReportModal = (props) => {
     </div>
     <div className={styles.controls}>
       <label htmlFor="dailyReportStartDate">
-        <span>Since:</span>
+        <span>From:</span>
         <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={value => handleInputChange('start', value)} />
       </label>
       <label htmlFor="dailyReportEndDate">
-        <span>Before:</span>
+        <span>Until:</span>
         <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={value => handleInputChange('end', value)} />
       </label>
     </div>
