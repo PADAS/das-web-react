@@ -19,10 +19,19 @@ const CheckableList = (props) => {
 
 export default CheckableList;
 
+CheckableList.defaultProps = {
+  itemPartiallyChecked() {
+    return false;
+  },
+  onCheckClick(item) {
+    console.log('check clicked', item);
+  },
+};
+
 CheckableList.propTypes = {
   itemFullyChecked: PropTypes.func.isRequired,
-  itemPartiallyChecked: PropTypes.func.isRequired,
-  itemComponent: PropTypes.object,
+  itemPartiallyChecked: PropTypes.func,
+  itemComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   items: PropTypes.array.isRequired,
   onCheckClick: PropTypes.func,
 };

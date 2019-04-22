@@ -16,12 +16,12 @@ export const updateHeatmapConfig = (config) => ({
   payload: config,
 });
 
-export const hideSubjects = (subjectIDs) => ({
+export const hideSubjects = (...subjectIDs) => ({
   type: HIDE_SUBJECTS,
   payload: subjectIDs,
 });
 
-export const showSubjects = (subjectIDs) => ({
+export const showSubjects = (...subjectIDs) => ({
   type: SHOW_SUBJECTS,
   payload: subjectIDs,
 });
@@ -52,8 +52,8 @@ export const heatmapSubjectIDsReducer = (state = [], action) => {
 
 export const hiddenSubjectIDsReducer = (state = [], action) => {
   const { type, payload } = action;
-  if (type === SHOW_SUBJECTS) return uniq([...payload, ...state]);
-  if (type === HIDE_SUBJECTS) return state.filter(item => !payload.includes(item));
+  if (type === HIDE_SUBJECTS) return uniq([...payload, ...state]);
+  if (type === SHOW_SUBJECTS) return state.filter(item => !payload.includes(item));
   return state;
 };
 

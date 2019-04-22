@@ -10,7 +10,7 @@ import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
+  const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, hiddenSubjectIDs, map } = props;
 
   const goToEventLocation = (event) => {
     if (event.is_collection) {
@@ -41,7 +41,7 @@ const SideBar = memo((props) => {
             onScroll={() => fetchNextEventPage(events.next)} />
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
-          <SubjectGroupList onCheckClick={item => console.log('clicked item', item)} />
+          <SubjectGroupList />
         </Tab>
       </Tabs>
     </aside>

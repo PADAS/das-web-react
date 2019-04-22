@@ -1,3 +1,4 @@
+import uniqBy from 'lodash/uniqBy';
 import { differenceInSeconds } from 'date-fns';
 
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
@@ -44,5 +45,4 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
   return accumulator;
 }, []);
 
-export const getUniqueSubjectGroupSubjects = (...groups) => getSubjectGroupSubjects(...groups)
-.filter((item, i, array) => (array.findIndex(k => item.id === k.id) === i));
+export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
