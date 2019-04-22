@@ -21,7 +21,7 @@ const onGroupClick = item => console.log('group click', item);
 const onSubjectClick = item => console.log('subject click', item);
 
 const ControlsComponent = (props) => {
-
+  const  { onHeatmapToggle, ...rest } = props;
 };
 
 const ContentComponent = memo((props) => {

@@ -69,7 +69,7 @@ const App = memo((props) => {
 
   useEffect(() => {
     if (zendeskEnabled && zendeskEnabled.enabled) {
-      window.zE(() => window.zE.hide());
+      setTimeout(() => window.zE(() => window.zE.hide(), 200));
     }
   }, [zendeskEnabled])
 

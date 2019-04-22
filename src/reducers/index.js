@@ -9,7 +9,7 @@ import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
 import { eventFilterSchemaReducer } from '../ducks/filters';
-import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, heatmapSubjectIDsReducer } from '../ducks/map-ui';
+import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -63,8 +63,9 @@ const rootReducer = combineReducers({
     eventFilter: eventFilterReducer,
     eventFilterSchema: eventFilterSchemaReducer,
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapStyleConfigReducer),
-    hiddenSubjectIDs: hiddenSubjectIDsReducer,
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
+    hiddenSubjectIDs: hiddenSubjectIDsReducer,
+    subjectTrackState: subjectTrackReducer,
     modals: modalsReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),

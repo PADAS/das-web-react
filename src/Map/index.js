@@ -15,6 +15,7 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import createSocket, { unbindSocketEvents } from '../socket';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
+import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
 import isEqual from 'lodash/isEqual';
 
 import EventsLayer from '../EventsLayer';
@@ -30,17 +31,15 @@ const MapboxMap = ReactMapboxGl({
   maxZoom: 18,
 });
 
+const mapConfig = {
+  style: 'mapbox://styles/vjoelm/ciobuir0n0061bdnj1c54oakh',
+};
+
 class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mapConfig: {
-        style: 'mapbox://styles/vjoelm/ciobuir0n0061bdnj1c54oakh',
-      },
       mapDataLoadingCancelToken: null,
-      visibleTrackIDs: [],
-      pinnedTrackIDs: [],
-      heatmapIDs: [],
       socket: null,
     };
     this.setMap = this.setMap.bind(this);
@@ -77,8 +76,10 @@ class Map extends Component {
     this.props.showPopup('timepoint', { geometry, properties });
   }
   renderTrackLayers() {
-    const { tracks, map } = this.props;
-    const trackLayerState = uniq([...this.state.visibleTrackIDs, ...this.state.pinnedTrackIDs]);
+    const { tracks, map, subjectTrackState } = this.props;
+    const { visible, pinned } = subjectTrackState;
+    const trackLayerState = uniq([...visible, ...pinned]);
+
     if (!trackLayerState.length) return null;
 
     const trackCollection = trackLayerState
@@ -88,17 +89,16 @@ class Map extends Component {
     return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} /> : null;
   }
   renderHeatmapLayers() {
-    const { tracks } = this.props;
-    const { heatmapIDs } = this.state;
+    const { tracks, updateHeatmapSubjects, heatmapSubjectIDs } = this.props;
 
-    if (!heatmapIDs.length) return null;
+    if (!heatmapSubjectIDs.length) return null;
 
-    const trackCollection = heatmapIDs
+    const trackCollection = heatmapSubjectIDs
       .filter(id => !!tracks[id])
       .map(id => (tracks[id]));
 
     return !!trackCollection.length ? <Fragment>
-      <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => this.setState({ heatmapIDs: [] })} tracks={trackCollection} />
+      <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => updateHeatmapSubjects([])} tracks={trackCollection} />
       <HeatLayer trackCollection={trackCollection} />
     </Fragment> : null;
 
@@ -130,14 +130,15 @@ class Map extends Component {
     this.hideUnpinnedTrackLayers(map, event);
   }
   hideUnpinnedTrackLayers(map, event) {
-    if (!this.state.visibleTrackIDs.length) return;
+    const { updateTrackState, subjectTrackState: { visible } } = this.props;
+    if (!visible.length) return;
 
     const clickedLayerIDs = map.queryRenderedFeatures(event.point)
       .filter(({ properties }) => !!properties && properties.id)
       .map(({ properties: { id } }) => id);
 
-    return this.setState({
-      visibleTrackIDs: this.state.visibleTrackIDs.filter(id => clickedLayerIDs.includes(id)),
+    return updateTrackState({
+      visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
   }
   onClusterClick(e) {
@@ -164,38 +165,32 @@ class Map extends Component {
     });
   }
   toggleTrackState(id) {
-    const { pinnedTrackIDs, visibleTrackIDs } = this.state;
-    const pinned = pinnedTrackIDs.includes(id);
-    const visible = visibleTrackIDs.includes(id);
+    const { subjectTrackState: { visible, pinned }, updateTrackState } = this.props;
 
-    if (pinned) {
-      return this.setState({
-        pinnedTrackIDs: pinnedTrackIDs.filter(item => item !== id),
-        visibleTrackIDs: visibleTrackIDs.filter(item => item !== id),
+    if (pinned.includes(id)) {
+      return updateTrackState({
+        pinned: pinned.filter(item => item !== id),
+        visible: visible.filter(item => item !== id),
       });
     }
-    if (visible) {
-      return this.setState({
-        pinnedTrackIDs: [...pinnedTrackIDs, id],
-        visibleTrackIDs: visibleTrackIDs.filter(item => item !== id),
+    if (visible.includes(id)) {
+      return updateTrackState({
+        pinned: [...pinned, id],
+        visible: visible.filter(item => item !== id),
       });
     }
-    return this.setState({
-      visibleTrackIDs: [...visibleTrackIDs, id],
+    return updateTrackState({
+      visible: [...visible, id],
     });
   }
   toggleHeatmapState(id) {
-    const { heatmapIDs } = this.state;
-    const visible = heatmapIDs.includes(id);
+    const { heatmapSubjectIDs, updateHeatmapSubjects } = this.props;
+    const visible = heatmapSubjectIDs.includes(id);
 
     if (visible) {
-      return this.setState({
-        heatmapIDs: heatmapIDs.filter(item => item !== id),
-      });
+      return updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
     }
-    return this.setState({
-      heatmapIDs: [...heatmapIDs, id],
-    });
+    return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
   }
   async createMapImages(featureCollection) {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
@@ -212,14 +207,15 @@ class Map extends Component {
   async onMapSubjectClick(layer) {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
+    const { updateTrackState, subjectTrackState } = this.props;
 
     this.props.showPopup('subject', { geometry, properties });
 
     await (tracks_available) ? this.props.fetchTracks(id) : new Promise((resolve, reject) => resolve());
 
     if (tracks_available) {
-      this.setState({
-        visibleTrackIDs: [...this.state.visibleTrackIDs, id]
+      updateTrackState({
+        visible: [...subjectTrackState.visible, id]
       });
     }
 
@@ -261,7 +257,7 @@ class Map extends Component {
         movingMethod={'easeTo'}
         onClick={this.onMapClick}
         onStyleLoad={this.setMap}
-        {...this.state.mapConfig}>
+        {...mapConfig}>
 
         {map && (
           <Fragment>
@@ -274,11 +270,8 @@ class Map extends Component {
               popup={popup}
               onTrackToggle={this.toggleTrackState}
               onHeatmapToggle={this.toggleHeatmapState}
-              heatmapState={this.state.heatmapIDs}
-              trackState={{
-                visible: this.state.visibleTrackIDs,
-                pinned: this.state.pinnedTrackIDs,
-              }} />
+              heatmapState={this.props.heatmapSubjectIDs}
+              trackState={this.props.subjectTrackState} />
             }
 
             <RotationControl position='bottom-left' />
@@ -295,11 +288,30 @@ class Map extends Component {
 
 const mapStatetoProps = ({ data, view }) => {
   const { maps, tracks } = data;
-  const { homeMap, popup, eventFilter } = view;
-  return { maps, tracks, homeMap, popup, eventFilter, mapEventFeatureCollection: getMapEventFeatureCollection(data), mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view }) };
+  const { homeMap, popup, eventFilter, subjectTrackState, heatmapSubjectIDs } = view;
+  return ({
+    maps,
+    heatmapSubjectIDs,
+    tracks,
+    homeMap,
+    popup,
+    eventFilter,
+    subjectTrackState,
+    mapEventFeatureCollection: getMapEventFeatureCollection(data),
+    mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view })
+  });
 };
 
-export default connect(mapStatetoProps, { fetchMapSubjects, fetchMapEvents, fetchTracks, hidePopup, showPopup })(Map);
+export default connect(mapStatetoProps, {
+  fetchMapSubjects,
+  fetchMapEvents,
+  fetchTracks,
+  hidePopup,
+  showPopup,
+  updateTrackState,
+  updateHeatmapSubjects,
+  }
+)(Map);
 
 // secret code burial ground
 // for future reference and potential experiments
