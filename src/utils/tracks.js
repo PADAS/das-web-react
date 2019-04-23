@@ -4,7 +4,7 @@ import bearing from '@turf/bearing';
 import { featureCollection } from '@turf/helpers';
 
 /* tracks come in a variety of linestring formats, which we explode into points to generate timepoint layers and heatmap data.
-   as such, the exploded version of a track can have duplicate entries, causing strange side effects. the nature of the duplicates
+   as such, the exploded version of a track can have duplicate entries ("connection points" between lines), causing strange side effects. the nature of the duplicates
    are dependent on the track source, so this utility function takes a fairly naive but effective approach to de-duping.
 */
 export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, collection) => {

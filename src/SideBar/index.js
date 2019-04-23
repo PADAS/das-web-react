@@ -41,7 +41,7 @@ const SideBar = memo((props) => {
             onScroll={() => fetchNextEventPage(events.next)} />
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
-          <SubjectGroupList />
+          <SubjectGroupList map={map} />
         </Tab>
       </Tabs>
     </aside>

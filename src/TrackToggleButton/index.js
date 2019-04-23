@@ -10,7 +10,7 @@ const TrackToggleButton = memo(function TrackToggleButton(props) {
 
 return <div className={styles.container}>
     <button title={hoverText} type="button" className={`${styles.button} ${styles[className]}`} onClick={() => onButtonClick(trackId)}></button>
-    {showLabel && hoverText}
+    {showLabel && <span>{hoverText}</span>}
   </div>
 });
 

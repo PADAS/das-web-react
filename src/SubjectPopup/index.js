@@ -6,13 +6,12 @@ import isEqual from 'lodash/isEqual';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
-import TrackToggleButton from '../TrackToggleButton';
-import HeatmapToggleButton from '../HeatmapToggleButton';
+import SubjectControls from '../SubjectControls';
 
 import styles from './styles.module.scss';
 
 const SubjectPopup = memo(function SubjectPopup(props) {
-  const { data: { geometry, properties }, onTrackToggle, onHeatmapToggle, trackState, heatmapState, ...rest } = props;
+  const { data: { geometry, properties }, onTrackToggle, onHeatmapToggle, trackState, heatmapState, map, ...rest } = props;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
@@ -24,10 +23,7 @@ const SubjectPopup = memo(function SubjectPopup(props) {
       {tracks_available && (
         <Fragment>
           <TrackLength className={styles.trackLength} id={properties.id} />
-          <div className={styles.trackControls}>
-            {trackState && <TrackToggleButton onButtonClick={onTrackToggle} trackId={properties.id} trackVisible={trackState.visible.includes(properties.id)} trackPinned={trackState.pinned.includes(properties.id)} />}
-            {heatmapState && <HeatmapToggleButton onButtonClick={onHeatmapToggle} subjectId={properties.id} heatmapVisible={heatmapState.includes(properties.id)} />}
-          </div>
+          <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
         </Fragment>
       )}
     </Popup>

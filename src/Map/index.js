@@ -268,6 +268,7 @@ class Map extends Component {
 
             {!!popup && <PopupLayer
               popup={popup}
+              map={map}
               onTrackToggle={this.toggleTrackState}
               onHeatmapToggle={this.toggleHeatmapState}
               heatmapState={this.props.heatmapSubjectIDs}

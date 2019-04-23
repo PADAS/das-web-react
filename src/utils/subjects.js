@@ -7,9 +7,9 @@ const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
 const RECENT_RADIO_DECAY_THRESHOLD = 30 * 60; // 30 minutes
 const NUMBER_OF_RECENT_RADIOS_TO_DISPLAY = 5;
 
-const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
-const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
-const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(subject.subject_subtype);
+export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
+export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
+export const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(subject.subject_subtype);
 
 const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   if (subject
@@ -26,7 +26,7 @@ const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   return -1;
 };
 
-const calcRecentRadiosFromSubjects = (...subjects) => subjects
+export const calcRecentRadiosFromSubjects = (...subjects) => subjects
 .filter(subjectIsARadio)
 .filter((subject) => {
   const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(subject);
@@ -46,3 +46,12 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 }, []);
 
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
+
+export const canShowTrackForSubject = subject =>
+  subject.tracks_available
+  && !subjectIsAFixedPositionRadio(subject);
+
+export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
+  .filter(canShowTrackForSubject);
+
+export const getSubjectLastPositionCoordinates = subject => subject.last_position.geometry.coordinates;

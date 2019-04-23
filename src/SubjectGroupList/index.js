@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 
 
 const SubjectGroupList = memo((props) => {
-  const { subjectGroups, hideSubjects, showSubjects, hiddenSubjectIDs } = props;
+  const { subjectGroups, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
 
   const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
   const groupIsPartiallyVisible = (group) => {
@@ -33,21 +33,21 @@ const SubjectGroupList = memo((props) => {
     id='subjectgroups'
     onCheckClick={onCheckClick}
     itemComponent={Content}
+    itemProps={{ map }}
     items={subjectGroups}
     itemFullyChecked={groupIsFullyVisible}
     itemPartiallyChecked={groupIsPartiallyVisible} />
 }, (prev, current) =>
-    isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups, current.subjectGroups)
+    isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups, current.subjectGroups)
 );
 
 const mapStateToProps = ({ data: { subjectGroups }, view: { hiddenSubjectIDs } }) => ({ subjectGroups, hiddenSubjectIDs });
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(SubjectGroupList);
 
 SubjectGroupList.defaultProps = {
-  onCheckClick: item => console.log('clicky', item),
-}
+  map: {},
+};
 
 SubjectGroupList.propTypes = {
-  subjectGroups: PropTypes.array.isRequired,
-  hiddenSubjectIDs: PropTypes.array,
+  map: PropTypes.object,
 };
