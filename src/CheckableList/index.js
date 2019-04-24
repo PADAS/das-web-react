@@ -8,8 +8,12 @@ const CheckableList = (props) => {
   const { items, itemProps, onCheckClick, itemFullyChecked, itemPartiallyChecked, itemComponent: ItemComponent, className } = props;
   return <ul className={className}>
     {items.map((item) => {
+      const fullyChecked = itemFullyChecked(item);
+      const partiallyChecked = itemPartiallyChecked(item);
+      const onClick = () => onCheckClick(item);
+
       return <li key={item.id || uuid()}>
-        <CheckMark fullyChecked={itemFullyChecked(item)} partiallyChecked={itemPartiallyChecked(item)} onClick={() => onCheckClick(item)} />
+        <CheckMark fullyChecked={fullyChecked} partiallyChecked={partiallyChecked} onClick={onClick} />
         <ItemComponent {...item} {...itemProps} />
       </li>
     })}

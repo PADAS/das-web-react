@@ -9,6 +9,53 @@ const MAP_EVENT_CLUSTER_SOURCE_OPTIONS = {
   clusterRadius: 40,
 };
 
+const clusterLayerOptions = {
+  filter: ['has', 'point_count'],
+};
+
+const clusterSymbolLayout = {
+  'icon-pitch-alignment': 'map',
+};
+
+const clusterPaint = {
+  "circle-color": [
+    "step",
+    ["get", "point_count"],
+    "#51bbd6",
+    25,
+    "#f28cb1"
+  ],
+  "circle-radius": [
+    "case",
+    ['<', ['get', 'point_count'], 10], 15,
+    ['>', ['get', 'point_count'], 10], 25,
+    15,
+  ]
+};
+
+const clusterCountSymbolLayout = {
+  "text-field": "{point_count_abbreviated}",
+  "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+  "text-size": 12
+};
+
+
+const eventSymbolLayerOptions = {
+  filter: ['!has', 'point_count'],
+};
+
+const eventSymbolLayerLayout = {
+  'icon-allow-overlap': ["step", ["zoom"], false, 10, true],
+  'icon-anchor': 'center',
+  'icon-image': ["get", "icon_id"],
+  'text-allow-overlap': ["step", ["zoom"], false, 10, true],
+  'text-anchor': 'top',
+  'text-offset': [0, .5],
+  'text-field': '{display_title}',
+  'text-justify': 'center',
+  'text-size': 12,
+};
+
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
 export default class EventsLayer extends Component {
   constructor(props) {
@@ -28,39 +75,15 @@ export default class EventsLayer extends Component {
           data={events}
           circleOnClick={onClusterClick}
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={{
-            filter: ['has', 'point_count'],
-          }}
-          symbolLayout={{
-            'icon-pitch-alignment': 'map',
-          }}
-          circlePaint={{
-            "circle-color": [
-              "step",
-              ["get", "point_count"],
-              "#51bbd6",
-              25,
-              "#f28cb1"
-            ],
-            "circle-radius": [
-              "case",
-              ['<', ['get', 'point_count'], 10], 15,
-              ['>', ['get', 'point_count'], 10], 25,
-              15,
-            ]
-          }} />
+          layerOptions={clusterLayerOptions}
+          symbolLayout={clusterSymbolLayout}
+          circlePaint={clusterPaint} />
         <GeoJSONLayer
           id="event_cluster_count"
           data={events}
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={{
-            filter: ['has', 'point_count'],
-          }}
-          symbolLayout={{
-            "text-field": "{point_count_abbreviated}",
-            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-            "text-size": 12
-          }} />
+          layerOptions={clusterLayerOptions}
+          symbolLayout={clusterCountSymbolLayout} />
 
         <GeoJSONLayer
           id="event_symbols"
@@ -68,20 +91,8 @@ export default class EventsLayer extends Component {
           data={events}
           symbolOnClick={this.onEventClick}
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={{
-            filter: ['!has', 'point_count'],
-          }}
-          symbolLayout={{
-            'icon-allow-overlap': ["step", ["zoom"], false, 10, true],
-            'icon-anchor': 'center',
-            'icon-image': ["get", "icon_id"],
-            'text-allow-overlap': ["step", ["zoom"], false, 10, true],
-            'text-anchor': 'top',
-            'text-offset': [0, .5],
-            'text-field': '{display_title}',
-            'text-justify': 'center',
-            'text-size': 12,
-          }} />
+          layerOptions={eventSymbolLayerOptions}
+          symbolLayout={eventSymbolLayerLayout} />
       </Fragment>
     )
   }

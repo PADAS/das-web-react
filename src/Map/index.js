@@ -14,7 +14,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import createSocket, { unbindSocketEvents } from '../socket';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection } from '../selectors';
+import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
 import isEqual from 'lodash/isEqual';
 
@@ -35,13 +35,12 @@ const mapConfig = {
   style: 'mapbox://styles/vjoelm/ciobuir0n0061bdnj1c54oakh',
 };
 
+let cancelToken = CancelToken.source();
+const socket = createSocket();
+
 class Map extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      mapDataLoadingCancelToken: null,
-      socket: null,
-    };
     this.setMap = this.setMap.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
@@ -51,19 +50,26 @@ class Map extends Component {
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
   }
-  componentDidMount() {
-    this.setState({
-      socket: createSocket(),
-    });
+
+  shouldComponentUpdate(nextProps) {
+    if (isEqual(this.props, nextProps)) return false;
+    return true;
   }
+
   componentDidUpdate(prev) {
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
-      this.state.socket.emit('event_filter', this.props.eventFilter);
+      socket.emit('event_filter', this.props.eventFilter);
       this.fetchMapEvents();
+    }
+    if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
+      this.createMapImages(this.props.mapEventFeatureCollection);
+    }
+    if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
+      this.createMapImages(this.props.mapSubjectFeatureCollection);
     }
   }
   componentWillUnmount() {
-    unbindSocketEvents(this.state.socket);
+    unbindSocketEvents(socket);
   }
   getMapCenter() {
     return (this.props.homeMap || this.props.maps.find(map => map.default)).center;
@@ -76,41 +82,20 @@ class Map extends Component {
     this.props.showPopup('timepoint', { geometry, properties });
   }
   renderTrackLayers() {
-    const { tracks, map, subjectTrackState } = this.props;
-    const { visible, pinned } = subjectTrackState;
-    const trackLayerState = uniq([...visible, ...pinned]);
-
-    if (!trackLayerState.length) return null;
-
-    const trackCollection = trackLayerState
-      .filter(id => !!tracks[id])
-      .map(id => (tracks[id]));
-
+    const { trackCollection, map } = this.props;
     return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} /> : null;
   }
   renderHeatmapLayers() {
-    const { tracks, updateHeatmapSubjects, heatmapSubjectIDs } = this.props;
-
-    if (!heatmapSubjectIDs.length) return null;
-
-    const trackCollection = heatmapSubjectIDs
-      .filter(id => !!tracks[id])
-      .map(id => (tracks[id]));
-
+    const { trackCollection } = this.props;
     return !!trackCollection.length ? <Fragment>
       <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => updateHeatmapSubjects([])} tracks={trackCollection} />
       <HeatLayer trackCollection={trackCollection} />
     </Fragment> : null;
-
   }
 
   onMapMoveEnd() {
-    if (this.state.mapDataLoadingCancelToken) {
-      this.state.mapDataLoadingCancelToken.cancel();
-    }
-    this.setState({
-      mapDataLoadingCancelToken: CancelToken.source(),
-    });
+    cancelToken.cancel();
+    cancelToken = CancelToken.source();
     this.fetchMapData();
   }
   fetchMapData() {
@@ -118,10 +103,10 @@ class Map extends Component {
     this.fetchMapEvents();
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map, this.state.mapDataLoadingCancelToken);
+    this.props.fetchMapSubjects(this.props.map, cancelToken);
   }
   fetchMapEvents() {
-    this.props.fetchMapEvents(this.props.map, this.state.mapDataLoadingCancelToken);
+    this.props.fetchMapEvents(this.props.map, cancelToken);
   }
   onMapClick(map, event) {
     if (this.props.popup) {
@@ -223,21 +208,10 @@ class Map extends Component {
   setMap(map) {
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
-    // spiderifier = new MapboxglSpiderifier(this.state.map, {
-    //   onClick: function (e, spiderLeg) {
-    //   },
-    //   markerWidth: 40,
-    //   markerHeight: 40,
-    // });
   }
-  renderEventLayers() {
-    const { map, mapEventFeatureCollection } = this.props;
-    this.createMapImages(mapEventFeatureCollection);
-    return <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
-  }
+
   renderSubjectLayers() {
     const { mapSubjectFeatureCollection, map } = this.props;
-    this.createMapImages(mapSubjectFeatureCollection);
     return <SubjectsLayer
       map={map}
       subjects={mapSubjectFeatureCollection}
@@ -245,13 +219,16 @@ class Map extends Component {
     />;
   }
   render() {
-    const { maps, map, popup } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, trackCollection } = this.props;
+    const tracksAvailable = !!trackCollection.length;
     if (!maps.length) return null;
+
+    const mapCenter = this.getMapCenter();
     return (
       <MapboxMap
         id='map'
         className='main-map'
-        center={this.getMapCenter()}
+        center={mapCenter}
         // zoom={this.getMapZoom()}
         onMoveEnd={debounce(this.onMapMoveEnd)}
         movingMethod={'easeTo'}
@@ -261,10 +238,20 @@ class Map extends Component {
 
         {map && (
           <Fragment>
-            {this.renderSubjectLayers()}
-            {this.renderTrackLayers()}
-            {this.renderHeatmapLayers()}
-            {this.renderEventLayers()}
+            <SubjectsLayer
+              map={map}
+              subjects={mapSubjectFeatureCollection}
+              onSubjectIconClick={this.onMapSubjectClick}
+            />;
+
+
+            {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
+            {tracksAvailable && <Fragment>
+              <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => updateHeatmapSubjects([])} tracks={trackCollection} />
+              <HeatLayer trackCollection={trackCollection} />
+            </Fragment>}
+
+            <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
 
             {!!popup && <PopupLayer
               popup={popup}
@@ -287,9 +274,11 @@ class Map extends Component {
   }
 }
 
-const mapStatetoProps = ({ data, view }) => {
+const mapStatetoProps = (state, props) => {
+  const { data, view } = state;
   const { maps, tracks } = data;
   const { homeMap, popup, eventFilter, subjectTrackState, heatmapSubjectIDs } = view;
+
   return ({
     maps,
     heatmapSubjectIDs,
@@ -298,6 +287,7 @@ const mapStatetoProps = ({ data, view }) => {
     popup,
     eventFilter,
     subjectTrackState,
+    trackCollection: getArrayOfVisibleTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(data),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view })
   });
@@ -311,7 +301,7 @@ export default connect(mapStatetoProps, {
   showPopup,
   updateTrackState,
   updateHeatmapSubjects,
-  }
+}
 )(Map);
 
 // secret code burial ground

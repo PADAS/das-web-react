@@ -35,24 +35,32 @@ const DailyReportModal = (props) => {
     }
   };
 
+  const setParamsForYesterday = () => setParamsFor('yesterday');
+  const setParamsForToday = () => setParamsFor('today');
+
   const handleInputChange = (type, value) => {
     if (type === 'start') setStartDate(value);
     if (type === 'end') setEndDate(value);
   };
 
-  return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={{before: customEndDate, since: customStartDate} }>
+  const handleStartDateChange = value => handleInputChange('start', value);
+  const handleEndDateChange = value => handleInputChange('start', value);
+
+  const exportParams = {before: customEndDate, since: customStartDate};
+
+  return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={exportParams}>
     <div className={styles.controls}>
-      <Button type="button" onClick={() => setParamsFor('yesterday')}>Yesterday's Report</Button>
-      <Button type="button" onClick={() => setParamsFor('today')}>Today's Report</Button>
+      <Button type="button" onClick={setParamsForYesterday}>Yesterday's Report</Button>
+      <Button type="button" onClick={setParamsForToday}>Today's Report</Button>
     </div>
     <div className={styles.controls}>
       <label htmlFor="dailyReportStartDate">
         <span>From:</span>
-        <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={value => handleInputChange('start', value)} />
+        <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={handleStartDateChange} />
       </label>
       <label htmlFor="dailyReportEndDate">
         <span>Until:</span>
-        <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={value => handleInputChange('end', value)} />
+        <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={handleEndDateChange} />
       </label>
     </div>
   </DataExportModal >;

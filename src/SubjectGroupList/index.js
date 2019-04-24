@@ -21,24 +21,41 @@ const SubjectGroupList = memo((props) => {
     return !groupIsFullyVisible(group, hiddenSubjectIDs) && !groupSubjectIDs.every(id => hiddenSubjectIDs.includes(id));
   };
 
-  const onCheckClick = (group) => {
+  const onSubjectCheckClick = (subject) => {
+    if (subjectIsVisible(subject)) return hideSubjects(subject.id);
+
+    return showSubjects(subject.id);
+  };
+
+  const subjectIsVisible = subject => !hiddenSubjectIDs.includes(subject.id);
+
+  const onGroupCheckClick = (group) => {
     const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
 
     if (groupIsFullyVisible(group)) return hideSubjects(...subjectIDs);
     return showSubjects(...subjectIDs);
   };
-  
+
+
+  const itemProps = {
+    map,
+    onGroupCheckClick,
+    onSubjectCheckClick,
+    hiddenSubjectIDs,
+    subjectIsVisible,
+  };
+
   return <CheckableList
     className={styles.list}
     id='subjectgroups'
-    onCheckClick={onCheckClick}
+    onCheckClick={onGroupCheckClick}
     itemComponent={Content}
-    itemProps={{ map }}
+    itemProps={itemProps}
     items={subjectGroups}
     itemFullyChecked={groupIsFullyVisible}
     itemPartiallyChecked={groupIsPartiallyVisible} />
 }, (prev, current) =>
-    isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups, current.subjectGroups)
+    isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
 );
 
 const mapStateToProps = ({ data: { subjectGroups }, view: { hiddenSubjectIDs } }) => ({ subjectGroups, hiddenSubjectIDs });

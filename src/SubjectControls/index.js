@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
-import { updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
 import { fetchTracks } from '../ducks/tracks';
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
+import { getSubjectControlState } from './selectors';
 
 import styles from './styles.module.scss';
 
@@ -15,38 +16,30 @@ const SubjectControls = memo((props) => {
     showHeatmapButton,
     showTrackButton,
     showJumpButton,
-    heatmapSubjectIDs,
-    subjectTrackState,
     showTitles,
     className,
-    updateTrackState,
-    updateHeatmapSubjects,
+    toggleTrackState,
+    addHeatmapSubjects,
+    removeHeatmapSubjects,
+    subjectIsInHeatmap,
+    tracksLoaded,
+    tracksVisible,
+    tracksPinned,
     fetchTracks,
     map,
     ...rest } = props;
 
   const { id } = subject;
 
-  const toggleTrackState = async (id) => {
-    await fetchTracks(id);
+  const fetchTracksIfNecessary = () => {
+    if (tracksLoaded) return new Promise(resolve => resolve());
+    return fetchTracks(id);
+  };
 
-    const { visible, pinned } = subjectTrackState;
+  const onTrackButtonClick = async (id) => {
+    await fetchTracksIfNecessary(id);
 
-    if (pinned.includes(id)) {
-      return updateTrackState({
-        pinned: pinned.filter(item => item !== id),
-        visible: visible.filter(item => item !== id),
-      });
-    }
-    if (visible.includes(id)) {
-      return updateTrackState({
-        pinned: [...pinned, id],
-        visible: visible.filter(item => item !== id),
-      });
-    }
-    return updateTrackState({
-      visible: [...visible, id],
-    });
+    toggleTrackState(id);
   };
 
   const jumpToSubject = subject =>  map.jumpTo({
@@ -55,14 +48,10 @@ const SubjectControls = memo((props) => {
   });
 
   const toggleHeatmapState = async (id) => {
-    await fetchTracks(id);
+    await fetchTracksIfNecessary(id);
 
-    const visible = heatmapSubjectIDs.includes(id);
-
-    if (visible) {
-      return updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
-    }
-    return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
+    if (subjectIsInHeatmap) return removeHeatmapSubjects(id);
+    return addHeatmapSubjects(id);
   };
 
   if (!canShowTrackForSubject(subject)) return null;
@@ -70,8 +59,8 @@ const SubjectControls = memo((props) => {
 
 
   return <div className={`${styles.controls} ${className || ''} ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {showTrackButton && <TrackToggleButton onButtonClick={toggleTrackState} trackId={id} trackVisible={subjectTrackState.visible.includes(id)} trackPinned={subjectTrackState.pinned.includes(id)} />}
-    {showHeatmapButton && <HeatmapToggleButton onButtonClick={toggleHeatmapState} subjectId={id} heatmapVisible={heatmapSubjectIDs.includes(id)} />}
+    {showTrackButton && <TrackToggleButton onButtonClick={onTrackButtonClick} trackId={id} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
+    {showHeatmapButton && <HeatmapToggleButton onButtonClick={toggleHeatmapState} subjectId={id} heatmapVisible={subjectIsInHeatmap} />}
     {showJumpButton && <button onClick={() => jumpToSubject(subject)}>Jumpy wumpy</button>}
   </div>
 });
@@ -93,6 +82,6 @@ SubjectControls.propTypes = {
   showTitles: PropTypes.bool,
 };
 
-const mapStateToProps = ({ view: { subjectTrackState, heatmapSubjectIDs } }) => ({ subjectTrackState, heatmapSubjectIDs });
+const mapStateToProps = (state, props) => getSubjectControlState(state, props);
 
-export default connect(mapStateToProps, { fetchTracks, updateTrackState, updateHeatmapSubjects })(SubjectControls);
+export default connect(mapStateToProps, { fetchTracks, toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(SubjectControls);

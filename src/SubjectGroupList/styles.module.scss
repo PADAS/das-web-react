@@ -2,13 +2,19 @@
   display: block;
   width: 100%;
   li { 
-    align-items: center;
+    align-items: flex-start;
     display: flex;
     // flex-wrap: wrap;
     // justify-content: space-between;
     padding: 1rem 0;
     > h2, h4, svg {
       margin: 0 1rem;
+    }
+    svg {
+      margin-top: 0.5rem;
+    }
+    li svg {
+      margin-top: 0;
     }
   }
 }

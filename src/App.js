@@ -25,6 +25,7 @@ const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
 let interval, mapInterval;
 
+
 const resizeInterval = (map) => {
   clearInterval(interval);
   const transitionLength = 300;
@@ -42,6 +43,11 @@ let mapResized = false;
 const App = memo((props) => {
   const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
+
+  const onSidebarHandleClick = () => {
+    updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    resizeInterval(map);
+  };
 
   clearInterval(mapInterval);
   mapInterval = setInterval(() => {
@@ -78,10 +84,7 @@ const App = memo((props) => {
       <Nav />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={setMap} />
-        <SideBar onHandleClick={() => {
-          updateUserPreferences({ sidebarOpen: !sidebarOpen });
-          resizeInterval(map);
-        }} map={map} />
+        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
         <ModalRenderer />
       </div>
       <div style={{

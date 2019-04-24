@@ -10,7 +10,7 @@ import SubjectControls from '../SubjectControls';
 
 import styles from './styles.module.scss';
 
-const SubjectPopup = memo(function SubjectPopup(props) {
+const SubjectPopup = memo((props) => {
   const { data: { geometry, properties }, onTrackToggle, onHeatmapToggle, trackState, heatmapState, map, ...rest } = props;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;

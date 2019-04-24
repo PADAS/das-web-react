@@ -3,6 +3,7 @@
 .checkmark {
   --width: 2rem;
   fill: none;
+  flex-shrink: 0;
   stroke: $medium-light-gray;
   stroke-width: calc(var(--width)/6);
   width: var(--width);
