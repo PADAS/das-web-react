@@ -56,6 +56,8 @@ export const fetchMapEvents = (map, { token }) => (dispatch, getState) => {
 
   const { data: { eventFilter } } = getState();
 
+  const onEachRequest = onePageOfResults => dispatch(fetchMapEventsSucess(onePageOfResults));
+
   const request = axios.get(EVENT_API_URL, {
     cancelToken: token,
     params: {
@@ -64,10 +66,7 @@ export const fetchMapEvents = (map, { token }) => (dispatch, getState) => {
     },
   });
 
-  return recursivePaginatedQuery(request, token)
-    .then((results) => {
-      dispatch(fetchMapEventsSucess(results));
-    })
+  return recursivePaginatedQuery(request, token, onEachRequest)
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
     });
