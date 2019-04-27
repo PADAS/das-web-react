@@ -1,20 +1,97 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
 .list {
   display: block;
   width: 100%;
   li { 
     align-items: flex-start;
+    border-top: 1px solid $gray-border;
     display: flex;
-    // flex-wrap: wrap;
-    // justify-content: space-between;
-    padding: 1rem 0;
-    > h2, h4, svg {
+    flex-wrap: wrap;
+    position: relative;
+    > h5 {
       margin: 0 1rem;
+      position: relative;
+      top: 0.5rem;
     }
-    svg {
-      margin-top: 0.5rem;
+    [class*=checkmark] {
+      cursor: pointer;
+      left: 1rem;
+      position: absolute;
+      z-index: 1;
+      top: 1rem;
     }
-    li svg {
-      margin-top: 0;
+    [class*=Collapsible__trigger], .subjectTitle {
+      display: block;
+      padding-left: 4rem;
+      padding-right: 2rem;
+      word-break: break-all;
+      @media (min-width: $md-layout-width-min) {
+        word-break: initial;
+      }
+    }
+    [class*=Collapsible__trigger] {
+      cursor: pointer;
+      padding-bottom: 1rem;
+      padding-top: 1rem;
+      &:hover {
+        text-decoration: underline;
+      }
+      &::after {
+        content: '>';
+        font-size: 1.5rem;
+        position: absolute;
+        right: 1rem;
+        top: 0.5rem;
+        transform: scaleY(1.25) scaleX(0.75) rotate(-180deg);
+        transition: 0.15s transform linear;
+      }
+      &[class*=is-open] {
+        box-shadow: 0 2px 3px $medium-light-gray;
+        &::after {
+          transform: rotate(-270deg);
+        }
+      }
+    }
+    [class*=Collapsible__contentOuter] {
+      width: 100%;
+    }
+  }
+  .list {
+    background: $light-gray-background;
+    border-left: 0.5rem solid $gray-border;
+  }
+  .subjectList {
+    background: lighten($light-gray-background, 3.5%);
+    width: 100%;
+    li {
+      padding: 1rem 0;
+      > [class*=checkmark] {
+        top: 0.75rem;
+      }
     }
   }
 }
+
+.collapsed, .opened {
+  width: 100%;
+}
+
+.opened {
+  margin-bottom: 0;
+}
+
+.controls {
+  margin: 1rem 0 0 4rem;
+  button:not(:last-child) {
+    margin-right: 0.5rem;
+  }
+  @media (min-width: $md-layout-width-min) {
+    margin: 0;
+    position: absolute;
+    right: 1rem;
+    top: 0.333rem;
+  }
+}
+

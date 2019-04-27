@@ -5,12 +5,15 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
-import { displayTitleForEventByEventType, eventHasLocation } from '../utils/events';
+import LocationJumpButton from '../LocationJumpButton';
+
+import { getCoordinatesForEvent } from '../utils/events';
+import { displayTitleForEventByEventType } from '../utils/events';
 
 import styles from './styles.module.scss';
 
 const EventFeed = (props) => {
-  const { events, eventTypes, hasMore, onScroll, onTitleClick, onIconClick, onJumpClick } = props;
+  const { events, eventTypes, hasMore, map, onScroll, onTitleClick, onIconClick } = props;
 
   return (
     <InfiniteScroll
@@ -20,21 +23,19 @@ const EventFeed = (props) => {
       useWindow={false}
       loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
     >
-      {
-        events.map((item, index) => (
-          <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
+      {events.map((item, index) => {
+          const coordinates = getCoordinatesForEvent(item);
+          return <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
             <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
             <span className={styles.serialNumber}>{item.serial_number}</span>
             <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
             <DateTime className={styles.date} date={item.updated_at} />
-            {eventHasLocation &&
+            {coordinates &&
               <div className={styles.jump}>
-                <button title="Jump to the location for this event" type="button" className={styles.jump} onClick={() => onJumpClick(item)}></button>
+                <LocationJumpButton coordinates={coordinates} map={map} />
               </div>
             }
-          </li>
-        ))
-      }
+        </li>})}
     </InfiniteScroll>
   )
 };
@@ -49,9 +50,6 @@ EventFeed.defaultProps = {
   },
   onIconClick(event) {
   },
-  onJumpClick(event) {
-    console.log('jump click', event);
-  },
 };
 
 EventFeed.propTypes = {
@@ -61,6 +59,7 @@ EventFeed.propTypes = {
   onTitleClick: PropTypes.func,
   onIconClick: PropTypes.func,
   onJumpClick: PropTypes.func,
+  map: PropTypes.object.isRequired,
 };
 
 function newFunction() {

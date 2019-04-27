@@ -28,3 +28,7 @@ $background_image_url: '../common/images/icons/';
 .heatmap-on {
   @include button;
 }
+
+.heatmap-partial {
+  filter: opacity(50%);
+}

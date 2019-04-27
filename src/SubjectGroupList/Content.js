@@ -1,11 +1,19 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
+import intersection from 'lodash/intersection';
 
 import CheckableList from '../CheckableList';
+import HeatmapToggleButton from '../HeatmapToggleButton';
 import SubjectListItem from './SubjectListItem';
-import { getUniqueSubjectGroupSubjects, getHeatmapEligibleSubjectsFromGroups } from '../utils/subjects';
+
+import { addHeatmapSubjects, removeHeatmapSubjects } from '../ducks/map-ui';
+import { subjectGroupHeatmapControlState } from './selectors';
+import { fetchTracks } from '../ducks/tracks';
+
+import { getUniqueSubjectGroupSubjectIDs, getHeatmapEligibleSubjectsFromGroups } from '../utils/subjects';
 
 import styles from './styles.module.scss';
 
@@ -15,15 +23,31 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const ContentComponent = memo((props) => {
-  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, hiddenSubjectIDs, subjectIsVisible, ...rest } = props;
+  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, hiddenSubjectIDs, subjectIsVisible, addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, heatmapEligibleSubjectIDs, groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs, ...rest } = props;
 
   const nonEmptySubgroups = subgroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
-  const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
-  const groupIsPartiallyVisible = (group) => {
-    const groupSubjectIDs = getUniqueSubjectGroupSubjects(group).map(item => item.id);
-    return !groupIsFullyVisible(group, hiddenSubjectIDs) && !groupSubjectIDs.every(id => hiddenSubjectIDs.includes(id));
+  const groupIsFullyVisible = (group) => {
+    const groupSubjectIDs = getUniqueSubjectGroupSubjectIDs(group);
+    return !intersection(groupSubjectIDs, hiddenSubjectIDs).length;
   };
+ 
+
+  
+
+  const groupIsPartiallyVisible = (group) => {
+    const groupSubjectIDs = getUniqueSubjectGroupSubjectIDs(group);
+    return !groupIsFullyVisible(group)
+      && !!intersection(groupSubjectIDs, hiddenSubjectIDs).length
+      && intersection(groupSubjectIDs, hiddenSubjectIDs).length !== groupSubjectIDs.length;
+  };
+
+
+  // const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjectIDs(group).some(id => hiddenSubjectIDs.includes(id));
+  // const groupIsPartiallyVisible = (group) => {
+  //   const groupSubjectIDs = getUniqueSubjectGroupSubjectIDs(group);
+  //   return !groupIsFullyVisible(group, hiddenSubjectIDs) && !groupSubjectIDs.every(id => hiddenSubjectIDs.includes(id));
+  // };
 
   const groupItemProps = {
     map,
@@ -38,8 +62,14 @@ const ContentComponent = memo((props) => {
   };
 
 
-  const onGroupHeatmapToggle = group => {
-    const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
+  const onGroupHeatmapToggle = async (e) => {
+    const { heatmapEligibleSubjectIDs, groupIsFullyHeatmapped } = props;
+
+    e.stopPropagation();
+    if (groupIsFullyHeatmapped) return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
+
+    if (unloadedSubjectTrackIDs.length) await Promise.all(unloadedSubjectTrackIDs.map(id => props.fetchTracks(id)));
+    return addHeatmapSubjects(...heatmapEligibleSubjectIDs);
   };
 
   const canShowHeatmapControlForGroup = group => !!getHeatmapEligibleSubjectsFromGroups(group).length;
@@ -47,15 +77,16 @@ const ContentComponent = memo((props) => {
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
 
-  const trigger = <h2>{name}</h2>;
-  const triggerSibling = () => <div>
-    {/* {canShowHeatmapControlForGroup(props) && <HeatmapToggleButton />} */}
+  const trigger = <div>
+    <h5>{name}</h5>
+    {showHeatmapControl && <HeatmapToggleButton heatmapVisible={groupIsFullyHeatmapped} heatmapPartiallyVisible={groupIsPartiallyHeatmapped} onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
   </div>;
 
   return <Collapsible
+    className={styles.collapsed}
+    openedClassName={styles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-    trigger={trigger}
-    triggerSibling={triggerSibling}>
+    trigger={trigger}>
     {!!subgroups.length &&
       <CheckableList
         className={styles.list}
@@ -68,7 +99,7 @@ const ContentComponent = memo((props) => {
     }
     {!!subjects.length &&
       <CheckableList
-        className={styles.list}
+        className={`${styles.list} ${styles.subjectList}`}
         items={subjects}
         itemProps={subjectItemProps}
         itemFullyChecked={subjectIsVisible}
@@ -76,17 +107,12 @@ const ContentComponent = memo((props) => {
         itemComponent={SubjectListItem} />
     }
   </Collapsible>
-}, (prev, current) => {
- if (isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs)) return true;
-
- const currentSubjectIDs = getUniqueSubjectGroupSubjects(current).map(s => s.id);
-
- if (currentSubjectIDs.some(id => prev.hiddenSubjectIDs.includes(id))
-  === currentSubjectIDs.some(id => current.hiddenSubjectIDs.includes(id))) return true;
- return false;
 });
 
-export default ContentComponent;
+const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
+
+
+export default connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects, fetchTracks })(ContentComponent);
 
 
 ContentComponent.defaultProps = {
@@ -99,6 +125,5 @@ ContentComponent.propTypes = {
   subjects: PropTypes.array.isRequired,
   name: PropTypes.string.isRequired,
   hiddenSubjectIDs: PropTypes.array,
-  heatmapSubjectIDs: PropTypes.array,
 }
 

@@ -10,6 +10,7 @@ import { convertTrackLineStringToPoints } from '../utils/tracks';
 const mapEvents = ({ mapEvents }) => mapEvents;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
+const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
@@ -55,4 +56,9 @@ export const getArrayOfVisibleTracks = createSelector(
       .filter(id => !!tracks[id])
       .map(id => (tracks[id]));
   },
+);
+
+export const getArrayOfVisibleHeatmapTracks = createSelector(
+  [tracks, heatmapSubjectIDs],
+  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs.filter(id => !!tracks[id]).map(id => tracks[id]),
 );

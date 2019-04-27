@@ -7,7 +7,10 @@ import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../
 import { fetchTracks } from '../ducks/tracks';
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
+import LocationJumpButton from '../LocationJumpButton';
+
 import { getSubjectControlState } from './selectors';
+
 
 import styles from './styles.module.scss';
 
@@ -36,18 +39,15 @@ const SubjectControls = memo((props) => {
     return fetchTracks(id);
   };
 
-  const onTrackButtonClick = async (id) => {
+  const onTrackButtonClick = async () => {
     await fetchTracksIfNecessary(id);
 
     toggleTrackState(id);
   };
 
-  const jumpToSubject = subject =>  map.jumpTo({
-    center: getSubjectLastPositionCoordinates(subject),
-    // zoom: 19,
-  });
+  const coordinates = getSubjectLastPositionCoordinates(subject);
 
-  const toggleHeatmapState = async (id) => {
+  const toggleHeatmapState = async () => {
     await fetchTracksIfNecessary(id);
 
     if (subjectIsInHeatmap) return removeHeatmapSubjects(id);
@@ -59,9 +59,9 @@ const SubjectControls = memo((props) => {
 
 
   return <div className={`${styles.controls} ${className || ''} ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {showTrackButton && <TrackToggleButton onButtonClick={onTrackButtonClick} trackId={id} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton onButtonClick={toggleHeatmapState} subjectId={id} heatmapVisible={subjectIsInHeatmap} />}
-    {showJumpButton && <button onClick={() => jumpToSubject(subject)}>Jumpy wumpy</button>}
+    {showTrackButton && <TrackToggleButton onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
+    {showHeatmapButton && <HeatmapToggleButton onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
+    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} map={map} />}
   </div>
 });
 

@@ -23,7 +23,7 @@ import './App.scss';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-let interval, mapInterval;
+let interval, mapInterval, zendeskInterval;
 
 
 const resizeInterval = (map) => {
@@ -37,6 +37,17 @@ const resizeInterval = (map) => {
     if (count > (transitionLength / frameRate)) clearInterval(interval);
   }, frameRate);
 };
+
+const setZendeskInterval = () => {
+  zendeskInterval = setInterval(() => {
+    if (window.zE && window.zE.hide) {
+      window.zE(function () {
+        window.zE.hide();
+        clearInterval(zendeskInterval);
+      });
+    }
+  }, 100);
+}
 
 let mapResized = false;
 
@@ -75,7 +86,7 @@ const App = memo((props) => {
 
   useEffect(() => {
     if (zendeskEnabled && zendeskEnabled.enabled) {
-      setTimeout(() => window.zE(() => window.zE.hide(), 200));
+      setZendeskInterval();
     }
   }, [zendeskEnabled])
 

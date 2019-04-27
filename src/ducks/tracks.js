@@ -1,5 +1,5 @@
 import axios from 'axios';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
@@ -12,17 +12,26 @@ export const FETCH_TRACKS_SUCCESS = 'FETCH_TRACKS_SUCCESS';
 export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
 // action creators
-export const fetchTracks = (id, config = {}) => {
-  return function (dispatch) {
-    return axios.get(TRACKS_API_URL(id), config)
-      .then(response => dispatch(fetchTracksSuccess(id, response)))
-      .catch(error => dispatch(fetchTracksError(error)));
+export const fetchTracks = (...ids) => {
+  return async (dispatch) => {
+    try {
+      const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id))));
+
+      const results = responses.reduce((accumulator, response, index) => {
+        accumulator[ids[index]] = response.data.data;
+        return accumulator;
+      }, {});
+
+      dispatch(fetchTracksSuccess(results));
+    } catch (error) {
+      dispatch(fetchTracksError(error));
+    }
   };
 };
 
-const fetchTracksSuccess = (id, response) => ({
+const fetchTracksSuccess = results => ({
   type: FETCH_TRACKS_SUCCESS,
-  payload: { id, tracks: response.data.data },
+  payload: results,
 });
 
 const fetchTracksError = error => ({
@@ -79,8 +88,7 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
 
     }
     case FETCH_TRACKS_SUCCESS: {
-      const { payload: { id, tracks } } = action;
-      return { ...state, [id]: tracks };
+      return { ...state, ...action.payload };
     }
 
     default: {

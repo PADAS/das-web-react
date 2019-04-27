@@ -1,4 +1,4 @@
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
 import { featureCollection } from '@turf/helpers';

@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 
 const HeatmapToggleButton = memo(function HeatmapToggleButton (props) {
-  const { heatmapVisible, subjectId, onButtonClick, showLabel } = props;
-  const className = heatmapVisible ? 'heatmap-on' : '';
+  const { heatmapVisible, heatmapPartiallyVisible, onButtonClick, showLabel } = props;
+  const className = heatmapVisible ? 'heatmap-on' : heatmapPartiallyVisible ? 'heatmap-partial' : '';
   const hoverText = className ? 'Heatmap on' : 'Heatmap off';
 
   return <div className={styles.container}>
-    <button title={hoverText} type="button" className={`${styles.button} ${styles[className]}`} onClick={() => onButtonClick(subjectId)}></button>
+    <button title={hoverText} type="button" className={`${styles.button} ${styles[className]}`} onClick={onButtonClick}></button>
     {showLabel && <span>{hoverText}</span>}
     </div>
 });
@@ -24,7 +24,7 @@ HeatmapToggleButton.defaultProps = {
 
 HeatmapToggleButton.propTypes = {
   heatmapVisible: PropTypes.bool.isRequired,
+  heatmapPartiallyVisible: PropTypes.bool,
   onButtonClick: PropTypes.func,
-  subjectId: PropTypes.string.isRequired,
   showLabel: PropTypes.bool,
 };

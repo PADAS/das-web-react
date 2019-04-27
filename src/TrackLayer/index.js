@@ -1,7 +1,7 @@
 import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 
 import { svgSrcToPngImg } from '../utils/img';
 import { getTrackPointsFromTrackFeatureArray } from '../selectors';

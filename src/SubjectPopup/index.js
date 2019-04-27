@@ -1,7 +1,7 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';

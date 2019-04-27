@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects } from '../utils/subjects';

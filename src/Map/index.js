@@ -1,29 +1,29 @@
-import './Map.scss';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { CancelToken } from 'axios';
+import debounce from 'lodash/debounce';
+import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
+import isEqual from 'react-fast-compare';
+
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { CancelToken } from 'axios';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import debounce from 'lodash/debounce';
-import uniq from 'lodash/uniq';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import createSocket, { unbindSocketEvents } from '../socket';
-import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks } from '../selectors';
+import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
-import isEqual from 'lodash/isEqual';
-
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
+
+import 'mapbox-gl/dist/mapbox-gl.css';
+// import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import './Map.scss';
 
 const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
@@ -49,6 +49,7 @@ class Map extends Component {
     this.onTimepointClick = this.onTimepointClick.bind(this);
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
+    this.onHeatmapClose = this.onHeatmapClose.bind(this);
   }
 
   shouldComponentUpdate(nextProps) {
@@ -81,18 +82,6 @@ class Map extends Component {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
   }
-  renderTrackLayers() {
-    const { trackCollection, map } = this.props;
-    return !!trackCollection.length ? <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} /> : null;
-  }
-  renderHeatmapLayers() {
-    const { trackCollection } = this.props;
-    return !!trackCollection.length ? <Fragment>
-      <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => updateHeatmapSubjects([])} tracks={trackCollection} />
-      <HeatLayer trackCollection={trackCollection} />
-    </Fragment> : null;
-  }
-
   onMapMoveEnd() {
     cancelToken.cancel();
     cancelToken = CancelToken.source();
@@ -127,8 +116,6 @@ class Map extends Component {
     });
   }
   onClusterClick(e) {
-    // spiderifier && spiderifier.unspiderfy();
-
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: ['event_clusters-circle'] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('event_clusters');
@@ -210,17 +197,14 @@ class Map extends Component {
     this.onMapMoveEnd();
   }
 
-  renderSubjectLayers() {
-    const { mapSubjectFeatureCollection, map } = this.props;
-    return <SubjectsLayer
-      map={map}
-      subjects={mapSubjectFeatureCollection}
-      onSubjectIconClick={this.onMapSubjectClick}
-    />;
+  onHeatmapClose() {
+    this.props.updateHeatmapSubjects([]);
   }
+
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, trackCollection } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, trackCollection, heatmapTracks } = this.props;
     const tracksAvailable = !!trackCollection.length;
+    const heatmapAvailable = !! heatmapTracks.length;
     if (!maps.length) return null;
 
     const mapCenter = this.getMapCenter();
@@ -246,9 +230,9 @@ class Map extends Component {
 
 
             {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
-            {tracksAvailable && <Fragment>
-              <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={() => updateHeatmapSubjects([])} tracks={trackCollection} />
-              <HeatLayer trackCollection={trackCollection} />
+            {heatmapAvailable && <Fragment>
+              <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />
+              <HeatLayer trackCollection={heatmapTracks} />
             </Fragment>}
 
             <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
@@ -288,6 +272,7 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     trackCollection: getArrayOfVisibleTracks(state, props),
+    heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(data),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view })
   });
@@ -303,6 +288,8 @@ export default connect(mapStatetoProps, {
   updateHeatmapSubjects,
 }
 )(Map);
+
+Map.whyDidYouRender = true;
 
 // secret code burial ground
 // for future reference and potential experiments

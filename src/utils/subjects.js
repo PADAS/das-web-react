@@ -47,6 +47,8 @@ export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator
 
 export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGroupSubjects(...groups), 'id');
 
+export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
+
 export const canShowTrackForSubject = subject =>
   subject.tracks_available
   && !subjectIsAFixedPositionRadio(subject);
@@ -54,4 +56,4 @@ export const canShowTrackForSubject = subject =>
 export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
 
-export const getSubjectLastPositionCoordinates = subject => subject.last_position.geometry.coordinates;
+export const getSubjectLastPositionCoordinates = subject => subject.last_position ? subject.last_position.geometry.coordinates : subject.geometry ?  subject.geometry.coordinates : null;

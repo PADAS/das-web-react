@@ -4,30 +4,23 @@ import { connect } from 'react-redux';
 import { Tabs, Tab } from 'react-bootstrap';
 
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
-import { getCoordinatesForEvent } from '../utils/events';
 import SubjectGroupList from '../SubjectGroupList';
 import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, hiddenSubjectIDs, map } = props;
+  const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
 
-  const goToEventLocation = (event) => {
-    if (event.is_collection) {
-      // do some collection stuff buddy
-    } else {
-      map.jumpTo({
-        center: getCoordinatesForEvent(event),
-        zoom: 19,
-      });
-    }
-  };
+
+  const onScroll = () => fetchNextEventPage(events.next); 
 
   useEffect(() => {
     fetchEvents({
       params: eventFilter,
     });
   }, [eventFilter]);
+
+  if (!map) return null;
 
   return (
     <aside className='side-menu'>
@@ -36,9 +29,9 @@ const SideBar = memo((props) => {
         <Tab className={styles.tab} eventKey="events" title="Events">
           <EventFeed
             hasMore={!!events.next}
+            map={map}
             events={events.results}
-            onJumpClick={goToEventLocation}
-            onScroll={() => fetchNextEventPage(events.next)} />
+            onScroll={onScroll} />
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
           <SubjectGroupList map={map} />
