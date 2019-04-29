@@ -17,7 +17,7 @@ const trackLayerLinePaint = {
     ['has', 'stroke'], ['get', 'stroke'],
     'orange',
   ],
-  'line-width': ["step", ["zoom"], 0, 8, ['get', 'stroke-width']],
+  'line-width': ["step", ["zoom"], 1, 8, ['get', 'stroke-width']],
 };
 
 const trackLayerLineLayout = {
