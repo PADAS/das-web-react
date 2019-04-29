@@ -67,6 +67,4 @@ HeatmapLegend.propTypes = {
   onTrackRemoveButtonClick: PropTypes.func.isRequired,
 };
 
-HeatmapLegend.whyDidYouRender = true;
-
 export default HeatmapLegend;

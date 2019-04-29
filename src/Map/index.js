@@ -36,7 +36,6 @@ const mapConfig = {
 };
 
 let cancelToken = CancelToken.source();
-const socket = createSocket();
 
 class Map extends Component {
   constructor(props) {
@@ -57,9 +56,13 @@ class Map extends Component {
     return true;
   }
 
+  componentDidMount() {
+    this.socket = createSocket();
+  }
+
   componentDidUpdate(prev) {
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
-      socket.emit('event_filter', this.props.eventFilter);
+      this.socket.emit('event_filter', this.props.eventFilter);
       this.fetchMapEvents();
     }
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
@@ -70,7 +73,7 @@ class Map extends Component {
     }
   }
   componentWillUnmount() {
-    unbindSocketEvents(socket);
+    unbindSocketEvents(this.socket);
   }
   getMapCenter() {
     return (this.props.homeMap || this.props.maps.find(map => map.default)).center;

@@ -4,6 +4,7 @@ import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
+import { updateSubjectLastPositionFromSocketStatusUpdate, updateSubjectsInSubjectGroupsFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -73,16 +74,7 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
       payload.properties.image = calcUrlForImage(payload.properties.image);
       return state.map((subject) => {
         if (subject.id === payload.properties.id) {
-          return {
-            ...subject,
-            last_position: {
-              ...subject.last_position, ...payload, properties: {
-                ...subject.last_position.properties,
-                ...payload.properties,
-                radio_state: payload.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
-              }
-            },
-          };
+          return updateSubjectLastPositionFromSocketStatusUpdate(subject, payload);
         }
         return subject;
       });
@@ -97,6 +89,11 @@ export const subjectGroupsReducer = (state = [], action = {}) => {
   const { type, payload } = action;
   if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
     return payload;
+  }
+  if (type === SOCKET_SUBJECT_STATUS) {
+    const { payload } = action;
+    payload.properties.image = calcUrlForImage(payload.properties.image);
+    return updateSubjectsInSubjectGroupsFromSocketStatusUpdate(state, payload);
   }
   return state;
 };

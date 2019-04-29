@@ -57,3 +57,30 @@ export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubj
   .filter(canShowTrackForSubject);
 
 export const getSubjectLastPositionCoordinates = subject => subject.last_position ? subject.last_position.geometry.coordinates : subject.geometry ?  subject.geometry.coordinates : null;
+
+export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, update) => ({
+    ...subject,
+    last_position: {
+      ...subject.last_position, ...update, properties: {
+        ...subject.last_position.properties,
+        ...update.properties,
+        radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
+      }
+    },
+});
+
+export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroups, update) => {
+  const { properties: { id } } = update;
+
+  return subjectGroups.map((group) => {
+    const { subgroups, subjects } = group;
+    return {
+      ...group,
+      subgroups: updateSubjectsInSubjectGroupsFromSocketStatusUpdate(subgroups, update),
+      subjects: subjects.map((s) => {
+        if (s.id === id) return updateSubjectLastPositionFromSocketStatusUpdate(s, update);
+        return s;
+      }),
+    };
+  });
+}

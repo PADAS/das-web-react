@@ -70,7 +70,7 @@ const TracksLayer = memo(function TracksLayer(props) {
       />
     </Fragment>
   );
-}, (prev, current) => current.trackCollection.some((item, index) => !isEqual(item, prev.trackCollection[index])));
+}, (prev, current) => isEqual(prev, current));
 
 export default TracksLayer;
 

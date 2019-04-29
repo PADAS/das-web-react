@@ -74,7 +74,7 @@ const ContentComponent = memo(debounceRender((props) => {
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
 
-  const trigger = <div>
+  const trigger = <div className={styles.trigger}>
     <h5>{name}</h5>
     {showHeatmapControl && <HeatmapToggleButton loading={loadingTracks} heatmapVisible={groupIsFullyHeatmapped} heatmapPartiallyVisible={groupIsPartiallyHeatmapped} onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
   </div>;

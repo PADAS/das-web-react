@@ -15,5 +15,4 @@ const HeatLayer = memo(({ tracksAsPoints }) =>
 
 const mapStateToProps = (state) => ({ heatmapStyles: removePersistKey(state.view.heatmapStyles), tracksAsPoints: getHeatmapTrackPoints(state) });
 
-HeatLayer.whyDidYouRender = true;
 export default connect(mapStateToProps, null)(debounceRender(HeatLayer));

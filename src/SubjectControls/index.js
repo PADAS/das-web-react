@@ -14,7 +14,7 @@ import { getSubjectControlState } from './selectors';
 
 import styles from './styles.module.scss';
 
-const SubjectControls = (props) => {
+const SubjectControls = memo((props) => {
   const { subject,
     showHeatmapButton,
     showTrackButton,
@@ -70,7 +70,7 @@ const SubjectControls = (props) => {
     {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} map={map} />}
   </div>
-};
+});
 
 
 SubjectControls.defaultProps = {
