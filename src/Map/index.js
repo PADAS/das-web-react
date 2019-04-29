@@ -4,6 +4,7 @@ import { CancelToken } from 'axios';
 import debounce from 'lodash/debounce';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
+import debounceRender from 'react-debounce-render';
 
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
@@ -290,7 +291,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(Map);
+)(debounceRender(Map));
 
 Map.whyDidYouRender = true;
 
