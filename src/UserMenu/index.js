@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';

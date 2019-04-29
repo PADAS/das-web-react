@@ -1,7 +1,8 @@
-import { feature, featureCollection } from '@turf/helpers';
+import { feature, featureCollection, polygon } from '@turf/helpers';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { fileNameFromPath } from './string';
 import { svgSrcToPngImg } from './img';
-import { MAP_ICON_SIZE } from '../constants';
+import { MAP_ICON_SIZE, BREAKPOINTS } from '../constants';
 
 const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
@@ -52,3 +53,28 @@ const featureCollectionFromGeoJson = geojson_collection => featureCollection(geo
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
 export const createFeatureCollectionFromEvents = events => featureCollectionFromGeoJson(setUpEventGeoJson(events));
+
+export const pointIsInMapBounds = (coords, map) => {
+  const bounds = map.getBounds();
+  const boundsGeometry = polygon([
+    [
+      [bounds.getNorthWest().lng, bounds.getNorthWest().lat],
+      [bounds.getNorthEast().lng, bounds.getNorthEast().lat],
+      [bounds.getSouthEast().lng, bounds.getSouthEast().lat],
+      [bounds.getSouthWest().lng, bounds.getSouthWest().lat],
+      [bounds.getNorthWest().lng, bounds.getNorthWest().lat]
+    ]
+  ]);
+  return booleanPointInPolygon(coords, boundsGeometry);
+};
+
+export const jumpToLocation = (coords, map, zoom = 17) => {
+  map.flyTo({
+    center: coords,
+    zoom,
+    speed: 100,
+  });
+  
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+  setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+};

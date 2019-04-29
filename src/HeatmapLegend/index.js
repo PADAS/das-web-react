@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 import styles from './styles.module.scss';
 import { Popover, OverlayTrigger, Button } from 'react-bootstrap';
 
@@ -33,13 +33,15 @@ const HeatmapLegend = memo(function HeatmapLegend({ tracks, onClose, onTrackRemo
                 {tracks.map(({ features }) => {
                   const [feature] = features;
                   const { properties: { title, image, id } } = feature;
+                  const onRemoveTrackClick = () => onTrackRemoveButtonClick(id);
+
                   return <li key={id}>
                     <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
                     <div>
                       <span>{title}</span>
                       <small>{feature.geometry.coordinates.length} points</small>
                     </div>
-                    <Button variant="secondary" onClick={() => onTrackRemoveButtonClick(id)}>remove</Button>
+                    <Button variant="secondary" onClick={onRemoveTrackClick}>remove</Button>
                   </li>
                 })}
               </ul>

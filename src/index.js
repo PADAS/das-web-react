@@ -1,4 +1,5 @@
 import React from 'react';
+
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -19,6 +20,11 @@ import App from './App';
 import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 
+if (process.env.NODE_ENV !== 'production') {
+  const whyDidYouRender = require('@welldone-software/why-did-you-render');
+  whyDidYouRender(React);
+}
+
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
 export const store = createStoreWithMiddleware(reducers);
 const persistor = persistStore(store);
@@ -29,7 +35,7 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={App} />
-          <Route path={`${REACT_APP_ROUTE_PREFIX}/login`} component={Login} />
+          <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={Login} />
         </Switch>
       </BrowserRouter>
     </PersistGate>

@@ -7,7 +7,6 @@ import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
 
-
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const modals = [
@@ -63,6 +62,7 @@ const DataExportMenu = (props) => {
         </Item>
       )}
       <Divider />
+      <Header>Support</Header>
       <Item onClick={() => contactSupport()}>Contact Support</Item>
     </Menu>
   </Dropdown>;

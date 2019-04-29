@@ -1,5 +1,4 @@
 import { API_URL } from '../constants';
-import { fetchEvents } from './events';
 import { deleteHiddenSchemaProps, generateEnumAndNamesFromEnumOfObjects } from '../utils/schema';
 import axios from 'axios';
 export const EVENT_FILTER_SCHEMA_URL = `${API_URL}activity/eventfilters/schema`;

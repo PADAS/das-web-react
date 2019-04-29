@@ -21,3 +21,14 @@ export const MAP_ICON_SIZE = {
   height: 30,
   width: 30,
 };
+
+// keep this in sync with `/common/styles/_layout.scss`
+const mdLayoutWidthMin = '(min-width: 31.75rem)';
+const lgLayoutWidthMin = '(min-width: 48rem)';
+const mdLayoutWidthMax = `(max-width: calc(${lgLayoutWidthMin} - 1px))`;
+
+export const BREAKPOINTS = {
+  screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
+  screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
+  screenIsLargeayoutOrLarger: matchMedia(lgLayoutWidthMin),
+};

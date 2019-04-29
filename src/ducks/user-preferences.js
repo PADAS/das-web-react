@@ -12,7 +12,9 @@ export const updateUserPreferences = (preference) => ({
 //REDUCER
 const INITIAL_STATE = {
   gpsFormat: Object.values(GPS_FORMATS)[0],
+  sidebarOpen: false, 
 };
+
 export default (state = INITIAL_STATE, action = {}) => {
   const { type, payload } = action;
   switch (type) {

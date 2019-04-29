@@ -5,7 +5,7 @@ const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
 const RESET_EVENT_FILTER = 'RESET_EVENT_FILTER';
 
 // ACTION CREATORS
-export const updateEventFilter = config => (dispatch, getState) => {
+export const updateEventFilter = config => (dispatch) => {
   dispatch({
     type: UPDATE_EVENT_FILTER,
     payload: config,

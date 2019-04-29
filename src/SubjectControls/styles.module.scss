@@ -1,0 +1,9 @@
+.controls {
+  display: flex;
+  justify-content: space-around;
+  &.noTitles {
+    span {
+      display: none;
+    }
+  }
+}

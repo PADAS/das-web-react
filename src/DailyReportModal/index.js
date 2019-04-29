@@ -1,23 +1,15 @@
-import React, { Fragment, memo, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { CancelToken } from 'axios';
 import DateTimePicker from 'react-datetime-picker';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { subDays, startOfToday, setHours } from 'date-fns';
 
-
-import { API_URL } from '../constants';
 import { hideModal } from '../ducks/modals';
-import { downloadFileFromUrl } from '../utils/download';
-import LoadingOverlay from '../LoadingOverlay';
 import DataExportModal from '../DataExportModal';
 
 import styles from './styles.module.scss';
-
-const { Header, Title, Body, Footer } = Modal;
-const { Control } = Form;
-const DOWNLOAD_URL = `${API_URL}reports/sitrep.docx`;
 
 const DATEPICKER_CONFIG = {
   disableClock: true,
@@ -43,24 +35,32 @@ const DailyReportModal = (props) => {
     }
   };
 
+  const setParamsForYesterday = () => setParamsFor('yesterday');
+  const setParamsForToday = () => setParamsFor('today');
+
   const handleInputChange = (type, value) => {
     if (type === 'start') setStartDate(value);
     if (type === 'end') setEndDate(value);
   };
 
-  return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={{before: customEndDate, since: customStartDate} }>
+  const handleStartDateChange = value => handleInputChange('start', value);
+  const handleEndDateChange = value => handleInputChange('start', value);
+
+  const exportParams = {before: customEndDate, since: customStartDate};
+
+  return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={exportParams}>
     <div className={styles.controls}>
-      <Button type="button" onClick={() => setParamsFor('yesterday')}>Yesterday's Report</Button>
-      <Button type="button" onClick={() => setParamsFor('today')}>Today's Report</Button>
+      <Button type="button" onClick={setParamsForYesterday}>Yesterday's Report</Button>
+      <Button type="button" onClick={setParamsForToday}>Today's Report</Button>
     </div>
     <div className={styles.controls}>
       <label htmlFor="dailyReportStartDate">
-        <span>Since:</span>
-        <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={value => handleInputChange('start', value)} />
+        <span>From:</span>
+        <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={handleStartDateChange} />
       </label>
       <label htmlFor="dailyReportEndDate">
-        <span>Before:</span>
-        <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={value => handleInputChange('end', value)} />
+        <span>Until:</span>
+        <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={handleEndDateChange} />
       </label>
     </div>
   </DataExportModal >;

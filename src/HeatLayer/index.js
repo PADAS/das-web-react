@@ -1,23 +1,18 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { getTrackPointsFromTrackFeatureArray, removePersistKey } from '../selectors';
+import { getHeatmapTrackPoints, removePersistKey } from '../selectors';
 import { Feature, Layer } from 'react-mapbox-gl';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
+import debounceRender from 'react-debounce-render';
 
-const HeatLayer = memo(function HeatLayer({ trackCollection, heatmapStyles }) {
-  const tracksAsPoints = getTrackPointsFromTrackFeatureArray(trackCollection);
+const HeatLayer = memo(({ tracksAsPoints }) =>
+  <Layer before="subject_symbols-symbol" type="heatmap">
+    {tracksAsPoints.features.map((point, index) => {
+      return <Feature key={index} coordinates={point.geometry.coordinates} properties={point.properties} />
+    })}
+  </Layer>
+, (prev, current) => isEqual(prev.tracksAsPoints, current.tracksAsPoints));
 
-  return (
-    <Layer before="subject_symbols-symbol" type="heatmap">
-      {tracksAsPoints.features.map((point, index) => {
-        return <Feature key={index} coordinates={point.geometry.coordinates} properties={point.properties} />
-      })}
-    </Layer>
-  );
-}, (prev, current) => {
-  return isEqual(prev.heatmapStyles, current.heatmapStyles) && isEqual(prev.trackCollection, current.trackCollection);
-});
+const mapStateToProps = (state) => ({ heatmapStyles: removePersistKey(state.view.heatmapStyles), tracksAsPoints: getHeatmapTrackPoints(state) });
 
-const mapStateToProps = ({ view: { heatmapStyles } }) => ({ heatmapStyles: removePersistKey(heatmapStyles) });
-
-export default connect(mapStateToProps, null)(HeatLayer);
+export default connect(mapStateToProps, null)(debounceRender(HeatLayer));
