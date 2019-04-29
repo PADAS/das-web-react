@@ -232,7 +232,7 @@ class Map extends Component {
             {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
             {heatmapAvailable && <Fragment>
               <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />
-              <HeatLayer trackCollection={heatmapTracks} />
+              <HeatLayer />
             </Fragment>}
 
             <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />

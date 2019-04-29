@@ -23,6 +23,13 @@ $background_image_url: '../common/images/icons/';
   align-items: center;
   display: flex;
   flex-flow: column;
+  position: relative;
+  &.hasLabel {
+    [class*=spinner] {
+      position: relative;
+      top: -0.5rem;
+    }
+  }
 }
 
 .heatmap-on {
@@ -31,4 +38,16 @@ $background_image_url: '../common/images/icons/';
 
 .heatmap-partial {
   filter: opacity(50%);
+}
+
+div.loadingOverlay {
+  background: none;
+  z-index: 10;
+  [class*=spinner] {
+    height: 1rem;
+    width: 1rem;
+    &::after {
+      background: none;
+    }
+  }
 }

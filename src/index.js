@@ -29,13 +29,15 @@ const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(crea
 export const store = createStoreWithMiddleware(reducers);
 const persistor = persistStore(store);
 
+console.log('REACT_APP_ROUTE_PREFIX', REACT_APP_ROUTE_PREFIX);
+
 ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
         <Switch>
           <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={App} />
-          <Route path={`${REACT_APP_ROUTE_PREFIX}/login`} component={Login} />
+          <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={Login} />
         </Switch>
       </BrowserRouter>
     </PersistGate>

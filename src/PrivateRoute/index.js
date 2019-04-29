@@ -23,6 +23,8 @@ class PrivateRoute extends Component {
       this.setToken(token);
     }
 
+    debugger;
+
     return (
       <Route
         {...rest}
@@ -32,7 +34,7 @@ class PrivateRoute extends Component {
           ) : (
               <Redirect
                 to={{
-                  pathname: `${REACT_APP_ROUTE_PREFIX}/login`,
+                  pathname: `${REACT_APP_ROUTE_PREFIX}login`,
                   state: { from: this.props.location, },
                 }}
               />

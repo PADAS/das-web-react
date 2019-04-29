@@ -62,3 +62,8 @@ export const getArrayOfVisibleHeatmapTracks = createSelector(
   [tracks, heatmapSubjectIDs],
   (tracks, heatmapSubjectIDs) => heatmapSubjectIDs.filter(id => !!tracks[id]).map(id => tracks[id]),
 );
+
+export const getHeatmapTrackPoints = createSelector(
+  [getArrayOfVisibleHeatmapTracks],
+  tracks => getTrackPointsFromTrackFeatureArray(tracks),
+);

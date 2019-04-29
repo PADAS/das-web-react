@@ -7,9 +7,9 @@ import { clearAuth } from '../ducks/auth';
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
 
 const bindSocketEvents = (socket, store) => {
-  socket.on('connect', () => {
-    socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
-  });
+  // socket.on('connect', () => {
+  //   socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
+  // });
   socket.on('disconnect', (msg) => {
     console.log('realtime: disconnected', msg);
   });

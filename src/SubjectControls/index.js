@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -14,7 +14,7 @@ import { getSubjectControlState } from './selectors';
 
 import styles from './styles.module.scss';
 
-const SubjectControls = memo((props) => {
+const SubjectControls = (props) => {
   const { subject,
     showHeatmapButton,
     showTrackButton,
@@ -32,6 +32,9 @@ const SubjectControls = memo((props) => {
     map,
     ...rest } = props;
 
+  const [ loadingHeatmap, setHeatmapLoadingState ] = useState(false);
+  const [ loadingTracks, setTrackLoadingState ] = useState(false);
+
   const { id } = subject;
 
   const fetchTracksIfNecessary = () => {
@@ -40,7 +43,9 @@ const SubjectControls = memo((props) => {
   };
 
   const onTrackButtonClick = async () => {
+    setTrackLoadingState(true);
     await fetchTracksIfNecessary(id);
+    setTrackLoadingState(false);
 
     toggleTrackState(id);
   };
@@ -48,7 +53,9 @@ const SubjectControls = memo((props) => {
   const coordinates = getSubjectLastPositionCoordinates(subject);
 
   const toggleHeatmapState = async () => {
+    setHeatmapLoadingState(true);
     await fetchTracksIfNecessary(id);
+    setHeatmapLoadingState(false);
 
     if (subjectIsInHeatmap) return removeHeatmapSubjects(id);
     return addHeatmapSubjects(id);
@@ -59,11 +66,11 @@ const SubjectControls = memo((props) => {
 
 
   return <div className={`${styles.controls} ${className || ''} ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {showTrackButton && <TrackToggleButton onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
+    {showTrackButton && <TrackToggleButton loading={loadingTracks} onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
+    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} map={map} />}
   </div>
-});
+};
 
 
 SubjectControls.defaultProps = {
