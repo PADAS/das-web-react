@@ -7,7 +7,6 @@ services:
     volumes:
       - /app/node_modules
       - .:/app
-    command: yarn build
   web_test:
     build:
       context: .
