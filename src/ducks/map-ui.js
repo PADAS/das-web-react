@@ -6,6 +6,9 @@ const UPDATE_HEATMAP_CONFIG = 'UPDATE_HEATMAP_CONFIG';
 const HIDE_SUBJECTS = 'HIDE_SUBJECTS';
 const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 
+const HIDE_FEATURES = 'HIDE_FEATURES';
+const SHOW_FEATURES = 'SHOW_FEATURES';
+
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 const ADD_HEATMAP_SUBJECTS = 'UPDATE_HEATMAP_SUBJECT_STATE';
 const REMOVE_HEATMAP_SUBJECTS = 'UPDATE_HEATMAP_SUBJECT_STATE';
@@ -26,6 +29,16 @@ export const hideSubjects = (...subjectIDs) => ({
 export const showSubjects = (...subjectIDs) => ({
   type: SHOW_SUBJECTS,
   payload: subjectIDs,
+});
+
+export const hideFeatures = (...featureIDs) => ({
+  type: HIDE_FEATURES,
+  payload: featureIDs,
+});
+
+export const showFeatures = (...featureIDs) => ({
+  type: SHOW_FEATURES,
+  payload: featureIDs,
 });
 
 

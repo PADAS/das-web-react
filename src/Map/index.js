@@ -13,7 +13,7 @@ import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import createSocket, { unbindSocketEvents } from '../socket';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetGeoJSON } from '../selectors';
+import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
@@ -284,7 +284,7 @@ const mapStatetoProps = (state, props) => {
     trackCollection: getArrayOfVisibleTracks(state, props),
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(data),
-    mapFeaturesFeatureCollection: getFeatureSetGeoJSON(state),
+    mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view })
   });
 };

@@ -14,7 +14,7 @@ const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
-const featureSets = ({ data: { featureSets } }) => featureSets;
+export const featureSets = ({ data: { featureSets } }) => featureSets;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 
 export const getMapEventFeatureCollection = createSelector(
@@ -60,7 +60,7 @@ export const getArrayOfVisibleTracks = createSelector(
   },
 );
 
-export const getFeatureSetGeoJSON = createSelector(
+export const getFeatureSetFeatureCollectionsByType = createSelector(
   [featureSets],
   (featureSets) => {
     const allFeatures = featureSets.reduce((accumulator, data) => [...accumulator, ...data.geojson.features.map(feature => {
