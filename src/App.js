@@ -13,6 +13,7 @@ import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
 import { fetchSubjectGroups } from './ducks/subjects';
+import { fetchFeaturesets } from './ducks/features';
 
 import SideBar from './SideBar';
 import ModalRenderer from './ModalRenderer';
@@ -52,8 +53,13 @@ const setZendeskInterval = () => {
 let mapResized = false;
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
+
+  const onMapHasLoaded = (map) => {
+    setMap(map);
+    fetchFeaturesets();
+  }
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
@@ -94,7 +100,7 @@ const App = memo((props) => {
     <div className="App">
       <Nav />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={setMap} />
+        <Map map={map} onMapLoad={onMapHasLoaded} />
         {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
         <ModalRenderer />
       </div>
@@ -110,4 +116,4 @@ const App = memo((props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

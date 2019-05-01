@@ -12,6 +12,7 @@ const bindSocketEvents = (socket, store) => {
   });
   socket.on('disconnect', (msg) => {
     console.log('realtime: disconnected', msg);
+    unbindSocketEvents(socket);
   });
   socket.on('connect_error', () => {
     console.log('realtime: connection error');

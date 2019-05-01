@@ -22,10 +22,8 @@ const LocationJumpButton = memo((props) => {
 
   const onButtonClick = () => {
     jumpToLocation(coordinates, map, zoom);
-    closeSidebarForSmallViewports();
-
     // close the sidebar for smaller layouts on jump and zoom
-    
+    closeSidebarForSmallViewports();
   };
 
   return <button title="Jump to this location" type="button" className={styles.jump} onClick={onButtonClick}></button>

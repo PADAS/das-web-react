@@ -92,7 +92,7 @@ const ContentComponent = memo(debounceRender((props) => {
         itemFullyChecked={groupIsFullyVisible}
         itemPartiallyChecked={groupIsPartiallyVisible}
         onCheckClick={onGroupCheckClick}
-        itemComponent={ContentComponent} />
+        itemComponent={ConnectedComponent} />
     }
     {!!subjects.length &&
       <CheckableList
@@ -107,8 +107,9 @@ const ContentComponent = memo(debounceRender((props) => {
 }));
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
+const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects, fetchTracks })(ContentComponent);
+export default ConnectedComponent;
 
-export default connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects, fetchTracks })(ContentComponent);
 
 ContentComponent.defaultProps = {
   itemProps: {},

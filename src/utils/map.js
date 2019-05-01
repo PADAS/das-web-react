@@ -4,7 +4,7 @@ import { fileNameFromPath } from './string';
 import { svgSrcToPngImg } from './img';
 import { MAP_ICON_SIZE, BREAKPOINTS } from '../constants';
 
-const addIconToGeoJson = (geojson) => {
+export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
   if (image) {
     geojson.properties.icon_id = fileNameFromPath(image);
@@ -74,7 +74,7 @@ export const jumpToLocation = (coords, map, zoom = 17) => {
     zoom,
     speed: 100,
   });
-  
+
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };

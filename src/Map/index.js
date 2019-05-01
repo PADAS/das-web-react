@@ -13,11 +13,12 @@ import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import createSocket, { unbindSocketEvents } from '../socket';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks } from '../selectors';
+import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetGeoJSON } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
+import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
@@ -71,6 +72,9 @@ class Map extends Component {
     }
     if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
       this.createMapImages(this.props.mapSubjectFeatureCollection);
+    }
+    if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
+      this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
     }
   }
   componentWillUnmount() {
@@ -170,7 +174,7 @@ class Map extends Component {
   }
   async createMapImages(featureCollection) {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
-
+    
     if (newImages.length) {
       // a fake flyTo coerces the map to load symbol images
       setTimeout(() => {
@@ -206,7 +210,9 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, trackCollection, heatmapTracks } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
+    const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
+
     const tracksAvailable = !!trackCollection.length;
     const heatmapAvailable = !! heatmapTracks.length;
     if (!maps.length) return null;
@@ -230,9 +236,7 @@ class Map extends Component {
               map={map}
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
-            />;
-
-
+            />
             {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
             {heatmapAvailable && <Fragment>
               <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />
@@ -240,6 +244,8 @@ class Map extends Component {
             </Fragment>}
 
             <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
+
+            <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
             {!!popup && <PopupLayer
               popup={popup}
@@ -278,6 +284,7 @@ const mapStatetoProps = (state, props) => {
     trackCollection: getArrayOfVisibleTracks(state, props),
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(data),
+    mapFeaturesFeatureCollection: getFeatureSetGeoJSON(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view })
   });
 };
