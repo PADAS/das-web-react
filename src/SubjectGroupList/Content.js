@@ -16,7 +16,7 @@ import { fetchTracks } from '../ducks/tracks';
 
 import { getUniqueSubjectGroupSubjectIDs, getHeatmapEligibleSubjectsFromGroups } from '../utils/subjects';
 
-import styles from './styles.module.scss';
+import listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: true,
@@ -74,19 +74,19 @@ const ContentComponent = memo(debounceRender((props) => {
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
 
-  const trigger = <div className={styles.trigger}>
+  const trigger = <div className={listStyles.trigger}>
     <h5>{name}</h5>
     {showHeatmapControl && <HeatmapToggleButton loading={loadingTracks} heatmapVisible={groupIsFullyHeatmapped} heatmapPartiallyVisible={groupIsPartiallyHeatmapped} onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
   </div>;
 
   return <Collapsible
-    className={styles.collapsed}
-    openedClassName={styles.opened}
+    className={listStyles.collapsed}
+    openedClassName={listStyles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     trigger={trigger}>
     {!!subgroups.length &&
       <CheckableList
-        className={styles.list}
+        className={listStyles.list}
         items={nonEmptySubgroups}
         itemProps={groupItemProps}
         itemFullyChecked={groupIsFullyVisible}
@@ -96,7 +96,7 @@ const ContentComponent = memo(debounceRender((props) => {
     }
     {!!subjects.length &&
       <CheckableList
-        className={`${styles.list} ${styles.subjectList}`}
+        className={`${listStyles.list} ${listStyles.itemList}`}
         items={subjects}
         itemProps={subjectItemProps}
         itemFullyChecked={subjectIsVisible}

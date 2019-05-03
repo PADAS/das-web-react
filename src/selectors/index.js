@@ -12,6 +12,7 @@ const mapEvents = ({ mapEvents }) => mapEvents;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
+const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
@@ -61,15 +62,19 @@ export const getArrayOfVisibleTracks = createSelector(
 );
 
 export const getFeatureSetFeatureCollectionsByType = createSelector(
-  [featureSets],
-  (featureSets) => {
-    const allFeatures = featureSets.reduce((accumulator, data) => [...accumulator, ...data.geojson.features.map(feature => {
-      if (feature.properties.image) {
-        feature = addIconToGeoJson(feature);
-        feature.properties.image = calcUrlForImage(feature.properties.image);
-      }
-      return feature;
-    })], []);
+  [featureSets, hiddenFeatureIDs],
+  (featureSets, hiddenFeatureIDs) => {
+    const allFeatures = featureSets.reduce((accumulator, data) =>
+      [...accumulator,
+      ...data.geojson.features
+        .filter(f => !hiddenFeatureIDs.includes(f.properties.pk))
+        .map(feature => {
+          if (feature.properties.image) {
+            feature = addIconToGeoJson(feature);
+            feature.properties.image = calcUrlForImage(feature.properties.image);
+          }
+          return feature;
+        })], []);
     return {
       symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
       lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),

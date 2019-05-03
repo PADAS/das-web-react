@@ -1,4 +1,5 @@
 import { feature, featureCollection, polygon } from '@turf/helpers';
+import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { fileNameFromPath } from './string';
 import { svgSrcToPngImg } from './img';
@@ -68,6 +69,10 @@ export const pointIsInMapBounds = (coords, map) => {
   return booleanPointInPolygon(coords, boundsGeometry);
 };
 
+export const generateBoundsForLineString = ({ geometry }) => {
+  return geometry.coordinates.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
+};
+
 export const jumpToLocation = (coords, map, zoom = 17) => {
   map.flyTo({
     center: coords,
@@ -78,3 +83,17 @@ export const jumpToLocation = (coords, map, zoom = 17) => {
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
+
+
+const calcSymbolLayerName = name => `${name}-symbol`;
+const calcLineLayerName = name => `${name}-line`;
+const calcCircleLayerName = name => `${name}-circle`;
+const calcFillLayerName = name => `${name}-fill`;
+
+export const calcLayerName = (key, name) => {
+  if (key.includes('_FILLS')) return calcFillLayerName(name);
+  if (key.includes('_SYMBOLS')) return calcSymbolLayerName(name);
+  if (key.includes('_LINES')) return calcLineLayerName(name);
+  if (key.includes('_CIRCLES')) return calcCircleLayerName(name);
+  return name;
+}

@@ -2,17 +2,10 @@ import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-const symbolLayout = {
-  'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
-  'icon-anchor': 'center',
-  'icon-image': ["get", "icon_id"],
-  'text-allow-overlap': ["step", ["zoom"], false, 12, true],
-  'text-anchor': 'top',
-  'text-offset': [0, .5],
-  'text-field': '{title}',
-  'text-justify': 'center',
-  'text-size': 12,
-};
+import { GENERATED_LAYER_IDS, LAYER_IDS, DEFAULT_SYMBOL_LAYOUT } from '../constants';
+
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
 
 const linePaint = {
   'line-color': [
@@ -57,16 +50,16 @@ const lineLayout = {
 const FeatureLayer = memo(({ symbols, lines, polygons }) => {
   console.log('re rendering the feature layer', symbols, lines, polygons);
   return <Fragment>
-    <GeoJSONLayer before="subject_symbols-symbol" data={polygons}
+    <GeoJSONLayer id={FEATURE_FILLS} before={SUBJECT_SYMBOLS} data={polygons}
       fillPaint={fillPaint}
       fillLayout={fillLayout}
     />
-    <GeoJSONLayer before="subject_symbols-symbol" data={lines}
+    <GeoJSONLayer id={FEATURE_LINES} before={SUBJECT_SYMBOLS} data={lines}
       lineLayout={lineLayout}
       linePaint={linePaint}
     />
-    <GeoJSONLayer before="subject_symbols-symbol" data={symbols}
-      symbolLayout={symbolLayout}
+    <GeoJSONLayer id={FEATURE_SYMBOLS} before={SUBJECT_SYMBOLS} data={symbols}
+      symbolLayout={DEFAULT_SYMBOL_LAYOUT}
     />
   </Fragment>
 });

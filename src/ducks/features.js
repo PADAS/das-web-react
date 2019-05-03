@@ -1,17 +1,11 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
-import { featureCollection } from '@turf/helpers';
-import uniq from 'lodash/uniq';
 
 const FEATURESET_API_URL = `${API_URL}featureset/`
 
 // actions
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';
 const FETCH_FEATURESETS_ERROR = 'FETCH_FEATURESETS_ERROR';
-
-const HIDE_FEATURES = 'HIDE_FEATURES';
-const SHOW_FEATURES = 'SHOW_FEATURES';
-
 
 // action creators
 export const fetchFeaturesets = () => async (dispatch) => {
@@ -21,17 +15,15 @@ export const fetchFeaturesets = () => async (dispatch) => {
     const allFeatures = await Promise.all(
       features.map(async (fs) => {
         const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`)
-        return data;
+        return ({
+          geojson: data,
+          id: fs.id,
+          name: fs.name,
+        });
       })
     );
 
-    const results = allFeatures
-      .filter(({ features }) => !!features.length)
-      .map((data, index) => ({
-        name: features[index].name,
-        id: features[index].id,
-        geojson: data,
-      }));
+    const results = allFeatures.filter(item => !!item.geojson.features.length);
     dispatch({
       type: FETCH_FEATURESETS_SUCCESS,
       payload: results,

@@ -10,7 +10,7 @@ const CheckableList = (props) => {
     {items.map((item) => {
       const fullyChecked = itemFullyChecked(item);
       const partiallyChecked = itemPartiallyChecked(item);
-      const onClick = () => onCheckClick(item);
+      const onClick = (e) => e.stopPropagation && onCheckClick(item);
 
       return <li key={item.id || uuid()}>
         <CheckMark fullyChecked={fullyChecked} partiallyChecked={partiallyChecked} onClick={onClick} />

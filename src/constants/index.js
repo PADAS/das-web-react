@@ -1,3 +1,5 @@
+import { calcLayerName } from '../utils/map';
+
 export const {
   REACT_APP_DAS_HOST,
   REACT_APP_DAS_AUTH_TOKEN_URL,
@@ -31,4 +33,35 @@ export const BREAKPOINTS = {
   screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
   screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
   screenIsLargeayoutOrLarger: matchMedia(lgLayoutWidthMin),
+};
+
+export const LAYER_IDS = {
+  FEATURE_FILLS: 'feature-fills',
+  FEATURE_SYMBOLS: 'feature-symbols',
+  FEATURE_LINES: 'feature-lines',
+  EVENT_CLUSTERS_CIRCLES: 'event_clusters',
+  EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
+  EVENT_SYMBOLS: 'event_symbols',
+  SUBJECT_SYMBOLS: 'subject_symbols',
+  TRACKS_LINES: 'track-layer',
+  TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
+  HEATMAP_LAYER: 'heatmap',
+};
+
+export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [key, value]) => {
+  output[key] = calcLayerName(key, value);
+  return output;
+}, {});
+
+
+export const DEFAULT_SYMBOL_LAYOUT = {
+  'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-anchor': 'center',
+  'icon-image': ["get", "icon_id"],
+  'text-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'text-anchor': 'top',
+  'text-offset': [0, .5],
+  'text-field': '{title}',
+  'text-justify': 'center',
+  'text-size': 12,
 };

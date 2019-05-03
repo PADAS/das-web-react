@@ -36,7 +36,7 @@ const SideBar = memo((props) => {
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
           <SubjectGroupList map={map} />
-          <FeatureLayerList />
+          <FeatureLayerList map={map} />
         </Tab>
       </Tabs>
     </aside>

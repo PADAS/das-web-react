@@ -41,8 +41,6 @@ export const showFeatures = (...featureIDs) => ({
   payload: featureIDs,
 });
 
-
-
 export const addHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => {
   const { view: { heatmapSubjectIDs } } = getState();
   return dispatch(updateHeatmapSubjects(uniq([...subjectIDs, ...heatmapSubjectIDs])));
@@ -101,6 +99,13 @@ export const hiddenSubjectIDsReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === HIDE_SUBJECTS) return uniq([...payload, ...state]);
   if (type === SHOW_SUBJECTS) return state.filter(item => !payload.includes(item));
+  return state;
+};
+
+export const hiddenFeatureIDsReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
+  if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
   return state;
 };
 

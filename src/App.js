@@ -58,8 +58,17 @@ const App = memo((props) => {
 
   const onMapHasLoaded = (map) => {
     setMap(map);
+    window.map = map;
     fetchFeaturesets();
-  }
+    bindDirectMapEventing();
+  };
+
+  // use this block to do direct map event binding.
+  // useful for API gaps between react-mapbox-gl and mapbox-gl.
+  // also useful for presentation manipulations which would consume unnecessary resources when manipulated through state and/or redux.
+  const bindDirectMapEventing = () => {
+    // map.on('mousemove', 'state')
+  };
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
