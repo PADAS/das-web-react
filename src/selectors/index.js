@@ -67,7 +67,7 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
       ...data.geojson.features
-        .filter(f => !hiddenFeatureIDs.includes(f.properties.pk))
+        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
         .map(feature => {
           if (feature.properties.image) {
             feature = addIconToGeoJson(feature);

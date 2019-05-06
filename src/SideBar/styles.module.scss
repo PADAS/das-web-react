@@ -77,6 +77,11 @@
   .itemList {
     background: lighten($light-gray-background, 3.5%);
     width: 100%;
+    &.compressed {
+      li {
+        padding: 0.5rem 0;
+      }
+    }
     li {
       padding: 1rem 0;
       > [class*=checkmark] {
@@ -111,4 +116,11 @@
   display: flex;
   justify-content: space-between;
   padding-right: 1rem;
+}
+
+.featureTitle {
+  @extend .trigger;
+  align-items: center;
+  padding-left: 4rem;
+  width: 100%;
 }

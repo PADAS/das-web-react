@@ -84,16 +84,10 @@ export const jumpToLocation = (coords, map, zoom = 17) => {
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
 
-
-const calcSymbolLayerName = name => `${name}-symbol`;
-const calcLineLayerName = name => `${name}-line`;
-const calcCircleLayerName = name => `${name}-circle`;
-const calcFillLayerName = name => `${name}-fill`;
-
 export const calcLayerName = (key, name) => {
-  if (key.includes('_FILLS')) return calcFillLayerName(name);
-  if (key.includes('_SYMBOLS')) return calcSymbolLayerName(name);
-  if (key.includes('_LINES')) return calcLineLayerName(name);
-  if (key.includes('_CIRCLES')) return calcCircleLayerName(name);
+  if (key.includes('_FILLS')) return `${name}-fill`;
+  if (key.includes('_SYMBOLS')) return `${name}-symbol`;
+  if (key.includes('_LINES')) return `${name}-line`;
+  if (key.includes('_CIRCLES')) return `${name}-circle`;
   return name;
-}
+};

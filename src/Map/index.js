@@ -43,7 +43,7 @@ class Map extends Component {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
-    this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
+    this.onMapMoveEnd = debounce(this.onMapMoveEnd.bind(this), 500);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
@@ -54,8 +54,11 @@ class Map extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (isEqual(this.props, nextProps)) return false;
-    return true;
+    const props = Object.entries(this.props);
+
+    return props.some(([key, value]) => {
+      return !isEqual(value, nextProps[key]);
+    });
   }
 
   componentDidMount() {
@@ -224,7 +227,7 @@ class Map extends Component {
         className='main-map'
         center={mapCenter}
         // zoom={this.getMapZoom()}
-        onMoveEnd={debounce(this.onMapMoveEnd)}
+        onMoveEnd={this.onMapMoveEnd}
         movingMethod={'easeTo'}
         onClick={this.onMapClick}
         onStyleLoad={this.setMap}
@@ -285,7 +288,7 @@ const mapStatetoProps = (state, props) => {
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(data),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
-    mapSubjectFeatureCollection: getMapSubjectFeatureCollection({ data, view })
+    mapSubjectFeatureCollection: getMapSubjectFeatureCollection(state)
   });
 };
 
@@ -298,7 +301,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(Map));
+)(debounceRender(Map, 100));
 
 Map.whyDidYouRender = true;
 

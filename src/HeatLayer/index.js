@@ -20,4 +20,4 @@ const HeatLayer = memo(({ heatmapStyles, tracksAsPoints }) => {
 
 const mapStateToProps = (state) => ({ heatmapStyles: state.view.heatmapStyles, tracksAsPoints: getHeatmapTrackPoints(state) });
 
-export default connect(mapStateToProps, null)(debounceRender(HeatLayer));
+export default connect(mapStateToProps, null)(debounceRender(HeatLayer, 100));

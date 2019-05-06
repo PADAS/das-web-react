@@ -7,23 +7,31 @@ import { GENERATED_LAYER_IDS, LAYER_IDS, DEFAULT_SYMBOL_LAYOUT } from '../consta
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
 const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
 
+const ACTIVE_FEATURE_STATE = 'active';
+const IF_ACTIVE = (activeProp) =>  [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
+
+const IF_HAS_PROPERTY = (prop, defaultValue) => {
+  return [['has', prop], ['get', prop], defaultValue];
+};
+
 const linePaint = {
   'line-color': [
     'case',
-    ['has', 'stroke'], ['get', 'stroke'],
-    'orange',
+    ...IF_ACTIVE('blue'),
+    ...IF_HAS_PROPERTY('stroke', 'orange'),
   ],
   'line-opacity': [
     'case',
-    ['has', 'stroke-opacity'], ['get', 'stroke-opacity'],
-    1,
+    ...IF_HAS_PROPERTY('stroke-opacity', 1),
   ],
   'line-width': [
     'case',
-    ['has', 'stroke-width'], ['get', 'stroke-width'],
-    1,
+    ...IF_ACTIVE(3),
+    ...IF_HAS_PROPERTY('stroke-width', 1),
   ],
 };
+
+
 
 const fillLayout = {
   'visibility': 'visible',
@@ -32,13 +40,12 @@ const fillLayout = {
 const fillPaint = {
   'fill-color': [
     'case',
-    ['has', 'fill'], ['get', 'fill'],
-    'blue',
+    ...IF_ACTIVE('blue'),
+    ...IF_HAS_PROPERTY('fill', 'orange'),
   ],
   'fill-opacity': [
     'case',
-    ['has', 'fill-opacity'], ['get', 'fill-opacity'],
-    0,
+    ...IF_HAS_PROPERTY('fill-opacity', 0),
   ],
 };
 

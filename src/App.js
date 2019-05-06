@@ -8,6 +8,7 @@ import 'axios-progress-bar/dist/nprogress.css'
 
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
+import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
@@ -30,13 +31,13 @@ let interval, mapInterval, zendeskInterval;
 const resizeInterval = (map) => {
   clearInterval(interval);
   const transitionLength = 300;
-  const frameRate = 10;
+  const numberOfFrames = 2;
   let count = 0;
   interval = setInterval(() => {
     count += 1;
     map.resize();
-    if (count > (transitionLength / frameRate)) clearInterval(interval);
-  }, frameRate);
+    if (count > (transitionLength / numberOfFrames)) clearInterval(interval);
+  }, numberOfFrames);
 };
 
 const setZendeskInterval = () => {
@@ -52,23 +53,25 @@ const setZendeskInterval = () => {
 
 let mapResized = false;
 
+  // use this block to do direct map event binding.
+  // useful for API gaps between react-mapbox-gl and mapbox-gl.
+  // also useful for presentation manipulations which would consume unnecessary resources when manipulated through state via redux etc.
+  const bindDirectMapEventing = (map) => {
+    setDirectMapBindingsForFeatureHighlightStates(map);
+  };
+
+
 const App = memo((props) => {
   const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const onMapHasLoaded = (map) => {
     setMap(map);
-    window.map = map;
     fetchFeaturesets();
-    bindDirectMapEventing();
+    bindDirectMapEventing(map);
+    window.map = map;
   };
 
-  // use this block to do direct map event binding.
-  // useful for API gaps between react-mapbox-gl and mapbox-gl.
-  // also useful for presentation manipulations which would consume unnecessary resources when manipulated through state and/or redux.
-  const bindDirectMapEventing = () => {
-    // map.on('mousemove', 'state')
-  };
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });

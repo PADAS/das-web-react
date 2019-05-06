@@ -7,6 +7,10 @@ const FEATURESET_API_URL = `${API_URL}featureset/`
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';
 const FETCH_FEATURESETS_ERROR = 'FETCH_FEATURESETS_ERROR';
 
+
+// controlling individual featurestate using map#setFeatureState requires a integer based unique identifier, so we just increment this while building out the data. gross but manageable.
+let featureLayerIdentifier = 0;
+
 // action creators
 export const fetchFeaturesets = () => async (dispatch) => {
   try {
@@ -14,9 +18,18 @@ export const fetchFeaturesets = () => async (dispatch) => {
 
     const allFeatures = await Promise.all(
       features.map(async (fs) => {
-        const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`)
+        const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`);
+        const featuresWithID = {
+          ...data, features: data.features.map((f) => {
+            featureLayerIdentifier++;
+            return {
+              ...f, id: featureLayerIdentifier, properties: { ...f.properties, id: f.properties.pk }
+            };
+          })
+        };
+
         return ({
-          geojson: data,
+          geojson: featuresWithID,
           id: fs.id,
           name: fs.name,
         });
