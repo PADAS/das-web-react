@@ -2,13 +2,13 @@ import React, { memo } from 'react';
 import SubjectControls from '../SubjectControls';
 import isEqual from 'react-fast-compare';
 
-import styles from './styles.module.scss';
+import listStyles from '../SideBar/styles.module.scss';
 
 const SubjectListItem = memo((props) => {
   const { map, ...rest } = props;
   return <div>
-    <h6 className={styles.subjectTitle}>{props.name}</h6>
-    <SubjectControls className={styles.controls} map={map} showTitles={false} subject={rest} />
+    <h6 className={listStyles.itemTitle}>{props.name}</h6>
+    <SubjectControls className={listStyles.controls} map={map} showTitles={false} subject={rest} />
   </div>;
 }, (prevProps, currentProps) => isEqual(prevProps, currentProps));
 

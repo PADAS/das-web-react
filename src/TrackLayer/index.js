@@ -3,12 +3,16 @@ import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
+import { GENERATED_LAYER_IDS, LAYER_IDS } from '../constants';
 import { svgSrcToPngImg } from '../utils/img';
 import { getTrackPointsFromTrackFeatureArray } from '../selectors';
 import { convertArrayOfTracksIntoFeatureCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
+const { TRACKS_LINES, TRACK_TIMEPOINTS_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
+
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-timepoint'))[0];
 
 const trackLayerLinePaint = {
@@ -58,11 +62,11 @@ const TracksLayer = memo(function TracksLayer(props) {
 
   return (
     <Fragment>
-      <GeoJSONLayer key={`track-layer`} before="subject_symbols-symbol" id={`track-layer`} data={tracksAsFeatureCollection} {...rest}
+      <GeoJSONLayer key={`track-layer`} before={SUBJECT_SYMBOLS} id={TRACKS_LINES} data={tracksAsFeatureCollection} {...rest}
         linePaint={trackLayerLinePaint}
         lineLayout={trackLayerLineLayout}
       />
-      <GeoJSONLayer before="subject_symbols-symbol" id={`track-layer-timepoints`} data={tracksAsPoints} {...rest}
+      <GeoJSONLayer before={SUBJECT_SYMBOLS} id={TRACK_TIMEPOINTS_SYMBOLS} data={tracksAsPoints} {...rest}
         symbolOnMouseEnter={onSymbolMouseEnter}
         symbolOnClick={onSymbolClick}
         symbolOnMouseLeave={onSymbolMouseLeave}

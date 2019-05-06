@@ -8,11 +8,13 @@ import 'axios-progress-bar/dist/nprogress.css'
 
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
+import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
 import { fetchSubjectGroups } from './ducks/subjects';
+import { fetchFeaturesets } from './ducks/features';
 
 import SideBar from './SideBar';
 import ModalRenderer from './ModalRenderer';
@@ -29,13 +31,13 @@ let interval, mapInterval, zendeskInterval;
 const resizeInterval = (map) => {
   clearInterval(interval);
   const transitionLength = 300;
-  const frameRate = 10;
+  const numberOfFrames = 2;
   let count = 0;
   interval = setInterval(() => {
     count += 1;
     map.resize();
-    if (count > (transitionLength / frameRate)) clearInterval(interval);
-  }, frameRate);
+    if (count > (transitionLength / numberOfFrames)) clearInterval(interval);
+  }, numberOfFrames);
 };
 
 const setZendeskInterval = () => {
@@ -51,9 +53,25 @@ const setZendeskInterval = () => {
 
 let mapResized = false;
 
+  // use this block to do direct map event binding.
+  // useful for API gaps between react-mapbox-gl and mapbox-gl.
+  // also useful for presentation manipulations which would consume unnecessary resources when manipulated through state via redux etc.
+  const bindDirectMapEventing = (map) => {
+    setDirectMapBindingsForFeatureHighlightStates(map);
+  };
+
+
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
+
+  const onMapHasLoaded = (map) => {
+    setMap(map);
+    fetchFeaturesets();
+    bindDirectMapEventing(map);
+    window.map = map;
+  };
+
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
@@ -94,7 +112,7 @@ const App = memo((props) => {
     <div className="App">
       <Nav />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={setMap} />
+        <Map map={map} onMapLoad={onMapHasLoaded} />
         {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
         <ModalRenderer />
       </div>
@@ -110,4 +128,4 @@ const App = memo((props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

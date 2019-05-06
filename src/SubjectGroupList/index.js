@@ -9,7 +9,7 @@ import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
-import styles from './styles.module.scss';
+import listStyles from '../SideBar/styles.module.scss';
 
 
 const SubjectGroupList = memo((props) => {
@@ -46,7 +46,7 @@ const SubjectGroupList = memo((props) => {
   };
 
   return <CheckableList
-    className={styles.list}
+    className={listStyles.list}
     id='subjectgroups'
     onCheckClick={onGroupCheckClick}
     itemComponent={Content}

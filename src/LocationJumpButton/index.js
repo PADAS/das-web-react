@@ -12,29 +12,34 @@ import styles from './styles.module.scss';
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = memo((props) => {
-  const { map, coordinates, zoom, updateUserPreferences } = props;
-  
+  const { map, coordinates, zoom, updateUserPreferences, onButtonClick } = props;
+
   const closeSidebarForSmallViewports = () => {
     if (!screenIsMediumLayoutOrLarger.matches) {
       updateUserPreferences({ sidebarOpen: false });
     }
   };
 
-  const onButtonClick = () => {
-    jumpToLocation(coordinates, map, zoom);
+  const handleClick = () => {
+    onButtonClick(coordinates, map, zoom);
     closeSidebarForSmallViewports();
-
-    // close the sidebar for smaller layouts on jump and zoom
-    
   };
 
-  return <button title="Jump to this location" type="button" className={styles.jump} onClick={onButtonClick}></button>
+  return <button title="Jump to this location" type="button" className={styles.jump} onClick={handleClick}></button>
 });
 
 export default connect(null, { updateUserPreferences })(LocationJumpButton);
 
+
+LocationJumpButton.defaultProps = {
+  onButtonClick(coordinates, map, zoom) {
+    jumpToLocation(coordinates, map, zoom);
+  }
+}
+
 LocationJumpButton.propTypes = {
-  coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
-  map: PropTypes.object.isRequired,
+  coordinates: PropTypes.arrayOf(PropTypes.number),
+  onButtonClick: PropTypes.func,
+  map: PropTypes.object,
   zoom: PropTypes.number,
 };

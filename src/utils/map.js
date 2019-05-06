@@ -1,10 +1,11 @@
 import { feature, featureCollection, polygon } from '@turf/helpers';
+import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { fileNameFromPath } from './string';
 import { svgSrcToPngImg } from './img';
 import { MAP_ICON_SIZE, BREAKPOINTS } from '../constants';
 
-const addIconToGeoJson = (geojson) => {
+export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
   if (image) {
     geojson.properties.icon_id = fileNameFromPath(image);
@@ -68,13 +69,25 @@ export const pointIsInMapBounds = (coords, map) => {
   return booleanPointInPolygon(coords, boundsGeometry);
 };
 
+export const generateBoundsForLineString = ({ geometry }) => {
+  return geometry.coordinates.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
+};
+
 export const jumpToLocation = (coords, map, zoom = 17) => {
   map.flyTo({
     center: coords,
     zoom,
     speed: 100,
   });
-  
+
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
+};
+
+export const calcLayerName = (key, name) => {
+  if (key.includes('_FILLS')) return `${name}-fill`;
+  if (key.includes('_SYMBOLS')) return `${name}-symbol`;
+  if (key.includes('_LINES')) return `${name}-line`;
+  if (key.includes('_CIRCLES')) return `${name}-circle`;
+  return name;
 };

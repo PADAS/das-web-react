@@ -6,6 +6,9 @@ const UPDATE_HEATMAP_CONFIG = 'UPDATE_HEATMAP_CONFIG';
 const HIDE_SUBJECTS = 'HIDE_SUBJECTS';
 const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 
+const HIDE_FEATURES = 'HIDE_FEATURES';
+const SHOW_FEATURES = 'SHOW_FEATURES';
+
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 const ADD_HEATMAP_SUBJECTS = 'UPDATE_HEATMAP_SUBJECT_STATE';
 const REMOVE_HEATMAP_SUBJECTS = 'UPDATE_HEATMAP_SUBJECT_STATE';
@@ -28,7 +31,15 @@ export const showSubjects = (...subjectIDs) => ({
   payload: subjectIDs,
 });
 
+export const hideFeatures = (...featureIDs) => ({
+  type: HIDE_FEATURES,
+  payload: featureIDs,
+});
 
+export const showFeatures = (...featureIDs) => ({
+  type: SHOW_FEATURES,
+  payload: featureIDs,
+});
 
 export const addHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => {
   const { view: { heatmapSubjectIDs } } = getState();
@@ -88,6 +99,13 @@ export const hiddenSubjectIDsReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === HIDE_SUBJECTS) return uniq([...payload, ...state]);
   if (type === SHOW_SUBJECTS) return state.filter(item => !payload.includes(item));
+  return state;
+};
+
+export const hiddenFeatureIDsReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
+  if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
   return state;
 };
 

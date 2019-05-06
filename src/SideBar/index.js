@@ -5,6 +5,7 @@ import { Tabs, Tab } from 'react-bootstrap';
 
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
+import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
 
@@ -35,6 +36,7 @@ const SideBar = memo((props) => {
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
           <SubjectGroupList map={map} />
+          <FeatureLayerList map={map} />
         </Tab>
       </Tabs>
     </aside>

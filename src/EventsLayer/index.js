@@ -2,6 +2,10 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
+import { LAYER_IDS } from '../constants';
+
+const { EVENT_CLUSTERS_CIRCLES, EVENT_CLUSTER_COUNT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
+
 
 const MAP_EVENT_CLUSTER_SOURCE_OPTIONS = {
   cluster: true,
@@ -71,7 +75,7 @@ export default class EventsLayer extends Component {
     return (
       <Fragment>
         <GeoJSONLayer
-          id="event_clusters"
+          id={EVENT_CLUSTERS_CIRCLES}
           data={events}
           circleOnClick={onClusterClick}
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
@@ -79,14 +83,14 @@ export default class EventsLayer extends Component {
           symbolLayout={clusterSymbolLayout}
           circlePaint={clusterPaint} />
         <GeoJSONLayer
-          id="event_cluster_count"
+          id={EVENT_CLUSTER_COUNT_SYMBOLS}
           data={events}
           sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
           layerOptions={clusterLayerOptions}
           symbolLayout={clusterCountSymbolLayout} />
 
         <GeoJSONLayer
-          id="event_symbols"
+          id={EVENT_SYMBOLS}
           {...rest}
           data={events}
           symbolOnClick={this.onEventClick}
