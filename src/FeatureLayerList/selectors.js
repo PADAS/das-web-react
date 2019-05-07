@@ -1,5 +1,4 @@
-import { featureSets } from '../selectors';
-import { createSelector } from 'reselect';
+import { featureSets, createSelector } from '../selectors';
 
 import uniq from 'lodash/uniq';
 

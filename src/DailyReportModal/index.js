@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { CancelToken } from 'axios';
-import DateTimePicker from 'react-datetime-picker';
 import { Button } from 'react-bootstrap';
 import { subDays, startOfToday, setHours } from 'date-fns';
 
 import { hideModal } from '../ducks/modals';
 import DataExportModal from '../DataExportModal';
+import DateRangeSelector from '../DateRangeSelector';
 
 import styles from './styles.module.scss';
-
-const DATEPICKER_CONFIG = {
-  disableClock: true,
-  format: 'dd-MM-yy HH:mm',
-};
-
 
 const DailyReportModal = (props) => {
   const today = setHours(startOfToday(), 18);
@@ -44,7 +37,7 @@ const DailyReportModal = (props) => {
   };
 
   const handleStartDateChange = value => handleInputChange('start', value);
-  const handleEndDateChange = value => handleInputChange('start', value);
+  const handleEndDateChange = value => handleInputChange('end', value);
 
   const exportParams = {before: customEndDate, since: customStartDate};
 
@@ -53,7 +46,15 @@ const DailyReportModal = (props) => {
       <Button type="button" onClick={setParamsForYesterday}>Yesterday's Report</Button>
       <Button type="button" onClick={setParamsForToday}>Today's Report</Button>
     </div>
-    <div className={styles.controls}>
+    <DateRangeSelector
+      className={styles.controls} 
+      maxDate={today}
+      startDate={customStartDate}
+      endDate={customEndDate}
+      onStartDateChange={handleStartDateChange}
+      onEndDateChange={handleEndDateChange}
+      />
+    {/* <div className={styles.controls}>
       <label htmlFor="dailyReportStartDate">
         <span>From:</span>
         <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={handleStartDateChange} />
@@ -62,7 +63,7 @@ const DailyReportModal = (props) => {
         <span>Until:</span>
         <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={handleEndDateChange} />
       </label>
-    </div>
+    </div> */}
   </DataExportModal >;
 };
 

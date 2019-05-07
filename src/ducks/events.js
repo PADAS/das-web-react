@@ -5,7 +5,7 @@ import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { eventBelongsToCollection } from '../utils/events';
+import { eventBelongsToCollection, calcEventFilterForRequest } from '../utils/events';
 
 const EVENT_API_URL = `${API_URL}activity/events/`;
 
@@ -23,12 +23,12 @@ export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
 // action creators
-export const fetchEvents = (config = {}) => (dispatch, getState) => {
+export const fetchEvents = (config = {}) => (dispatch) => {
   dispatch({
     type: FETCH_EVENTS_START,
   });
 
-  const { data: { eventFilter } } = getState();
+  const eventFilter = calcEventFilterForRequest();
 
   return axios.get(EVENT_API_URL, {
     ...config,
@@ -49,12 +49,12 @@ export const fetchNextEventPage = (url, config = {}) => {
   };
 };
 
-export const fetchMapEvents = (map, { token }) => (dispatch, getState) => {
+export const fetchMapEvents = (map, { token }) => (dispatch) => {
   if (!map) return;
 
   const bbox = getBboxParamsFromMap(map);
 
-  const { data: { eventFilter } } = getState();
+  const eventFilter = calcEventFilterForRequest();
 
   const onEachRequest = onePageOfResults => dispatch(fetchMapEventsSucess(onePageOfResults));
 

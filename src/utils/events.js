@@ -1,3 +1,8 @@
+import { store } from '../';
+import isNil from 'lodash/isNil';
+import isEmpty from 'lodash/isEmpty';
+import isDate from 'lodash/isDate';
+
 export const displayTitleForEventByEventType = (event, eventTypes) => {
   if (event.title) return event.title;
 
@@ -21,3 +26,33 @@ export const eventHasLocation = (evt) => {
 }
 
 export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;
+
+
+const cleanedUpFilterObject = (filter) =>
+  Object.entries(filter)
+    .reduce((accumulator, [key, value]) => {
+      if (!isNil(value) && !isEmpty(value)) {
+        accumulator[key] = value;
+      }
+      return accumulator;
+    }, {});
+
+export const calcEventFilterForRequest = () => {
+  const { data: { eventFilter } } = store.getState();
+
+  const cleaned = {
+    ...eventFilter,
+    filter: {
+      ...cleanedUpFilterObject(eventFilter.filter),
+      date_range: cleanedUpFilterObject(eventFilter.filter.date_range),
+    },
+  };
+
+  if (isEmpty(cleaned.filter.date_range)) {
+    delete cleaned.filter.date_range;
+  }
+
+  if (isEmpty(cleaned.filter)) delete cleaned.filter;
+  return cleaned;
+};
+

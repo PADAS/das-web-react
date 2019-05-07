@@ -1,4 +1,4 @@
-import { createSelector } from 'reselect';
+import { createSelector } from '../selectors';
 import intersection from 'lodash/intersection';
 
 import { getHeatmapEligibleSubjectsFromGroups } from '../utils/subjects';

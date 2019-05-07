@@ -54,11 +54,7 @@ class Map extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    const props = Object.entries(this.props);
-
-    return props.some(([key, value]) => {
-      return !isEqual(value, nextProps[key]);
-    });
+    return !isEqual(this.props, nextProps);
   }
 
   componentDidMount() {
@@ -273,8 +269,8 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks } = data;
-  const { homeMap, popup, eventFilter, subjectTrackState, heatmapSubjectIDs } = view;
+  const { maps, tracks, eventFilter } = data;
+  const { homeMap, popup, subjectTrackState, heatmapSubjectIDs } = view;
 
   return ({
     maps,

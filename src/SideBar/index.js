@@ -16,9 +16,7 @@ const SideBar = memo((props) => {
   const onScroll = () => fetchNextEventPage(events.next); 
 
   useEffect(() => {
-    fetchEvents({
-      params: eventFilter,
-    });
+    fetchEvents();
   }, [eventFilter]);
 
   if (!map) return null;
@@ -43,7 +41,7 @@ const SideBar = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { eventFilter }, data: { events } }) => ({ eventFilter, events });
+const mapStateToProps = ({ data: { eventFilter }, data: { events } }) => ({ eventFilter, events });
 
 export default connect(mapStateToProps, { fetchEvents, fetchNextEventPage })(SideBar);
 
