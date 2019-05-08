@@ -2,6 +2,8 @@ import { store } from '../';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 
+import { generateOneMonthAgoDate } from '../utils/datetime';
+
 export const displayTitleForEventByEventType = (event, eventTypes) => {
   if (event.title) return event.title;
 
@@ -43,7 +45,10 @@ export const calcEventFilterForRequest = () => {
     ...eventFilter,
     filter: {
       ...cleanedUpFilterObject(eventFilter.filter),
-      date_range: cleanedUpFilterObject(eventFilter.filter.date_range),
+      date_range: {
+        ...cleanedUpFilterObject(eventFilter.filter.date_range),
+        lower: isNil(eventFilter.filter.date_range.lower) ? generateOneMonthAgoDate().toISOString() : eventFilter.filter.date_range.lower,
+      },
     },
   };
 

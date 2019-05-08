@@ -1,0 +1,20 @@
+.label {
+  .wrapper {
+    display: block;
+    position: relative;
+  }
+  .nullMessage, [class*=react-datetime-picker__wrapper] {
+    align-items: center;
+    border: 1px solid gray;
+    display: flex;
+    height: 2rem;
+    padding: 0.25rem;
+    width: 100%;
+  }
+  .nullMessage {
+    position: absolute;
+    + [class*=react-datetime-picker--closed] {
+      opacity: 0;
+    }
+  }
+}

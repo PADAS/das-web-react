@@ -51,6 +51,8 @@ const DailyReportModal = (props) => {
       maxDate={today}
       startDate={customStartDate}
       endDate={customEndDate}
+      requireStart={true}
+      requireEnd={true}
       onStartDateChange={handleStartDateChange}
       onEndDateChange={handleEndDateChange}
       />

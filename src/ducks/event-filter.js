@@ -1,3 +1,6 @@
+import isNil from 'lodash/isNil';
+import isEqual from 'react-fast-compare';
+
 import { generateOneMonthAgoDate } from '../utils/datetime';
 
 // ACTIONS
@@ -5,10 +8,10 @@ const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
 const RESET_EVENT_FILTER = 'RESET_EVENT_FILTER';
 
 // ACTION CREATORS
-export const updateEventFilter = config => (dispatch) => {
+export const updateEventFilter = update => (dispatch) => {
   dispatch({
     type: UPDATE_EVENT_FILTER,
-    payload: config,
+    payload: update,
   });
 };
 
@@ -18,14 +21,14 @@ export const resetEventFilter = () => ({
 });
 
 // REDUCER
-export const INITIAL_FILTER_STATE = {
+const INITIAL_FILTER_STATE = {
   exclude_contained: true,
   include_notes: true,
   include_related_events: true,
   state: ['active', 'new'],
   filter: {
     date_range: {
-      lower: generateOneMonthAgoDate().toISOString(), // redux doesn't store functions (such as Date), so this has to be stringifed to persist correctly
+      lower: null,
       upper: null,
     },
     event_type: [],
@@ -41,7 +44,9 @@ export default (state = INITIAL_FILTER_STATE, action) => {
 
   switch (type) {
     case (UPDATE_EVENT_FILTER): {
-      return { ...state, ...payload };
+      const updated = { ...state, ...payload };
+      if (isEqual(state, updated)) return state;
+      return updated;
     }
     case (RESET_EVENT_FILTER): {
       return { ...INITIAL_FILTER_STATE };

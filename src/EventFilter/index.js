@@ -3,11 +3,14 @@ import { connect } from 'react-redux';
 import { Popover, OverlayTrigger, Button, Dropdown } from 'react-bootstrap';
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
+import isNil from 'lodash/isNil';
 
 import { EVENT_STATE_CHOICES as states } from '../constants';
 import { updateEventFilter, resetEventFilter } from '../ducks/event-filter';
 import DateRangeSelector from '../DateRangeSelector';
 import SearchBar from '../SearchBar';
+
+import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
@@ -16,6 +19,9 @@ const EventFilter = (props) => {
   const { state, filter: { date_range, event_type, event_category, text, priority } } = eventFilter;
 
   const { lower, upper } = date_range;
+
+  const hasLower = !isNil(lower);
+  const hasUpper = !isNil(upper);
 
   const updateEventFilterDebounced = debounce(function (update) {
     updateEventFilter(update);
@@ -41,7 +47,7 @@ const EventFilter = (props) => {
       ...eventFilter.filter,
       date_range: {
         ...eventFilter.filter.date_range,
-        lower: val.toISOString(),
+        lower: val instanceof Date ? val.toISOString() : null,
       },
     },
   });
@@ -50,25 +56,28 @@ const EventFilter = (props) => {
       ...eventFilter.filter,
       date_range: {
         ...eventFilter.filter.date_range,
-        upper: val.toISOString(),
+        upper: val instanceof Date ? val.toISOString() : null,
       },
     },
   });
 
-  return <div>
+  return <form className={styles.form}>
     <SearchBar placeholder='Search Reports...' text={text} onChange={onSearchChange} />
     <DateRangeSelector
-      endDate={upper}
+      className={styles.dateSelect}
+      endDate={hasUpper ? new Date(upper) : upper}
       onEndDateChange={onEndDateChange}
       onStartDateChange={onStartDateChange}
-      startDate={new Date(lower)}
+      startDate={hasLower ? new Date(lower) : lower}
+      startDateNullMessage='One month ago'
+      endDateNullMessage='Now'
     />
     <Dropdown>
       <SelectedState />
       <StateChoices />
     </Dropdown>
 
-  </div>;
+  </form>;
 };
 
 const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes })

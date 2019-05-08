@@ -1,6 +1,7 @@
 import axios from 'axios';
 import uniqBy from 'lodash/uniqBy';
 import unionBy from 'lodash/unionBy';
+import intersectionBy from 'lodash/intersectionBy';
 
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
@@ -18,6 +19,8 @@ export const FETCH_EVENTS_ERROR = 'FETCH_EVENTS_ERROR';
 export const FETCH_MAP_EVENTS = 'FETCH_MAP_EVENTS';
 export const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
 export const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
+
+const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
 export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
@@ -49,14 +52,14 @@ export const fetchNextEventPage = (url, config = {}) => {
   };
 };
 
-export const fetchMapEvents = (map, { token }) => (dispatch) => {
+export const fetchMapEvents = (map, { token }) => async (dispatch) => {
   if (!map) return;
 
   const bbox = getBboxParamsFromMap(map);
 
   const eventFilter = calcEventFilterForRequest();
 
-  const onEachRequest = onePageOfResults => dispatch(fetchMapEventsSucess(onePageOfResults));
+  const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
 
   const request = axios.get(EVENT_API_URL, {
     cancelToken: token,
@@ -66,10 +69,12 @@ export const fetchMapEvents = (map, { token }) => (dispatch) => {
     },
   });
 
-  return recursivePaginatedQuery(request, token, onEachRequest)
+  const finalResults = await recursivePaginatedQuery(request, token, onEachRequest)
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
     });
+
+    dispatch(fetchMapEventsSucess(finalResults));
 }
 
 const fetchEventsSuccess = response => ({
@@ -89,6 +94,11 @@ const fetchEventsError = error => ({
 
 const fetchMapEventsSucess = results => ({
   type: FETCH_MAP_EVENTS_SUCCESS,
+  payload: results,
+});
+
+const fetchMapEventsPageSuccess  = results => ({
+  type: FETCH_MAP_EVENTS_PAGE_SUCCESS,
   payload: results,
 });
 
@@ -121,7 +131,7 @@ export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
         count,
         next,
         previous,
-        results: uniqBy([...state.results, ...events], 'id'),
+        results: uniqBy(events, state.results, 'id'),
       };
     }
     case SOCKET_NEW_EVENT: {
@@ -161,8 +171,11 @@ const INITIAL_MAP_EVENTS_STATE = [];
 
 export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, action = {}) {
   switch (action.type) {
-    case FETCH_MAP_EVENTS_SUCCESS: {
+    case FETCH_MAP_EVENTS_PAGE_SUCCESS: {
       return unionBy(action.payload, state, 'id');
+    }
+    case FETCH_MAP_EVENTS_SUCCESS: {
+      return  intersectionBy(action.payload, state, 'id');
     }
     case SOCKET_NEW_EVENT: {
       const { payload: { event_data } } = action;
