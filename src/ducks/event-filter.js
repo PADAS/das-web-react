@@ -28,7 +28,11 @@ export const INITIAL_FILTER_STATE = {
       lower: generateOneMonthAgoDate().toISOString(), // redux doesn't store functions (such as Date), so this has to be stringifed to persist correctly
       upper: null,
     },
+    event_type: [],
+    event_category: [],
     text: '',
+    duration: null,
+    priority: [],
   },
 };
 
@@ -37,10 +41,10 @@ export default (state = INITIAL_FILTER_STATE, action) => {
 
   switch (type) {
     case (UPDATE_EVENT_FILTER): {
-      return Object.assign({}, state, payload);
+      return { ...state, ...payload };
     }
     case (RESET_EVENT_FILTER): {
-      return INITIAL_FILTER_STATE;
+      return { ...INITIAL_FILTER_STATE };
     }
     default: {
       return state;

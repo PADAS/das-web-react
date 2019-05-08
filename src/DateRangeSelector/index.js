@@ -27,18 +27,18 @@ const DateRangeSelector = (props) => {
 };
 
 DateRangeSelector.defaultProps = {
-  endDateLabel: 'Until:',
+  endDateLabel: 'To:',
   maxDate: new Date(),
   startDateLabel: 'From:',
 };
 
 DateRangeSelector.propTypes = {
-  endDate: PropTypes.instanceOf(Date).isRequired,
+  endDate: PropTypes.instanceOf(Date),
   endDateLabel: PropTypes.string,
   maxDate: PropTypes.instanceOf(Date),
   onEndDateChange: PropTypes.func.isRequired,
   onStartDateChange: PropTypes.func.isRequired,
-  startDate: PropTypes.instanceOf(Date).isRequired,
+  startDate: PropTypes.instanceOf(Date),
   startDateLabel: PropTypes.string,
 };
 

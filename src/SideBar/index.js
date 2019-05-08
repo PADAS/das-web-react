@@ -8,6 +8,7 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
+import EventFilter from '../EventFilter';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
@@ -26,6 +27,7 @@ const SideBar = memo((props) => {
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
         <Tab className={styles.tab} eventKey="events" title="Events">
+          <EventFilter />
           <EventFeed
             hasMore={!!events.next}
             map={map}

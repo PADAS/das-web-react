@@ -64,7 +64,7 @@ class Map extends Component {
   componentDidUpdate(prev) {
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.socket.emit('event_filter', this.props.eventFilter);
-      this.fetchMapEvents();
+      this.onMapMoveEnd();
     }
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
       this.createMapImages(this.props.mapEventFeatureCollection);
