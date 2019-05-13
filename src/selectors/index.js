@@ -14,7 +14,7 @@ export const createSelector = createSelectorCreator(
 );
 
 const eventFilter = ({ data: { eventFilter } }) => eventFilter;
-const mapEvents = ({ mapEvents }) => mapEvents;
+const mapEvents = ({ data: { mapEvents } }) => mapEvents;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;

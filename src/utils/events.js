@@ -1,8 +1,10 @@
 import { store } from '../';
 import isNil from 'lodash/isNil';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
 import { generateOneMonthAgoDate } from '../utils/datetime';
+import { URL } from 'url';
 
 export const displayTitleForEventByEventType = (event, eventTypes) => {
   if (event.title) return event.title;
@@ -32,32 +34,52 @@ export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is
 const cleanedUpFilterObject = (filter) =>
   Object.entries(filter)
     .reduce((accumulator, [key, value]) => {
-      if (!isNil(value) && !isEmpty(value)) {
+      if (isBoolean(value) || (!isNil(value) && !isEmpty(value))) {
         accumulator[key] = value;
       }
       return accumulator;
-    }, {});
+    }, []);
 
-export const calcEventFilterForRequest = () => {
+
+const objectToParamString = (obj) => {
+  const props = Object.entries(obj);
+  return props.reduce((string, [key, value], index) => {
+    let toAppend = ''
+    if (Array.isArray(value)) {
+      value.forEach((v, i) => {
+        toAppend += `${key}=${v}`;
+        if (i !== (value.length -1)) {
+          toAppend += '&';
+        }
+      });
+    } else if (typeof value === 'object') {
+      toAppend += `${key}=${JSON.stringify(value)}`
+    } else {
+      toAppend += `${key}=${value}`;
+    }
+
+    if (index !== (props.length - 1)) toAppend += '&';
+    return string += toAppend;
+  }, '');
+};
+
+export const calcEventFilterForRequest = (params) => {
   const { data: { eventFilter } } = store.getState();
 
+  const toClean = { ...params, ...eventFilter };
+
   const cleaned = {
-    ...eventFilter,
+    ...cleanedUpFilterObject(toClean),
     filter: {
-      ...cleanedUpFilterObject(eventFilter.filter),
+      ...cleanedUpFilterObject(toClean.filter),
       date_range: {
-        ...cleanedUpFilterObject(eventFilter.filter.date_range),
-        lower: isNil(eventFilter.filter.date_range.lower) ? generateOneMonthAgoDate().toISOString() : eventFilter.filter.date_range.lower,
+        ...cleanedUpFilterObject(toClean.filter.date_range),
+        lower: isNil(toClean.filter.date_range.lower) ? generateOneMonthAgoDate().toISOString() : toClean.filter.date_range.lower,
       },
     },
   };
 
-  if (isEmpty(cleaned.filter.date_range)) {
-    delete cleaned.filter.date_range;
-  }
-
-  if (isEmpty(cleaned.filter)) delete cleaned.filter;
-  return cleaned;
+  return objectToParamString(cleaned);
 };
 
 

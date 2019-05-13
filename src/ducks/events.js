@@ -1,7 +1,5 @@
 import axios from 'axios';
-import uniqBy from 'lodash/uniqBy';
 import unionBy from 'lodash/unionBy';
-import intersectionBy from 'lodash/intersectionBy';
 
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
@@ -31,22 +29,18 @@ export const fetchEvents = (config = {}) => (dispatch) => {
     type: FETCH_EVENTS_START,
   });
 
-  const eventFilter = calcEventFilterForRequest();
+  const eventFilterParamString = calcEventFilterForRequest();
 
-  return axios.get(EVENT_API_URL, {
+  return axios.get(`${EVENT_API_URL}?${eventFilterParamString}`, {
     ...config,
-    params: {
-      ...config.params,
-      ...eventFilter,
-    }
   })
     .then(response => dispatch(fetchEventsSuccess(response)))
     .catch(error => dispatch(fetchEventsError(error)));
 };
 
-export const fetchNextEventPage = (url, config = {}) => {
+export const fetchNextEventPage = (url) => {
   return function (dispatch) {
-    return axios.get(url, config)
+    return axios.get(url)
       .then(response => dispatch(fetchEventsNextPageSucess(response)))
       .catch(error => dispatch(fetchEventsError(error)));
   };
@@ -57,24 +51,22 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
 
   const bbox = getBboxParamsFromMap(map);
 
-  const eventFilter = calcEventFilterForRequest();
+  const eventFilterParamString = calcEventFilterForRequest({ bbox });
 
   const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
 
-  const request = axios.get(EVENT_API_URL, {
+  const request = axios.get(`${EVENT_API_URL}?${eventFilterParamString}`, {
     cancelToken: token,
-    params: {
-      bbox,
-      ...eventFilter,
-    },
   });
 
-  const finalResults = await recursivePaginatedQuery(request, token, onEachRequest)
+  return recursivePaginatedQuery(request, token, onEachRequest)
+    .then((finalResults) => {
+      dispatch(fetchMapEventsSucess(finalResults));
+    })
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
     });
 
-    dispatch(fetchMapEventsSucess(finalResults));
 }
 
 const fetchEventsSuccess = response => ({
@@ -97,7 +89,7 @@ const fetchMapEventsSucess = results => ({
   payload: results,
 });
 
-const fetchMapEventsPageSuccess  = results => ({
+const fetchMapEventsPageSuccess = results => ({
   type: FETCH_MAP_EVENTS_PAGE_SUCCESS,
   payload: results,
 });
@@ -131,24 +123,26 @@ export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
         count,
         next,
         previous,
-        results: uniqBy(events, state.results, 'id'),
+        results: [...state.results, ...events],
       };
     }
     case SOCKET_NEW_EVENT: {
       const { payload: { event_data } } = action;
       console.log('realtime: new event', event_data);
       if (eventBelongsToCollection(event_data)) return state;
-      
+
       if (event_data.geojson) {
         event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
       }
       return {
         ...state,
-        results:  [event_data, ...state.results],
+        results: [event_data, ...state.results],
       }
     }
     case SOCKET_UPDATE_EVENT: {
       const { payload: { event_data, event_id } } = action;
+      console.log('realtime: event update', event_data);
+
       if (eventBelongsToCollection(event_data)) return state;
 
       if (!state.results.find(item => item.id === event_id)) return state;
@@ -175,7 +169,7 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
       return unionBy(action.payload, state, 'id');
     }
     case FETCH_MAP_EVENTS_SUCCESS: {
-      return  intersectionBy(action.payload, state, 'id');
+      return action.payload;
     }
     case SOCKET_NEW_EVENT: {
       const { payload: { event_data } } = action;
@@ -186,7 +180,6 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
     }
     case SOCKET_UPDATE_EVENT: {
       const { payload: { event_data, event_id } } = action;
-      console.log('realtime: event update', event_data);
 
       if (!state.find(item => item.id === event_id)) return state;
 

@@ -46,7 +46,7 @@ export default connect(mapStateToProps, null)(EventFeed);
 
 EventFeed.defaultProps = {
   onTitleClick(event) {
-    console.log(newFunction(), event);
+    console.log('title click', event);
   },
   onIconClick(event) {
   },
@@ -61,7 +61,3 @@ EventFeed.propTypes = {
   onJumpClick: PropTypes.func,
   map: PropTypes.object.isRequired,
 };
-
-function newFunction() {
-  return 'title click';
-}

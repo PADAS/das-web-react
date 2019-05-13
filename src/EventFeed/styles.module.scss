@@ -8,6 +8,7 @@
   color: $primary-font-color;
   display: flex;
   line-height: normal;
+  padding: 0 1rem 0 0;
   &:first-child {
     @include slide-down;
   }
@@ -19,6 +20,9 @@
     align-items: center;
     display: flex;
     justify-content: center;
+  }
+  > [class*=jump] {
+    padding-right: 0;
   }
 }
 
