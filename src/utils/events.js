@@ -43,24 +43,19 @@ const cleanedUpFilterObject = (filter) =>
 
 const objectToParamString = (obj) => {
   const props = Object.entries(obj);
-  return props.reduce((string, [key, value], index) => {
-    let toAppend = ''
+  
+  return props.reduce((params, [key, value], index) => {
     if (Array.isArray(value)) {
       value.forEach((v, i) => {
-        toAppend += `${key}=${v}`;
-        if (i !== (value.length -1)) {
-          toAppend += '&';
-        }
+        params.append(key, v);
       });
     } else if (typeof value === 'object') {
-      toAppend += `${key}=${JSON.stringify(value)}`
+      params.append(key, JSON.stringify(value));
     } else {
-      toAppend += `${key}=${value}`;
+      params.append(key, value);
     }
-
-    if (index !== (props.length - 1)) toAppend += '&';
-    return string += toAppend;
-  }, '');
+    return params;
+  }, new URLSearchParams()).toString();
 };
 
 export const calcEventFilterForRequest = (params) => {
