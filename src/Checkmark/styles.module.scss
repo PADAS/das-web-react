@@ -4,12 +4,13 @@ $checkmark-color: $medium-light-gray;
 $hover-color: darken($checkmark-color, 12.5%);
 
 .checkmark {
-  --width: 2rem;
+  --dimensions: 2rem;
   fill: none;
   flex-shrink: 0;
+  height: --dimensions;
   stroke: $checkmark-color;
-  stroke-width: calc(var(--width)/6);
-  width: var(--width);
+  stroke-width: calc(var(--dimensions)/6);
+  width: var(--dimensions);
   &.checked {
     fill: $checkmark-color;
     &:hover {

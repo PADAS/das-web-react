@@ -36,7 +36,7 @@ CheckableList.defaultProps = {
 CheckableList.propTypes = {
   itemFullyChecked: PropTypes.func.isRequired,
   itemPartiallyChecked: PropTypes.func,
-  itemComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
+  itemComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func]).isRequired,
   items: PropTypes.array.isRequired,
   onCheckClick: PropTypes.func,
   itemProps: PropTypes.object,

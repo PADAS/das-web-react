@@ -8,6 +8,7 @@ import isNil from 'lodash/isNil';
 import { EVENT_STATE_CHOICES as states } from '../constants';
 import { updateEventFilter, resetEventFilter } from '../ducks/event-filter';
 import DateRangeSelector from '../DateRangeSelector';
+import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
@@ -63,14 +64,15 @@ const EventFilter = (props) => {
 
   return <form className={styles.form}>
     <SearchBar placeholder='Search Reports...' text={text} onChange={onSearchChange} />
+    <ReportTypeMultiSelect />
     <DateRangeSelector
       className={styles.dateSelect}
       endDate={hasUpper ? new Date(upper) : upper}
+      endDateNullMessage='Now'
       onEndDateChange={onEndDateChange}
       onStartDateChange={onStartDateChange}
       startDate={hasLower ? new Date(lower) : lower}
       startDateNullMessage='One month ago'
-      endDateNullMessage='Now'
     />
     <Dropdown>
       <SelectedState />

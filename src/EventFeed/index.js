@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useRef, memo } from 'react';
+import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -12,18 +13,23 @@ import { displayTitleForEventByEventType } from '../utils/events';
 
 import styles from './styles.module.scss';
 
-const EventFeed = (props) => {
+const EventFeed = memo((props) => {
   const { events, eventTypes, hasMore, map, onScroll, onTitleClick, onIconClick } = props;
 
+  const scrollRef = useRef(null);
+
   return (
-    <InfiniteScroll
-      element='ul'
-      hasMore={hasMore}
-      loadMore={onScroll}
-      useWindow={false}
-      loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
-    >
-      {events.map((item, index) => {
+      <InfiniteScroll
+        ref={scrollRef}
+        element='ul'
+        hasMore={hasMore}
+        loadMore={onScroll}
+        useWindow={false}
+        className={styles.scrollContainer}
+        getScrollParent={() => findDOMNode(scrollRef.current)}
+        loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
+      >
+        {events.map((item, index) => {
           const coordinates = getCoordinatesForEvent(item);
           return <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
             <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
@@ -35,10 +41,12 @@ const EventFeed = (props) => {
                 <LocationJumpButton coordinates={coordinates} map={map} />
               </div>
             }
-        </li>})}
-    </InfiniteScroll>
+          </li>
+        })}
+        {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more events to display.</li>}
+      </InfiniteScroll>
   )
-};
+});
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 

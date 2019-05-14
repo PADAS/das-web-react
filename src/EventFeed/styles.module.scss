@@ -66,6 +66,12 @@ $colors in $priorities {
   }
 }
 
+.scrollContainer {
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 11.5rem;
+}
+
 .date {
   align-items: flex-end;
   flex-flow: column;

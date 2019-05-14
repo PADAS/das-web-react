@@ -11,6 +11,9 @@
     margin: 0;
     padding: 0;
   }
+  &.events {
+    overflow: hidden;
+  }
 }
 
 .list {

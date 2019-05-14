@@ -26,7 +26,7 @@ const SideBar = memo((props) => {
     <aside className='side-menu'>
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
-        <Tab className={styles.tab} eventKey="events" title="Events">
+        <Tab className={`${styles.tab} ${styles.events}`} eventKey="events" title="Events">
           <EventFilter />
           <EventFeed
             hasMore={!!events.next}
