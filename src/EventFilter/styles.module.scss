@@ -1,3 +1,5 @@
+@import '../common/styles/vars/colors';
+
 .form {
   padding: 1rem;
   position: relative;
@@ -10,4 +12,62 @@
   > label {
     width: 50%;
   }
+}
+
+.eventFilterPopover {
+  ul {
+    padding: 0;
+  }
+  ul, li {
+    list-style-type: none;
+  }
+  [class*=popover-body] {
+    max-height: 20rem;
+    overflow-y: auto;
+    padding: 0;
+  }
+  [class*=popover-header] {
+    background: $filter-popover-header-color;
+    color: white;
+    padding: 0.5rem;
+    svg {
+      cursor: pointer;
+      // height: 1.5rem;
+      stroke: white;
+      // width: 1.5rem;
+      &[class*=checked] {
+        fill: white;
+        &:hover {
+          fill: rgba(255, 255, 255, 0.95);
+        }
+      }
+      &[class*=partial] {
+        fill: rgba(255, 255, 255, 0.3);
+        &:hover {
+          fill: rgba(255, 255, 255, 0.4);
+        }
+      }
+      &:hover {
+        fill: none;
+      }
+    }
+  }
+}
+
+.modified {
+  color: $alert-text;
+  fill: $alert-text;
+}
+
+.popoverTitle {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.toggleAllReportTypes {
+  align-items: flex-end;
+  display: flex;
+  font-size: 0.3rem;
+  height: 1.5rem;
 }

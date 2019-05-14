@@ -5,6 +5,7 @@ import { generateOneMonthAgoDate } from '../utils/datetime';
 
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
+
 const RESET_EVENT_FILTER = 'RESET_EVENT_FILTER';
 
 // ACTION CREATORS
@@ -44,7 +45,12 @@ export default (state = INITIAL_FILTER_STATE, action) => {
 
   switch (type) {
     case (UPDATE_EVENT_FILTER): {
-      const updated = { ...state, ...payload };
+      const updated = {
+        ...state, ...payload, filter: {
+          ...state.filter,
+          ...payload.filter,
+        }
+      };
       if (isEqual(state, updated)) return state;
       return updated;
     }
