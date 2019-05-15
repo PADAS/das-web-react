@@ -62,14 +62,13 @@ let mapResized = false;
 
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, updateNetworkStatus, sidebarOpen, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, homeMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const onMapHasLoaded = (map) => {
     setMap(map);
     fetchFeaturesets();
     bindDirectMapEventing(map);
-    window.map = map;
   };
 
 
@@ -106,11 +105,12 @@ const App = memo((props) => {
     if (zendeskEnabled && zendeskEnabled.enabled) {
       setZendeskInterval();
     }
-  }, [zendeskEnabled])
+  }, [zendeskEnabled]);
+
 
   return (
     <div className="App">
-      <Nav />
+      <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} />
         {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
@@ -126,6 +126,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
+const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled, homeMap } }) => ({ sidebarOpen, zendeskEnabled, homeMap })
 
 export default connect(mapStateToProps, { fetchMaps, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

@@ -2,6 +2,9 @@ import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
+import { setHomeMap } from '../ducks/maps';
+import { jumpToLocation } from '../utils/map';
+
 
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
@@ -11,7 +14,19 @@ import SystemStatusComponent from '../SystemStatus';
 
 import './Nav.scss';
 
-const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, maps, user, userProfiles, selectedUserProfile, setUserProfile }) => {
+const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+  const handleHomeMapSelect = (chosenMap) => {
+    const { zoom, center } = chosenMap;
+    setHomeMap(chosenMap);
+
+    jumpToLocation(map, center, zoom);
+  };
+
+  useEffect(() => {
+    map && handleHomeMapSelect(homeMap);
+  }, [map]);
+
+
   useEffect(() => {
     fetchCurrentUser();
     fetchCurrentUserProfiles();
@@ -22,7 +37,7 @@ const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, maps,
       <EarthRangerLogo className="logo" />
     </div>
 
-    {!!maps.length && <NavHomeMenu maps={maps} />}
+    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} />}
     <div className="rightMenus">
       <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>
@@ -31,6 +46,6 @@ const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, maps,
   </nav>
 });
 
-const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile } }) => ({ maps, user, userProfiles, selectedUserProfile });
+const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) => ({ homeMap, maps, user, userProfiles, selectedUserProfile });
 
-export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile })(Nav);
+export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(Nav);

@@ -91,12 +91,7 @@ class Map extends Component {
   componentWillUnmount() {
     unbindSocketEvents(this.socket);
   }
-  getMapCenter() {
-    return (this.props.homeMap || this.props.maps.find(map => map.default)).center;
-  }
-  getMapZoom() {
-    return [(this.props.homeMap || this.props.maps.find(map => map.default)).zoom];
-  }
+
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
@@ -223,20 +218,18 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
     const heatmapAvailable = !! heatmapTracks.length;
     if (!maps.length) return null;
 
-    const mapCenter = this.getMapCenter();
     return (
       <MapboxMap
         id='map'
+        center={homeMap.center}
         className='main-map'
-        center={mapCenter}
-        // zoom={this.getMapZoom()}
         onMoveEnd={this.onMapMoveEnd}
         movingMethod={'easeTo'}
         onClick={this.onMapClick}

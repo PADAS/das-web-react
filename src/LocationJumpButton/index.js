@@ -32,8 +32,8 @@ export default connect(null, { updateUserPreferences })(LocationJumpButton);
 
 
 LocationJumpButton.defaultProps = {
-  onButtonClick(coordinates, map, zoom) {
-    jumpToLocation(coordinates, map, zoom);
+  onButtonClick(map, coordinates, zoom) {
+    jumpToLocation(map, coordinates, zoom);
   }
 }
 

@@ -73,11 +73,11 @@ export const generateBoundsForLineString = ({ geometry }) => {
   return geometry.coordinates.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
 };
 
-export const jumpToLocation = (coords, map, zoom = 17) => {
+export const jumpToLocation = (map, coords, zoom = 17) => {
   map.flyTo({
     center: coords,
     zoom,
-    speed: 100,
+    speed: 50,
   });
 
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
