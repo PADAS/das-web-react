@@ -1,12 +1,21 @@
 @import '../common/styles/vars/colors';
 
 .form {
-  padding: 1rem;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
   position: relative;
   z-index: 2;
 }
+
+.search {
+  margin-bottom: 0;
+}
+
 .dateSelect {
   display: flex;
+  flex-wrap: wrap;
   position: relative;
   z-index: 1;
   > label {
@@ -14,7 +23,7 @@
   }
 }
 
-.eventFilterPopover {
+.eventTypePopover {
   ul {
     padding: 0;
   }
@@ -22,14 +31,10 @@
     list-style-type: none;
   }
   [class*=popover-body] {
-    max-height: 20rem;
     overflow-y: auto;
     padding: 0;
   }
   [class*=popover-header] {
-    background: $filter-popover-header-color;
-    color: white;
-    padding: 0.5rem;
     svg {
       cursor: pointer;
       // height: 1.5rem;
@@ -54,15 +59,115 @@
   }
 }
 
-.modified {
-  color: $alert-text;
-  fill: $alert-text;
+
+
+.dateRangePopover, .eventTypePopover, .filterPopover {
+  max-width: unset;
+  [class*=popover-body] {
+    max-height: 20rem;
+  }
+  > [class*=arrow]::after {
+    // background: $filter-popover-header-color;
+    border-bottom-color: $filter-popover-header-color;
+  }
+  [class*=popover-header] {
+    background: $filter-popover-header-color;
+    color: white;
+    padding: 0.5rem;
+    &::before {
+      display: none;
+    }
+  }
 }
 
-.popoverTitle {
+.filterPopover {
+  max-height: unset;
+  max-width: 28rem;
+  width: 90vw;
+  [class*=popover-body] {
+    max-height: unset;
+  }
+  [class*=Collapsible__trigger] {
+    cursor: pointer;
+  }
+}
+
+.popoverTrigger, .dropdown {
   align-items: center;
+  cursor: pointer;
   display: flex;
-  justify-content: space-between;
+  flex-flow: column;
+  position: relative;
+}
+
+.popoverTrigger {
+  svg {
+    height: 1.5rem;
+    width: 1.5rem;
+    * {
+      fill: lighten($primary-font-color, 15%);
+    }
+    + span {
+      font-size: 0.75rem;
+    }
+  }
+  &:hover {
+    color: darken($primary-font-color, 6%);
+    svg * {
+      fill: $primary-font-color;
+    }
+  }
+}
+
+.dateRangePopover {
+  max-width: unset;
+  width: 28rem;
+  label {
+    padding: 0 1rem;
+  }
+}
+
+.dropdown {
+  > [class*=btn-primary] {
+    background: none;
+    width: 100%;
+    &:active, &:hover, &:focus {
+      background: none;
+      color: $primary-font-color;
+    }
+    a {
+      padding: 0;
+    }
+  }
+}
+
+.modified {
+  color: $alert-text;
+  svg, svg * {
+    fill: $alert-text;
+  }
+  &:hover {
+    color: darken($alert-text, 6%);
+    svg * {
+      fill:  darken($alert-text, 6%);
+    }
+  }
+}
+
+.filterTitle {
+  align-items: center;
+  border-bottom: 1px solid $gray-border;
+  display: flex;
+  padding: 0.5rem;
+  width: 100%;
+  small {
+    font-size: 75%;
+    font-style: italic;
+    margin-left: 0.5rem;
+  }
+  button {
+    margin-left: auto;
+  }
 }
 
 .toggleAllReportTypes {
@@ -70,4 +175,18 @@
   display: flex;
   font-size: 0.3rem;
   height: 1.5rem;
+}
+
+.closedFilterDrawer {
+  [class*=Collapsible__contentOuter] {
+    overflow-y: hidden !important;
+  }
+}
+
+.openedFilterDrawer {
+  [class*=Collapsible__contentOuter] {
+    min-height: 20rem;
+    max-height: 24rem;
+    overflow-y: auto !important;
+  }
 }

@@ -16,6 +16,11 @@
   }
 }
 
+ul, ol {
+  list-style-type: none;
+  padding: 0;
+}
+
 .App,
 #root {
   overflow: hidden;
@@ -26,6 +31,7 @@
 }
 
 .tab-content {
+  height: 100%;
   overflow: hidden;
 }
 

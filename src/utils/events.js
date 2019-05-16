@@ -3,7 +3,7 @@ import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
-import { generateOneMonthAgoDate } from '../utils/datetime';
+import { generateMonthsAgoDate } from '../utils/datetime';
 import { URL } from 'url';
 
 export const displayTitleForEventByEventType = (event, eventTypes) => {
@@ -69,7 +69,7 @@ export const calcEventFilterForRequest = (params) => {
       ...cleanedUpFilterObject(toClean.filter),
       date_range: {
         ...cleanedUpFilterObject(toClean.filter.date_range),
-        lower: isNil(toClean.filter.date_range.lower) ? generateOneMonthAgoDate().toISOString() : toClean.filter.date_range.lower,
+        lower: isNil(toClean.filter.date_range.lower) ? generateMonthsAgoDate(1).toISOString() : toClean.filter.date_range.lower,
       },
     },
   };

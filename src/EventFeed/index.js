@@ -6,6 +6,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
+import LoadingOverlay from '../LoadingOverlay';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { getCoordinatesForEvent } from '../utils/events';
@@ -14,9 +15,11 @@ import { displayTitleForEventByEventType } from '../utils/events';
 import styles from './styles.module.scss';
 
 const EventFeed = memo((props) => {
-  const { events, eventTypes, hasMore, map, onScroll, onTitleClick, onIconClick } = props;
+  const { events, eventTypes, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
 
   const scrollRef = useRef(null);
+
+  if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return (
       <InfiniteScroll
@@ -27,7 +30,6 @@ const EventFeed = memo((props) => {
         useWindow={false}
         className={styles.scrollContainer}
         getScrollParent={() => findDOMNode(scrollRef.current)}
-        loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
       >
         {events.map((item, index) => {
           const coordinates = getCoordinatesForEvent(item);
@@ -43,6 +45,7 @@ const EventFeed = memo((props) => {
             }
           </li>
         })}
+        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
         {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more events to display.</li>}
       </InfiniteScroll>
   )
@@ -62,6 +65,7 @@ EventFeed.defaultProps = {
 
 EventFeed.propTypes = {
   events: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
   hasMore: PropTypes.bool.isRequired,
   onScroll: PropTypes.func.isRequired,
   onTitleClick: PropTypes.func,

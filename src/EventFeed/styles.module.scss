@@ -66,10 +66,9 @@ $colors in $priorities {
   }
 }
 
-.scrollContainer {
+ul.scrollContainer {
   height: 100%;
   overflow-y: auto;
-  padding-bottom: 11.5rem;
 }
 
 .date {
@@ -78,6 +77,10 @@ $colors in $priorities {
   margin-left: auto;
   padding-right: 0;
   text-align: right;
+}
+
+.loadingOverlay {
+  background: none;
 }
 
 .title {

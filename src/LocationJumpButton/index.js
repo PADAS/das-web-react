@@ -21,7 +21,7 @@ const LocationJumpButton = memo((props) => {
   };
 
   const handleClick = () => {
-    onButtonClick(coordinates, map, zoom);
+    onButtonClick(map, coordinates, zoom);
     closeSidebarForSmallViewports();
   };
 

@@ -1,8 +1,6 @@
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
 
-import { generateOneMonthAgoDate } from '../utils/datetime';
-
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
 
@@ -22,7 +20,7 @@ export const resetEventFilter = () => ({
 });
 
 // REDUCER
-const INITIAL_FILTER_STATE = {
+export const INITIAL_FILTER_STATE = {
   exclude_contained: true,
   include_notes: true,
   include_related_events: true,

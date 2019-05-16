@@ -8,13 +8,13 @@ import styles from './styles.module.scss';
 
 const SearchBar = (props) => {
   const [active, setActiveState] = useState(false);
-  const { text, onChange, placeholder, ...rest } = props;
+  const { text, onChange, placeholder, className, ...rest } = props;
   const id = `search-bar-${uuid()}`;
 
   const setActive = () => setActiveState(true);
   const setInactive = () => setActiveState(false);
 
-  return <label htmlFor={id} className={`${styles.search} ${active && styles.active}`} {...rest}>
+  return <label htmlFor={id} className={`${styles.search} ${active && styles.active} ${className ? className : ''}`} {...rest}>
     <SearchIcon />
     <input onFocus={setActive} placeholder={placeholder} onBlur={setInactive} onChange={onChange} type="text" id={`search-bar-${id}`} />
   </label>;

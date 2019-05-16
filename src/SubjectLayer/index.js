@@ -7,6 +7,12 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT } from '../constants';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
+const symbolLayout = {
+  ...DEFAULT_SYMBOL_LAYOUT,
+  'icon-allow-overlap': true,
+  'text-allow-overlap': true,
+};
+
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];
 
 const SubjectsLayer = memo((props) => {
@@ -20,7 +26,7 @@ const SubjectsLayer = memo((props) => {
       {...rest}
       symbolOnClick={onSymbolClick}
       data={subjects}
-      symbolLayout={DEFAULT_SYMBOL_LAYOUT} />
+      symbolLayout={symbolLayout} />
   );
 }, (prev, current) => (prev.map && current.map) && isEqual(prev.subjects, current.subjects));
 

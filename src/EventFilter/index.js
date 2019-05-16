@@ -1,6 +1,8 @@
 import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Popover, OverlayTrigger, Button, Dropdown } from 'react-bootstrap';
+import Collapsible from 'react-collapsible';
+
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 import isNil from 'lodash/isNil';
@@ -8,11 +10,14 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES as states } from '../constants';
-import { updateEventFilter, resetEventFilter } from '../ducks/event-filter';
+import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
 import DateRangeSelector from '../DateRangeSelector';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
+import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 
 
 import styles from './styles.module.scss';
@@ -27,8 +32,16 @@ const EventFilter = memo((props) => {
 
   const allReportTypesChecked = intersection(eventTypeIDs, currentFilterReportTypes).length === eventTypeIDs.length;
   const someReportTypesChecked = !allReportTypesChecked && !!intersection(eventTypeIDs, currentFilterReportTypes).length;
+  const noReportTypesChecked = !allReportTypesChecked && !someReportTypesChecked;
 
-  const toggleAllReportTypes = () => {
+  const dateRangeModified = !isNil(date_range.lower) || !isNil(date_range.upper);
+  const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
+  const textFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.text, text);
+
+  const filterModified = dateRangeModified || !allReportTypesChecked || stateFilterModified;
+
+  const toggleAllReportTypes = (e) => {
+    e.stopPropagation();
     if (allReportTypesChecked) {
       updateEventFilter({ filter: { event_type: [null] } });
     } else {
@@ -42,7 +55,7 @@ const EventFilter = memo((props) => {
     if (allShown) {
       updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(id => !toToggle.includes(id)) } });
     } else {
-      updateEventFilter({ filter: { event_type: uniq([...currentFilterReportTypes, ...toToggle])} });
+      updateEventFilter({ filter: { event_type: uniq([...currentFilterReportTypes, ...toToggle]) } });
     }
   };
 
@@ -62,10 +75,10 @@ const EventFilter = memo((props) => {
 
   const updateEventFilterDebounced = debounce(function (update) {
     updateEventFilter(update);
-  }, 300);
+  }, 200);
 
   const SelectedState = () => <Toggle>
-    <Item>{states.find(choice => isEqual(choice.value, state)).label}</Item>
+    <h5 className={styles.filterTitle}>State <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small></h5>
   </Toggle>;
 
   const StateChoices = () => <Menu>
@@ -77,12 +90,14 @@ const EventFilter = memo((props) => {
       text: value,
     }
   });
+
   const onStateSelect = ({ value }) => updateEventFilter({ state: value });
+
   const onStartDateChange = (val) => updateEventFilter({
     filter: {
       date_range: {
         ...eventFilter.filter.date_range,
-        lower: val instanceof Date ? val.toISOString() : null,
+        lower: dateIsValid(val) ? val.toISOString() : null,
       },
     },
   });
@@ -91,43 +106,101 @@ const EventFilter = memo((props) => {
     filter: {
       date_range: {
         ...eventFilter.filter.date_range,
-        upper: val instanceof Date ? val.toISOString() : null,
+        upper: dateIsValid(val) ? val.toISOString() : null,
       },
     },
   });
 
-  const popoverTitle = <h5 className={styles.popoverTitle}>
-    <span className={styles.toggleAllReportTypes}>
-      <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
-      All
-    </span>
-    <span>Report Types</span>
+  const onDateRangeChange = ({ lower, upper }) => updateEventFilter({
+    filter: {
+      date_range: {
+        lower,
+        upper,
+      },
+    },
+  });
+
+  const clearDateRange = (e) => {
+    e.stopPropagation();
+
+    updateEventFilter({
+      filter: {
+        date_range: {
+          lower: null,
+          upper: null,
+        },
+      },
+    });
+  };
+
+  const DateRangeTrigger = <h5 className={styles.filterTitle}>
+    Date Range
+    <small className={dateRangeModified ? styles.modified : ''}>
+      {!dateRangeModified && 'One month ago until now'}
+      {dateRangeModified && calcFriendlyDurationString(lower, upper)}
+    </small>
+    <Button disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
+  </h5>;
+
+  const ReportTypeTrigger = <h5 className={styles.filterTitle}>
+    Report Types
+    <small className={!allReportTypesChecked ? styles.modified : ''}>
+      {allReportTypesChecked && 'All visible'}
+      {someReportTypesChecked && 'Some visible'}
+      {noReportTypesChecked && 'None visible'}
+    </small>
     <Button disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
-  </h5>
+  </h5>;
 
-  const reportTypePopover = <Popover className={styles.eventFilterPopover} id='report-type-filter-popover' title={popoverTitle}>
-    <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
-  </Popover>;
-
-  return <form className={styles.form}>
-    <SearchBar placeholder='Search Reports...' text={text} onChange={onSearchChange} />
-    <OverlayTrigger rootClose trigger='click' placement='bottom' overlay={reportTypePopover}>
-      <span className={!allReportTypesChecked ? styles.modified : ''}>Types</span>
-    </OverlayTrigger>
-    <DateRangeSelector
-      className={styles.dateSelect}
-      endDate={hasUpper ? new Date(upper) : upper}
-      endDateNullMessage='Now'
-      onEndDateChange={onEndDateChange}
-      onStartDateChange={onStartDateChange}
-      startDate={hasLower ? new Date(lower) : lower}
-      startDateNullMessage='One month ago'
-    />
-    <Dropdown>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4>
+    Filters
+  </h4>}>
+    <Dropdown className={styles.dropdown}>
       <SelectedState />
       <StateChoices />
     </Dropdown>
+    <Collapsible
+      transitionTime={0.1}
+      lazyRender={true}
+      className={styles.closedFilterDrawer}
+      openedClassName={styles.openedFilterDrawer}
+      trigger={DateRangeTrigger}>
+      <DateRangeSelector
+        className={styles.dateSelect}
+        endDate={hasUpper ? new Date(upper) : upper}
+        endDateNullMessage='Now'
+        onDateRangeChange={onDateRangeChange}
+        onEndDateChange={onEndDateChange}
+        onStartDateChange={onStartDateChange}
+        showPresets={true}
+        startDate={hasLower ? new Date(lower) : lower}
+        startDateNullMessage='One month ago'
+      />
+    </Collapsible>
+    <Collapsible
+      transitionTime={0.1}
+      lazyRender={true}
+      className={styles.closedFilterDrawer}
+      openedClassName={styles.openedFilterDrawer}
+      trigger={ReportTypeTrigger}>
+      <span className={styles.toggleAllReportTypes}>
+        <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
+        {allReportTypesChecked && 'All'}
+        {someReportTypesChecked && 'Some'}
+        {noReportTypesChecked && 'None'}
+      </span>
+      <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
+    </Collapsible>
+  </Popover>;
 
+  return <form className={styles.form}>
+    <SearchBar className={styles.search} placeholder='Search Reports...' text={text} onChange={onSearchChange} />
+    <OverlayTrigger rootClose trigger='click' placement='bottom' overlay={FilterPopover}>
+      <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
+        <FilterIcon />
+        <span>Filters</span>
+      </span>
+    </OverlayTrigger>
   </form>;
 });
 

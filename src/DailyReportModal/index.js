@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
-import { subDays, startOfToday, setHours } from 'date-fns';
+import { subDays, startOfDay, setHours } from 'date-fns';
 
 import { hideModal } from '../ducks/modals';
 import DataExportModal from '../DataExportModal';
@@ -11,7 +11,7 @@ import DateRangeSelector from '../DateRangeSelector';
 import styles from './styles.module.scss';
 
 const DailyReportModal = (props) => {
-  const today = setHours(startOfToday(), 18);
+  const today = setHours(startOfDay(new Date()), 18);
   const yesterday = subDays(today, 1);
 
   const [customEndDate, setEndDate] = useState(setHours(today, 18));
