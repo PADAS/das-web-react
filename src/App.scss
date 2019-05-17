@@ -43,10 +43,10 @@ ul, ol {
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.75);
+  margin-left: 0.5rem;
   padding: 0.25rem;
-  opacity: 1;
-  top: 0.25rem;
+  top: 0.5rem;
   right: 0.5rem;
   transition: all 0.3s linear;
   @media (min-width: $md-layout-width-min) {
