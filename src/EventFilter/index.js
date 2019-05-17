@@ -26,7 +26,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const EventFilter = memo((props) => {
-  const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
+  const { eventFilter, eventTypes, updateEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -206,24 +206,24 @@ const EventFilter = memo((props) => {
       className={styles.closedFilterDrawer}
       openedClassName={styles.openedFilterDrawer}
       trigger={ReportTypeTrigger}>
-      <span className={styles.toggleAllReportTypes}>
+      {/* <span className={styles.toggleAllReportTypes}>
         <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
         {allReportTypesChecked && 'All'}
         {someReportTypesChecked && 'Some'}
         {noReportTypesChecked && 'None'}
-      </span>
+      </span> */}
       <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
     </Collapsible>
   </Popover>;
 
   return <form className={styles.form}>
-    <SearchBar className={styles.search} placeholder='Search Reports...' text={text} onChange={onSearchChange} />
     <OverlayTrigger rootClose trigger='click' placement='bottom' overlay={FilterPopover}>
       <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
         <FilterIcon />
         <span>Filters</span>
       </span>
     </OverlayTrigger>
+    <SearchBar className={styles.search} placeholder='Search Reports...' text={text} onChange={onSearchChange} />
       <FriendlyEventFilterString className={styles.filterDetails} />
       {/* {calcFriendlyEventFilterString()} */}
   </form>;
@@ -231,4 +231,4 @@ const EventFilter = memo((props) => {
 
 const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes })
 
-export default connect(mapStatetoProps, { updateEventFilter, resetEventFilter })(EventFilter);
+export default connect(mapStatetoProps, { updateEventFilter })(EventFilter);

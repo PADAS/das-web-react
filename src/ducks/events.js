@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import unionBy from 'lodash/unionBy';
 
 import { API_URL } from '../constants';
@@ -23,8 +23,13 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
+let eventFetchCancelToken = CancelToken.source();
+
 // action creators
 export const fetchEvents = (config = {}) => (dispatch) => {
+  eventFetchCancelToken.cancel();
+  eventFetchCancelToken = CancelToken.source();
+
   dispatch({
     type: FETCH_EVENTS_START,
   });
@@ -32,7 +37,8 @@ export const fetchEvents = (config = {}) => (dispatch) => {
   const eventFilterParamString = calcEventFilterForRequest();
 
   return axios.get(`${EVENT_API_URL}?${eventFilterParamString}`, {
-    ...config,
+      ...config,
+      cancelToken: eventFetchCancelToken.token,
   })
     .then(response => dispatch(fetchEventsSuccess(response)))
     .catch(error => dispatch(fetchEventsError(error)));

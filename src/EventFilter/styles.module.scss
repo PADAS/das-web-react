@@ -6,14 +6,15 @@
   border-bottom: 1px solid $gray-border;
   flex-wrap: wrap;
   display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 1rem 0.5rem 4rem;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
   position: relative;
   z-index: 2;
   .filterDetails { 
     font-size: 75%;
     line-height: normal;
     margin-top: 0.5rem;
+    margin-left: 4rem;
     width: 100%;
   }
 }
@@ -112,6 +113,9 @@
 }
 
 .popoverTrigger {
+  left: 1rem;
+  position: absolute;
+  bottom: 0.4rem;
   svg {
     height: 1.5rem;
     width: 1.5rem;

@@ -13,7 +13,7 @@ const UserMenu = (props) => {
 
   return <Dropdown alignRight className={styles.menu} {...rest}>
     <Toggle>
-      <UserIcon className={styles.icon} />{displayUser.username}
+      <UserIcon className={styles.icon} /><span className={styles.username}>{displayUser.username}</span>
     </Toggle>
     <Menu>
       {!!userProfiles.length &&
