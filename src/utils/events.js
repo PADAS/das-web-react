@@ -79,8 +79,7 @@ export const calcEventFilterForRequest = (params) => {
   return objectToParamString(cleaned);
 };
 
-export const calcFriendlyEventTypeFilterString = () => {
-  const { data: { eventTypes, eventFilter } } = store.getState();
+export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
   const totalNumberOfEventTypes = eventTypes.length;
   const eventTypeFilterCount = eventFilter.filter.event_type.length;
   
@@ -89,24 +88,13 @@ export const calcFriendlyEventTypeFilterString = () => {
   return `${eventTypeFilterCount} report types`;
 };
 
-export const calcFriendlyEventStateFilterString = () => {
-  const { data: { eventFilter: { state } } } = store.getState();
+export const calcFriendlyEventStateFilterString = (eventFilter) => {
+  const { state } = eventFilter;
   const { label } = EVENT_STATE_CHOICES.find(c => isEqual(state, c.value));
 
-  if (label === 'Active') return 'an "active" state';
-  if (label === 'Resolved') return 'a "resolved" state';
-  return 'any state';
+  return label;
 };
 
-export const calcFriendlyEventFilterString = () => {
-  const { data: { eventFilter: { filter: { date_range, text } } } } = store.getState();
-
-  return `Showing reports ${
-    text ? `filtered by "${text}"` : ''
-  } for ${calcFriendlyEventTypeFilterString()} 
-  in ${calcFriendlyEventStateFilterString()} 
-  from ${calcFriendlyDurationString(date_range.lower, date_range.upper)}`;
-};
 
 
 

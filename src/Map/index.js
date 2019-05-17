@@ -23,6 +23,7 @@ import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
+import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -267,7 +268,7 @@ class Map extends Component {
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
             {/* <DrawControl map={map} position='bottom-left' /> */}
-            <span className='event-filter-details'>{calcFriendlyEventFilterString()}</span>
+            <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
         )}
 

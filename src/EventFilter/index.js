@@ -12,7 +12,8 @@ import uniq from 'lodash/uniq';
 import { EVENT_STATE_CHOICES as states } from '../constants';
 import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
-import { calcFriendlyEventFilterString } from '../utils/events';
+
+import FriendlyEventFilterString from './FriendlyEventFilterString';
 import DateRangeSelector from '../DateRangeSelector';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import CheckMark from '../Checkmark';
@@ -223,9 +224,8 @@ const EventFilter = memo((props) => {
         <span>Filters</span>
       </span>
     </OverlayTrigger>
-    <div className={styles.filterDetails}>
-      {calcFriendlyEventFilterString()}
-    </div>
+      <FriendlyEventFilterString className={styles.filterDetails} />
+      {/* {calcFriendlyEventFilterString()} */}
   </form>;
 });
 
