@@ -29,7 +29,7 @@ const SideBar = memo((props) => {
     <aside className='side-menu'>
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
-        <Tab className={`${styles.tab} ${styles.events}`} eventKey="reports" title="Reports">
+        <Tab className={styles.tab} eventKey="reports" title="Reports">
           <EventFilter />
           <EventFeed
             hasMore={!!events.next}
@@ -38,7 +38,7 @@ const SideBar = memo((props) => {
             events={events.results}
             onScroll={onScroll} />
         </Tab>
-        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+        <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">
           <SubjectGroupList map={map} />
           <FeatureLayerList map={map} />
         </Tab>

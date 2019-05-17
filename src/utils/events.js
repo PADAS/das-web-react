@@ -2,9 +2,11 @@ import { store } from '../';
 import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'react-fast-compare';
 
-import { generateMonthsAgoDate } from '../utils/datetime';
+import { generateMonthsAgoDate, calcFriendlyDurationString } from '../utils/datetime';
 import { URL } from 'url';
+import { EVENT_STATE_CHOICES } from '../constants';
 
 export const displayTitleForEventByEventType = (event, eventTypes) => {
   if (event.title) return event.title;
@@ -75,6 +77,35 @@ export const calcEventFilterForRequest = (params) => {
   };
 
   return objectToParamString(cleaned);
+};
+
+export const calcFriendlyEventTypeFilterString = () => {
+  const { data: { eventTypes, eventFilter } } = store.getState();
+  const totalNumberOfEventTypes = eventTypes.length;
+  const eventTypeFilterCount = eventFilter.filter.event_type.length;
+  
+  if (!eventTypeFilterCount) return 'no report types';
+  if (totalNumberOfEventTypes === eventTypeFilterCount) return 'all report types';
+  return `${eventTypeFilterCount} report types`;
+};
+
+export const calcFriendlyEventStateFilterString = () => {
+  const { data: { eventFilter: { state } } } = store.getState();
+  const { label } = EVENT_STATE_CHOICES.find(c => isEqual(state, c.value));
+
+  if (label === 'Active') return 'an "active" state';
+  if (label === 'Resolved') return 'a "resolved" state';
+  return 'any state';
+};
+
+export const calcFriendlyEventFilterString = () => {
+  const { data: { eventFilter: { filter: { date_range, text } } } } = store.getState();
+
+  return `Showing reports ${
+    text ? `filtered by "${text}"` : ''
+  } for ${calcFriendlyEventTypeFilterString()} 
+  in ${calcFriendlyEventStateFilterString()} 
+  from ${calcFriendlyDurationString(date_range.lower, date_range.upper)}`;
 };
 
 

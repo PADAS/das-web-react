@@ -3,13 +3,13 @@ import uuid from 'uuid';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
-
 import styles from './styles.module.scss';
+
+const id = `search-bar-${uuid()}`;
 
 const SearchBar = (props) => {
   const [active, setActiveState] = useState(false);
   const { text, onChange, placeholder, className, ...rest } = props;
-  const id = `search-bar-${uuid()}`;
 
   const setActive = () => setActiveState(true);
   const setInactive = () => setActiveState(false);

@@ -1,12 +1,21 @@
 @import '../common/styles/vars/colors';
+@import '../common/styles/layout';
 
 .form {
   align-items: center;
+  border-bottom: 1px solid $gray-border;
+  flex-wrap: wrap;
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 1rem;
   position: relative;
   z-index: 2;
+  .filterDetails { 
+    font-size: 75%;
+    line-height: normal;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
 }
 
 .search {
@@ -19,17 +28,18 @@
   position: relative;
   z-index: 1;
   > label {
-    width: 50%;
+    width: 100%;
+    padding-right: 0.25rem;
+    + label {
+      padding-left: 0.25rem;
+    }
+    @media (min-width: $md-layout-width-min) {
+      width: 50%;
+    }
   }
 }
 
 .eventTypePopover {
-  ul {
-    padding: 0;
-  }
-  ul, li {
-    list-style-type: none;
-  }
   [class*=popover-body] {
     overflow-y: auto;
     padding: 0;
@@ -86,6 +96,7 @@
   width: 90vw;
   [class*=popover-body] {
     max-height: unset;
+    padding-top: 0;
   }
   [class*=Collapsible__trigger] {
     cursor: pointer;
@@ -130,6 +141,7 @@
 .dropdown {
   > [class*=btn-primary] {
     background: none;
+    padding: none;
     width: 100%;
     &:active, &:hover, &:focus {
       background: none;
@@ -154,19 +166,34 @@
   }
 }
 
-.filterTitle {
+.filterTitle, .popoverTitle {
   align-items: center;
-  border-bottom: 1px solid $gray-border;
   display: flex;
+  line-height: normal;
   padding: 0.5rem;
   width: 100%;
-  small {
-    font-size: 75%;
-    font-style: italic;
-    margin-left: 0.5rem;
-  }
   button {
     margin-left: auto;
+  }
+}
+
+.dropdown, .closedFilterDrawer, .openedFilterDrawer {
+  border-bottom: 1px solid $gray-border;
+}
+
+.closedFilterDrawer, .openedFilterDrawer {
+  &:last-of-type {
+    border: none;
+  }
+}
+
+.filterTitle {
+  padding: 0.5rem;
+  small {
+    font-size: 65%;
+    font-style: italic;
+    margin-left: 0.5rem;
+    white-space: nowrap;
   }
 }
 

@@ -12,11 +12,11 @@ import uniq from 'lodash/uniq';
 import { EVENT_STATE_CHOICES as states } from '../constants';
 import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
+import { calcFriendlyEventFilterString } from '../utils/events';
 import DateRangeSelector from '../DateRangeSelector';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
-import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 
 
@@ -26,7 +26,7 @@ const { Toggle, Menu, Item } = Dropdown;
 
 const EventFilter = memo((props) => {
   const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
-  const { state, filter: { date_range, event_type: currentFilterReportTypes, event_category, text, priority } } = eventFilter;
+  const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
 
@@ -36,7 +36,6 @@ const EventFilter = memo((props) => {
 
   const dateRangeModified = !isNil(date_range.lower) || !isNil(date_range.upper);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
-  const textFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.text, text);
 
   const filterModified = dateRangeModified || !allReportTypesChecked || stateFilterModified;
 
@@ -77,20 +76,6 @@ const EventFilter = memo((props) => {
     updateEventFilter(update);
   }, 200);
 
-  const SelectedState = () => <Toggle>
-    <h5 className={styles.filterTitle}>State <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small></h5>
-  </Toggle>;
-
-  const StateChoices = () => <Menu>
-    {states.map(choice => <Item key={choice.label} onClick={() => onStateSelect(choice)}>{choice.label}</Item>)}
-  </Menu>;
-
-  const onSearchChange = ({ target: { value } }) => updateEventFilterDebounced({
-    filter: {
-      text: value,
-    }
-  });
-
   const onStateSelect = ({ value }) => updateEventFilter({ state: value });
 
   const onStartDateChange = (val) => updateEventFilter({
@@ -120,6 +105,19 @@ const EventFilter = memo((props) => {
     },
   });
 
+  const resetPopoverFilters = () => {
+    updateEventFilter({
+      state: INITIAL_FILTER_STATE.state,
+      filter: {
+        event_type: eventTypeIDs,
+        date_range: {
+          lower: null,
+          upper: null,
+        },
+      },
+    });
+  };
+
   const clearDateRange = (e) => {
     e.stopPropagation();
 
@@ -133,13 +131,36 @@ const EventFilter = memo((props) => {
     });
   };
 
+  const resetStateFilter = (e) => {
+    e.stopPropagation();
+    updateEventFilter({ state: INITIAL_FILTER_STATE.state });
+  };
+
+  const SelectedState = () => <Toggle>
+    <h5 className={styles.filterTitle}>
+      State
+    <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small>
+      <Button variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
+    </h5>
+  </Toggle>;
+
+  const StateChoices = () => <Menu>
+    {states.map(choice => <Item key={choice.label} onClick={() => onStateSelect(choice)}>{choice.label}</Item>)}
+  </Menu>;
+
+  const onSearchChange = ({ target: { value } }) => updateEventFilterDebounced({
+    filter: {
+      text: !!value ? value.toLowerCase() : null,
+    }
+  });
+
   const DateRangeTrigger = <h5 className={styles.filterTitle}>
     Date Range
     <small className={dateRangeModified ? styles.modified : ''}>
       {!dateRangeModified && 'One month ago until now'}
       {dateRangeModified && calcFriendlyDurationString(lower, upper)}
     </small>
-    <Button disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
+    <Button variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
   </h5>;
 
   const ReportTypeTrigger = <h5 className={styles.filterTitle}>
@@ -149,11 +170,12 @@ const EventFilter = memo((props) => {
       {someReportTypesChecked && 'Some visible'}
       {noReportTypesChecked && 'None visible'}
     </small>
-    <Button disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
+    <Button variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
   </h5>;
 
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4 className={styles.popoverTitle}>
     Filters
+    <Button style={{ marginLeft: 'auto' }} type='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
   </h4>}>
     <Dropdown className={styles.dropdown}>
       <SelectedState />
@@ -201,6 +223,9 @@ const EventFilter = memo((props) => {
         <span>Filters</span>
       </span>
     </OverlayTrigger>
+    <div className={styles.filterDetails}>
+      {calcFriendlyEventFilterString()}
+    </div>
   </form>;
 });
 

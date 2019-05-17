@@ -12,6 +12,7 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { calcFriendlyEventFilterString } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
@@ -266,6 +267,7 @@ class Map extends Component {
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
             {/* <DrawControl map={map} position='bottom-left' /> */}
+            <span className='event-filter-details'>{calcFriendlyEventFilterString()}</span>
           </Fragment>
         )}
 

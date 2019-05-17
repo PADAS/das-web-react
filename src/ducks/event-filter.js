@@ -14,10 +14,22 @@ export const updateEventFilter = update => (dispatch) => {
   });
 };
 
-export const resetEventFilter = () => ({
-  type: RESET_EVENT_FILTER,
-  payload: null,
-});
+export const resetEventFilter = () => (dispatch, getState) => {
+  const eventTypeIDs = getState().data.eventTypes.map(type => type.id);
+
+  const freshFilter = {
+    ...INITIAL_FILTER_STATE,
+    filter: {
+      ...INITIAL_FILTER_STATE.filter,
+      event_type: eventTypeIDs,
+    },
+  };
+
+  dispatch({
+    type: RESET_EVENT_FILTER,
+    payload: freshFilter,
+  });
+};
 
 // REDUCER
 export const INITIAL_FILTER_STATE = {
@@ -53,7 +65,7 @@ export default (state = INITIAL_FILTER_STATE, action) => {
       return updated;
     }
     case (RESET_EVENT_FILTER): {
-      return { ...INITIAL_FILTER_STATE };
+      return { ...payload };
     }
     default: {
       return state;

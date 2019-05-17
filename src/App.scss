@@ -39,14 +39,32 @@ ul, ol {
   min-height: 100%;
 }
 
-.app-container {
+.event-filter-details {
+  border-radius: 0.25rem;
+  position: absolute;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0.25rem;
+  opacity: 1;
+  top: 0.25rem;
+  right: 0.5rem;
+  transition: all 0.3s linear;
+  @media (min-width: $md-layout-width-min) {
+    right: 4.5rem;
+  }
 
+}
+
+.app-container {
   position: relative;
   height: calc(100vh - var(--nav-height));
   width: 100vw;
   z-index: 1;
 
   &.sidebar-open {
+    .event-filter-details {
+      opacity: 0;
+    }
     .side-menu {
       transform: translateX(0);
       
@@ -98,6 +116,9 @@ ul, ol {
     border: none;
     border-radius: 0;
   }
+  .nav-link {
+    background: linear-gradient(to bottom, #ffffff 0%,#f0f0f0 48%,#ffffff 100%);
+  }
   .nav-item {
     flex-grow: 1;
     font-weight: bold;
@@ -119,7 +140,7 @@ ul, ol {
     color: white;
     font-size: .333rem;
     height: 3rem;
-    left: -1.5rem;
+    left: -1.4rem;
     top: 45%;
     position: absolute;
 
