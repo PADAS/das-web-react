@@ -19,7 +19,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 
-const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
+const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
@@ -83,7 +83,7 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatu
       </Collapsible>
     </li>
   </ul>;
-};
+});
 
 const mapStateToProps = (state) => ({ featureList: getFeatureLayerListState(state), hiddenFeatureIDs: state.view.hiddenFeatureIDs });
 

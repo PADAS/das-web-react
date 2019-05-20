@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import styles from './styles.module.scss';
 
-const SearchBar = (props) => {
+const SearchBar = memo((props) => {
   const [active, setActiveState] = useState(false);
   const { text, onChange, placeholder, className, ...rest } = props;
 
@@ -15,7 +15,7 @@ const SearchBar = (props) => {
     <SearchIcon />
     <input onFocus={setActive} placeholder={placeholder} onBlur={setInactive} onChange={onChange} type="text" />
   </label>;
-};
+});
 
 SearchBar.defaultProps = {
   placeholder: 'Search...',

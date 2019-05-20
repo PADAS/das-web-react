@@ -4,8 +4,7 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 
-import { generateMonthsAgoDate, calcFriendlyDurationString } from '../utils/datetime';
-import { URL } from 'url';
+import { generateMonthsAgoDate } from '../utils/datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
 
 export const displayTitleForEventByEventType = (event, eventTypes) => {

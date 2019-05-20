@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
@@ -17,7 +17,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
-const Content = (props) => {
+const Content = memo((props) => {
   const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map } = props;
   const trigger = <h5 className={listStyles.trigger}>{name}</h5>;
 
@@ -51,7 +51,7 @@ const Content = (props) => {
     itemComponent={FeatureTypeListItem}
   />
 </Collapsible>
-};
+});
 
 const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
 

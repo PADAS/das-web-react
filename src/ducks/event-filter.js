@@ -1,4 +1,3 @@
-import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
 
 // ACTIONS

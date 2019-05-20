@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 import LoadingOverlay from '../LoadingOverlay';
-import { isEqual } from 'date-fns';
 
 const HeatmapToggleButton = memo((props) => {
   const { heatmapVisible, heatmapPartiallyVisible, onButtonClick, showLabel, loading } = props;

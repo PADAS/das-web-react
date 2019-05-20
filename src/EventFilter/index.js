@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { Popover, OverlayTrigger, Button, Dropdown } from 'react-bootstrap';
 import Collapsible from 'react-collapsible';
@@ -10,13 +10,13 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES as states } from '../constants';
-import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
 
 import FriendlyEventFilterString from './FriendlyEventFilterString';
 import DateRangeSelector from '../DateRangeSelector';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
-import CheckMark from '../Checkmark';
+// import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 
@@ -225,7 +225,6 @@ const EventFilter = memo((props) => {
     </OverlayTrigger>
     <SearchBar className={styles.search} placeholder='Search Reports...' text={text} onChange={onSearchChange} />
       <FriendlyEventFilterString className={styles.filterDetails} />
-      {/* {calcFriendlyEventFilterString()} */}
   </form>;
 });
 

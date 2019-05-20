@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
@@ -16,7 +16,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 
-const FeatureTypeListItem = (props) => {
+const FeatureTypeListItem = memo((props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map } = props;
 
   const trigger = <div className={listStyles.trigger}>
@@ -47,7 +47,7 @@ const FeatureTypeListItem = (props) => {
       itemComponent={FeatureListItem}
     />
   </Collapsible>
-};
+});
 
 
 

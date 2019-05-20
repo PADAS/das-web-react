@@ -1,5 +1,4 @@
 import React, { memo, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { calcFriendlyEventStateFilterString, calcFriendlyEventTypeFilterString } from '../utils/events';
@@ -16,9 +15,5 @@ const FriendlyEventFilterString = memo((props) => {
     Showing <strong style={{textTransform: 'lowercase'}}>{calcFriendlyEventStateFilterString(eventFilter)}</strong> reports{text && <Fragment>, filtered by <strong>"{text}"</strong>,</Fragment>} for <strong>{calcFriendlyEventTypeFilterString(eventTypes, eventFilter)}</strong> from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>
   </span>;
 });
-
-// FriendlyEventFilterString.propTypes = {
-//   whatever: PropTypes.bool,
-// }
 
 export default connect(mapStateToProps, null)(FriendlyEventFilterString);

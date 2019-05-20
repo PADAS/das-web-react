@@ -73,7 +73,7 @@ const FeatureLayer = memo(({ symbols, lines, polygons }) => {
       linePaint={linePaint}
     />
     <GeoJSONLayer id={FEATURE_SYMBOLS} before={SUBJECT_SYMBOLS} data={symbols}
-      symbolLayout={DEFAULT_SYMBOL_LAYOUT}
+      symbolLayout={symbolLayout}
     />
   </Fragment>
 });

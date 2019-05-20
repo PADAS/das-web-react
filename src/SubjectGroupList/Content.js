@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
-import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
 import intersection from 'lodash/intersection';
 
@@ -14,7 +13,7 @@ import { addHeatmapSubjects, removeHeatmapSubjects } from '../ducks/map-ui';
 import { subjectGroupHeatmapControlState } from './selectors';
 import { fetchTracks } from '../ducks/tracks';
 
-import { getUniqueSubjectGroupSubjectIDs, getHeatmapEligibleSubjectsFromGroups } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -24,7 +23,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const ContentComponent = memo(debounceRender((props) => {
-  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, hiddenSubjectIDs, subjectIsVisible, addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, heatmapEligibleSubjectIDs, groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs, ...rest } = props;
+  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, hiddenSubjectIDs, subjectIsVisible, addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
 
   const nonEmptySubgroups = subgroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 

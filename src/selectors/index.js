@@ -13,7 +13,6 @@ export const createSelector = createSelectorCreator(
   isEqual,
 );
 
-const eventFilter = ({ data: { eventFilter } }) => eventFilter;
 const mapEvents = ({ data: { mapEvents } }) => mapEvents;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;

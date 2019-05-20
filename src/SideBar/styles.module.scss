@@ -25,6 +25,9 @@
     &:first-of-type {
       border-top: none;
     }
+    &:last-child {
+      border-bottom: 1px solid $medium-light-gray;
+    }
     display: flex;
     flex-wrap: wrap;
     position: relative;

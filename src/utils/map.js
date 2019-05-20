@@ -3,7 +3,7 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { fileNameFromPath } from './string';
 import { svgSrcToPngImg } from './img';
-import { MAP_ICON_SIZE, BREAKPOINTS } from '../constants';
+import { MAP_ICON_SIZE } from '../constants';
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;

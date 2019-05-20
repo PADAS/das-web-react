@@ -1,5 +1,4 @@
 import React, { memo, useState } from 'react';
-import uuid from 'uuid';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
@@ -25,14 +24,8 @@ const DateRangeSelector = (props) => {
   const onEndOpen = () => setEndOpen(true);
   const onEndClose = () => setEndOpen(false);
 
-  const clearStartDate = () => onStartDateChange(null);
-  const clearEndDate = () => onEndDateChange(null);
-
   const showStartNullMessage = !requireStart && !startOpen && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endOpen && !endDate && !!endDateNullMessage;
-
-  const showStartClear = !requireStart && !!startDate;
-  const showEndClear = !requireEnd && !!endDate;
 
   return <div className={className || ''}>
     <label className={styles.label}>

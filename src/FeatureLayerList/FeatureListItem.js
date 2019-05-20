@@ -1,15 +1,12 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { GENERATED_LAYER_IDS } from '../constants';
 import { showFeatures } from '../ducks/map-ui';
 import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
 
 import LocationJumpButton from '../LocationJumpButton';
 
 import listStyles from '../SideBar/styles.module.scss';
-
-const { FEATURE_FILLS, FEATURE_LINES } = GENERATED_LAYER_IDS;
 
 const FeatureListItem = memo((props) => {
   const { properties, map, geometry, showFeatures } = props;

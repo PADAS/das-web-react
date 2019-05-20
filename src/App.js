@@ -62,7 +62,7 @@ let mapResized = false;
 
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, homeMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const onMapHasLoaded = (map) => {
@@ -126,6 +126,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled, homeMap } }) => ({ sidebarOpen, zendeskEnabled, homeMap })
+const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
 
 export default connect(mapStateToProps, { fetchMaps, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

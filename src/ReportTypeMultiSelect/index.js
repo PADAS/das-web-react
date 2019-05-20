@@ -27,7 +27,7 @@ const ReportTypeMultiSelect = memo((props) => {
   const reportTypeChecked = (type) => selectedReportTypeIDs.includes(type.id);
 
   const ListItem = memo((props) => {
-    const { display, types, ...rest } = props;
+    const { display, types } = props;
     return <Fragment key={display}>
       <h5>{display}</h5>
       <CheckableList
