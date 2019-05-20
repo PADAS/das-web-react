@@ -1,4 +1,5 @@
 export const calcTopRatedIconForEventTypes = reportTypes => [...reportTypes].sort((a, b) => b.default_priority - a.default_priority).sort((a, b) => a.ordernum - b.ordernum)[0];
+
 export const calcIconColorByPriority = (priority) => {
   switch (priority) {
     case 300: {
