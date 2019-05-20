@@ -65,3 +65,18 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'text-justify': 'center',
   'text-size': 12,
 };
+
+export const EVENT_STATE_CHOICES = [
+  {
+    label: 'Active',
+    value: ['active', 'new'],
+  },
+  {
+    label: 'Resolved',
+    value: ['resolved'],
+  },
+  {
+    label: 'All',
+    value: null,
+  },
+];

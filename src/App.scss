@@ -16,6 +16,11 @@
   }
 }
 
+ul, ol {
+  list-style-type: none;
+  padding: 0;
+}
+
 .App,
 #root {
   overflow: hidden;
@@ -26,17 +31,40 @@
 }
 
 .tab-content {
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
+}
+
+.tab-pane {
+  min-height: 100%;
+}
+
+.event-filter-details {
+  border-radius: 0.25rem;
+  position: absolute;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.75);
+  margin-left: 0.5rem;
+  padding: 0.25rem;
+  top: 0.5rem;
+  right: 0.5rem;
+  transition: all 0.3s linear;
+  @media (min-width: $md-layout-width-min) {
+    right: 4.5rem;
+  }
+
 }
 
 .app-container {
-
   position: relative;
   height: calc(100vh - var(--nav-height));
   width: 100vw;
   z-index: 1;
 
   &.sidebar-open {
+    .event-filter-details {
+      opacity: 0;
+    }
     .side-menu {
       transform: translateX(0);
       
@@ -88,6 +116,9 @@
     border: none;
     border-radius: 0;
   }
+  .nav-link {
+    background: linear-gradient(to bottom, #ffffff 0%,#f0f0f0 48%,#ffffff 100%);
+  }
   .nav-item {
     flex-grow: 1;
     font-weight: bold;
@@ -109,7 +140,7 @@
     color: white;
     font-size: .333rem;
     height: 3rem;
-    left: -1.5rem;
+    left: -1.4rem;
     top: 45%;
     position: absolute;
 

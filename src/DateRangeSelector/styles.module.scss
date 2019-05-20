@@ -1,0 +1,42 @@
+.label {
+  .wrapper {
+    display: block;
+    position: relative;
+  }
+
+  .nullMessage {
+    pointer-events: none;
+  }
+
+  // .nullMessage, [class*=react-datetime-picker__inputGroup__input] [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open], [class*=react-datetime-picker__wrapper] {
+  //   cursor: pointer;
+  // }
+  .nullMessage, [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open], [class*=react-datetime-picker__wrapper] {
+    width: 100%;
+  }
+
+  .nullMessage, [class*=react-datetime-picker__wrapper] {
+    align-items: center;
+    border: 1px solid gray;
+    display: flex;
+    height: 2rem;
+    padding: 0.25rem;
+  }
+  .nullMessage {
+    position: absolute;
+    + [class*=react-datetime-picker--closed] {
+      opacity: 0;
+    }
+  }
+}
+
+.presets {
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  button {
+    margin-bottom: 1rem;
+  }
+}

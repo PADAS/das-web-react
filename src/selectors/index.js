@@ -1,14 +1,19 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
-
-import { createSelector } from 'reselect';
+import { createSelectorCreator, defaultMemoize } from 'reselect'
 import { featureCollection } from '@turf/helpers';
 import uniq from 'lodash/uniq';
+import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
 import { convertTrackLineStringToPoints } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
 
-const mapEvents = ({ mapEvents }) => mapEvents;
+export const createSelector = createSelectorCreator(
+  defaultMemoize,
+  isEqual,
+);
+
+const mapEvents = ({ data: { mapEvents } }) => mapEvents;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;

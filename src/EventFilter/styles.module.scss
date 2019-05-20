@@ -1,0 +1,223 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
+.form {
+  align-items: center;
+  border-bottom: 1px solid $gray-border;
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
+  position: relative;
+  z-index: 2;
+  .filterDetails { 
+    font-size: 75%;
+    line-height: normal;
+    margin-top: 0.5rem;
+    margin-left: 4rem;
+    width: 100%;
+  }
+}
+
+.search {
+  margin-bottom: 0;
+}
+
+.dateSelect {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+  > label {
+    width: 100%;
+    padding-right: 0.25rem;
+    + label {
+      padding-left: 0.25rem;
+    }
+    @media (min-width: $md-layout-width-min) {
+      width: 50%;
+    }
+  }
+}
+
+.eventTypePopover {
+  [class*=popover-body] {
+    overflow-y: auto;
+    padding: 0;
+  }
+  [class*=popover-header] {
+    svg {
+      cursor: pointer;
+      // height: 1.5rem;
+      stroke: white;
+      // width: 1.5rem;
+      &[class*=checked] {
+        fill: white;
+        &:hover {
+          fill: rgba(255, 255, 255, 0.95);
+        }
+      }
+      &[class*=partial] {
+        fill: rgba(255, 255, 255, 0.3);
+        &:hover {
+          fill: rgba(255, 255, 255, 0.4);
+        }
+      }
+      &:hover {
+        fill: none;
+      }
+    }
+  }
+}
+
+
+
+.dateRangePopover, .eventTypePopover, .filterPopover {
+  max-width: unset;
+  [class*=popover-body] {
+    max-height: 20rem;
+  }
+  > [class*=arrow]::after {
+    // background: $filter-popover-header-color;
+    border-bottom-color: $filter-popover-header-color;
+  }
+  [class*=popover-header] {
+    background: $filter-popover-header-color;
+    color: white;
+    padding: 0.5rem;
+    &::before {
+      display: none;
+    }
+  }
+}
+
+.filterPopover {
+  max-height: unset;
+  max-width: 24rem;
+  width: 90vw;
+  [class*=popover-body] {
+    max-height: unset;
+    padding-top: 0;
+  }
+  [class*=Collapsible__trigger] {
+    cursor: pointer;
+  }
+}
+
+.popoverTrigger, .dropdown {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  flex-flow: column;
+  position: relative;
+}
+
+.popoverTrigger {
+  left: 1rem;
+  position: absolute;
+  bottom: 0.4rem;
+  svg {
+    height: 1.5rem;
+    width: 1.5rem;
+    * {
+      fill: lighten($primary-font-color, 15%);
+    }
+    + span {
+      font-size: 0.75rem;
+    }
+  }
+  &:hover {
+    color: darken($primary-font-color, 6%);
+    svg * {
+      fill: $primary-font-color;
+    }
+  }
+}
+
+.dateRangePopover {
+  max-width: unset;
+  width: 28rem;
+  label {
+    padding: 0 1rem;
+  }
+}
+
+.dropdown {
+  > [class*=btn-primary] {
+    background: none;
+    padding: none;
+    width: 100%;
+    &:active, &:hover, &:focus {
+      background: none;
+      color: $primary-font-color;
+    }
+    a {
+      padding: 0;
+    }
+  }
+}
+
+.modified {
+  color: $alert-text;
+  svg, svg * {
+    fill: $alert-text;
+  }
+  &:hover {
+    color: darken($alert-text, 6%);
+    svg * {
+      fill:  darken($alert-text, 6%);
+    }
+  }
+}
+
+.filterTitle, .popoverTitle {
+  align-items: center;
+  display: flex;
+  line-height: normal;
+  padding: 0.5rem;
+  width: 100%;
+  button {
+    margin-left: auto;
+  }
+}
+
+.dropdown, .closedFilterDrawer, .openedFilterDrawer {
+  border-bottom: 1px solid $gray-border;
+}
+
+.closedFilterDrawer, .openedFilterDrawer {
+  &:last-of-type {
+    border: none;
+  }
+}
+
+.filterTitle {
+  padding: 0.5rem;
+  small {
+    font-size: 65%;
+    font-style: italic;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+  }
+}
+
+.toggleAllReportTypes {
+  align-items: flex-end;
+  display: flex;
+  font-size: 0.3rem;
+  height: 1.5rem;
+}
+
+.closedFilterDrawer {
+  [class*=Collapsible__contentOuter] {
+    overflow-y: hidden !important;
+  }
+}
+
+.openedFilterDrawer {
+  [class*=Collapsible__contentOuter] {
+    min-height: 20rem;
+    max-height: 24rem;
+    overflow-y: auto !important;
+  }
+}

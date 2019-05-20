@@ -1,26 +1,15 @@
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 
 import NavHomeItem from '../NavHomeItem';
-import { setHomeMap } from '../../ducks/maps';
 
 import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
 const NavHomeMenu = function NavHomeMenu(props) {
-  const { homeMap, maps, setHomeMap } = props;
-
-  const calculateSelectedMap = () => {
-    return homeMap.id ? homeMap : maps[0];
-  };
-
-  const selectedMap = calculateSelectedMap();
-
-  useEffect(() => {
-    setHomeMap(selectedMap);
-  }, []);
+  const {  maps, onMapSelect, selectedMap } = props;
 
   return (
     <Dropdown className="home-select" alignRight>
@@ -29,7 +18,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>
-          <Item as="button" active={selectedMap.id === map.id ? "active" : null} className={styles.listItem} key={map.id} onClick={() => setHomeMap(map)}>
+          <Item as="button" active={selectedMap.id === map.id ? "active" : null} className={styles.listItem} key={map.id} onClick={() => onMapSelect(map)}>
             <NavHomeItem {...map} />
           </Item>)}
       </Menu>
@@ -38,6 +27,11 @@ const NavHomeMenu = function NavHomeMenu(props) {
 };
 
 
-const mapStateToProps = ({ view: { homeMap } }) => ({ homeMap });
 
-export default connect(mapStateToProps, { setHomeMap })(NavHomeMenu);
+export default NavHomeMenu;
+
+NavHomeMenu.propTypes = {
+  maps: PropTypes.array.isRequired,
+  selectedMap: PropTypes.object.isRequired,
+  onMapSelect: PropTypes.func.isRequired,
+};

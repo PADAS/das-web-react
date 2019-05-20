@@ -27,7 +27,7 @@ const calcIconUrl = (type, iconId) => {
 const Icon = memo((props) => {
   const { type, iconId, color, ...rest } = props;
   return (
-    <svg {...rest}>
+    <svg {...rest} fill={color}>
       <use href={calcIconUrl(type, iconId)} />
     </svg>
   );

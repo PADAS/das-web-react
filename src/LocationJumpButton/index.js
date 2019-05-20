@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -21,7 +21,7 @@ const LocationJumpButton = memo((props) => {
   };
 
   const handleClick = () => {
-    onButtonClick(coordinates, map, zoom);
+    onButtonClick(map, coordinates, zoom);
     closeSidebarForSmallViewports();
   };
 
@@ -32,8 +32,8 @@ export default connect(null, { updateUserPreferences })(LocationJumpButton);
 
 
 LocationJumpButton.defaultProps = {
-  onButtonClick(coordinates, map, zoom) {
-    jumpToLocation(coordinates, map, zoom);
+  onButtonClick(map, coordinates, zoom) {
+    jumpToLocation(map, coordinates, zoom);
   }
 }
 

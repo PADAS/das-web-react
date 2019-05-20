@@ -54,6 +54,13 @@ const lineLayout = {
   'line-cap': 'round',
 };
 
+
+const symbolLayout = {
+  ...DEFAULT_SYMBOL_LAYOUT,
+  'icon-allow-overlap': true,
+  'text-allow-overlap': true,
+};
+
 const FeatureLayer = memo(({ symbols, lines, polygons }) => {
   console.log('re rendering the feature layer', symbols, lines, polygons);
   return <Fragment>
@@ -66,7 +73,7 @@ const FeatureLayer = memo(({ symbols, lines, polygons }) => {
       linePaint={linePaint}
     />
     <GeoJSONLayer id={FEATURE_SYMBOLS} before={SUBJECT_SYMBOLS} data={symbols}
-      symbolLayout={DEFAULT_SYMBOL_LAYOUT}
+      symbolLayout={symbolLayout}
     />
   </Fragment>
 });

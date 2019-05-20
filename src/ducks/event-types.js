@@ -1,5 +1,8 @@
 import axios from 'axios';
+
 import { API_URL } from '../constants';
+import { updateEventFilter } from './event-filter';
+
 export const EVENT_TYPE_API_URL = `${API_URL}activity/events/eventtypes`;
 
 export const FETCH_EVENT_TYPES = 'FETCH_EVENT_TYPES';
@@ -18,10 +21,18 @@ export const fetchEventTypes = () => {
   };
 };
 
-const fetchEventTypesSucess = response => ({
-  type: FETCH_EVENT_TYPES_SUCCESS,
-  payload: response.data.data,
-});
+const fetchEventTypesSucess = response => dispatch => {
+  dispatch(updateEventFilter({
+    filter:
+    {
+      event_type: response.data.data.map(({ id }) => id)
+    }
+  }));
+  dispatch({
+    type: FETCH_EVENT_TYPES_SUCCESS,
+    payload: response.data.data,
+  });
+};
 
 const fetchEventTypesError = error => ({
   type: FETCH_EVENT_TYPES_ERROR,

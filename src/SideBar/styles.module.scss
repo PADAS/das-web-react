@@ -3,13 +3,16 @@
 
 
 .tab {
-  border-top: 3px solid $gray-border;
+  // border-top: 3px solid $gray-border;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
   ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
+  }
+  &.mapLayers {
+    overflow-y: scroll;
   }
 }
 
@@ -19,6 +22,12 @@
   li { 
     align-items: flex-start;
     border-top: 1px solid $gray-border;
+    &:first-of-type {
+      border-top: none;
+    }
+    &:last-child {
+      border-bottom: 1px solid $medium-light-gray;
+    }
     display: flex;
     flex-wrap: wrap;
     position: relative;

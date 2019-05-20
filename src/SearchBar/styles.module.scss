@@ -1,0 +1,39 @@
+.search {
+  align-items: center;
+  display: flex;
+  input {
+    border: none;
+    border-bottom: 1px solid gray;
+    padding: 0.25rem;
+    &:focus {
+      border-bottom: 1px solid gray;
+      outline: none;
+    }
+  }
+  svg {
+    height: 1.5rem;
+    width: 1.5rem;
+    circle {
+      fill: none;
+      stroke: gray;
+      stroke-width: 1rem;
+    }
+    path {
+      fill: gray;
+    }
+  }
+  &.active, &:hover {
+    border: darken(gray, 15%);
+    svg {
+      circle {
+        stroke: darken(gray, 15%);
+      }
+      path {
+        fill: darken(gray, 15%);
+      }
+    }
+    input {
+      border-bottom: 1px solid darken(gray, 15%);
+    }
+  }
+}

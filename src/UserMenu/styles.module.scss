@@ -1,9 +1,17 @@
 @import '../common/styles/buttons';
+@import '../common/styles/layout';
 
 .icon {
   height: 1rem;
   margin-right: 0.5rem;
   width: auto;
+}
+
+.username {
+  display: none;
+  @media (min-width: $md-layout-width-min) {
+    display: initial;
+  }
 }
 
 .menu {

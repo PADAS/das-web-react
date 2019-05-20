@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tabs, Tab } from 'react-bootstrap';
@@ -8,17 +8,19 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
+import EventFilter from '../EventFilter';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
+
+  const [loadingEvents, setEventLoadState] = useState(false);
 
 
   const onScroll = () => fetchNextEventPage(events.next); 
 
   useEffect(() => {
-    fetchEvents({
-      params: eventFilter,
-    });
+    setEventLoadState(true);
+    fetchEvents().then(() => setEventLoadState(false));
   }, [eventFilter]);
 
   if (!map) return null;
@@ -27,14 +29,16 @@ const SideBar = memo((props) => {
     <aside className='side-menu'>
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
-        <Tab className={styles.tab} eventKey="events" title="Events">
+        <Tab className={styles.tab} eventKey="reports" title="Reports">
+          <EventFilter />
           <EventFeed
             hasMore={!!events.next}
             map={map}
+            loading={loadingEvents}
             events={events.results}
             onScroll={onScroll} />
         </Tab>
-        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+        <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">
           <SubjectGroupList map={map} />
           <FeatureLayerList map={map} />
         </Tab>
@@ -43,7 +47,7 @@ const SideBar = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { eventFilter }, data: { events } }) => ({ eventFilter, events });
+const mapStateToProps = ({ data: { eventFilter }, data: { events } }) => ({ eventFilter, events });
 
 export default connect(mapStateToProps, { fetchEvents, fetchNextEventPage })(SideBar);
 

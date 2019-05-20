@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useRef, memo } from 'react';
+import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
 
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
+import LoadingOverlay from '../LoadingOverlay';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { getCoordinatesForEvent } from '../utils/events';
@@ -12,18 +14,24 @@ import { displayTitleForEventByEventType } from '../utils/events';
 
 import styles from './styles.module.scss';
 
-const EventFeed = (props) => {
-  const { events, eventTypes, hasMore, map, onScroll, onTitleClick, onIconClick } = props;
+const EventFeed = memo((props) => {
+  const { events, eventTypes, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
+
+  const scrollRef = useRef(null);
+
+  if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return (
-    <InfiniteScroll
-      element='ul'
-      hasMore={hasMore}
-      loadMore={onScroll}
-      useWindow={false}
-      loader={<li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
-    >
-      {events.map((item, index) => {
+      <InfiniteScroll
+        ref={scrollRef}
+        element='ul'
+        hasMore={hasMore}
+        loadMore={onScroll}
+        useWindow={false}
+        className={styles.scrollContainer}
+        getScrollParent={() => findDOMNode(scrollRef.current)}
+      >
+        {events.map((item, index) => {
           const coordinates = getCoordinatesForEvent(item);
           return <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
             <button className={styles.icon} onClick={() => onIconClick(item)}><EventIcon iconId={item.icon_id} /></button>
@@ -35,10 +43,13 @@ const EventFeed = (props) => {
                 <LocationJumpButton coordinates={coordinates} map={map} />
               </div>
             }
-        </li>})}
-    </InfiniteScroll>
+          </li>
+        })}
+        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
+        {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more events to display.</li>}
+      </InfiniteScroll>
   )
-};
+});
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 
@@ -46,7 +57,7 @@ export default connect(mapStateToProps, null)(EventFeed);
 
 EventFeed.defaultProps = {
   onTitleClick(event) {
-    console.log(newFunction(), event);
+    console.log('title click', event);
   },
   onIconClick(event) {
   },
@@ -54,6 +65,7 @@ EventFeed.defaultProps = {
 
 EventFeed.propTypes = {
   events: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
   hasMore: PropTypes.bool.isRequired,
   onScroll: PropTypes.func.isRequired,
   onTitleClick: PropTypes.func,
@@ -61,7 +73,3 @@ EventFeed.propTypes = {
   onJumpClick: PropTypes.func,
   map: PropTypes.object.isRequired,
 };
-
-function newFunction() {
-  return 'title click';
-}

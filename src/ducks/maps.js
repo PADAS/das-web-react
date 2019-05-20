@@ -22,16 +22,28 @@ export const fetchMaps = () => {
   }
 };
 
+
 export const setHomeMap = (payload) => ({
   type: SET_HOME_MAP,
   payload,
-
 });
 
-const fetchMapsSuccess = (response) => ({
-  type: FETCH_MAPS_SUCCESS,
-  payload: response.data,
-});
+const setHomeMapIfNoneSelected = map => (_dispatch, getState) => {
+  const { view: { homeMap } } = getState();
+  
+  if (!homeMap.id) return setHomeMap(map);
+  };
+
+const fetchMapsSuccess = (response) => dispatch => {
+  const maps = response.data.data;
+
+  setHomeMapIfNoneSelected(maps[0]);
+  
+  dispatch({
+    type: FETCH_MAPS_SUCCESS,
+    payload: maps,
+  });
+} 
 
 const fetchMapsError = (error) => ({
   type: FETCH_MAPS_ERROR,
@@ -44,7 +56,7 @@ const INITIAL_MAPS_STATE = [];
 export default function reducer(state = INITIAL_MAPS_STATE, action = {}) {
   switch (action.type) {
     case FETCH_MAPS_SUCCESS: {
-      return action.payload.data;
+      return action.payload;
     }
     case FETCH_MAPS_ERROR: {
       return action.payload;

@@ -22,6 +22,7 @@ import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
+import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -37,13 +38,11 @@ const mapConfig = {
   style: 'mapbox://styles/vjoelm/ciobuir0n0061bdnj1c54oakh',
 };
 
-let cancelToken = CancelToken.source();
-
 class Map extends Component {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
-    this.onMapMoveEnd = debounce(this.onMapMoveEnd.bind(this), 500);
+    this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
@@ -53,12 +52,10 @@ class Map extends Component {
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
   }
 
-  shouldComponentUpdate(nextProps) {
-    const props = Object.entries(this.props);
+  cancelToken = CancelToken.source();
 
-    return props.some(([key, value]) => {
-      return !isEqual(value, nextProps[key]);
-    });
+  shouldComponentUpdate(nextProps) {
+    return !isEqual(this.props, nextProps);
   }
 
   componentDidMount() {
@@ -66,47 +63,56 @@ class Map extends Component {
   }
 
   componentDidUpdate(prev) {
+    if (!this.props.map) return;
+
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.socket.emit('event_filter', this.props.eventFilter);
-      this.fetchMapEvents();
+      this.onMapMoveEnd();
     }
+
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
-      this.createMapImages(this.props.mapEventFeatureCollection);
+     this.createEventImages();
     }
     if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
-      this.createMapImages(this.props.mapSubjectFeatureCollection);
+      this.createSubjectImages();
     }
     if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
-      this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
+      this.createFeatureImages();
     }
+  }
+  createSubjectImages() {
+    this.createMapImages(this.props.mapSubjectFeatureCollection);
+  }
+  createEventImages() {
+    this.createMapImages(this.props.mapEventFeatureCollection);
+  }
+  createFeatureImages() {
+    this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
   }
   componentWillUnmount() {
     unbindSocketEvents(this.socket);
   }
-  getMapCenter() {
-    return (this.props.homeMap || this.props.maps.find(map => map.default)).center;
-  }
-  getMapZoom() {
-    return [(this.props.homeMap || this.props.maps.find(map => map.default)).zoom];
-  }
+
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
   }
-  onMapMoveEnd() {
-    cancelToken.cancel();
-    cancelToken = CancelToken.source();
+
+  onMapMoveEnd = debounce((e) => {
+    this.cancelToken.cancel();
+    this.cancelToken = CancelToken.source();
     this.fetchMapData();
-  }
+  }, 500)
+  
   fetchMapData() {
     this.fetchMapSubjects();
     this.fetchMapEvents();
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map, cancelToken);
+    this.props.fetchMapSubjects(this.props.map, this.cancelToken);
   }
   fetchMapEvents() {
-    this.props.fetchMapEvents(this.props.map, cancelToken);
+    this.props.fetchMapEvents(this.props.map, this.cancelToken);
   }
   onMapClick(map, event) {
     if (this.props.popup) {
@@ -213,20 +219,18 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
     const heatmapAvailable = !! heatmapTracks.length;
     if (!maps.length) return null;
 
-    const mapCenter = this.getMapCenter();
     return (
       <MapboxMap
         id='map'
+        center={homeMap.center}
         className='main-map'
-        center={mapCenter}
-        // zoom={this.getMapZoom()}
         onMoveEnd={this.onMapMoveEnd}
         movingMethod={'easeTo'}
         onClick={this.onMapClick}
@@ -263,6 +267,7 @@ class Map extends Component {
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
             {/* <DrawControl map={map} position='bottom-left' /> */}
+            <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
         )}
 
@@ -273,8 +278,8 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks } = data;
-  const { homeMap, popup, eventFilter, subjectTrackState, heatmapSubjectIDs } = view;
+  const { maps, tracks, eventFilter } = data;
+  const { homeMap, popup, subjectTrackState, heatmapSubjectIDs } = view;
 
   return ({
     maps,
@@ -286,7 +291,7 @@ const mapStatetoProps = (state, props) => {
     subjectTrackState,
     trackCollection: getArrayOfVisibleTracks(state, props),
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
-    mapEventFeatureCollection: getMapEventFeatureCollection(data),
+    mapEventFeatureCollection: getMapEventFeatureCollection(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollection(state)
   });
