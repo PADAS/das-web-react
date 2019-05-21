@@ -4,8 +4,13 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 
+import { fetchEventTypeSchema } from '../ducks/event-schemas';
+import { showModal } from '../ducks/modals';
+
 import { generateMonthsAgoDate } from '../utils/datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
+
+import ReportForm from '../ReportForm';
 
 export const displayTitleForEventByEventType = (event, eventTypes) => {
   if (event.title) return event.title;
@@ -44,7 +49,7 @@ const cleanedUpFilterObject = (filter) =>
 
 const objectToParamString = (obj) => {
   const props = Object.entries(obj);
-  
+
   return props.reduce((params, [key, value], index) => {
     if (Array.isArray(value)) {
       value.forEach((v, i) => {
@@ -81,7 +86,7 @@ export const calcEventFilterForRequest = (params) => {
 export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
   const totalNumberOfEventTypes = eventTypes.length;
   const eventTypeFilterCount = eventFilter.filter.event_type.length;
-  
+
   if (!eventTypeFilterCount) return 'no report types';
   if (totalNumberOfEventTypes === eventTypeFilterCount) return 'all report types';
   return `${eventTypeFilterCount} report types`;
@@ -92,6 +97,25 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   const { label } = EVENT_STATE_CHOICES.find(c => isEqual(state, c.value));
 
   return label;
+};
+
+export const openModalForEvent = async (event) => {
+  const { data: { eventSchemas } } = store.getState();
+  const { event_type, event_details } = event;
+
+  const promise = eventSchemas[event_type] ? Promise.resolve() : store.dispatch(fetchEventTypeSchema(event_type));
+
+  await promise;
+
+  return store.dispatch(
+    showModal({
+      content: ReportForm,
+      eventType: event_type,
+      formData: event_details,
+      modalProps: {
+        className: 'event-form-modal',
+      },
+    }));
 };
 
 

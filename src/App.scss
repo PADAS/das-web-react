@@ -39,6 +39,18 @@ ul, ol {
   min-height: 100%;
 }
 
+.event-form-modal {
+  .modal-dialog {
+    max-width: 38rem;
+    width: 96vw;
+  }
+  .modal-content {
+    max-height: 90vh;
+    overflow-y: scroll;
+    padding: 1rem;
+  }
+}
+
 .event-filter-details {
   border-radius: 0.25rem;
   position: absolute;

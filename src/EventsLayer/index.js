@@ -61,46 +61,42 @@ const eventSymbolLayerLayout = {
 };
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
-export default class EventsLayer extends Component {
-  constructor(props) {
-    super(props);
 
-    this.onEventClick = this.onEventClick.bind(this);
-  }
-  onEventClick(e) {
-    this.props.onEventClick(getEventLayer(e, this.props.map));
-  }
-  render() {
-    const { events, onClusterClick, onEventClick, enableClustering, ...rest } = this.props;
-    return (
-      <Fragment>
-        <GeoJSONLayer
-          id={EVENT_CLUSTERS_CIRCLES}
-          data={events}
-          circleOnClick={onClusterClick}
-          sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={clusterLayerOptions}
-          symbolLayout={clusterSymbolLayout}
-          circlePaint={clusterPaint} />
-        <GeoJSONLayer
-          id={EVENT_CLUSTER_COUNT_SYMBOLS}
-          data={events}
-          sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={clusterLayerOptions}
-          symbolLayout={clusterCountSymbolLayout} />
+const EventsLayer = (props) => {
+  const { events, onEventClick, onClusterClick, enableClustering, map, ...rest } = props;
 
-        <GeoJSONLayer
-          id={EVENT_SYMBOLS}
-          {...rest}
-          data={events}
-          symbolOnClick={this.onEventClick}
-          sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
-          layerOptions={eventSymbolLayerOptions}
-          symbolLayout={eventSymbolLayerLayout} />
-      </Fragment>
-    )
-  }
+  const handleEventClick = (e) => {
+    onEventClick(getEventLayer(e, map));
+  };
+
+  return <Fragment>
+    <GeoJSONLayer
+      id={EVENT_CLUSTERS_CIRCLES}
+      data={events}
+      circleOnClick={onClusterClick}
+      sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
+      layerOptions={clusterLayerOptions}
+      symbolLayout={clusterSymbolLayout}
+      circlePaint={clusterPaint} />
+    <GeoJSONLayer
+      id={EVENT_CLUSTER_COUNT_SYMBOLS}
+      data={events}
+      sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
+      layerOptions={clusterLayerOptions}
+      symbolLayout={clusterCountSymbolLayout} />
+
+    <GeoJSONLayer
+      id={EVENT_SYMBOLS}
+      {...rest}
+      data={events}
+      symbolOnClick={handleEventClick}
+      sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
+      layerOptions={eventSymbolLayerOptions}
+      symbolLayout={eventSymbolLayerLayout} />
+  </Fragment>;
 };
+
+export default EventsLayer;
 
 EventsLayer.defaultProps = {
   onClusterClick() {

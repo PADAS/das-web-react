@@ -3,19 +3,25 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Form from "react-jsonschema-form";
 
+import { unwrapFormDataSelectValues } from '../utils/event-schemas';
+
 const ReportForm = memo((props) => {
-  const { globalSchema, schema: { schema, definition }, formData } = props;
-
-  const formSchema = { ...globalSchema, schema };
-
+  const { schema, formData } = props;
 
   if (!schema) return null;
 
-  return <Form schema={formSchema} registry={{ definitions: definition }} formData={formData} />;
+  const data = unwrapFormDataSelectValues(formData);
+
+  return <Form schema={schema} formData={data} />;
 
 });
 
-const mapStateToProps = ({ data: { eventSchemas } }, ownProps) => ({ schema: eventSchemas[ownProps.eventType], globalSchema: eventSchemas.globalSchema });
+const mapStateToProps = ({ data: { eventSchemas } }, ownProps) => {
+  console.log('event schemas are', eventSchemas);
+  return {
+    schema: eventSchemas[ownProps.eventType],
+    globalSchema: eventSchemas.globalSchema };
+};
 
 export default connect(mapStateToProps, null)(ReportForm);
 

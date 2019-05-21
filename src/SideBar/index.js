@@ -3,36 +3,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tabs, Tab } from 'react-bootstrap';
 
+import { openModalForEvent } from '../utils/events';
+
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
-import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { showModal } from '../ducks/modals';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import styles from './styles.module.scss';
-import ReportForm from '../ReportForm';
 import EventFilter from '../EventFilter';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, eventSchemas, fetchEventTypeSchema, fetchEvents, fetchNextEventPage, map, onHandleClick, showModal } = props;
+  const { events, eventFilter, fetchEvents, fetchNextEventPage, map, onHandleClick } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
-
-  const onEventClick = async (event) => {
-    const { event_type, event_details } = event;
-    const promise = eventSchemas[event_type] ? Promise.resolve : fetchEventTypeSchema(event_type);
-
-    await promise;
-
-    return showModal({
-      content: ReportForm,
-      eventType: event_type,
-      formData: event_details,
-    });
-
-    // show the goddamn thing right now!!
-  };
-
 
   const onScroll = () => fetchNextEventPage(events.next);
 
@@ -55,7 +38,7 @@ const SideBar = memo((props) => {
             loading={loadingEvents}
             events={events.results}
             onScroll={onScroll}
-            onTitleClick={onEventClick}
+            onTitleClick={openModalForEvent}
           />
         </Tab>
         <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">
@@ -67,9 +50,9 @@ const SideBar = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ data: { eventFilter, eventSchemas }, data: { events } }) => ({ eventFilter, eventSchemas, events });
+const mapStateToProps = ({ data: { eventFilter }, data: { events } }) => ({ eventFilter, events });
 
-export default connect(mapStateToProps, { fetchEvents, fetchEventTypeSchema, fetchNextEventPage, showModal })(SideBar);
+export default connect(mapStateToProps, { fetchEvents, fetchNextEventPage })(SideBar);
 
 SideBar.propTypes = {
   events: PropTypes.shape({

@@ -1,5 +1,7 @@
 import axios from 'axios';
+
 import { API_URL } from '../constants';
+import { addDefinitionsToSchema, convertSchemaEnumNameObjectsIntoArray } from '../utils/event-schemas';
 
 const { get } = axios;
 
@@ -39,8 +41,13 @@ export default (state = {}, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_EVENT_TYPE_SCHEMA_SUCCESS) {
-    const { name, schema } = payload;
-    return { ...state, [name]: schema };
+    const { name, schema: { schema, definition }  } = payload;
+
+    const schemaWithMergedDefinitions = convertSchemaEnumNameObjectsIntoArray(
+      addDefinitionsToSchema(definition, schema)
+    );
+
+    return { ...state, [name]: schemaWithMergedDefinitions };
   }
 
   if (type === FETCH_EVENT_SCHEMA_SUCCESS) {

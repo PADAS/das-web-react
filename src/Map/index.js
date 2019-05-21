@@ -12,9 +12,11 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { openModalForEvent } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
+import { showModal } from '../ducks/modals';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
@@ -22,6 +24,7 @@ import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
+import ReportForm from '../ReportForm';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -50,6 +53,7 @@ class Map extends Component {
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
+    this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
   }
 
   cancelToken = CancelToken.source();
@@ -120,6 +124,11 @@ class Map extends Component {
     }
     this.hideUnpinnedTrackLayers(map, event);
   }
+
+  onEventSymbolClick(layer) {
+    openModalForEvent(layer.properties);
+  }
+
   hideUnpinnedTrackLayers(map, event) {
     const { updateTrackState, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
@@ -250,7 +259,7 @@ class Map extends Component {
               <HeatLayer />
             </Fragment>}
 
-            <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
+            <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
@@ -302,6 +311,7 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   fetchTracks,
   hidePopup,
+  showModal,
   showPopup,
   updateTrackState,
   updateHeatmapSubjects,
