@@ -15,6 +15,7 @@ import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
+import { fetchEventSchema } from './ducks/event-schemas';
 
 import SideBar from './SideBar';
 import ModalRenderer from './ModalRenderer';
@@ -62,7 +63,7 @@ let mapResized = false;
 
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const onMapHasLoaded = (map) => {
@@ -86,6 +87,7 @@ const App = memo((props) => {
 
   useEffect(() => {
     fetchEventTypes();
+    fetchEventSchema();
     fetchMaps();
     fetchSubjectGroups();
     fetchSystemStatus();
@@ -128,4 +130,4 @@ const App = memo((props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
 
-export default connect(mapStateToProps, { fetchMaps, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
