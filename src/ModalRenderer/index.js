@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
@@ -7,7 +7,7 @@ import { hideModal } from '../ducks/modals';
 
 import styles from './styles.module.scss';
 
-const ModalRenderer = (props) => {
+const ModalRenderer = memo((props) => {
   const { modals, hideModal } = props;
 
   return !!modals.length &&
@@ -27,7 +27,7 @@ const ModalRenderer = (props) => {
         );
       })}
     </div>
-};
+});
 
 const mapStateToProps = ({ view: { modals } }) => ({ modals });
 

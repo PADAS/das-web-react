@@ -16,12 +16,10 @@ const ReportForm = memo((props) => {
 
 });
 
-const mapStateToProps = ({ data: { eventSchemas } }, ownProps) => {
-  console.log('event schemas are', eventSchemas);
-  return {
-    schema: eventSchemas[ownProps.eventType],
-    globalSchema: eventSchemas.globalSchema };
-};
+const mapStateToProps = ({ data: { eventSchemas } }, ownProps) => ({
+  schema: eventSchemas[ownProps.eventType],
+  globalSchema: eventSchemas.globalSchema,
+});
 
 export default connect(mapStateToProps, null)(ReportForm);
 

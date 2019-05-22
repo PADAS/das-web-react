@@ -24,13 +24,13 @@ const EventFeed = memo((props) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return (
+    <div ref={scrollRef} className={styles.scrollContainer}>
       <InfiniteScroll
         ref={scrollRef}
         element='ul'
         hasMore={hasMore}
         loadMore={onScroll}
         useWindow={false}
-        className={styles.scrollContainer}
         getScrollParent={() => findDOMNode(scrollRef.current)}
       >
         {events.map((item, index) => {
@@ -50,6 +50,7 @@ const EventFeed = memo((props) => {
         {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
         {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more events to display.</li>}
       </InfiniteScroll>
+    </div>
   )
 });
 
