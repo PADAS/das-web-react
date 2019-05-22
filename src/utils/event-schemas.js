@@ -59,11 +59,16 @@ const convertCheckboxDefinition = (definition) => {
 };
 
 export const unwrapFormDataSelectValues = (data) => {
+  const itemHasNameAndValue = item => item && item.name && item.value;
+
   const updates = Object.entries(data).reduce((propsObject, [key, val]) => {
-    if (val && val.name && val.value) {
+    if (itemHasNameAndValue(val)) {
       propsObject[key] = val.value;
+    } else if (Array.isArray(val) && itemHasNameAndValue(val[0])) {
+      propsObject[key] = val.map(({ value }) => value);
     }
     return propsObject;
   }, {});
+
   return { ...data, ...updates };
 };

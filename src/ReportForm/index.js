@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Form from "react-jsonschema-form";
 
+import additionalMetaSchemas from 'ajv/lib/refs/json-schema-draft-04.json';
+
 import { unwrapFormDataSelectValues } from '../utils/event-schemas';
 
 const ReportForm = memo((props) => {
@@ -12,7 +14,9 @@ const ReportForm = memo((props) => {
 
   const data = unwrapFormDataSelectValues(formData);
 
-  return <Form schema={schema} formData={data} />;
+  return <Form additionalMetaSchemas={[additionalMetaSchemas]} schema={schema} formData={data}>
+    {/* <h2>She's a grand old flag she's a high-flying flag</h2> */}
+  </Form>;
 
 });
 

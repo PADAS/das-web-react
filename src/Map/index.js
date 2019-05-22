@@ -125,8 +125,12 @@ class Map extends Component {
     this.hideUnpinnedTrackLayers(map, event);
   }
 
-  onEventSymbolClick(layer) {
-    openModalForEvent(layer.properties);
+  onEventSymbolClick({ properties }) {
+    
+    openModalForEvent({
+      ...properties,
+      event_details: JSON.parse(properties.event_details), // this gets stringifed by mapbox when added to the symbol props, so we parse it back into an object here.
+    });
   }
 
   hideUnpinnedTrackLayers(map, event) {

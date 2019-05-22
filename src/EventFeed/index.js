@@ -26,7 +26,6 @@ const EventFeed = memo((props) => {
   return (
     <div ref={scrollRef} className={styles.scrollContainer}>
       <InfiniteScroll
-        ref={scrollRef}
         element='ul'
         hasMore={hasMore}
         loadMore={onScroll}
