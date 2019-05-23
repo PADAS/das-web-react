@@ -1,8 +1,14 @@
+const GLOBAL_UI_SCHEMA_CONFIG = {
+  details: {
+    'ui:widget': 'textarea',
+  },
+};
+
 export const generateFormSchemasFromEventTypeSchema = ({ definition:definitions, schema }) => {
   if (!definitions) return schema;
 
   const newSchema = { ...schema };
-  const uiSchema = {};
+  const uiSchema = { ...GLOBAL_UI_SCHEMA_CONFIG };
 
   const generatedSchemaEntries = convertDefinitionsToSchemas(definitions, schema);
 
