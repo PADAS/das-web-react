@@ -1,0 +1,64 @@
+/*
+  README
+  These styles exist to employ the glyphicons which react-jsonschema-form requires, as it still uses bootstrap 3. 
+  if/when react-jsonschema-form updates to 4, or there's another viable solution, you can safely nuke this file.
+  
+  DO NOT USE THESE STYLES FOR ANYTHING OTHER THAN ABSOLUTELY NECESSARY, WHICH IS PRETTY MUCH NEVER OTHER THAN DESCRIBED ABOVE.
+  */
+
+/*!
+ * Bootstrap v3.4.1 (https://getbootstrap.com/)
+ * Copyright 2011-2019 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+// Core variables and mixins
+@import "../legacy-bootstrap/scss/variables";
+// @import "../legacy-bootstrap/scss/mixins";
+
+// Reset and dependencies
+// @import "../legacy-bootstrap/scss/normalize";
+// @import "../legacy-bootstrap/scss/print";
+@import "../legacy-bootstrap/scss/glyphicons";
+
+// // Core CSS
+// @import "../legacy-bootstrap/scss/scaffolding";
+// @import "../legacy-bootstrap/scss/type";
+// @import "../legacy-bootstrap/scss/code";
+// @import "../legacy-bootstrap/scss/grid";
+// @import "../legacy-bootstrap/scss/tables";
+// @import "../legacy-bootstrap/scss/forms";
+// @import "../legacy-bootstrap/scss/buttons";
+
+// // Components
+// @import "../legacy-bootstrap/scss/component-animations";
+// @import "../legacy-bootstrap/scss/dropdowns";
+// @import "../legacy-bootstrap/scss/button-groups";
+// @import "../legacy-bootstrap/scss/input-groups";
+// @import "../legacy-bootstrap/scss/navs";
+// @import "../legacy-bootstrap/scss/navbar";
+// @import "../legacy-bootstrap/scss/breadcrumbs";
+// @import "../legacy-bootstrap/scss/pagination";
+// @import "../legacy-bootstrap/scss/pager";
+// @import "../legacy-bootstrap/scss/labels";
+// @import "../legacy-bootstrap/scss/badges";
+// @import "../legacy-bootstrap/scss/jumbotron";
+// @import "../legacy-bootstrap/scss/thumbnails";
+// @import "../legacy-bootstrap/scss/alerts";
+// @import "../legacy-bootstrap/scss/progress-bars";
+// @import "../legacy-bootstrap/scss/media";
+// @import "../legacy-bootstrap/scss/list-group";
+// @import "../legacy-bootstrap/scss/panels";
+// @import "../legacy-bootstrap/scss/responsive-embed";
+// @import "../legacy-bootstrap/scss/wells";
+// @import "../legacy-bootstrap/scss/close";
+
+// // Components w/ JavaScript
+// @import "../legacy-bootstrap/scss/modals";
+// @import "../legacy-bootstrap/scss/tooltip";
+// @import "../legacy-bootstrap/scss/popovers";
+// @import "../legacy-bootstrap/scss/carousel";
+
+// // Utility classes
+// @import "../legacy-bootstrap/scss/utilities";
+// @import "../legacy-bootstrap/scss/responsive-utilities";

@@ -25,4 +25,4 @@ export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => ne
  
 });
 
-export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`.replace(/(?<!(http:|https:))\/\//gi, '/');
+export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`.replace('http:', '/').replace('https:', '/')

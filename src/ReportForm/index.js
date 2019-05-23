@@ -5,14 +5,14 @@ import Form from "react-jsonschema-form";
 
 import additionalMetaSchemas from 'ajv/lib/refs/json-schema-draft-04.json';
 
-import { unwrapFormDataSelectValues } from '../utils/event-schemas';
+import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 
 const ReportForm = memo((props) => {
   const { schema, formData } = props;
 
   if (!schema) return null;
 
-  const data = unwrapFormDataSelectValues(formData);
+  const data = unwrapEventDetailSelectValues(formData);
 
   return <Form additionalMetaSchemas={[additionalMetaSchemas]} schema={schema} formData={data}>
     {/* <h2>She's a grand old flag she's a high-flying flag</h2> */}

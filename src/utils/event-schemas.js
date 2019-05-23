@@ -6,7 +6,6 @@ export const addDefinitionsToSchema = (definitions, schema) => {
 
   definitionSchemaEntries.forEach((d) => {
     newSchema.properties[d.key] = { ...newSchema.properties[d.key], ...d };
-    delete newSchema.properties[d.key].key;
   });
   return newSchema;
 };
@@ -18,7 +17,7 @@ const convertDefinitionsToSchemas = (definitions, schema) => {
     const { type } = definition;
 
     if (type === 'checkboxes') {
-      return [...accumulator, convertCheckboxDefinition(definition)];
+      return [...accumulator, convertCheckboxDefinitionToSchemaEntry(definition)];
     }
     return accumulator;
   }, []);
@@ -32,7 +31,9 @@ export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
         ...value,
         enumNames: value.enum.map(item => value.enumNames[item]),
       };
-      
+
+    } else if (value.properties) {
+      propsObject[key] = convertSchemaEnumNameObjectsIntoArray(value);
     }
     return propsObject;
   }, []);
@@ -46,19 +47,22 @@ export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
   };
 };
 
-const convertCheckboxDefinition = (definition) => {
+const convertCheckboxDefinitionToSchemaEntry = (definition) => {
   const { key, title, titleMap } = definition;
 
   return {
     key,
-    type: 'string',
-    title: title,
-    enum: titleMap.map(item => item.value),
-    enumNames: titleMap.map(item => item.name),
+    items: {
+      enum: titleMap.map(item => item.value),
+      enumNames: titleMap.map(item => item.name),
+    },
+    title,
+    type: 'array',
+    uniqueItems: true,
   }
 };
 
-export const unwrapFormDataSelectValues = (data) => {
+export const unwrapEventDetailSelectValues = (data) => {
   const itemHasNameAndValue = item => item && item.name && item.value;
 
   const updates = Object.entries(data).reduce((propsObject, [key, val]) => {

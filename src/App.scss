@@ -1,3 +1,5 @@
+@import './common/styles/bootstrap-3-legacy-components';
+
 @import './common/styles/vars/colors';
 @import './common/styles/buttons';
 @import './common/styles/layout';
@@ -21,6 +23,16 @@ ul, ol {
   padding: 0;
 }
 
+.row {
+  margin: unset;
+}
+
+
+body { // disallow overscroll on iOS
+  overflow: hidden;
+  position: fixed;
+}
+
 .App,
 #root {
   overflow: hidden;
@@ -41,6 +53,8 @@ ul, ol {
 
 .event-form-modal {
   .modal-dialog {
+    align-items: flex-start;
+    max-height: 90vh;
     max-width: 38rem;
     width: 96vw;
   }
@@ -150,9 +164,9 @@ ul, ol {
     background: $dark-gray;
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
-    font-size: .333rem;
+    font-size: .75rem;
     height: 3rem;
-    left: -1.4rem;
+    left: -1.5rem;
     top: 45%;
     position: absolute;
 
@@ -169,6 +183,10 @@ ul, ol {
       font-weight: bold;
       transform: rotate(180deg);
       transition: transform .2s .3s ease-in-out;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      font-size: 0.5rem;
     }
   }
 
