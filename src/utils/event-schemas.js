@@ -1,13 +1,19 @@
-export const addDefinitionsToSchema = (definitions, schema) => {
+export const generateFormSchemasFromEventTypeSchema = ({ definition:definitions, schema }) => {
   if (!definitions) return schema;
 
   const newSchema = { ...schema };
-  const definitionSchemaEntries = convertDefinitionsToSchemas(definitions, schema);
+  const uiSchema = {};
 
-  definitionSchemaEntries.forEach((d) => {
-    newSchema.properties[d.key] = { ...newSchema.properties[d.key], ...d };
+  const generatedSchemaEntries = convertDefinitionsToSchemas(definitions, schema);
+
+  generatedSchemaEntries.forEach(({ schemaEntry, uiSchemaEntry }) => {
+    newSchema.properties[schemaEntry.key] = { ...newSchema.properties[schemaEntry.key], ...schemaEntry };
+    uiSchema[schemaEntry.key] = uiSchemaEntry;
   });
-  return newSchema;
+  return {
+    schema: newSchema,
+    uiSchema,
+  };
 };
 
 const convertDefinitionsToSchemas = (definitions, schema) => {
@@ -17,7 +23,7 @@ const convertDefinitionsToSchemas = (definitions, schema) => {
     const { type } = definition;
 
     if (type === 'checkboxes') {
-      return [...accumulator, convertCheckboxDefinitionToSchemaEntry(definition)];
+      return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition)];
     }
     return accumulator;
   }, []);
@@ -47,19 +53,24 @@ export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
   };
 };
 
-const convertCheckboxDefinitionToSchemaEntry = (definition) => {
+const generateSchemaAndUiSchemaForCheckbox = (definition) => {
   const { key, title, titleMap } = definition;
 
   return {
-    key,
-    items: {
-      enum: titleMap.map(item => item.value),
-      enumNames: titleMap.map(item => item.name),
+    schemaEntry: {
+      key,
+      items: {
+        enum: titleMap.map(item => item.value),
+        enumNames: titleMap.map(item => item.name),
+      },
+      title,
+      type: 'array',
+      uniqueItems: true,
     },
-    title,
-    type: 'array',
-    uniqueItems: true,
-  }
+    uiSchemaEntry: {
+      'ui:widget': 'checkboxes',
+    },
+  };
 };
 
 export const unwrapEventDetailSelectValues = (data) => {
