@@ -1,0 +1,16 @@
+.form {
+  legend {
+    // display: none;
+  }
+  [class$='checkbox '] {
+    align-items: center;
+    display: flex;
+    margin-bottom: 0;
+    + [class$='checkbox '] {
+      margin-top: 0.5rem;
+    }
+  }
+  [type=checkbox] {
+    margin-right: 0.5rem;
+  }
+}

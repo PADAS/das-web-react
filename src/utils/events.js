@@ -101,7 +101,7 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
 
 export const openModalForEvent = async (event) => {
   const { data: { eventSchemas } } = store.getState();
-  const { event_type, event_details } = event;
+  const { event_type } = event;
 
   const promise = eventSchemas[event_type] ? Promise.resolve() : store.dispatch(fetchEventTypeSchema(event_type));
 
@@ -110,8 +110,7 @@ export const openModalForEvent = async (event) => {
   return store.dispatch(
     showModal({
       content: ReportForm,
-      eventType: event_type,
-      formData: event_details,
+      report: event,
       modalProps: {
         className: 'event-form-modal',
       },

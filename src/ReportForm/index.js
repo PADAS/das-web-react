@@ -1,38 +1,34 @@
-import React, { memo, useRef } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Form from "react-jsonschema-form";
-
-import additionalMetaSchemas from 'ajv/lib/refs/json-schema-draft-04.json';
+import { Form, Button } from 'react-bootstrap';
 
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 
-const ReportForm = memo((props) => {
-  const { schema, uiSchema, formData } = props;
+import FormContent from './FormContent';
 
-  if (!schema) return null;
+const { Group, Label, Control, Text } = Form;
 
-  const formRef = useRef(null);
-  const data = unwrapEventDetailSelectValues(formData);
+const ReportFormMeta = memo((props) => {
+  const { schema, uiSchema, report } = props;
 
-  return <Form uiSchema={uiSchema} ref={formRef} additionalMetaSchemas={[additionalMetaSchemas]} schema={schema} formData={data}>
-  </Form>;
+  const handleFormSubmit = formData => console.log('formdata', formData);
 
+  const formData = unwrapEventDetailSelectValues(report.event_details);
+
+  return <Form>
+    <FormContent onSubmit={handleFormSubmit} schema={schema} uiSchema={uiSchema} formData={formData} />
+  </Form>
 });
 
-const mapStateToProps = ({ data: { eventSchemas } }, ownProps) => ({
-  schema: eventSchemas[ownProps.eventType].schema,
-  uiSchema: eventSchemas[ownProps.eventType].uiSchema,
+const mapStateToProps = ({ data: { eventSchemas } }, { report }) => ({
+  schema: eventSchemas[report.event_type].schema,
+  uiSchema: eventSchemas[report.event_type].uiSchema,
   globalSchema: eventSchemas.globalSchema,
 });
 
-export default connect(mapStateToProps, null)(ReportForm);
+export default connect(mapStateToProps, null)(ReportFormMeta);
 
-ReportForm.defaultProps = {
-  formData: {},
-};
-
-ReportForm.propTypes = {
-  eventType: PropTypes.string.isRequired,
-  formData: PropTypes.object,
+ReportFormMeta.propTypes = {
+  report: PropTypes.object.isRequired,
 };
