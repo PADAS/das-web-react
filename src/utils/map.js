@@ -84,10 +84,28 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
 
+/* react-mapbox-gl generates layer names for the GeoJsonLayer component by appending them with `-<layertype>`, such as `-fill` or `-circle`. 
+this is a utility for identifying those layers by name programmatically when required. */
 export const calcLayerName = (key, name) => {
   if (key.includes('_FILLS')) return `${name}-fill`;
   if (key.includes('_SYMBOLS')) return `${name}-symbol`;
   if (key.includes('_LINES')) return `${name}-line`;
   if (key.includes('_CIRCLES')) return `${name}-circle`;
   return name;
+};
+
+
+
+/* mapbox-gl doesn't parse + store null/undefined values correctly in its symbol layer's geojson properties, so you have to `string.replace` them here when accessing via event handlers.
+unfortunately that means that you can't have the strings "null" or "undefined" set as field values, but that's quite an edge case anyway. hopefully we can remove this code in the future. */
+export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
+  const updates = Object.entries(object).reduce((accumulator, [key, value]) => {
+    if (value === 'null') accumulator[key] = null;
+    if (value === 'undefined') accumulator[key] = undefined;
+    return accumulator;
+  }, {});
+  return {
+    ...object,
+    ...updates,
+  };
 };

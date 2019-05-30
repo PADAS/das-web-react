@@ -11,7 +11,7 @@ import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForEvent } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
@@ -127,9 +127,11 @@ class Map extends Component {
 
   onEventSymbolClick({ properties }) {
     
+    const props = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
+
     openModalForEvent({
-      ...properties,
-      event_details: JSON.parse(properties.event_details), // this gets stringifed by mapbox when added to the symbol props, so we parse it back into an object here.
+      ...props,
+      event_details: JSON.parse(props.event_details), // this gets stringifed by mapbox when added to the symbol props, so we parse it back into an object here.
     });
   }
 

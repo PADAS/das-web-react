@@ -21,7 +21,7 @@ export const displayTitleForEventByEventType = (event, eventTypes) => {
   if (event.event_type) return event.event_type;
 
   return 'Unknown event type';
-}
+};
 
 export const getCoordinatesForEvent = evt => evt.geojson
   && evt.geojson.geometry
@@ -44,7 +44,7 @@ const cleanedUpFilterObject = (filter) =>
         accumulator[key] = value;
       }
       return accumulator;
-    }, []);
+    }, {});
 
 
 const objectToParamString = (obj) => {

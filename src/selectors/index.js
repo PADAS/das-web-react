@@ -22,6 +22,7 @@ const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
+const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents],
@@ -86,6 +87,11 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
       fillFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
     };
   },
+);
+
+export const getReportFormSchemaData = createSelector(
+  [getReportSchemas],
+  ({ schema, uiSchema}) => ({ schema, uiSchema}),
 );
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(
