@@ -1,0 +1,17 @@
+.editable {
+  cursor: pointer;
+  line-height: normal;
+  &:hover {
+    button {
+      background-color: darken(gray, 50%);
+    }
+  }
+}
+
+.input {
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  outline: none;
+  margin: -0.125rem;
+  padding: -0.125rem;
+}
