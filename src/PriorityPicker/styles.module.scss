@@ -2,22 +2,38 @@
 
 .list {
   align-items: center;
+  border: 1px solid $gray-border;
+  border-radius: 1.5rem;
   display: flex;
+  margin-bottom: 0;
+  overflow: hidden;
+  li + li {
+    border-left: 1px solid $gray-border;
+  }
 }
 
 .option {
-  color: white;
-  padding: 0.5rem;
-  &.highPriority {
-    background: $high-priority;
-  }
-  &.mediumPriority {
-    background: $medium-priority;
-  }
-  &.lowPriority {
-    background: $low-priority;
-  }
-  &.noPriority {
-    background: $no-priority;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0.5rem 1rem;
+
+  &.selected, &:hover {
+    color: white;
+    &.highPriority {
+      background: $high-priority;
+    }
+
+    &.mediumPriority {
+      background: $medium-priority;
+    }
+
+    &.lowPriority {
+      background: $low-priority;
+    }
+
+    &.noPriority {
+      background: $no-priority;
+    }
   }
 }

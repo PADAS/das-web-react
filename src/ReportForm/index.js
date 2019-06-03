@@ -15,6 +15,7 @@ import { getReportFormSchemaData } from '../selectors';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { displayTitleForEventByEventType } from '../utils/events';
 
+import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 
@@ -28,6 +29,8 @@ const ReportFormMeta = memo((props) => {
 
   const [report, updateStateReport] = useState(originalReport);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
+
+  const { is_collection } = report;
 
   const reportTitle = displayTitleForEventByEventType(report, eventTypes);
 
@@ -59,7 +62,7 @@ const ReportFormMeta = memo((props) => {
 
   const handleFormSubmit = formData => console.log('formdata', formData);
 
-  const ReportHeaderPopover = <Popover>
+  const ReportHeaderPopover = <Popover className={styles.popover}>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
   </Popover>;
 
@@ -68,13 +71,21 @@ const ReportFormMeta = memo((props) => {
   return <div className={styles.wrapper}>
     <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
       <h4>
-        Report: {report.serial_number} <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
+        <EventIcon className={styles.icon} iconId={report.icon_id} />
+        {report.serial_number}:
+        <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       </h4>
       <OverlayTrigger onExiting={() =>setHeaderPopoverState(false)} placement='bottom-start' rootClose trigger='click' overlay={ReportHeaderPopover}>
         <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
       </OverlayTrigger>
 
     </div>
+    {!is_collection && <div className={styles.reportControls}>
+      great cool ok
+      {/* <ReportedBy /> if necessary */}
+      {/* <DateSelector />}
+      {/* <LocationPicker /> */}
+    </div>}
     <Form
       additionalMetaSchemas={additionalMetaSchemas}
       className={styles.form}

@@ -27,13 +27,24 @@
   }
 }
 
-.formButtons {
+.reportControls, .formButtons {
   align-items: center;
-  background-color: $light-gray-background;
-  bottom: 0;
   box-shadow: 0 0 2px rgba(0, 0, 0, .65);
   display: flex;
   justify-content: space-evenly;
+}
+
+.reportControls {
+  background: lighten($light-gray-background, 7%);
+  flex-wrap: wrap;
+  > * {
+    width: 50%;
+  }
+}
+
+.formButtons {
+  background: $light-gray-background;
+  bottom: 0;
   margin-left: -1rem;
   padding: 1rem;
   position: absolute;
@@ -45,13 +56,21 @@
   display: flex;
   justify-content: space-between;
   padding: 1rem;
+  
   h4 {
     align-items: center;
     display: flex;
     > span, > form {
       margin-left: 0.5rem;
     }
+    
   }
+  .icon {
+    margin-right: 0.5rem;
+    max-height: 2.5rem;
+    max-width: 2.5rem;
+  }
+  
   &.highPriority {
     background-color: $high-priority;
   }
@@ -74,3 +93,8 @@
   }
 }
 
+
+.popover {
+  max-width: none;
+  padding: 0.5rem;
+}
