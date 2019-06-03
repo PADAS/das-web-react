@@ -1,0 +1,23 @@
+@import '../common//styles/vars/colors';
+
+.list {
+  align-items: center;
+  display: flex;
+}
+
+.option {
+  color: white;
+  padding: 0.5rem;
+  &.highPriority {
+    background: $high-priority;
+  }
+  &.mediumPriority {
+    background: $medium-priority;
+  }
+  &.lowPriority {
+    background: $low-priority;
+  }
+  &.noPriority {
+    background: $no-priority;
+  }
+}
