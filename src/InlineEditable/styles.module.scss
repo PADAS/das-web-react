@@ -1,4 +1,13 @@
+@import '../common/styles/vars/colors';
+
+$button-font-color: $medium-light-gray;
+
+.form {
+  display: flex;
+}
+
 .editable {
+  border-bottom: 2px dashed white;
   cursor: pointer;
   line-height: normal;
   &:hover {
@@ -8,10 +17,31 @@
   }
 }
 
+.button {
+  align-items: center;
+  color: $button-font-color;
+  display: flex;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+  svg {
+    --dimensions: 1rem;
+  }
+  + .button {
+    margin-left: 0.5rem;
+  }
+}
+
+.x {
+  display: block;
+  font-weight: bold;
+  font-size: 1.5rem;
+  transform: scale(1, 0.75);
+}
+
 .input {
   background: rgba(255, 255, 255, 0.5);
   border: none;
   outline: none;
   margin: -0.125rem;
-  padding: -0.125rem;
 }

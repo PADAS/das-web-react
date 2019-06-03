@@ -60,8 +60,10 @@ body { // disallow overscroll on iOS
   }
   .modal-content {
     max-height: 90vh;
-    overflow-y: scroll;
-    padding: 1rem;
+    padding: 0;
+    > div > * {
+      padding: 1rem;
+    }
   }
 }
 

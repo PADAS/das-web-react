@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState, Fragment } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
@@ -6,8 +6,9 @@ import styles from './styles.module.scss';
 import Checkmark from '../Checkmark';
 
 const InlineEditable = memo((props) => {
-  const { validationFunc, value:originalValue, onSave } = props;
+  const { validationFunc, value:originalValue, onSave, showEditButton } = props;
   const inputRef = useRef(null);
+
   const [editing, setEditState] = useState(false);
   const [valid, setValidationState] = useState(validationFunc(originalValue));
   const [value, setStateValue] = useState(originalValue);
@@ -31,8 +32,10 @@ const InlineEditable = memo((props) => {
     });
   }
 
-  const handleKeyDown = ({ key, stopPropagation }) => {
+  const handleKeyDown = (event) => {
+    const { key, stopPropagation, preventDefault } = event;
     if (key === 'Escape') {
+      preventDefault();
       stopPropagation();
       return setEditState(false);
     }
@@ -48,22 +51,24 @@ const InlineEditable = memo((props) => {
 
   return (
     editing ?
-      <Fragment>
+      <form className={styles.form} onSubmit={save} onKeyDown={handleKeyDown}>
         <input
           className={styles.input}
           ref={inputRef}
           value={value}
           type={typeof originalValue}
           onChange={onChange}
-          onBlur={save}
-          onKeyDown={handleKeyDown}
         />
-        <button type="button" onClick={() => setEditState(false)}>X</button>
-        <button type="button" onClick={save}><Checkmark fullyChecked={true} /></button>
+        <button className={styles.button} type="button" onClick={() => setEditState(false)}>
+          <span className={styles.x}>X</span>
+        </button>
+        <button className={styles.button} type="submit">
+          <Checkmark partiallyChecked={false} fullyChecked={true} />
+        </button>
         {!valid && <span>Invalid, yo</span>}
-      </Fragment>
-      : <span onClick={onStartEdit} styles={styles.editable}>
-        {originalValue} <button type="button" onClick={onStartEdit}>Edit</button>
+      </form>
+      : <span onClick={onStartEdit} className={styles.editable}>
+        {originalValue} {showEditButton && <button type="button" onClick={onStartEdit}>Edit</button>}
       </span>
   )
 
@@ -74,9 +79,10 @@ export default InlineEditable;
 
 
 InlineEditable.defaultProps = {
+  showEditButton: false,
   validationFunc(value) {
     return true;
-  }
+  },
 }
 
 InlineEditable.propTypes = {
@@ -85,5 +91,6 @@ InlineEditable.propTypes = {
     PropTypes.string,
     PropTypes.number,
   ]),
+  showEditButton: PropTypes.bool,
   onSave: PropTypes.func.isRequired,
 };

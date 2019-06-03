@@ -1,4 +1,16 @@
+@import '../common/styles/vars/colors';
+
+// $no-priority, $low-priority, $medium-priority, $high-priority;
+
+.wrapper {
+  position: relative;
+}
+
+
 .form {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-bottom: 5rem;
   legend {
     display: none;
   }
@@ -14,3 +26,51 @@
     margin-right: 0.5rem;
   }
 }
+
+.formButtons {
+  align-items: center;
+  background-color: $light-gray-background;
+  bottom: 0;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .65);
+  display: flex;
+  justify-content: space-evenly;
+  margin-left: -1rem;
+  padding: 1rem;
+  position: absolute;
+  width: 100%;
+}
+
+.formHeader {
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  h4 {
+    align-items: center;
+    display: flex;
+    > span, > form {
+      margin-left: 0.5rem;
+    }
+  }
+  &.highPriority {
+    background-color: $high-priority;
+  }
+  &.mediumPriority {
+    background-color: $medium-priority;
+  }
+  &.lowPriority {
+    background-color: $low-priority;
+  }
+  &.noPriority {
+    background-color: $no-priority;
+  }
+  input {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    max-width: 14rem;
+  }
+  button {
+    font-family: 'Roboto', sans-serif;
+  }
+}
+

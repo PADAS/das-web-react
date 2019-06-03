@@ -10,7 +10,11 @@ const CheckMark = memo((props) => {
 
 export default CheckMark;
 
+CheckMark.defaultProps = {
+  partiallyChecked: false,
+}
+
 CheckMark.propTypes = {
   fullyChecked: PropTypes.bool.isRequired,
-  partiallyChecked: PropTypes.bool.isRequired,
+  partiallyChecked: PropTypes.bool,
 };
