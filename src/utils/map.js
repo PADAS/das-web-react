@@ -99,9 +99,16 @@ export const calcLayerName = (key, name) => {
 /* mapbox-gl doesn't parse + store null/undefined values correctly in its symbol layer's geojson properties, so you have to `string.replace` them here when accessing via event handlers.
 unfortunately that means that you can't have the strings "null" or "undefined" set as field values, but that's quite an edge case anyway. hopefully we can remove this code in the future. */
 export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
+
+  const valueIsJson = value => typeof value === 'string' && (value.startsWith('{') || value.startsWith('['));
+
   const updates = Object.entries(object).reduce((accumulator, [key, value]) => {
     if (value === 'null') accumulator[key] = null;
     if (value === 'undefined') accumulator[key] = undefined;
+    if (valueIsJson(value)) {
+      accumulator[key] = cleanUpBadlyStoredValuesFromMapSymbolLayer(JSON.parse(value));
+    }
+
     return accumulator;
   }, {});
   return {

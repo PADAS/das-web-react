@@ -1,4 +1,5 @@
 @import '../common/styles/vars/colors';
+@import '../common/styles/inputs';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -48,8 +49,10 @@
     flex-flow: column;
   }
   [class*=react-datetime-picker__wrapper] {
+    @include defaultTextInput;
     width: 100%;
   }
+  
 }
 
 .formButtons {

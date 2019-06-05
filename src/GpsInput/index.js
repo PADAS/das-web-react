@@ -3,18 +3,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
-import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat } from '../utils/location';
+import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat, GPS_FORMAT_LABELS } from '../utils/location';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 
 import styles from './styles.module.scss';
 
-const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.latitude, locationObject.longitude);
+const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
 const GpsInput = memo((props) => {
-  const { lngLat: originalLngLat, gpsFormat, onValidChange } = props;
+  const { lngLat: originalLngLat, gpsFormat, onValidChange, inputProps } = props;
   const lngLat = [...originalLngLat];
   const hasLocation = !!lngLat && lngLat.length === 2;
+  const placeholder = GPS_FORMAT_LABELS[gpsFormat] || 'Location';
 
   const [lastKnownValidValue, setLastKnownValidValue] = useState(null);
   const [inputValue, setInputValue] = useState('');
@@ -23,7 +24,7 @@ const GpsInput = memo((props) => {
   const handleValidationError = (e) => {
     console.log('error with GPS input', e);
     setValidationState(false);
-  }; 
+  };
 
   const onInputChange = ({ target: { value } }) => {
     setInputValue(value);
@@ -31,11 +32,9 @@ const GpsInput = memo((props) => {
 
 
   const setUpStateWithLocationProp = () => {
-    if (hasLocation) {
-      setInputValue(calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat));
-    } else {
-      setInputValue('');
-    }
+    setInputValue(hasLocation
+      ? calcGpsDisplayString(lngLat[1], lngLat[0], gpsFormat)
+      : '');
   };
 
   const onFormatPropUpdate = () => {
@@ -47,9 +46,9 @@ const GpsInput = memo((props) => {
   };
 
   const onValueUpdate = () => {
-    if (!inputValue) setValidationState(true);
-    else if (!lastKnownValidValue) validateNewInputValue();
-    else try {
+    if (!inputValue || !lastKnownValidValue) {
+      validateNewInputValue();
+    } else try {
       const value = calcActualGpsPositionForRawText(inputValue, gpsFormat);
       validateNewInputValue();
     } catch (e) {
@@ -64,9 +63,12 @@ const GpsInput = memo((props) => {
   };
 
   const validateNewInputValue = () => {
-    try {
+    if (!inputValue) {
+      setValidationState(true);
+      setLastKnownValidValue(inputValue);
+    } else try {
       const locationObject = calcActualGpsPositionForRawText(inputValue, gpsFormat);
-      const value = [parseFloat(locationObject.longitude), parseFloat(locationObject.latitude)];
+      const value = [(parseFloat(locationObject.longitude) * 10) / 10, (parseFloat(locationObject.latitude) * 10) / 10];
 
       if (!gpsPositionObjectContainsValidValues(locationObject)) {
         handleValidationError(new Error('invalid location object'));
@@ -93,9 +95,9 @@ const GpsInput = memo((props) => {
   useEffect(handleValidChange, [lastKnownValidValue]);
 
   return <div className={styles.wrapper}>
-    <GpsFormatToggle lng={hasLocation ? lngLat[0] : 0} lat={hasLocation ? lngLat[1] : 0} />
-    <input type="text" value={inputValue} onBlur={onInputBlur} onChange={onInputChange} />
-    {!valid && 'invalid location'}
+    <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
+    <input {...inputProps} placeholder={placeholder} type="text" value={inputValue} onBlur={onInputBlur} onChange={onInputChange} />
+    {!valid && inputValue && 'invalid location'}
   </div>;
 }, (prev, next) => isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat));
 
@@ -105,8 +107,9 @@ export default connect(mapStateToProps, null)(GpsInput);
 
 GpsInput.defaultProps = {
   onValidChange(value) {
-    console.log('i am validated', value);
+    console.log('a new valid value has been established', value);
   },
+  inputProps: {},
 };
 
 GpsInput.propTypes = {

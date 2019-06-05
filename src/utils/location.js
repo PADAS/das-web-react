@@ -10,6 +10,13 @@ export const GPS_FORMATS = {
   MGRS: 'MGRS',
 };
 
+export const GPS_FORMAT_LABELS = {
+  DEG: 'Latitude, Longitude',
+  DMS: 'Degrees, Minutes, Seconds',
+  UTM: 'Universal Transverse Mercator',
+  MGRS: 'Military Grid Reference System',
+}
+
 const degToLngLat = (deg) => {
   const locationSplit = deg.split(',');
   const lat = locationSplit[0].trim();

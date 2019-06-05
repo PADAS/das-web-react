@@ -3,6 +3,7 @@
 @import './common/styles/vars/colors';
 @import './common/styles/buttons';
 @import './common/styles/layout';
+@import './common/styles/inputs';
 
 *,
 *::before,
@@ -16,6 +17,10 @@
   @media (min-width: $md-layout-width-min) {
     --sidebar-width: 30rem;
   }
+}
+
+[type=text] {
+  @include defaultTextInput;
 }
 
 ul, ol {

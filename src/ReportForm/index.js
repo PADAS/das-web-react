@@ -23,7 +23,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 
 import styles from './styles.module.scss';
 
-const ReportFormMeta = memo((props) => {
+const ReportForm = memo((props) => {
   const { eventTypes, report: originalReport, schema, uiSchema } = props;
   const additionalMetaSchemas = [draft4JsonSchema];
 
@@ -52,6 +52,11 @@ const ReportFormMeta = memo((props) => {
     reported_by: selection ? selection.id : null,
   });
 
+  const onReportDateChange = date => updateStateReport({
+    ...report,
+    time: date.toISOString(),
+  });
+
 
   const onReportTitleChange = title => updateStateReport({
     ...report,
@@ -72,12 +77,10 @@ const ReportFormMeta = memo((props) => {
   });
 
   /* updated report location falls outside the normal state lifecycle due to the minor mathematical drifts that occur between parsing a location in string format and in LngLat format. 
-    storing here and updating the location on submit prevents a recalculation loop as the GpsInput component receives a location, parses a string, parses that string back to LngLat and erroneously detects a "change",
+    we store the value here to prevent a recalculation loop, as the GpsInput component otherwise receives a location, parses a string, parses that string back to LngLat and erroneously detects a "change",
     updates the value here, which is updated in the model, passed back back down...rinse and repeat ad infinitum.
   */
   const updateReportLocation = location => setNewReportLocation(location);
-
-  const onDateChange = (date) => console.log('changed date', date);
 
   const handleFormSubmit = formData => console.log('formdata', formData);
 
@@ -110,7 +113,7 @@ const ReportFormMeta = memo((props) => {
           required={true}
           value={report.time ? new Date(report.time) : null}
           maxDate={new Date()}
-          onChange={onDateChange} />
+          onChange={onReportDateChange} />
       </label>
       <GpsInput onValidChange={updateReportLocation} lngLat={reportLocation} />
     </div>}
@@ -138,10 +141,10 @@ const mapStateToProps = (state, props) => ({
   ...getReportFormSchemaData(state, props),
 })
 
-export default connect(mapStateToProps, null)(ReportFormMeta);
+export default connect(mapStateToProps, null)(ReportForm);
 
-ReportFormMeta.propTypes = {
+ReportForm.propTypes = {
   report: PropTypes.object.isRequired,
 };
 
-ReportFormMeta.whyDidYouRender = true;
+ReportForm.whyDidYouRender = true;

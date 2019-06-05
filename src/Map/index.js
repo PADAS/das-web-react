@@ -131,7 +131,7 @@ class Map extends Component {
 
     openModalForEvent({
       ...props,
-      event_details: JSON.parse(props.event_details), // this gets stringifed by mapbox when added to the symbol props, so we parse it back into an object here.
+      event_details: props.event_details, // this gets stringifed by mapbox when added to the symbol props, so we parse it back into an object here.
     });
   }
 
