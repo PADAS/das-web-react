@@ -324,7 +324,7 @@ export default connect(mapStatetoProps, {
 }
 )(debounceRender(Map, 100));
 
-Map.whyDidYouRender = true;
+// Map.whyDidYouRender = true;
 
 // secret code burial ground
 // for future reference and potential experiments

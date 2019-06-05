@@ -7,6 +7,7 @@ import isEqual from 'react-fast-compare';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
 import { convertTrackLineStringToPoints } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
+import { calcRecentRadiosFromSubjects, getUniqueSubjectGroupSubjects } from '../utils/subjects';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
@@ -23,6 +24,11 @@ const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
+const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
+const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
+  ? eventSchemas.globalSchema.properties.reported_by.enum_ext
+    .map(({ value }) => value)
+  : [];
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents],
@@ -54,6 +60,22 @@ export const removePersistKey = createSelector(
     return clone;
   },
 );
+
+export const allSubjects = createSelector(
+  [getSubjectGroups],
+  subjectGroups => getUniqueSubjectGroupSubjects(...subjectGroups),
+);
+
+export const reportedBy = createSelector(
+  [getEventReporters],
+  reporters => reporters,
+);
+
+export const calcRecentRadioList = createSelector(
+  [allSubjects],
+  (subjects) => calcRecentRadiosFromSubjects(...subjects),
+);
+
 
 export const getArrayOfVisibleTracks = createSelector(
   [tracks, subjectTrackState],
@@ -91,7 +113,7 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
 
 export const getReportFormSchemaData = createSelector(
   [getReportSchemas],
-  ({ schema, uiSchema}) => ({ schema, uiSchema}),
+  ({ schema, uiSchema }) => ({ schema, uiSchema }),
 );
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(

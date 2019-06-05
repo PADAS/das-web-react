@@ -13,7 +13,7 @@ export const fetchEventTypes = () => {
   return function (dispatch) {
     return axios.get(EVENT_TYPE_API_URL)
       .then((response) => {
-        dispatch(fetchEventTypesSucess(response));
+        dispatch(fetchEventTypesSuccess(response));
       })
       .catch((error) => {
         dispatch(fetchEventTypesError(error));
@@ -21,7 +21,7 @@ export const fetchEventTypes = () => {
   };
 };
 
-const fetchEventTypesSucess = response => dispatch => {
+const fetchEventTypesSuccess = response => dispatch => {
   dispatch(updateEventFilter({
     filter:
     {

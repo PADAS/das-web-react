@@ -99,3 +99,8 @@ export const REPORT_PRIORITIES = [
     value: 0,
   },
 ];
+
+export const DATEPICKER_DEFAULT_CONFIG = {
+  disableClock: true,
+  format: 'dd-MM-yyyy HH:mm',
+};

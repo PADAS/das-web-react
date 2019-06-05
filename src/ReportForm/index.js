@@ -1,9 +1,8 @@
 import React, { memo, useState, useRef } from 'react';
-
-import { Button, Popover, OverlayTrigger } from 'react-bootstrap';
-
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import DateTimePicker from 'react-datetime-picker';
+import { Button, Popover, OverlayTrigger } from 'react-bootstrap';
 import Form from "react-jsonschema-form";
 
 import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
@@ -14,9 +13,12 @@ import PriorityPicker from '../PriorityPicker';
 import { getReportFormSchemaData } from '../selectors';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { displayTitleForEventByEventType } from '../utils/events';
+import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
+import ReportedBySelect from '../ReportedBySelect';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
+import GpsInput from '../GpsInput';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 
 import styles from './styles.module.scss';
@@ -28,18 +30,27 @@ const ReportFormMeta = memo((props) => {
   const formRef = useRef(null);
 
   const [report, updateStateReport] = useState(originalReport);
+  const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
+
+  const [newReportLocation, setNewReportLocation] = useState(reportLocation);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
   const { is_collection } = report;
 
   const reportTitle = displayTitleForEventByEventType(report, eventTypes);
 
+
   const calcClassNameForPriority = (priority) => {
     if (priority === 300) return 'highPriority';
     if (priority === 200) return 'mediumPriority';
     if (priority === 100) return 'lowPriority';
     return 'noPriority';
-  }
+  };
+
+  const onReportedByChange = (selection) => updateStateReport({
+    ...report,
+    reported_by: selection ? selection.id : null,
+  });
 
 
   const onReportTitleChange = title => updateStateReport({
@@ -60,13 +71,19 @@ const ReportFormMeta = memo((props) => {
     priority,
   });
 
+  /* updated report location falls outside the normal state lifecycle due to the minor mathematical drifts that occur between parsing a location in string format and in LngLat format. 
+    storing here and updating the location on submit prevents a recalculation loop as the GpsInput component receives a location, parses a string, parses that string back to LngLat and erroneously detects a "change",
+    updates the value here, which is updated in the model, passed back back down...rinse and repeat ad infinitum.
+  */
+  const updateReportLocation = location => setNewReportLocation(location);
+
+  const onDateChange = (date) => console.log('changed date', date);
+
   const handleFormSubmit = formData => console.log('formdata', formData);
 
   const ReportHeaderPopover = <Popover className={styles.popover}>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
   </Popover>;
-
-  // const formData = unwrapEventDetailSelectValues(report.event_details);
 
   return <div className={styles.wrapper}>
     <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
@@ -75,16 +92,27 @@ const ReportFormMeta = memo((props) => {
         {report.serial_number}:
         <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       </h4>
-      <OverlayTrigger onExiting={() =>setHeaderPopoverState(false)} placement='bottom-start' rootClose trigger='click' overlay={ReportHeaderPopover}>
+      <OverlayTrigger onExiting={() => setHeaderPopoverState(false)} placement='bottom-start' rootClose trigger='click' overlay={ReportHeaderPopover}>
         <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
       </OverlayTrigger>
 
     </div>
     {!is_collection && <div className={styles.reportControls}>
-      great cool ok
-      {/* <ReportedBy /> if necessary */}
-      {/* <DateSelector />}
-      {/* <LocationPicker /> */}
+      <label>
+        Reported by:
+        <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
+      </label>
+      <label>
+        Report time:
+        <DateTimePicker
+          {...DATEPICKER_DEFAULT_CONFIG}
+          clearIcon={null}
+          required={true}
+          value={report.time ? new Date(report.time) : null}
+          maxDate={new Date()}
+          onChange={onDateChange} />
+      </label>
+      <GpsInput onValidChange={updateReportLocation} lngLat={reportLocation} />
     </div>}
     <Form
       additionalMetaSchemas={additionalMetaSchemas}

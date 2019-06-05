@@ -59,7 +59,7 @@ body { // disallow overscroll on iOS
     width: 96vw;
   }
   .modal-content {
-    max-height: 90vh;
+    max-height: 80vh;
     padding: 0;
     > div > *:not(form) {
       padding: 1rem;

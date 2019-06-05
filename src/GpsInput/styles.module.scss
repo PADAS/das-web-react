@@ -1,0 +1,8 @@
+.wrapper {
+  span[class*=value] { 
+    display: none;
+  }
+  input {
+    width: 100%;
+  }
+}

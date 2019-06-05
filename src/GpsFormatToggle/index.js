@@ -20,7 +20,7 @@ const GpsFormatToggle = memo((props) => {
           })}>{gpsFormat}</li>
         )}
       </ul>
-      <span className={styles.value}>{calcGpsDisplayString(lat, lng, currentFormat)}</span>
+      <span className={styles.value}>{calcGpsDisplayString(lng, lat, currentFormat)}</span>
     </div>
   );
 });
