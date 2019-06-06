@@ -91,3 +91,18 @@ export const calcLayerName = (key, name) => {
   if (key.includes('_CIRCLES')) return `${name}-circle`;
   return name;
 };
+
+export const lockMap = (map, isLocked) => {
+  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate'];
+  if(isLocked === true) {
+    mapControls.forEach(function(control) {
+      map[control].disable();
+    });
+  } 
+  else {
+    mapControls.forEach(function(control) {
+      map[control].enable();
+    });
+  }
+};
+

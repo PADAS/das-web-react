@@ -1,24 +1,29 @@
-import React, {Component} from 'react';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { toggleMapLockState } from '../ducks/map-ui';
 import styles from './styles.module.scss';
-class MapLockControl extends Component {
-  constructor(props) {
-    super(props);
+import { lockMap } from '../utils/map';
 
-    this.state = {
-      isLocked: false
-    };
+const MapLockControl = (props) => {
 
-    this.handleClick = this.handleClick.bind(this);
-  }
+  const { mapIsLocked, toggleMapLockState, map } = props;
 
-  render() {
-    return <span className={this.props.className || ''}><button title="Lock Map" type="button" className={styles.maplock} onClick={this.handleClick}>Lock Map</button></span>;
-  }
-
-  handleClick(e) {
+  const handleClick = (e) => {
     e.preventDefault();
-    console.log('The map lock was clicked.');
-  }
+    console.log('Toggle map lock state to ' + !mapIsLocked);
+    toggleMapLockState(!mapIsLocked);
+  };
+
+  useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);
+
+  return  <span className={props.className || ''}>
+            <button title="Lock Map" type="button" className={styles.maplock} 
+              onClick={handleClick}>{mapIsLocked ? 'Unlock Map' : 'Lock Map'}</button>
+          </span>;
 };
 
-export default MapLockControl;
+const mapStateToProps = ( {view:{mapIsLocked}} ) => {
+  return {mapIsLocked};
+}
+
+export default connect(mapStateToProps, {toggleMapLockState})(MapLockControl);

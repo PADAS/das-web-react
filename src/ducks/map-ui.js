@@ -9,7 +9,7 @@ const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
-const ENABLE_INTERACTIVE_MAP = 'ENABLE_INTERACTIVE_MAP';
+const INTERACTIVE_MAP = 'INTERACTIVE_MAP';
 
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 
@@ -57,7 +57,7 @@ export const updateHeatmapSubjects = (update) => ({
 });
 
 export const toggleMapLockState = (enabled) => ({
-  type: ENABLE_INTERACTIVE_MAP,
+  type: INTERACTIVE_MAP,
   payload: enabled,
 });
 
@@ -113,10 +113,9 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
   return state;
 };
 
-export const interactiveMapStateReducer = (state = {}, action) => {
+export const mapLockStateReducer = (state = false, action) => {
   const { type, payload } = action;
-  console.log("mapLockReducer");
-  if (type === ENABLE_INTERACTIVE_MAP) return { ...state, ...payload };
+  if (type === INTERACTIVE_MAP) return payload;
   return state;
 };
 
