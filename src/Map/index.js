@@ -273,7 +273,7 @@ class Map extends Component {
             <RotationControl position='bottom-left' />
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
-            <MapLockControl className='maplock' map={map}/>
+            <MapLockControl map={map}/>
             {/* <DrawControl map={map} position='bottom-left' /> */}
             <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
