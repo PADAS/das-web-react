@@ -3,25 +3,35 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
-import { hideModal } from '../ducks/modals';
+import { removeModal } from '../ducks/modals';
 
 import styles from './styles.module.scss';
 
 const ModalRenderer = memo((props) => {
-  const { modals, hideModal } = props;
+  const { canShowModals, modals, removeModal } = props;
+
+  const style = {
+    display: canShowModals ? 'block' : 'none',
+    opacity: canShowModals ? '1' : '0',
+    transition: 'opacity 0.3s linear, display 0 linear 0.3s,'
+  };
 
   return !!modals.length &&
-    <div className={styles.wrapper}>
+    <div>
       {modals.map((item, index) => {
         const { content: ContentComponent, id, modalProps, ...rest } = item;
         return (!!ContentComponent &&
           <Modal
             backdrop={index === 0}
-            centered show={true}
+            backdropClassName={canShowModals ? styles.show : styles.hide}
+            centered 
+            dialogClassName={canShowModals ? styles.show : styles.hide}
             enforceFocus={false}
             key={id}
+            show={true}
+            style={style}
             {...modalProps}
-            onHide={() => hideModal(id)}>
+            onHide={() => removeModal(id)}>
 
             <ContentComponent id={id} {...rest} />
           </Modal>
@@ -30,9 +40,9 @@ const ModalRenderer = memo((props) => {
     </div>
 });
 
-const mapStateToProps = ({ view: { modals } }) => ({ modals });
+const mapStateToProps = ({ view: { modals: { modals, canShowModals } } }) => ({ modals, canShowModals });
 
-export default connect(mapStateToProps, { hideModal })(ModalRenderer);
+export default connect(mapStateToProps, { removeModal })(ModalRenderer);
 
 ModalRenderer.propTypes = {
   modals: PropTypes.arrayOf(PropTypes.shape({

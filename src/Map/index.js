@@ -16,7 +16,7 @@ import { openModalForEvent } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
-import { showModal } from '../ducks/modals';
+import { addModal } from '../ducks/modals';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
@@ -126,13 +126,12 @@ class Map extends Component {
   }
 
   onEventSymbolClick({ properties }) {
-    
-    const props = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
+    const { map } = this.props;
 
-    openModalForEvent({
-      ...props,
-      event_details: props.event_details, // this gets stringifed by mapbox when added to the symbol props, so we parse it back into an object here.
-    });
+    console.log('my map', map);
+    const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
+
+    openModalForEvent(event, map);
   }
 
   hideUnpinnedTrackLayers(map, event) {
@@ -317,7 +316,7 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   fetchTracks,
   hidePopup,
-  showModal,
+  addModal,
   showPopup,
   updateTrackState,
   updateHeatmapSubjects,

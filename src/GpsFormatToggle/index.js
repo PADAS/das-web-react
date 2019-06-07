@@ -9,10 +9,10 @@ import styles from './styles.module.scss';
 const gpsFormats = Object.values(GPS_FORMATS);
 
 const GpsFormatToggle = memo((props) => {
-  const { updateUserPreferences, lat, lng, currentFormat, ...rest } = props;
+  const { updateUserPreferences, lat, lng, currentFormat, className, ...rest } = props;
 
   return (
-    <div className={styles.container} {...rest}>
+    <div className={`${styles.container} ${className}`} {...rest}>
       <ul className={styles.choices}>
         {gpsFormats.map(gpsFormat =>
           <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''} onClick={() => updateUserPreferences({

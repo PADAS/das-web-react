@@ -19,6 +19,8 @@ const SideBar = memo((props) => {
 
   const onScroll = () => fetchNextEventPage(events.next);
 
+  const onEventTitleClick = event => openModalForEvent(event, map);
+
   useEffect(() => {
     setEventLoadState(true);
     fetchEvents().then(() => setEventLoadState(false));
@@ -38,7 +40,7 @@ const SideBar = memo((props) => {
             loading={loadingEvents}
             events={events.results}
             onScroll={onScroll}
-            onTitleClick={openModalForEvent}
+            onTitleClick={onEventTitleClick}
           />
         </Tab>
         <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">

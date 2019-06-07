@@ -1,10 +1,10 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { Fragment, memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 import Alert from 'react-bootstrap/Alert';
 
-import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat, GPS_FORMAT_LABELS } from '../utils/location';
+import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat, GPS_FORMAT_LABELS, GPS_FORMAT_EXAMPLES } from '../utils/location';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 
@@ -97,7 +97,12 @@ const GpsInput = memo((props) => {
   useEffect(handleValidChange, [lastKnownValidValue]);
 
   return <div className={styles.wrapper}>
-    {showFormatToggle && <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />}
+    {showFormatToggle &&
+      <Fragment>
+        <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
+        <small>Example: {GPS_FORMAT_EXAMPLES[gpsFormat]}</small>
+      </Fragment>
+    }
     <input className={valid ? '' : styles.errorInput} {...inputProps} placeholder={placeholder} type="text" value={inputValue} onBlur={onInputBlur} onChange={onInputChange} />
     {!valid && <Alert className={styles.errorMessage} variant='danger'>Invalid location</Alert>}
   </div>;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Dropdown } from 'react-bootstrap';
 
-import { showModal } from '../ducks/modals';
+import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
@@ -39,7 +39,7 @@ const modals = [
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { showModal, zendeskEnabled, ...rest } = props;
+  const { addModal, zendeskEnabled, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
   const contactSupport = () => {
@@ -55,7 +55,7 @@ const DataExportMenu = (props) => {
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() =>
-          showModal({
+          addModal({
            ...modal,
           })}>
           <span>{modal.title}</span>
@@ -70,4 +70,4 @@ const DataExportMenu = (props) => {
 
 const mapStateToProps = ({ view: { zendeskEnabled } }) => ({ zendeskEnabled });
 
-export default connect(mapStateToProps, { showModal })(DataExportMenu);
+export default connect(mapStateToProps, { addModal })(DataExportMenu);

@@ -116,3 +116,8 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
     ...updates,
   };
 };
+
+const getCoordinatesFromClickPoint = ({ lngLat }) => lngLat;
+
+export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
+export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);

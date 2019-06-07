@@ -1,5 +1,20 @@
+@import './vars/colors';
+
 @mixin unstyledButton {
   background: none;
   border: none;
   outline: none;
+}
+
+@mixin jumpButton {
+  background:  rgba($medium-light-gray, 0.15) url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
+  background-size: 1rem;
+  border: none;
+  border-radius: .25rem;
+  height: 2.5rem;
+  padding: 0;
+  width: 2.5rem;
+  &:hover {
+    background-color: rgba(darken($medium-light-gray, 15%), 0.18);
+  }
 }

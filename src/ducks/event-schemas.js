@@ -44,11 +44,9 @@ export default (state = {}, action) => {
     const { name, schema  } = payload;
 
     const { uiSchema, schema:newSchema } = generateFormSchemasFromEventTypeSchema(schema);
-    const finalizedSchema = convertSchemaEnumNameObjectsIntoArray(newSchema);
-
 
     return { ...state, [name]: {
-      schema: finalizedSchema,
+      schema: newSchema,
       uiSchema,
     } };
   }

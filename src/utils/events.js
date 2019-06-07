@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { showModal } from '../ducks/modals';
+import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from '../utils/datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
@@ -99,7 +99,7 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   return label;
 };
 
-export const openModalForEvent = async (event) => {
+export const openModalForEvent = async (event, map) => {
   const { data: { eventSchemas } } = store.getState();
   const { event_type } = event;
 
@@ -108,9 +108,10 @@ export const openModalForEvent = async (event) => {
   await promise;
 
   return store.dispatch(
-    showModal({
+    addModal({
       content: ReportForm,
       report: event,
+      map,
       modalProps: {
         className: 'event-form-modal',
       },

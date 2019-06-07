@@ -10,6 +10,10 @@
   .errorInput {
     border: 1px solid $error-border;
   }
+  small {
+    color: lighten($primary-font-color, 25%);
+    font-style: italic;
+  }
 }
 
 .errorMessage {

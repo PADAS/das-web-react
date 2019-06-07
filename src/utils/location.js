@@ -15,7 +15,15 @@ export const GPS_FORMAT_LABELS = {
   DMS: 'Degrees, Minutes, Seconds',
   UTM: 'Universal Transverse Mercator',
   MGRS: 'Military Grid Reference System',
-}
+};
+
+export const GPS_FORMAT_EXAMPLES = {
+  DEG: ' -0.15293, 37.30906',
+  DMS: '0 9′ 10.5624″ S, 37 18′ 32.6185″ E',
+  UTM: '37 S 311814 9983089',
+  MGRS: ' 37M CV 11813 83088',
+};
+
 
 const degToLngLat = (deg) => {
   const locationSplit = deg.split(',');

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import { subDays, startOfDay, setHours } from 'date-fns';
 
-import { hideModal } from '../ducks/modals';
+import { removeModal } from '../ducks/modals';
 import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
 
@@ -56,22 +56,12 @@ const DailyReportModal = (props) => {
       onStartDateChange={handleStartDateChange}
       onEndDateChange={handleEndDateChange}
       />
-    {/* <div className={styles.controls}>
-      <label htmlFor="dailyReportStartDate">
-        <span>From:</span>
-        <DateTimePicker required maxDate={today} id="dailyReportStartDate" {...DATEPICKER_CONFIG} value={customStartDate} onChange={handleStartDateChange} />
-      </label>
-      <label htmlFor="dailyReportEndDate">
-        <span>Until:</span>
-        <DateTimePicker required minDate={customStartDate} maxDate={today} id="dailyReportEndDate" {...DATEPICKER_CONFIG} value={customEndDate} onChange={handleEndDateChange} />
-      </label>
-    </div> */}
   </DataExportModal >;
 };
 
 DailyReportModal.propTypes = {
   id: PropTypes.string.isRequired,
-  hideModal: PropTypes.func.isRequired,
+  removeModal: PropTypes.func.isRequired,
 };
 
-export default connect(null, { hideModal })(DailyReportModal);
+export default connect(null, { removeModal })(DailyReportModal);

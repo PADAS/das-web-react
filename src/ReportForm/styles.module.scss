@@ -42,6 +42,7 @@
   padding: 0.5rem !important;
   > * {
     padding: 0.5rem;
+    position: relative;
     width: 50%;
   }
   > label {
@@ -114,11 +115,12 @@
   padding: 0.5rem;
 }
 
+.gpsPopover {
+  top: 85%;
+}
+
 .locationAnchor {
   @include defaultTextInput;
 
   color: $primary-font-color;
-  &:hover {
-    text-decoration: none;
-  }
 }

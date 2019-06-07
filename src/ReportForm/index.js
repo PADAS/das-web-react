@@ -2,7 +2,7 @@ import React, { memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import DateTimePicker from 'react-datetime-picker';
-import { Button, Popover, OverlayTrigger } from 'react-bootstrap';
+import { Button, Popover, OverlayTrigger, Overlay } from 'react-bootstrap';
 import Form from "react-jsonschema-form";
 
 import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
@@ -15,8 +15,10 @@ import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { displayTitleForEventByEventType } from '../utils/events';
 import { calcGpsDisplayString } from '../utils/location';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+import { setModalVisibilityState } from '../ducks/modals';
 
 import ReportedBySelect from '../ReportedBySelect';
+import MapLocationPicker from '../MapLocationPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
 import GpsInput from '../GpsInput';
@@ -25,20 +27,34 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import styles from './styles.module.scss';
 
 const ReportForm = memo((props) => {
-  const { eventTypes, report: originalReport, schema, uiSchema, gpsFormat } = props;
+  const { eventTypes, gpsFormat, map, report: originalReport, schema, uiSchema, setModalVisibilityState } = props;
   const additionalMetaSchemas = [draft4JsonSchema];
 
   const formRef = useRef(null);
+  const gpsInputAnchorRef = useRef(null);
+  const gpsInputLabelRef = useRef(null);
 
   const [report, updateStateReport] = useState(originalReport);
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
+  const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
 
   const { is_collection } = report;
 
   const reportTitle = displayTitleForEventByEventType(report, eventTypes);
 
+  const onLocationSelectFromMapStart = () => {
+    setModalVisibilityState(false);
+  };
+
+  const onLocationSelectFromMap = (event) => {
+    console.log('click event', event);
+    const { lngLat: { lat, lng } } = event;
+    onReportLocationChange([lng, lat]);
+    setModalVisibilityState(true);
+    setGpsPopoverState(false);
+  };
 
   const calcClassNameForPriority = (priority) => {
     if (priority === 300) return 'highPriority';
@@ -95,10 +111,6 @@ const ReportForm = memo((props) => {
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
   </Popover>;
 
-  const GpsInputPopover = <Popover className={styles.popover}>
-    <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
-  </Popover>
-
   return <div className={styles.wrapper}>
     <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
       <h4>
@@ -126,13 +138,17 @@ const ReportForm = memo((props) => {
           maxDate={new Date()}
           onChange={onReportDateChange} />
       </label>
-      <label>
+      <label ref={gpsInputLabelRef}>
         Location:
-        <OverlayTrigger placement='auto' rootClose trigger='click' overlay={GpsInputPopover}>
-          <a href="#" className={styles.locationAnchor}>
-            {reportLocation ? calcGpsDisplayString(reportLocation[1], reportLocation[0], gpsFormat) : 'Click here to set location'}
-          </a>
-        </OverlayTrigger>
+        <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
+          {props => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
+            <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
+            <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelect={onLocationSelectFromMap} />
+          </Popover>}
+        </Overlay>
+        <a href="#" onClick={() => setGpsPopoverState(!gpsPopoverOpen)} className={styles.locationAnchor} ref={gpsInputAnchorRef}>
+          {reportLocation ? calcGpsDisplayString(reportLocation[1], reportLocation[0], gpsFormat) : 'Click here to set location'}
+        </a>
       </label>
     </div>}
     <Form
@@ -160,7 +176,7 @@ const mapStateToProps = (state, props) => ({
   ...getReportFormSchemaData(state, props),
 })
 
-export default connect(mapStateToProps, null)(ReportForm);
+export default connect(mapStateToProps, { setModalVisibilityState })(ReportForm);
 
 ReportForm.propTypes = {
   report: PropTypes.object.isRequired,
