@@ -71,12 +71,6 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
-export const calcRecentRadioList = createSelector(
-  [allSubjects],
-  (subjects) => calcRecentRadiosFromSubjects(...subjects),
-);
-
-
 export const getArrayOfVisibleTracks = createSelector(
   [tracks, subjectTrackState],
   (tracks, subjectTrackState) => {

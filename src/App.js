@@ -68,7 +68,7 @@ const App = memo((props) => {
 
   const onMapHasLoaded = (map) => {
     setMap(map);
-    window.map = map;
+    // window.map = map;
     fetchFeaturesets();
     bindDirectMapEventing(map);
   };

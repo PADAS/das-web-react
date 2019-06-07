@@ -94,7 +94,7 @@ const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
       key,
     },
     uiSchemaEntry: {
-      'ui:widget': customSchemaFields.datetime,
+      'ui:field': customSchemaFields.datetime,
     },
 })
 

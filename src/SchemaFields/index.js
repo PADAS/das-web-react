@@ -1,8 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, Fragment } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+
+import styles from './styles.module.scss';
 
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
@@ -31,12 +33,15 @@ const SelectField = (props) => {
 
 
 const DateTimeField = (props) => {
-  const { id, value, required, onChange } = props;
-  const date = value ? new Date(value) : undefined;
+  const { idSchema: { id }, schema: { title:label }, onChange, required, formData } = props;
+  const date = formData ? new Date(formData) : undefined;
 
   const handleChange = newVal => onChange(newVal ? newVal.toISOString() : newVal);
 
-  return <DateTimePicker id={id} required={required} {...DATEPICKER_DEFAULT_CONFIG} maxDate={new Date()} value={date} onChange={handleChange} />
+  return <Fragment>
+    <label htmlFor={id}>{label}</label>
+    <DateTimePicker className={styles.datepicker} id={id} required={required} {...DATEPICKER_DEFAULT_CONFIG} maxDate={new Date()} value={date} onChange={handleChange} />
+  </Fragment>
 };
 
 export default {

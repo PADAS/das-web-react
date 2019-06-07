@@ -11,7 +11,7 @@
     border: 1px solid $error-border;
   }
   small {
-    color: lighten($primary-font-color, 25%);
+    color: $light-font-color;
     font-style: italic;
   }
 }

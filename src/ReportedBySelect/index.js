@@ -4,15 +4,17 @@ import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import TimeAgo from 'react-timeago'
 
-import { subjectIsARadio } from '../utils/subjects';
+import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
 
-import { calcRecentRadioList, reportedBy } from '../selectors';
+import { reportedBy, allSubjects } from '../selectors';
+
+import styles from './styles.module.scss';
 
 const ReportedBySelect = memo((props) => {
-  const { recentRadios: originalRecentRadios, subjects, onChange, numberOfRecentRadiosToShow, value } = props;
+  const { reporters, subjects, onChange, numberOfRecentRadiosToShow, value } = props;
 
-  const recentRadios = originalRecentRadios.splice(0, numberOfRecentRadiosToShow);
-  const allRadios = subjects.filter(subjectIsARadio);
+  const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
+  const allRadios = reporters.filter(subjectIsARadio);
 
   const selected = allRadios.find(({ id }) => id === value);
 
@@ -33,13 +35,17 @@ const ReportedBySelect = memo((props) => {
   const Option = (props) => {
     const { value, data } = props;
 
-    const isRecent = recentRadios.some(item => item.id === value);
+    const isRecent = recentRadios.some(item => item.id === value)
+      && (data.last_voice_call_start_at || data.last_position_date);
+
     return (
-      <div>
-        <components.Option {...props} />
-        {isRecent &&
-          <TimeAgo date={new Date(data.last_position_status.last_voice_call_start_at || data.last_position_date)} />
-        }
+      <div className={styles.option}>
+        <components.Option {...props}>
+          <span>{data.name}</span>
+          {isRecent &&
+            <TimeAgo className={styles.timeAgo} date={new Date(data.last_voice_call_start_at || data.last_position_date)} />
+          }
+        </components.Option>
       </div>
     )
   };
@@ -56,8 +62,8 @@ const ReportedBySelect = memo((props) => {
 });
 
 const mapStateToProps = (state) => ({
-  recentRadios: calcRecentRadioList(state),
-  subjects: reportedBy(state),
+  reporters: reportedBy(state),
+  subjects: allSubjects(state),
 });
 
 export default connect(mapStateToProps, null)(ReportedBySelect);

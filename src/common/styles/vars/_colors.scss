@@ -40,6 +40,8 @@ $title-bar-color: $off-black;
 $primary-font-color: $dark-gray;
 $primary-modal-header: $off-black;
 
+$light-font-color: lighten($primary-font-color, 25%);
+
 $primary-button-color: $bright-blue;
 $filter-popover-header-color: $bright-blue;
 
