@@ -1,3 +1,5 @@
+@import '../common/styles/vars/colors';
+
 .wrapper {
   span[class*=value] { 
     display: none;
@@ -5,4 +7,12 @@
   input {
     width: 100%;
   }
+  .errorInput {
+    border: 1px solid $error-border;
+  }
+}
+
+.errorMessage {
+  margin: 0.5rem 0 0;
+  padding: 0.25rem;
 }

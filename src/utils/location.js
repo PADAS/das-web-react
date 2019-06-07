@@ -1,7 +1,7 @@
 import Dms from 'geodesy/dms';
 import Utm, { LatLon as LatLon_Utm } from 'geodesy/utm';
 import Mgrs, { LatLon as Latlon_Utm_Mgrs } from 'geodesy/mgrs';
-import LatLon from 'geodesy/latlon-ellipsoidal';
+import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 
 export const GPS_FORMATS = {
   DEG: 'DEG',

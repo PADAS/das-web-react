@@ -276,3 +276,7 @@ div.mapboxgl-popup-tip {
     top: 1rem;
   }
 }
+
+.modal-open .modal {
+  overflow: hidden;
+}

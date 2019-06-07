@@ -13,6 +13,7 @@ import PriorityPicker from '../PriorityPicker';
 import { getReportFormSchemaData } from '../selectors';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { displayTitleForEventByEventType } from '../utils/events';
+import { calcGpsDisplayString } from '../utils/location';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 import ReportedBySelect from '../ReportedBySelect';
@@ -24,7 +25,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import styles from './styles.module.scss';
 
 const ReportForm = memo((props) => {
-  const { eventTypes, report: originalReport, schema, uiSchema } = props;
+  const { eventTypes, report: originalReport, schema, uiSchema, gpsFormat } = props;
   const additionalMetaSchemas = [draft4JsonSchema];
 
   const formRef = useRef(null);
@@ -32,7 +33,6 @@ const ReportForm = memo((props) => {
   const [report, updateStateReport] = useState(originalReport);
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
-  const [newReportLocation, setNewReportLocation] = useState(reportLocation);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
   const { is_collection } = report;
@@ -76,17 +76,28 @@ const ReportForm = memo((props) => {
     priority,
   });
 
+  const onReportLocationChange = location => updateStateReport({
+    ...report,
+    location: !!location
+      ? {
+        latitude: location[1],
+        longitude: location[0],
+      } : location,
+  });
+
   /* updated report location falls outside the normal state lifecycle due to the minor mathematical drifts that occur between parsing a location in string format and in LngLat format. 
     we store the value here to prevent a recalculation loop, as the GpsInput component otherwise receives a location, parses a string, parses that string back to LngLat and erroneously detects a "change",
     updates the value here, which is updated in the model, passed back back down...rinse and repeat ad infinitum.
   */
-  const updateReportLocation = location => setNewReportLocation(location);
-
   const handleFormSubmit = formData => console.log('formdata', formData);
 
   const ReportHeaderPopover = <Popover className={styles.popover}>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
   </Popover>;
+
+  const GpsInputPopover = <Popover className={styles.popover}>
+    <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
+  </Popover>
 
   return <div className={styles.wrapper}>
     <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
@@ -115,7 +126,14 @@ const ReportForm = memo((props) => {
           maxDate={new Date()}
           onChange={onReportDateChange} />
       </label>
-      <GpsInput onValidChange={updateReportLocation} lngLat={reportLocation} />
+      <label>
+        Location:
+        <OverlayTrigger placement='auto' rootClose trigger='click' overlay={GpsInputPopover}>
+          <a href="#" className={styles.locationAnchor}>
+            {reportLocation ? calcGpsDisplayString(reportLocation[1], reportLocation[0], gpsFormat) : 'Click here to set location'}
+          </a>
+        </OverlayTrigger>
+      </label>
     </div>}
     <Form
       additionalMetaSchemas={additionalMetaSchemas}
@@ -137,6 +155,7 @@ const ReportForm = memo((props) => {
 });
 
 const mapStateToProps = (state, props) => ({
+  gpsFormat: state.view.userPreferences.gpsFormat,
   eventTypes: state.data.eventTypes,
   ...getReportFormSchemaData(state, props),
 })

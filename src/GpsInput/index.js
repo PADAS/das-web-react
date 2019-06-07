@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
+import Alert from 'react-bootstrap/Alert';
 
 import { calcActualGpsPositionForRawText, calcGpsDisplayString, validateLngLat, GPS_FORMAT_LABELS } from '../utils/location';
 
@@ -12,8 +13,9 @@ import styles from './styles.module.scss';
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
 const GpsInput = memo((props) => {
-  const { lngLat: originalLngLat, gpsFormat, onValidChange, inputProps } = props;
-  const lngLat = [...originalLngLat];
+  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle } = props;
+
+  const lngLat = originalLngLat ? [...originalLngLat] : null;
   const hasLocation = !!lngLat && lngLat.length === 2;
   const placeholder = GPS_FORMAT_LABELS[gpsFormat] || 'Location';
 
@@ -95,9 +97,9 @@ const GpsInput = memo((props) => {
   useEffect(handleValidChange, [lastKnownValidValue]);
 
   return <div className={styles.wrapper}>
-    <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
-    <input {...inputProps} placeholder={placeholder} type="text" value={inputValue} onBlur={onInputBlur} onChange={onInputChange} />
-    {!valid && inputValue && 'invalid location'}
+    {showFormatToggle && <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />}
+    <input className={valid ? '' : styles.errorInput} {...inputProps} placeholder={placeholder} type="text" value={inputValue} onBlur={onInputBlur} onChange={onInputChange} />
+    {!valid && <Alert className={styles.errorMessage} variant='danger'>Invalid location</Alert>}
   </div>;
 }, (prev, next) => isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat));
 
@@ -110,8 +112,12 @@ GpsInput.defaultProps = {
     console.log('a new valid value has been established', value);
   },
   inputProps: {},
+  showFormatToggle: true,
 };
 
 GpsInput.propTypes = {
   lngLat: PropTypes.array,
+  showFormatToggle: PropTypes.bool,
+  inputProps: PropTypes.object,
+  onValidChange: PropTypes.func,
 };

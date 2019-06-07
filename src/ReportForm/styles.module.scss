@@ -110,5 +110,15 @@
 
 .popover {
   max-width: none;
+  min-width: 14rem;
   padding: 0.5rem;
+}
+
+.locationAnchor {
+  @include defaultTextInput;
+
+  color: $primary-font-color;
+  &:hover {
+    text-decoration: none;
+  }
 }

@@ -18,6 +18,7 @@ const ModalRenderer = memo((props) => {
           <Modal
             backdrop={index === 0}
             centered show={true}
+            enforceFocus={false}
             key={id}
             {...modalProps}
             onHide={() => hideModal(id)}>
