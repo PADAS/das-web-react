@@ -14,7 +14,7 @@ import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { updateTrackState, updateHeatmapSubjects } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
@@ -23,6 +23,7 @@ import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
+import MapLockControl from '../MapLockControl'
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -50,6 +51,7 @@ class Map extends Component {
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
+    this.toggleMapLockState = this.toggleMapLockState.bind(this);
   }
 
   cancelToken = CancelToken.source();
@@ -103,6 +105,11 @@ class Map extends Component {
     this.cancelToken = CancelToken.source();
     this.fetchMapData();
   }, 500)
+
+  toggleMapLockState(e) {
+    console.log("Map.toggleLockState");
+    return toggleMapLockState();
+  }
   
   fetchMapData() {
     this.fetchMapSubjects();
@@ -266,6 +273,7 @@ class Map extends Component {
             <RotationControl position='bottom-left' />
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
+            <MapLockControl map={map}/>
             {/* <DrawControl map={map} position='bottom-left' /> */}
             <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
