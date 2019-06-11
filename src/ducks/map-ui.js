@@ -10,6 +10,7 @@ const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
 const INTERACTIVE_MAP = 'INTERACTIVE_MAP';
+const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 
@@ -58,6 +59,12 @@ export const updateHeatmapSubjects = (update) => ({
 
 export const toggleMapLockState = (enabled) => ({
   type: INTERACTIVE_MAP,
+  payload: enabled,
+});
+
+export const displayMapNames = (enabled) => ({
+  type: DISPLAY_SUBJECT_NAMES
+  ,
   payload: enabled,
 });
 
@@ -116,6 +123,12 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
 export const mapLockStateReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === INTERACTIVE_MAP) return payload;
+  return state;
+};
+
+export const displyMapNameReducer = (state = true, action) => {
+  const { type, payload } = action;
+  if (type === DISPLAY_SUBJECT_NAMES) return payload;
   return state;
 };
 
