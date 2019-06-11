@@ -124,3 +124,9 @@
 
   color: $primary-font-color;
 }
+
+.attachmentControls {
+  display: flex;
+  padding: 1rem;
+  justify-content: space-evenly;
+}
