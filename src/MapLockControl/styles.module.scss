@@ -1,10 +1,22 @@
 @import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+
+$feather_dim: 26px;
 
 .maplock {
+  background: url('../common/images/icons/map_unlock.svg') no-repeat;
   position:absolute;
   border-radius: 2px;
   left:10px;
   bottom:32px;
+  height: $feather_dim;
+  width: $feather_dim;
+  &.unlocked {
+    background: url('../common/images/icons/map_unlock.svg') no-repeat;
+  }
+  &.locked {
+    background: url('../common/images/icons/map_lock.svg') no-repeat;
+  }
 
   cursor: pointer;
 }

@@ -7,6 +7,8 @@ import { lockMap } from '../utils/map';
 const MapLockControl = (props) => {
 
   const { mapIsLocked, toggleMapLockState, map } = props;
+  const className = mapIsLocked ? 'map-lock' : 'map-unlock';
+  const hoverText = mapIsLocked ? 'Unlock Map' : 'Lock Map';
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -16,9 +18,9 @@ const MapLockControl = (props) => {
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);
 
-  return  <span className={props.className || ''}>
-            <button title="Lock Map" type="button" className={styles.maplock} 
-              onClick={handleClick}>{mapIsLocked ? 'Unlock Map' : 'Lock Map'}</button>
+  return  <span className={className || ''}>
+            <button title={hoverText} type="button" className={styles.maplock} 
+              onClick={handleClick}></button>
           </span>;
 };
 
