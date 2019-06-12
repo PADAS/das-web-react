@@ -95,7 +95,6 @@ export const calcLayerName = (key, name) => {
 };
 
 
-
 /* mapbox-gl doesn't parse + store null/undefined values correctly in its symbol layer's geojson properties, so you have to `string.replace` them here when accessing via event handlers.
 unfortunately that means that you can't have the strings "null" or "undefined" set as field values, but that's quite an edge case anyway. hopefully we can remove this code in the future. */
 export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
@@ -122,7 +121,19 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
   };
 };
 
-const getCoordinatesFromClickPoint = ({ lngLat }) => lngLat;
-
 export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
 export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);
+export const lockMap = (map, isLocked) => {
+  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate'];
+  if(isLocked === true) {
+    mapControls.forEach(function(control) {
+      map[control].disable();
+    });
+  } 
+  else {
+    mapControls.forEach(function(control) {
+      map[control].enable();
+    });
+  }
+};
+

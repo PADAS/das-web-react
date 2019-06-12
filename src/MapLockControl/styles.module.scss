@@ -1,0 +1,10 @@
+@import '../common/styles/buttons';
+
+.maplock {
+  position:absolute;
+  border-radius: 2px;
+  left:10px;
+  bottom:32px;
+
+  cursor: pointer;
+}
