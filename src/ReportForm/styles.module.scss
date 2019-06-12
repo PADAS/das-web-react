@@ -131,14 +131,15 @@
 
 .attachmentControls {
   display: flex;
-  padding: 1rem;
   justify-content: space-evenly;
+  padding-bottom: 0;
   button {
     align-items: center;
     display: flex;
     justify-content: center;
+    line-height: normal;
     flex-flow: column;
-    height: 5rem;
+    padding: 0.5rem 0.25rem;
     transition: background-color .3s linear;
     width: calc(100%/3);
     &.draggable {
@@ -147,6 +148,9 @@
         background-color: rgba($bright-green, 0.5);
         cursor: copy;
       }
+    }
+    svg {
+      margin-bottom: 0.5rem;
     }
   }
 }

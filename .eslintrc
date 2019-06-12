@@ -5,7 +5,6 @@
   },
   "extends": [
     "react-app",
-    "react-hooks",
     "plugin:react/recommended"
   ],
   "parserOptions": {

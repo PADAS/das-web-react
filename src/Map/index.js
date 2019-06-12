@@ -24,9 +24,8 @@ import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
-import ReportForm from '../ReportForm';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-import MapLockControl from '../MapLockControl'
+import MapLockControl from '../MapLockControl';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -77,7 +76,7 @@ class Map extends Component {
     }
 
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
-     this.createEventImages();
+      this.createEventImages();
     }
     if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
       this.createSubjectImages();
@@ -111,7 +110,7 @@ class Map extends Component {
   }, 500)
 
   toggleMapLockState(e) {
-    console.log("Map.toggleLockState");
+    console.log('Map.toggleLockState');
     return toggleMapLockState();
   }
   
@@ -127,7 +126,7 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
-      this.props.hidePopup(this.props.popup.id)
+      this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
   }
@@ -292,7 +291,7 @@ class Map extends Component {
         )}
 
       </MapboxMap>
-    )
+    );
   }
 }
 

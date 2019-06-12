@@ -7,6 +7,10 @@ import { addModal } from '../ducks/modals';
 
 import NoteModal from '../NoteModal';
 
+import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
+import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
+import { ReactComponent as FieldReportIcon } from '../common/images/icons/field_report.svg';
+
 import styles from './styles.module.scss';
 
 const AttachmentControls = memo((props) => {
@@ -69,16 +73,19 @@ const AttachmentControls = memo((props) => {
       </input>
 
       <button type="button" onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
-        Add Attachment<br />
-        (click or drag here)
+        <AttachmentIcon />
+        <span>Add Attachment</span>
+        <small>(click or drag here)</small>
       </button>
 
       <button type="button" className={styles.addNoteBtn} onClick={startAddNote}>
-        Add Note
+        <NoteIcon />
+        <span>Add Note</span>
       </button>
 
       <button type="button" className={styles.addReportBtn} onClick={onClickAddReport}>
-        Add Report
+        <FieldReportIcon />
+        <span>Add Report</span>
       </button>
 
     </div>
@@ -90,7 +97,7 @@ const AttachmentControls = memo((props) => {
 export default connect(null, { addModal })(AttachmentControls);
 
 AttachmentControls.defaultProps = {
-  allowMultipleFiles: false,
+  allowMultipleFiles: true,
 };
 
 AttachmentControls.propTypes = {
