@@ -11,7 +11,7 @@ const AttachmentList = (props) => {
     <ul className={styles.attachmentList}>
       {files.map(file =>
         <li key={file.id || file.name}>
-          <a href="#" onClick={() => onClickFile(file)}>{file.name || file.filename}</a>
+          <a href={file.id ? '#' : null} onClick={() => file.id ? onClickFile(file) : null}>{file.name || file.filename}</a>
           <button type="button" onClick={() => onDeleteFile(file)} className={styles.x}>X</button>
         </li>
       )}
