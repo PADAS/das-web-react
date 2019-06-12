@@ -9,20 +9,22 @@ import { removeModal } from '../ducks/modals';
 const { Header, Title, Body, Footer } = Modal;
 
 const NoteModal = memo((props) => {
-  const { note, id, removeModal } = props;
+  const { note, id, removeModal, onSubmit } = props;
   return <Fragment>
     <Header>
       <Title>{note.id ? 'Edit Note' : 'Add Note'}</Title>
     </Header>
     <Body>
-      <textarea>
-        
-      </textarea>
-    
+      <Form onSubmit={onSubmit}>
+        <textarea>
+  
+        </textarea>
+      </Form>
+
     </Body>
     <Footer>
-      <Button>Cancel</Button>
-      <Button>Save</Button>
+      <Button variant="secondary" onClick={() => removeModal(id)}>Cancel</Button>
+      <Button type="submit" variant="primary">Save</Button>
     </Footer>
   </Fragment>
 });

@@ -6,7 +6,7 @@ import { convertFileListToArray } from '../utils/file';
 import styles from './styles.module.scss';
 
 const AttachmentControls = memo((props) => {
-  const { allowMultipleFiles, onAddFiles, onNoteAdded, onClickAddReport } = props;
+  const { allowMultipleFiles, onAddFiles, onSaveNote, onClickAddReport } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
