@@ -119,10 +119,6 @@ const generateSchemaAndUiSchemaForSelect = (key) => {
   }
 };
 
-const generateSchemaAndUiSchemaForArray = (definition) => {
-  console.log('definition', definition);
-};
-
 export const unwrapEventDetailSelectValues = (data) => {
   const itemHasNameAndValue = item => item && item.name && item.value;
 

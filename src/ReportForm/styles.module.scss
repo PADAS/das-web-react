@@ -130,3 +130,40 @@
   padding: 1rem;
   justify-content: space-evenly;
 }
+
+.fileUpload {
+  display: none;
+}
+
+.ellipseText {
+  text-overflow: ellipsis;
+}
+
+.attachmentList {
+  display: flex;
+  flex-flow: column;
+}
+
+.attachmentControls {
+  border: 1px solid $light-gray-border;
+  display: flex;
+  margin-left: -1rem;
+  padding: 1rem;
+  width: calc(100% + 2rem);
+  button {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex-flow: column;
+    height: 5rem;
+    transition: background-color .3s linear;
+    width: calc(100%/3);
+    &.draggable {
+      border: .1rem dashed gray;
+      &.draggingOver {
+        background-color: rgba($bright-green, 0.5);
+        cursor: copy;
+      }
+    }
+  }
+}

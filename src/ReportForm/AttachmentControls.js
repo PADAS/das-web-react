@@ -1,20 +1,26 @@
 import React, { memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
+import { convertFileListToArray } from '../utils/file';
+
 import styles from './styles.module.scss';
 
 const AttachmentControls = memo((props) => {
-  const { onFilesAdded, onNoteAdded, onClickAddReport } = props;
+  const { allowMultipleFiles, onAddFiles, onNoteAdded, onClickAddReport } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
 
-  const onFileDragOver = () => {
+  const onFileDragOver = (e) => {
+    e.preventDefault();
     setFileDragState(true);
+    return false;
   };
 
-  const onFileDragLeave = () => {
+  const onFileDragLeave = (e) => {
+    e.preventDefault();
     setFileDragState(false);
+    return false;
   };
 
   const openFileDialog = () => {
@@ -23,8 +29,18 @@ const AttachmentControls = memo((props) => {
 
   const onFileDrop = (event) => {
     event.preventDefault();
-    // const { dataTransfer: { files }, preventDefault } = event;
-    onFilesAdded(event);
+    const { dataTransfer: { files } } = event;
+
+    setFileDragState(false);
+
+    onAddFiles(convertFileListToArray(files));
+  };
+
+  const onFileAddFromDialog = (event) => {
+    event.preventDefault();
+
+    const { files } = fileInputRef.current;
+    onAddFiles(convertFileListToArray(files));
   };
 
   const startAddNote = () => {
@@ -33,10 +49,17 @@ const AttachmentControls = memo((props) => {
 
   return (
     <div className={styles.attachmentControls}>
-      <input ref={fileInputRef} type="file" className={styles.fileUpload} style={{ display: none }} onChange={onFilesAdded}></input>
+      <input
+        accept='image/*, .doc, .docx, .xml, .xlsx, .csv, .pdf, text/plain, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ref={fileInputRef} type='file'
+        multiple={allowMultipleFiles}
+        className={styles.fileUpload}
+        onChange={onFileAddFromDialog}>
+      </input>
 
-      <button onClick={openFileDialog} onDrop={onFileDrop} className={draggingFiles ? styles.draggingOver : ''} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
-        Add Attachment(s)
+      <button onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
+        Add Attachment<br />
+        (click or drag here)
       </button>
 
       <button className={styles.addNoteBtn} onClick={startAddNote}>
@@ -54,19 +77,12 @@ const AttachmentControls = memo((props) => {
 export default AttachmentControls;
 
 AttachmentControls.defaultProps = {
-  onFilesAdded(event) {
-    console.log('files added', event);
-  },
-  onNoteAdded(note) {
-    console.log('note added', note);
-  },
-  onClickAddReport(event) {
-    console.log('start to add a report eh', event);
-  },
+  allowMultipleFiles: false,
 };
 
 AttachmentControls.propTypes = {
-  onFilesAdded: PropTypes.func,
-  onNoteAdded: PropTypes.func,
-  onClickAddReport: PropTypes.func,
+  allowMultipleFiles: PropTypes.bool,
+  onAddFiles: PropTypes.func.isRequired,
+  onSaveNote: PropTypes.func.isRequired,
+  onClickAddReport: PropTypes.func.isRequired,
 }

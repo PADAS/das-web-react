@@ -24,7 +24,6 @@ const GpsInput = memo((props) => {
   const [valid, setValidationState] = useState(true);
 
   const handleValidationError = (e) => {
-    console.log('error with GPS input', e);
     setValidationState(false);
   };
 

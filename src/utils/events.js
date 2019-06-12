@@ -7,7 +7,7 @@ import isEqual from 'react-fast-compare';
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { addModal } from '../ducks/modals';
 
-import { generateMonthsAgoDate } from '../utils/datetime';
+import { generateMonthsAgoDate } from './datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
 
 import ReportForm from '../ReportForm';

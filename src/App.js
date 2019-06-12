@@ -54,17 +54,19 @@ const setZendeskInterval = () => {
 
 let mapResized = false;
 
-  // use this block to do direct map event binding.
-  // useful for API gaps between react-mapbox-gl and mapbox-gl.
-  // also useful for presentation manipulations which would consume unnecessary resources when manipulated through state via redux etc.
-  const bindDirectMapEventing = (map) => {
-    setDirectMapBindingsForFeatureHighlightStates(map);
-  };
+// use this block to do direct map event binding.
+// useful for API gaps between react-mapbox-gl and mapbox-gl.
+// also useful for presentation manipulations which would consume unnecessary resources when manipulated through state via redux etc.
+const bindDirectMapEventing = (map) => {
+  setDirectMapBindingsForFeatureHighlightStates(map);
+};
 
 
 const App = memo((props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
+
+  const [isDragging, setDragState] = useState(false);
 
   const onMapHasLoaded = (map) => {
     setMap(map);
@@ -73,6 +75,14 @@ const App = memo((props) => {
     bindDirectMapEventing(map);
   };
 
+  const disallowDragAndDrop = (e) => {
+    setDragState(true);
+    e.preventDefault();
+  };
+
+  const finishDrag = () => {
+    setDragState(false);
+  };
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
@@ -112,7 +122,7 @@ const App = memo((props) => {
 
 
   return (
-    <div className="App">
+    <div className={`App ${isDragging ? 'dragging' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}>
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} />

@@ -43,6 +43,10 @@ body { // disallow overscroll on iOS
   overflow: hidden;
 }
 
+.App.dragging {
+  cursor: no-drop;
+}
+
 #reportTypeIconSprite {
   display: none;
 }
