@@ -106,7 +106,12 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
     if (value === 'null') accumulator[key] = null;
     if (value === 'undefined') accumulator[key] = undefined;
     if (valueIsJson(value)) {
-      accumulator[key] = cleanUpBadlyStoredValuesFromMapSymbolLayer(JSON.parse(value));
+      const newValue = JSON.parse(value);
+      if (Array.isArray(newValue)) {
+        accumulator[key] = newValue;
+      } else {
+        accumulator[key] = cleanUpBadlyStoredValuesFromMapSymbolLayer(newValue);
+      }
     }
 
     return accumulator;

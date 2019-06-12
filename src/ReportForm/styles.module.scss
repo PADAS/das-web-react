@@ -56,14 +56,18 @@
   
 }
 
-.formButtons {
+.bottomControls {
   background: $light-gray-background;
   box-shadow: 0 0 2px rgba(0, 0, 0, .65);
   bottom: 0;
-  margin-left: -1rem;
-  padding: 1rem;
+  left: 0;
   position: absolute;
   width: 100%;
+  z-index: 2;
+}
+
+.formButtons, .attachmentControls {
+  padding: 1rem;
 }
 
 .formHeader {
@@ -129,27 +133,6 @@
   display: flex;
   padding: 1rem;
   justify-content: space-evenly;
-}
-
-.fileUpload {
-  display: none;
-}
-
-.ellipseText {
-  text-overflow: ellipsis;
-}
-
-.attachmentList {
-  display: flex;
-  flex-flow: column;
-}
-
-.attachmentControls {
-  border: 1px solid $light-gray-border;
-  display: flex;
-  margin-left: -1rem;
-  padding: 1rem;
-  width: calc(100% + 2rem);
   button {
     align-items: center;
     display: flex;
@@ -164,6 +147,38 @@
         background-color: rgba($bright-green, 0.5);
         cursor: copy;
       }
+    }
+  }
+}
+
+.fileUpload {
+  display: none;
+}
+
+.ellipseText {
+  text-overflow: ellipsis;
+}
+
+
+.attachmentList {
+  margin-left: -1rem;
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 0;
+  width: calc(100% + 2rem);
+  li {
+    align-items: center;
+    border-top: 1px solid $light-gray-border;
+    border-bottom: 1px solid $light-gray-border;
+    display: flex;
+    padding: 0.5rem 1rem;
+    button {
+      background: none;
+      border: none;
+      margin-left: auto;
+    }
+    + li {
+      border-top: none;
     }
   }
 }

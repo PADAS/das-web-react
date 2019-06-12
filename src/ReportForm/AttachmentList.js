@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
 
-const AttachmentList = memo((props) => {
+const AttachmentList = (props) => {
   const { files, notes, onDeleteFile, onDeleteNote, onClickFile, onClickNote } = props;
   const hasItems = !!(files.length || notes.length);
 
@@ -22,7 +22,7 @@ const AttachmentList = memo((props) => {
         </li>
       )}
     </ul>;
-});
+};
 
 AttachmentList.propTypes = {
   files: PropTypes.array.isRequired,

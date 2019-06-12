@@ -1,12 +1,16 @@
 import React, { memo, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { convertFileListToArray } from '../utils/file';
+import { addModal } from '../ducks/modals';
+
+import NoteModal from '../NoteModal';
 
 import styles from './styles.module.scss';
 
 const AttachmentControls = memo((props) => {
-  const { allowMultipleFiles, onAddFiles, onSaveNote, onClickAddReport } = props;
+  const { addModal, allowMultipleFiles, onAddFiles, onSaveNote, onClickAddReport } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
@@ -23,7 +27,8 @@ const AttachmentControls = memo((props) => {
     return false;
   };
 
-  const openFileDialog = () => {
+  const openFileDialog = (e) => {
+    e.preventDefault();
     fileInputRef.current.click();
   };
 
@@ -44,7 +49,13 @@ const AttachmentControls = memo((props) => {
   };
 
   const startAddNote = () => {
-    console.log('ima add a note dawg');
+    addModal({
+      content: NoteModal,
+      note: {
+        text: '',
+      },
+      onSubmit: onSaveNote,
+    });
   };
 
   return (
@@ -57,16 +68,16 @@ const AttachmentControls = memo((props) => {
         onChange={onFileAddFromDialog}>
       </input>
 
-      <button onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
+      <button type="button" onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
         Add Attachment<br />
         (click or drag here)
       </button>
 
-      <button className={styles.addNoteBtn} onClick={startAddNote}>
+      <button type="button" className={styles.addNoteBtn} onClick={startAddNote}>
         Add Note
       </button>
 
-      <button className={styles.addReportBtn} onClick={onClickAddReport}>
+      <button type="button" className={styles.addReportBtn} onClick={onClickAddReport}>
         Add Report
       </button>
 
@@ -74,7 +85,9 @@ const AttachmentControls = memo((props) => {
   )
 });
 
-export default AttachmentControls;
+
+
+export default connect(null, { addModal })(AttachmentControls);
 
 AttachmentControls.defaultProps = {
   allowMultipleFiles: false,

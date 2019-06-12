@@ -127,8 +127,6 @@ class Map extends Component {
 
   onEventSymbolClick({ properties }) {
     const { map } = this.props;
-
-    console.log('my map', map);
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
     openModalForEvent(event, map);
