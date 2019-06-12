@@ -11,13 +11,13 @@ const AttachmentList = (props) => {
     <ul className={styles.attachmentList}>
       {files.map(file =>
         <li key={file.id || file.name}>
-          <a href={file.id ? '#' : null} onClick={() => file.id ? onClickFile(file) : null}>{file.name || file.filename}</a>
+          <button type="button" onClick={() => file.id ? onClickFile(file) : null}>{file.name || file.filename}</button>
           <button type="button" onClick={() => onDeleteFile(file)} className={styles.x}>X</button>
         </li>
       )}
       {notes.map(note =>
         <li key={note.id || note.text}>
-          <a className={styles.ellipseText} href="#" onClick={() => onClickNote(note)}>{note.text}</a>
+          <button type="button" className={styles.ellipseText} href="#" onClick={() => onClickNote(note)}>{note.text}</button>
           <button type="button" onClick={() => onDeleteNote(note)} className={styles.x}>X</button>
         </li>
       )}
@@ -33,4 +33,4 @@ AttachmentList.propTypes = {
   onDeleteNote: PropTypes.func.isRequired,
 };
 
-export default AttachmentList;
+export default memo(AttachmentList);

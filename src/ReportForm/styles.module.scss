@@ -179,6 +179,11 @@
     button {
       background: none;
       border: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    .x {
       margin-left: auto;
     }
     + li {

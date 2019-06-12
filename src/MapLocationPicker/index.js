@@ -13,7 +13,7 @@ const unbindExternal = (map, eventType, func) => {
 };
 
 const MapLocationPicker = memo((props) => {
-  const { label, map, onLocationSelectStart, onLocationSelect, ...rest } = props;
+  const { label, map, onLocationSelectStart, onLocationSelect } = props;
 
   const clickFunc = useRef(null);
 
@@ -41,7 +41,7 @@ const MapLocationPicker = memo((props) => {
     clickFunc.current = bindExternal(map, 'click', onSelect);
   };
 
-  return <a href="#" onClick={onSelectStart}><span className={styles.icon}></span>{label}</a>
+  return <a href="#" onClick={onSelectStart}><span className={styles.icon}></span>{label}</a>;
 });
 
 export default MapLocationPicker;
@@ -51,11 +51,11 @@ MapLocationPicker.defaultProps = {
 
   },
   label: 'Choose on map',
-}
+};
 
 MapLocationPicker.propTypes = {
   onLocationSelectStart: PropTypes.func,
   onLocationSelect: PropTypes.func.isRequired,
   map: PropTypes.object.isRequired,
   label: PropTypes.string,
-}
+};
