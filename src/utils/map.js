@@ -93,7 +93,7 @@ export const calcLayerName = (key, name) => {
 };
 
 export const lockMap = (map, isLocked) => {
-  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate'];
+  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate'];
   if(isLocked === true) {
     mapControls.forEach(function(control) {
       map[control].disable();

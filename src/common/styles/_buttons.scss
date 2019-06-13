@@ -1,5 +1,30 @@
+%button_styles {
+  border: none;
+  cursor: pointer;
+  height: 2rem;
+  mask-size: cover;
+  mask-repeat: no-repeat;
+  outline: none;
+  width: 2rem;
+}
+
 @mixin unstyledButton {
   background: none;
   border: none;
   outline: none;
+}
+
+@mixin image_button($icon_name: 'gear', $color: darken(gray, 15%)) {
+  @extend %button_styles;
+  background-color: $color;
+  mask-image: url('../../../images/icons/#{$icon_name}.svg');
+  &:hover {
+    background-color: darken($color, 30%);
+  }
+  &[class*='highlight'] {
+    background-color: $highlight-color;
+    &:hover {
+      background-color: darken($highlight-color, 10%);
+    }
+  }
 }

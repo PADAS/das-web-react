@@ -11,8 +11,8 @@ $feather_dim: 26px;
   bottom:32px;
   height: $feather_dim;
   width: $feather_dim;
-  &.unlocked {
-    background: url('../common/images/icons/map_unlock.svg') no-repeat;
+  &.locked {
+    background: url('../common/images/icons/map_lock.svg') no-repeat;
   }
   &.locked {
     background: url('../common/images/icons/map_lock.svg') no-repeat;
