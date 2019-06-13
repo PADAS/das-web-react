@@ -19,3 +19,10 @@ export const convertFileListToArray = (list) => {
   }
   return array;
 };
+
+export const downloadFileFromUrl = (url, filename) => {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+};

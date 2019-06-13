@@ -13,7 +13,7 @@ import { ReactComponent as FieldReportIcon } from '../common/images/icons/field_
 
 import styles from './styles.module.scss';
 
-const AttachmentControls = memo((props) => {
+const AttachmentControls = (props) => {
   const { addModal, allowMultipleFiles, onAddFiles, onSaveNote, onClickAddReport } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
@@ -89,12 +89,12 @@ const AttachmentControls = memo((props) => {
       </button>
 
     </div>
-  )
-});
+  );
+};
 
 
 
-export default connect(null, { addModal })(AttachmentControls);
+export default connect(null, { addModal })(memo(AttachmentControls));
 
 AttachmentControls.defaultProps = {
   allowMultipleFiles: true,
@@ -105,4 +105,4 @@ AttachmentControls.propTypes = {
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
   onClickAddReport: PropTypes.func.isRequired,
-}
+};

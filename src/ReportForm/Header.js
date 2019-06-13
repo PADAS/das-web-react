@@ -19,36 +19,35 @@ const calcClassNameForPriority = (priority) => {
   return 'noPriority';
 };
 
-const ReportFormHeader = memo((props) => {
+const ReportFormHeader = (props) => {
   const { report, eventTypes, onReportTitleChange, onPrioritySelect } = props;
   const reportTitle = displayTitleForEventByEventType(report, eventTypes);
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
   const ReportHeaderPopover = <Popover className={styles.popover}>
-  <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
-</Popover>;
+    <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
+  </Popover>;
 
-  
+
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
     <h4>
       <EventIcon className={styles.icon} iconId={report.icon_id} />
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
+      <OverlayTrigger onExiting={() => setHeaderPopoverState(false)} placement='bottom-start' rootClose trigger='click' overlay={ReportHeaderPopover}>
+        <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
+      </OverlayTrigger>
     </h4>
-    <OverlayTrigger onExiting={() => setHeaderPopoverState(false)} placement='bottom-start' rootClose trigger='click' overlay={ReportHeaderPopover}>
-      <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
-    </OverlayTrigger>
-
-  </div>
-});
+  </div>;
+};
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 
-export default connect(mapStateToProps, null)(ReportFormHeader);
+export default connect(mapStateToProps, null)(memo(ReportFormHeader));
 
 ReportFormHeader.propTypes = {
   report: PropTypes.object.isRequired,
   onReportTitleChange: PropTypes.func.isRequired,
   onPrioritySelect: PropTypes.func.isRequired,
-}
+};

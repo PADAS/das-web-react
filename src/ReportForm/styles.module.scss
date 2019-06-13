@@ -1,3 +1,4 @@
+@import '../common/styles/buttons';
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
 
@@ -79,6 +80,7 @@
   h4 {
     align-items: center;
     display: flex;
+    width: 100%;
     > span, > form {
       margin-left: 0.5rem;
     }
@@ -105,10 +107,17 @@
   input {
     background: rgba(255, 255, 255, 0.1);
     color: white;
-    max-width: 14rem;
+    max-width: unset;
+  }
+  [class*=editable] {
+    margin-right: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   button {
     font-family: 'Roboto', sans-serif;
+    margin-left: auto;
   }
 }
 
@@ -130,22 +139,34 @@
 }
 
 .attachmentControls {
+  background: white;
   display: flex;
   justify-content: space-evenly;
-  padding-bottom: 0;
+  padding: 0;
   button {
     align-items: center;
+    background: white;
+    border: none;
+    color: $primary-font-color;
     display: flex;
     justify-content: center;
     line-height: normal;
     flex-flow: column;
-    padding: 0.5rem 0.25rem;
-    transition: background-color .3s linear;
+    padding: 1rem 0.5rem;
+    transition: all .1s linear;
     width: calc(100%/3);
+    &:hover {
+      background: darken(white, 3%);
+      color: darken($primary-font-color, 4%);
+    }
+    &:active {
+      background: darken(white, 6%);
+      color: darken($primary-font-color, 8%);
+    }
     &.draggable {
-      border: .1rem dashed gray;
       &.draggingOver {
         background-color: rgba($bright-green, 0.5);
+        border: .1rem dashed $light-gray-border;
         cursor: copy;
       }
     }
@@ -176,9 +197,20 @@
     border-bottom: 1px solid $light-gray-border;
     display: flex;
     padding: 0.5rem 1rem;
+    h6 {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    time {
+      color: $light-font-color;
+      margin-left: 0.5rem;
+      font-size: 0.8rem;
+    }
     button {
-      background: none;
-      border: none;
+      @include unstyledButton;
+      padding: 0;
       &:hover {
         text-decoration: underline;
       }
@@ -188,6 +220,10 @@
     }
     + li {
       border-top: none;
+    }
+    svg {
+      margin-right: 1rem;
+      max-width: 1rem;
     }
   }
 }

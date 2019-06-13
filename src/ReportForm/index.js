@@ -2,27 +2,27 @@ import React, { memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
-import Form from "react-jsonschema-form";
-import intersectionBy from 'lodash/intersectionBy';
+import Form from 'react-jsonschema-form';
 
-import { uploadFiles } from '../utils/file';
+import { uploadFiles, downloadFileFromUrl } from '../utils/file';
 
 import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
 
 import { getReportFormSchemaData } from '../selectors';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
-import { setModalVisibilityState, addModal } from '../ducks/modals';
+import { addModal } from '../ducks/modals';
 
 import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
 import ReportFormAttachmentList from './AttachmentList';
 import ReportFormHeader from './Header';
 import NoteModal from '../NoteModal';
+import ImageModal from '../ImageModal';
 
 import styles from './styles.module.scss';
 
 const ReportForm = memo((props) => {
-  const { map, report: originalReport, onSubmit, schema, uiSchema, setModalVisibilityState, addModal } = props;
+  const { map, report: originalReport, onSubmit, schema, uiSchema, addModal } = props;
   const additionalMetaSchemas = [draft4JsonSchema];
 
   const formRef = useRef(null);
@@ -33,7 +33,6 @@ const ReportForm = memo((props) => {
   const [filesToDelete, updateFilesToDelete] = useState([]);
 
   const [notesToAdd, updateNotesToAdd] = useState([]);
-  const [notesToUpdate, updateNotesToUpdate] = useState([]);
   const [notesToDelete, updateNotesToDelete] = useState([]);
 
   /* TODO - WHY ARE MAP EVENTS NOT LISTING THIS INFO CORRECTLY?? GEOJSON PARSING BULLSHIT IS LIKELY */
@@ -42,12 +41,17 @@ const ReportForm = memo((props) => {
 
   const { is_collection } = report;
 
+  const goToBottomOfForm = () => {
+    const { formElement } = formRef.current;
+    formElement.scrollTop = formElement.scrollHeight;
+  };
+
   const onAddFiles = files => {
     files.forEach((file) => {
       const { name } = file;
       const filenameExists =
         filesToUpload.some(({ name: n }) => n === name)
-        || reportFiles.some(({ filename: n }) => n === file.name);
+        || reportFiles.some(({ filename: n }) => n === name);
 
       if (filenameExists) {
         window.alert(`Can not add ${name}: 
@@ -56,7 +60,7 @@ const ReportForm = memo((props) => {
         updateFilesToUpload([...filesToUpload, file]);
       }
     });
-
+    goToBottomOfForm();
   };
 
   const onDeleteFile = (file) => {
@@ -67,7 +71,7 @@ const ReportForm = memo((props) => {
     if (fileIsNew) {
       updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
     } else {
-      updateFilesToDelete([...filesToDelete, id])
+      updateFilesToDelete([...filesToDelete, id]);
     }
   };
 
@@ -95,8 +99,12 @@ const ReportForm = memo((props) => {
         updateNotesToAdd([...notesToAdd, note]);
       }
     } else {
-      updateNotesToUpdate([...notesToUpdate, note]);
+      updateStateReport({
+        ...report,
+        notes: report.notes.map(n => n.id === note.id ? note : n),
+      });
     }
+    goToBottomOfForm();
   };
 
   const onDeleteNote = (note) => {
@@ -106,7 +114,7 @@ const ReportForm = memo((props) => {
     if (noteIsNew) {
       updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
     } else {
-      updateNotesToDelete([...notesToDelete, id])
+      updateNotesToDelete([...notesToDelete, id]);
     }
   };
 
@@ -152,6 +160,18 @@ const ReportForm = memo((props) => {
 
   const handleFormSubmit = formData => console.log('formdata', formData);
 
+  const onClickFile = (file) => {
+    if (file.file_type === 'image') {
+      addModal({
+        content: ImageModal,
+        src: file.images.original,
+        title: file.filename,
+      });
+    } else {
+      downloadFileFromUrl(file.url, file.filename);
+    }
+  };
+
   const filesToList = [...filesToUpload, ...reportFiles].filter(({ id }) => !filesToDelete.includes(id));
   const notesToList = [...notesToAdd, ...reportNotes].filter(({ id }) => !notesToDelete.includes(id));
 
@@ -179,7 +199,7 @@ const ReportForm = memo((props) => {
       <ReportFormAttachmentList
         files={filesToList}
         notes={notesToList}
-        onClickFile={file => console.log('clicked file', file)}
+        onClickFile={onClickFile}
         onClickNote={startEditNote}
         onDeleteNote={onDeleteNote}
         onDeleteFile={onDeleteFile} />
@@ -196,9 +216,9 @@ const ReportForm = memo((props) => {
 
 const mapStateToProps = (state, props) => ({
   ...getReportFormSchemaData(state, props),
-})
+});
 
-export default connect(mapStateToProps, { setModalVisibilityState, addModal })(ReportForm);
+export default connect(mapStateToProps, { addModal })(ReportForm);
 
 ReportForm.propTypes = {
   report: PropTypes.object.isRequired,
