@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
-import TimeAgo from 'react-timeago'
+import TimeAgo from 'react-timeago';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 
 import styles from './styles.module.scss';

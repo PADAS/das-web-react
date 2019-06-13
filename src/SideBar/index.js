@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tabs, Tab } from 'react-bootstrap';
 
+import { openModalForEvent } from '../utils/events';
+
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
@@ -11,12 +13,13 @@ import styles from './styles.module.scss';
 import EventFilter from '../EventFilter';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, onHandleClick, fetchEvents, fetchNextEventPage, map } = props;
+  const { events, eventFilter, fetchEvents, fetchNextEventPage, map, onHandleClick } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
 
+  const onScroll = () => fetchNextEventPage(events.next);
 
-  const onScroll = () => fetchNextEventPage(events.next); 
+  const onEventTitleClick = event => openModalForEvent(event, map);
 
   useEffect(() => {
     setEventLoadState(true);
@@ -36,7 +39,9 @@ const SideBar = memo((props) => {
             map={map}
             loading={loadingEvents}
             events={events.results}
-            onScroll={onScroll} />
+            onScroll={onScroll}
+            onTitleClick={onEventTitleClick}
+          />
         </Tab>
         <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">
           <SubjectGroupList map={map} />

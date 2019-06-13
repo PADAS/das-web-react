@@ -80,3 +80,27 @@ export const EVENT_STATE_CHOICES = [
     value: null,
   },
 ];
+
+export const REPORT_PRIORITIES = [
+  {
+    display: 'Red',
+    value: 300,
+  },
+  {
+    display: 'Amber',
+    value: 200,
+  },
+  {
+    display: 'Green',
+    value: 100,
+  },
+  {
+    display: 'None',
+    value: 0,
+  },
+];
+
+export const DATEPICKER_DEFAULT_CONFIG = {
+  disableClock: true,
+  format: 'dd-MM-yyyy HH:mm',
+};

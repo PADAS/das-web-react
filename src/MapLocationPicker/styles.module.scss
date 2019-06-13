@@ -1,0 +1,6 @@
+@import '../common/styles/buttons';
+
+.icon { 
+  @include jumpButton;
+  background: none;
+}

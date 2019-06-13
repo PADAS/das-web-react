@@ -7,6 +7,7 @@ import isEqual from 'react-fast-compare';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
 import { convertTrackLineStringToPoints } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
+import { calcRecentRadiosFromSubjects, getUniqueSubjectGroupSubjects } from '../utils/subjects';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
@@ -22,6 +23,12 @@ const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
+const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
+const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
+const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
+  ? eventSchemas.globalSchema.properties.reported_by.enum_ext
+    .map(({ value }) => value)
+  : [];
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents],
@@ -52,6 +59,16 @@ export const removePersistKey = createSelector(
     delete clone._persist;
     return clone;
   },
+);
+
+export const allSubjects = createSelector(
+  [getSubjectGroups],
+  subjectGroups => getUniqueSubjectGroupSubjects(...subjectGroups),
+);
+
+export const reportedBy = createSelector(
+  [getEventReporters],
+  reporters => reporters,
 );
 
 export const getArrayOfVisibleTracks = createSelector(
@@ -86,6 +103,11 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
       fillFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
     };
   },
+);
+
+export const getReportFormSchemaData = createSelector(
+  [getReportSchemas],
+  ({ schema, uiSchema }) => ({ schema, uiSchema }),
 );
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(
