@@ -217,7 +217,7 @@ const EventFilter = memo((props) => {
   </Popover>;
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <OverlayTrigger rootClose trigger='click' placement='bottom' overlay={FilterPopover}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
       <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
         <FilterIcon />
         <span>Filters</span>
