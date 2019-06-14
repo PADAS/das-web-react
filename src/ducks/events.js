@@ -4,11 +4,25 @@ import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
+import { uploadFiles } from '../utils/file';
 import { eventBelongsToCollection, calcEventFilterForRequest } from '../utils/events';
 
-const EVENT_API_URL = `${API_URL}activity/events/`;
+const EVENTS_API_URL = `${API_URL}activity/events/`;
+const EVENT_API_URL = `${API_URL}activity/event/`;
 
 // actions
+const CREATE_EVENT_START = 'CREATE_EVENT_START';
+const CREATE_EVENT_SUCCESS = 'CREATE_EVENT_SUCCESS';
+const CREATE_EVENT_ERROR = 'CREATE_EVENT_ERROR';
+
+const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
+const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
+const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
+
+const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
+const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
+const UPLOAD_EVENT_FILES_ERROR = 'UPLOAD_EVENT_FILES_ERROR';
+
 export const FETCH_EVENTS_START = 'FETCH_EVENTS_START';
 export const FETCH_EVENTS_SUCCESS = 'FETCH_EVENTS_SUCCESS';
 export const FETCH_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_EVENTS_NEXT_PAGE_SUCCESS';
@@ -26,6 +40,59 @@ export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 let eventFetchCancelToken = CancelToken.source();
 
 // action creators
+export const createEvent = (event) => (dispatch) => {
+  dispatch({
+    type: CREATE_EVENT_START,
+    payload: event,
+  });
+
+  return axios.post(EVENTS_API_URL, event)
+    .then(response => dispatch({
+      type: CREATE_EVENT_SUCCESS,
+      payload: response.data.data,
+    }))
+    .catch(error => dispatch({
+      type: CREATE_EVENT_ERROR,
+      payload: error,
+    }));
+};
+
+export const updateEvent = (event) => (dispatch) => {
+  dispatch({
+    type: UPDATE_EVENT_START,
+    payload: event,
+  });
+
+  return axios.patch(`EVENT_API_URL${event.id}`, event)
+    .then(response => dispatch({
+      type: UPDATE_EVENT_SUCCESS,
+      payload: response.data.data,
+    }))
+    .catch(error => dispatch({
+      type: UPDATE_EVENT_ERROR,
+      payload: error,
+    }));
+};
+
+export const uploadEventFiles = ({ id }, files, progressHandler = (event) => console.log('report file upload update', event)) => (dispatch) => {
+  const uploadUrl = `EVENT_API_URL${id}/files/`;
+
+  dispatch({
+    type: UPLOAD_EVENT_FILES_START,
+    payload: id,
+  });
+
+  return uploadFiles(uploadUrl, files, progressHandler)
+    .then(response => dispatch({
+      type: UPLOAD_EVENT_FILES_SUCCESS,
+      payload: response.data.data,
+    }))
+    .catch(error => dispatch({
+      type: UPLOAD_EVENT_FILES_ERROR,
+      payload: error,
+    }));
+};
+
 export const fetchEvents = (config = {}) => (dispatch) => {
   eventFetchCancelToken.cancel();
   eventFetchCancelToken = CancelToken.source();
@@ -36,9 +103,9 @@ export const fetchEvents = (config = {}) => (dispatch) => {
 
   const eventFilterParamString = calcEventFilterForRequest();
 
-  return axios.get(`${EVENT_API_URL}?${eventFilterParamString}`, {
-      ...config,
-      cancelToken: eventFetchCancelToken.token,
+  return axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
+    ...config,
+    cancelToken: eventFetchCancelToken.token,
   })
     .then(response => dispatch(fetchEventsSuccess(response)))
     .catch(error => dispatch(fetchEventsError(error)));
@@ -61,7 +128,7 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
 
   const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
 
-  const request = axios.get(`${EVENT_API_URL}?${eventFilterParamString}`, {
+  const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
     cancelToken: token,
   });
 
@@ -74,6 +141,8 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
     });
 
 }
+
+
 
 const fetchEventsSuccess = response => ({
   type: FETCH_EVENTS_SUCCESS,

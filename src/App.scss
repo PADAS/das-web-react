@@ -1,6 +1,9 @@
+@import './common/styles/bootstrap-3-legacy-components';
+
 @import './common/styles/vars/colors';
 @import './common/styles/buttons';
 @import './common/styles/layout';
+@import './common/styles/inputs';
 
 *,
 *::before,
@@ -16,14 +19,32 @@
   }
 }
 
+[type=text] {
+  @include defaultTextInput;
+}
+
 ul, ol {
   list-style-type: none;
   padding: 0;
 }
 
+.row {
+  margin: unset;
+}
+
+
+body { // disallow overscroll on iOS
+  overflow: hidden;
+  position: fixed;
+}
+
 .App,
 #root {
   overflow: hidden;
+}
+
+.App.dragging {
+  cursor: no-drop;
 }
 
 #reportTypeIconSprite {
@@ -37,6 +58,25 @@ ul, ol {
 
 .tab-pane {
   min-height: 100%;
+}
+
+.event-form-modal {
+  .modal-dialog {
+    align-items: flex-start;
+    max-height: 90vh;
+    max-width: 38rem;
+    width: 96vw;
+  }
+  .modal-content {
+    max-height: 80vh;
+    padding: 0;
+    > div > *:not(form) {
+      padding: 1rem;
+    }
+    > div > form {
+      padding: 1rem 1rem 11.5rem;
+    }
+  }
 }
 
 .event-filter-details {
@@ -142,9 +182,9 @@ ul, ol {
     background: $dark-gray;
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
-    font-size: .333rem;
+    font-size: .75rem;
     height: 3rem;
-    left: -1.4rem;
+    left: -1.5rem;
     top: 45%;
     position: absolute;
 
@@ -161,6 +201,10 @@ ul, ol {
       font-weight: bold;
       transform: rotate(180deg);
       transition: transform .2s .3s ease-in-out;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      font-size: 0.5rem;
     }
   }
 
@@ -239,4 +283,8 @@ div.mapboxgl-popup-tip {
     left: 1rem;
     top: 1rem;
   }
+}
+
+.modal-open .modal {
+  overflow: hidden;
 }

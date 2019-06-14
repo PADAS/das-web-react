@@ -6,7 +6,7 @@ import { CancelToken } from 'axios';
 
 
 import { API_URL } from '../constants';
-import { hideModal } from '../ducks/modals';
+import { removeModal } from '../ducks/modals';
 import { downloadFileFromUrl } from '../utils/download';
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -14,7 +14,7 @@ import LoadingOverlay from '../LoadingOverlay';
 const { Header, Title, Body, Footer } = Modal;
 
 
-const DataExportModal = memo(({ id, title, hideModal, params = {}, url, children }) => {
+const DataExportModal = memo(({ id, title, removeModal, params = {}, url, children }) => {
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
   
@@ -35,7 +35,7 @@ const DataExportModal = memo(({ id, title, hideModal, params = {}, url, children
         setDownloadState(false);
       })
       .then(() => {
-        hideModal(id);
+        removeModal(id);
       });
   };
 
@@ -57,7 +57,7 @@ const DataExportModal = memo(({ id, title, hideModal, params = {}, url, children
         </Body>
       }
       <Footer>
-        <Button variant="secondary" onClick={() => hideModal(id)}>Cancel</Button>
+        <Button variant="secondary" onClick={() => removeModal(id)}>Cancel</Button>
         <Button type="submit" variant="primary">Export</Button>
       </Footer>
     </Form>
@@ -70,11 +70,11 @@ DataExportModal.defaultProps = {
 
 DataExportModal.propTypes = {
   id: PropTypes.string.isRequired,
-  hideModal: PropTypes.func.isRequired,
+  removeModal: PropTypes.func.isRequired,
   url: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   params: PropTypes.object,
 };
 
 
-export default connect(null, { hideModal })(DataExportModal);
+export default connect(null, { removeModal })(DataExportModal);

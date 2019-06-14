@@ -4,8 +4,7 @@ import { differenceInSeconds } from 'date-fns';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
-const RECENT_RADIO_DECAY_THRESHOLD = 30 * 60; // 30 minutes
-const NUMBER_OF_RECENT_RADIOS_TO_DISPLAY = 5;
+const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
 
 export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
@@ -26,14 +25,18 @@ const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   return -1;
 };
 
-export const calcRecentRadiosFromSubjects = (...subjects) => subjects
-.filter(subjectIsARadio)
-.filter((subject) => {
-  const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(subject);
-  return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
-})
-.sort((a, b) => calcElapsedTimeSinceSubjectRadioActivity(a) - calcElapsedTimeSinceSubjectRadioActivity(b))
-.splice(0, NUMBER_OF_RECENT_RADIOS_TO_DISPLAY);
+export const calcRecentRadiosFromSubjects = (...subjects) => {
+  const recentRadios = subjects
+    .filter(subjectIsARadio)
+    .filter((subject) => {
+      const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(subject);
+
+      return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+    })
+    .sort((a, b) => calcElapsedTimeSinceSubjectRadioActivity(a) - calcElapsedTimeSinceSubjectRadioActivity(b));
+
+  return recentRadios;
+};
 
 export const getSubjectGroupSubjects = (...groups) => groups.reduce((accumulator, group) => {
   if (group.subjects && group.subjects.length) {
@@ -56,17 +59,17 @@ export const canShowTrackForSubject = subject =>
 export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
 
-export const getSubjectLastPositionCoordinates = subject => subject.last_position ? subject.last_position.geometry.coordinates : subject.geometry ?  subject.geometry.coordinates : null;
+export const getSubjectLastPositionCoordinates = subject => subject.last_position ? subject.last_position.geometry.coordinates : subject.geometry ? subject.geometry.coordinates : null;
 
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, update) => ({
-    ...subject,
-    last_position: {
-      ...subject.last_position, ...update, properties: {
-        ...subject.last_position.properties,
-        ...update.properties,
-        radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
-      }
-    },
+  ...subject,
+  last_position: {
+    ...subject.last_position, ...update, properties: {
+      ...subject.last_position.properties,
+      ...update.properties,
+      radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
+    }
+  },
 });
 
 export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroups, update) => {

@@ -11,10 +11,13 @@ import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { openModalForEvent } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
+
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, toggleMapNameState } from '../ducks/map-ui';
+import { addModal } from '../ducks/modals';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
@@ -52,6 +55,7 @@ class Map extends Component {
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
+    this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.toggleMapLockState = this.toggleMapLockState.bind(this);
     this.toggleMapNameState = this.toggleMapNameState.bind(this);
   }
@@ -75,7 +79,7 @@ class Map extends Component {
     }
 
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
-     this.createEventImages();
+      this.createEventImages();
     }
     if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
       this.createSubjectImages();
@@ -109,7 +113,7 @@ class Map extends Component {
   }, 500)
 
   toggleMapLockState(e) {
-    console.log("Map.toggleLockState");
+    console.log('Map.toggleLockState');
     return toggleMapLockState();
   }
 
@@ -130,10 +134,18 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
-      this.props.hidePopup(this.props.popup.id)
+      this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
   }
+
+  onEventSymbolClick({ properties }) {
+    const { map } = this.props;
+    const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
+
+    openModalForEvent(event, map);
+  }
+
   hideUnpinnedTrackLayers(map, event) {
     const { updateTrackState, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
@@ -265,7 +277,7 @@ class Map extends Component {
               <HeatLayer />
             </Fragment>}
 
-            <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={(e) => console.log('event', e)} onClusterClick={this.onClusterClick} />
+            <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
@@ -288,7 +300,7 @@ class Map extends Component {
         )}
 
       </MapboxMap>
-    )
+    );
   }
 }
 
@@ -318,13 +330,14 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   fetchTracks,
   hidePopup,
+  addModal,
   showPopup,
   updateTrackState,
   updateHeatmapSubjects,
 }
 )(debounceRender(Map, 100));
 
-Map.whyDidYouRender = true;
+// Map.whyDidYouRender = true;
 
 // secret code burial ground
 // for future reference and potential experiments

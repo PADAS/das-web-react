@@ -1,12 +1,4 @@
-%button_styles {
-  border: none;
-  cursor: pointer;
-  height: 2rem;
-  mask-size: cover;
-  mask-repeat: no-repeat;
-  outline: none;
-  width: 2rem;
-}
+@import './vars/colors';
 
 @mixin unstyledButton {
   background: none;
@@ -14,17 +6,22 @@
   outline: none;
 }
 
-@mixin image_button($icon_name: 'gear', $color: darken(gray, 15%)) {
-  @extend %button_styles;
-  background-color: $color;
-  mask-image: url('../../../images/icons/#{$icon_name}.svg');
+@mixin imageButton($icon_name: 'gear', $color: darken(gray, 15%)) {
+  background: url('../common/images/icons/#{$icon_name}.svg') no-repeat;
+  background-size: cover;
+  border: none;
+}
+
+@mixin jumpButton {
+  background:  rgba($medium-light-gray, 0.15) url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
+  background-size: 1rem;
+  border: none;
+  border-radius: .25rem;
+  height: 2.5rem;
+  padding: 0;
+  width: 2.5rem;
   &:hover {
-    background-color: darken($color, 30%);
-  }
-  &[class*='highlight'] {
-    background-color: $highlight-color;
-    &:hover {
-      background-color: darken($highlight-color, 10%);
-    }
+    background-color: rgba(darken($medium-light-gray, 15%), 0.18);
   }
 }
+

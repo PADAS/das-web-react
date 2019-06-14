@@ -14,6 +14,7 @@ import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals'
+import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 
 const tokenPersistanceConfig = {
@@ -45,8 +46,9 @@ const userProfilePersistanceConfig = {
 const rootReducer = combineReducers({
   data: combineReducers({
     events: eventsReducer,
-    eventTypes: eventTypesReducer,
     eventFilter: eventFilterReducer,
+    eventSchemas: eventSchemaReducer,
+    eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
     maps: mapsReducer,
     mapEvents: mapEventsReducer,

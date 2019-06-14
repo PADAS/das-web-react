@@ -141,7 +141,7 @@ const EventFilter = memo((props) => {
     <h5 className={styles.filterTitle}>
       State
     <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small>
-      <Button variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
+      <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
     </h5>
   </Toggle>;
 
@@ -161,7 +161,7 @@ const EventFilter = memo((props) => {
       {!dateRangeModified && 'One month ago until now'}
       {dateRangeModified && calcFriendlyDurationString(lower, upper)}
     </small>
-    <Button variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
+    <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
   </h5>;
 
   const ReportTypeTrigger = <h5 className={styles.filterTitle}>
@@ -171,12 +171,12 @@ const EventFilter = memo((props) => {
       {someReportTypesChecked && 'Some visible'}
       {noReportTypesChecked && 'None visible'}
     </small>
-    <Button variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
+    <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
   </h5>;
 
   const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4 className={styles.popoverTitle}>
     Filters
-    <Button style={{ marginLeft: 'auto' }} type='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
+    <Button type="button" style={{ marginLeft: 'auto' }} type='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
   </h4>}>
     <Dropdown className={styles.dropdown}>
       <SelectedState />
@@ -216,7 +216,7 @@ const EventFilter = memo((props) => {
     </Collapsible>
   </Popover>;
 
-  return <form className={styles.form}>
+  return <form className={styles.form} onSubmit={e => e.preventDefault()}>
     <OverlayTrigger rootClose trigger='click' placement='bottom' overlay={FilterPopover}>
       <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
         <FilterIcon />

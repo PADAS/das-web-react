@@ -1,0 +1,229 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+@import '../common/styles/inputs';
+
+// $no-priority, $low-priority, $medium-priority, $high-priority;
+
+.wrapper {
+  position: relative;
+}
+
+
+.form {
+  background: white;
+  max-height: calc(70vh - 10rem);
+  min-height: 6rem;
+  overflow-y: auto;
+  padding-bottom: 5rem;
+  legend {
+    display: none;
+  }
+  [class$='checkbox '] {
+    align-items: center;
+    display: flex;
+    margin-bottom: 0;
+    + [class$='checkbox '] {
+      margin-top: 0.5rem;
+    }
+  }
+  [type=checkbox] {
+    margin-right: 0.5rem;
+  }
+}
+
+.reportControls, .formButtons {
+  align-items: center;
+  display: flex;
+}
+
+.reportControls {
+  background: lighten($light-gray-background, 5%);
+  border-bottom: 1px solid rgba(0, 0, 0, .65);
+  flex-wrap: wrap;
+  padding: 0.5rem !important;
+  > * {
+    padding: 0.5rem;
+    position: relative;
+    width: 50%;
+  }
+  > label {
+    display: flex;
+    flex-flow: column;
+  }
+  [class*=react-datetime-picker__wrapper] {
+    @include defaultTextInput;
+    width: 100%;
+  }
+  
+}
+
+.bottomControls {
+  background: $light-gray-background;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .65);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+}
+
+.formButtons, .attachmentControls {
+  padding: 1rem;
+}
+
+.formHeader {
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  
+  h4 {
+    align-items: center;
+    display: flex;
+    width: 100%;
+    > span, > form {
+      margin-left: 0.5rem;
+    }
+    
+  }
+  .icon {
+    margin-right: 0.5rem;
+    max-height: 2.5rem;
+    max-width: 2.5rem;
+  }
+  
+  &.highPriority {
+    background-color: $high-priority;
+  }
+  &.mediumPriority {
+    background-color: $medium-priority;
+  }
+  &.lowPriority {
+    background-color: $low-priority;
+  }
+  &.noPriority {
+    background-color: $no-priority;
+  }
+  input {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    max-width: unset;
+  }
+  [class*=editable] {
+    margin-right: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  button {
+    font-family: 'Roboto', sans-serif;
+    margin-left: auto;
+  }
+}
+
+
+.popover {
+  max-width: none;
+  min-width: 14rem;
+  padding: 0.5rem;
+}
+
+.gpsPopover {
+  top: 85%;
+}
+
+.locationAnchor {
+  @include defaultTextInput;
+
+  color: $primary-font-color;
+}
+
+.attachmentControls {
+  background: white;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 0;
+  button {
+    align-items: center;
+    background: white;
+    border: none;
+    color: $primary-font-color;
+    display: flex;
+    justify-content: center;
+    line-height: normal;
+    flex-flow: column;
+    padding: 1rem 0.5rem;
+    transition: all .1s linear;
+    width: calc(100%/3);
+    &:hover {
+      background: darken(white, 3%);
+      color: darken($primary-font-color, 4%);
+    }
+    &:active {
+      background: darken(white, 6%);
+      color: darken($primary-font-color, 8%);
+    }
+    &.draggable {
+      &.draggingOver {
+        background-color: rgba($bright-green, 0.5);
+        border: .1rem dashed $light-gray-border;
+        cursor: copy;
+      }
+    }
+    svg {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.fileUpload {
+  display: none;
+}
+
+.ellipseText {
+  text-overflow: ellipsis;
+}
+
+
+.attachmentList {
+  margin-left: -1rem;
+  display: flex;
+  flex-flow: column;
+  margin-bottom: 0;
+  width: calc(100% + 2rem);
+  li {
+    align-items: center;
+    border-top: 1px solid $light-gray-border;
+    border-bottom: 1px solid $light-gray-border;
+    display: flex;
+    padding: 0.5rem 1rem;
+    h6 {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    time {
+      color: $light-font-color;
+      margin-left: 0.5rem;
+      font-size: 0.8rem;
+    }
+    button {
+      @include unstyledButton;
+      padding: 0;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    .x {
+      margin-left: auto;
+    }
+    + li {
+      border-top: none;
+    }
+    svg {
+      margin-right: 1rem;
+      max-width: 1rem;
+    }
+  }
+}
