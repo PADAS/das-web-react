@@ -9,21 +9,28 @@ import MapLocationPicker from '../MapLocationPicker';
 import ReportedBySelect from '../ReportedBySelect';
 
 import { setModalVisibilityState } from '../ducks/modals';
+import {  updateUserPreferences } from '../ducks/user-preferences';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import { calcGpsDisplayString } from '../utils/location';
 
 import styles from './styles.module.scss';
 
 const ReportFormTopLevelControls = memo((props) => {
-  const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState } = props;
+  const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
   
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
+
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
 
   const onLocationSelectFromMapStart = () => {
     setModalVisibilityState(false);
+    updateUserPreferences({ sidebarOpen: false });
+  };
+  
+  const onLocationSelectFromMapCancel = () => {
+    setModalVisibilityState(true);
   };
 
   const onLocationSelectFromMap = (event) => {
@@ -36,11 +43,11 @@ const ReportFormTopLevelControls = memo((props) => {
   return <div className={styles.reportControls}>
     <label>
       Reported by:
-    <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
+      <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
     </label>
     <label>
       Report time:
-    <DateTimePicker
+      <DateTimePicker
         {...DATEPICKER_DEFAULT_CONFIG}
         clearIcon={null}
         required={true}
@@ -50,17 +57,17 @@ const ReportFormTopLevelControls = memo((props) => {
     </label>
     <label ref={gpsInputLabelRef}>
       Location:
-    <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
+      <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
           <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
-          <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelect={onLocationSelectFromMap} />
+          <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
         </Popover>}
       </Overlay>
       <a href="#" onClick={() => setGpsPopoverState(!gpsPopoverOpen)} className={styles.locationAnchor} ref={gpsInputAnchorRef}>
         {reportLocation ? calcGpsDisplayString(reportLocation[1], reportLocation[0], gpsFormat) : 'Click here to set location'}
       </a>
     </label>
-  </div>
+  </div>;
 });
 
 const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }, props) => ({
@@ -68,4 +75,4 @@ const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }, props) =>
 });
 
 
-export default connect(mapStateToProps, { setModalVisibilityState })(ReportFormTopLevelControls);
+export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(ReportFormTopLevelControls);

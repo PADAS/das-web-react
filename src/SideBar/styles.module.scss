@@ -6,11 +6,6 @@
   // border-top: 3px solid $gray-border;
   height: 100%;
   overflow: hidden;
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
   &.mapLayers {
     overflow-y: scroll;
   }
@@ -100,14 +95,6 @@
   }
 }
 
-.collapsed, .opened {
-  width: 100%;
-}
-
-.opened {
-  margin-bottom: 0;
-}
-
 .controls {
   margin: 1rem 0 0 4rem;
   button:not(:last-child) {
@@ -132,4 +119,21 @@
   align-items: center;
   padding-left: 4rem;
   width: 100%;
+}
+
+.addReportContainer {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.6rem;
+  [role=tooltip] {
+    left: -27rem;
+  }
+}
+
+.sidebarOpen {
+  .addReportContainer {
+    [role=tooltip] {
+      left: -1rem;
+    }
+  }
 }

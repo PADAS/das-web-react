@@ -1,6 +1,7 @@
 @import '../common/styles/buttons';
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
+@import '../common/styles/layout';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -11,12 +12,23 @@
 
 .form {
   background: white;
-  max-height: calc(70vh - 10rem);
+  max-height: calc(70vh - 4rem);
   min-height: 6rem;
   overflow-y: auto;
   padding-bottom: 5rem;
+  @media (min-height: $lg-height-min) {
+    max-height: calc(70vh - 10rem);
+  }
   legend {
     display: none;
+  }
+  label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    @media (min-width: $md-layout-width-min) {
+      font-size: 1rem;
+    }
   }
   [class$='checkbox '] {
     align-items: center;
@@ -38,23 +50,44 @@
 
 .reportControls {
   background: lighten($light-gray-background, 5%);
-  border-bottom: 1px solid rgba(0, 0, 0, .65);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.65);
   flex-wrap: wrap;
-  padding: 0.5rem !important;
+  padding: 0 0 0.25rem !important;
+  position: relative;
+  z-index: 4;
+  @media (min-width: $md-layout-width-min) {
+    padding: 0.5rem !important;
+  }
   > * {
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
     position: relative;
     width: 50%;
+    @media (min-width: $md-layout-width-min) {
+      padding: 0.5rem;
+    }
   }
   > label {
     display: flex;
     flex-flow: column;
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    > * {
+      font-weight: initial;
+    }
+    @media (min-width: $md-layout-width-min) {
+      font-size: 1rem;
+    }
   }
   [class*=react-datetime-picker__wrapper] {
     @include defaultTextInput;
     width: 100%;
   }
   
+}
+
+.formButtons {
+  justify-content: space-between;
 }
 
 .bottomControls {
@@ -76,20 +109,28 @@
   display: flex;
   justify-content: space-between;
   padding: 1rem;
+  position: relative;
   
   h4 {
     align-items: center;
     display: flex;
+    font-size: 1rem;
     width: 100%;
     > span, > form {
       margin-left: 0.5rem;
     }
-    
+    @media (min-width: $md-layout-width-min) {
+      font-size: 1.5rem;
+    }
   }
   .icon {
+    --dimensions: 1.5rem;
     margin-right: 0.5rem;
-    max-height: 2.5rem;
-    max-width: 2.5rem;
+    max-height: var(--dimensions);
+    width: var(--dimensions);
+    @media (min-width: $md-layout-width-min) {
+      --dimensions: 2.5rem;
+    }
   }
   
   &.highPriority {
@@ -104,6 +145,10 @@
   &.noPriority {
     background-color: $no-priority;
   }
+  button {
+    font-family: 'Roboto', sans-serif;
+    margin-left: auto;
+  }
   input {
     background: rgba(255, 255, 255, 0.1);
     color: white;
@@ -115,9 +160,19 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  button {
-    font-family: 'Roboto', sans-serif;
-    margin-left: auto;
+  form {
+    flex-wrap: wrap;
+    button {
+      flex: 1;
+      margin-left: 0;
+      @media (min-width: $md-layout-width-min) {
+        flex: initial;
+        margin-left: auto;
+      }
+    }
+    @media (min-width: $md-layout-width-min) {
+      flex-wrap: nowrap;
+    }
   }
 }
 
@@ -139,28 +194,36 @@
 }
 
 .attachmentControls {
-  background: white;
+  $background-color: lighten($light-gray-background, 5%);
+  background: $background-color;
   display: flex;
   justify-content: space-evenly;
   padding: 0;
-  button {
+  > button {
     align-items: center;
-    background: white;
+    background: $background-color;
     border: none;
     color: $primary-font-color;
     display: flex;
+    font-size: 0;
     justify-content: center;
     line-height: normal;
+    flex: 1;
     flex-flow: column;
     padding: 1rem 0.5rem;
     transition: all .1s linear;
-    width: calc(100%/3);
+    @media (min-height: $md-height-min) {
+      font-size: 0.75rem;
+    }
+    @media (min-width: $md-layout-width-min) and (min-height: $lg-height-min) {
+      font-size: 1rem;
+    }
     &:hover {
-      background: darken(white, 3%);
+      background: darken($background-color, 3%);
       color: darken($primary-font-color, 4%);
     }
     &:active {
-      background: darken(white, 6%);
+      background: darken($background-color, 6%);
       color: darken($primary-font-color, 8%);
     }
     &.draggable {
@@ -171,7 +234,27 @@
       }
     }
     svg {
+      height: auto;
+      width: 1.5rem;
       margin-bottom: 0.5rem;
+      @media (min-width: $md-layout-width-min) and (min-height: $lg-height-min) {
+        width: 2rem;
+      }
+    }
+  }
+  [class*=popover] {
+    bottom: 50%;
+    left: 3vw;
+    top: auto;
+    @media (min-width: $md-layout-width-min) {
+      left: 5vw;
+    }
+    @media (min-width: $lg-layout-width-min) and (min-height: $lg-height-min) {
+      left: 20vw;
+    }
+    @media (min-height: $lg-height-min) {
+      bottom: auto;
+      top: -50%;
     }
   }
 }

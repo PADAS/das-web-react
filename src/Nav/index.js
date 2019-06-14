@@ -14,7 +14,7 @@ import SystemStatusComponent from '../SystemStatus';
 
 import './Nav.scss';
 
-const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
   const handleHomeMapSelect = (chosenMap) => {
     const { zoom, center } = chosenMap;
     setHomeMap(chosenMap);
@@ -23,8 +23,8 @@ const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeM
   };
 
   useEffect(() => {
-    map && handleHomeMapSelect(homeMap);
-  }, [map]);
+    map && maps.length && !homeMap.id && handleHomeMapSelect(maps.find(m => m.default) || maps[0]);
+  }, [map, maps]);
 
 
   useEffect(() => {
@@ -43,9 +43,9 @@ const Nav = memo(({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeM
       <div className="alert-menu"></div>
       <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
     </div>
-  </nav>
-});
+  </nav>;
+};
 
 const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) => ({ homeMap, maps, user, userProfiles, selectedUserProfile });
 
-export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(Nav);
+export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(memo(Nav));

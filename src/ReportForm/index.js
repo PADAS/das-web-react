@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
@@ -10,7 +10,7 @@ import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
 
 import { getReportFormSchemaData } from '../selectors';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
-import { addModal } from '../ducks/modals';
+import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 
 import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
@@ -22,7 +22,7 @@ import ImageModal from '../ImageModal';
 import styles from './styles.module.scss';
 
 const ReportForm = memo((props) => {
-  const { map, report: originalReport, onSubmit, schema, uiSchema, addModal } = props;
+  const { id, map, report: originalReport, removeModal, onSubmit, schema, uiSchema, addModal, setModalVisibilityState } = props;
   const additionalMetaSchemas = [draft4JsonSchema];
 
   const formRef = useRef(null);
@@ -35,11 +35,19 @@ const ReportForm = memo((props) => {
   const [notesToAdd, updateNotesToAdd] = useState([]);
   const [notesToDelete, updateNotesToDelete] = useState([]);
 
+  useEffect(() => {
+    return () => {
+      setModalVisibilityState(true);
+    };
+  }, []);
+
   /* TODO - WHY ARE MAP EVENTS NOT LISTING THIS INFO CORRECTLY?? GEOJSON PARSING BULLSHIT IS LIKELY */
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
 
   const { is_collection } = report;
+
+  const onCancel = () => removeModal(id);
 
   const goToBottomOfForm = () => {
     const { formElement } = formRef.current;
@@ -204,9 +212,9 @@ const ReportForm = memo((props) => {
         onDeleteNote={onDeleteNote}
         onDeleteFile={onDeleteFile} />
       <div className={styles.bottomControls}>
-        <ReportFormAttachmentControls onAddFiles={onAddFiles} onSaveNote={onSaveNote} onClickAddReport={onClickAddReport} />
+        <ReportFormAttachmentControls map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onClickAddReport={onClickAddReport} />
         <div className={styles.formButtons}>
-          <Button type="button" variant="secondary">Cancel</Button>
+          <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
           <Button type="submit" variant="primary">Submit</Button>
         </div>
       </div>
@@ -218,8 +226,11 @@ const mapStateToProps = (state, props) => ({
   ...getReportFormSchemaData(state, props),
 });
 
-export default connect(mapStateToProps, { addModal })(ReportForm);
+export default connect(mapStateToProps, { addModal, removeModal, setModalVisibilityState })(ReportForm);
 
 ReportForm.propTypes = {
   report: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
+  map: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func,
 };

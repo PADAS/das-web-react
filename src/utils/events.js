@@ -99,7 +99,7 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   return label;
 };
 
-export const openModalForEvent = async (event, map) => {
+export const openModalForReport = async (event, map, onSubmit) => {
   const { data: { eventSchemas } } = store.getState();
   const { event_type } = event;
 
@@ -112,13 +112,19 @@ export const openModalForEvent = async (event, map) => {
       content: ReportForm,
       report: event,
       map,
+      onSubmit,
       modalProps: {
         className: 'event-form-modal',
       },
     }));
 };
 
-
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority:priority = 0 }) => ({
+  event_type,
+  icon_id,
+  priority,
+  event_details: {},
+});
 
 
 /*
