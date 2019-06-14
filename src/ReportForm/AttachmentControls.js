@@ -6,6 +6,7 @@ import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
 
 import NoteModal from '../NoteModal';
+import AddReport from '../AddReport';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
@@ -14,10 +15,11 @@ import { ReactComponent as FieldReportIcon } from '../common/images/icons/field_
 import styles from './styles.module.scss';
 
 const AttachmentControls = (props) => {
-  const { addModal, allowMultipleFiles, onAddFiles, onSaveNote, onClickAddReport } = props;
+  const { addModal, allowMultipleFiles, map, onAddFiles, onClickAddReport, onSaveNote  } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
+  const attachmentControlsRef = useRef(null);
 
   const onFileDragOver = (e) => {
     e.preventDefault();
@@ -63,7 +65,7 @@ const AttachmentControls = (props) => {
   };
 
   return (
-    <div className={styles.attachmentControls}>
+    <div className={styles.attachmentControls} ref={attachmentControlsRef}>
       <input
         accept='image/*, .doc, .docx, .xml, .xlsx, .csv, .pdf, text/plain, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ref={fileInputRef} type='file'
@@ -83,16 +85,11 @@ const AttachmentControls = (props) => {
         <span>Add Note</span>
       </button>
 
-      <button type="button" className={styles.addReportBtn} onClick={onClickAddReport}>
-        <FieldReportIcon />
-        <span>Add Report</span>
-      </button>
+      <AddReport map={map} container={attachmentControlsRef} placement='right' />
 
     </div>
   );
 };
-
-
 
 export default connect(null, { addModal })(memo(AttachmentControls));
 
@@ -102,6 +99,7 @@ AttachmentControls.defaultProps = {
 
 AttachmentControls.propTypes = {
   allowMultipleFiles: PropTypes.bool,
+  map: PropTypes.object.isRequired,
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
   onClickAddReport: PropTypes.func.isRequired,

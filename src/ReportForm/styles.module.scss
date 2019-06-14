@@ -143,7 +143,7 @@
   display: flex;
   justify-content: space-evenly;
   padding: 0;
-  button {
+  > button {
     align-items: center;
     background: white;
     border: none;
@@ -151,10 +151,10 @@
     display: flex;
     justify-content: center;
     line-height: normal;
+    flex: 1;
     flex-flow: column;
     padding: 1rem 0.5rem;
     transition: all .1s linear;
-    width: calc(100%/3);
     &:hover {
       background: darken(white, 3%);
       color: darken($primary-font-color, 4%);
@@ -173,6 +173,10 @@
     svg {
       margin-bottom: 0.5rem;
     }
+  }
+  [class*=popover] {
+    left: 100%;
+    top: 2.5rem;
   }
 }
 

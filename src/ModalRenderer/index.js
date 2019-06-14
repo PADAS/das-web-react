@@ -7,7 +7,7 @@ import { removeModal } from '../ducks/modals';
 
 import styles from './styles.module.scss';
 
-const ModalRenderer = memo((props) => {
+const ModalRenderer = (props) => {
   const { canShowModals, modals, removeModal } = props;
 
   const style = {
@@ -17,14 +17,14 @@ const ModalRenderer = memo((props) => {
   };
 
   return !!modals.length &&
-    <div>
+    <div className={styles.modalBackdrop}>
       {modals.map((item, index) => {
         const { content: ContentComponent, id, modalProps, ...rest } = item;
         return (!!ContentComponent &&
           <Modal
-            backdrop={index === 0}
+            backdrop={true}
             backdropClassName={canShowModals ? styles.show : styles.hide}
-            centered 
+            centered
             dialogClassName={canShowModals ? styles.show : styles.hide}
             enforceFocus={false}
             key={id}
@@ -37,12 +37,12 @@ const ModalRenderer = memo((props) => {
           </Modal>
         );
       })}
-    </div>
-});
+    </div>;
+};
 
 const mapStateToProps = ({ view: { modals: { modals, canShowModals } } }) => ({ modals, canShowModals });
 
-export default connect(mapStateToProps, { removeModal })(ModalRenderer);
+export default connect(mapStateToProps, { removeModal })(memo(ModalRenderer));
 
 ModalRenderer.propTypes = {
   modals: PropTypes.arrayOf(PropTypes.shape({

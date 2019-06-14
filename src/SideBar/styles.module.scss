@@ -6,11 +6,6 @@
   // border-top: 3px solid $gray-border;
   height: 100%;
   overflow: hidden;
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
   &.mapLayers {
     overflow-y: scroll;
   }
@@ -132,4 +127,11 @@
   align-items: center;
   padding-left: 4rem;
   width: 100%;
+}
+
+.addReportContainer {
+  [class*=popover] {
+    left: -94%;
+    top: 2.5rem;
+  }
 }

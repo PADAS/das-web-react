@@ -1,0 +1,79 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+.addReport {
+  @include unstyledButton;
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  position: relative;
+}
+
+.categoryMenu, .reportTypeMenu {
+  align-items: center;
+  display: flex;
+  line-height: normal;
+  padding: 0.5rem;
+  button {
+    @include unstyledButton;
+    font-weight: bold;
+    padding: 0;
+  }
+}
+
+.activeCategory {
+  text-decoration: underline;
+}
+
+.popover {
+  padding: 0;
+  width: 28rem;
+  max-width: unset;
+  [class*=popover-body] {
+    align-items: center;
+    display: flex;
+    flex-flow: column;
+    max-height: 24rem;
+    overflow-y: auto;
+    padding: 0;
+  }
+}
+
+.categoryMenu {
+  background: $light-gray-background;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  li {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+.reportTypeMenu {
+  flex-wrap: wrap;
+  li {
+    font-size: 0.8rem;
+    height: 7rem;
+    margin-bottom: auto;
+    width: 25%;
+  }
+  button {
+    border: thin solid $light-gray-border;
+    height: 100%;
+    width: 100%;
+    &:hover {
+      text-decoration: underline;
+    }
+    span {
+      align-items: center;
+      display: flex;
+      flex-flow: column;
+      justify-content: center;
+    }
+  }
+  svg {
+    height: 1.25rem;
+    margin-bottom: .25rem;
+    width: 1.25rem;
+  }
+}

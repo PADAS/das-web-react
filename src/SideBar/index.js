@@ -1,25 +1,28 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tabs, Tab } from 'react-bootstrap';
 
-import { openModalForEvent } from '../utils/events';
+import { openModalForReport } from '../utils/events';
 
 import { fetchEvents, fetchNextEventPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
-import styles from './styles.module.scss';
+import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
+
+import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, fetchEvents, fetchNextEventPage, map, onHandleClick } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
+  const addReportContainerRef = useRef(null);
 
   const onScroll = () => fetchNextEventPage(events.next);
 
-  const onEventTitleClick = event => openModalForEvent(event, map);
+  const onEventTitleClick = event => openModalForReport(event, map);
 
   useEffect(() => {
     setEventLoadState(true);
@@ -33,6 +36,9 @@ const SideBar = memo((props) => {
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
         <Tab className={styles.tab} eventKey="reports" title="Reports">
+          <div ref={addReportContainerRef} className={styles.addReportContainer}>
+            <AddReport map={map} container={addReportContainerRef} />
+          </div>
           <EventFilter />
           <EventFeed
             hasMore={!!events.next}
