@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const spriteMappings = {
   events: {
     id: 'reportTypeIconSprite',
-    prefix: 'das--das--activity--static--sprite-src--',
+    prefix: 'das--activity--static--sprite-src--',
   },
 };
 
