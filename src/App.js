@@ -4,7 +4,7 @@ import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 
-import 'axios-progress-bar/dist/nprogress.css'
+import 'axios-progress-bar/dist/nprogress.css';
 
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
@@ -50,7 +50,7 @@ const setZendeskInterval = () => {
       });
     }
   }, 100);
-}
+};
 
 let mapResized = false;
 
@@ -70,7 +70,6 @@ const App = memo((props) => {
 
   const onMapHasLoaded = (map) => {
     setMap(map);
-    // window.map = map;
     fetchFeaturesets();
     bindDirectMapEventing(map);
   };
@@ -86,7 +85,6 @@ const App = memo((props) => {
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    resizeInterval(map);
   };
 
   clearInterval(mapInterval);
@@ -120,9 +118,15 @@ const App = memo((props) => {
     }
   }, [zendeskEnabled]);
 
+  useEffect(() => {
+    if (map) {
+      resizeInterval(map);
+    }
+  }, [sidebarOpen]);
+
 
   return (
-    <div className={`App ${isDragging ? 'dragging' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}>
+    <div className={`App ${isDragging ? 'dragging' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} />
@@ -139,6 +143,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled })
+const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled } }) => ({ sidebarOpen, zendeskEnabled });
 
 export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

@@ -13,32 +13,60 @@ const unbindExternal = (map, eventType, func) => {
 };
 
 const MapLocationPicker = memo((props) => {
-  const { label, map, onLocationSelectStart, onLocationSelect } = props;
+  const { label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart  } = props;
 
   const clickFunc = useRef(null);
+  const keydownFunc = useRef((event) => {
+    const { key } = event;
+    event.preventDefault();
+    event.stopPropagation();
+    unbindMapEvents();
+    onLocationSelectCancel();
+  });
+
+  const bindMapEvents = () => {
+    map.getCanvas().style.cursor = 'crosshair';
+    clickFunc.current = bindExternal(map, 'click', onSelect);
+    document.addEventListener('keydown', keydownFunc.current);
+  };
+
+
+  const unbindMapEvents = () => {
+    map.getCanvas().style.cursor = '';
+    unbindExternal(map, 'click', clickFunc.current);
+    document.removeEventListener('keydown', keydownFunc.current);
+  };
 
   useEffect(() => {
-    return () => {
-      unbindExternal(map, 'click', clickFunc.current);
-      map.getCanvas().style.cursor = '';
-    };
+    return unbindMapEvents;
   }, []);
 
   const onSelect = (e) => {
     const { originalEvent } = e;
+
+    e.preventDefault();
     originalEvent.stopPropagation();
     originalEvent.preventDefault();
 
-    map.getCanvas().style.cursor = '';
+    unbindMapEvents();
+
 
     onLocationSelect(e);
-    unbindExternal(map, 'click', clickFunc.current);
+  };
+
+  const handleKeyDown = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const { key } = event;
+    if (key === 'Escape') {
+      unbindMapEvents();
+      onLocationSelectCancel();
+    }
   };
 
   const onSelectStart = () => {
+    bindMapEvents();
     onLocationSelectStart();
-    map.getCanvas().style.cursor = 'crosshair';
-    clickFunc.current = bindExternal(map, 'click', onSelect);
   };
 
   return <a href="#" onClick={onSelectStart}><span className={styles.icon}></span>{label}</a>;
