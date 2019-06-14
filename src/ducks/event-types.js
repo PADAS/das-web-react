@@ -42,14 +42,14 @@ const fetchEventTypesError = error => ({
 const INITIAL_STATE = [];
 export default function reducer(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
-    case FETCH_EVENT_TYPES_SUCCESS: {
-      return action.payload;
-    }
-    case FETCH_EVENT_TYPES_ERROR: {
-      return [];
-    }
-    default: {
-      return state;
-    }
+  case FETCH_EVENT_TYPES_SUCCESS: {
+    return action.payload;
+  }
+  case FETCH_EVENT_TYPES_ERROR: {
+    return [];
+  }
+  default: {
+    return state;
+  }
   }
 };

@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 
-import { mapReportTypesToCategories, calcIconColorByPriority } from '../utils/event-types';
+import { mapReportTypesToCategories } from '../utils/event-types';
 import CheckableList from '../CheckableList';
-import EventIcon from '../EventIcon';
+import EventTypeListItem from '../EventTypeListItem';
 
 import styles from './styles.module.scss';
 
@@ -26,22 +26,17 @@ const ReportTypeMultiSelect = memo((props) => {
 
   const reportTypeChecked = (type) => selectedReportTypeIDs.includes(type.id);
 
-  const ListItem = memo((props) => {
+  const ListItem = memo((props) => { // eslint-disable-line react/display-name
     const { display, types } = props;
     return <Fragment key={display}>
       <h5>{display}</h5>
       <CheckableList
         items={types}
         onCheckClick={onTypeToggle}
-        itemComponent={memo((type) =>
-          <span className={styles.eventType}>
-            <EventIcon color={calcIconColorByPriority(type.default_priority)} iconId={type.value} />
-            {type.display}
-          </span>)
-        }
+        itemComponent={EventTypeListItem}
         itemFullyChecked={reportTypeChecked}
       />
-    </Fragment>
+    </Fragment>;
   });
 
   return <CheckableList
@@ -51,7 +46,7 @@ const ReportTypeMultiSelect = memo((props) => {
     itemComponent={ListItem}
     itemFullyChecked={categoryFullyChecked}
     itemPartiallyChecked={categoryPartiallyChecked}
-  />
+  />;
 });
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
