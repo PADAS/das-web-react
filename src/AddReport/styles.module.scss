@@ -17,7 +17,6 @@
   button {
     @include unstyledButton;
     font-weight: bold;
-    padding: 0;
   }
 }
 
@@ -46,6 +45,9 @@
   li {
     flex: 1;
     text-align: center;
+  }
+  button {
+    padding: 0;
   }
 }
 
