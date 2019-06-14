@@ -86,7 +86,6 @@ const App = memo((props) => {
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    resizeInterval(map);
   };
 
   clearInterval(mapInterval);
@@ -119,6 +118,12 @@ const App = memo((props) => {
       setZendeskInterval();
     }
   }, [zendeskEnabled]);
+
+  useEffect(() => {
+    if (map) {
+      resizeInterval(map);
+    }
+  }, [sidebarOpen]);
 
 
   return (

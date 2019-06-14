@@ -48,7 +48,7 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement={placement}>
+  const AddReportPopover = <Popover className={styles.popover} placement='auto' title={<h4>Add Report</h4>}>
     {categoryList}
     {reportTypeList}
   </Popover>;
@@ -64,21 +64,16 @@ const AddReport = (props) => {
   </Fragment>;
 };
 
-/*  return <OverlayTrigger onHide={() => setPopoverState(false)} rootClose trigger='click' show={popoverOpen} placement={placement} overlay={AddReportPopover}>
-  </OverlayTrigger>; */
-
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
-  placement: 'left',
   showIcon: true,
   showLabel: true,
 };
 
 AddReport.propTypes = {
   container: PropTypes.object.isRequired,
-  placement: PropTypes.string,
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,

@@ -37,7 +37,7 @@ const SideBar = memo((props) => {
       <Tabs>
         <Tab className={styles.tab} eventKey="reports" title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
-            <AddReport map={map} container={addReportContainerRef} />
+            <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
           <EventFilter />
           <EventFeed

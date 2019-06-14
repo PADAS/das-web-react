@@ -85,7 +85,7 @@ const AttachmentControls = (props) => {
         <span>Add Note</span>
       </button>
 
-      <AddReport map={map} container={attachmentControlsRef} placement='right' />
+      <AddReport map={map} container={attachmentControlsRef} />
 
     </div>
   );

@@ -72,9 +72,11 @@ body {
   }
 
   .modal-content {
-    max-height: 80vh;
+    max-height: 98vh;
     padding: 0;
-
+    @media (min-height: $lg-height-min) {
+      max-height: 80vh;
+    }
     >div>*:not(form) {
       padding: 1rem;
     }
@@ -163,7 +165,7 @@ body {
   transform: translateX(var(--sidebar-width));
   top: 0;
   width: var(--sidebar-width);
-  z-index: 1;
+  z-index: 10;
 
   .nav-tabs,
   .nav-item {
@@ -306,9 +308,11 @@ div.mapboxgl-popup-tip {
   display: none;
 }
 
-.event-form-modal + .modal-backdrop + .event-form-modal .modal-dialog {
-  left: 1rem;
-  top: 1rem;
+@media (min-width: $md-layout-width-min) {
+  .event-form-modal + .modal-backdrop + .event-form-modal .modal-dialog {
+    left: 1rem;
+    top: 1rem;
+  }
 }
 
 .modal-open .modal {
