@@ -47,7 +47,7 @@ const DataExportMenu = (props) => {
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
-  return <Dropdown onToggle={isOpen => setOpenState(isOpen)} {...rest}>
+  return <Dropdown alignRight onToggle={isOpen => setOpenState(isOpen)} {...rest}>
     <Toggle as="div">
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
