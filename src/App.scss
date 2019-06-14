@@ -41,11 +41,6 @@ body {
   position: fixed;
 }
 
-.App,
-#root {
-  overflow: hidden;
-}
-
 .App.dragging {
   cursor: no-drop;
 }

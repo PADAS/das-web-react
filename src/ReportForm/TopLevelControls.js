@@ -10,12 +10,10 @@ import ReportedBySelect from '../ReportedBySelect';
 
 import { setModalVisibilityState } from '../ducks/modals';
 import {  updateUserPreferences } from '../ducks/user-preferences';
-import { DATEPICKER_DEFAULT_CONFIG, BREAKPOINTS } from '../constants';
+import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import { calcGpsDisplayString } from '../utils/location';
 
 import styles from './styles.module.scss';
-
-const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const ReportFormTopLevelControls = memo((props) => {
   const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
@@ -28,9 +26,11 @@ const ReportFormTopLevelControls = memo((props) => {
 
   const onLocationSelectFromMapStart = () => {
     setModalVisibilityState(false);
-    if (!screenIsMediumLayoutOrLarger.matches) {
-      updateUserPreferences({ sidebarOpen: false });
-    }
+    updateUserPreferences({ sidebarOpen: false });
+  };
+  
+  const onLocationSelectFromMapCancel = () => {
+    setModalVisibilityState(true);
   };
 
   const onLocationSelectFromMap = (event) => {
@@ -60,7 +60,7 @@ const ReportFormTopLevelControls = memo((props) => {
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
           <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
-          <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelect={onLocationSelectFromMap} />
+          <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
         </Popover>}
       </Overlay>
       <a href="#" onClick={() => setGpsPopoverState(!gpsPopoverOpen)} className={styles.locationAnchor} ref={gpsInputAnchorRef}>

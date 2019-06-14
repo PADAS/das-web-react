@@ -22,7 +22,7 @@ const ModalRenderer = (props) => {
         const { content: ContentComponent, id, modalProps, ...rest } = item;
         return (!!ContentComponent &&
           <Modal
-            backdrop={true}
+            backdrop='static'
             backdropClassName={canShowModals ? styles.show : styles.hide}
             centered
             dialogClassName={canShowModals ? styles.show : styles.hide}

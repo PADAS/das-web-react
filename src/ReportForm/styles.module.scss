@@ -22,6 +22,14 @@
   legend {
     display: none;
   }
+  label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    @media (min-width: $md-layout-width-min) {
+      font-size: 1rem;
+    }
+  }
   [class$='checkbox '] {
     align-items: center;
     display: flex;
@@ -42,24 +50,31 @@
 
 .reportControls {
   background: lighten($light-gray-background, 5%);
-  border-bottom: 1px solid rgba(0, 0, 0, .65);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.65);
   flex-wrap: wrap;
-  padding: 0 !important;
+  padding: 0 0 0.25rem !important;
   position: relative;
   z-index: 4;
   @media (min-width: $md-layout-width-min) {
     padding: 0.5rem !important;
   }
   > * {
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
     position: relative;
     width: 50%;
+    @media (min-width: $md-layout-width-min) {
+      padding: 0.5rem;
+    }
   }
   > label {
     display: flex;
     flex-flow: column;
+    font-weight: bold;
     font-size: 0.85rem;
     margin-bottom: 0;
+    > * {
+      font-weight: initial;
+    }
     @media (min-width: $md-layout-width-min) {
       font-size: 1rem;
     }
@@ -69,6 +84,10 @@
     width: 100%;
   }
   
+}
+
+.formButtons {
+  justify-content: space-between;
 }
 
 .bottomControls {
@@ -175,13 +194,14 @@
 }
 
 .attachmentControls {
-  background: white;
+  $background-color: lighten($light-gray-background, 5%);
+  background: $background-color;
   display: flex;
   justify-content: space-evenly;
   padding: 0;
   > button {
     align-items: center;
-    background: white;
+    background: $background-color;
     border: none;
     color: $primary-font-color;
     display: flex;
@@ -199,11 +219,11 @@
       font-size: 1rem;
     }
     &:hover {
-      background: darken(white, 3%);
+      background: darken($background-color, 3%);
       color: darken($primary-font-color, 4%);
     }
     &:active {
-      background: darken(white, 6%);
+      background: darken($background-color, 6%);
       color: darken($primary-font-color, 8%);
     }
     &.draggable {
@@ -229,9 +249,11 @@
     @media (min-width: $md-layout-width-min) {
       left: 5vw;
     }
-    @media (min-width: $lg-layout-width-min) {
-      bottom: auto;
+    @media (min-width: $lg-layout-width-min) and (min-height: $lg-height-min) {
       left: 20vw;
+    }
+    @media (min-height: $lg-height-min) {
+      bottom: auto;
       top: -50%;
     }
   }

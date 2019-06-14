@@ -15,7 +15,7 @@ import EventFilter from '../EventFilter';
 import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, fetchEvents, fetchNextEventPage, map, onHandleClick } = props;
+  const { events, eventFilter, fetchEvents, fetchNextEventPage, map, onHandleClick, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const addReportContainerRef = useRef(null);
@@ -32,7 +32,7 @@ const SideBar = memo((props) => {
   if (!map) return null;
 
   return (
-    <aside className='side-menu'>
+    <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
       <Tabs>
         <Tab className={styles.tab} eventKey="reports" title="Reports">
@@ -58,7 +58,7 @@ const SideBar = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ data: { eventFilter }, data: { events } }) => ({ eventFilter, events });
+const mapStateToProps = ({ data: { eventFilter }, data: { events }, view: { userPreferences: { sidebarOpen } } }) => ({ eventFilter, events, sidebarOpen });
 
 export default connect(mapStateToProps, { fetchEvents, fetchNextEventPage })(SideBar);
 
