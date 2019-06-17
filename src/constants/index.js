@@ -55,6 +55,11 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 11, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'icon_id'],
+  'icon-size': [
+    'interpolate', ['linear'], ['zoom'],
+    0, 0,
+    13, 1,
+  ],
   'text-allow-overlap': ['step', ['zoom'], false, 11, true],
   'text-anchor': 'top',
   'text-offset': [0, .5],

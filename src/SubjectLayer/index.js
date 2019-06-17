@@ -9,11 +9,6 @@ const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
-  'icon-size': [
-    'interpolate', ['linear'], ['zoom'],
-    0, 0,
-    14, 1,
-  ],
 };
 
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];

@@ -32,8 +32,12 @@ const trackLayerLineLayout = {
 const timepointLayerLayout = {
   'icon-allow-overlap': true,
   'icon-anchor': 'bottom',
-  'icon-size': ['/', 'zoom', 18],
-  // 'icon-size': ['step', ['zoom'], 0, 14, .3, 16, .5],
+  'icon-size': [
+    'interpolate', ['linear'], ['zoom'],
+    0, 0,
+    10, 0,
+    18, 0.75,
+  ],
   'icon-rotate': ['get', 'bearing'],
   'icon-image': 'track_arrow',
   'icon-pitch-alignment': 'map',
