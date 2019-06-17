@@ -247,6 +247,9 @@ class Map extends Component {
   render() {
     const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, showMapNames } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
+    // if the show map names control is set to false, zeroing out the text size
+    // prevent the labels from rendering
+    symbolFeatures['text-size'] = showMapNames ? symbolFeatures['text-size'] : 0;
 
     const tracksAvailable = !!trackCollection.length;
     const heatmapAvailable = !! heatmapTracks.length;
@@ -293,7 +296,7 @@ class Map extends Component {
             <RotationControl position='top-left' />
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
-            <MapSettingsControl map={map}/>
+            <MapSettingsControl map={map} />
             {/* <DrawControl map={map} position='bottom-left' /> */}
             <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
