@@ -140,7 +140,7 @@ const EventFilter = memo((props) => {
   const SelectedState = () => <Toggle>
     <h5 className={styles.filterTitle}>
       State
-    <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small>
+      <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small>
       <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
     </h5>
   </Toggle>;
@@ -217,17 +217,17 @@ const EventFilter = memo((props) => {
   </Popover>;
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <OverlayTrigger rootClose trigger='click' placement='bottom' overlay={FilterPopover}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
       <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
         <FilterIcon />
         <span>Filters</span>
       </span>
     </OverlayTrigger>
     <SearchBar className={styles.search} placeholder='Search Reports...' text={text} onChange={onSearchChange} />
-      <FriendlyEventFilterString className={styles.filterDetails} />
+    <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 });
 
-const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes })
+const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
 
 export default connect(mapStatetoProps, { updateEventFilter })(EventFilter);

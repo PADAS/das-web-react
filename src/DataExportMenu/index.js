@@ -34,7 +34,7 @@ const modals = [
     content: DataExportModal,
     url: 'trackingdata/export',
   },
-]
+];
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
@@ -44,10 +44,10 @@ const DataExportMenu = (props) => {
 
   const contactSupport = () => {
     if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
-      return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
+    return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
-  return <Dropdown onToggle={isOpen => setOpenState(isOpen)} {...rest}>
+  return <Dropdown alignRight onToggle={isOpen => setOpenState(isOpen)} {...rest}>
     <Toggle as="div">
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
@@ -56,7 +56,7 @@ const DataExportMenu = (props) => {
       {modals.map((modal, index) =>
         <Item key={index} onClick={() =>
           addModal({
-           ...modal,
+            ...modal,
           })}>
           <span>{modal.title}</span>
         </Item>

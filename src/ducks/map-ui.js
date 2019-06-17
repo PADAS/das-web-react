@@ -16,6 +16,8 @@ const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 
 const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
 
+const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
+
 // action creators
 export const updateHeatmapConfig = (config) => ({
   type: UPDATE_HEATMAP_CONFIG,
@@ -87,6 +89,11 @@ export const toggleTrackState = (id) => (dispatch, getState) => {
 
 };
 
+export const setPickingMapLocationState = (isPicking) => ({
+  type: SET_PICKING_MAP_LOCATION_STATE,
+  payload: isPicking,
+});
+
 export const updateTrackState = (update) => ({
   type: UPDATE_SUBJECT_TRACK_STATE,
   payload: update,
@@ -103,7 +110,7 @@ export const heatmapSubjectIDsReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === UPDATE_HEATMAP_SUBJECT_STATE) return payload;
   return state;
-}
+};
 
 export const hiddenSubjectIDsReducer = (state = [], action) => {
   const { type, payload } = action;
@@ -139,5 +146,13 @@ const INITIAL_TRACK_STATE = {
 export const subjectTrackReducer = (state = INITIAL_TRACK_STATE, action) => {
   const { type, payload } = action;
   if (type === UPDATE_SUBJECT_TRACK_STATE) return { ...state, ...payload };
+  return state;
+};
+
+export const pickingLocationOnMapReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_PICKING_MAP_LOCATION_STATE) {
+    return payload;
+  }
   return state;
 };

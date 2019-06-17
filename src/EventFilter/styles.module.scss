@@ -1,5 +1,6 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/layout';
+@import '../common/styles/popovers';
 
 .form {
   align-items: center;
@@ -78,13 +79,10 @@
     max-height: 20rem;
   }
   > [class*=arrow]::after {
-    // background: $filter-popover-header-color;
     border-bottom-color: $filter-popover-header-color;
   }
   [class*=popover-header] {
-    background: $filter-popover-header-color;
-    color: white;
-    padding: 0.5rem;
+    @include popoverTitle;
     &::before {
       display: none;
     }

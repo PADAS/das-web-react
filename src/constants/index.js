@@ -32,7 +32,7 @@ const mdLayoutWidthMax = `(max-width: calc(${lgLayoutWidthMin} - 1px))`;
 export const BREAKPOINTS = {
   screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
   screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
-  screenIsLargeayoutOrLarger: matchMedia(lgLayoutWidthMin),
+  screenIsLargeLayoutOrLarger: matchMedia(lgLayoutWidthMin),
 };
 
 export const LAYER_IDS = {

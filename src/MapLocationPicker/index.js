@@ -1,4 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
+import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
@@ -12,39 +14,52 @@ const unbindExternal = (map, eventType, func) => {
   map.off(eventType, func);
 };
 
-const MapLocationPicker = memo((props) => {
-  const { label, map, onLocationSelectStart, onLocationSelect } = props;
+const MapLocationPicker = (props) => {
+  const { label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState } = props;
 
   const clickFunc = useRef(null);
+  const keydownFunc = useRef((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setPickingMapLocationState(false);
+    unbindMapEvents();
+    onLocationSelectCancel();
+  });
 
-  useEffect(() => {
+  const bindMapEvents = () => {
+    clickFunc.current = bindExternal(map, 'click', onSelect);
+    document.addEventListener('keydown', keydownFunc.current);
+  };
+
+
+  const unbindMapEvents = () => {
+    unbindExternal(map, 'click', clickFunc.current);
+    document.removeEventListener('keydown', keydownFunc.current);
+  };
+
+/*   useEffect(() => {
     return () => {
-      unbindExternal(map, 'click', clickFunc.current);
-      map.getCanvas().style.cursor = '';
+      setPickingMapLocationState(false);
+      unbindMapEvents();
     };
-  }, []);
+  }, []); */
 
   const onSelect = (e) => {
-    const { originalEvent } = e;
-    originalEvent.stopPropagation();
-    originalEvent.preventDefault();
-
-    map.getCanvas().style.cursor = '';
-
+    setPickingMapLocationState(false);
+    unbindMapEvents();
     onLocationSelect(e);
-    unbindExternal(map, 'click', clickFunc.current);
   };
 
   const onSelectStart = () => {
+    setPickingMapLocationState(true);
+    bindMapEvents();
     onLocationSelectStart();
-    map.getCanvas().style.cursor = 'crosshair';
-    clickFunc.current = bindExternal(map, 'click', onSelect);
   };
 
   return <a href="#" onClick={onSelectStart}><span className={styles.icon}></span>{label}</a>;
-});
+};
 
-export default MapLocationPicker;
+export default connect(null, { setPickingMapLocationState })(memo(MapLocationPicker));
 
 MapLocationPicker.defaultProps = {
   onLocationSelectStart() {

@@ -12,7 +12,7 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
-import { openModalForEvent } from '../utils/events';
+import { openModalForReport } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 
@@ -143,7 +143,7 @@ class Map extends Component {
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
-    openModalForEvent(event, map);
+    openModalForReport(event, map);
   }
 
   hideUnpinnedTrackLayers(map, event) {

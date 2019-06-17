@@ -35,7 +35,7 @@ const ReportFormHeader = (props) => {
       <EventIcon className={styles.icon} iconId={report.icon_id} />
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
-      <OverlayTrigger onExiting={() => setHeaderPopoverState(false)} placement='bottom-start' rootClose trigger='click' overlay={ReportHeaderPopover}>
+      <OverlayTrigger shouldUpdatePosition={true} onExiting={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click' overlay={ReportHeaderPopover}>
         <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
       </OverlayTrigger>
     </h4>
