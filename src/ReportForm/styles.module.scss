@@ -40,6 +40,10 @@
   }
   [type=checkbox] {
     margin-right: 0.5rem;
+    + span {
+      cursor: pointer;
+      font-weight: normal;
+    }
   }
 }
 

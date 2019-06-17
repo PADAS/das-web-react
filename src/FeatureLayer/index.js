@@ -57,8 +57,6 @@ const lineLayout = {
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
-  'icon-allow-overlap': true,
-  'text-allow-overlap': true,
 };
 
 const FeatureLayer = memo(({ symbols, lines, polygons }) => {
