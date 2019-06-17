@@ -11,6 +11,9 @@
   box-sizing: border-box;
 }
 
+$map-canvas: '.mapboxgl-canvas';
+$non-map-top-level-components: 'aside, nav, .mapboxgl-map button';
+
 :root {
   --nav-height: 3rem;
   --sidebar-width: calc(100vw - 2rem);
@@ -41,9 +44,21 @@ body {
   position: fixed;
 }
 
-.App.dragging {
-  cursor: no-drop;
+.App {
+  &.picking-location {
+    #{$non-map-top-level-components} {
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    #{$map-canvas} {
+      cursor: crosshair;
+    }
+  }
+  &.dragging {
+    cursor: no-drop;
+  }
 }
+
 
 #reportTypeIconSprite {
   display: none;
