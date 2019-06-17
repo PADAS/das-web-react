@@ -2,7 +2,7 @@ import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { fileNameFromPath } from './string';
-import { svgSrcToPngImg } from './img';
+import { svgSrcToPngImg, imgElFromSrc } from './img';
 import { MAP_ICON_SIZE } from '../constants';
 
 export const addIconToGeoJson = (geojson) => {
@@ -29,7 +29,7 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties: { image, icon_id } }) => ({ icon_id, image }))
     .filter(({ icon_id }, index, array) => !mapImageIDs.includes(icon_id) && (array.findIndex(item => item.icon_id === icon_id) === index))
-    .map(({ image, icon_id }) => svgSrcToPngImg(image, MAP_ICON_SIZE)
+    .map(({ image, icon_id }) => imgElFromSrc(image, MAP_ICON_SIZE)
       .then((img) => {
         if (!map.hasImage(icon_id)) map.addImage(icon_id, img);
         return img;

@@ -9,6 +9,11 @@ const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
+  'icon-size': [
+    'interpolate', ['linear'], ['zoom'],
+    0, 0,
+    14, 1,
+  ],
   'icon-allow-overlap': true,
   'text-allow-overlap': true,
 };

@@ -42,11 +42,11 @@ const ReportFormTopLevelControls = memo((props) => {
 
   return <div className={styles.reportControls}>
     <label>
-      Reported by:
+      <span>Reported by:</span>
       <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
     </label>
     <label>
-      Report time:
+      <span>Report time:</span>
       <DateTimePicker
         {...DATEPICKER_DEFAULT_CONFIG}
         clearIcon={null}
@@ -56,7 +56,7 @@ const ReportFormTopLevelControls = memo((props) => {
         onChange={onReportDateChange} />
     </label>
     <label ref={gpsInputLabelRef}>
-      Location:
+      <span>Location:</span>
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
           <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />

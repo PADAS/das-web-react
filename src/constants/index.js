@@ -19,10 +19,7 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-export const MAP_ICON_SIZE = {
-  height: 30,
-  width: 30,
-};
+export const MAP_ICON_SIZE = 28;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMin = '(min-width: 31.75rem)';
@@ -55,15 +52,19 @@ export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [ke
 
 
 export const DEFAULT_SYMBOL_LAYOUT = {
-  'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-allow-overlap': ['step', ['zoom'], false, 12, true],
   'icon-anchor': 'center',
-  'icon-image': ["get", "icon_id"],
-  'text-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-image': ['get', 'icon_id'],
+  'text-allow-overlap': ['step', ['zoom'], false, 12, true],
   'text-anchor': 'top',
   'text-offset': [0, .5],
   'text-field': '{title}',
   'text-justify': 'center',
-  'text-size': 12,
+  'text-size': [
+    'interpolate', ['linear'], ['zoom'],
+    0, 8,
+    12, 14,
+  ],
 };
 
 export const EVENT_STATE_CHOICES = [
