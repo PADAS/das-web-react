@@ -14,8 +14,6 @@ const symbolLayout = {
     0, 0,
     14, 1,
   ],
-  'icon-allow-overlap': true,
-  'text-allow-overlap': true,
 };
 
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];

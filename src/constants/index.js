@@ -52,10 +52,10 @@ export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [ke
 
 
 export const DEFAULT_SYMBOL_LAYOUT = {
-  'icon-allow-overlap': ['step', ['zoom'], false, 12, true],
+  'icon-allow-overlap': ['step', ['zoom'], false, 11, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'icon_id'],
-  'text-allow-overlap': ['step', ['zoom'], false, 12, true],
+  'text-allow-overlap': ['step', ['zoom'], false, 11, true],
   'text-anchor': 'top',
   'text-offset': [0, .5],
   'text-field': '{title}',
