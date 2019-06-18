@@ -7,16 +7,17 @@ const MapNamesControl = (props) => {
 
   const { showMapNames, toggleMapNameState } = props;
 
-  const handleClick = (e) => {
+  const handleChange = (e) => {
     e.preventDefault();
-    console.log('Map subject names visibile: ' + !showMapNames);
     toggleMapNameState(!showMapNames);
   };
 
-  return  <span className={props.className || ''}>
-            <button title="Show Names" type="button" className={styles.mapnames} 
-              onClick={handleClick}>{showMapNames ? 'Show Names' : 'Hide Names'}</button>
-          </span>;
+  return <div className={styles.mapnamesChx}>
+    <input type='checkbox' name='mapname' defaultChecked={showMapNames} onChange={handleChange}/>
+    <label htmlFor='mapname'>'Show Map Names'</label>
+    </div>;
+
+
 };
 
 const mapStateToProps = ( {view:{showMapNames}} ) => {

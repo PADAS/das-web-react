@@ -123,8 +123,9 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
 
 export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
 export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);
+
 export const lockMap = (map, isLocked) => {
-  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate'];
+  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
   if(isLocked === true) {
     mapControls.forEach(function(control) {
       map[control].disable();
@@ -135,5 +136,15 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
+  /* Last, find the zoom box, and enable/disable it. 
+  We are making the assumption there is only one zoom box 
+  Note: google tells me this is not performant, but its not clear if
+  there are any ther options here */
+  const zoomBox = document.querySelector('div.mapbox-zoom-ctrl');
+  const pointerVal =  isLocked ? 'none' : 'visible';
+  zoomBox.style.setProperty('pointer-events', pointerVal);
+
+
 };
+
 

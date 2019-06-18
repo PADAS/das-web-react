@@ -245,11 +245,8 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, showMapNames } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
-    // if the show map names control is set to false, zeroing out the text size
-    // prevent the labels from rendering
-    symbolFeatures['text-size'] = showMapNames ? symbolFeatures['text-size'] : 0;
 
     const tracksAvailable = !!trackCollection.length;
     const heatmapAvailable = !! heatmapTracks.length;
@@ -270,7 +267,6 @@ class Map extends Component {
           <Fragment>
             <SubjectsLayer
               map={map}
-              showMapNames={showMapNames}
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />

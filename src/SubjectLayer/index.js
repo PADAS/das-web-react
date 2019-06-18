@@ -17,15 +17,12 @@ const symbolLayout = {
   'text-allow-overlap': true,
 };
 
-//const visibleText = symbolLayout['text-size'];
-//const hiddenText = 0;
-
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];
 
 const SubjectsLayer = memo((props) => {
   const { onSubjectIconClick, subjects, map, showMapNames, ...rest } = props;
 
-  //symbolLayout['text-size'] = showMapNames? visibleText : hiddenText;
+  symbolLayout['text-size'] = showMapNames? symbolLayout['text-size'] : 0;
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 
@@ -39,8 +36,6 @@ const SubjectsLayer = memo((props) => {
   );
 }, (prev, current) => (prev.map && current.map) && isEqual(prev.subjects, current.subjects));
 
-export default SubjectsLayer;
-
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
@@ -48,7 +43,8 @@ SubjectsLayer.propTypes = {
 };
 
 const mapStateToProps = ( {view:{showMapNames}} ) => {
+  console.log('Map state to props: ' + showMapNames)
   return {showMapNames};
 }
 
-connect(mapStateToProps, {toggleMapNameState})(SubjectsLayer);
+export default connect(mapStateToProps, {toggleMapNameState})(SubjectsLayer);
