@@ -61,22 +61,19 @@
   @media #{$whenPageIsAtMediumHeightAndWidth} {
     padding: 0.5rem !important;
   }
-  > * {
-    padding: 0.25rem 0.5rem;
-    position: relative;
-    width: 50%;
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
-      padding: 0.5rem;
-    }
-  }
   > label {
     align-items: center;
     display: flex;
     font-weight: bold;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     margin-bottom: 0;
+    padding: 0.25rem 0.5rem;
+    position: relative;
+    width: 50%;
     @media #{$whenPageIsAtMediumHeightAndWidth} {
       flex-wrap: wrap;
+      font-size: 0.9rem;
+      padding: 0.5rem;
     }
     > * {
       font-weight: initial;
@@ -93,32 +90,43 @@
         }
       }
     }
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
-      font-size: 1rem;
-    }
-    .locationButtons {
+  }
+
+  .locationButtons {
+    display: flex;
+    flex-flow: column;
+    margin-top: 0.25rem;
+    button {
+      @include linkButton;
       align-items: center;
       display: flex;
-      flex-flow: column;
-      margin-top: 0.25rem;
-      button {
-        align-items: center;
-        display: flex;
-        font-size: 0.75rem;
-        font-style: italic;
-        text-align: left;
+      font-size: 0.75rem;
+      font-style: italic;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+      text-align: left;
+      &:hover {
+        opacity: 1;
       }
       @media #{$whenPageIsAtMediumHeightAndWidth} {
-        align-items: flex-start;
-        flex-flow: row;
-        justify-content: space-between;
+        margin-top: 0;
+      }
+      svg {
+        margin-right: 0.25rem;
       }
     }
-    .locationButton {
-      @include unstyledButton;
-      @media #{$whenPageIsAtMediumHeightAndWidth} {
-        @include linkButton;
-      }
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
+      flex-flow: row;
+      justify-content: space-between;
+    }
+  }
+
+  .geoLocator {
+    [class*=alert-danger] {
+      bottom: -35%;
+      left: 0;
+      position: absolute;
+      width: 100%;
     }
   }
   
@@ -247,7 +255,6 @@
 
 .locationAnchor {
   @include defaultTextInput;
-
   color: $primary-font-color;
 }
 

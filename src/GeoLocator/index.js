@@ -1,5 +1,6 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import Alert from 'react-bootstrap/Alert';
 
 import LoadingOverlay from '../LoadingOverlay';
 import { ReactComponent as GpsLocationIcon } from '../common/images/icons/gps-location-icon.svg';
@@ -16,12 +17,14 @@ const GeoLocator = (props) => {
   const { className, label, onError, onStart, onSuccess } = props;
   const [fetchingLocation, setFetchingLocationState] = useState(false);
   const [locationFetchError, setLocationFetchErrorState] = useState(false);
+  const clearAlertTimeout = useRef(null);
 
   useEffect(() => {
     /* unmount only */
     return () => {
       setFetchingLocationState(false);
       setLocationFetchErrorState(false);
+      window.clearTimeout(clearAlertTimeout.current);
     };
   }, []);
 
@@ -44,8 +47,9 @@ const GeoLocator = (props) => {
   };
 
   const onLocationFetchError = (error) => {
-    setLocationFetchErrorState(true);
+    setLocationFetchErrorState(error);
     onLocationFetchFinish();
+    clearAlertTimeout.current = window.setTimeout(() => setLocationFetchErrorState(false), 3500);
     onError(error);
   };
 
@@ -53,13 +57,15 @@ const GeoLocator = (props) => {
     setFetchingLocationState(false);
   };
 
-  return <div>
-    <button title={label} className={`${styles.button} ${className}`} onClick={startFetchLocation}>
+  return <div className={className}>
+    <button title={label} className={styles.button} onClick={startFetchLocation}>
       <GpsLocationIcon />
       <span>{label}</span>
     </button>
-    {fetchingLocation && <LoadingOverlay message='Getting your location' />}
-    {locationFetchError && <span>Could not read your current location. <button onClick={startFetchLocation}>Try again</button></span>}
+    {fetchingLocation && <LoadingOverlay className={styles.loadingOverlay} message='Trying to read your location...' />}
+    {locationFetchError && <Alert variant='danger'>
+      Could not read your current location: {locationFetchError.message}
+    </Alert>}
   </div>;
 };
 

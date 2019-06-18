@@ -18,7 +18,7 @@ const PriorityPicker = (props) => {
 
   return <ul className={`${styles.list} ${className}`}>
     {REPORT_PRIORITIES.map(({ display, value }) => <li key={value}>
-      <button type='button' className={`${styles.option} ${styles[calcClassNameForPriority(value)]} ${selected === value ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
+      <button title={display} type='button' className={`${styles[calcClassNameForPriority(value)]} ${selected === value ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
         {display}
       </button>
     </li>

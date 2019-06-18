@@ -75,8 +75,8 @@ const ReportFormTopLevelControls = memo((props) => {
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
           <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
           <div className={styles.locationButtons}>
-            <MapLocationPicker className={styles.locationButton} map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
-            <GeoLocator className={styles.locationButton} onSuccess={onGeoLocationSuccess} />
+            <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
+            <GeoLocator className={styles.geoLocator} onSuccess={onGeoLocationSuccess} />
           </div>
         </Popover>}
       </Overlay>
