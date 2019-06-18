@@ -25,7 +25,7 @@ const ReportFormHeader = (props) => {
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
-  const ReportHeaderPopover = <Popover className={styles.popover}>
+  const ReportHeaderPopover = <Popover placement='auto' className={styles.popover}>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
   </Popover>;
 

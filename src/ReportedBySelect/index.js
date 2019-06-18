@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
-import TimeAgo from 'react-timeago'
+import TimeAgo from 'react-timeago';
 
 import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
 
@@ -47,7 +47,7 @@ const ReportedBySelect = memo((props) => {
           }
         </components.Option>
       </div>
-    )
+    );
   };
 
   return <Select
@@ -57,6 +57,7 @@ const ReportedBySelect = memo((props) => {
     isSearchable={true}
     onChange={onChange}
     options={options}
+    placeholder='Reported By...'
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue} />;
 });
@@ -71,7 +72,7 @@ export default connect(mapStateToProps, null)(ReportedBySelect);
 ReportedBySelect.defaultProps = {
   value: null,
   numberOfRecentRadiosToShow: 5,
-}
+};
 
 
 ReportedBySelect.propTypes = {

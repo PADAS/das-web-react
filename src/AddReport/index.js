@@ -13,7 +13,7 @@ import EventTypeListItem from '../EventTypeListItem';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { eventTypes, map, placement, showLabel, showIcon, container } = props;
+  const { eventTypes, map, showLabel, showIcon, container } = props;
   const itemsGroupedByCategory = mapReportTypesToCategories(eventTypes);
   const [selectedCategory, selectCategory] = useState(itemsGroupedByCategory[0].category);
 
@@ -54,7 +54,7 @@ const AddReport = (props) => {
   </Popover>;
 
   return <Fragment>
-    <button className={styles.addReport} ref={targetRef} type='button' onClick={() => setPopoverState(true)}>
+    <button title='Add Report' className={styles.addReport} ref={targetRef} type='button' onClick={() => setPopoverState(true)}>
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>Add Report</span>}
     </button>
