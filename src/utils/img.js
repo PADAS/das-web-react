@@ -28,15 +28,23 @@ export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => ne
  
 });
 
-export const imgElFromSrc = (src, width = 24) => new Promise((resolve, reject) => {
+export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) => {
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
   img.src = src;
   img.onload = () => {
     const { naturalHeight, naturalWidth } = img;
-    const aspectRatio = naturalHeight / naturalWidth;
-    img.width = width;
-    img.height = width * aspectRatio;
+    const largest = Math.max(naturalHeight, naturalWidth);
+    const smallest = Math.min(naturalHeight, naturalWidth);
+    const widthIsLarger = largest === naturalWidth;
+    const aspectRatio = smallest / largest;
+    if (widthIsLarger) {
+      img.width = size;
+      img.height = size * aspectRatio;
+    } else {
+      img.height = size;
+      img.width = size * aspectRatio;
+    }
     resolve(img);
   };
   img.onerror = () => {

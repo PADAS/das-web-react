@@ -18,3 +18,8 @@
     background-color: rgba(darken($medium-light-gray, 15%), 0.18);
   }
 }
+
+@mixin linkButton {
+  @include unstyledButton;
+  text-decoration: underline;
+}

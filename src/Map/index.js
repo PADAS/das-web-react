@@ -113,7 +113,7 @@ class Map extends Component {
     console.log('Map.toggleLockState');
     return toggleMapLockState();
   }
-  
+
   fetchMapData() {
     this.fetchMapSubjects();
     this.fetchMapEvents();
@@ -201,7 +201,7 @@ class Map extends Component {
   }
   async createMapImages(featureCollection) {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
-    
+
     if (newImages.length) {
       // a fake flyTo coerces the map to load symbol images
       setTimeout(() => {
@@ -241,7 +241,7 @@ class Map extends Component {
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
-    const heatmapAvailable = !! heatmapTracks.length;
+    const heatmapAvailable = !!heatmapTracks.length;
     if (!maps.length) return null;
 
     return (
@@ -262,11 +262,14 @@ class Map extends Component {
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+            <div>
+              <FriendlyEventFilterString className='event-filter-details' />
+              {heatmapAvailable && <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />}
+            </div>
+
+            {heatmapAvailable && <HeatLayer />}
+
             {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
-            {heatmapAvailable && <Fragment>
-              <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />
-              <HeatLayer />
-            </Fragment>}
 
             <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
@@ -284,9 +287,8 @@ class Map extends Component {
             <RotationControl position='bottom-left' />
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
-            <MapLockControl map={map}/>
+            <MapLockControl map={map} />
             {/* <DrawControl map={map} position='bottom-left' /> */}
-            <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
         )}
 

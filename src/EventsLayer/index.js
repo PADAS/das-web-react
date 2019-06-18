@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-import { LAYER_IDS } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, EVENT_CLUSTER_COUNT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -22,15 +22,15 @@ const clusterSymbolLayout = {
 };
 
 const clusterPaint = {
-  "circle-color": [
-    "step",
-    ["get", "point_count"],
-    "#51bbd6",
+  'circle-color': [
+    'step',
+    ['get', 'point_count'],
+    '#51bbd6',
     25,
-    "#f28cb1"
+    '#f28cb1'
   ],
-  "circle-radius": [
-    "case",
+  'circle-radius': [
+    'case',
     ['<', ['get', 'point_count'], 10], 15,
     ['>', ['get', 'point_count'], 10], 25,
     15,
@@ -49,15 +49,8 @@ const eventSymbolLayerOptions = {
 };
 
 const eventSymbolLayerLayout = {
-  'icon-allow-overlap': ["step", ["zoom"], false, 10, true],
-  'icon-anchor': 'center',
-  'icon-image': ["get", "icon_id"],
-  'text-allow-overlap': ["step", ["zoom"], false, 10, true],
-  'text-anchor': 'top',
-  'text-offset': [0, .5],
+  ...DEFAULT_SYMBOL_LAYOUT,
   'text-field': '{display_title}',
-  'text-justify': 'center',
-  'text-size': 12,
 };
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
@@ -112,4 +105,4 @@ EventsLayer.propTypes = {
   onEventClick: PropTypes.func,
   onClusterClick: PropTypes.func,
   enableClustering: PropTypes.bool,
-}
+};

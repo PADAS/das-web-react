@@ -19,7 +19,7 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-export const MAP_ICON_SIZE = 28;
+export const MAP_ICON_SIZE = 30;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMin = '(min-width: 31.75rem)';
@@ -57,8 +57,9 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-image': ['get', 'icon_id'],
   'icon-size': [
     'interpolate', ['linear'], ['zoom'],
-    0, 0,
-    13, 1,
+    7, 0,
+    12, 1,
+    18, 1.5,
   ],
   'text-allow-overlap': ['step', ['zoom'], false, 11, true],
   'text-anchor': 'top',
@@ -67,7 +68,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'text-justify': 'center',
   'text-size': [
     'interpolate', ['linear'], ['zoom'],
-    0, 8,
+    7, 0,
     12, 14,
   ],
 };
