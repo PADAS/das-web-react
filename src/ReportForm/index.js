@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import Form from 'react-jsonschema-form';
 
-import { uploadFiles, downloadFileFromUrl } from '../utils/file';
-import { generateSaveActionsForReportForm } from '../utils/events';
+import { downloadFileFromUrl } from '../utils/file';
+import { generateSaveActionsForReport, executeReportSaveActions } from '../utils/events';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
@@ -24,7 +24,7 @@ import ImageModal from '../ImageModal';
 import styles from './styles.module.scss';
 
 const ReportForm = memo((props) => {
-  const { id, map, report: originalReport, removeModal, onSubmit, schema, uiSchema, addModal, setModalVisibilityState } = props;
+  const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, schema, uiSchema, addModal, setModalVisibilityState } = props;
   const additionalMetaSchemas = [draft4JsonSchema];
 
   const formRef = useRef(null);
@@ -41,7 +41,6 @@ const ReportForm = memo((props) => {
     };
   }, []);
 
-  /* TODO - WHY ARE MAP EVENTS NOT LISTING THIS INFO CORRECTLY?? GEOJSON PARSING BULLSHIT IS LIKELY */
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
 
@@ -154,41 +153,36 @@ const ReportForm = memo((props) => {
   const onClickAddReport = () => null;
 
   const handleFormSubmit = () => {
-    const changes = extractObjectDifference(report, originalReport);
+    const reportIsNew = !report.id;
+    let toSubmit;
 
-    /* the ID never changes, so carry it over */
-    if (report.id) {
-      changes.id = report.id;
-    }
+    if (reportIsNew) {
+      toSubmit = report;
+    } else {
+      const changes = extractObjectDifference(report, originalReport);
 
-    /* the API requires an array value, even if no notes exist */
-    // changes.notes = changes.notes ? changes.notes : [];
-
-    /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
-    if (changes.reported_by) {
-      changes.reported_by = report.reported_by;
-    }
-
-    const saveActions = generateSaveActionsForReportForm(changes, notesToAdd, filesToUpload);
-    let eventID;
-
-    console.log('changes', changes);
-
-    console.log('my saveActions', saveActions);
-
-    saveActions.reduce(async (action, { action: nextAction }, index) => {
-      if (index === 0) return nextAction();
-
-      const isPrimaryAction = index === 1;
-      const results = await action;
-
-      if (isPrimaryAction) {
-        eventID = results.data.data.id;
+      toSubmit = {
+        ...changes,
+        id: report.id,
+      };
+      
+      /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
+      if (changes.reported_by) {
+        toSubmit.reported_by = report.reported_by;
+      }
+  
+      /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
+      if (changes.notes) {
+        toSubmit.notes = report.notes;
       }
 
-      return nextAction(eventID);
+    }
 
-    }, null);
+    const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
+
+    executeReportSaveActions(actions)
+      .then(() => onSaveSuccess())
+      .catch((e) => onSaveError(e));
   };
 
   const onClickFile = (file) => {
@@ -253,7 +247,10 @@ export default connect(mapStateToProps, { addModal, removeModal, setModalVisibil
 
 ReportForm.defaultProps = {
   onSaveSuccess() {
-
+    console.log('save success!');
+  },
+  onSaveError(e) {
+    console.log('error with stuff', e);
   },
 };
 
@@ -263,4 +260,5 @@ ReportForm.propTypes = {
   map: PropTypes.object.isRequired,
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
+  onSaveError: PropTypes.func,
 };

@@ -1,8 +1,6 @@
 import { store } from '../';
 
-import { addFileToEvent, deleteFileFromEvent, createEvent, updateEvent, addNoteToEvent, deleteNoteFromEvent } from '../ducks/events';
-
-const addFileToSave = addFileToEvent;
+import { createEvent, updateEvent, addNoteToEvent, uploadEventFile } from '../ducks/events';
 
 export const REPORT_SAVE_ACTIONS = {
   createEvent(data) {
@@ -29,14 +27,14 @@ export const REPORT_SAVE_ACTIONS = {
       },
     };
   },
-  deleteNote(note_id) {
+  /* deleteNote(note_id) {
     return {
       priority: 200,
       action(event_id) {
         return store.dispatch(deleteNoteFromEvent(event_id, note_id));
       },
     };
-  },
+  }, */
  /*  updateEventState: { // these belong inside `updateEvent` now
     priority: 100,
   }, */
@@ -53,18 +51,18 @@ export const REPORT_SAVE_ACTIONS = {
     return {
       priority: 200,
       action(event_id) {
-        return store.dispatch(addFileToEvent(event_id, file));
+        return store.dispatch(uploadEventFile(event_id, file));
       },
     };
   },
-  deleteFile(file_id) {
+  /*  deleteFile(file_id) {
     return {
       priority: 200,
       action(event_id) {
         return store.dispatch(deleteFileFromEvent(event_id, file_id));
       },
     };
-  },
+  }, */
 };
 
 /*

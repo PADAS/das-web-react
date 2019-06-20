@@ -4,7 +4,6 @@ import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { uploadFiles } from '../utils/file';
 import { eventBelongsToCollection, calcEventFilterForRequest } from '../utils/events';
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
@@ -27,20 +26,16 @@ const ADD_EVENT_NOTE_START = 'ADD_EVENT_NOTE_START';
 const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
 const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
 
-const DELETE_EVENT_NOTE_START = 'DELETE_EVENT_NOTE_START';
-const DELETE_EVENT_NOTE_SUCCESS = 'DELETE_EVENT_NOTE_SUCCESS';
-const DELETE_EVENT_NOTE_ERROR = 'DELETE_EVENT_NOTE_ERROR';
-
 export const FETCH_EVENTS_START = 'FETCH_EVENTS_START';
 export const FETCH_EVENTS_SUCCESS = 'FETCH_EVENTS_SUCCESS';
 export const FETCH_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_EVENTS_NEXT_PAGE_SUCCESS';
-export const FETCH_EVENTS_ERROR = 'FETCH_EVENTS_ERROR';
+export const FETCH_EVENTS_ERROR = 'FETCH_EVENTS_EROR';
 
 export const FETCH_MAP_EVENTS = 'FETCH_MAP_EVENTS';
 export const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
 export const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 
-const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
+const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_REVENTS_PAGE_SUCCESS';
 
 export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
@@ -55,25 +50,20 @@ export const createEvent = (event) => (dispatch) => {
   });
 
   return axios.post(EVENTS_API_URL, event)
-    .then(response => dispatch({
-      type: CREATE_EVENT_SUCCESS,
-      payload: response.data.data,
-    }))
-    .catch(error => dispatch({
-      type: CREATE_EVENT_ERROR,
-      payload: error,
-    }));
-};
-
-export const addFileToEvent = (event_id, file) => {
-  const form = new FormData();
-  form.append('filecontent.file', file);
-
-  return axios.post(`${EVENT_API_URL}${event_id}/files/`, form, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+    .then(response => {
+      dispatch({
+        type: CREATE_EVENT_SUCCESS,
+        payload: response.data.data,
+      });
+      return response;
+    })
+    .catch(error => {
+      dispatch({
+        type: CREATE_EVENT_ERROR,
+        payload: error,
+      });
+      return error;
+    });
 };
 
 export const addNoteToEvent = (event_id, note) => (dispatch) => {
@@ -87,31 +77,14 @@ export const addNoteToEvent = (event_id, note) => (dispatch) => {
         type: ADD_EVENT_NOTE_SUCCESS,
         payload: response.data.data,
       });
+      return response;
     })
     .catch((error) => {
       dispatch({
         type: ADD_EVENT_NOTE_ERROR,
         payload: error,
       });
-    });
-};
-
-export const deleteNoteFromEvent = (event_id, note_id) => (dispatch) => {
-  dispatch({
-    type: DELETE_EVENT_NOTE_START,
-    payload: note_id,
-  });
-  return axios.delete(`${EVENT_API_URL}${event_id}/notes/${note_id}`, note_id)
-    .then(() => {
-      dispatch({
-        type: DELETE_EVENT_NOTE_SUCCESS,
-      });
-    })
-    .catch((error) => {
-      dispatch({
-        type: DELETE_EVENT_NOTE_ERROR,
-        payload: error,
-      });
+      return error;
     });
 };
 
@@ -140,23 +113,43 @@ export const updateEvent = (event) => (dispatch) => {
     });
 };
 
-export const uploadEventFiles = ({ id }, files, progressHandler = (event) => console.log('report file upload update', event)) => (dispatch) => {
-  const uploadUrl = `${EVENT_API_URL}${id}/files/`;
+export const uploadEventFile = (event_id, file, progressHandler = (event) => console.log('report file upload update', event)) => (dispatch) => {
+  const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
 
   dispatch({
     type: UPLOAD_EVENT_FILES_START,
-    payload: id,
+    payload: {
+      event_id,
+      file,
+    },
   });
 
-  return uploadFiles(uploadUrl, files, progressHandler)
-    .then(response => dispatch({
+  const form = new FormData();
+  form.append('filecontent.file', file);
+
+  return axios.post(uploadUrl, form, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress(event) {
+      progressHandler(event);
+    },
+  }).then((response) => {
+    dispatch({
       type: UPLOAD_EVENT_FILES_SUCCESS,
       payload: response.data.data,
-    }))
-    .catch(error => dispatch({
-      type: UPLOAD_EVENT_FILES_ERROR,
-      payload: error,
-    }));
+    });
+    return response;
+  })
+    .catch((error) => {
+      dispatch({
+        type: UPLOAD_EVENT_FILES_ERROR,
+        payload: error,
+      });
+      return error;
+    });
+
+
 };
 
 export const fetchEvents = (config = {}) => (dispatch) => {
@@ -288,7 +281,10 @@ export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
 
     if (!state.results.find(item => item.id === event_id)) return state;
 
-    event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+    if (event_data.geojson) {
+      event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+    }
+
     return {
       ...state,
       results: unionBy([event_data], state.results, 'id'),
@@ -314,14 +310,15 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
   }
   case SOCKET_NEW_EVENT: {
     const { payload: { event_data } } = action;
-    if (event_data.geojson) {
-      event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-    }
+    if (!event_data.geojson) return state;
+
+    event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
     return [...state, event_data];
   }
   case SOCKET_UPDATE_EVENT: {
     const { payload: { event_data, event_id } } = action;
 
+    if (!event_data.geojson) return state;
     if (!state.find(item => item.id === event_id)) return state;
 
     event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);

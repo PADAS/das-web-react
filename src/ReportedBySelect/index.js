@@ -51,7 +51,7 @@ const ReportedBySelect = memo((props) => {
 
   return <Select
     components={{ Option }}
-    // value={selected}
+    value={selected}
     isClearable={true}
     isSearchable={true}
     onChange={onChange}

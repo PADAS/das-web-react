@@ -100,10 +100,10 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   return label;
 };
 
-export const generateSaveActionsForReportForm = (formData, notesToAdd = [], filesToAdd = []) => {
+export const generateSaveActionsForReport = (formData, notesToAdd = [], filesToAdd = []) => {
   const report = { ...formData };
 
-  
+
 
   const primarySaveOperation = report.id ? REPORT_SAVE_ACTIONS.updateEvent(report) : REPORT_SAVE_ACTIONS.createEvent(report);
   const fileOperations = [
@@ -115,6 +115,33 @@ export const generateSaveActionsForReportForm = (formData, notesToAdd = [], file
   ];
 
   return [primarySaveOperation, ...fileOperations, ...noteOperations].sort((a, b) => b.priority - a.priority);
+};
+
+export const executeReportSaveActions = (saveActions) => {
+  let eventID;
+
+  return new Promise((resolve, reject) => {
+    try {
+      saveActions.reduce(async (action, { action: nextAction }, index, collection) => {
+        const isPrimaryAction = index === 1;
+        const isLast = index === collection.length - 1;
+        const results = await action.catch((error) => reject(error));
+
+        if (isPrimaryAction) {
+          eventID = results.data.data.id;
+        }
+
+        return nextAction(eventID).then((results) => {
+          if (isLast) {
+            return resolve();
+          }
+          return results;
+        });
+      }, Promise.resolve());
+    } catch (e) {
+      reject(e);
+    }
+  });
 };
 
 export const openModalForReport = async (event, map, onSubmit) => {
@@ -137,7 +164,7 @@ export const openModalForReport = async (event, map, onSubmit) => {
     }));
 };
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority:priority = 0 }) => ({
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }) => ({
   event_type,
   icon_id,
   priority,
