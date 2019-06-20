@@ -11,11 +11,13 @@
 
 .form {
   background: white;
+  font-size: 0.85rem;
   max-height: calc(80vh - 4rem);
   min-height: 6rem;
   overflow-y: auto;
   padding-bottom: 5rem;
   @media #{$whenPageIsAtMediumHeightAndWidth} {
+    font-size: 1rem;
     max-height: calc(80vh - 10rem);
   }
   legend {
@@ -23,11 +25,7 @@
   }
   label {
     font-weight: bold;
-    font-size: 0.85rem;
     margin-bottom: 0;
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
-      font-size: 1rem;
-    }
   }
   [class$='checkbox '] {
     align-items: center;
@@ -279,7 +277,6 @@
     transition: all .1s linear;
     @media #{$whenPageIsAtMediumHeightAndWidth} {
       font-size: 0.75rem;
-      padding: 1rem 0.5rem;
     }
     @media #{$whenPageIsTallAndMediumWidth} {
       font-size: 1rem;

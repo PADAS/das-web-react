@@ -13,7 +13,7 @@ import EventTypeListItem from '../EventTypeListItem';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { eventTypes, map, showLabel, showIcon, container } = props;
+  const { eventTypes, map, showLabel, showIcon, container, title } = props;
   const itemsGroupedByCategory = mapReportTypesToCategories(eventTypes);
   const [selectedCategory, selectCategory] = useState(itemsGroupedByCategory[0].category);
 
@@ -48,15 +48,15 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement='auto' title={<h4>Add Report</h4>}>
+  const AddReportPopover = <Popover className={styles.popover} placement='auto' title={<h4>{title}</h4>}>
     {categoryList}
     {reportTypeList}
   </Popover>;
 
   return <Fragment>
-    <button title='Add Report' className={styles.addReport} ref={targetRef} type='button' onClick={() => setPopoverState(true)}>
+    <button title={title} className={styles.addReport} ref={targetRef} type='button' onClick={() => setPopoverState(true)}>
       {showIcon && <AddButtonIcon />}
-      {showLabel && <span>Add Report</span>}
+      {showLabel && <span>{title}</span>}
     </button>
     <Overlay shouldUpdatePosition={true} show={popoverOpen} rootClose onHide={() => setPopoverState(false)} container={container.current} target={targetRef.current}>
       {() => AddReportPopover}
@@ -70,6 +70,7 @@ export default connect(mapStateToProps, null)(memo(AddReport));
 AddReport.defaultProps = {
   showIcon: true,
   showLabel: true,
+  title: 'Add Report',
 };
 
 AddReport.propTypes = {
@@ -77,4 +78,5 @@ AddReport.propTypes = {
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
+  title: PropTypes.string,
 };

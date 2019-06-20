@@ -23,6 +23,14 @@ const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
 const UPLOAD_EVENT_FILES_ERROR = 'UPLOAD_EVENT_FILES_ERROR';
 
+const ADD_EVENT_NOTE_START = 'ADD_EVENT_NOTE_START';
+const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
+const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
+
+const DELETE_EVENT_NOTE_START = 'DELETE_EVENT_NOTE_START';
+const DELETE_EVENT_NOTE_SUCCESS = 'DELETE_EVENT_NOTE_SUCCESS';
+const DELETE_EVENT_NOTE_ERROR = 'DELETE_EVENT_NOTE_ERROR';
+
 export const FETCH_EVENTS_START = 'FETCH_EVENTS_START';
 export const FETCH_EVENTS_SUCCESS = 'FETCH_EVENTS_SUCCESS';
 export const FETCH_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_EVENTS_NEXT_PAGE_SUCCESS';
@@ -57,25 +65,83 @@ export const createEvent = (event) => (dispatch) => {
     }));
 };
 
+export const addFileToEvent = (event_id, file) => {
+  const form = new FormData();
+  form.append('filecontent.file', file);
+
+  return axios.post(`${EVENT_API_URL}${event_id}/files/`, form, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const addNoteToEvent = (event_id, note) => (dispatch) => {
+  dispatch({
+    type: ADD_EVENT_NOTE_START,
+    payload: note,
+  });
+  return axios.post(`${EVENT_API_URL}${event_id}/notes/`, note)
+    .then((response) => {
+      dispatch({
+        type: ADD_EVENT_NOTE_SUCCESS,
+        payload: response.data.data,
+      });
+    })
+    .catch((error) => {
+      dispatch({
+        type: ADD_EVENT_NOTE_ERROR,
+        payload: error,
+      });
+    });
+};
+
+export const deleteNoteFromEvent = (event_id, note_id) => (dispatch) => {
+  dispatch({
+    type: DELETE_EVENT_NOTE_START,
+    payload: note_id,
+  });
+  return axios.delete(`${EVENT_API_URL}${event_id}/notes/${note_id}`, note_id)
+    .then(() => {
+      dispatch({
+        type: DELETE_EVENT_NOTE_SUCCESS,
+      });
+    })
+    .catch((error) => {
+      dispatch({
+        type: DELETE_EVENT_NOTE_ERROR,
+        payload: error,
+      });
+    });
+};
+
+export const deleteFileFromEvent = (event_id, file_id) => axios.delete(`${EVENT_API_URL}${event_id}/files/${file_id}`);
+
 export const updateEvent = (event) => (dispatch) => {
   dispatch({
     type: UPDATE_EVENT_START,
     payload: event,
   });
 
-  return axios.patch(`EVENT_API_URL${event.id}`, event)
-    .then(response => dispatch({
-      type: UPDATE_EVENT_SUCCESS,
-      payload: response.data.data,
-    }))
-    .catch(error => dispatch({
-      type: UPDATE_EVENT_ERROR,
-      payload: error,
-    }));
+  return axios.put(`${EVENT_API_URL}${event.id}`, event)
+    .then((response) => {
+      dispatch({
+        type: UPDATE_EVENT_SUCCESS,
+        payload: response.data.data,
+      });
+      return response;
+    })
+    .catch((error) => {
+      dispatch({
+        type: UPDATE_EVENT_ERROR,
+        payload: error,
+      });
+      return error;
+    });
 };
 
 export const uploadEventFiles = ({ id }, files, progressHandler = (event) => console.log('report file upload update', event)) => (dispatch) => {
-  const uploadUrl = `EVENT_API_URL${id}/files/`;
+  const uploadUrl = `${EVENT_API_URL}${id}/files/`;
 
   dispatch({
     type: UPLOAD_EVENT_FILES_START,
@@ -140,7 +206,7 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
       dispatch(fetchMapEventsError(error));
     });
 
-}
+};
 
 
 
@@ -184,53 +250,53 @@ const INITIAL_EVENTS_STATE = {
 
 export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
   switch (action.type) {
-    case FETCH_EVENTS_START: {
-      return INITIAL_EVENTS_STATE;
-    }
-    case FETCH_EVENTS_SUCCESS: {
-      return action.payload.data;
-    }
-    case FETCH_EVENTS_NEXT_PAGE_SUCCESS: {
-      const { payload: { data } } = action;
-      const { results: events, count, next, previous } = data;
-      return {
-        ...state,
-        count,
-        next,
-        previous,
-        results: [...state.results, ...events],
-      };
-    }
-    case SOCKET_NEW_EVENT: {
-      const { payload: { event_data } } = action;
-      console.log('realtime: new event', event_data);
-      if (eventBelongsToCollection(event_data)) return state;
+  case FETCH_EVENTS_START: {
+    return INITIAL_EVENTS_STATE;
+  }
+  case FETCH_EVENTS_SUCCESS: {
+    return action.payload.data;
+  }
+  case FETCH_EVENTS_NEXT_PAGE_SUCCESS: {
+    const { payload: { data } } = action;
+    const { results: events, count, next, previous } = data;
+    return {
+      ...state,
+      count,
+      next,
+      previous,
+      results: [...state.results, ...events],
+    };
+  }
+  case SOCKET_NEW_EVENT: {
+    const { payload: { event_data } } = action;
+    console.log('realtime: new event', event_data);
+    if (eventBelongsToCollection(event_data)) return state;
 
-      if (event_data.geojson) {
-        event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-      }
-      return {
-        ...state,
-        results: [event_data, ...state.results],
-      }
-    }
-    case SOCKET_UPDATE_EVENT: {
-      const { payload: { event_data, event_id } } = action;
-      console.log('realtime: event update', event_data);
-
-      if (eventBelongsToCollection(event_data)) return state;
-
-      if (!state.results.find(item => item.id === event_id)) return state;
-
+    if (event_data.geojson) {
       event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-      return {
-        ...state,
-        results: unionBy([event_data], state.results, 'id'),
-      };
     }
-    default: {
-      return state;
-    }
+    return {
+      ...state,
+      results: [event_data, ...state.results],
+    };
+  }
+  case SOCKET_UPDATE_EVENT: {
+    const { payload: { event_data, event_id } } = action;
+    console.log('realtime: event update', event_data);
+
+    if (eventBelongsToCollection(event_data)) return state;
+
+    if (!state.results.find(item => item.id === event_id)) return state;
+
+    event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+    return {
+      ...state,
+      results: unionBy([event_data], state.results, 'id'),
+    };
+  }
+  default: {
+    return state;
+  }
   }
 };
 
@@ -240,29 +306,29 @@ const INITIAL_MAP_EVENTS_STATE = [];
 
 export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, action = {}) {
   switch (action.type) {
-    case FETCH_MAP_EVENTS_PAGE_SUCCESS: {
-      return unionBy(action.payload, state, 'id');
-    }
-    case FETCH_MAP_EVENTS_SUCCESS: {
-      return action.payload;
-    }
-    case SOCKET_NEW_EVENT: {
-      const { payload: { event_data } } = action;
-      if (event_data.geojson) {
-        event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-      }
-      return [...state, event_data];
-    }
-    case SOCKET_UPDATE_EVENT: {
-      const { payload: { event_data, event_id } } = action;
-
-      if (!state.find(item => item.id === event_id)) return state;
-
+  case FETCH_MAP_EVENTS_PAGE_SUCCESS: {
+    return unionBy(action.payload, state, 'id');
+  }
+  case FETCH_MAP_EVENTS_SUCCESS: {
+    return action.payload;
+  }
+  case SOCKET_NEW_EVENT: {
+    const { payload: { event_data } } = action;
+    if (event_data.geojson) {
       event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-      return unionBy([event_data], state, 'id');
     }
-    default: {
-      return state;
-    }
+    return [...state, event_data];
+  }
+  case SOCKET_UPDATE_EVENT: {
+    const { payload: { event_data, event_id } } = action;
+
+    if (!state.find(item => item.id === event_id)) return state;
+
+    event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
+    return unionBy([event_data], state, 'id');
+  }
+  default: {
+    return state;
+  }
   }
 };

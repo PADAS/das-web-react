@@ -25,7 +25,7 @@ const AttachmentList = (props) => {
         </h6>}
         <button type="button" className={styles.ellipseText} href="#" onClick={() => onClickNote(note)}>{note.text}</button>
       </div>
-      <button type="button" onClick={() => onDeleteNote(note)} className={styles.x}>X</button>
+      {noteIsNew && <button type="button" onClick={() => onDeleteNote(note)} className={styles.x}>X</button>}
     </li>;
 
   };
@@ -43,7 +43,7 @@ const AttachmentList = (props) => {
         </h6>}
         <button type="button" onClick={() => file.id ? onClickFile(file) : null}>{file.filename || file.name}</button>
       </div>
-      <button type="button" onClick={() => onDeleteFile(file)} className={styles.x}>X</button>
+      {fileIsNew && <button type="button" onClick={() => onDeleteFile(file)} className={styles.x}>X</button>}
     </li>;
   };
 

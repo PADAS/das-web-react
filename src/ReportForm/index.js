@@ -5,11 +5,13 @@ import { Button } from 'react-bootstrap';
 import Form from 'react-jsonschema-form';
 
 import { uploadFiles, downloadFileFromUrl } from '../utils/file';
+import { generateSaveActionsForReportForm } from '../utils/events';
+import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
+import { extractObjectDifference } from '../utils/objects';
 
 import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
 
 import { getReportFormSchemaData } from '../selectors';
-import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 
 import ReportFormAttachmentControls from './AttachmentControls';
@@ -30,10 +32,8 @@ const ReportForm = memo((props) => {
   const [report, updateStateReport] = useState(originalReport);
 
   const [filesToUpload, updateFilesToUpload] = useState([]);
-  const [filesToDelete, updateFilesToDelete] = useState([]);
 
   const [notesToAdd, updateNotesToAdd] = useState([]);
-  const [notesToDelete, updateNotesToDelete] = useState([]);
 
   useEffect(() => {
     return () => {
@@ -72,15 +72,8 @@ const ReportForm = memo((props) => {
   };
 
   const onDeleteFile = (file) => {
-    const { name, id } = file;
-
-    const fileIsNew = !id;
-
-    if (fileIsNew) {
-      updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
-    } else {
-      updateFilesToDelete([...filesToDelete, id]);
-    }
+    const { name } = file;
+    updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
   };
 
   const startEditNote = (note) => {
@@ -99,13 +92,13 @@ const ReportForm = memo((props) => {
       const { originalText } = note;
 
       if (originalText) {
-        delete note.originalText;
         updateNotesToAdd(
           notesToAdd.map(n => n.text === originalText ? note : n)
         );
       } else {
         updateNotesToAdd([...notesToAdd, note]);
       }
+      delete note.originalText;
     } else {
       updateStateReport({
         ...report,
@@ -116,19 +109,13 @@ const ReportForm = memo((props) => {
   };
 
   const onDeleteNote = (note) => {
-    const { id, text } = note;
-    const noteIsNew = !id;
-
-    if (noteIsNew) {
-      updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
-    } else {
-      updateNotesToDelete([...notesToDelete, id]);
-    }
+    const { text } = note;
+    updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
   };
 
   const onReportedByChange = selection => updateStateReport({
     ...report,
-    reported_by: selection ? selection.id : null,
+    reported_by: selection ? selection : null,
   });
 
   const onReportDateChange = date => updateStateReport({
@@ -166,7 +153,43 @@ const ReportForm = memo((props) => {
 
   const onClickAddReport = () => null;
 
-  const handleFormSubmit = formData => console.log('formdata', formData);
+  const handleFormSubmit = () => {
+    const changes = extractObjectDifference(report, originalReport);
+
+    /* the ID never changes, so carry it over */
+    if (report.id) {
+      changes.id = report.id;
+    }
+
+    /* the API requires an array value, even if no notes exist */
+    // changes.notes = changes.notes ? changes.notes : [];
+
+    /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
+    if (changes.reported_by) {
+      changes.reported_by = report.reported_by;
+    }
+
+    const saveActions = generateSaveActionsForReportForm(changes, notesToAdd, filesToUpload);
+    let eventID;
+
+    console.log('changes', changes);
+
+    console.log('my saveActions', saveActions);
+
+    saveActions.reduce(async (action, { action: nextAction }, index) => {
+      if (index === 0) return nextAction();
+
+      const isPrimaryAction = index === 1;
+      const results = await action;
+
+      if (isPrimaryAction) {
+        eventID = results.data.data.id;
+      }
+
+      return nextAction(eventID);
+
+    }, null);
+  };
 
   const onClickFile = (file) => {
     if (file.file_type === 'image') {
@@ -180,8 +203,8 @@ const ReportForm = memo((props) => {
     }
   };
 
-  const filesToList = [...filesToUpload, ...reportFiles].filter(({ id }) => !filesToDelete.includes(id));
-  const notesToList = [...notesToAdd, ...reportNotes].filter(({ id }) => !notesToDelete.includes(id));
+  const filesToList = [...filesToUpload, ...reportFiles];
+  const notesToList = [...notesToAdd, ...reportNotes];
 
   return <div className={styles.wrapper}>
     <ReportFormHeader report={report} onReportTitleChange={onReportTitleChange} onPrioritySelect={onPrioritySelect} />
@@ -215,7 +238,7 @@ const ReportForm = memo((props) => {
         <ReportFormAttachmentControls map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onClickAddReport={onClickAddReport} />
         <div className={styles.formButtons}>
           <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-          <Button type="submit" variant="primary">Submit</Button>
+          <Button type="submit" variant="primary">Save</Button>
         </div>
       </div>
     </Form>
@@ -228,9 +251,16 @@ const mapStateToProps = (state, props) => ({
 
 export default connect(mapStateToProps, { addModal, removeModal, setModalVisibilityState })(ReportForm);
 
+ReportForm.defaultProps = {
+  onSaveSuccess() {
+
+  },
+};
+
 ReportForm.propTypes = {
   report: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
   map: PropTypes.object.isRequired,
   onSubmit: PropTypes.func,
+  onSaveSuccess: PropTypes.func,
 };

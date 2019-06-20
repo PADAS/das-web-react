@@ -9,8 +9,9 @@ import styles from './styles.module.scss';
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
 
-  const getOptionLabel = ({ label }) => label;
+  const getOptionLabel = ({ label, name }) => label || name;
   const getOptionValue = ({ value }) => value;
+  const selected = enumOptions.find(({ value:v }) => v === value);
 
   const handleChange = (update) => {
     if (update) return onChange(update.value);
@@ -20,7 +21,7 @@ const SelectField = (props) => {
   return <Select
     id={id}
     required={required}
-    value={value ? value.value : undefined}
+    value={selected}
     options={enumOptions}
     placeholder={placeholder}
     isClearable={true}
@@ -41,10 +42,10 @@ const DateTimeField = (props) => {
   return <Fragment>
     <label htmlFor={id}>{label}</label>
     <DateTimePicker className={styles.datepicker} id={id} required={required} {...DATEPICKER_DEFAULT_CONFIG} maxDate={new Date()} value={date} onChange={handleChange} />
-  </Fragment>
+  </Fragment>;
 };
 
 export default {
-  select: SelectField,
-  datetime: DateTimeField,
+  select: memo(SelectField),
+  datetime: memo(DateTimeField),
 };

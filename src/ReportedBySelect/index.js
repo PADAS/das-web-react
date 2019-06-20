@@ -16,7 +16,7 @@ const ReportedBySelect = memo((props) => {
   const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
   const allRadios = reporters.filter(subjectIsARadio);
 
-  const selected = allRadios.find(({ id }) => id === value);
+  const selected = value && value.id && allRadios.find(({ id }) => id === value.id);
 
   const options = [
     {
@@ -30,7 +30,6 @@ const ReportedBySelect = memo((props) => {
   ];
 
   const getOptionLabel = ({ name }) => name;
-  const getOptionValue = ({ id }) => id;
 
   const Option = (props) => {
     const { value, data } = props;
@@ -58,8 +57,7 @@ const ReportedBySelect = memo((props) => {
     onChange={onChange}
     options={options}
     placeholder='Reported By...'
-    getOptionLabel={getOptionLabel}
-    getOptionValue={getOptionValue} />;
+    getOptionLabel={getOptionLabel} />;
 });
 
 const mapStateToProps = (state) => ({
@@ -76,7 +74,7 @@ ReportedBySelect.defaultProps = {
 
 
 ReportedBySelect.propTypes = {
-  value: PropTypes.string,
+  value: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   numberOfRecentRadiosToShow: PropTypes.number,
 };
