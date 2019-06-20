@@ -5,7 +5,7 @@ import Select, { components } from 'react-select';
 import TimeAgo from 'react-timeago';
 
 import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
-
+import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy, allSubjects } from '../selectors';
 
 import styles from './styles.module.scss';
@@ -38,7 +38,7 @@ const ReportedBySelect = memo((props) => {
       && (data.last_voice_call_start_at || data.last_position_date);
 
     return (
-      <div className={styles.option}>
+      <div className={styles.option} >
         <components.Option {...props}>
           <span>{data.name}</span>
           {isRecent &&
@@ -51,12 +51,13 @@ const ReportedBySelect = memo((props) => {
 
   return <Select
     components={{ Option }}
-    value={selected}
+    // value={selected}
     isClearable={true}
     isSearchable={true}
     onChange={onChange}
     options={options}
     placeholder='Reported By...'
+    styles={DEFAULT_SELECT_STYLES}
     getOptionLabel={getOptionLabel} />;
 });
 

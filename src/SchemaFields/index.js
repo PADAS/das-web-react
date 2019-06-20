@@ -2,7 +2,7 @@ import React, { memo, Fragment } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -29,6 +29,7 @@ const SelectField = (props) => {
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
     onChange={handleChange}
+    styles={DEFAULT_SELECT_STYLES}
   />;
 };
 
@@ -46,6 +47,6 @@ const DateTimeField = (props) => {
 };
 
 export default {
-  select: memo(SelectField),
-  datetime: memo(DateTimeField),
+  select: SelectField,
+  datetime: DateTimeField,
 };

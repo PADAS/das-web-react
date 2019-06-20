@@ -107,6 +107,18 @@ export const REPORT_PRIORITIES = [
   },
 ];
 
+export const DEFAULT_SELECT_STYLES = {
+  option(styles, state) {
+    const { isDisabled, isFocused } = state;
+    return {
+      ...styles,
+      backgroundColor: isDisabled ? 'gray' : (isFocused ? '#006cd9' : 'white'),
+      color: isFocused ? 'white' : 'inherit',
+      cursor: isDisabled ? 'not-allowed' : 'default',
+    };
+  },
+};
+
 export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,
   format: 'dd-MM-yyyy HH:mm',
