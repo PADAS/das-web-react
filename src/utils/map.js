@@ -136,15 +136,6 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
-  /* Last, find the zoom box, and enable/disable it. 
-  We are making the assumption there is only one zoom box 
-  Note: google tells me this is not performant, but its not clear if
-  there are any ther options here */
-  const zoomBox = document.querySelector('div.mapbox-zoom-ctrl');
-  const pointerVal =  isLocked ? 'none' : 'visible';
-  zoomBox.style.setProperty('pointer-events', pointerVal);
-
-
 };
 
 
