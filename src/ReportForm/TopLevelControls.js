@@ -24,10 +24,8 @@ const ReportFormTopLevelControls = memo((props) => {
   const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
-  const { event_category } = report;
-  
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
-  const canShowReportedBy = event_category !== 'analyzer_event';
+  const canShowReportedBy = report.provenance !== 'analyzer';
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
