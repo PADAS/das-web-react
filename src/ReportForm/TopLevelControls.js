@@ -23,8 +23,11 @@ import styles from './styles.module.scss';
 const ReportFormTopLevelControls = memo((props) => {
   const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
+
+  const { event_category } = report;
   
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
+  const canShowReportedBy = event_category !== 'analyzer_event';
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
@@ -52,11 +55,11 @@ const ReportFormTopLevelControls = memo((props) => {
   };
 
   return <div className={styles.reportControls}>
-    <label>
+    {canShowReportedBy && <label>
       <PersonIcon className={`${styles.icon} ${styles.iconFill}`} />
       <span>Reported by:</span>
       <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
-    </label>
+    </label>}
     <label>
       <ClockIcon className={styles.icon} />
       <span>Report time:</span>
@@ -87,7 +90,7 @@ const ReportFormTopLevelControls = memo((props) => {
   </div>;
 });
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }, props) => ({
+const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({
   gpsFormat
 });
 

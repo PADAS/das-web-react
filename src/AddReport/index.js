@@ -6,16 +6,15 @@ import { Popover, Overlay } from 'react-bootstrap';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
-import { mapReportTypesToCategories } from '../utils/event-types';
+import { getUserCreatableEventTypesByCategory } from '../selectors';
 
 import EventTypeListItem from '../EventTypeListItem';
 
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { eventTypes, map, showLabel, showIcon, container, title } = props;
-  const itemsGroupedByCategory = mapReportTypesToCategories(eventTypes);
-  const [selectedCategory, selectCategory] = useState(itemsGroupedByCategory[0].category);
+  const { eventsByCategory, map, showLabel, showIcon, container, title } = props;
+  const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
@@ -35,16 +34,16 @@ const AddReport = (props) => {
   };
 
   const categoryList = <ul className={styles.categoryMenu}>
-    {itemsGroupedByCategory.map(({ category, display }) =>
-      <li key={category}>
-        <button className={category === selectedCategory ? styles.activeCategory : ''} onClick={() => selectCategory(category)}>{display}</button>
+    {eventsByCategory.map(({ value, display }) =>
+      <li key={value}>
+        <button className={value === selectedCategory ? styles.activeCategory : ''} onClick={() => selectCategory(value)}>{display}</button>
       </li>
     )}
   </ul>;
 
   const reportTypeList = <ul className={styles.reportTypeMenu}>
-    {itemsGroupedByCategory
-      .find(({ category: c }) => c === selectedCategory).types
+    {eventsByCategory
+      .find(({ value: c }) => c === selectedCategory).types
       .map(createListItem)}
   </ul>;
 
@@ -64,7 +63,9 @@ const AddReport = (props) => {
   </Fragment>;
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+const mapStateToProps = (state) => ({
+  eventsByCategory: getUserCreatableEventTypesByCategory(state),
+});
 export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {

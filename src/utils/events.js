@@ -125,21 +125,23 @@ export const executeReportSaveActions = (saveActions) => {
       saveActions.reduce(async (action, { action: nextAction }, index, collection) => {
         const isPrimaryAction = index === 1;
         const isLast = index === collection.length - 1;
-        const results = await action.catch((error) => reject(error));
+        const results = await action;
 
         if (isPrimaryAction) {
           eventID = results.data.data.id;
         }
 
-        return nextAction(eventID).then((results) => {
-          if (isLast) {
-            return resolve();
-          }
-          return results;
-        });
+        return nextAction(eventID)
+          .then((results) => {
+            if (isLast) {
+              return resolve();
+            }
+            return results;
+          })
+          .catch((error) => reject(error));
       }, Promise.resolve());
     } catch (e) {
-      reject(e);
+      return reject(e);
     }
   });
 };

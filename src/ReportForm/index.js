@@ -181,8 +181,8 @@ const ReportForm = memo((props) => {
     const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
 
     executeReportSaveActions(actions)
-      .then(() => onSaveSuccess())
-      .catch((e) => onSaveError(e));
+      .then(onSaveSuccess)
+      .catch(onSaveError);
   };
 
   const onClickFile = (file) => {

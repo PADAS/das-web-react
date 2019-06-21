@@ -1,5 +1,5 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
-import { createSelectorCreator, defaultMemoize } from 'reselect'
+import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
@@ -7,7 +7,8 @@ import isEqual from 'react-fast-compare';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
 import { convertTrackLineStringToPoints } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
-import { calcRecentRadiosFromSubjects, getUniqueSubjectGroupSubjects } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
+import { mapReportTypesToCategories } from '../utils/event-types';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
@@ -30,9 +31,24 @@ const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSch
     .map(({ value }) => value)
   : [];
 
+const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
+  mapReportTypesToCategories(eventTypes)
+    .filter((category) => {
+      if (category.flag && category.flag === 'user') {
+        return category.permissions.includes('create');
+      }
+      if (!category.flag) return true;
+      return false;
+    });
+
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents],
   mapEvents => createFeatureCollectionFromEvents(mapEvents)
+);
+
+export const getUserCreatableEventTypesByCategory = createSelector(
+  [userCreatableEventTypesByCategory],
+  categories => categories,
 );
 
 export const getMapSubjectFeatureCollection = createSelector(
@@ -88,15 +104,15 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-      ...data.geojson.features
-        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-        .map(feature => {
-          if (feature.properties.image) {
-            feature = addIconToGeoJson(feature);
-            feature.properties.image = calcUrlForImage(feature.properties.image);
-          }
-          return feature;
-        })], []);
+        ...data.geojson.features
+          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+          .map(feature => {
+            if (feature.properties.image) {
+              feature = addIconToGeoJson(feature);
+              feature.properties.image = calcUrlForImage(feature.properties.image);
+            }
+            return feature;
+          })], []);
     return {
       symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
       lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),

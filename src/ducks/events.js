@@ -62,7 +62,7 @@ export const createEvent = (event) => (dispatch) => {
         type: CREATE_EVENT_ERROR,
         payload: error,
       });
-      return error;
+      return Promise.reject(error);
     });
 };
 
@@ -84,7 +84,7 @@ export const addNoteToEvent = (event_id, note) => (dispatch) => {
         type: ADD_EVENT_NOTE_ERROR,
         payload: error,
       });
-      return error;
+      return Promise.reject(error);
     });
 };
 
@@ -109,7 +109,7 @@ export const updateEvent = (event) => (dispatch) => {
         type: UPDATE_EVENT_ERROR,
         payload: error,
       });
-      return error;
+      return Promise.reject(error);
     });
 };
 
@@ -146,7 +146,7 @@ export const uploadEventFile = (event_id, file, progressHandler = (event) => con
         type: UPLOAD_EVENT_FILES_ERROR,
         payload: error,
       });
-      return error;
+      return Promise.reject(error);
     });
 
 
