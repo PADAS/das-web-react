@@ -146,7 +146,7 @@ export const executeReportSaveActions = (saveActions) => {
   });
 };
 
-export const openModalForReport = async (event, map, onSubmit) => {
+export const openModalForReport = async (event, map, onSaveSuccess, onSaveError) => {
   const { data: { eventSchemas } } = store.getState();
   const { event_type } = event;
 
@@ -159,7 +159,8 @@ export const openModalForReport = async (event, map, onSubmit) => {
       content: ReportForm,
       report: event,
       map,
-      onSubmit,
+      onSaveSuccess,
+      onSaveError,
       modalProps: {
         className: 'event-form-modal',
       },
@@ -172,6 +173,19 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   priority,
   event_details: {},
 });
+
+
+export const generateErrorListForApiResponseDetails = (response) => {
+  try {
+    const { response: {  data: { status: { detail:details } } } } = response;
+    return Object.entries(JSON.parse(details.replace(/'/g, '"')))
+      .reduce((accumulator, [key, value]) =>
+        [{ label: key, message: value }, ...accumulator],
+      []);
+  } catch (e) {
+    return [{ label: 'Unkown error' }];
+  }
+};
 
 
 /*

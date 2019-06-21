@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import Form from 'react-jsonschema-form';
 
 import { downloadFileFromUrl } from '../utils/file';
@@ -17,6 +17,7 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
 import ReportFormAttachmentList from './AttachmentList';
+import ReportFormErrorMessages from './ErrorMessages';
 import ReportFormHeader from './Header';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
@@ -34,6 +35,8 @@ const ReportForm = memo((props) => {
   const [filesToUpload, updateFilesToUpload] = useState([]);
 
   const [notesToAdd, updateNotesToAdd] = useState([]);
+
+  const [saveError, setSaveErrorState] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -165,12 +168,12 @@ const ReportForm = memo((props) => {
         ...changes,
         id: report.id,
       };
-      
+
       /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
       if (changes.reported_by) {
         toSubmit.reported_by = report.reported_by;
       }
-  
+
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
       if (changes.notes) {
         toSubmit.notes = report.notes;
@@ -181,8 +184,19 @@ const ReportForm = memo((props) => {
     const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
 
     executeReportSaveActions(actions)
-      .then(onSaveSuccess)
-      .catch(onSaveError);
+      .then(() => {
+        onSaveSuccess(report);
+        removeModal(id);
+      })
+      .catch(handleSaveError);
+  };
+
+  const clearErrors = () => setSaveErrorState(null);
+
+  const handleSaveError = (e) => {
+    setSaveErrorState(e);
+    onSaveError(e);
+    setTimeout(clearErrors, 7000);
   };
 
   const onClickFile = (file) => {
@@ -201,6 +215,9 @@ const ReportForm = memo((props) => {
   const notesToList = [...notesToAdd, ...reportNotes];
 
   return <div className={styles.wrapper}>
+
+    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
+
     <ReportFormHeader report={report} onReportTitleChange={onReportTitleChange} onPrioritySelect={onPrioritySelect} />
 
     {!is_collection && <ReportFormTopLevelControls
@@ -213,13 +230,14 @@ const ReportForm = memo((props) => {
     <Form
       additionalMetaSchemas={additionalMetaSchemas}
       className={styles.form}
+      disabled={schema.readonly}
       formData={unwrapEventDetailSelectValues(report.event_details)}
       ref={formRef}
-      schema={schema}
-      uiSchema={uiSchema}
       onChange={onDetailChange}
       onSubmit={handleFormSubmit}
       safeRenderCompletion={true}
+      schema={schema}
+      uiSchema={uiSchema}
     >
       <ReportFormAttachmentList
         files={filesToList}

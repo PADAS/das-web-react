@@ -2,6 +2,7 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
 @import '../common/styles/layout';
+@import '../common//styles/animations';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -47,6 +48,23 @@
 .reportControls, .formButtons {
   align-items: center;
   display: flex;
+}
+
+.saveErrorAlert {
+  @include fade-in;
+  border-radius: 0;
+  bottom: -1rem;
+  box-shadow: 0 0 .25rem rgb(38, 38, 38);
+  min-height: 10rem;
+  position: absolute;
+  width: 100%;
+  z-index: 5;
+  h6 {
+    margin-bottom: 1rem;
+  }
+  ul {
+    margin: 0;
+  }
 }
 
 .reportControls {
