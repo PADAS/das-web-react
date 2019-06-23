@@ -22,9 +22,12 @@ const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(it
 const SubjectsLayer = memo((props) => {
   const { onSubjectIconClick, subjects, map, showMapNames, ...rest } = props;
 
-  symbolLayout['text-size'] = showMapNames? symbolLayout['text-size'] : 0;
-
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
+
+  const layout = {
+    ...symbolLayout,
+    'text-size': showMapNames ? symbolLayout['text-size'] : 0,
+  };
 
   return (
     <GeoJSONLayer
@@ -32,9 +35,11 @@ const SubjectsLayer = memo((props) => {
       {...rest}
       symbolOnClick={onSymbolClick}
       data={subjects}
-      symbolLayout={symbolLayout} />
+      symbolLayout={layout} />
   );
-}, (prev, current) => (prev.map && current.map) && isEqual(prev.subjects, current.subjects));
+}, (prev, current) => (prev.map && current.map) 
+            && isEqual(prev.subjects, current.subjects)
+            && isEqual(prev.showMapNames, current.showMapNames));
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
@@ -43,7 +48,6 @@ SubjectsLayer.propTypes = {
 };
 
 const mapStateToProps = ( {view:{showMapNames}} ) => {
-  console.log('Map state to props: ' + showMapNames)
   return {showMapNames};
 }
 
