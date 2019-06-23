@@ -16,7 +16,7 @@ import { openModalForReport } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, toggleMapNameState } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
@@ -56,8 +56,6 @@ class Map extends Component {
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
-    this.toggleMapLockState = this.toggleMapLockState.bind(this);
-    this.toggleMapNameState = this.toggleMapNameState.bind(this);
   }
 
   cancelToken = CancelToken.source();
@@ -111,16 +109,6 @@ class Map extends Component {
     this.cancelToken = CancelToken.source();
     this.fetchMapData();
   }, 500)
-
-  toggleMapLockState(e) {
-    console.log('Map.toggleLockState');
-    return toggleMapLockState();
-  }
-
-  toggleMapNameState(e) {
-    console.log("Map.toggleLockState");
-    return toggleMapNameState();
-  }
   
   fetchMapData() {
     this.fetchMapSubjects();
@@ -245,7 +233,7 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, mapIsLocked } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
@@ -256,7 +244,7 @@ class Map extends Component {
       <MapboxMap
         id='map'
         center={homeMap.center}
-        className='main-map'
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
         onMoveEnd={this.onMapMoveEnd}
         movingMethod={'easeTo'}
         onClick={this.onMapClick}
@@ -306,13 +294,14 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, popup, subjectTrackState, heatmapSubjectIDs } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs } = view;
 
   return ({
     maps,
     heatmapSubjectIDs,
     tracks,
     homeMap,
+    mapIsLocked,
     popup,
     eventFilter,
     subjectTrackState,
@@ -331,6 +320,7 @@ export default connect(mapStatetoProps, {
   hidePopup,
   addModal,
   showPopup,
+  toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
 }
