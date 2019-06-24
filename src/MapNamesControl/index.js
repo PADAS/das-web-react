@@ -11,10 +11,10 @@ const MapNamesControl = (props) => {
     toggleMapNameState(!showMapNames);
   };
 
-  return <div>
+  return <label>
     <input type='checkbox' id='mapname' name='mapname' checked={showMapNames} onChange={handleChange}/>
-    <label htmlFor='mapname'>Show Map Names </label>
-    </div>;
+    <span className={styles.cbxlabel}>Show Subject Names </span>
+    </label>;
 };
 
 const mapStateToProps = ( {view:{showMapNames}} ) => {

@@ -16,10 +16,10 @@ const MapLockControl = (props) => {
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);
 
-  return <div>
+  return <label>
     <input type='checkbox' name='maplock' checked={mapIsLocked} onChange={handleChange}/>
-    <label htmlFor='maplock'>Lock Map Movement</label>
-    </div>;
+    <span className={styles.cbxlabel}>Lock Movement</span>
+    </label>;
 };
 
 const mapStateToProps = ( {view:{mapIsLocked}} ) => {
