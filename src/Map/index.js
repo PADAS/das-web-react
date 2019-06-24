@@ -6,7 +6,7 @@ import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
 
-import { REACT_APP_MAPBOX_TOKEN } from '../constants';
+import { REACT_APP_MAPBOX_TOKEN, MIN_ZOOM, MAX_ZOOM } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
@@ -33,8 +33,8 @@ import './Map.scss';
 
 const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
-  minZoom: 4,
-  maxZoom: 18,
+  minZoom: MIN_ZOOM,
+  maxZoom: MAX_ZOOM,
 });
 
 const mapConfig = {

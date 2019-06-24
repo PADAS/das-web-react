@@ -8,6 +8,9 @@ export const {
   REACT_APP_ROUTE_PREFIX,
 } = process.env;
 
+export const MIN_ZOOM = 4;
+export const MAX_ZOOM = 18;
+
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
