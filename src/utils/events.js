@@ -9,6 +9,7 @@ import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
+import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 
 import ReportForm from '../ReportForm';
 
@@ -29,10 +30,10 @@ export const getCoordinatesForEvent = evt => evt.geojson
 
 export const eventHasLocation = (evt) => {
   if (evt.is_collection) {
-    return evt.contains && evt.contains.some(contained => !!getCoordinatesForEvent(contained.related_event))
+    return evt.contains && evt.contains.some(contained => !!getCoordinatesForEvent(contained.related_event));
   }
   return !!evt.location;
-}
+};
 
 export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;
 
@@ -99,7 +100,53 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   return label;
 };
 
-export const openModalForReport = async (event, map, onSubmit) => {
+export const generateSaveActionsForReport = (formData, notesToAdd = [], filesToAdd = []) => {
+  const report = { ...formData };
+
+
+
+  const primarySaveOperation = report.id ? REPORT_SAVE_ACTIONS.updateEvent(report) : REPORT_SAVE_ACTIONS.createEvent(report);
+  const fileOperations = [
+    ...filesToAdd.map(REPORT_SAVE_ACTIONS.addFile),
+  ];
+
+  const noteOperations = [
+    ...notesToAdd.map(REPORT_SAVE_ACTIONS.addNote),
+  ];
+
+  return [primarySaveOperation, ...fileOperations, ...noteOperations].sort((a, b) => b.priority - a.priority);
+};
+
+export const executeReportSaveActions = (saveActions) => {
+  let eventID;
+
+  return new Promise((resolve, reject) => {
+    try {
+      saveActions.reduce(async (action, { action: nextAction }, index, collection) => {
+        const isPrimaryAction = index === 1;
+        const isLast = index === collection.length - 1;
+        const results = await action;
+
+        if (isPrimaryAction) {
+          eventID = results.data.data.id;
+        }
+
+        return nextAction(eventID)
+          .then((results) => {
+            if (isLast) {
+              return resolve();
+            }
+            return results;
+          })
+          .catch((error) => reject(error));
+      }, Promise.resolve());
+    } catch (e) {
+      return reject(e);
+    }
+  });
+};
+
+export const openModalForReport = async (event, map, onSaveSuccess, onSaveError) => {
   const { data: { eventSchemas } } = store.getState();
   const { event_type } = event;
 
@@ -112,19 +159,33 @@ export const openModalForReport = async (event, map, onSubmit) => {
       content: ReportForm,
       report: event,
       map,
-      onSubmit,
+      onSaveSuccess,
+      onSaveError,
       modalProps: {
         className: 'event-form-modal',
       },
     }));
 };
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority:priority = 0 }) => ({
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }) => ({
   event_type,
   icon_id,
   priority,
   event_details: {},
 });
+
+
+export const generateErrorListForApiResponseDetails = (response) => {
+  try {
+    const { response: {  data: { status: { detail:details } } } } = response;
+    return Object.entries(JSON.parse(details.replace(/'/g, '"')))
+      .reduce((accumulator, [key, value]) =>
+        [{ label: key, message: value }, ...accumulator],
+      []);
+  } catch (e) {
+    return [{ label: 'Unkown error' }];
+  }
+};
 
 
 /*

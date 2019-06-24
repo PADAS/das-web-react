@@ -13,7 +13,7 @@ import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
-import modalsReducer from '../ducks/modals'
+import modalsReducer from '../ducks/modals';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 

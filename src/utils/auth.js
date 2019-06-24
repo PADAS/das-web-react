@@ -7,6 +7,7 @@ const goToLoginPageOnAuthFailure = (error) => {
     store.dispatch(clearAuth());
     return error;
   }
+  return Promise.reject(error);
 };
 
 const nonDefaultProfileSelected = () => {

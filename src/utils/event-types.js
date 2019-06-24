@@ -20,13 +20,11 @@ export const calcIconColorByPriority = (priority) => {
 export const mapReportTypesToCategories = eventTypes => eventTypes
   .filter(reportType => reportType.category.value !== 'hidden')
   .reduce((accumulator, reportType) => {
-    const cat = accumulator.find(item => item.category === reportType.category.value);
+    const cat = accumulator.find(item => item.value === reportType.category.value);
     if (!cat) {
       const data = {
-        category: reportType.category.value,
-        display: reportType.category.display,
+        ...reportType.category,
         types: [reportType],
-        orderNum: reportType.category.ordernum,
       };
       accumulator.push(data);
     } else {

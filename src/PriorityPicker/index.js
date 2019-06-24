@@ -10,26 +10,27 @@ const calcClassNameForPriority = (priority) => {
   if (priority === 200) return 'mediumPriority';
   if (priority === 100) return 'lowPriority';
   return 'noPriority';
-}
+};
 
 
-const PriorityPicker = memo((props) => {
-  const { onSelect, selected, ...rest } = props;
+const PriorityPicker = (props) => {
+  const { className, onSelect, selected } = props;
 
-  return <ul className={styles.list}>
+  return <ul className={`${styles.list} ${className}`}>
     {REPORT_PRIORITIES.map(({ display, value }) => <li key={value}>
-      <button type='button' className={`${styles.option} ${styles[calcClassNameForPriority(value)]} ${selected === value ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
+      <button title={display} type='button' className={`${styles[calcClassNameForPriority(value)]} ${selected === value ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
         {display}
       </button>
     </li>
     )}
-  </ul>
+  </ul>;
 
-});
+};
 
-export default PriorityPicker;
+export default memo(PriorityPicker);
 
 PriorityPicker.defaultProps = {
+  className: '',
   onSelect(value) {
     console.log('i chose', value);
   },
@@ -37,6 +38,7 @@ PriorityPicker.defaultProps = {
 };
 
 PriorityPicker.propTypes = {
+  className: PropTypes.string,
   onSelect: PropTypes.func,
   selected: PropTypes.number,
 };

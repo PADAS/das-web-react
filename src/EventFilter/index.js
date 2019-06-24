@@ -49,8 +49,8 @@ const EventFilter = memo((props) => {
     }
   };
 
-  const onReportCategoryToggle = ({ category }) => {
-    const toToggle = eventTypes.filter(({ category: { value: v } }) => v === category).map(({ id }) => id);
+  const onReportCategoryToggle = ({ value }) => {
+    const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
     const allShown = intersection(currentFilterReportTypes, toToggle).length === toToggle.length;
     if (allShown) {
       updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(id => !toToggle.includes(id)) } });
@@ -176,7 +176,7 @@ const EventFilter = memo((props) => {
 
   const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4 className={styles.popoverTitle}>
     Filters
-    <Button type="button" style={{ marginLeft: 'auto' }} type='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
+    <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
   </h4>}>
     <Dropdown className={styles.dropdown}>
       <SelectedState />

@@ -6,7 +6,7 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
   },
 };
 
-export const generateFormSchemasFromEventTypeSchema = ({ definition:definitions, schema }) => {
+export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema }) => {
   const newSchema = { ...schema };
   const uiSchema = { ...GLOBAL_UI_SCHEMA_CONFIG };
 
@@ -90,19 +90,19 @@ const generateSchemaAndUiSchemaForCheckbox = (definition) => {
 };
 
 const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
-    schemaEntry: {
-      key,
-    },
-    uiSchemaEntry: {
-      'ui:field': customSchemaFields.datetime,
-    },
-})
+  schemaEntry: {
+    key,
+  },
+  uiSchemaEntry: {
+    'ui:field': customSchemaFields.datetime,
+  },
+});
 
 
 const addCustomSelectFieldForEnums = (schema) => {
   return Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
     if (value.hasOwnProperty('enum')) {
-      return [...accumulator, generateSchemaAndUiSchemaForSelect(key)]
+      return [...accumulator, generateSchemaAndUiSchemaForSelect(key)];
     }
     return accumulator;
   }, []);
@@ -116,7 +116,7 @@ const generateSchemaAndUiSchemaForSelect = (key) => {
     uiSchemaEntry: {
       'ui:widget': customSchemaFields.select,
     },
-  }
+  };
 };
 
 export const unwrapEventDetailSelectValues = (data) => {

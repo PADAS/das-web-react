@@ -8,6 +8,9 @@ export const {
   REACT_APP_ROUTE_PREFIX,
 } = process.env;
 
+export const MIN_ZOOM = 4;
+export const MAX_ZOOM = 18;
+
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
@@ -19,7 +22,7 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-export const MAP_ICON_SIZE = 28;
+export const MAP_ICON_SIZE = 30;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMin = '(min-width: 31.75rem)';
@@ -57,8 +60,9 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-image': ['get', 'icon_id'],
   'icon-size': [
     'interpolate', ['linear'], ['zoom'],
-    0, 0,
-    13, 1,
+    7, 0,
+    12, 1,
+    18, 1.5,
   ],
   'text-allow-overlap': ['step', ['zoom'], false, 11, true],
   'text-anchor': 'top',
@@ -67,7 +71,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'text-justify': 'center',
   'text-size': [
     'interpolate', ['linear'], ['zoom'],
-    0, 8,
+    7, 0,
     12, 14,
   ],
 };
@@ -105,6 +109,18 @@ export const REPORT_PRIORITIES = [
     value: 0,
   },
 ];
+
+export const DEFAULT_SELECT_STYLES = {
+  option(styles, state) {
+    const { isDisabled, isFocused } = state;
+    return {
+      ...styles,
+      backgroundColor: isDisabled ? 'gray' : (isFocused ? '#006cd9' : 'white'),
+      color: isFocused ? 'white' : 'inherit',
+      cursor: isDisabled ? 'not-allowed' : 'default',
+    };
+  },
+};
 
 export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,

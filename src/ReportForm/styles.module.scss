@@ -2,6 +2,7 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
 @import '../common/styles/layout';
+@import '../common//styles/animations';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -9,26 +10,23 @@
   position: relative;
 }
 
-
 .form {
   background: white;
-  max-height: calc(70vh - 4rem);
+  font-size: 0.85rem;
+  max-height: calc(80vh - 4rem);
   min-height: 6rem;
   overflow-y: auto;
   padding-bottom: 5rem;
-  @media (min-height: $lg-height-min) {
-    max-height: calc(70vh - 10rem);
+  @media #{$whenPageIsAtMediumHeightAndWidth} {
+    font-size: 1rem;
+    max-height: calc(80vh - 10rem);
   }
   legend {
     display: none;
   }
   label {
     font-weight: bold;
-    font-size: 0.85rem;
     margin-bottom: 0;
-    @media (min-width: $md-layout-width-min) {
-      font-size: 1rem;
-    }
   }
   [class$='checkbox '] {
     align-items: center;
@@ -52,6 +50,23 @@
   display: flex;
 }
 
+.saveErrorAlert {
+  @include fade-in;
+  border-radius: 0;
+  bottom: -1rem;
+  box-shadow: 0 0 .25rem rgb(38, 38, 38);
+  min-height: 10rem;
+  position: absolute;
+  width: 100%;
+  z-index: 5;
+  h6 {
+    margin-bottom: 1rem;
+  }
+  ul {
+    margin: 0;
+  }
+}
+
 .reportControls {
   background: lighten($light-gray-background, 5%);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.65);
@@ -59,28 +74,91 @@
   padding: 0 0 0.25rem !important;
   position: relative;
   z-index: 4;
-  @media (min-width: $md-layout-width-min) {
+  @media #{$whenPageIsAtMediumHeightAndWidth} {
     padding: 0.5rem !important;
   }
-  > * {
+  > label {
+    align-items: center;
+    display: flex;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 0;
     padding: 0.25rem 0.5rem;
     position: relative;
     width: 50%;
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
+      flex-wrap: wrap;
+      font-size: 0.9rem;
       padding: 0.5rem;
     }
-  }
-  > label {
-    display: flex;
-    flex-flow: column;
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-bottom: 0;
     > * {
       font-weight: initial;
     }
-    @media (min-width: $md-layout-width-min) {
-      font-size: 1rem;
+    > span {
+      display: none;
+      @media #{$whenPageIsAtMediumHeightAndWidth} {
+        display: initial;
+      }
+      + * {
+        width: 100%;
+        @media #{$whenPageIsAtMediumHeightAndWidth} {
+          margin-top: 0.25rem;
+        }
+      }
+    }
+  }
+
+  .locationButtons {
+    display: flex;
+    flex-flow: column;
+    margin-top: 0.25rem;
+    button {
+      @include linkButton;
+      align-items: center;
+      display: flex;
+      font-size: 0.75rem;
+      font-style: italic;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+      text-align: left;
+      &:hover {
+        opacity: 1;
+      }
+      @media #{$whenPageIsAtMediumHeightAndWidth} {
+        margin-top: 0;
+      }
+      svg {
+        margin-right: 0.25rem;
+      }
+    }
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
+      flex-flow: row;
+      justify-content: space-between;
+    }
+  }
+
+  .geoLocator {
+    [class*=alert-danger] {
+      bottom: -35%;
+      left: 0;
+      position: absolute;
+      width: 100%;
+    }
+  }
+  
+  .icon {
+    --dimensions: 1rem;
+    margin-right: 0.5rem;
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
+      --dimensions: 1.5rem;
+    }
+    height: var(--dimensions);
+    width: var(--dimensions);
+    g {
+      stroke: $primary-font-color;
+    }
+    &.iconFill, &.iconFill * {
+      fill: $primary-font-color; 
     }
   }
   [class*=react-datetime-picker__wrapper] {
@@ -123,7 +201,7 @@
     > span, > form {
       margin-left: 0.5rem;
     }
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
       font-size: 1.5rem;
     }
   }
@@ -132,7 +210,7 @@
     margin-right: 0.5rem;
     max-height: var(--dimensions);
     width: var(--dimensions);
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
       --dimensions: 2.5rem;
     }
   }
@@ -169,12 +247,12 @@
     button {
       flex: 1;
       margin-left: 0;
-      @media (min-width: $md-layout-width-min) {
+      @media #{$whenPageIsAtMediumHeightAndWidth} {
         flex: initial;
         margin-left: auto;
       }
     }
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
       flex-wrap: nowrap;
     }
   }
@@ -193,7 +271,6 @@
 
 .locationAnchor {
   @include defaultTextInput;
-
   color: $primary-font-color;
 }
 
@@ -214,12 +291,12 @@
     line-height: normal;
     flex: 1;
     flex-flow: column;
-    padding: 1rem 0.5rem;
+    padding: 0.5rem 0.25rem;
     transition: all .1s linear;
-    @media (min-height: $md-height-min) {
+    @media #{$whenPageIsAtMediumHeightAndWidth} {
       font-size: 0.75rem;
     }
-    @media (min-width: $md-layout-width-min) and (min-height: $lg-height-min) {
+    @media #{$whenPageIsTallAndMediumWidth} {
       font-size: 1rem;
     }
     &:hover {
@@ -237,11 +314,19 @@
         cursor: copy;
       }
     }
+    span, small {
+      display: none;
+      @media #{$whenPageIsAtMediumHeightAndWidth} {
+        display: initial;
+      }
+    }
     svg {
       height: auto;
       width: 1.5rem;
-      margin-bottom: 0.5rem;
-      @media (min-width: $md-layout-width-min) and (min-height: $lg-height-min) {
+      @media #{$whenPageIsAtMediumHeightAndWidth} {
+        margin-bottom: 0.5rem;
+      }
+      @media #{$whenPageIsTallAndMediumWidth} {
         width: 2rem;
       }
     }
@@ -253,12 +338,10 @@
     @media (min-width: $md-layout-width-min) {
       left: 5vw;
     }
-    @media (min-width: $lg-layout-width-min) and (min-height: $lg-height-min) {
-      left: 20vw;
-    }
-    @media (min-height: $lg-height-min) {
+    @media #{$whenPageIsIsTallAndWide} {
       bottom: auto;
-      top: -50%;
+      left: 20vw;
+      top: -12rem;
     }
   }
 }
@@ -269,6 +352,11 @@
 
 .ellipseText {
   text-overflow: ellipsis;
+}
+
+[class$='-placeholder'] {
+  @extend .ellipseText;
+  white-space: nowrap;
 }
 
 

@@ -2,10 +2,10 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
-import TimeAgo from 'react-timeago'
+import TimeAgo from 'react-timeago';
 
 import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
-
+import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy, allSubjects } from '../selectors';
 
 import styles from './styles.module.scss';
@@ -16,7 +16,7 @@ const ReportedBySelect = memo((props) => {
   const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
   const allRadios = reporters.filter(subjectIsARadio);
 
-  const selected = allRadios.find(({ id }) => id === value);
+  const selected = value && value.id && allRadios.find(({ id }) => id === value.id);
 
   const options = [
     {
@@ -30,7 +30,6 @@ const ReportedBySelect = memo((props) => {
   ];
 
   const getOptionLabel = ({ name }) => name;
-  const getOptionValue = ({ id }) => id;
 
   const Option = (props) => {
     const { value, data } = props;
@@ -39,7 +38,7 @@ const ReportedBySelect = memo((props) => {
       && (data.last_voice_call_start_at || data.last_position_date);
 
     return (
-      <div className={styles.option}>
+      <div className={styles.option} >
         <components.Option {...props}>
           <span>{data.name}</span>
           {isRecent &&
@@ -47,7 +46,7 @@ const ReportedBySelect = memo((props) => {
           }
         </components.Option>
       </div>
-    )
+    );
   };
 
   return <Select
@@ -57,8 +56,9 @@ const ReportedBySelect = memo((props) => {
     isSearchable={true}
     onChange={onChange}
     options={options}
-    getOptionLabel={getOptionLabel}
-    getOptionValue={getOptionValue} />;
+    placeholder='Reported By...'
+    styles={DEFAULT_SELECT_STYLES}
+    getOptionLabel={getOptionLabel} />;
 });
 
 const mapStateToProps = (state) => ({
@@ -71,11 +71,11 @@ export default connect(mapStateToProps, null)(ReportedBySelect);
 ReportedBySelect.defaultProps = {
   value: null,
   numberOfRecentRadiosToShow: 5,
-}
+};
 
 
 ReportedBySelect.propTypes = {
-  value: PropTypes.string,
+  value: PropTypes.object,
   onChange: PropTypes.func.isRequired,
   numberOfRecentRadiosToShow: PropTypes.number,
 };

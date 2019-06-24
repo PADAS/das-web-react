@@ -12,7 +12,7 @@
 }
 
 $map-canvas: '.mapboxgl-canvas';
-$non-map-top-level-components: 'aside, nav, .mapboxgl-map button';
+$non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button';
 
 :root {
   --nav-height: 3rem;
@@ -47,11 +47,16 @@ body {
 .App {
   &.picking-location {
     #{$non-map-top-level-components} {
-      cursor: not-allowed;
-      pointer-events: none;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
     }
     #{$map-canvas} {
       cursor: crosshair;
+    }
+    .mapboxgl-ctrl-bottom-right,
+    .mapbox-scale-ctrl,
+    .mapbox-zoom-ctrl {
+      display: none !important;
     }
   }
   &.dragging {
