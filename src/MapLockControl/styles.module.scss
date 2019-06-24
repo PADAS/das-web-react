@@ -1,21 +1,30 @@
 @import '../common/styles/buttons';
 @import '../common/styles/vars/colors';
 
+.maplock-btn {
+  @include imageButton('map_unlock');
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  background-color: rgba(255, 255, 255, 0.8);
+  height: 2rem;
+  width: 2rem;
+}
+
 $feather_dim: 26px;
 
 .maplock {
-  background: url('../common/images/icons/map_unlock.svg') no-repeat;
   position:absolute;
-  border-radius: 2px;
-  left:10px;
-  bottom:32px;
+  left: 2rem;
+  bottom: 2rem;
   height: $feather_dim;
   width: $feather_dim;
+  z-index: 1;
   &.locked {
     background: url('../common/images/icons/map_lock.svg') no-repeat;
   }
-  &.locked {
-    background: url('../common/images/icons/map_lock.svg') no-repeat;
+  &.unlocked {
+    background: url('../common/images/icons/map_unlock.svg') no-repeat;
   }
 
   cursor: pointer;

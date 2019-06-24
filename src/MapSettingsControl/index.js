@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { OverlayTrigger, Button } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
 import styles from './styles.module.scss';
@@ -22,7 +22,7 @@ const MapSettingsControl = (props) => {
   return <OverlayTrigger
     placement="right"
     overlay={
-      <MapSettingsPanel map={map} />
+      <MapSettingsPanel map={map} displayName='MapSettingsPanel' {...props} />
     }
     target={formRef.current}
     trigger="click" >
