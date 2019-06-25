@@ -36,6 +36,7 @@ const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
   minZoom: MIN_ZOOM,
   maxZoom: MAX_ZOOM,
+  logoPosition: 'top-left',
 });
 
 const mapConfig = {
