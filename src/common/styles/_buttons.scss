@@ -6,6 +6,12 @@
   outline: none;
 }
 
+@mixin imageButton($icon_name: 'gear', $color: darken(gray, 15%)) {
+  background: url('../common/images/icons/#{$icon_name}.svg') no-repeat;
+  background-size: cover;
+  border: none;
+}
+
 @mixin jumpButton {
   background:  rgba($medium-light-gray, 0.15) url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
   background-size: 1rem;

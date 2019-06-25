@@ -1,3 +1,11 @@
+.main-map {
+  &.locked {
+    div.mapbox-zoom-ctrl {
+      pointer-events: none;
+    }
+  }
+}
+
 .main-map .subject-marker-icon, .main-map .event-marker-icon {
   height: 2rem;
   width: 2rem;

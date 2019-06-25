@@ -15,8 +15,9 @@ import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolL
 import { openModalForReport } from '../utils/events';
 import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { addModal } from '../ducks/modals';
+
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
+import { addModal } from '../ducks/modals';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
@@ -25,7 +26,7 @@ import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-import MapLockControl from '../MapLockControl';
+import MapSettingsControl from '../MapSettingsControl'
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -35,6 +36,7 @@ const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
   minZoom: MIN_ZOOM,
   maxZoom: MAX_ZOOM,
+  logoPosition: 'top-left',
 });
 
 const mapConfig = {
@@ -54,7 +56,6 @@ class Map extends Component {
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
-    this.toggleMapLockState = this.toggleMapLockState.bind(this);
   }
 
   cancelToken = CancelToken.source();
@@ -237,7 +238,7 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks } = this.props;
+    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, mapIsLocked } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
@@ -248,7 +249,7 @@ class Map extends Component {
       <MapboxMap
         id='map'
         center={homeMap.center}
-        className='main-map'
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
         onMoveEnd={this.onMapMoveEnd}
         movingMethod={'easeTo'}
         onClick={this.onMapClick}
@@ -284,10 +285,10 @@ class Map extends Component {
               trackState={this.props.subjectTrackState} />
             }
 
-            <RotationControl position='bottom-left' />
+            <RotationControl position='top-left' />
             <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
-            <MapLockControl map={map} />
+            <MapSettingsControl map={map} />
             {/* <DrawControl map={map} position='bottom-left' /> */}
           </Fragment>
         )}
@@ -300,13 +301,14 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, popup, subjectTrackState, heatmapSubjectIDs } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs } = view;
 
   return ({
     maps,
     heatmapSubjectIDs,
     tracks,
     homeMap,
+    mapIsLocked,
     popup,
     eventFilter,
     subjectTrackState,
@@ -325,6 +327,7 @@ export default connect(mapStatetoProps, {
   hidePopup,
   addModal,
   showPopup,
+  toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
 }
