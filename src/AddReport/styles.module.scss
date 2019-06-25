@@ -55,7 +55,7 @@
     overflow-y: auto;
     padding: 0;
     @media (min-height: $lg-height-min) {
-      max-height: 24rem;
+      max-height: 22rem;
     }
   }
   [class*=popover-header] {

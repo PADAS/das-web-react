@@ -8,6 +8,9 @@ export const {
   REACT_APP_ROUTE_PREFIX,
 } = process.env;
 
+export const MIN_ZOOM = 4;
+export const MAX_ZOOM = 18;
+
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
@@ -19,10 +22,7 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-export const MAP_ICON_SIZE = {
-  height: 30,
-  width: 30,
-};
+export const MAP_ICON_SIZE = 30;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMin = '(min-width: 31.75rem)';
@@ -55,15 +55,25 @@ export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [ke
 
 
 export const DEFAULT_SYMBOL_LAYOUT = {
-  'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-allow-overlap': ['step', ['zoom'], false, 11, true],
   'icon-anchor': 'center',
-  'icon-image': ["get", "icon_id"],
-  'text-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-image': ['get', 'icon_id'],
+  'icon-size': [
+    'interpolate', ['linear'], ['zoom'],
+    7, 0,
+    12, 1,
+    18, 1.5,
+  ],
+  'text-allow-overlap': ['step', ['zoom'], false, 11, true],
   'text-anchor': 'top',
   'text-offset': [0, .5],
   'text-field': '{title}',
   'text-justify': 'center',
-  'text-size': 12,
+  'text-size': [
+    'interpolate', ['linear'], ['zoom'],
+    7, 0,
+    12, 14,
+  ],
 };
 
 export const EVENT_STATE_CHOICES = [
@@ -99,6 +109,18 @@ export const REPORT_PRIORITIES = [
     value: 0,
   },
 ];
+
+export const DEFAULT_SELECT_STYLES = {
+  option(styles, state) {
+    const { isDisabled, isFocused } = state;
+    return {
+      ...styles,
+      backgroundColor: isDisabled ? 'gray' : (isFocused ? '#006cd9' : 'white'),
+      color: isFocused ? 'white' : 'inherit',
+      cursor: isDisabled ? 'not-allowed' : 'default',
+    };
+  },
+};
 
 export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,

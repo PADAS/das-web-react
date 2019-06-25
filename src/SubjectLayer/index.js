@@ -13,8 +13,6 @@ const { SUBJECT_SYMBOLS } = LAYER_IDS;
 // TODO - make the text-size 0 for hiding names
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
-  'icon-allow-overlap': true,
-  'text-allow-overlap': true,
 };
 
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];

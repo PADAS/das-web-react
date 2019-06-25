@@ -1,9 +1,9 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 
-import styles from './styles.module.scss';
+import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 const bindExternal = function (map, eventType, toInvoke) {
   map.on(eventType, toInvoke);
@@ -15,7 +15,7 @@ const unbindExternal = (map, eventType, func) => {
 };
 
 const MapLocationPicker = (props) => {
-  const { label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState } = props;
+  const { className, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState } = props;
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
@@ -37,12 +37,12 @@ const MapLocationPicker = (props) => {
     document.removeEventListener('keydown', keydownFunc.current);
   };
 
-/*   useEffect(() => {
-    return () => {
-      setPickingMapLocationState(false);
-      unbindMapEvents();
-    };
-  }, []); */
+  /*   useEffect(() => {
+      return () => {
+        setPickingMapLocationState(false);
+        unbindMapEvents();
+      };
+    }, []); */
 
   const onSelect = (e) => {
     setPickingMapLocationState(false);
@@ -56,12 +56,16 @@ const MapLocationPicker = (props) => {
     onLocationSelectStart();
   };
 
-  return <a href="#" onClick={onSelectStart}><span className={styles.icon}></span>{label}</a>;
+  return <button className={className} onClick={onSelectStart}>
+    <LocationIcon />
+    <span>{label}</span>
+  </button>;
 };
 
 export default connect(null, { setPickingMapLocationState })(memo(MapLocationPicker));
 
 MapLocationPicker.defaultProps = {
+  className: '',
   onLocationSelectStart() {
 
   },
@@ -69,6 +73,7 @@ MapLocationPicker.defaultProps = {
 };
 
 MapLocationPicker.propTypes = {
+  className: PropTypes.string,
   onLocationSelectStart: PropTypes.func,
   onLocationSelect: PropTypes.func.isRequired,
   map: PropTypes.object.isRequired,

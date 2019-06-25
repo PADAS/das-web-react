@@ -18,7 +18,7 @@ const InlineEditable = memo((props) => {
 
     setValidationState(validationFunc(value));
     setStateValue(value);
-  }
+  };
 
   const onStartEdit = () => {
     setEditState(true);
@@ -30,13 +30,13 @@ const InlineEditable = memo((props) => {
         inputRef.current.setSelectionRange(0, value.length);
       }
     });
-  }
+  };
 
   const handleKeyDown = (event) => {
-    const { key, stopPropagation, preventDefault } = event;
+    const { key } = event;
     if (key === 'Escape') {
-      preventDefault();
-      stopPropagation();
+      event.preventDefault();
+      event.stopPropagation();
       return setEditState(false);
     }
     if (key === 'Enter') {
@@ -70,7 +70,7 @@ const InlineEditable = memo((props) => {
       : <span onClick={onStartEdit} className={styles.editable}>
         {originalValue} {showEditButton && <button type="button" onClick={onStartEdit}>Edit</button>}
       </span>
-  )
+  );
 
 
 });
@@ -83,7 +83,7 @@ InlineEditable.defaultProps = {
   validationFunc(value) {
     return true;
   },
-}
+};
 
 InlineEditable.propTypes = {
   validationFunc: PropTypes.func,

@@ -6,3 +6,8 @@ $sm-height-max: 31.25rem;
 $md-height-min: 31.3125rem;
 $md-height-max: 48.8125rem;
 $lg-height-min: 48.875rem;
+
+// media query shorthands
+$whenPageIsAtMediumHeightAndWidth: '(min-height: #{$md-height-min}) and (min-width: #{$md-layout-width-min})';
+$whenPageIsTallAndMediumWidth: '(min-width: #{$md-layout-width-min}) and (min-height: #{$lg-height-min})';
+$whenPageIsIsTallAndWide: '(min-width: #{$lg-layout-width-min}) and (min-height: #{$lg-height-min})';

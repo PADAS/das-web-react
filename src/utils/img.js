@@ -2,7 +2,7 @@ import { REACT_APP_DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
 
-export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => new Promise((resolve) => {
+export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => new Promise((resolve, reject) => {
   const { width, height } = config;
   
   let img = new Image();
@@ -20,9 +20,36 @@ export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => ne
     pngImg.onload = () => {
       resolve(pngImg);
     };
+    pngImg.onerror = () => {
+      reject('could not convert SVG image to PNG');
+    };
   };
   img.src = svgSrc;
  
+});
+
+export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) => {
+  let img = new Image();
+  img.setAttribute('crossorigin', 'anonymous');
+  img.src = src;
+  img.onload = () => {
+    const { naturalHeight, naturalWidth } = img;
+    const largest = Math.max(naturalHeight, naturalWidth);
+    const smallest = Math.min(naturalHeight, naturalWidth);
+    const widthIsLarger = largest === naturalWidth;
+    const aspectRatio = smallest / largest;
+    if (widthIsLarger) {
+      img.width = size;
+      img.height = size * aspectRatio;
+    } else {
+      img.height = size;
+      img.width = size * aspectRatio;
+    }
+    resolve(img);
+  };
+  img.onerror = () => {
+    reject('could not load image');
+  };
 });
 
 export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`.replace('http:', '/').replace('https:', '/').replace('.org//', '.org/');

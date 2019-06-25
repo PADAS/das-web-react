@@ -1,10 +1,8 @@
 import { post } from 'axios';
 
-export const uploadFiles = (url, files, progressHandler = () => null) => {
+export const uploadFile = (url, file, progressHandler = () => null) => {
   const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('file', file, file.name);
-  });
+  formData.append('file', file, file.name);
   return post(url, formData, {
     onUploadProgress(event) {
       progressHandler(event);

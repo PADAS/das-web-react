@@ -4,7 +4,7 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
 import { GENERATED_LAYER_IDS, LAYER_IDS } from '../constants';
-import { svgSrcToPngImg } from '../utils/img';
+import { imgElFromSrc } from '../utils/img';
 import { getTrackPointsFromTrackFeatureArray } from '../selectors';
 import { convertArrayOfTracksIntoFeatureCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
@@ -32,7 +32,12 @@ const trackLayerLineLayout = {
 const timepointLayerLayout = {
   'icon-allow-overlap': true,
   'icon-anchor': 'bottom',
-  'icon-size': ['step', ['zoom'], 0, 14, .3, 16, .5],
+  'icon-size': [
+    'interpolate', ['linear'], ['zoom'],
+    0, 0,
+    10, 0,
+    18, 0.75,
+  ],
   'icon-rotate': ['get', 'bearing'],
   'icon-image': 'track_arrow',
   'icon-pitch-alignment': 'map',
@@ -53,12 +58,12 @@ const TracksLayer = memo(function TracksLayer(props) {
   useEffect(() => {
     async function addImage() {
       if (!map.hasImage(ARROW_IMG_ID)) {
-        const arrow = await svgSrcToPngImg(Arrow);
+        const arrow = await imgElFromSrc(Arrow);
         map.addImage(ARROW_IMG_ID, arrow);
       }
     }
     addImage();
-  });
+  }, []);
 
   return (
     <Fragment>

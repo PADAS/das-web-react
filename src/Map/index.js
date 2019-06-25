@@ -6,7 +6,7 @@ import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
 
-import { REACT_APP_MAPBOX_TOKEN } from '../constants';
+import { REACT_APP_MAPBOX_TOKEN, MIN_ZOOM, MAX_ZOOM } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
@@ -34,9 +34,8 @@ import './Map.scss';
 
 const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
-  minZoom: 4,
-  maxZoom: 18,
-  logoPosition: 'top-left',
+  minZoom: MIN_ZOOM,
+  maxZoom: MAX_ZOOM,
 });
 
 const mapConfig = {
@@ -109,7 +108,12 @@ class Map extends Component {
     this.cancelToken = CancelToken.source();
     this.fetchMapData();
   }, 500)
-  
+
+  toggleMapLockState(e) {
+    console.log('Map.toggleLockState');
+    return toggleMapLockState();
+  }
+
   fetchMapData() {
     this.fetchMapSubjects();
     this.fetchMapEvents();
@@ -197,7 +201,7 @@ class Map extends Component {
   }
   async createMapImages(featureCollection) {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
-    
+
     if (newImages.length) {
       // a fake flyTo coerces the map to load symbol images
       setTimeout(() => {
@@ -237,7 +241,7 @@ class Map extends Component {
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
-    const heatmapAvailable = !! heatmapTracks.length;
+    const heatmapAvailable = !!heatmapTracks.length;
     if (!maps.length) return null;
 
     return (
@@ -258,11 +262,14 @@ class Map extends Component {
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+            <div>
+              <FriendlyEventFilterString className='event-filter-details' />
+              {heatmapAvailable && <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />}
+            </div>
+
+            {heatmapAvailable && <HeatLayer />}
+
             {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
-            {heatmapAvailable && <Fragment>
-              <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />
-              <HeatLayer />
-            </Fragment>}
 
             <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
@@ -282,7 +289,6 @@ class Map extends Component {
             <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
             <MapSettingsControl map={map} />
             {/* <DrawControl map={map} position='bottom-left' /> */}
-            <FriendlyEventFilterString className='event-filter-details' />
           </Fragment>
         )}
 

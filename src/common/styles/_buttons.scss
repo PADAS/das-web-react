@@ -25,3 +25,7 @@
   }
 }
 
+@mixin linkButton {
+  @include unstyledButton;
+  text-decoration: underline;
+}

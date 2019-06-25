@@ -4,7 +4,7 @@
     <title>Oval</title>
     <desc>Created with Sketch.</desc>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M58,25.0810547 L58,58 L58,25.0810547 Z M73.3359375,73.6083984 L58.5,58.5 L73.3359375,73.6083984 Z" id="Combined-Shape" stroke="#ED0505" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
-        <circle id="Oval" stroke="#ED0505" stroke-width="10" cx="58" cy="58" r="53"></circle>
+        <path d="M58,25.0810547 L58,58 L58,25.0810547 Z M73.3359375,73.6083984 L58.5,58.5 L73.3359375,73.6083984 Z" id="Combined-Shape" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path>
+        <circle id="Oval" stroke-width="10" cx="58" cy="58" r="53"></circle>
     </g>
 </svg>

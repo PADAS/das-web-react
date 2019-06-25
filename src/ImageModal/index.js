@@ -14,6 +14,14 @@ const { Header, Title, Body } = Modal;
 const ImageModal = (props) => {
 
   const [loaded, setLoadState] = useState(false);
+  const [error, setErrorState] = useState(false);
+
+  const setImageLoaded = () => setLoadState(true);
+  const setImageError = () => {
+    setErrorState(true);
+    setImageLoaded();
+  };
+
   const { src, title } = props;
 
   return <Fragment>
@@ -24,7 +32,11 @@ const ImageModal = (props) => {
     </Header>
     <Body className={styles.body}>
       {!loaded && <LoadingOverlay />}
-      <img style={{ display: loaded ? 'block' : 'none' }} onLoad={() => setLoadState(true)} src={src} alt={title} />
+      {!error && <img style={{ display: loaded ? 'block' : 'none' }} onError={setImageError} onLoad={setImageLoaded} src={src} alt={title} />}
+      {error && <Fragment>
+        <h5>Error loading image.</h5>
+        <h6>If you uploaded this file recently, please wait a minute and try again.</h6> 
+      </Fragment>}
     </Body>
   </Fragment>;
 };
