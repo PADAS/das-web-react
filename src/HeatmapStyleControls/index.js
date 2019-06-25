@@ -26,8 +26,6 @@ const HeatmapStyleControls = (props) => {
     });
   };
 
-  const onRadiusFieldChange = ({ target: { value } }) => onRadiusChange(value);
-
   const onSensitivityChange = ({ target: { value } }) => {
     const val = parseFloat(value) || MINIMUM_SENSITIVITY;
     const minimumSensitivityValue = MINIMUM_SENSITIVITY / MAXIUMUM_SENSITIVITY;
@@ -60,9 +58,7 @@ const HeatmapStyleControls = (props) => {
       High
     </div>
   </div>;
-
 };
-
 
 const mapStatetoProps = ({ view: { heatmapStyles } }) => ({ heatmapStyles });
 export default connect(mapStatetoProps, { updateHeatmapConfig })(memo(HeatmapStyleControls));
