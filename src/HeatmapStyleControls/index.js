@@ -46,17 +46,19 @@ const HeatmapStyleControls = (props) => {
 
   return <div className={styles.controls}>
     <label htmlFor='heatmap-radius-input'>
-      Radius (in meters):
-      <InlineEditable step='1' showCancelButton={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusChange} />
+      <span>Radius (in meters):</span>
+      <InlineEditable step='1' showCancel={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusChange} />
     </label>
     <LogarithmicSlider value={radiusInMeters} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} onChange={onRadiusChange} />
 
     <label htmlFor='heatmap-sensitivity-input'>
-      Sensitivity:
-      <span>Low</span>
-      <input className={styles.sensitivity} type='range' step='1' id='heatmap-sensitivity-input' value={sensitivityInputValue} min={MINIMUM_SENSITIVITY} max={MAXIUMUM_SENSITIVITY} onChange={onSensitivityChange} />
-      <span>High</span>
+      <span>Sensitivity:</span>
     </label>
+    <div>
+      Low
+      <input className={styles.sensitivity} type='range' step='1' id='heatmap-sensitivity-input' value={sensitivityInputValue} min={MINIMUM_SENSITIVITY} max={MAXIUMUM_SENSITIVITY} onChange={onSensitivityChange} />
+      High
+    </div>
   </div>;
 
 };

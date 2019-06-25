@@ -12,7 +12,6 @@ const InlineEditable = memo((props) => {
   const [editing, setEditState] = useState(false);
   const [valid, setValidationState] = useState(validationFunc(originalValue));
   const [value, setStateValue] = useState(originalValue);
-  const [startingValue] = useState(originalValue);
 
   const onInputChange = (event) => {
     const { target: { value } } = event;
@@ -23,6 +22,7 @@ const InlineEditable = memo((props) => {
   };
 
   const onStartEdit = () => {
+    setStateValue(originalValue);
     setEditState(true);
     setValidationState(validationFunc(value));
 

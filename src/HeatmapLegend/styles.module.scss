@@ -26,15 +26,30 @@
     display: flex;
     justify-content: flex-start;
   }
-  button {
+  button:not(.gearButton) {
     @include unstyledButton;
   }
+}
+
+.gearButton {
+  --dimensions: 1rem;
+  --placement: 0.5rem;
+  @include gearButton;
+  bottom: var(--placement);
+  height: var(--dimensions);
+  position: absolute;
+  right: var(--placement);
+  width: var(--dimensions);
 }
 
 
 .infoIcon {
   height: 1rem;
   width: 1rem;
+}
+
+.controlPopover {
+  width: 20rem;
 }
 
 .popover {

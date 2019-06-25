@@ -59,7 +59,13 @@ const HeatmapLegend = memo(function HeatmapLegend({ tracks, onClose, onTrackRemo
       </h6>
       <div className={styles.gradient}></div>
       <span>{totalTrackCount} total points</span>
-      <HeatmapStyleControls />
+      <OverlayTrigger trigger="click" rootClose placement="right" overlay={
+        <Popover className={styles.controlPopover}>
+          <HeatmapStyleControls showCancel={false} />
+        </Popover>
+      }>
+        <button type="button" className={styles.gearButton}></button>
+      </OverlayTrigger>
     </div>
   );
 }, (prev, current) => {

@@ -1,14 +1,13 @@
 @import '../common/styles/buttons';
 
 .gearButton {
-  @include imageButton('gear');
+  @include gearButton;
   position: absolute;
   bottom: 2rem;
   left: 2rem;
   height: 2rem;
   width: 2rem;
   z-index: 1;
-
   &:focus {outline:0;}
 }
 .mapSettings {
