@@ -5,7 +5,6 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT } from '../constants';
-import { getStoredState } from 'redux-persist/es/integration/getStoredStateMigrateV4';
 import { toggleMapNameState } from '../ducks/map-ui';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;

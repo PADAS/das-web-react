@@ -1,6 +1,6 @@
 @import '../common/styles/buttons';
 
-.gearbutton {
+.gearButton {
   @include imageButton('gear');
   position: absolute;
   bottom: 2rem;
@@ -11,7 +11,7 @@
 
   &:focus {outline:0;}
 }
-.mapsettings {
+.mapSettings {
   position: absolute;
   background-color: #fff;
   z-index: 1;

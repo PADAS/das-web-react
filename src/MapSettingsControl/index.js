@@ -9,16 +9,16 @@ const MapSettingsControl = (props) => {
   const formRef = useRef(null);
 
   const popover = (
-    <Popover id="settings-popover" className={styles.mapsettings} title="Map Settings">
+    <Popover id="settings-popover" className={styles.mapSettings} title="Map Settings">
       <ul>
-        <li key='maplock'><MapLockControl map={map} /></li>
-        <li key='mapname'><MapNamesControl /></li>
+        <li><MapLockControl map={map} /></li>
+        <li><MapNamesControl /></li>
       </ul>
     </Popover>
   );
 
   return <OverlayTrigger trigger="click" placement="top" overlay={popover}>
-      <button className={styles.gearbutton} ref={formRef}> </button>
+      <button className={styles.gearButton} ref={formRef}> </button>
     </OverlayTrigger>;
 };
 
