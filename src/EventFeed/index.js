@@ -44,13 +44,13 @@ const EventFeed = memo((props) => {
                 <LocationJumpButton coordinates={coordinates} map={map} />
               </div>
             }
-          </li>
+          </li>;
         })}
         {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
         {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more events to display.</li>}
       </InfiniteScroll>
     </div>
-  )
+  );
 });
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });

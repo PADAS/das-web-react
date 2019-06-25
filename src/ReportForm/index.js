@@ -2,23 +2,22 @@ import React, { memo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-jsonschema-form';
 
 import { downloadFileFromUrl } from '../utils/file';
 import { generateSaveActionsForReport, executeReportSaveActions } from '../utils/events';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
-import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
-
 import { getReportFormSchemaData } from '../selectors';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 
+import IncidentReportsList from './IncidentReportsList';
 import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
 import ReportFormAttachmentList from './AttachmentList';
 import ReportFormErrorMessages from './ErrorMessages';
 import ReportFormHeader from './Header';
+import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
@@ -26,7 +25,6 @@ import styles from './styles.module.scss';
 
 const ReportForm = memo((props) => {
   const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, schema, uiSchema, addModal, setModalVisibilityState } = props;
-  const additionalMetaSchemas = [draft4JsonSchema];
 
   const formRef = useRef(null);
 
@@ -52,8 +50,9 @@ const ReportForm = memo((props) => {
   const onCancel = () => removeModal(id);
 
   const goToBottomOfForm = () => {
-    const { formElement } = formRef.current;
-    formElement.scrollTop = formElement.scrollHeight;
+    if (formRef.current &&  formRef.current.formElement) {
+      formRef.current.formElement.scrollTop = formRef.current.formElement.scrollHeight;
+    }
   };
 
   const onAddFiles = files => {
@@ -214,6 +213,23 @@ const ReportForm = memo((props) => {
   const filesToList = [...filesToUpload, ...reportFiles];
   const notesToList = [...notesToAdd, ...reportNotes];
 
+  const FormBody = ({ children }) => {
+    if (is_collection) {
+      return <IncidentReportsList reports={report.contains} onReportClick={(report) => console.log('clicky', report)}>
+        {children}
+      </IncidentReportsList>;
+    }
+    return <ReportFormBody
+      ref={formRef}
+      formData={unwrapEventDetailSelectValues(report.event_details)}
+      onChange={onDetailChange}
+      onSubmit={handleFormSubmit}
+      schema={schema}
+      uiSchema={uiSchema}>
+      {children}
+    </ReportFormBody>;
+  };
+
   return <div className={styles.wrapper}>
 
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
@@ -227,18 +243,7 @@ const ReportForm = memo((props) => {
       onReportLocationChange={onReportLocationChange}
       report={report} />}
 
-    <Form
-      additionalMetaSchemas={additionalMetaSchemas}
-      className={styles.form}
-      disabled={schema.readonly}
-      formData={unwrapEventDetailSelectValues(report.event_details)}
-      ref={formRef}
-      onChange={onDetailChange}
-      onSubmit={handleFormSubmit}
-      safeRenderCompletion={true}
-      schema={schema}
-      uiSchema={uiSchema}
-    >
+    <FormBody>
       <ReportFormAttachmentList
         files={filesToList}
         notes={notesToList}
@@ -253,7 +258,7 @@ const ReportForm = memo((props) => {
           <Button type="submit" variant="primary">Save</Button>
         </div>
       </div>
-    </Form>
+    </FormBody>
   </div>;
 });
 

@@ -59,7 +59,7 @@ const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
 };
 
-const FeatureLayer = memo(({ symbols, lines, polygons }) => {
+const FeatureLayer = ({ symbols, lines, polygons }) => {
   console.log('re rendering the feature layer', symbols, lines, polygons);
   return <Fragment>
     <GeoJSONLayer id={FEATURE_FILLS} before={SUBJECT_SYMBOLS} data={polygons}
@@ -73,8 +73,8 @@ const FeatureLayer = memo(({ symbols, lines, polygons }) => {
     <GeoJSONLayer id={FEATURE_SYMBOLS} before={SUBJECT_SYMBOLS} data={symbols}
       symbolLayout={symbolLayout}
     />
-  </Fragment>
-});
+  </Fragment>;
+};
 
 FeatureLayer.propTypes = {
   symbols: PropTypes.object.isRequired,
@@ -82,4 +82,4 @@ FeatureLayer.propTypes = {
   polygons: PropTypes.object.isRequired,
 };
 
-export default FeatureLayer;
+export default memo(FeatureLayer);
