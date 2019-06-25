@@ -7,8 +7,6 @@ import { lockMap } from '../utils/map';
 const MapLockControl = (props) => {
 
   const { mapIsLocked, toggleMapLockState, map } = props;
-  const lockClass = mapIsLocked ? 'locked' : 'unlocked';
-  const hoverText = mapIsLocked ? 'Click to unlock map' : 'Click to lock map';
 
   const handleChange = (e) => {
     toggleMapLockState(!mapIsLocked);
