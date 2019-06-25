@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
+import InlineEditable from '../InlineEditable';
 import LogarithmicSlider from '../LogarithmicSlider';
 
 import { updateHeatmapConfig } from '../ducks/map-ui';
@@ -36,8 +37,6 @@ const HeatmapStyleControls = (props) => {
       minimumSensitivityValue
     );
 
-    console.log('intensity', intensity);
-
     updateHeatmapConfig({
       intensity: intensity * HIGH_HEAT_WEIGHT,
     });
@@ -45,16 +44,20 @@ const HeatmapStyleControls = (props) => {
 
   const sensitivityInputValue = (intensity / HIGH_HEAT_WEIGHT) * MAXIUMUM_SENSITIVITY;
 
-  return <form>
-    <label htmlFor='heatmap-radius-input'>Radius: <input type='number' step='1' min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusFieldChange} />m</label><br />
+  return <div className={styles.controls}>
+    <label htmlFor='heatmap-radius-input'>
+      Radius (in meters):
+      <InlineEditable step='1' showCancelButton={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusChange} />
+    </label>
     <LogarithmicSlider value={radiusInMeters} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} onChange={onRadiusChange} />
 
-    <label htmlFor='heatmap-sensitivity-input'>Sensitivity:<br />
+    <label htmlFor='heatmap-sensitivity-input'>
+      Sensitivity:
       <span>Low</span>
       <input className={styles.sensitivity} type='range' step='1' id='heatmap-sensitivity-input' value={sensitivityInputValue} min={MINIMUM_SENSITIVITY} max={MAXIUMUM_SENSITIVITY} onChange={onSensitivityChange} />
       <span>High</span>
     </label>
-  </form>;
+  </div>;
 
 };
 
