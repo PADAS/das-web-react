@@ -122,10 +122,11 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
 };
 
 export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
-export const unbindGetMapCoordinatesOnClick = (map, fn) => map.off('click', fn);
+export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);
+
 export const lockMap = (map, isLocked) => {
-  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate'];
-  if (isLocked === true) {
+  const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
+  if(isLocked === true) {
     mapControls.forEach(function (control) {
       map[control].disable();
     });

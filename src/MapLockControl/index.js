@@ -7,19 +7,19 @@ import { lockMap } from '../utils/map';
 const MapLockControl = (props) => {
 
   const { mapIsLocked, toggleMapLockState, map } = props;
+  const lockClass = mapIsLocked ? 'locked' : 'unlocked';
+  const hoverText = mapIsLocked ? 'Click to unlock map' : 'Click to lock map';
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    console.log('Toggle map lock state to ' + !mapIsLocked);
+  const handleChange = (e) => {
     toggleMapLockState(!mapIsLocked);
   };
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);
 
-  return  <span className={props.className || ''}>
-            <button title="Lock Map" type="button" className={styles.maplock} 
-              onClick={handleClick}>{mapIsLocked ? 'Unlock Map' : 'Lock Map'}</button>
-          </span>;
+  return <label>
+    <input type='checkbox' name='maplock' checked={mapIsLocked} onChange={handleChange}/>
+    <span className={styles.cbxlabel}>Lock Movement</span>
+    </label>;
 };
 
 const mapStateToProps = ( {view:{mapIsLocked}} ) => {
