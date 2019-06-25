@@ -2,7 +2,11 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 import styles from './styles.module.scss';
-import { Popover, OverlayTrigger, Button } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Button from 'react-bootstrap/Button';
+
+import HeatmapStyleControls from '../HeatmapStyleControls';
 
 import InfoIcon from '../common/images/icons/information.svg';
 
@@ -16,7 +20,7 @@ const HeatmapLegend = memo(function HeatmapLegend({ tracks, onClose, onTrackRemo
     displayTitle = `${title}: Tracks`;
     iconSrc = image;
   } else {
-    displayTitle = `Tracks for ${tracks.length} subjects`
+    displayTitle = `Tracks for ${tracks.length} subjects`;
   }
 
 
@@ -42,7 +46,7 @@ const HeatmapLegend = memo(function HeatmapLegend({ tracks, onClose, onTrackRemo
                       <small>{feature.geometry.coordinates.length} points</small>
                     </div>
                     <Button variant="secondary" onClick={onRemoveTrackClick}>remove</Button>
-                  </li>
+                  </li>;
                 })}
               </ul>
             </Popover>
@@ -55,6 +59,7 @@ const HeatmapLegend = memo(function HeatmapLegend({ tracks, onClose, onTrackRemo
       </h6>
       <div className={styles.gradient}></div>
       <span>{totalTrackCount} total points</span>
+      <HeatmapStyleControls />
     </div>
   );
 }, (prev, current) => {

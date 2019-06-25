@@ -1,7 +1,9 @@
 import React, { memo, Fragment, useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Modal, Button, Form } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 import { removeModal } from '../ducks/modals';
 

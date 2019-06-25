@@ -1,6 +1,9 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { Popover, OverlayTrigger, Button, Dropdown } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 import Collapsible from 'react-collapsible';
 
 import isEqual from 'react-fast-compare';

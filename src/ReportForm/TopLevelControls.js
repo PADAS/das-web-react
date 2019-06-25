@@ -1,7 +1,8 @@
 import React, { memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Popover, Overlay } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import Overlay from 'react-bootstrap/Overlay';
 
 import DateTimePicker from 'react-datetime-picker';
 import GpsInput from '../GpsInput';

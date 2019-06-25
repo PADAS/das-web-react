@@ -1,7 +1,8 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Popover, OverlayTrigger } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';

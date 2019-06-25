@@ -1,7 +1,8 @@
 import React, { memo, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Popover, Overlay } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import Overlay from 'react-bootstrap/Overlay';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 

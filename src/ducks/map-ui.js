@@ -97,7 +97,7 @@ export const updateTrackState = (update) => ({
 const INITIAL_HEATMAP_STYLE_STATE = {
   radiusInMeters: 500,
   intensity: 0.2,
-}
+};
 export const heatmapStyleConfigReducer = (state = INITIAL_HEATMAP_STYLE_STATE, action) => {
   const { type, payload } = action;
   if (type === UPDATE_HEATMAP_CONFIG) return { ...state, ...payload };
