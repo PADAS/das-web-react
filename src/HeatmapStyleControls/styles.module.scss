@@ -1,0 +1,24 @@
+.controls {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  label, div {
+    align-items: center;
+    display: flex;
+  }
+  label, div, [type=range] {
+    width: 100%;
+  }
+  label {
+    span:first-child {
+      flex: 1;
+    }
+    form {
+      flex: 0;
+    }
+    &:not(:first-child) {
+      margin-top: 1rem;
+    }
+  }
+}

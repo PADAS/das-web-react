@@ -1,7 +1,9 @@
 import React, { Fragment, useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Modal, Button, Form } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import { CancelToken } from 'axios';
 
 
@@ -24,7 +26,7 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
     return () => {
       downloadCancelToken && downloadCancelToken.cancel();
       setDownloadState(false);
-    }
+    };
   }, []);
 
   const triggerDownload = () => {
@@ -61,7 +63,7 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
         <Button type="submit" variant="primary">Export</Button>
       </Footer>
     </Form>
-  </Fragment>
+  </Fragment>;
 });
 
 DataExportModal.defaultProps = {
