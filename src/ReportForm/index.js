@@ -11,7 +11,7 @@ import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
 import { getReportFormSchemaData } from '../selectors';
-import { addModal, removeModal, updateModal, setModalVisibilityState } from '../ducks/modals';
+import { addModal, removeModal, updateModal } from '../ducks/modals';
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
 import { calcUrlForImage } from '../utils/img';
 
@@ -29,7 +29,7 @@ import styles from './styles.module.scss';
 
 const ReportForm = (props) => {
   const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, addReportDisabled,
-    schema, uiSchema, addModal, setModalVisibilityState, createEvent, addEventToIncident, fetchEvent } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
 
@@ -51,7 +51,7 @@ const ReportForm = (props) => {
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
 
   const { is_collection } = report;
-  const disableAddReport = addReportDisabled || eventBelongsToCollection(report);
+  const disableAddReport = addReportDisabled;
 
   const onCancel = () => removeModal(id);
 
@@ -157,6 +157,15 @@ const ReportForm = (props) => {
         longitude: location[0],
       } : location,
   });
+
+  const goToParentCollection = () => {
+    const { is_contained_in: [{ related_event: { id:incidentID } }] } = report;
+
+    return fetchEvent(incidentID).then(({ data: { data } }) => {
+      openModalForReport(data, map);
+      removeModal(id);
+    });
+  };
 
   const saveChanges = () => {
     const reportIsNew = !report.id;
@@ -265,7 +274,12 @@ const ReportForm = (props) => {
       onDeleteNote={onDeleteNote}
       onDeleteFile={onDeleteFile} />
     <div className={styles.bottomControls}>
-      <ReportFormAttachmentControls addReportDisabled={disableAddReport} map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
+      <ReportFormAttachmentControls
+        isCollectionChild={eventBelongsToCollection(report)}
+        onGoToCollection={goToParentCollection}
+        addReportDisabled={disableAddReport}
+        map={map} onAddFiles={onAddFiles}
+        onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
       <div className={styles.formButtons}>
         <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
         <Button type="submit" onClick={() => is_collection && handleFormSubmit()} variant="primary">Save</Button>
@@ -306,7 +320,7 @@ const mapStateToProps = (state, props) => ({
 });
 
 export default connect(mapStateToProps, {
-  addModal, removeModal, updateModal, setModalVisibilityState,
+  addModal, removeModal, updateModal,
   createEvent: (event) => createEvent(event),
   addEventToIncident: (event_id, incident_id) => addEventToIncident(event_id, incident_id),
   fetchEvent: id => fetchEvent(id),

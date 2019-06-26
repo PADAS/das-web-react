@@ -10,11 +10,18 @@ import AddReport from '../AddReport';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
+import { ReactComponent as FieldReportIcon } from '../common/images/icons/field_report.svg';
 
 import styles from './styles.module.scss';
 
+const AttachmentButton = ({ title, icon: Icon, ...rest }) => <button title={title} type='button' {...rest}>
+  <Icon />
+  <span>{title}</span>
+</button>;
+
 const AttachmentControls = (props) => {
-  const { addModal, addReportDisabled, allowMultipleFiles, map, onAddFiles, onSaveNote, onNewReportSaved } = props;
+  const { addModal, addReportDisabled, allowMultipleFiles, map, onAddFiles,
+    onSaveNote, onNewReportSaved, isCollectionChild, onGoToCollection } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
@@ -73,19 +80,14 @@ const AttachmentControls = (props) => {
         onChange={onFileAddFromDialog}>
       </input>
 
-      <button title='Add Attachment' type="button" onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
-        <AttachmentIcon />
-        <span>Add Attachment</span>
-        <small>(click or drag here)</small>
-      </button>
+      <AttachmentButton title='Add Attachment' icon={AttachmentIcon}
+        onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}
+      />
 
-      <button title='Add Note' type="button" className={styles.addNoteBtn} onClick={startAddNote}>
-        <NoteIcon />
-        <span>Add Note</span>
-      </button>
+      <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
 
       {!addReportDisabled && <AddReport map={map} container={attachmentControlsRef} addReportDisabled={true} onSaveSuccess={onNewReportSaved} />}
-
+      {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
     </div>
   );
 };
@@ -95,9 +97,15 @@ export default connect(null, { addModal })(memo(AttachmentControls));
 AttachmentControls.defaultProps = {
   addReportDisabled: false,
   allowMultipleFiles: true,
+  isCollectionChild: false,
+  onGoToCollection() {
+
+  },
 };
 
 AttachmentControls.propTypes = {
+  isCollection: PropTypes.bool,
+  onGoToCollection: PropTypes.func,
   addReportDisabled: PropTypes.bool,
   allowMultipleFiles: PropTypes.bool,
   map: PropTypes.object.isRequired,
