@@ -16,6 +16,8 @@ export const createSelector = createSelectorCreator(
 );
 
 const mapEvents = ({ data: { mapEvents } }) => mapEvents;
+const feedEvents = ({ data: { feedEvents } }) => feedEvents;
+const eventStore = ({ data: { eventStore } }) => eventStore;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
@@ -42,8 +44,20 @@ const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
     });
 
 export const getMapEventFeatureCollection = createSelector(
-  [mapEvents],
-  mapEvents => createFeatureCollectionFromEvents(mapEvents)
+  [mapEvents, eventStore],
+  (mapEvents, eventStore) => createFeatureCollectionFromEvents(mapEvents
+    .map(id => eventStore[id])
+    .filter(item => !!item))
+);
+
+export const getFeedEvents = createSelector(
+  [feedEvents, eventStore],
+  (feedEvents, eventStore) => ({
+    ...feedEvents,
+    results: feedEvents.results
+      .map(id => eventStore[id])
+      .filter(item => !!item),
+  }),
 );
 
 export const getUserCreatableEventTypesByCategory = createSelector(

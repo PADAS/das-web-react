@@ -1,4 +1,5 @@
 import axios, { CancelToken } from 'axios';
+import union from 'lodash/union';
 import unionBy from 'lodash/unionBy';
 
 import { API_URL } from '../constants';
@@ -26,10 +27,10 @@ const ADD_EVENT_NOTE_START = 'ADD_EVENT_NOTE_START';
 const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
 const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
 
-export const FETCH_EVENTS_START = 'FETCH_EVENTS_START';
-export const FETCH_EVENTS_SUCCESS = 'FETCH_EVENTS_SUCCESS';
-export const FETCH_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_EVENTS_NEXT_PAGE_SUCCESS';
-export const FETCH_EVENTS_ERROR = 'FETCH_EVENTS_EROR';
+export const FETCH_FEED_EVENTS_START = 'FETCH_FEED_EVENTS_START';
+export const FETCH_FEED_EVENTS_SUCCESS = 'FETCH_FEED_EVENTS_SUCCESS';
+export const FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS';
+export const FETCH_FEED_EVENTS_ERROR = 'FETCH_EVENTS_EROR';
 
 export const FETCH_MAP_EVENTS = 'FETCH_MAP_EVENTS';
 export const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
@@ -42,17 +43,19 @@ export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
 export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
+const EVENT_RELATIONSHIP_CREATED = 'EVENT_RELATIONSHIP_CREATED';
+
 let eventFetchCancelToken = CancelToken.source();
 
 // action creators
-export const createEvent = (event) => (dispatch) => {
+export const createEvent = event => (dispatch) => {
   dispatch({
     type: CREATE_EVENT_START,
     payload: event,
   });
 
   return axios.post(EVENTS_API_URL, event)
-    .then(response => {
+    .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
         payload: response.data.data,
@@ -60,7 +63,7 @@ export const createEvent = (event) => (dispatch) => {
       dispatch(updateEventStore(response.data.data));
       return response;
     })
-    .catch(error => {
+    .catch((error) => {
       dispatch({
         type: CREATE_EVENT_ERROR,
         payload: error,
@@ -68,8 +71,6 @@ export const createEvent = (event) => (dispatch) => {
       return Promise.reject(error);
     });
 };
-
-
 
 export const addNoteToEvent = (event_id, note) => (dispatch) => {
   dispatch({
@@ -92,6 +93,17 @@ export const addNoteToEvent = (event_id, note) => (dispatch) => {
       return Promise.reject(error);
     });
 };
+
+export const addEventToIncident = (event_id, incident_id) => (_dispatch) => axios.post(`${EVENT_API_URL}${incident_id}/relationships`, {
+  type: 'contains',
+  to_event_id: event_id,
+});
+
+export const fetchEvent = event_id => dispatch => axios.get(`${EVENT_API_URL}${event_id}`)
+  .then((response) => {
+    dispatch(updateEventStore(response.data.data));
+    return response;
+  });
 
 export const deleteFileFromEvent = (event_id, file_id) => axios.delete(`${EVENT_API_URL}${event_id}/files/${file_id}`);
 
@@ -156,12 +168,12 @@ export const uploadEventFile = (event_id, file, progressHandler = (event) => con
     });
 };
 
-export const fetchEvents = (config = {}) => (dispatch) => {
+export const fetchFeedEvents = (config = {}) => (dispatch) => {
   eventFetchCancelToken.cancel();
   eventFetchCancelToken = CancelToken.source();
 
   dispatch({
-    type: FETCH_EVENTS_START,
+    type: FETCH_FEED_EVENTS_START,
   });
 
   const eventFilterParamString = calcEventFilterForRequest();
@@ -170,18 +182,21 @@ export const fetchEvents = (config = {}) => (dispatch) => {
     ...config,
     cancelToken: eventFetchCancelToken.token,
   })
-    .then(response => {
-      dispatch(fetchEventsSuccess(response));
+    .then((response) => {
+      dispatch(fetchFeedEventsSuccess(response));
       return response;
     })
-    .catch(error => dispatch(fetchEventsError(error)));
+    .catch((error) => {
+      dispatch(fetchFeedEventsError(error));
+      return error;
+    });
 };
 
-export const fetchNextEventPage = (url) => {
+export const fetchNextEventFeedPage = (url) => {
   return function (dispatch) {
     return axios.get(url)
-      .then(response => dispatch(fetchEventsNextPageSucess(response)))
-      .catch(error => dispatch(fetchEventsError(error)));
+      .then(response => dispatch(fetchFeedEventsNextPageSucess(response)))
+      .catch(error => dispatch(fetchFeedEventsError(error)));
   };
 };
 
@@ -205,29 +220,26 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
     .catch((error) => {
       dispatch(fetchMapEventsError(error));
     });
-
 };
 
-
-
-const fetchEventsSuccess = response => (dispatch) => {
+const fetchFeedEventsSuccess = response => (dispatch) => {
   dispatch({
-    type: FETCH_EVENTS_SUCCESS,
-    payload: response.data,
+    type: FETCH_FEED_EVENTS_SUCCESS,
+    payload: response.data.data,
   });
   dispatch(updateEventStore(...response.data.data.results));
 }; 
 
-const fetchEventsNextPageSucess = response => (dispatch) => {
+const fetchFeedEventsNextPageSucess = response => (dispatch) => {
   dispatch({
-    type: FETCH_EVENTS_NEXT_PAGE_SUCCESS,
-    payload: response.data,
+    type: FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS,
+    payload: response.data.data,
   });
   dispatch(updateEventStore(...response.data.data.results));
 };
 
-const fetchEventsError = error => ({
-  type: FETCH_EVENTS_ERROR,
+const fetchFeedEventsError = error => ({
+  type: FETCH_FEED_EVENTS_ERROR,
   payload: error,
 });
 
@@ -291,97 +303,62 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
   return state;
 };
 
-const INITIAL_EVENTS_STATE = {
+const INITIAL_EVENT_FEED_STATE = {
   count: null,
   next: null,
   previous: null,
   results: [],
 };
-export default function reducer(state = INITIAL_EVENTS_STATE, action = {}) {
-  switch (action.type) {
-  case FETCH_EVENTS_START: {
-    return INITIAL_EVENTS_STATE;
+
+export const eventFeedReducer = (state = INITIAL_EVENT_FEED_STATE, { type, payload }) => {
+  if (type === FETCH_FEED_EVENTS_START) {
+    return INITIAL_EVENT_FEED_STATE;
   }
-  case FETCH_EVENTS_SUCCESS: {
-    return action.payload.data;
+  if (type === FETCH_FEED_EVENTS_SUCCESS) {
+    return {
+      ...payload,
+      results: payload.results.map(event => event.id),
+    };
   }
-  case FETCH_EVENTS_NEXT_PAGE_SUCCESS: {
-    const { payload: { data } } = action;
-    const { results: events, count, next, previous } = data;
+  if (type === FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS) {
+    const { results: events, count, next, previous } = payload;
     return {
       ...state,
       count,
       next,
       previous,
-      results: [...state.results, ...events],
+      results: [...state.results, ...events.map(event => event.id)],
     };
   }
-  case SOCKET_NEW_EVENT: {
-    const { payload: { event_data } } = action;
-    console.log('realtime: new event', event_data);
-    if (eventBelongsToCollection(event_data)) return state;
-
-    if (event_data.geojson) {
-      event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-    }
-    return {
-      ...state,
-      results: [event_data, ...state.results],
-    };
-  }
-  case SOCKET_UPDATE_EVENT: {
-    const { payload: { event_data, event_id } } = action;
-    console.log('realtime: event update', event_data);
-
-    if (eventBelongsToCollection(event_data)) return state;
-
-    if (!state.results.find(item => item.id === event_id)) return state;
-
-    if (event_data.geojson) {
-      event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-    }
+  if ([SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT].includes(type)) {
+    const { event_data, event_id } = payload;
+    if (eventBelongsToCollection(event_data)) return state.filter(id => id !== event_id);
 
     return {
       ...state,
-      results: unionBy([event_data], state.results, 'id'),
+      results: union([event_id], state.results),
     };
   }
-  default: {
-    return state;
-  }
-  }
+  return state;
 };
-
-
 
 const INITIAL_MAP_EVENTS_STATE = [];
+export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, { type, payload }) {
+  const extractEventIDs = events => events.map(e => e.id);
 
-export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, action = {}) {
-  switch (action.type) {
-  case FETCH_MAP_EVENTS_PAGE_SUCCESS: {
-    return unionBy(action.payload, state, 'id');
+  if (type === FETCH_MAP_EVENTS_PAGE_SUCCESS) {
+    return union(extractEventIDs(payload), state);
   }
-  case FETCH_MAP_EVENTS_SUCCESS: {
-    return action.payload;
+  if (type === FETCH_MAP_EVENTS_SUCCESS) {
+    return extractEventIDs(payload);
   }
-  case SOCKET_NEW_EVENT: {
-    const { payload: { event_data } } = action;
+  if ([SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT].includes(type)) {
+    const  { event_data, event_id } = payload;
     if (!event_data.geojson) return state;
 
-    event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-    return [...state, event_data];
+    return union([event_id], state);
   }
-  case SOCKET_UPDATE_EVENT: {
-    const { payload: { event_data, event_id } } = action;
-
-    if (!event_data.geojson) return state;
-    if (!state.find(item => item.id === event_id)) return state;
-
-    event_data.geojson.properties.image = calcUrlForImage(event_data.geojson.properties.image);
-    return unionBy([event_data], state, 'id');
-  }
-  default: {
-    return state;
-  }
-  }
+  return state;
 };
+
+export default eventStoreReducer;

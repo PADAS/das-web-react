@@ -14,7 +14,7 @@ import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import styles from './styles.module.scss';
 
 const AttachmentControls = (props) => {
-  const { addModal, allowMultipleFiles, map, onAddFiles, onSaveNote  } = props;
+  const { addModal, allowMultipleFiles, map, onAddFiles, onSaveNote, onNewReportSaved } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
@@ -84,7 +84,7 @@ const AttachmentControls = (props) => {
         <span>Add Note</span>
       </button>
 
-      <AddReport map={map} container={attachmentControlsRef} />
+      <AddReport map={map} container={attachmentControlsRef} onSaveSuccess={onNewReportSaved} />
 
     </div>
   );
@@ -101,4 +101,5 @@ AttachmentControls.propTypes = {
   map: PropTypes.object.isRequired,
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
+  onNewReportSaved: PropTypes.func.isRequired,
 };

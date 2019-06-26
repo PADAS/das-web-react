@@ -119,6 +119,7 @@ export const generateSaveActionsForReport = (formData, notesToAdd = [], filesToA
 
 export const executeReportSaveActions = (saveActions) => {
   let eventID;
+  let responses = [];
 
   return new Promise((resolve, reject) => {
     try {
@@ -133,8 +134,9 @@ export const executeReportSaveActions = (saveActions) => {
 
         return nextAction(eventID)
           .then((results) => {
+            responses.push(results);
             if (isLast) {
-              return resolve();
+              return resolve(responses);
             }
             return results;
           })
@@ -174,6 +176,12 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   event_details: {},
 });
 
+export const createNewIncidentCollection = (attributes) => ({
+  event_type: 'incident_collection',
+  icon_id: 'incident_collection',
+  event_details: {},
+  ...attributes,
+});
 
 export const generateErrorListForApiResponseDetails = (response) => {
   try {

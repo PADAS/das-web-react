@@ -3,13 +3,16 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
+import LoadingOverlay from '../LoadingOverlay';
+
 import { downloadFileFromUrl } from '../utils/file';
-import { generateSaveActionsForReport, executeReportSaveActions } from '../utils/events';
+import { generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
 import { getReportFormSchemaData } from '../selectors';
-import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
+import { addModal, removeModal, updateModal, setModalVisibilityState } from '../ducks/modals';
+import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
 
 import IncidentReportsList from './IncidentReportsList';
 import ReportFormAttachmentControls from './AttachmentControls';
@@ -23,8 +26,9 @@ import ImageModal from '../ImageModal';
 
 import styles from './styles.module.scss';
 
-const ReportForm = memo((props) => {
-  const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, schema, uiSchema, addModal, setModalVisibilityState } = props;
+const ReportForm = (props) => {
+  const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal,
+    schema, uiSchema, addModal, setModalVisibilityState, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
 
@@ -33,14 +37,18 @@ const ReportForm = memo((props) => {
   const [filesToUpload, updateFilesToUpload] = useState([]);
 
   const [notesToAdd, updateNotesToAdd] = useState([]);
-
   const [saveError, setSaveErrorState] = useState(null);
+  const [saving, setSavingState] = useState(false);
 
   useEffect(() => {
     return () => {
       setModalVisibilityState(true);
     };
   }, []);
+
+  useEffect(() => {
+    updateStateReport(originalReport);
+  }, [originalReport]);
 
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
@@ -50,7 +58,7 @@ const ReportForm = memo((props) => {
   const onCancel = () => removeModal(id);
 
   const goToBottomOfForm = () => {
-    if (formRef.current &&  formRef.current.formElement) {
+    if (formRef.current && formRef.current.formElement) {
       formRef.current.formElement.scrollTop = formRef.current.formElement.scrollHeight;
     }
   };
@@ -152,9 +160,7 @@ const ReportForm = memo((props) => {
       } : location,
   });
 
-  const onClickAddReport = () => null;
-
-  const handleFormSubmit = () => {
+  const saveChanges = () => {
     const reportIsNew = !report.id;
     let toSubmit;
 
@@ -181,18 +187,28 @@ const ReportForm = memo((props) => {
     }
 
     const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
+    setSavingState(true);
 
-    executeReportSaveActions(actions)
-      .then(() => {
-        onSaveSuccess(report);
-        removeModal(id);
+    return executeReportSaveActions(actions)
+      .then((results) => {
+        onSaveSuccess(results);
+        return results;
       })
       .catch(handleSaveError);
+  };
+
+  const handleFormSubmit = () => {
+    return saveChanges()
+      .then((results) => {
+        removeModal(id);
+        return results;
+      });
   };
 
   const clearErrors = () => setSaveErrorState(null);
 
   const handleSaveError = (e) => {
+    setSavingState(false);
     setSaveErrorState(e);
     onSaveError(e);
     setTimeout(clearErrors, 7000);
@@ -207,6 +223,35 @@ const ReportForm = memo((props) => {
       });
     } else {
       downloadFileFromUrl(file.url, file.filename);
+    }
+  };
+
+  const onReportAdded = ([{ data: { data:newReport} }]) => {
+    try {
+      saveChanges()
+        .then(async ([{ data: { data:thisReport } }]) => {
+          if (is_collection) {
+            await addEventToIncident(newReport.id, thisReport.id);
+            return fetchEvent(thisReport.id).then(({ data: { data } }) => {
+              updateModal({
+                id,
+                report: data,
+              });
+              setSavingState(false);
+            });
+          } else {
+            const { data: { data: { id: incidentID } } } = await createEvent(
+              createNewIncidentCollection({ priority: Math.max(thisReport.priority, newReport.priority) })
+            );
+            await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
+            return fetchEvent(incidentID).then(({ data: { data } }) => {
+              openModalForReport(data, map);
+              removeModal(id);
+            });
+          }
+        });
+    } catch (e) {
+      handleSaveError(e);
     }
   };
 
@@ -231,7 +276,7 @@ const ReportForm = memo((props) => {
   };
 
   return <div className={styles.wrapper}>
-
+    {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
     <ReportFormHeader report={report} onReportTitleChange={onReportTitleChange} onPrioritySelect={onPrioritySelect} />
@@ -252,21 +297,26 @@ const ReportForm = memo((props) => {
         onDeleteNote={onDeleteNote}
         onDeleteFile={onDeleteFile} />
       <div className={styles.bottomControls}>
-        <ReportFormAttachmentControls map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onClickAddReport={onClickAddReport} />
+        <ReportFormAttachmentControls map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
         <div className={styles.formButtons}>
           <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-          <Button type="submit" variant="primary">Save</Button>
+          <Button type="submit" onClick={handleFormSubmit} variant="primary">Save</Button>
         </div>
       </div>
     </FormBody>
   </div>;
-});
+};
 
 const mapStateToProps = (state, props) => ({
   ...getReportFormSchemaData(state, props),
 });
 
-export default connect(mapStateToProps, { addModal, removeModal, setModalVisibilityState })(ReportForm);
+export default connect(mapStateToProps, {
+  addModal, removeModal, updateModal, setModalVisibilityState,
+  createEvent: (event) => createEvent(event),
+  addEventToIncident: (event_id, incident_id) => addEventToIncident(event_id, incident_id),
+  fetchEvent: id => fetchEvent(id),
+})(memo(ReportForm));
 
 ReportForm.defaultProps = {
   onSaveSuccess() {

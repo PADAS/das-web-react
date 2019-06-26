@@ -11,12 +11,12 @@ const IncidentReportsList = (props) => {
   </li>);
 
 
-  return <div className={styles.form}>
+  return <form className={styles.form}>
     <ul>
       {reportList.map(createReportListItem)}
     </ul>
     {children}
-  </div>;
+  </form>;
 };
 
 export default memo(IncidentReportsList);
