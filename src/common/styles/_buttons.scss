@@ -29,3 +29,8 @@
   @include unstyledButton;
   text-decoration: underline;
 }
+
+
+@mixin gearButton {
+  @include imageButton('gear');
+}

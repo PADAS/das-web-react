@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';

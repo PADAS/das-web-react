@@ -1,6 +1,6 @@
 import React, { memo, Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { Modal } from 'react-bootstrap';
+import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 
 import LoadingOverlay from '../LoadingOverlay';

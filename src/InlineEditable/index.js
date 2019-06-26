@@ -6,30 +6,38 @@ import styles from './styles.module.scss';
 import Checkmark from '../Checkmark';
 
 const InlineEditable = memo((props) => {
-  const { validationFunc, value:originalValue, onSave, showEditButton } = props;
+  const { validationFunc, value:originalValue, onSave, onChange, showCancel,showEditButton, ...rest } = props;
   const inputRef = useRef(null);
 
   const [editing, setEditState] = useState(false);
   const [valid, setValidationState] = useState(validationFunc(originalValue));
   const [value, setStateValue] = useState(originalValue);
 
-  const onChange = (event) => {
+  const onInputChange = (event) => {
     const { target: { value } } = event;
 
     setValidationState(validationFunc(value));
     setStateValue(value);
+    onChange && onChange(value);
   };
 
   const onStartEdit = () => {
+    setStateValue(originalValue);
     setEditState(true);
     setValidationState(validationFunc(value));
 
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
-        inputRef.current.setSelectionRange(0, value.length);
+        if (inputRef.current.type !== 'number') {
+          inputRef.current.setSelectionRange(0, value.length);
+        }
       }
     });
+  };
+
+  const onCancel = () => {
+    setEditState(false);
   };
 
   const handleKeyDown = (event) => {
@@ -57,17 +65,18 @@ const InlineEditable = memo((props) => {
           ref={inputRef}
           value={value}
           type={typeof originalValue}
-          onChange={onChange}
+          onChange={onInputChange}
+          {...rest}
         />
-        <button className={styles.button} type="button" onClick={() => setEditState(false)}>
+        {showCancel && <button className={styles.button} type="button" onClick={onCancel}>
           <span className={styles.x}>X</span>
-        </button>
+        </button>}
         <button className={styles.button} type="submit">
           <Checkmark partiallyChecked={false} fullyChecked={true} />
         </button>
         {!valid && <span>Invalid, yo</span>}
       </form>
-      : <span onClick={onStartEdit} className={styles.editable}>
+      : <span onClick={onStartEdit} className={styles.editable} {...rest}>
         {originalValue} {showEditButton && <button type="button" onClick={onStartEdit}>Edit</button>}
       </span>
   );
@@ -83,6 +92,7 @@ InlineEditable.defaultProps = {
   validationFunc(value) {
     return true;
   },
+  showCancel: true,
 };
 
 InlineEditable.propTypes = {
@@ -92,5 +102,7 @@ InlineEditable.propTypes = {
     PropTypes.number,
   ]),
   showEditButton: PropTypes.bool,
+  showCancel: PropTypes.bool,
   onSave: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
 };

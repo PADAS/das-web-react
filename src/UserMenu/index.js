@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import styles from './styles.module.scss';
 
@@ -22,7 +22,7 @@ const UserMenu = (props) => {
             // .filter(({ username }) => username !== displayUser.username)
             .map((profile, index) =>
             
-              <Item active={profile.username === displayUser.username ? "active" : null} key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
+              <Item active={profile.username === displayUser.username ? 'active' : null} key={`${profile.id}-${index}`} onClick={() => onProfileClick(profile)}>
                 {profile.username}
               </Item>
             )}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import { subDays, startOfDay, setHours } from 'date-fns';
 
 import { removeModal } from '../ducks/modals';

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 
-import TimeAgo from 'react-timeago'
+import TimeAgo from 'react-timeago';
 import Badge from '../Badge';
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
@@ -45,7 +45,7 @@ class SystemStatusComponent extends Component {
             {!!value.timestamp && <span className={styles.timestamp}><TimeAgo date={value.timestamp} /></span>}
           </span>
         </div>
-      </Item>
+      </Item>;
     });
   }
   render() {

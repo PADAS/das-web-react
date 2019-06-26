@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
 import DateTimePicker from 'react-datetime-picker';
