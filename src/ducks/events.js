@@ -112,7 +112,7 @@ export const updateEvent = (event) => (dispatch) => {
     payload: event,
   });
 
-  return axios.put(`${EVENT_API_URL}${event.id}`, event)
+  return axios.patch(`${EVENT_API_URL}${event.id}`, event)
     .then((response) => {
       dispatch({
         type: UPDATE_EVENT_SUCCESS,

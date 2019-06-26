@@ -13,6 +13,7 @@ import { extractObjectDifference } from '../utils/objects';
 import { getReportFormSchemaData } from '../selectors';
 import { addModal, removeModal, updateModal, setModalVisibilityState } from '../ducks/modals';
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
+import { calcUrlForImage } from '../utils/img';
 
 import IncidentReportsList from './IncidentReportsList';
 import ReportFormAttachmentControls from './AttachmentControls';
@@ -61,7 +62,7 @@ const ReportForm = (props) => {
   };
 
   const onAddFiles = files => {
-    files.forEach((file) => {
+    const uploadableFiles = files.filter((file) => {
       const { name } = file;
       const filenameExists =
         filesToUpload.some(({ name: n }) => n === name)
@@ -70,10 +71,10 @@ const ReportForm = (props) => {
       if (filenameExists) {
         window.alert(`Can not add ${name}: 
         file already exists`);
-      } else {
-        updateFilesToUpload([...filesToUpload, file]);
       }
+      return !filenameExists;
     });
+    updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
     goToBottomOfForm();
   };
 
@@ -215,7 +216,7 @@ const ReportForm = (props) => {
     if (file.file_type === 'image') {
       addModal({
         content: ImageModal,
-        src: file.images.original,
+        src: calcUrlForImage(file.images.original),
         title: file.filename,
       });
     } else {
@@ -252,8 +253,8 @@ const ReportForm = (props) => {
     }
   };
 
-  const filesToList = [...filesToUpload, ...reportFiles];
-  const notesToList = [...notesToAdd, ...reportNotes];
+  const filesToList = [...reportFiles, ...filesToUpload];
+  const notesToList = [...reportNotes, ...notesToAdd];
 
   const Controls = <Fragment>
     <ReportFormAttachmentList
@@ -314,10 +315,9 @@ export default connect(mapStateToProps, {
 ReportForm.defaultProps = {
   addReportDisabled: false,
   onSaveSuccess() {
-    console.log('save success!');
   },
   onSaveError(e) {
-    console.log('error with stuff', e);
+    console.log('error saving report', e);
   },
 };
 
