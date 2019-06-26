@@ -268,7 +268,7 @@ const ReportForm = (props) => {
       <ReportFormAttachmentControls addReportDisabled={disableAddReport} map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
       <div className={styles.formButtons}>
         <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-        <Button type="submit" onClick={handleFormSubmit} variant="primary">Save</Button>
+        <Button type="submit" onClick={() => is_collection && handleFormSubmit()} variant="primary">Save</Button>
       </div>
     </div>
   </Fragment>;
