@@ -14,7 +14,7 @@ import { displayTitleForEventByEventType } from '../utils/events';
 
 import styles from './styles.module.scss';
 
-const EventFeed = memo((props) => {
+const EventFeed = (props) => {
   const { events, eventTypes, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
 
   const iconClickHandler = onIconClick || onTitleClick;
@@ -30,7 +30,7 @@ const EventFeed = memo((props) => {
         hasMore={hasMore}
         loadMore={onScroll}
         useWindow={false}
-        getScrollParent={() => findDOMNode(scrollRef.current)}
+        getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
       >
         {events.map((item, index) => {
           const coordinates = getCoordinatesForEvent(item);
@@ -51,11 +51,11 @@ const EventFeed = memo((props) => {
       </InfiniteScroll>
     </div>
   );
-});
+};
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 
-export default connect(mapStateToProps, null)(EventFeed);
+export default connect(mapStateToProps, null)(memo(EventFeed));
 
 EventFeed.defaultProps = {
   onTitleClick(event) {

@@ -110,7 +110,7 @@ const App = memo((props) => {
     window.addEventListener('resize', () => {
       mapResized = true;
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (zendeskEnabled && zendeskEnabled.enabled) {
