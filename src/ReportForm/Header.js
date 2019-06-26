@@ -1,6 +1,5 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
@@ -21,8 +20,8 @@ const calcClassNameForPriority = (priority) => {
 };
 
 const ReportFormHeader = (props) => {
-  const { report, eventTypes, onReportTitleChange, onPrioritySelect } = props;
-  const reportTitle = displayTitleForEventByEventType(report, eventTypes);
+  const { report, onReportTitleChange, onPrioritySelect } = props;
+  const reportTitle = displayTitleForEventByEventType(report);
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
@@ -43,9 +42,8 @@ const ReportFormHeader = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 
-export default connect(mapStateToProps, null)(memo(ReportFormHeader));
+export default memo(ReportFormHeader);
 
 ReportFormHeader.propTypes = {
   report: PropTypes.object.isRequired,

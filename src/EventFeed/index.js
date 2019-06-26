@@ -1,6 +1,5 @@
 import React, { useRef, memo } from 'react';
 import { findDOMNode } from 'react-dom';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
 
@@ -15,7 +14,7 @@ import { displayTitleForEventByEventType } from '../utils/events';
 import styles from './styles.module.scss';
 
 const EventFeed = (props) => {
-  const { events, eventTypes, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
+  const { events, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
 
   const iconClickHandler = onIconClick || onTitleClick;
 
@@ -37,7 +36,7 @@ const EventFeed = (props) => {
           return <li className={`${styles.listItem} ${styles[`priority-${item.priority}`]}`} key={`${item.id}-${index}`}>
             <button className={styles.icon} onClick={() => iconClickHandler(item)}><EventIcon iconId={item.icon_id} /></button>
             <span className={styles.serialNumber}>{item.serial_number}</span>
-            <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item, eventTypes)}</button>
+            <button type="button" className={styles.title} onClick={() => onTitleClick(item)}>{displayTitleForEventByEventType(item)}</button>
             <DateTime className={styles.date} date={item.updated_at} />
             {coordinates &&
               <div className={styles.jump}>
@@ -53,9 +52,7 @@ const EventFeed = (props) => {
   );
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
-
-export default connect(mapStateToProps, null)(memo(EventFeed));
+export default memo(EventFeed);
 
 EventFeed.defaultProps = {
   onTitleClick(event) {

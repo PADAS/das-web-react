@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import LoadingOverlay from '../LoadingOverlay';
 
 import { downloadFileFromUrl } from '../utils/file';
-import { generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
+import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
@@ -27,7 +27,7 @@ import ImageModal from '../ImageModal';
 import styles from './styles.module.scss';
 
 const ReportForm = (props) => {
-  const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal,
+  const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, addReportDisabled,
     schema, uiSchema, addModal, setModalVisibilityState, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
@@ -35,25 +35,22 @@ const ReportForm = (props) => {
   const [report, updateStateReport] = useState(originalReport);
 
   const [filesToUpload, updateFilesToUpload] = useState([]);
-
   const [notesToAdd, updateNotesToAdd] = useState([]);
   const [saveError, setSaveErrorState] = useState(null);
+
   const [saving, setSavingState] = useState(false);
 
   useEffect(() => {
-    return () => {
-      setModalVisibilityState(true);
-    };
-  }, []);
-
-  useEffect(() => {
     updateStateReport(originalReport);
+    updateFilesToUpload([]);
+    updateNotesToAdd([]);
   }, [originalReport]);
 
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
 
   const { is_collection } = report;
+  const disableAddReport = addReportDisabled || eventBelongsToCollection(report);
 
   const onCancel = () => removeModal(id);
 
@@ -226,10 +223,10 @@ const ReportForm = (props) => {
     }
   };
 
-  const onReportAdded = ([{ data: { data:newReport} }]) => {
+  const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
       saveChanges()
-        .then(async ([{ data: { data:thisReport } }]) => {
+        .then(async ([{ data: { data: thisReport } }]) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
@@ -258,22 +255,22 @@ const ReportForm = (props) => {
   const filesToList = [...filesToUpload, ...reportFiles];
   const notesToList = [...notesToAdd, ...reportNotes];
 
-  const FormBody = ({ children }) => {
-    if (is_collection) {
-      return <IncidentReportsList reports={report.contains} onReportClick={(report) => console.log('clicky', report)}>
-        {children}
-      </IncidentReportsList>;
-    }
-    return <ReportFormBody
-      ref={formRef}
-      formData={unwrapEventDetailSelectValues(report.event_details)}
-      onChange={onDetailChange}
-      onSubmit={handleFormSubmit}
-      schema={schema}
-      uiSchema={uiSchema}>
-      {children}
-    </ReportFormBody>;
-  };
+  const Controls = <Fragment>
+    <ReportFormAttachmentList
+      files={filesToList}
+      notes={notesToList}
+      onClickFile={onClickFile}
+      onClickNote={startEditNote}
+      onDeleteNote={onDeleteNote}
+      onDeleteFile={onDeleteFile} />
+    <div className={styles.bottomControls}>
+      <ReportFormAttachmentControls addReportDisabled={disableAddReport} map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
+      <div className={styles.formButtons}>
+        <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
+        <Button type="submit" onClick={handleFormSubmit} variant="primary">Save</Button>
+      </div>
+    </div>
+  </Fragment>;
 
   return <div className={styles.wrapper}>
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
@@ -288,22 +285,18 @@ const ReportForm = (props) => {
       onReportLocationChange={onReportLocationChange}
       report={report} />}
 
-    <FormBody>
-      <ReportFormAttachmentList
-        files={filesToList}
-        notes={notesToList}
-        onClickFile={onClickFile}
-        onClickNote={startEditNote}
-        onDeleteNote={onDeleteNote}
-        onDeleteFile={onDeleteFile} />
-      <div className={styles.bottomControls}>
-        <ReportFormAttachmentControls map={map} onAddFiles={onAddFiles} onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
-        <div className={styles.formButtons}>
-          <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-          <Button type="submit" onClick={handleFormSubmit} variant="primary">Save</Button>
-        </div>
-      </div>
-    </FormBody>
+    {is_collection && <IncidentReportsList reports={report.contains} onReportClick={(report) => console.log('clicky', report)}>
+      {Controls}
+    </IncidentReportsList>}
+    {!is_collection && <ReportFormBody
+      ref={formRef}
+      formData={unwrapEventDetailSelectValues(report.event_details)}
+      onChange={onDetailChange}
+      onSubmit={handleFormSubmit}
+      schema={schema}
+      uiSchema={uiSchema}>
+      {Controls}
+    </ReportFormBody>}
   </div>;
 };
 
@@ -319,6 +312,7 @@ export default connect(mapStateToProps, {
 })(memo(ReportForm));
 
 ReportForm.defaultProps = {
+  addReportDisabled: false,
   onSaveSuccess() {
     console.log('save success!');
   },
@@ -328,6 +322,7 @@ ReportForm.defaultProps = {
 };
 
 ReportForm.propTypes = {
+  addReportDisabled: PropTypes.bool,
   report: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
   map: PropTypes.object.isRequired,

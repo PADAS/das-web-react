@@ -1,6 +1,5 @@
 import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
-import unionBy from 'lodash/unionBy';
 
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
@@ -205,7 +204,7 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
 
   const bbox = getBboxParamsFromMap(map);
 
-  const eventFilterParamString = calcEventFilterForRequest({ bbox });
+  const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false });
 
   const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
 
@@ -332,7 +331,12 @@ export const eventFeedReducer = (state = INITIAL_EVENT_FEED_STATE, { type, paylo
   }
   if ([SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT].includes(type)) {
     const { event_data, event_id } = payload;
-    if (eventBelongsToCollection(event_data)) return state.filter(id => id !== event_id);
+    if (eventBelongsToCollection(event_data)) {
+      return {
+        ...state,
+        results: state.results.filter(id => id !== event_id),
+      };
+    }
 
     return {
       ...state,

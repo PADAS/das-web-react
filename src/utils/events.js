@@ -13,10 +13,12 @@ import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 
 import ReportForm from '../ReportForm';
 
-export const displayTitleForEventByEventType = (event, eventTypes) => {
+export const displayTitleForEventByEventType = (event) => {
+  const { data: { eventTypes } } = store.getState();
+  
   if (event.title) return event.title;
 
-  const matchingType = eventTypes.find(t => t.value === event.event_type);
+  const matchingType = (eventTypes || []).find(t => t.value === event.event_type);
 
   if (matchingType) return matchingType.display;
   if (event.event_type) return event.event_type;
@@ -68,7 +70,7 @@ const objectToParamString = (obj) => {
 export const calcEventFilterForRequest = (params) => {
   const { data: { eventFilter } } = store.getState();
 
-  const toClean = { ...params, ...eventFilter };
+  const toClean = { ...eventFilter, ...params };
 
   const cleaned = {
     ...cleanedUpFilterObject(toClean),
@@ -148,9 +150,11 @@ export const executeReportSaveActions = (saveActions) => {
   });
 };
 
-export const openModalForReport = async (event, map, onSaveSuccess, onSaveError) => {
+export const openModalForReport = async (event, map, config = {}) => {
   const { data: { eventSchemas } } = store.getState();
+  const { onSaveSuccess, onSaveError, addReportDisabled } = config;
   const { event_type } = event;
+
 
   const promise = eventSchemas[event_type] ? Promise.resolve() : store.dispatch(fetchEventTypeSchema(event_type));
 
@@ -160,6 +164,7 @@ export const openModalForReport = async (event, map, onSaveSuccess, onSaveError)
     addModal({
       content: ReportForm,
       report: event,
+      addReportDisabled,
       map,
       onSaveSuccess,
       onSaveError,
