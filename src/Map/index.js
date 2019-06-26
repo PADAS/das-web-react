@@ -25,6 +25,7 @@ import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
 import FeatureLayer from '../FeatureLayer';
+import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
@@ -76,6 +77,9 @@ class Map extends Component {
     }
     if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
       this.createFeatureImages();
+    }
+    if (!isEqual(prev.mapAnalyzersFeatureCollection, this.props.mapAnalyzersFeatureCollection)) {
+      this.createAnalyzerFeatures();
     }
   }
   createSubjectImages() {
@@ -278,6 +282,8 @@ class Map extends Component {
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
+
+            <AnalyzerLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
             {!!popup && <PopupLayer
               popup={popup}
