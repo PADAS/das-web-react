@@ -11,7 +11,7 @@ import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
 import { getReportFormSchemaData } from '../selectors';
-import { addModal, removeModal, updateModal } from '../ducks/modals';
+import { addModal, removeModal, updateModal, clearModals } from '../ducks/modals';
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
 import { calcUrlForImage } from '../utils/img';
 
@@ -162,8 +162,15 @@ const ReportForm = (props) => {
     const { is_contained_in: [{ related_event: { id:incidentID } }] } = report;
 
     return fetchEvent(incidentID).then(({ data: { data } }) => {
+      clearModals();
       openModalForReport(data, map);
-      removeModal(id);
+      // removeModal(id);
+    });
+  };
+
+  const onIncidentReportClick = (report) => {
+    return fetchEvent(report.id).then(({ data: { data } }) => {
+      openModalForReport(data, map);
     });
   };
 
@@ -300,7 +307,7 @@ const ReportForm = (props) => {
       onReportLocationChange={onReportLocationChange}
       report={report} />}
 
-    {is_collection && <IncidentReportsList reports={report.contains} onReportClick={(report) => console.log('clicky', report)}>
+    {is_collection && <IncidentReportsList reports={report.contains} onReportClick={onIncidentReportClick}>
       {Controls}
     </IncidentReportsList>}
     {!is_collection && <ReportFormBody
@@ -320,7 +327,7 @@ const mapStateToProps = (state, props) => ({
 });
 
 export default connect(mapStateToProps, {
-  addModal, removeModal, updateModal,
+  addModal, removeModal, updateModal, clearModals,
   createEvent: (event) => createEvent(event),
   addEventToIncident: (event_id, incident_id) => addEventToIncident(event_id, incident_id),
   fetchEvent: id => fetchEvent(id),
