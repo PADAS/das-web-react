@@ -10,7 +10,7 @@ import AddReport from '../AddReport';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
-import { ReactComponent as FieldReportIcon } from '../common/images/icons/field_report.svg';
+import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 
 import styles from './styles.module.scss';
 
@@ -86,7 +86,7 @@ const AttachmentControls = (props) => {
 
       <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
 
-      {!addReportDisabled && <AddReport map={map} container={attachmentControlsRef} addReportDisabled={true} onSaveSuccess={onNewReportSaved} />}
+      {!addReportDisabled && !isCollectionChild && <AddReport map={map} container={attachmentControlsRef} addReportDisabled={true} onSaveSuccess={onNewReportSaved} />}
       {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
     </div>
   );
