@@ -15,6 +15,7 @@ import { addModal, removeModal, updateModal, clearModals } from '../ducks/modals
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
 import { calcUrlForImage } from '../utils/img';
 
+import AddToIncidentModal from './AddToIncidentModal';
 import IncidentReportsList from './IncidentReportsList';
 import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
@@ -28,7 +29,7 @@ import ImageModal from '../ImageModal';
 import styles from './styles.module.scss';
 
 const ReportForm = (props) => {
-  const { id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, addReportDisabled,
+  const { clearModals, id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
@@ -51,7 +52,7 @@ const ReportForm = (props) => {
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
 
   const { is_collection } = report;
-  const disableAddReport = addReportDisabled;
+  const disableAddReport = relationshipButtonDisabled;
 
   const onCancel = () => removeModal(id);
 
@@ -170,7 +171,7 @@ const ReportForm = (props) => {
 
   const onIncidentReportClick = (report) => {
     return fetchEvent(report.id).then(({ data: { data } }) => {
-      openModalForReport(data, map);
+      openModalForReport(data, map, { relationshipButtonDisabled: true });
     });
   };
 
@@ -240,6 +241,13 @@ const ReportForm = (props) => {
     }
   };
 
+  const onStartAddToIncident = () => {
+    addModal({
+      content: AddToIncidentModal,
+      report_id: report.id,
+    });
+  };
+
   const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
       saveChanges()
@@ -284,7 +292,7 @@ const ReportForm = (props) => {
       <ReportFormAttachmentControls
         isCollectionChild={eventBelongsToCollection(report)}
         onGoToCollection={goToParentCollection}
-        addReportDisabled={disableAddReport}
+        relationshipButtonDisabled={disableAddReport}
         map={map} onAddFiles={onAddFiles}
         onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
       <div className={styles.formButtons}>
@@ -298,7 +306,11 @@ const ReportForm = (props) => {
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
-    <ReportFormHeader report={report} onReportTitleChange={onReportTitleChange} onPrioritySelect={onPrioritySelect} />
+    <ReportFormHeader
+      report={report}
+      onReportTitleChange={onReportTitleChange}
+      onPrioritySelect={onPrioritySelect}
+      onStartAddToIncident={onStartAddToIncident} />
 
     {!is_collection && <ReportFormTopLevelControls
       map={map}
@@ -334,7 +346,7 @@ export default connect(mapStateToProps, {
 })(memo(ReportForm));
 
 ReportForm.defaultProps = {
-  addReportDisabled: false,
+  relationshipButtonDisabled: false,
   onSaveSuccess() {
   },
   onSaveError(e) {
@@ -343,7 +355,7 @@ ReportForm.defaultProps = {
 };
 
 ReportForm.propTypes = {
-  addReportDisabled: PropTypes.bool,
+  relationshipButtonDisabled: PropTypes.bool,
   report: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
   map: PropTypes.object.isRequired,

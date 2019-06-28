@@ -17,6 +17,7 @@ export const createSelector = createSelectorCreator(
 
 const mapEvents = ({ data: { mapEvents } }) => mapEvents;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
+const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -55,6 +56,16 @@ export const getFeedEvents = createSelector(
   (feedEvents, eventStore) => ({
     ...feedEvents,
     results: feedEvents.results
+      .map(id => eventStore[id])
+      .filter(item => !!item),
+  }),
+);
+
+export const getFeedIncidents = createSelector(
+  [feedIncidents, eventStore],
+  (feedIncidents, eventSTore) => ({
+    ...feedIncidents,
+    results: feedIncidents.results
       .map(id => eventStore[id])
       .filter(item => !!item),
   }),

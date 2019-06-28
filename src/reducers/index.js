@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import tokenReducer from '../ducks/auth';
-import eventStoreReducer, { mapEventsReducer, eventFeedReducer } from '../ducks/events';
+import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
@@ -47,6 +47,7 @@ const rootReducer = combineReducers({
   data: combineReducers({
     eventStore: eventStoreReducer,
     feedEvents: eventFeedReducer,
+    feedIncidents: incidentFeedReducer,
     mapEvents: mapEventsReducer,
     eventFilter: eventFilterReducer,
     eventSchemas: eventSchemaReducer,

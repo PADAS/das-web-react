@@ -152,7 +152,7 @@ export const executeReportSaveActions = (saveActions) => {
 
 export const openModalForReport = async (event, map, config = {}) => {
   const { data: { eventSchemas } } = store.getState();
-  const { onSaveSuccess, onSaveError, addReportDisabled } = config;
+  const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
   const { event_type } = event;
 
 
@@ -164,7 +164,7 @@ export const openModalForReport = async (event, map, config = {}) => {
     addModal({
       content: ReportForm,
       report: event,
-      addReportDisabled,
+      relationshipButtonDisabled,
       map,
       onSaveSuccess,
       onSaveError,

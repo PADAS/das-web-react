@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
+import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 import PriorityPicker from '../PriorityPicker';
@@ -20,13 +21,14 @@ const calcClassNameForPriority = (priority) => {
 };
 
 const ReportFormHeader = (props) => {
-  const { report, onReportTitleChange, onPrioritySelect } = props;
+  const { report, onReportTitleChange, onPrioritySelect, onStartAddToIncident } = props;
   const reportTitle = displayTitleForEventByEventType(report);
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
   const ReportHeaderPopover = <Popover placement='auto' className={styles.popover}>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
+    {!report.is_collection && report.id && <Button variant='secondary' onClick={onStartAddToIncident}>Add to incident</Button>}
   </Popover>;
 
 
@@ -49,4 +51,5 @@ ReportFormHeader.propTypes = {
   report: PropTypes.object.isRequired,
   onReportTitleChange: PropTypes.func.isRequired,
   onPrioritySelect: PropTypes.func.isRequired,
+  onStartAddToIncident: PropTypes.func.isRequired,
 };

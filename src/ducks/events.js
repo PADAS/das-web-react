@@ -26,25 +26,85 @@ const ADD_EVENT_NOTE_START = 'ADD_EVENT_NOTE_START';
 const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
 const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
 
-export const FETCH_FEED_EVENTS_START = 'FETCH_FEED_EVENTS_START';
-export const FETCH_FEED_EVENTS_SUCCESS = 'FETCH_FEED_EVENTS_SUCCESS';
-export const FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS = 'FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS';
-export const FETCH_FEED_EVENTS_ERROR = 'FETCH_EVENTS_EROR';
+const EVENT_FEED_NAME = 'EVENT_FEED';
+const INCIDENT_FEED_NAME = 'INCIDENT_FEED';
 
-export const FETCH_MAP_EVENTS = 'FETCH_MAP_EVENTS';
-export const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
-export const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
+const FEED_FETCH_START = 'FEED_FETCH_START';
+const FEED_FETCH_SUCCESS = 'FEED_FETCH_SUCCESS';
+const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
+const FEED_FETCH_ERROR = 'FEED_FETCH_ERROR';
 
+const FETCH_MAP_EVENTS_START = 'FETCH_MAP_EVENTS_START';
+const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
+const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_REVENTS_PAGE_SUCCESS';
 
 export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
 export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
 
-export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
+const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const EVENT_RELATIONSHIP_CREATED = 'EVENT_RELATIONSHIP_CREATED';
 
 let eventFetchCancelToken = CancelToken.source();
+let incidentFetchCancelToken = CancelToken.source();
+
+// higher-order action creators
+const fetchNamedFeedActionCreator = (name, cancelToken) => (config, paramString) => (dispatch) => {
+  if (cancelToken) {
+    cancelToken.cancel();
+    cancelToken = CancelToken.source();
+  }
+
+  dispatch({
+    name,
+    type: FEED_FETCH_START,
+  });
+
+  return axios.get(`${EVENTS_API_URL}?${paramString}`, {
+    ...config,
+    cancelToken: cancelToken.token,
+  })
+    .then((response) => {
+      dispatch(updateEventStore(...response.data.data.results));
+      console.log('feed success', response.data.data);
+      dispatch({
+        name,
+        type: FEED_FETCH_SUCCESS,
+        payload: response.data.data,
+      });
+      return response;
+    })
+    .catch((error) => {
+      console.log('feed error', error);
+      dispatch({
+        name,
+        type: FEED_FETCH_ERROR,
+        payload: error,
+      });
+      return error;
+    });
+};
+
+const fetchNextNamedFeedPageActionCreator = name => url => dispatch => axios.get(url)
+  .then(response => {
+    dispatch(updateEventStore(...response.data.data.results));
+    dispatch({
+      name,
+      type: FEED_FETCH_NEXT_PAGE_SUCCESS,
+      payload: response.data.data,
+    });
+    return response;
+  })
+  .catch((error) => {
+    dispatch({
+      name,
+      type: FEED_FETCH_ERROR,
+      payload: error,
+    });
+    return error;
+  });
+
 
 // action creators
 export const createEvent = event => (dispatch) => {
@@ -167,40 +227,18 @@ export const uploadEventFile = (event_id, file, progressHandler = (event) => con
     });
 };
 
-export const fetchFeedEvents = (config = {}) => (dispatch) => {
-  eventFetchCancelToken.cancel();
-  eventFetchCancelToken = CancelToken.source();
+export const fetchEventFeed = fetchNamedFeedActionCreator(EVENT_FEED_NAME, eventFetchCancelToken);
+export const fetchNextEventFeedPage = fetchNextNamedFeedPageActionCreator(EVENT_FEED_NAME);
 
-  dispatch({
-    type: FETCH_FEED_EVENTS_START,
-  });
-
-  const eventFilterParamString = calcEventFilterForRequest();
-
-  return axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-    ...config,
-    cancelToken: eventFetchCancelToken.token,
-  })
-    .then((response) => {
-      dispatch(fetchFeedEventsSuccess(response));
-      return response;
-    })
-    .catch((error) => {
-      dispatch(fetchFeedEventsError(error));
-      return error;
-    });
-};
-
-export const fetchNextEventFeedPage = (url) => {
-  return function (dispatch) {
-    return axios.get(url)
-      .then(response => dispatch(fetchFeedEventsNextPageSucess(response)))
-      .catch(error => dispatch(fetchFeedEventsError(error)));
-  };
-};
+export const fetchIncidentFeed = fetchNamedFeedActionCreator(INCIDENT_FEED_NAME, incidentFetchCancelToken);
+export const fetchNextIncidentFeedPage = fetchNextNamedFeedPageActionCreator(INCIDENT_FEED_NAME);
 
 export const fetchMapEvents = (map, { token }) => async (dispatch) => {
   if (!map) return;
+
+  dispatch({
+    type: FETCH_MAP_EVENTS_START,
+  });
 
   const bbox = getBboxParamsFromMap(map);
 
@@ -221,34 +259,13 @@ export const fetchMapEvents = (map, { token }) => async (dispatch) => {
     });
 };
 
-const fetchFeedEventsSuccess = response => (dispatch) => {
-  dispatch({
-    type: FETCH_FEED_EVENTS_SUCCESS,
-    payload: response.data.data,
-  });
-  dispatch(updateEventStore(...response.data.data.results));
-}; 
-
-const fetchFeedEventsNextPageSucess = response => (dispatch) => {
-  dispatch({
-    type: FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS,
-    payload: response.data.data,
-  });
-  dispatch(updateEventStore(...response.data.data.results));
-};
-
-const fetchFeedEventsError = error => ({
-  type: FETCH_FEED_EVENTS_ERROR,
-  payload: error,
-});
-
 const fetchMapEventsSucess = results => (dispatch) => {
   dispatch({
     type: FETCH_MAP_EVENTS_SUCCESS,
     payload: results,
   });
   dispatch(updateEventStore(...results));
-}; 
+};
 
 const fetchMapEventsPageSuccess = results => (dispatch) => {
   dispatch({
@@ -256,7 +273,7 @@ const fetchMapEventsPageSuccess = results => (dispatch) => {
     payload: results,
   });
   dispatch(updateEventStore(...results));
-}; 
+};
 
 const fetchMapEventsError = error => ({
   type: FETCH_MAP_EVENTS_ERROR,
@@ -268,11 +285,42 @@ const updateEventStore = (...results) => ({
   payload: results,
 });
 
+// higher-order reducers
+const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EVENT_FEED_STATE, action) => {
+  const isInitializationCall = state === undefined;
+
+  if (isInitializationCall || name !== action.name) return state;
+
+  const { type, payload } = action;
+
+  if (type === FEED_FETCH_START) {
+    return INITIAL_EVENT_FEED_STATE;
+  }
+  if (type === FEED_FETCH_SUCCESS) {
+    return {
+      ...payload,
+      results: payload.results.map(event => event.id),
+    };
+  }
+  if (type === FEED_FETCH_NEXT_PAGE_SUCCESS) {
+    const { results: events, count, next, previous } = payload;
+    return {
+      ...state,
+      count,
+      next,
+      previous,
+      results: [...state.results, ...events.map(event => event.id)],
+    };
+  }
+  
+  return reducer(state, action);
+};
+
 // reducers
 const INITIAL_STORE_STATE = {};
 export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
   const SOCKET_EVENTS = [SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT];
-  
+
   if (type === UPDATE_EVENT_STORE) {
     const toAdd = payload.reduce((accumulator, event) => {
       if (event.geojson) {
@@ -280,7 +328,7 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
       }
 
       accumulator[event.id] = { ...state[event.id], ...event };
-      
+
       return accumulator;
     }, {});
 
@@ -302,33 +350,14 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
   return state;
 };
 
-const INITIAL_EVENT_FEED_STATE = {
+export const INITIAL_EVENT_FEED_STATE = {
   count: null,
   next: null,
   previous: null,
   results: [],
 };
 
-export const eventFeedReducer = (state = INITIAL_EVENT_FEED_STATE, { type, payload }) => {
-  if (type === FETCH_FEED_EVENTS_START) {
-    return INITIAL_EVENT_FEED_STATE;
-  }
-  if (type === FETCH_FEED_EVENTS_SUCCESS) {
-    return {
-      ...payload,
-      results: payload.results.map(event => event.id),
-    };
-  }
-  if (type === FETCH_FEED_EVENTS_NEXT_PAGE_SUCCESS) {
-    const { results: events, count, next, previous } = payload;
-    return {
-      ...state,
-      count,
-      next,
-      previous,
-      results: [...state.results, ...events.map(event => event.id)],
-    };
-  }
+export const eventFeedReducer = namedFeedReducer('EVENT_FEED', (state, { type, payload }) => {
   if ([SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT].includes(type)) {
     const { event_data, event_id } = payload;
     if (eventBelongsToCollection(event_data)) {
@@ -344,7 +373,21 @@ export const eventFeedReducer = (state = INITIAL_EVENT_FEED_STATE, { type, paylo
     };
   }
   return state;
-};
+});
+
+export const incidentFeedReducer = namedFeedReducer('INCIDENT_FEED', (state, { type, payload }) => {
+  if ([SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT].includes(type)) {
+    const { event_data, event_id } = payload;
+    if (event_data.is_collection) {
+      return {
+        ...state,
+        results: union([event_id], state.results),
+      };
+    }
+    return state;
+  }
+});
+
 
 const INITIAL_MAP_EVENTS_STATE = [];
 export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, { type, payload }) {
@@ -357,7 +400,7 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
     return extractEventIDs(payload);
   }
   if ([SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT].includes(type)) {
-    const  { event_data, event_id } = payload;
+    const { event_data, event_id } = payload;
     if (!event_data.geojson) return state;
 
     return union([event_id], state);
@@ -366,3 +409,13 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
 };
 
 export default eventStoreReducer;
+
+/* 
+export const fetchNextEventFeedPage = (url) => {
+  return function (dispatch) {
+    return axios.get(url)
+      .then(response => dispatch(fetchNamedFeedEventsNextPageSucess(response)))
+      .catch(error => dispatch(fetchNamedFeedEventsError(error)));
+  };
+};
+ */

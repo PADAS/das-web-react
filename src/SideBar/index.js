@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 
-import { openModalForReport } from '../utils/events';
+import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
 
-import { fetchFeedEvents, fetchNextEventFeedPage } from '../ducks/events';
+import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
@@ -17,7 +17,7 @@ import EventFilter from '../EventFilter';
 import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, fetchFeedEvents, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;
+  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const addReportContainerRef = useRef(null);
@@ -28,7 +28,8 @@ const SideBar = memo((props) => {
 
   useEffect(() => {
     setEventLoadState(true);
-    fetchFeedEvents().then(() => setEventLoadState(false));
+    fetchEventFeed({}, calcEventFilterForRequest())
+      .then(() => setEventLoadState(false));
   }, [eventFilter]);
 
   if (!map) return null;
@@ -66,7 +67,7 @@ const mapStateToProps = (state) => ({
   sidebarOpen: state.view.userPreferences.sidebarOpen,
 });
 
-export default connect(mapStateToProps, { fetchFeedEvents, fetchNextEventFeedPage })(SideBar);
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage })(SideBar);
 
 SideBar.propTypes = {
   events: PropTypes.shape({
@@ -77,7 +78,7 @@ SideBar.propTypes = {
   }).isRequired,
   eventFilter: PropTypes.object.isRequired,
   onHandleClick: PropTypes.func.isRequired,
-  fetchFeedEvents: PropTypes.func.isRequired,
+  fetchEventFeed: PropTypes.func.isRequired,
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
 };

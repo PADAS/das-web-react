@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useRef, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -20,7 +20,7 @@ const AttachmentButton = ({ title, icon: Icon, ...rest }) => <button title={titl
 </button>;
 
 const AttachmentControls = (props) => {
-  const { addModal, addReportDisabled, allowMultipleFiles, map, onAddFiles,
+  const { addModal, relationshipButtonDisabled, allowMultipleFiles, map, onAddFiles,
     onSaveNote, onNewReportSaved, isCollectionChild, onGoToCollection } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
@@ -86,8 +86,12 @@ const AttachmentControls = (props) => {
 
       <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
 
-      {!addReportDisabled && !isCollectionChild && <AddReport map={map} container={attachmentControlsRef} addReportDisabled={true} onSaveSuccess={onNewReportSaved} />}
-      {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
+      {!relationshipButtonDisabled && <Fragment>
+        {!isCollectionChild && <AddReport map={map} container={attachmentControlsRef} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
+        {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
+
+      </Fragment>}
+
     </div>
   );
 };
@@ -95,7 +99,7 @@ const AttachmentControls = (props) => {
 export default connect(null, { addModal })(memo(AttachmentControls));
 
 AttachmentControls.defaultProps = {
-  addReportDisabled: false,
+  relationshipButtonDisabled: false,
   allowMultipleFiles: true,
   isCollectionChild: false,
   onGoToCollection() {
@@ -106,7 +110,7 @@ AttachmentControls.defaultProps = {
 AttachmentControls.propTypes = {
   isCollection: PropTypes.bool,
   onGoToCollection: PropTypes.func,
-  addReportDisabled: PropTypes.bool,
+  relationshipButtonDisabled: PropTypes.bool,
   allowMultipleFiles: PropTypes.bool,
   map: PropTypes.object.isRequired,
   onAddFiles: PropTypes.func.isRequired,
