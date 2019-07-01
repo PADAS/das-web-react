@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useRef, useEffect } from 'react';
+import React, { memo, Fragment, useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { findDOMNode } from 'react-dom';
@@ -8,27 +8,48 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 import { getFeedIncidents } from '../selectors';
 import { fetchIncidentFeed, fetchNextIncidentFeedPage } from '../ducks/events';
+import { removeModal } from '../ducks/modals';
 
 import ReportListItem from '../ReportListItem';
-
-import { removeModal } from '../ducks/modals';
 
 import styles from './styles.module.scss';
 
 const { Header, Title, Body, Footer } = Modal;
 
 const AddToIncidentModal = (props) => {
-  const { id, incidents, removeModal, report_id, fetchIncidentFeed, fetchNextIncidentFeedPage } = props;
-  console.log('props', props);
+  const { id, incidents, removeModal,
+    fetchIncidentFeed, fetchNextIncidentFeedPage, onAddToExistingIncident, onAddToNewIncident
+  } = props;
+  
   const scrollRef = useRef(null);
+  const [loaded, setLoadedState] = useState(false);
+
+  const hideModal = () => {
+    removeModal(id);
+  };
+
+  const fetchFeed = async () => {
+    await fetchIncidentFeed({}, 'is_collection=true');
+    setLoadedState(true);
+  };
 
   useEffect(() => {
-    fetchIncidentFeed('is_collection=true');
+    fetchFeed();
   }, []);
 
-  const onClick = (report) => console.log('clicked report', report);
+  const onExistingIncidentClick = (report) => {
+    console.log('clicked incident', report);
+    onAddToExistingIncident(report);
+  };
 
-  const onScroll = () => fetchNextIncidentFeedPage(incidents.next);;
+  const onClickAddNewIncident = () => {
+    onAddToNewIncident();
+  };
+
+  const onScroll = () => {
+    if (!incidents.next) return null;
+    return fetchNextIncidentFeedPage(incidents.next);
+  };
 
   const hasMore = !!incidents.next;
 
@@ -41,28 +62,30 @@ const AddToIncidentModal = (props) => {
       <div ref={scrollRef} className={styles.incidentScrollList}>
         <InfiniteScroll
           element='ul'
-          // hasMore={hasMore}
+          hasMore={hasMore}
           loadMore={onScroll}
           useWindow={false}
-          getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
-        >
+          getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
+        
           {incidents.results.map((report, index) =>
             <ReportListItem
               className={styles.listItem}
               showJumpButton={false}
               report={report}
               key={`${report.id}-${index}`}
-              onTitleClick={onClick}
-              onIconClick={onClick} />
+              onTitleClick={onExistingIncidentClick}
+              onIconClick={onExistingIncidentClick} />
           )}
-          {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
-          {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more events to display.</li>}
+          {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more incidents...</li>}
+          {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>
+            {loaded ? 'Loading incidents...' : 'No more incidents to display.'}
+          </li>}
         </InfiniteScroll>
       </div>
-      <Button>Add to new incident</Button>
+      <Button type='button' onClick={onClickAddNewIncident}>Add to new incident</Button>
     </Body>
     <Footer>
-      <Button variant='secondary' onClick={() => removeModal(id)}>Cancel</Button>
+      <Button type='button' variant='secondary' onClick={hideModal}>Cancel</Button>
     </Footer>
   </Fragment>;
 };
@@ -71,4 +94,10 @@ const mapStateToProps = (state) => ({
   incidents: getFeedIncidents(state),
 });
 
-export default connect(mapStateToProps, { removeModal, fetchIncidentFeed: () => fetchIncidentFeed(), fetchNextIncidentFeedPage: () => fetchNextIncidentFeedPage(), })(memo(AddToIncidentModal));
+export default connect(mapStateToProps, { removeModal, fetchIncidentFeed: (...args) => fetchIncidentFeed(...args), fetchNextIncidentFeedPage: (...args) => fetchNextIncidentFeedPage(...args), })(memo(AddToIncidentModal));
+
+AddToIncidentModal.propTypes = {
+  report_id: PropTypes.string.isRequired,
+  onAddToExistingIncident: PropTypes.func.isRequired,
+  onAddToNewIncident: PropTypes.func.isRequired,
+};

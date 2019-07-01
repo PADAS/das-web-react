@@ -241,11 +241,12 @@ const ReportForm = (props) => {
     }
   };
 
-  const onStartAddToIncident = () => {
-    addModal({
-      content: AddToIncidentModal,
-      report_id: report.id,
-    });
+  const onAddToNewIncident = () => {
+    console.log('add to new');
+  };
+  
+  const onAddToExistingIncident = () => {
+    console.log('add to existing');
   };
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
@@ -310,7 +311,8 @@ const ReportForm = (props) => {
       report={report}
       onReportTitleChange={onReportTitleChange}
       onPrioritySelect={onPrioritySelect}
-      onStartAddToIncident={onStartAddToIncident} />
+      onAddToNewIncident={onAddToNewIncident}
+      onAddToExistingIncident={onAddToExistingIncident} />
 
     {!is_collection && <ReportFormTopLevelControls
       map={map}

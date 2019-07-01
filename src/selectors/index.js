@@ -63,7 +63,7 @@ export const getFeedEvents = createSelector(
 
 export const getFeedIncidents = createSelector(
   [feedIncidents, eventStore],
-  (feedIncidents, eventSTore) => ({
+  (feedIncidents, eventStore) => ({
     ...feedIncidents,
     results: feedIncidents.results
       .map(id => eventStore[id])

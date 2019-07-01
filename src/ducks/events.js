@@ -67,7 +67,6 @@ const fetchNamedFeedActionCreator = (name, cancelToken) => (config, paramString)
   })
     .then((response) => {
       dispatch(updateEventStore(...response.data.data.results));
-      console.log('feed success', response.data.data);
       dispatch({
         name,
         type: FEED_FETCH_SUCCESS,
@@ -76,7 +75,6 @@ const fetchNamedFeedActionCreator = (name, cancelToken) => (config, paramString)
       return response;
     })
     .catch((error) => {
-      console.log('feed error', error);
       dispatch({
         name,
         type: FEED_FETCH_ERROR,

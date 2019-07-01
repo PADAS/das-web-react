@@ -1,13 +1,17 @@
 import React, { memo, useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
+import { addModal } from '../ducks/modals';
+
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
+import AddToIncidentModal from './AddToIncidentModal';
 
 import { displayTitleForEventByEventType } from '../utils/events';
 
@@ -20,9 +24,19 @@ const calcClassNameForPriority = (priority) => {
   return 'noPriority';
 };
 
+
 const ReportFormHeader = (props) => {
-  const { report, onReportTitleChange, onPrioritySelect, onStartAddToIncident } = props;
+  const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const reportTitle = displayTitleForEventByEventType(report);
+
+  const onStartAddToIncident = () => {
+    addModal({
+      content: AddToIncidentModal,
+      report_id: report.id,
+      onAddToNewIncident,
+      onAddToExistingIncident,
+    });
+  };
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
@@ -45,11 +59,12 @@ const ReportFormHeader = (props) => {
 };
 
 
-export default memo(ReportFormHeader);
+export default connect(null, { addModal })(memo(ReportFormHeader));
 
 ReportFormHeader.propTypes = {
   report: PropTypes.object.isRequired,
   onReportTitleChange: PropTypes.func.isRequired,
   onPrioritySelect: PropTypes.func.isRequired,
-  onStartAddToIncident: PropTypes.func.isRequired,
+  onAddToNewIncident: PropTypes.func.isRequired,
+  onAddToExistingIncident:  PropTypes.func.isRequired,
 };
