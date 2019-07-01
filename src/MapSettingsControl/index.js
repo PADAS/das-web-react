@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
+import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import styles from './styles.module.scss';
 
 const MapSettingsControl = (props) => {
@@ -17,8 +18,8 @@ const MapSettingsControl = (props) => {
     </Popover>
   );
 
-  return <OverlayTrigger trigger="click" placement="top" overlay={popover}>
-      <button className={styles.gearButton} ref={formRef}> </button>
+  return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>
+      <div className={styles.gearButton}><button ref={formRef}><GearIcon /></button></div>
     </OverlayTrigger>;
 };
 
