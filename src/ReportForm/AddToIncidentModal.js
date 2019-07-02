@@ -29,7 +29,7 @@ const AddToIncidentModal = (props) => {
   };
 
   const fetchFeed = async () => {
-    await fetchIncidentFeed({}, 'is_collection=true');
+    await fetchIncidentFeed({}, 'is_collection=true&state=active&state=new');
     setLoadedState(true);
   };
 
@@ -38,12 +38,13 @@ const AddToIncidentModal = (props) => {
   }, []);
 
   const onExistingIncidentClick = (report) => {
-    console.log('clicked incident', report);
     onAddToExistingIncident(report);
+    hideModal();
   };
-
+  
   const onClickAddNewIncident = () => {
     onAddToNewIncident();
+    hideModal();
   };
 
   const onScroll = () => {
@@ -97,7 +98,6 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, { removeModal, fetchIncidentFeed: (...args) => fetchIncidentFeed(...args), fetchNextIncidentFeedPage: (...args) => fetchNextIncidentFeedPage(...args), })(memo(AddToIncidentModal));
 
 AddToIncidentModal.propTypes = {
-  report_id: PropTypes.string.isRequired,
   onAddToExistingIncident: PropTypes.func.isRequired,
   onAddToNewIncident: PropTypes.func.isRequired,
 };

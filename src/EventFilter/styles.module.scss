@@ -1,3 +1,4 @@
+@import '../common/styles/buttons';
 @import '../common/styles/vars/colors';
 @import '../common/styles/layout';
 @import '../common/styles/popovers';
@@ -142,6 +143,7 @@ div.filterPopover {
 
 .dropdown {
   > [class*=btn-primary] {
+    @include unstyledDropdown;
     background: none;
     padding: none;
     width: 100%;

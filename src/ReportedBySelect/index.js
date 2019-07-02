@@ -32,9 +32,9 @@ const ReportedBySelect = memo((props) => {
   const getOptionLabel = ({ name }) => name;
 
   const Option = (props) => {
-    const { value, data } = props;
+    const { data } = props;
 
-    const isRecent = recentRadios.some(item => item.id === value)
+    const isRecent = recentRadios.some(item => item.id === data.id)
       && (data.last_voice_call_start_at || data.last_position_date);
 
     return (

@@ -226,7 +226,7 @@ const EventFilter = memo((props) => {
         <span>Filters</span>
       </span>
     </OverlayTrigger>
-    <SearchBar className={styles.search} placeholder='Search Reports...' text={text} onChange={onSearchChange} />
+    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} onChange={onSearchChange} />
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 });

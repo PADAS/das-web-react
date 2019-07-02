@@ -15,7 +15,7 @@ import ReportForm from '../ReportForm';
 
 export const displayTitleForEventByEventType = (event) => {
   const { data: { eventTypes } } = store.getState();
-  
+
   if (event.title) return event.title;
 
   const matchingType = (eventTypes || []).find(t => t.value === event.event_type);
@@ -177,20 +177,21 @@ export const openModalForReport = async (event, map, config = {}) => {
 export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }) => ({
   event_type,
   icon_id,
+  is_collection: false,
+  state: 'active',
   priority,
+  time: new Date(),
   event_details: {},
 });
 
-export const createNewIncidentCollection = (attributes) => ({
-  event_type: 'incident_collection',
-  icon_id: 'incident_collection',
-  event_details: {},
-  ...attributes,
-});
+export const createNewIncidentCollection = attributes =>
+  createNewReportForEventType(
+    { value: 'incident_collection', icon_id: 'incident_collection', is_collection: true, ...attributes }
+  );
 
 export const generateErrorListForApiResponseDetails = (response) => {
   try {
-    const { response: {  data: { status: { detail:details } } } } = response;
+    const { response: { data: { status: { detail: details } } } } = response;
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],

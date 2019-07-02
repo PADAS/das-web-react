@@ -341,3 +341,18 @@ div.mapboxgl-popup-tip {
 .modal-open .modal {
   overflow: hidden;
 }
+
+.dropdown-item {
+  align-items: center;
+  display: flex;
+  padding: .5rem 1rem;
+  user-select: text;
+  &:hover {
+    // background: none;
+  }
+  &:active, &:visited, &:focus {
+    background-color: unset;
+    color: unset;
+    outline: none;
+  }
+}

@@ -1,12 +1,16 @@
 import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
+
 import { fileNameFromPath } from './string';
-import { svgSrcToPngImg, imgElFromSrc } from './img';
-import { MAP_ICON_SIZE, MAX_ZOOM } from '../constants';
+// import { displayTitleForEventByEventType } from './events';
+import { imgElFromSrc } from './img';
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
+  if (geojson.properties.icon_id) return geojson;
+
   if (image) {
     geojson.properties.icon_id = fileNameFromPath(image);
   }

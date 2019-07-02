@@ -29,10 +29,13 @@ const ReportFormHeader = (props) => {
   const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const reportTitle = displayTitleForEventByEventType(report);
 
+  const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
+  const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
+
   const onStartAddToIncident = () => {
+    setHeaderPopoverState(false);
     addModal({
       content: AddToIncidentModal,
-      report_id: report.id,
       onAddToNewIncident,
       onAddToExistingIncident,
     });
@@ -41,14 +44,16 @@ const ReportFormHeader = (props) => {
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
   const ReportHeaderPopover = <Popover placement='auto' className={styles.popover}>
+    <h6>Priority:</h6>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
-    {!report.is_collection && report.id && <Button variant='secondary' onClick={onStartAddToIncident}>Add to incident</Button>}
+    <br />
+    {canAddToIncident && <Button variant='secondary' onClick={onStartAddToIncident}>Add to incident</Button>}
   </Popover>;
 
 
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
     <h4>
-      <EventIcon className={styles.icon} iconId={report.icon_id} />
+      <EventIcon className={styles.icon} iconId={report.icon_id.replace('.svg', '')} />
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       <OverlayTrigger shouldUpdatePosition={true} onExiting={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click' overlay={ReportHeaderPopover}>

@@ -17,6 +17,9 @@
     display: flex;
     justify-content: center;
   }
+  > .icon {
+    padding: 0.5rem 1rem;
+  }
   > [class*=jump] {
     padding-right: 0;
   }
@@ -95,4 +98,9 @@ $colors in $priorities {
   &:hover {
     background-color: rgba(darken($medium-light-gray, 15%), 0.18);
   }
+}
+
+.resolved {
+  font-size: 0.65rem;
+  font-style: italic;
 }

@@ -407,8 +407,30 @@
   }
 }
 
+.incidentList {
+  width: calc(100% + 2rem);
+  margin: -1rem -1rem 0;
+  [class*=listItem] {
+    background: none;
+  }
+  [class*=listItem] > * {
+    padding: 1.25rem 0.5rem;
+  }
+}
+
 .incidentScrollList {
   height: 100%;
   max-height: 20rem;
   overflow-y: auto;
+}
+
+
+.saveButton {
+  > :first-child {
+    padding: 0.375rem 1rem;
+  }
+  [class*=dropdown-toggle-split] {
+    background: darken($primary-button-color, 10%);
+    padding: 0 0.5rem;
+  }
 }

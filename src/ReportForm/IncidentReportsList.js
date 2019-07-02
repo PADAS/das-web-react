@@ -16,7 +16,7 @@ const IncidentReportsList = (props) => {
 
 
   return <form className={styles.form}>
-    <ul>
+    <ul className={styles.incidentList}>
       {reportList.map(createReportListItem)}
     </ul>
     {children}

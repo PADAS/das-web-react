@@ -2,6 +2,8 @@ import React, { memo, useEffect, useState, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
+import SplitButton from 'react-bootstrap/SplitButton';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -15,7 +17,7 @@ import { addModal, removeModal, updateModal, clearModals } from '../ducks/modals
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
 import { calcUrlForImage } from '../utils/img';
 
-import AddToIncidentModal from './AddToIncidentModal';
+import StateButton from './StateButton';
 import IncidentReportsList from './IncidentReportsList';
 import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
@@ -35,18 +37,32 @@ const ReportForm = (props) => {
   const formRef = useRef(null);
 
   const [report, updateStateReport] = useState(originalReport);
-
+  const [initialized, setInitState] = useState(false);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
   const [saveError, setSaveErrorState] = useState(null);
-
   const [saving, setSavingState] = useState(false);
 
   useEffect(() => {
-    updateStateReport(originalReport);
+    updateStateReport({
+      ...originalReport,
+      ...report,
+      event_details: {
+        ...originalReport.event_details,
+        ...report.event_details,
+      },
+    });
     updateFilesToUpload([]);
     updateNotesToAdd([]);
   }, [originalReport]);
+
+  useEffect(() => {
+    if (!initialized) {
+      setInitState(true);
+    } else {
+      handleFormSubmit();
+    }
+  }, [report.state]);
 
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
@@ -150,17 +166,24 @@ const ReportForm = (props) => {
     priority,
   });
 
-  const onReportLocationChange = location => updateStateReport({
-    ...report,
-    location: !!location
+  const onReportLocationChange = location => {
+    const updatedLocation = !!location
       ? {
         latitude: location[1],
         longitude: location[0],
-      } : location,
-  });
+      } : location;
+
+
+    console.log('should update location to', updatedLocation);
+
+    updateStateReport({
+      ...report,
+      location: updatedLocation,
+    });
+  };
 
   const goToParentCollection = () => {
-    const { is_contained_in: [{ related_event: { id:incidentID } }] } = report;
+    const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
 
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       clearModals();
@@ -241,12 +264,25 @@ const ReportForm = (props) => {
     }
   };
 
-  const onAddToNewIncident = () => {
-    console.log('add to new');
+  const onAddToNewIncident = async () => {
+    const incident = createNewIncidentCollection({ priority: report.priority });
+
+    const { data: { data: newIncident } } = await createEvent(incident);
+    const [{ data: { data: thisReport } }] = await saveChanges();
+    await addEventToIncident(thisReport.id, newIncident.id);
+    return fetchEvent(newIncident.id).then(({ data: { data } }) => {
+      openModalForReport(data, map);
+      removeModal(id);
+    });
   };
-  
-  const onAddToExistingIncident = () => {
-    console.log('add to existing');
+
+  const onAddToExistingIncident = async (incident) => {
+    const [{ data: { data: thisReport } }] = await saveChanges();
+    await addEventToIncident(thisReport.id, incident.id);
+    return fetchEvent(incident.id).then(({ data: { data } }) => {
+      openModalForReport(data, map);
+      removeModal(id);
+    });
   };
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
@@ -298,7 +334,12 @@ const ReportForm = (props) => {
         onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
       <div className={styles.formButtons}>
         <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-        <Button type="submit" onClick={() => is_collection && handleFormSubmit()} variant="primary">Save</Button>
+        {/* <Button type="submit" variant="primary">Save</Button> */}
+        <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={handleFormSubmit}>
+          <Dropdown.Item>
+            <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => updateStateReport({ ...report, state })} />
+          </Dropdown.Item>
+        </SplitButton>
       </div>
     </div>
   </Fragment>;
@@ -342,8 +383,8 @@ const mapStateToProps = (state, props) => ({
 
 export default connect(mapStateToProps, {
   addModal, removeModal, updateModal, clearModals,
-  createEvent: (event) => createEvent(event),
-  addEventToIncident: (event_id, incident_id) => addEventToIncident(event_id, incident_id),
+  createEvent: (...args) => createEvent(...args),
+  addEventToIncident: (...args) => addEventToIncident(...args),
   fetchEvent: id => fetchEvent(id),
 })(memo(ReportForm));
 

@@ -20,7 +20,10 @@ const ReportListItem = (props) => {
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}><EventIcon iconId={report.icon_id} /></button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
     <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEventByEventType(report)}</button>
-    <DateTime className={styles.date} date={report.updated_at || report.time} />
+    <span className={styles.date}>
+      <DateTime date={report.updated_at || report.time} />
+      {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
+    </span>
     {coordinates && showJumpButton &&
       <div className={styles.jump}>
         <LocationJumpButton coordinates={coordinates} map={map} />
