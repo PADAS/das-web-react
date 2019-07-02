@@ -6,6 +6,7 @@ import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 export const GPS_FORMATS = {
   DEG: 'DEG',
   DMS: 'DMS',
+  DDM: 'DDM',
   UTM: 'UTM',
   MGRS: 'MGRS',
 };
@@ -34,6 +35,13 @@ const degToLngLat = (deg) => {
 
 const dmsToLngLat = (dms) => {
   const locationSplit = dms.split(', ');
+  const lat = Dms.parse(locationSplit[0]);
+  const lng = Dms.parse(locationSplit[1]);
+  return `${parseFloat(parseFloat(lng).toFixed(5))}, ${parseFloat(parseFloat(lat).toFixed(5))}`;
+};
+
+const ddmToLngLat = (ddm) => {
+  const locationSplit = ddm.split(', ');
   const lat = Dms.parse(locationSplit[0]);
   const lng = Dms.parse(locationSplit[1]);
   return `${parseFloat(parseFloat(lng).toFixed(5))}, ${parseFloat(parseFloat(lat).toFixed(5))}`;
@@ -83,22 +91,25 @@ export const calcGpsDisplayString = (lat, lng, gpsFormat) => {
 
   if (position) {
     switch (gpsFormat) {
-      case GPS_FORMATS.DEG:
-        return position.toString('n', 4).split(',').map(item => item += '°').join(', ');
+    case GPS_FORMATS.DEG:
+      return position.toString('n', 4).split(',').map(item => item += '°').join(', ');
 
-      case GPS_FORMATS.DMS:
-        return position.toString('dms', 4);
+    case GPS_FORMATS.DMS:
+      return position.toString('dms', 4);
 
-      case GPS_FORMATS.UTM:
-        const posUtm = new LatLon_Utm(lat, lng).toUtm();
-        return posUtm.toString();
+    case GPS_FORMATS.DDM:
+      return position.toString('dm', 4);
 
-      case GPS_FORMATS.MGRS:
-        const posMgrs = new Latlon_Utm_Mgrs(lat, lng).toUtm().toMgrs();
-        return posMgrs.toString();
+    case GPS_FORMATS.UTM:
+      const posUtm = new LatLon_Utm(lat, lng).toUtm();
+      return posUtm.toString();
 
-      default:
-        break;
+    case GPS_FORMATS.MGRS:
+      const posMgrs = new Latlon_Utm_Mgrs(lat, lng).toUtm().toMgrs();
+      return posMgrs.toString();
+
+    default:
+      break;
     }
   }
   return '';
@@ -109,10 +120,11 @@ export const calcActualGpsPositionForRawText = (rawText, formatKey) => {
 
   if (formatKey === GPS_FORMATS.DEG) latLonString = degToLngLat(rawText);
   if (formatKey === GPS_FORMATS.DMS) latLonString = dmsToLngLat(rawText);
+  if (formatKey === GPS_FORMATS.DDM) latLonString = ddmToLngLat(rawText);
   if (formatKey === GPS_FORMATS.UTM) latLonString = utmToLngLat(rawText);
   if (formatKey === GPS_FORMATS.MGRS) latLonString = mgrsToLngLat(rawText);
 
   return latLonString ? calcActualGpsPositionFromLngLatString(latLonString) : null;
-}
+};
 
 export const validateLngLat = (lng, lat) => isLatitude(lat) && isLongitude(lng);

@@ -14,7 +14,7 @@ import EventTypeListItem from '../EventTypeListItem';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { eventsByCategory, map, showLabel, showIcon, container, title } = props;
+  const { relationshipButtonDisabled, eventsByCategory, map, showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
@@ -22,7 +22,7 @@ const AddReport = (props) => {
 
   const startEditNewReport = (reportType) => {
     const newReport = createNewReportForEventType(reportType);
-    openModalForReport(newReport, map);
+    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled });
     setPopoverState(false);
   };
 
@@ -37,7 +37,7 @@ const AddReport = (props) => {
   const categoryList = <ul className={styles.categoryMenu}>
     {eventsByCategory.map(({ value, display }) =>
       <li key={value}>
-        <button className={value === selectedCategory ? styles.activeCategory : ''} onClick={() => selectCategory(value)}>{display}</button>
+        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''} onClick={() => selectCategory(value)}>{display}</button>
       </li>
     )}
   </ul>;
@@ -70,15 +70,25 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
+  relationshipButtonDisabled: false,
   showIcon: true,
   showLabel: true,
   title: 'Add Report',
+  onSaveSuccess() {
+
+  },
+  onSaveError() {
+
+  },
 };
 
 AddReport.propTypes = {
+  relationshipButtonDisabled: PropTypes.bool,
   container: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
   title: PropTypes.string,
+  onSaveSuccess: PropTypes.func,
+  onSaveError: PropTypes.func,
 };

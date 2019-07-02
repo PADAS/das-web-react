@@ -1,6 +1,7 @@
 @import './common/styles/bootstrap-3-legacy-components';
 
 @import './common/styles/vars/colors';
+@import './common/styles/animations';
 @import './common/styles/buttons';
 @import './common/styles/layout';
 @import './common/styles/inputs';
@@ -61,6 +62,12 @@ body {
   }
   &.dragging {
     cursor: no-drop;
+  }
+}
+
+aside {
+  .Collapsible {
+    width: 100%;
   }
 }
 
@@ -316,6 +323,7 @@ div.mapboxgl-popup-tip {
 }
 
 .modal[role=dialog] {
+  @include fade-in;
   background: rgba(0,0,0,0.5);
 }
 
@@ -332,4 +340,19 @@ div.mapboxgl-popup-tip {
 
 .modal-open .modal {
   overflow: hidden;
+}
+
+.dropdown-item {
+  align-items: center;
+  display: flex;
+  padding: .5rem 1rem;
+  user-select: text;
+  &:hover {
+    // background: none;
+  }
+  &:active, &:visited, &:focus {
+    background-color: unset;
+    color: unset;
+    outline: none;
+  }
 }

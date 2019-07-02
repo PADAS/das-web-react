@@ -13,7 +13,7 @@ const SearchBar = memo((props) => {
 
   return <label className={`${styles.search} ${active && styles.active} ${className ? className : ''}`} {...rest}>
     <SearchIcon />
-    <input onFocus={setActive} placeholder={placeholder} onBlur={setInactive} onChange={onChange} type="text" />
+    <input onFocus={setActive} placeholder={placeholder} onBlur={setInactive} onChange={onChange} defaultValue={text} type="text" />
   </label>;
 });
 

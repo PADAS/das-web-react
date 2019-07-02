@@ -4,9 +4,10 @@ import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 
-import { openModalForReport } from '../utils/events';
+import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
+import { getFeedEvents } from '../selectors';
 
-import { fetchEvents, fetchNextEventPage } from '../ducks/events';
+import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
@@ -16,18 +17,19 @@ import EventFilter from '../EventFilter';
 import styles from './styles.module.scss';
 
 const SideBar = memo((props) => {
-  const { events, eventFilter, fetchEvents, fetchNextEventPage, map, onHandleClick, sidebarOpen } = props;
+  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const addReportContainerRef = useRef(null);
 
-  const onScroll = () => fetchNextEventPage(events.next);
+  const onScroll = () => fetchNextEventFeedPage(events.next);
 
   const onEventTitleClick = event => openModalForReport(event, map);
 
   useEffect(() => {
     setEventLoadState(true);
-    fetchEvents().then(() => setEventLoadState(false));
+    fetchEventFeed({}, calcEventFilterForRequest())
+      .then(() => setEventLoadState(false));
   }, [eventFilter]);
 
   if (!map) return null;
@@ -59,9 +61,13 @@ const SideBar = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ data: { eventFilter }, data: { events }, view: { userPreferences: { sidebarOpen } } }) => ({ eventFilter, events, sidebarOpen });
+const mapStateToProps = (state) => ({
+  events: getFeedEvents(state),
+  eventFilter: state.data.eventFilter,
+  sidebarOpen: state.view.userPreferences.sidebarOpen,
+});
 
-export default connect(mapStateToProps, { fetchEvents, fetchNextEventPage })(SideBar);
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage })(SideBar);
 
 SideBar.propTypes = {
   events: PropTypes.shape({
@@ -72,7 +78,7 @@ SideBar.propTypes = {
   }).isRequired,
   eventFilter: PropTypes.object.isRequired,
   onHandleClick: PropTypes.func.isRequired,
-  fetchEvents: PropTypes.func.isRequired,
-  fetchNextEventPage: PropTypes.func.isRequired,
+  fetchEventFeed: PropTypes.func.isRequired,
+  fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
 };

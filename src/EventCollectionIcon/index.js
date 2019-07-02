@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { calcTopRatedIconForEventTypes, calcIconColorByPriority } from '../utils/event-types';
 import styles from './styles.module.scss';
 
-const DasCollectionIcon = memo((props) => {
+const DasCollectionIcon = (props) => {
   const { reportTypes, className, ...rest } = props;
   return (
     <div className={`${styles.icon} ${className}`} {...rest}>
@@ -15,10 +15,10 @@ const DasCollectionIcon = memo((props) => {
         }}
         className={styles.content} iconId={calcTopRatedIconForEventTypes(reportTypes).icon_id} />
     </div>
-  )
-});
+  );
+};
 
-export default DasCollectionIcon;
+export default memo(DasCollectionIcon);
 
 DasCollectionIcon.propTypes = {
   reportTypes: PropTypes.array.isRequired,

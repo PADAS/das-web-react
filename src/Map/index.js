@@ -26,7 +26,7 @@ import PopupLayer from '../PopupLayer';
 import HeatLayer from '../HeatLayer';
 import HeatmapLegend from '../HeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-import MapSettingsControl from '../MapSettingsControl'
+import MapSettingsControl from '../MapSettingsControl';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';

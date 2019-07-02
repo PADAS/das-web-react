@@ -10,11 +10,16 @@
   position: relative;
 }
 
+.loadingOverlay {
+  z-index: 5;
+}
+
+
 .form {
   background: white;
   font-size: 0.85rem;
   max-height: calc(80vh - 4rem);
-  min-height: 6rem;
+  min-height: 16rem;
   overflow-y: auto;
   padding-bottom: 5rem;
   @media #{$whenPageIsAtMediumHeightAndWidth} {
@@ -263,6 +268,9 @@
   max-width: none;
   min-width: 14rem;
   padding: 0.5rem;
+  h6 {
+    margin-bottom: 0.5rem;
+  }
 }
 
 .gpsPopover {
@@ -372,6 +380,9 @@
     border-bottom: 1px solid $light-gray-border;
     display: flex;
     padding: 0.5rem 1rem;
+    div {
+      flex: 1;
+    }
     h6 {
       align-items: center;
       display: flex;
@@ -400,5 +411,35 @@
       margin-right: 1rem;
       max-width: 1rem;
     }
+  }
+}
+
+.incidentList {
+  border-bottom: 0.1875rem solid $light-gray-border;
+  border-top: 0.1875rem solid $light-gray-border;
+  margin: -1rem -1rem 0;
+  width: calc(100% + 2rem);
+  [class*=listItem] {
+    background: none;
+  }
+  [class*=listItem] > * {
+    padding: 1.25rem 0.5rem;
+  }
+}
+
+.incidentScrollList {
+  height: 100%;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+
+.saveButton {
+  > :first-child {
+    padding: 0.375rem 1rem;
+  }
+  [class*=dropdown-toggle-split] {
+    background: darken($primary-button-color, 10%);
+    padding: 0 0.5rem;
   }
 }

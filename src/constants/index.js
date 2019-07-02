@@ -55,25 +55,37 @@ export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [ke
 
 
 export const DEFAULT_SYMBOL_LAYOUT = {
-  'icon-allow-overlap': ['step', ['zoom'], false, 11, true],
+  'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'icon_id'],
   'icon-size': [
-    'interpolate', ['linear'], ['zoom'],
+    'interpolate', ['exponential', 0.5], ['zoom'],
     7, 0,
     12, 1,
-    18, 1.5,
+    MAX_ZOOM, 1.5,
   ],
-  'text-allow-overlap': ['step', ['zoom'], false, 11, true],
+  'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
-  'text-offset': [0, .5],
+  'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
   'text-size': [
-    'interpolate', ['linear'], ['zoom'],
-    7, 0,
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    6, 0,
     12, 14,
+    MAX_ZOOM, 16,
   ],
+};
+
+export const DEFAULT_SYMBOL_PAINT = {
+  'text-halo-color': 'rgba(255,255,255,0.7)',
+  'text-halo-width': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    6, 0,
+    12, 3,
+  ],
+  'text-halo-blur': 1,
+  'text-translate-anchor': 'viewport'
 };
 
 export const EVENT_STATE_CHOICES = [

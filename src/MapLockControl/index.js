@@ -7,8 +7,6 @@ import { lockMap } from '../utils/map';
 const MapLockControl = (props) => {
 
   const { mapIsLocked, toggleMapLockState, map } = props;
-  const lockClass = mapIsLocked ? 'locked' : 'unlocked';
-  const hoverText = mapIsLocked ? 'Click to unlock map' : 'Click to lock map';
 
   const handleChange = (e) => {
     toggleMapLockState(!mapIsLocked);
@@ -19,11 +17,11 @@ const MapLockControl = (props) => {
   return <label>
     <input type='checkbox' name='maplock' checked={mapIsLocked} onChange={handleChange}/>
     <span className={styles.cbxlabel}>Lock Movement</span>
-    </label>;
+  </label>;
 };
 
 const mapStateToProps = ( {view:{mapIsLocked}} ) => {
   return {mapIsLocked};
-}
+};
 
 export default connect(mapStateToProps, {toggleMapLockState})(MapLockControl);

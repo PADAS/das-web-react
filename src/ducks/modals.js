@@ -56,7 +56,10 @@ export default (state = INITIAL_STATE, action = {}) => {
   }
   if (type === UPDATE_MODAL) {
     const { id } = payload;
-    return state.modals.map(modal => id === modal.id ?  { ...modal, ...payload }: modal);
+    return {
+      ...state,
+      modals: state.modals.map(modal => id === modal.id ?  { ...modal, ...payload } : modal),
+    };
   }
   if (type === REMOVE_MODAL) {
     return {

@@ -4,19 +4,20 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 
-import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 
-import ReportForm from '../ReportForm';
+import ReportFormModal from '../ReportFormModal';
 
-export const displayTitleForEventByEventType = (event, eventTypes) => {
+export const displayTitleForEventByEventType = (event) => {
+  const { data: { eventTypes } } = store.getState();
+
   if (event.title) return event.title;
 
-  const matchingType = eventTypes.find(t => t.value === event.event_type);
+  const matchingType = (eventTypes || []).find(t => t.value === event.event_type);
 
   if (matchingType) return matchingType.display;
   if (event.event_type) return event.event_type;
@@ -68,7 +69,7 @@ const objectToParamString = (obj) => {
 export const calcEventFilterForRequest = (params) => {
   const { data: { eventFilter } } = store.getState();
 
-  const toClean = { ...params, ...eventFilter };
+  const toClean = { ...eventFilter, ...params };
 
   const cleaned = {
     ...cleanedUpFilterObject(toClean),
@@ -119,6 +120,7 @@ export const generateSaveActionsForReport = (formData, notesToAdd = [], filesToA
 
 export const executeReportSaveActions = (saveActions) => {
   let eventID;
+  let responses = [];
 
   return new Promise((resolve, reject) => {
     try {
@@ -133,8 +135,9 @@ export const executeReportSaveActions = (saveActions) => {
 
         return nextAction(eventID)
           .then((results) => {
+            responses.push(results);
             if (isLast) {
-              return resolve();
+              return resolve(responses);
             }
             return results;
           })
@@ -146,18 +149,15 @@ export const executeReportSaveActions = (saveActions) => {
   });
 };
 
-export const openModalForReport = async (event, map, onSaveSuccess, onSaveError) => {
-  const { data: { eventSchemas } } = store.getState();
-  const { event_type } = event;
-
-  const promise = eventSchemas[event_type] ? Promise.resolve() : store.dispatch(fetchEventTypeSchema(event_type));
-
-  await promise;
+export const openModalForReport = ({ id: report_id, event_type }, map, config = {}) => {
+  const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
 
   return store.dispatch(
     addModal({
-      content: ReportForm,
-      report: event,
+      content: ReportFormModal,
+      report_id,
+      event_type,
+      relationshipButtonDisabled,
       map,
       onSaveSuccess,
       onSaveError,
@@ -170,14 +170,21 @@ export const openModalForReport = async (event, map, onSaveSuccess, onSaveError)
 export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }) => ({
   event_type,
   icon_id,
+  is_collection: false,
+  state: 'active',
   priority,
+  time: new Date(),
   event_details: {},
 });
 
+export const createNewIncidentCollection = attributes =>
+  createNewReportForEventType(
+    { value: 'incident_collection', icon_id: 'incident_collection', is_collection: true, ...attributes }
+  );
 
 export const generateErrorListForApiResponseDetails = (response) => {
   try {
-    const { response: {  data: { status: { detail:details } } } } = response;
+    const { response: { data: { status: { detail: details } } } } = response;
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],

@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, EVENT_CLUSTER_COUNT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -38,9 +38,9 @@ const clusterPaint = {
 };
 
 const clusterCountSymbolLayout = {
-  "text-field": "{point_count_abbreviated}",
-  "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-  "text-size": 12
+  'text-field': '{point_count_abbreviated}',
+  'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+  'text-size': 12
 };
 
 
@@ -51,6 +51,10 @@ const eventSymbolLayerOptions = {
 const eventSymbolLayerLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
   'text-field': '{display_title}',
+};
+
+const eventSymbolLayerPaint = {
+  ...DEFAULT_SYMBOL_PAINT,
 };
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
@@ -85,6 +89,7 @@ const EventsLayer = (props) => {
       symbolOnClick={handleEventClick}
       sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
       layerOptions={eventSymbolLayerOptions}
+      symbolPaint={eventSymbolLayerPaint}
       symbolLayout={eventSymbolLayerLayout} />
   </Fragment>;
 };
