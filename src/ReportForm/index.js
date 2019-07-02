@@ -13,7 +13,7 @@ import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 
 import { getReportFormSchemaData } from '../selectors';
-import { addModal, removeModal, updateModal, clearModals } from '../ducks/modals';
+import { addModal } from '../ducks/modals';
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
 import { calcUrlForImage } from '../utils/img';
 
@@ -31,7 +31,7 @@ import ImageModal from '../ImageModal';
 import styles from './styles.module.scss';
 
 const ReportForm = (props) => {
-  const { clearModals, id, map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, relationshipButtonDisabled,
+  const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
@@ -76,7 +76,7 @@ const ReportForm = (props) => {
   const { is_collection } = report;
   const disableAddReport = relationshipButtonDisabled;
 
-  const onCancel = () => removeModal(id);
+  const onCancel = () => removeModal();
 
   const goToBottomOfForm = () => {
     if (formRef.current && formRef.current.formElement) {
@@ -192,9 +192,9 @@ const ReportForm = (props) => {
     const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
 
     return fetchEvent(incidentID).then(({ data: { data } }) => {
-      clearModals();
+      removeModal();
       openModalForReport(data, map);
-      // removeModal(id);
+      // removeModal();
     });
   };
 
@@ -243,7 +243,7 @@ const ReportForm = (props) => {
   const onSubmit = () => {
     return saveChanges()
       .then((results) => {
-        removeModal(id);
+        removeModal();
         return results;
       });
   };
@@ -257,7 +257,7 @@ const ReportForm = (props) => {
   const handleSaveError = (e) => {
     setSavingState(false);
     setSaveErrorState(e);
-    onSaveError(e);
+    onSaveError && onSaveError(e);
     setTimeout(clearErrors, 7000);
   };
 
@@ -281,7 +281,7 @@ const ReportForm = (props) => {
     await addEventToIncident(thisReport.id, newIncident.id);
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
-      removeModal(id);
+      removeModal();
     });
   };
 
@@ -290,7 +290,7 @@ const ReportForm = (props) => {
     await addEventToIncident(thisReport.id, incident.id);
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
-      removeModal(id);
+      removeModal();
     });
   };
 
@@ -301,11 +301,8 @@ const ReportForm = (props) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
-              updateModal({
-                id,
-                report: data,
-              });
-              setSavingState(false);
+              openModalForReport(data, map);
+              removeModal();
             });
           } else {
             const { data: { data: { id: incidentID } } } = await createEvent(
@@ -314,7 +311,7 @@ const ReportForm = (props) => {
             await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
             return fetchEvent(incidentID).then(({ data: { data } }) => {
               openModalForReport(data, map);
-              removeModal(id);
+              removeModal();
             });
           }
         });
@@ -391,7 +388,7 @@ const mapStateToProps = (state, props) => ({
 });
 
 export default connect(mapStateToProps, {
-  addModal, removeModal, updateModal, clearModals,
+  addModal,
   createEvent: (...args) => createEvent(...args),
   addEventToIncident: (...args) => addEventToIncident(...args),
   fetchEvent: id => fetchEvent(id),
@@ -409,7 +406,6 @@ ReportForm.defaultProps = {
 ReportForm.propTypes = {
   relationshipButtonDisabled: PropTypes.bool,
   report: PropTypes.object.isRequired,
-  id: PropTypes.string.isRequired,
   map: PropTypes.object.isRequired,
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,

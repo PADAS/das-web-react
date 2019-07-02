@@ -4,14 +4,13 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'react-fast-compare';
 
-import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 
-import ReportForm from '../ReportForm';
+import ReportFormModal from '../ReportFormModal';
 
 export const displayTitleForEventByEventType = (event) => {
   const { data: { eventTypes } } = store.getState();
@@ -150,20 +149,14 @@ export const executeReportSaveActions = (saveActions) => {
   });
 };
 
-export const openModalForReport = async (event, map, config = {}) => {
-  const { data: { eventSchemas } } = store.getState();
+export const openModalForReport = ({ id: report_id, event_type }, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
-  const { event_type } = event;
-
-
-  const promise = eventSchemas[event_type] ? Promise.resolve() : store.dispatch(fetchEventTypeSchema(event_type));
-
-  await promise;
 
   return store.dispatch(
     addModal({
-      content: ReportForm,
-      report: event,
+      content: ReportFormModal,
+      report_id,
+      event_type,
       relationshipButtonDisabled,
       map,
       onSaveSuccess,
