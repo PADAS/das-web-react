@@ -60,9 +60,15 @@ const ReportForm = (props) => {
     if (!initialized) {
       setInitState(true);
     } else {
-      handleFormSubmit();
+      startSave();
     }
   }, [report.state]);
+
+  useEffect(() => {
+    if (saving) {
+      onSubmit();
+    }
+  }, [saving]);
 
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
@@ -225,7 +231,6 @@ const ReportForm = (props) => {
     }
 
     const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
-    setSavingState(true);
 
     return executeReportSaveActions(actions)
       .then((results) => {
@@ -235,12 +240,16 @@ const ReportForm = (props) => {
       .catch(handleSaveError);
   };
 
-  const handleFormSubmit = () => {
+  const onSubmit = () => {
     return saveChanges()
       .then((results) => {
         removeModal(id);
         return results;
       });
+  };
+
+  const startSave = () => {
+    setSavingState(true);
   };
 
   const clearErrors = () => setSaveErrorState(null);
@@ -335,7 +344,7 @@ const ReportForm = (props) => {
       <div className={styles.formButtons}>
         <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
         {/* <Button type="submit" variant="primary">Save</Button> */}
-        <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={handleFormSubmit}>
+        <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={startSave}>
           <Dropdown.Item>
             <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => updateStateReport({ ...report, state })} />
           </Dropdown.Item>
@@ -369,7 +378,7 @@ const ReportForm = (props) => {
       ref={formRef}
       formData={unwrapEventDetailSelectValues(report.event_details)}
       onChange={onDetailChange}
-      onSubmit={handleFormSubmit}
+      onSubmit={startSave}
       schema={schema}
       uiSchema={uiSchema}>
       {Controls}
