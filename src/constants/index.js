@@ -66,7 +66,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   ],
   'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
-  'text-offset': [0, .5],
+  'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
   'text-size': [

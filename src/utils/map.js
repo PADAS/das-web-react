@@ -4,7 +4,6 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
 
 import { fileNameFromPath } from './string';
-// import { displayTitleForEventByEventType } from './events';
 import { imgElFromSrc } from './img';
 
 export const addIconToGeoJson = (geojson) => {
