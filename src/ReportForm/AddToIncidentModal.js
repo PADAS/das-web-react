@@ -59,7 +59,7 @@ const AddToIncidentModal = (props) => {
       <Title>Add to Incident</Title>
     </Header>
     <Body>
-      <h3>Add to existing incident</h3>
+      <h6>Add to existing incident</h6>
       <div ref={scrollRef} className={styles.incidentScrollList}>
         <InfiniteScroll
           element='ul'
@@ -83,6 +83,7 @@ const AddToIncidentModal = (props) => {
           </li>}
         </InfiniteScroll>
       </div>
+      <br />
       <Button type='button' onClick={onClickAddNewIncident}>Add to new incident</Button>
     </Body>
     <Footer>

@@ -379,6 +379,9 @@
     border-bottom: 1px solid $light-gray-border;
     display: flex;
     padding: 0.5rem 1rem;
+    div {
+      flex: 1;
+    }
     h6 {
       align-items: center;
       display: flex;
@@ -411,8 +414,10 @@
 }
 
 .incidentList {
-  width: calc(100% + 2rem);
+  border-bottom: 0.1875rem solid $light-gray-border;
+  border-top: 0.1875rem solid $light-gray-border;
   margin: -1rem -1rem 0;
+  width: calc(100% + 2rem);
   [class*=listItem] {
     background: none;
   }
