@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import { postAuth, clearAuth } from '../ducks/auth';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { postAuth, clearAuth } from '../../ducks/auth';
+import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 
 class LoginPage extends Component {
   constructor(props) {
