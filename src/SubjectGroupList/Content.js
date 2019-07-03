@@ -99,7 +99,7 @@ const ContentComponent = memo(debounceRender((props) => {
         onCheckClick={onSubjectCheckClick}
         itemComponent={SubjectListItem} />
     }
-  </Collapsible>
+  </Collapsible>;
 }));
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
@@ -117,4 +117,4 @@ ContentComponent.propTypes = {
   subjects: PropTypes.array.isRequired,
   name: PropTypes.string.isRequired,
   hiddenSubjectIDs: PropTypes.array,
-}
+};

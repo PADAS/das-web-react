@@ -5,8 +5,7 @@ import isEqual from 'react-fast-compare';
 
 import { GENERATED_LAYER_IDS, LAYER_IDS } from '../constants';
 import { imgElFromSrc } from '../utils/img';
-import { getTrackPointsFromTrackFeatureArray } from '../selectors';
-import { convertArrayOfTracksIntoFeatureCollection } from '../utils/tracks';
+import { convertArrayOfTracksIntoFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -21,7 +20,7 @@ const trackLayerLinePaint = {
     ['has', 'stroke'], ['get', 'stroke'],
     'orange',
   ],
-  'line-width': ["step", ["zoom"], 1, 8, ['get', 'stroke-width']],
+  'line-width': ['step', ['zoom'], 1, 8, ['get', 'stroke-width']],
 };
 
 const trackLayerLineLayout = {
@@ -48,7 +47,7 @@ const timepointLayerLayout = {
 
 const TracksLayer = memo(function TracksLayer(props) {
   const { map, onPointClick, trackCollection, ...rest } = props;
-  const tracksAsPoints = getTrackPointsFromTrackFeatureArray(trackCollection);
+  const tracksAsPoints = convertArrayOfTracksToPointFeatureCollection(trackCollection);
   const tracksAsFeatureCollection = convertArrayOfTracksIntoFeatureCollection(trackCollection);
   const onSymbolClick = e => onPointClick(getPointLayer(e, map));
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
@@ -67,7 +66,7 @@ const TracksLayer = memo(function TracksLayer(props) {
 
   return (
     <Fragment>
-      <GeoJSONLayer key={`track-layer`} before={SUBJECT_SYMBOLS} id={TRACKS_LINES} data={tracksAsFeatureCollection} {...rest}
+      <GeoJSONLayer key={'track-layer'} before={SUBJECT_SYMBOLS} id={TRACKS_LINES} data={tracksAsFeatureCollection} {...rest}
         linePaint={trackLayerLinePaint}
         lineLayout={trackLayerLineLayout}
       />
@@ -93,4 +92,4 @@ TracksLayer.propTypes = {
   map: PropTypes.object.isRequired,
   onPointClick: PropTypes.func,
   trackCollection: PropTypes.array.isRequired,
-}
+};

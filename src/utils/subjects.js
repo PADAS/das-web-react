@@ -93,4 +93,4 @@ export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroup
       }),
     };
   });
-}
+};

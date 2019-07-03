@@ -17,26 +17,26 @@ export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, coll
 
   return (next && isEqual(feature.geometry.coordinates, next.geometry.coordinates) // eslint-disable-line no-mixed-operators
     || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
-}
+};
+
+const mapPointCoordinateTimeToTimeProp = (item, index) => {
+  const returnValue = { ...item }; 
+  returnValue.properties.time = item.properties.coordinateProperties.times[index];
+  delete returnValue.properties.coordinateProperties;
+  return returnValue;
+};
 
 export const convertTrackLineStringToPoints = feature => {
   const pointFeature = addBearingToTrackPoints(explode(feature));
   return ({
     ...pointFeature,
-    features: pointFeature.features = pointFeature.features.map((item, index) => {
-      const coordinateTime = item.properties.coordinateProperties.times[index];
-      const returnValue = { geometry: item.geometry, properties: { ...item.properties, time: coordinateTime } };
-      delete returnValue.properties.coordinateProperties;
-      return returnValue;
-    })
-    .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
+    features: pointFeature.features
+      .map(mapPointCoordinateTimeToTimeProp)
+      .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
   });
 };
 
 export const convertArrayOfTracksIntoFeatureCollection = trackArray => featureCollection(trackArray.reduce((accumulator, array) => [...accumulator, array.features[0]], []));
-
-
-
 
 export const addBearingToTrackPoints = feature => ({
   ...feature,
@@ -51,5 +51,14 @@ export const addBearingToTrackPoints = feature => ({
     };
   }),
 });
+
+export const convertArrayOfTracksToPointFeatureCollection = trackCollection => trackCollection
+  .map(tracks => convertTrackLineStringToPoints(tracks))
+  .reduce((accumulator, featureCollection) => {
+    return {
+      ...accumulator,
+      features: [...accumulator.features, ...featureCollection.features],
+    };
+  }, featureCollection([]));
 
 export const getSubjectIDFromFirstFeatureInCollection = ({ features }) => features[0].properties.id;

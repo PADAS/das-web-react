@@ -23,8 +23,8 @@ import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
 import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
-import HeatLayer from '../HeatLayer';
-import HeatmapLegend from '../HeatmapLegend';
+import SubjectHeatLayer from '../SubjectHeatLayer';
+import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import MapSettingsControl from '../MapSettingsControl';
 
@@ -242,7 +242,7 @@ class Map extends Component {
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
-    const heatmapAvailable = !!heatmapTracks.length;
+    const subjectHeatmapAvailable = !!heatmapTracks.length;
     if (!maps.length) return null;
 
     return (
@@ -263,12 +263,12 @@ class Map extends Component {
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
-            <div>
+            <div className='map-legends'>
               <FriendlyEventFilterString className='event-filter-details' />
-              {heatmapAvailable && <HeatmapLegend onTrackRemoveButtonClick={this.toggleHeatmapState} onClose={this.onHeatmapClose} tracks={heatmapTracks} />}
+              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
             </div>
 
-            {heatmapAvailable && <HeatLayer />}
+            {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
             {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
 
