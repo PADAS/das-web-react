@@ -1,15 +1,16 @@
 import React, { memo } from 'react';
+import { connect } from 'react-redux';
 import ReportListItem from '../ReportListItem';
 
 import styles from './styles.module.scss';
 
 const IncidentReportsList = (props) => {
-  const { reports, onReportClick, children } = props;
+  const { eventStore, reports, onReportClick, children } = props;
 
   const reportList = reports.map(({ related_event: report }) => report);
 
   const createReportListItem = report => <ReportListItem
-    report={report}
+    report={eventStore[report.id] || report}
     key={report.id}
     onTitleClick={() => onReportClick(report)}
     showJumpButton={false} />;
@@ -23,4 +24,5 @@ const IncidentReportsList = (props) => {
   </form>;
 };
 
-export default memo(IncidentReportsList);
+const mapStateToProps = ({ data: { eventStore } }) => ({ eventStore });
+export default connect(mapStateToProps, null)(memo(IncidentReportsList));
