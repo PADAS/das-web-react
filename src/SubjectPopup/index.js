@@ -10,7 +10,7 @@ import SubjectControls from '../SubjectControls';
 
 import styles from './styles.module.scss';
 
-const SubjectPopup = memo((props) => {
+const SubjectPopup = (props) => {
   const { data: { geometry, properties }, onTrackToggle, onHeatmapToggle, trackState, heatmapState, map, ...rest } = props;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
@@ -28,12 +28,12 @@ const SubjectPopup = memo((props) => {
       )}
     </Popup>
   );
-}, (prev, current) => isEqual(prev.trackState, current.trackState)
-  && isEqual(prev.heatmapState, current.heatmapState)
-  && isEqual(prev.data, current.data)
-);
+};
 
-export default SubjectPopup;
+export default memo(SubjectPopup, (prev, current) => isEqual(prev.trackState, current.trackState)
+&& isEqual(prev.heatmapState, current.heatmapState)
+&& isEqual(prev.data, current.data)
+);
 
 SubjectPopup.defaultProps = {
   onTrackToggle() {

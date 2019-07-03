@@ -5,7 +5,7 @@ import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
-import { convertTrackLineStringToPoints } from '../utils/tracks';
+import { convertTrackLineStringToPoints, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
 import { mapReportTypesToCategories } from '../utils/event-types';
@@ -81,18 +81,6 @@ export const getMapSubjectFeatureCollection = createSelector(
   (mapSubjects, hiddenSubjectIDs) => createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)))
 );
 
-export const getTrackPointsFromTrackFeatureArray = createSelector(
-  [trackCollection],
-  trackCollection => trackCollection
-    .map(tracks => convertTrackLineStringToPoints(tracks))
-    .reduce((accumulator, featureCollection) => {
-      return {
-        ...accumulator,
-        features: [...accumulator.features, ...featureCollection.features],
-      };
-    }, featureCollection([])),
-);
-
 export const removePersistKey = createSelector(
   [data => data],
   data => {
@@ -153,12 +141,14 @@ export const getReportFormSchemaData = createSelector(
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(
   [tracks, heatmapSubjectIDs],
-  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs.filter(id => !!tracks[id]).map(id => tracks[id]),
+  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs
+    .filter(id => !!tracks[id])
+    .map(id => tracks[id]),
 );
 
 export const getHeatmapTrackPoints = createSelector(
   [getArrayOfVisibleHeatmapTracks],
-  tracks => getTrackPointsFromTrackFeatureArray(tracks),
+  trackCollection => convertArrayOfTracksToPointFeatureCollection(trackCollection)
 );
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];

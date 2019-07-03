@@ -1,20 +1,25 @@
-import React, { memo } from 'react';
+import React, { memo, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Feature, Layer } from 'react-mapbox-gl';
+import { Layer, Source } from 'react-mapbox-gl';
 import centroid from '@turf/centroid';
 
 import { GENERATED_LAYER_IDS, LAYER_IDS, MAX_ZOOM } from '../constants';
 
-import { getHeatmapTrackPoints } from '../selectors';
 import { metersToPixelsAtMaxZoom } from '../utils/map';
 
 const { HEATMAP_LAYER } = LAYER_IDS;
 const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
 
-const HeatLayer = ({ heatmapStyles, tracksAsPoints }) => {
-  if (!tracksAsPoints.features.length) return null;
+const HeatLayer = ({ heatmapStyles, points }) => {
+  if (!points.features.length) return null;
 
-  const { geometry: { coordinates: [, latitude] } } = centroid(tracksAsPoints);
+  const { geometry: { coordinates: [, latitude] } } = centroid(points);
+
+  const sourceData = {
+    type: 'geojson',
+    data: points,
+  };
 
   const paint = {
     'heatmap-radius': {
@@ -27,13 +32,18 @@ const HeatLayer = ({ heatmapStyles, tracksAsPoints }) => {
     'heatmap-weight': heatmapStyles.intensity,
   };
 
-  return <Layer paint={paint} before={SUBJECT_SYMBOLS} id={HEATMAP_LAYER} type="heatmap">
-    {tracksAsPoints.features.map((point, index) => {
-      return <Feature key={index} coordinates={point.geometry.coordinates} properties={point.properties} />;
-    })}
-  </Layer>;
+  return <Fragment>
+    <Source id='heatmap-source' geoJsonSource={sourceData} />;
+    <Layer sourceId='heatmap-source'  paint={paint} before={SUBJECT_SYMBOLS} id={HEATMAP_LAYER} type="heatmap" />
+  </Fragment>;
 };
 
-const mapStateToProps = (state) => ({ heatmapStyles: state.view.heatmapStyles, tracksAsPoints: getHeatmapTrackPoints(state) });
+const mapStateToProps = (state) => ({ heatmapStyles: state.view.heatmapStyles });
 
-export default connect(mapStateToProps, null)(memo(HeatLayer));
+export default connect(mapStateToProps, null)(memo(HeatLayer), 100);
+
+HeatLayer.propTypes = {
+  points: PropTypes.shape({
+    features: PropTypes.array.isRequired,
+  }).isRequired,
+};
