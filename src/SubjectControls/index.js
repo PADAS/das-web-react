@@ -69,7 +69,7 @@ const SubjectControls = memo((props) => {
     {showTrackButton && <TrackToggleButton loading={loadingTracks} onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
     {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} map={map} />}
-  </div>
+  </div>;
 });
 
 

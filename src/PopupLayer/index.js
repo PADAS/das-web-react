@@ -1,10 +1,12 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
+import { withMap } from '../EarthRangerMap';
+
 import SubjectPopup from '../SubjectPopup';
 import TimepointPopup from '../TimepointPopup';
 
-const PopupLayer = memo(({ popup, ...rest }) => {
+const PopupLayer = ({ popup, ...rest }) => {
   const { id, type, data } = popup;
   let Template;
 
@@ -12,9 +14,9 @@ const PopupLayer = memo(({ popup, ...rest }) => {
   if (type === 'timepoint') Template = TimepointPopup;
   
   return Template ? <Template key={id} data={data} {...rest} /> : null;
-});
+};
 
-export default PopupLayer;
+export default memo(withMap(PopupLayer));
 
 PopupLayer.propTypes = {
   popup: PropTypes.object.isRequired,

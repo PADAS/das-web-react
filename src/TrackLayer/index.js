@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
+import { withMap } from '../EarthRangerMap';
 import { GENERATED_LAYER_IDS, LAYER_IDS } from '../constants';
 import { imgElFromSrc } from '../utils/img';
 import { convertArrayOfTracksIntoFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
@@ -80,7 +81,7 @@ const TracksLayer = memo(function TracksLayer(props) {
   );
 }, (prev, current) => isEqual(prev.trackCollection, current.trackCollection));
 
-export default TracksLayer;
+export default withMap(TracksLayer);
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {

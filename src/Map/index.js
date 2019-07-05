@@ -2,11 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { CancelToken } from 'axios';
 import debounce from 'lodash/debounce';
-import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
 
-import { REACT_APP_MAPBOX_TOKEN, MIN_ZOOM, MAX_ZOOM } from '../constants';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchTracks } from '../ducks/tracks';
@@ -18,6 +16,8 @@ import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayO
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
+
+import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
 import TrackLayers from '../TrackLayer';
@@ -26,23 +26,8 @@ import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-import MapSettingsControl from '../MapSettingsControl';
 
-import 'mapbox-gl/dist/mapbox-gl.css';
-// import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import './Map.scss';
-
-const MapboxMap = ReactMapboxGl({
-  accessToken: REACT_APP_MAPBOX_TOKEN,
-  minZoom: MIN_ZOOM,
-  maxZoom: MAX_ZOOM,
-  logoPosition: 'top-left',
-});
-
-const mapConfig = {
-  style: 'mapbox://styles/vjoelm/ciobuir0n0061bdnj1c54oakh',
-};
-
 class Map extends Component {
   constructor(props) {
     super(props);
@@ -238,7 +223,7 @@ class Map extends Component {
   }
 
   render() {
-    const { maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, mapIsLocked } = this.props;
+    const { children, maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, mapIsLocked } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
@@ -246,20 +231,18 @@ class Map extends Component {
     if (!maps.length) return null;
 
     return (
-      <MapboxMap
-        id='map'
+      <EarthRangerMap
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
         onMoveEnd={this.onMapMoveEnd}
-        movingMethod={'easeTo'}
         onClick={this.onMapClick}
-        onStyleLoad={this.setMap}
-        {...mapConfig}>
+        onMapLoaded={this.setMap} >
+
+        {children}
 
         {map && (
           <Fragment>
             <SubjectsLayer
-              map={map}
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
@@ -270,30 +253,23 @@ class Map extends Component {
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
-            {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} map={map} />}
+            {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} />}
 
-            <EventsLayer map={map} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
+            <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
             {!!popup && <PopupLayer
               popup={popup}
-              map={map}
               onTrackToggle={this.toggleTrackState}
               onHeatmapToggle={this.toggleHeatmapState}
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-
-            <RotationControl position='top-left' />
-            <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
-            <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
-            <MapSettingsControl map={map} />
-            {/* <DrawControl map={map} position='bottom-left' /> */}
           </Fragment>
         )}
 
-      </MapboxMap>
+      </EarthRangerMap>
     );
   }
 }

@@ -1,7 +1,8 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, memo } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
+import { withMap } from '../EarthRangerMap';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, EVENT_CLUSTER_COUNT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
@@ -94,7 +95,7 @@ const EventsLayer = (props) => {
   </Fragment>;
 };
 
-export default EventsLayer;
+export default memo(withMap(EventsLayer));
 
 EventsLayer.defaultProps = {
   onClusterClick() {

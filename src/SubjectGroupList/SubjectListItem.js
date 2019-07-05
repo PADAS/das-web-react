@@ -4,7 +4,7 @@ import isEqual from 'react-fast-compare';
 
 import listStyles from '../SideBar/styles.module.scss';
 
-const SubjectListItem = memo((props) => {
+const SubjectListItem = memo((props) => { // eslint-disable-line react/display-name
   const { map, ...rest } = props;
   return <div>
     <h6 className={listStyles.itemTitle}>{props.name}</h6>

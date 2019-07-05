@@ -17,10 +17,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 import reducers from './reducers';
 import App from './App';
-import Login from './views/Login';
+import Login from './Login';
 import PrivateRoute from './PrivateRoute';
-
-import MainView from './views/Main';
 
 if (process.env.NODE_ENV !== 'production') {
   const whyDidYouRender = require('@welldone-software/why-did-you-render');
@@ -36,7 +34,7 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
         <Switch>
-          <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={MainView} />
+          <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={App} />
           <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={Login} />
         </Switch>
       </BrowserRouter>

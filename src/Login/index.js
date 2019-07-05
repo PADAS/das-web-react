@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import { postAuth, clearAuth } from '../../ducks/auth';
-import { REACT_APP_ROUTE_PREFIX } from '../../constants';
+import { postAuth, clearAuth } from '../ducks/auth';
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 class LoginPage extends Component {
   constructor(props) {
@@ -63,17 +63,17 @@ class LoginPage extends Component {
         state: { from: this.props.location, },
       }}
     />) : (
-        <form onSubmit={this.onFormSubmit}>
-          <label htmlFor="username">Username</label>
-          <input value={this.state.username} required={true} onChange={this.onInputChange} type="text" name="username" id="username" />
-          <label htmlFor="password">Password</label>
-          <input value={this.state.password} required={true} onChange={this.onInputChange} type="password" name="password" id="password" />
-          <button type="submit">Submit</button>
-          {this.state.hasError && (
-            <p>An error has occured. Please try again.</p>
-          )}
-        </form>
-      );
+      <form onSubmit={this.onFormSubmit}>
+        <label htmlFor="username">Username</label>
+        <input value={this.state.username} required={true} onChange={this.onInputChange} type="text" name="username" id="username" />
+        <label htmlFor="password">Password</label>
+        <input value={this.state.password} required={true} onChange={this.onInputChange} type="password" name="password" id="password" />
+        <button type="submit">Submit</button>
+        {this.state.hasError && (
+          <p>An error has occured. Please try again.</p>
+        )}
+      </form>
+    );
   }
 }
 

@@ -8,7 +8,7 @@ import MapSettingsControl from '../MapSettingsControl';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import './Map.scss';
+import '../Map/Map.scss';
 
 
 const EarthRangerMapContext = createContext(null);
@@ -25,13 +25,18 @@ const mapConfig = {
   movingMethod: 'easeTo',
 };
 
-export const withMapContext = (Component) => props => <EarthRangerMapContext.Consumer>  {/* eslint-disable-line react/display-name */}
-  {map => <Component map={map} {...props} />}
-</EarthRangerMapContext.Consumer>;
+export function withMap (Component) {
+  return props => <EarthRangerMapContext.Consumer>{map => <Component map={map} {...props} />}</EarthRangerMapContext.Consumer>; // eslint-disable-line react/display-name
+};
 
 const EarthRangerMap = (props) => {
-  const { children, ...rest } = props;
+  const { children, onMapLoaded, ...rest } = props;
   const [map, setMap] = useState(null);
+
+  const onLoad = (map) => {
+    onMapLoaded && onMapLoaded(map);
+    setMap(map);
+  };
 
   const id = useRef(uuid());
 
@@ -39,10 +44,10 @@ const EarthRangerMap = (props) => {
     id={`map-${id.current}`}
     {...mapConfig}
     {...rest}
-    onStyleLoad={setMap}>
+    onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
       <Fragment>
-        {/* {children} */}
+        {children}
         <RotationControl position='top-left' />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
