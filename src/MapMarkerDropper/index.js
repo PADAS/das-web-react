@@ -11,13 +11,17 @@ import MouseMarkerLayer from '../MouseMarkerLayer';
 
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
+import styles from './styles.module.scss';
+
+
+
 const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => {
   const [initialized, setInitState] = useState(false);
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
 
-  const isValidLocation = validateLngLat(location.lng, location.lat);
+  const isValidLocation = location.lng && location.lat && validateLngLat(location.lng, location.lat);
   const shouldShowMarkerLayer = moving || isValidLocation;
   
   const addImageToMap = async () => {
@@ -33,11 +37,16 @@ const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => 
   };
 
   const hideMarker = () => {
-    setMovingState(false);
     setMarkerLocation({});
+    stopMovingReportMarker();
+  };
+
+  const onMouseMove = (e) => {
+    setMarkerLocation(e.lngLat);
   };
 
   const cleanupFunc = useRef(cleanupMarkerStateFromMap);
+  const mouseMoveFunc = useRef(onMouseMove);
 
   useEffect(() => {
     if (shouldCleanUpOnNextMapClick) {
@@ -63,15 +72,15 @@ const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => 
     if (!moving && isValidLocation) {
       onMarkerDropped(location);
     }
-  }, [moving, isValidLocation]);
+  }, [moving]);
 
   const stopMovingReportMarker = () => {
     setMovingState(false);
-    map.off('mousemove', onMouseMove);
+    map.off('mousemove', mouseMoveFunc.current);
   };
   const startMovingReportMarker = () => {
     setMovingState(true);
-    map.on('mousemove', onMouseMove);
+    map.on('mousemove', mouseMoveFunc.current);
   };
 
   const onLocationSelect = () => {
@@ -79,13 +88,12 @@ const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => 
     setCleanupState(true);
   };
 
-  const onMouseMove = (e) => {
-    setMarkerLocation(e.lngLat);
-  };
+
 
   return <Fragment>
     <div className='buttons'>
       <MapLocationPicker
+        className={styles.mapControl}
         onLocationSelectCancel={hideMarker}
         onLocationSelectStart={startMovingReportMarker}
         onLocationSelect={onLocationSelect} />

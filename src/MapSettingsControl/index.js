@@ -21,7 +21,9 @@ const MapSettingsControl = (props) => {
   );
 
   return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>
-    <div className={styles.gearButton}><button ref={formRef}><GearIcon /></button></div>
+    <button type='button' className={styles.gearButton} ref={formRef}>
+      <GearIcon />
+    </button>
   </OverlayTrigger>;
 };
 

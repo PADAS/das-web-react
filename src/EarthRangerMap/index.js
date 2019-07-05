@@ -51,7 +51,7 @@ const EarthRangerMap = (props) => {
         <RotationControl position='top-left' />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
-        <MapSettingsControl map={map} />
+        <MapSettingsControl />
       </Fragment>
     </EarthRangerMapContext.Provider>
   </MapboxMap>;
