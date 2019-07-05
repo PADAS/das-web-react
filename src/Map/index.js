@@ -43,6 +43,7 @@ class Map extends Component {
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
+    this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
   }
 
   cancelToken = CancelToken.source();
@@ -224,6 +225,10 @@ class Map extends Component {
     this.props.updateHeatmapSubjects([]);
   }
 
+  onReportMarkerDrop(location) {
+    this.props.showPopup('dropped-marker', { location });
+  }
+
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, mapIsLocked } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
@@ -268,7 +273,7 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-            <MapMarkerDropper />
+            <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           </Fragment>
         )}
 

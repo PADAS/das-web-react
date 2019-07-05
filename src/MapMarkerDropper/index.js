@@ -1,4 +1,5 @@
 import React, { Fragment, memo, useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
 
@@ -10,10 +11,14 @@ import MouseMarkerLayer from '../MouseMarkerLayer';
 
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
-const MapMarkerDropper = ({ map, ...rest }) => {
+const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => {
+  const [initialized, setInitState] = useState(false);
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
+
+  const isValidLocation = validateLngLat(location.lng, location.lat);
+  const shouldShowMarkerLayer = moving || isValidLocation;
   
   const addImageToMap = async () => {
     if (!map.hasImage('marker-icon')) {
@@ -23,9 +28,13 @@ const MapMarkerDropper = ({ map, ...rest }) => {
   };
   
   const cleanupMarkerStateFromMap = () => {
+    hideMarker();
+    setCleanupState(false);
+  };
+
+  const hideMarker = () => {
     setMovingState(false);
     setMarkerLocation({});
-    setCleanupState(false);
   };
 
   const cleanupFunc = useRef(cleanupMarkerStateFromMap);
@@ -42,13 +51,19 @@ const MapMarkerDropper = ({ map, ...rest }) => {
     addImageToMap();
   }, []);
 
-  const isValidLocation = validateLngLat(location.lng, location.lat);
-  const shouldShowMarkerLayer = moving || isValidLocation;
+  useEffect(() => {
+    if (!initialized) {
+      setInitState(true);
+    } else if (!shouldShowMarkerLayer) {
+      onMarkerHidden();
+    }
+  }, [shouldShowMarkerLayer]);
 
-  const onLocationSelectCancel = () => {
-    setMovingState(false);
-    setMarkerLocation({});
-  };
+  useEffect(() => {
+    if (!moving && isValidLocation) {
+      onMarkerDropped(location);
+    }
+  }, [moving, isValidLocation]);
 
   const stopMovingReportMarker = () => {
     setMovingState(false);
@@ -71,11 +86,11 @@ const MapMarkerDropper = ({ map, ...rest }) => {
   return <Fragment>
     <div className='buttons'>
       <MapLocationPicker
-        onLocationSelectCancel={onLocationSelectCancel}
+        onLocationSelectCancel={hideMarker}
         onLocationSelectStart={startMovingReportMarker}
         onLocationSelect={onLocationSelect} />
 
-      {moving && <button type='button' onClick={onLocationSelectCancel}>Cancel</button>}
+      {moving && <button type='button' onClick={hideMarker}>Cancel</button>}
     </div>
 
     {shouldShowMarkerLayer && <MouseMarkerLayer location={location} />}
@@ -84,3 +99,15 @@ const MapMarkerDropper = ({ map, ...rest }) => {
 };
 
 export default memo(withMap(MapMarkerDropper));
+
+MapMarkerDropper.defaultProps = {
+  onMarkerDropped(_location) {
+  },
+  onMarkerHidden() {
+  },
+};
+
+MapMarkerDropper.propTypes = {
+  onMarkerDropped: PropTypes.func,
+  onMarkerHidden: PropTypes.func,
+};

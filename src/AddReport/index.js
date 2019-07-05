@@ -14,14 +14,17 @@ import EventTypeListItem from '../EventTypeListItem';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, eventsByCategory, map, showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
+  const { relationshipButtonDisabled, reportData, eventsByCategory, map, showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
 
   const startEditNewReport = (reportType) => {
-    const newReport = createNewReportForEventType(reportType);
+    const newReport = {
+      ...createNewReportForEventType(reportType),
+      ...reportData,
+    };
     openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled });
     setPopoverState(false);
   };
@@ -80,6 +83,7 @@ AddReport.defaultProps = {
   onSaveError() {
 
   },
+  reportData: {},
 };
 
 AddReport.propTypes = {
@@ -89,6 +93,7 @@ AddReport.propTypes = {
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
   title: PropTypes.string,
+  reportData: PropTypes.object,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
 };
