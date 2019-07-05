@@ -27,6 +27,8 @@ import SubjectHeatLayer from '../SubjectHeatLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
+import MapMarkerDropper from '../MapMarkerDropper';
+
 import './Map.scss';
 class Map extends Component {
   constructor(props) {
@@ -266,6 +268,7 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
+            <MapMarkerDropper />
           </Fragment>
         )}
 
