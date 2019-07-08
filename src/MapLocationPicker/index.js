@@ -2,6 +2,7 @@ import React, { memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
+import Button from 'react-bootstrap/Button';
 
 import { withMap } from '../EarthRangerMap';
 
@@ -17,7 +18,7 @@ const unbindExternal = (map, eventType, func) => {
 };
 
 const MapLocationPicker = (props) => {
-  const { className, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState, showCancelButton } = props;
+  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState, showCancelButton, wrapperClassName } = props;
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
@@ -55,12 +56,12 @@ const MapLocationPicker = (props) => {
     onLocationSelectStart();
   };
 
-  return <div className='buttons'>
-    <button type='button' className={className} onClick={onSelectStart}>
+  return <div className={wrapperClassName}>
+    <button disabled={disabled} type='button' className={className} onClick={onSelectStart}>
       <LocationIcon />
       <span>{label}</span>
     </button>
-    {showCancelButton && <button id='cancel-location-select' onClick={onCancel} type='button'>Cancel</button>}
+    {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
   </div>;
 };
 
@@ -75,13 +76,18 @@ MapLocationPicker.defaultProps = {
 
   },
   label: 'Choose on map',
+  disabled: false,
   showCancelButton: false,
+  wrapperClassName: '',
 };
 
 MapLocationPicker.propTypes = {
   className: PropTypes.string,
+  disabled: PropTypes.bool,
   onLocationSelectStart: PropTypes.func,
   onLocationSelect: PropTypes.func.isRequired,
   map: PropTypes.object.isRequired,
   label: PropTypes.string,
+  showCancelButton: PropTypes.bool,
+  wrapperClassName: PropTypes.string,
 };

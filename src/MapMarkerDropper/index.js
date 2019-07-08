@@ -82,17 +82,16 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
 
 
   return <Fragment>
-    <div className={styles.buttons}>
-      <MapLocationPicker
-        showCancelButton={moving}
-        className={styles.mapControl}
-        onLocationSelectCancel={hideMarker}
-        onLocationSelectStart={startMovingReportMarker}
-        onLocationSelect={onLocationSelect} />
-    </div>
+    <MapLocationPicker
+      disabled={isValidLocation || moving}
+      showCancelButton={moving}
+      className={styles.mapControl}
+      wrapperClassName={styles.buttons}
+      onLocationSelectCancel={hideMarker}
+      onLocationSelectStart={startMovingReportMarker}
+      onLocationSelect={onLocationSelect} />
 
     {shouldShowMarkerLayer && <MouseMarkerLayer location={location} {...rest} />}
-
   </Fragment>;
 };
 
