@@ -19,7 +19,7 @@ const SubjectPopup = (props) => {
     <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
       <h4>{properties.name}</h4>
       {coordProps.time && <DateTime date={coordProps.time} />}
-      {<GpsFormatToggle lat={geometry.coordinates[1]} lng={geometry.coordinates[0]} />}
+      {<GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} />}
       {tracks_available && (
         <Fragment>
           <TrackLength className={styles.trackLength} id={properties.id} />

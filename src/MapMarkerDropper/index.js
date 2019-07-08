@@ -15,8 +15,7 @@ import styles from './styles.module.scss';
 
 
 
-const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => {
-  const [initialized, setInitState] = useState(false);
+const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
@@ -61,14 +60,6 @@ const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => 
   }, []);
 
   useEffect(() => {
-    if (!initialized) {
-      setInitState(true);
-    } else if (!shouldShowMarkerLayer) {
-      onMarkerHidden();
-    }
-  }, [shouldShowMarkerLayer]);
-
-  useEffect(() => {
     if (!moving && isValidLocation) {
       onMarkerDropped(location);
     }
@@ -101,7 +92,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, onMarkerHidden, ...rest }) => 
       {moving && <button type='button' onClick={hideMarker}>Cancel</button>}
     </div>
 
-    {shouldShowMarkerLayer && <MouseMarkerLayer location={location} />}
+    {shouldShowMarkerLayer && <MouseMarkerLayer location={location} {...rest} />}
 
   </Fragment>;
 };
@@ -111,11 +102,8 @@ export default memo(withMap(MapMarkerDropper));
 MapMarkerDropper.defaultProps = {
   onMarkerDropped(_location) {
   },
-  onMarkerHidden() {
-  },
 };
 
 MapMarkerDropper.propTypes = {
   onMarkerDropped: PropTypes.func,
-  onMarkerHidden: PropTypes.func,
 };

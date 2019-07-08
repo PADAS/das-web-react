@@ -8,7 +8,7 @@ import styles from './styles.module.scss';
 
 const gpsFormats = Object.values(GPS_FORMATS);
 
-const GpsFormatToggle = memo((props) => {
+const GpsFormatToggle = (props) => {
   const { updateUserPreferences, lat, lng, currentFormat, className, ...rest } = props;
 
   return (
@@ -20,10 +20,10 @@ const GpsFormatToggle = memo((props) => {
           })}>{gpsFormat}</li>
         )}
       </ul>
-      <span className={styles.value}>{calcGpsDisplayString(lng, lat, currentFormat)}</span>
+      <span className={styles.value}>{calcGpsDisplayString(lat, lng, currentFormat)}</span>
     </div>
   );
-});
+};
 
 
 GpsFormatToggle.propTypes = {
@@ -32,6 +32,6 @@ GpsFormatToggle.propTypes = {
   currentFormat: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ currentFormat: gpsFormat })
+const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ currentFormat: gpsFormat });
 
-export default connect(mapStateToProps, { updateUserPreferences })(GpsFormatToggle);
+export default connect(mapStateToProps, { updateUserPreferences })(memo(GpsFormatToggle));
