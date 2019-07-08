@@ -29,7 +29,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
   };
 };
 
-const convertDefinitionsToSchemas = (definitions, schema) => {
+const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
 
   return definitionsToConvert.reduce((accumulator, definition) => {

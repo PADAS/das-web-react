@@ -5,6 +5,8 @@ import MapNamesControl from '../MapNamesControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import styles from './styles.module.scss';
 
+import { withMap } from '../EarthRangerMap';
+
 const MapSettingsControl = (props) => {
   const { map } = props;
   const formRef = useRef(null);
@@ -19,8 +21,10 @@ const MapSettingsControl = (props) => {
   );
 
   return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>
-      <div className={styles.gearButton}><button ref={formRef}><GearIcon /></button></div>
-    </OverlayTrigger>;
+    <button type='button' className={styles.gearButton} ref={formRef}>
+      <GearIcon />
+    </button>
+  </OverlayTrigger>;
 };
 
-export default MapSettingsControl;
+export default withMap(MapSettingsControl);

@@ -6,24 +6,21 @@ import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { fetchEvent } from '../ducks/events';
 import { removeModal, updateModal } from '../ducks/modals';
 
-import { createNewReportForEventType } from '../utils/events';
-
 import LoadingOverlay from '../LoadingOverlay';
 import ReportForm from '../ReportForm';
 
 import styles from './styles.module.scss';
 
 const ReportFormModal = (props) => {
-  const { report_id, id:modalId, event_type, eventSchemas, eventStore,
-    eventTypes, onSaveError, onSaveSuccess, fetchEventTypeSchema,
+  const { report, id:modalId, eventSchemas, eventStore, onSaveError, onSaveSuccess, fetchEventTypeSchema,
     removeModal, updateModal, fetchEvent, relationshipButtonDisabled, map } = props;
 
+  const { id: report_id, event_type } = report;
 
   const eventFromStore = eventStore[report_id];
   const schemasFromStore = eventSchemas[event_type];
-  const eventTypeFromStore = eventTypes.find(({ value }) => value === event_type);
 
-  const [report, setReport] = useState(null);
+  const [stateReport, setReport] = useState(null);
   const [schemas, setSchemas] = useState(null);
   const [loaded, setLoadState] = useState(false);
 
@@ -36,8 +33,8 @@ const ReportFormModal = (props) => {
   }, [schemasFromStore]);
 
   useEffect(() => {
-    if (!report_id) { // must be new
-      setReport(createNewReportForEventType(eventTypeFromStore));
+    if (!report_id) { // must be new, use what's been generated
+      setReport(report);
     } else {
       if (eventFromStore) {
         setReport(eventFromStore); // only draw report data from the central store
@@ -48,17 +45,17 @@ const ReportFormModal = (props) => {
   }, [report_id, eventFromStore]);
 
   useEffect(() => {
-    if (report && schemas) {
+    if (stateReport && schemas) {
       setLoadState(true);
     }
-  }, [report, schemas]);
+  }, [stateReport, schemas]);
 
   if (!loaded) {
     return <LoadingOverlay className={styles.loadingOverlay} message='Loading...' />;
   }
 
   return loaded && <ReportForm
-    report={report}
+    report={stateReport}
     modalId={modalId}
     uiSchema={schemas.uiSchema}
     removeModal={() => removeModal(modalId)}
@@ -71,15 +68,14 @@ const ReportFormModal = (props) => {
   />;
 };
 
-const mapStatetoProps = ({ data: { eventSchemas, eventStore, eventTypes } }) => ({ eventSchemas, eventStore, eventTypes });
+const mapStatetoProps = ({ data: { eventSchemas, eventStore } }) => ({ eventSchemas, eventStore });
 
 export default connect(mapStatetoProps, {
   fetchEventTypeSchema: (...args) => fetchEventTypeSchema(...args), 
   fetchEvent: (...args) => fetchEvent(...args), removeModal, updateModal })(memo(ReportFormModal));
 
 ReportFormModal.propTypes = {
-  report_id: PropTypes.string,
-  event_type: PropTypes.string.isRequired,
+  report: PropTypes.object.isRequired,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
 };

@@ -54,3 +54,28 @@
     display: none;
   }
 }
+
+
+@mixin mapboxControlButton {
+  background: #f9f9f9;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px;
+  border: .5px solid rgba(0, 0, 0, 0.1);
+  border-width: 0px 0px 1px;
+  border-radius: 2px;
+  height: 1.75rem;
+  width: 1.75rem;
+  opacity: .95;
+  padding: 0;
+  text-align: center;
+  transition: background-color 0.16s ease-out 0s;
+  z-index: 1;
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    fill: #333;
+  }
+
+  &:focus {
+    outline: 0;
+  }
+}

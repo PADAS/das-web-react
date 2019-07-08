@@ -149,14 +149,13 @@ export const executeReportSaveActions = (saveActions) => {
   });
 };
 
-export const openModalForReport = ({ id: report_id, event_type }, map, config = {}) => {
+export const openModalForReport = (report, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
 
   return store.dispatch(
     addModal({
       content: ReportFormModal,
-      report_id,
-      event_type,
+      report,
       relationshipButtonDisabled,
       map,
       onSaveSuccess,
