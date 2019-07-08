@@ -4,6 +4,7 @@ import { uuid } from '../utils/string';
 
 import { REACT_APP_MAPBOX_TOKEN, MIN_ZOOM, MAX_ZOOM } from '../constants';
 
+
 import MapSettingsControl from '../MapSettingsControl';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -46,13 +47,14 @@ const EarthRangerMap = (props) => {
     {...rest}
     onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
-      <Fragment>
-        {children}
+      {map && <Fragment>
         <RotationControl position='top-left' />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
         <MapSettingsControl />
-      </Fragment>
+        
+        {children}
+      </Fragment>}
     </EarthRangerMapContext.Provider>
   </MapboxMap>;
 };

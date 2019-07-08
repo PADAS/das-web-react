@@ -2,16 +2,11 @@ import React, { memo, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 
+import { GEOLOCATOR_OPTIONS } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 import { ReactComponent as GpsLocationIcon } from '../common/images/icons/gps-location-icon.svg';
 
 import styles from './styles.module.scss';
-
-const geolocatorOptions = {
-  enableHighAccuracy: true,
-  maximumAge: 0,
-  timeout: 10000,
-};
 
 const GeoLocator = (props) => {
   const { className, label, onError, onStart, onSuccess } = props;
@@ -33,7 +28,7 @@ const GeoLocator = (props) => {
     setFetchingLocationState(true);
     onStart();
     try {
-      window.navigator.geolocation.getCurrentPosition(onLocationFetchSuccess, onLocationFetchError, geolocatorOptions);
+      window.navigator.geolocation.getCurrentPosition(onLocationFetchSuccess, onLocationFetchError, GEOLOCATOR_OPTIONS);
     } catch (e) {
       onLocationFetchError(e);
     }

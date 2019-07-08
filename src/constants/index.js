@@ -8,7 +8,7 @@ export const {
   REACT_APP_ROUTE_PREFIX,
 } = process.env;
 
-export const MIN_ZOOM = 4;
+export const MIN_ZOOM = 1;
 export const MAX_ZOOM = 18;
 
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
@@ -137,4 +137,10 @@ export const DEFAULT_SELECT_STYLES = {
 export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,
   format: 'dd-MM-yyyy HH:mm',
+};
+
+export const GEOLOCATOR_OPTIONS = {
+  enableHighAccuracy: true,
+  maximumAge: 0,
+  timeout: 10000,
 };

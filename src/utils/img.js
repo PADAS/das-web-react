@@ -47,7 +47,8 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
     }
     resolve(img);
   };
-  img.onerror = () => {
+  img.onerror = (e) => {
+    console.log('image error', e);
     reject('could not load image');
   };
 });
