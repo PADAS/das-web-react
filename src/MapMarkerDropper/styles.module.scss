@@ -4,3 +4,9 @@
   @include mapboxControlButton;
   font-size: 0;
 }
+
+.buttons {
+  padding: 0.5rem;
+  position: relative;
+  z-index: 6;
+}

@@ -13,7 +13,7 @@
 }
 
 $map-canvas: '.mapboxgl-canvas';
-$non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button';
+$non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
 :root {
   --nav-height: 3rem;

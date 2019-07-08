@@ -17,15 +17,13 @@ const unbindExternal = (map, eventType, func) => {
 };
 
 const MapLocationPicker = (props) => {
-  const { className, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState } = props;
+  const { className, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState, showCancelButton } = props;
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
     event.preventDefault();
     event.stopPropagation();
-    setPickingMapLocationState(false);
-    unbindMapEvents();
-    onLocationSelectCancel();
+    onCancel();
   });
 
   const bindMapEvents = () => {
@@ -39,12 +37,11 @@ const MapLocationPicker = (props) => {
     document.removeEventListener('keydown', keydownFunc.current);
   };
 
-  /*   useEffect(() => {
-      return () => {
-        setPickingMapLocationState(false);
-        unbindMapEvents();
-      };
-    }, []); */
+  const onCancel = (e) => {
+    setPickingMapLocationState(false);
+    unbindMapEvents();
+    onLocationSelectCancel();
+  };
 
   const onSelect = (e) => {
     setPickingMapLocationState(false);
@@ -58,13 +55,16 @@ const MapLocationPicker = (props) => {
     onLocationSelectStart();
   };
 
-  return <button style={{position: 'relative', zIndex: 6}} id="picky" className={className} onClick={onSelectStart}>
-    <LocationIcon />
-    <span>{label}</span>
-  </button>;
+  return <div className='buttons'>
+    <button type='button' className={className} onClick={onSelectStart}>
+      <LocationIcon />
+      <span>{label}</span>
+    </button>
+    {showCancelButton && <button id='cancel-location-select' onClick={onCancel} type='button'>Cancel</button>}
+  </div>;
 };
 
-export default connect(null, { setPickingMapLocationState })(withMap(MapLocationPicker));
+export default connect(null, { setPickingMapLocationState })(withMap(memo(MapLocationPicker)));
 
 MapLocationPicker.defaultProps = {
   className: '',
@@ -75,6 +75,7 @@ MapLocationPicker.defaultProps = {
 
   },
   label: 'Choose on map',
+  showCancelButton: false,
 };
 
 MapLocationPicker.propTypes = {
