@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -10,7 +10,7 @@ import { userLocationCanBeShown } from '../../selectors';
 import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
 import styles from './styles.module.scss';
 
-const { Toggle, Menu, Item } = Dropdown;
+const { Toggle, Menu, Item, Divider } = Dropdown;
 
 const NavHomeMenu = function NavHomeMenu(props) {
   const { maps, onMapSelect, selectedMap, userLocation, userLocationCanBeShown, onClickCurrentLocation } = props;
@@ -25,12 +25,15 @@ const NavHomeMenu = function NavHomeMenu(props) {
           <Item as="button" active={selectedMap.id === map.id ? 'active' : null} className={styles.listItem} key={map.id} onClick={() => onMapSelect(map)}>
             <NavHomeItem {...map} />
           </Item>)}
-        {userLocationCanBeShown && <Item className={styles.currentLocationJump} onClick={() => onClickCurrentLocation(userLocation)}>
-          <h6>
-            <GpsLocationIcon />
+        {userLocationCanBeShown && <Fragment>
+          <Divider />
+          <Item className={styles.currentLocationJump} onClick={() => onClickCurrentLocation(userLocation)}>
+            <h6>
+              <GpsLocationIcon />
             My Current Location
-          </h6>
-        </Item>}
+            </h6>
+          </Item>
+        </Fragment>}
       </Menu>
     </Dropdown>
   );
@@ -41,7 +44,7 @@ const mapStateToProps = (state) => ({
   userLocation: state.view.userLocation,
   userLocationCanBeShown: userLocationCanBeShown(state),
 });
-export default connect(mapStateToProps, null)(NavHomeMenu);
+export default connect(mapStateToProps, null)(memo(NavHomeMenu));
 
 NavHomeMenu.defaultProps = {
   onClickCurrentLocation() {
