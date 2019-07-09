@@ -5,6 +5,7 @@ import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
 
+import { MAX_ZOOM } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
@@ -23,7 +24,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
   };
 
   const onClickCurrentLocation = (location) => {
-    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], 18);
+    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
   };
 
   useEffect(() => {
