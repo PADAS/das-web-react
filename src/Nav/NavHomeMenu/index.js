@@ -23,7 +23,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
           <Item as="button" active={selectedMap.id === map.id ? 'active' : null} className={styles.listItem} key={map.id} onClick={() => onMapSelect(map)}>
             <NavHomeItem {...map} />
           </Item>)}
-        {userLocation && <Item onClick={() => onClickCurrentLocation(userLocation)}>
+        {userLocation && <Item className={styles.currentLocationJump} onClick={() => onClickCurrentLocation(userLocation)}>
           <h6>
             <GpsLocationIcon />
             My Current Location

@@ -47,3 +47,16 @@ nav {
     padding-top: 0;
   }
 }
+
+a.currentLocationJump {
+  h6 {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    svg {
+      height: 2rem;
+      width: 2rem;
+    }
+  }
+}
