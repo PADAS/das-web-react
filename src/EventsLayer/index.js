@@ -52,11 +52,6 @@ const eventSymbolLayerOptions = {
   filter: ['!has', 'point_count'],
 };
 
-const eventSymbolLayerLayout = {
-  ...DEFAULT_SYMBOL_LAYOUT,
-  'text-field': '{display_title}',
-};
-
 const eventSymbolLayerPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
@@ -65,11 +60,6 @@ const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
-
-  const layout = {
-    ...eventSymbolLayerLayout,
-    ...mapNameLayout,
-  };
 
   const handleEventClick = (e) => {
     e.preventDefault();
@@ -107,7 +97,7 @@ const EventsLayer = (props) => {
       sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
       layerOptions={eventSymbolLayerOptions}
       symbolPaint={eventSymbolLayerPaint}
-      symbolLayout={layout} />
+      symbolLayout={eventSymbolLayerLayout} />
   </Fragment>;
 };
 
