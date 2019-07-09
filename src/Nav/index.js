@@ -5,6 +5,7 @@ import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
 
+import { MAX_ZOOM } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
@@ -22,6 +23,10 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
     jumpToLocation(map, center, zoom);
   };
 
+  const onClickCurrentLocation = (location) => {
+    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
+  };
+
   useEffect(() => {
     map && maps.length && !homeMap.id && handleHomeMapSelect(maps.find(m => m.default) || maps[0]);
   }, [map, maps]);
@@ -37,7 +42,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
       <EarthRangerLogo className="logo" />
     </div>
 
-    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} />}
+    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} onClickCurrentLocation={onClickCurrentLocation} />}
     <div className="rightMenus">
       <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>

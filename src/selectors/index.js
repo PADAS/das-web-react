@@ -29,10 +29,17 @@ export const featureSets = ({ data: { featureSets } }) => featureSets;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
+const userLocation = ({ view: { userLocation } }) => userLocation;
+const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
   : [];
+
+export const userLocationCanBeShown = createSelector(
+  [userLocation, showUserLocation],
+  (userLocation, showUserLocation) => userLocation && showUserLocation,
+);
 
 const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
   mapReportTypesToCategories(eventTypes)

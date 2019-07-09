@@ -1,20 +1,18 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 
+import { setCurrentUserLocation } from '../ducks/location';
+
+import { GEOLOCATOR_OPTIONS } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 import { ReactComponent as GpsLocationIcon } from '../common/images/icons/gps-location-icon.svg';
 
 import styles from './styles.module.scss';
 
-const geolocatorOptions = {
-  enableHighAccuracy: true,
-  maximumAge: 0,
-  timeout: 10000,
-};
-
 const GeoLocator = (props) => {
-  const { className, label, onError, onStart, onSuccess } = props;
+  const { className, label, onError, onStart, onSuccess, setCurrentUserLocation, userLocation } = props;
   const [fetchingLocation, setFetchingLocationState] = useState(false);
   const [locationFetchError, setLocationFetchErrorState] = useState(false);
   const clearAlertTimeout = useRef(null);
@@ -32,16 +30,17 @@ const GeoLocator = (props) => {
     setLocationFetchErrorState(false);
     setFetchingLocationState(true);
     onStart();
-    try {
-      window.navigator.geolocation.getCurrentPosition(onLocationFetchSuccess, onLocationFetchError, geolocatorOptions);
+    if (userLocation) return onLocationFetchSuccess(userLocation);
+    else try {
+      window.navigator.geolocation.getCurrentPosition(onLocationFetchSuccess, onLocationFetchError, GEOLOCATOR_OPTIONS);
     } catch (e) {
       onLocationFetchError(e);
     }
   };
 
   const onLocationFetchSuccess = (position) => {
+    setCurrentUserLocation(position);
     const { coords } = position;
-
     onLocationFetchFinish();
     onSuccess(coords);
   };
@@ -69,7 +68,8 @@ const GeoLocator = (props) => {
   </div>;
 };
 
-export default memo(GeoLocator);
+const mapStatetoProps = ({ view: { userLocation } }) => ({ userLocation });
+export default connect(mapStatetoProps, { setCurrentUserLocation })(memo(GeoLocator));
 
 GeoLocator.defaultProps = {
   className: '',

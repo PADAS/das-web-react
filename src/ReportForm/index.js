@@ -179,9 +179,6 @@ const ReportForm = (props) => {
         longitude: location[0],
       } : location;
 
-
-    console.log('should update location to', updatedLocation);
-
     updateStateReport({
       ...report,
       location: updatedLocation,

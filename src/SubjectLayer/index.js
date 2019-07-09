@@ -22,7 +22,7 @@ const symbolPaint = {
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];
 
 const SubjectsLayer = memo((props) => {
-  const { onSubjectIconClick, subjects, map, showMapNames, mapNameLayout, ...rest } = props;
+  const { onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 

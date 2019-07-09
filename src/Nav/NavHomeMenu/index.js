@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { Fragment, memo } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 import NavHomeItem from '../NavHomeItem';
 
+import { userLocationCanBeShown } from '../../selectors';
+
+import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
 import styles from './styles.module.scss';
 
-const { Toggle, Menu, Item } = Dropdown;
+const { Toggle, Menu, Item, Divider } = Dropdown;
 
 const NavHomeMenu = function NavHomeMenu(props) {
-  const {  maps, onMapSelect, selectedMap } = props;
+  const { maps, onMapSelect, selectedMap, userLocation, userLocationCanBeShown, onClickCurrentLocation } = props;
 
   return (
     <Dropdown className="home-select" alignRight>
@@ -18,20 +22,39 @@ const NavHomeMenu = function NavHomeMenu(props) {
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>
-          <Item as="button" active={selectedMap.id === map.id ? "active" : null} className={styles.listItem} key={map.id} onClick={() => onMapSelect(map)}>
+          <Item as="button" active={selectedMap.id === map.id ? 'active' : null} className={styles.listItem} key={map.id} onClick={() => onMapSelect(map)}>
             <NavHomeItem {...map} />
           </Item>)}
+        {userLocationCanBeShown && <Fragment>
+          <Divider />
+          <Item className={styles.currentLocationJump} onClick={() => onClickCurrentLocation(userLocation)}>
+            <h6>
+              <GpsLocationIcon />
+            My Current Location
+            </h6>
+          </Item>
+        </Fragment>}
       </Menu>
     </Dropdown>
-  )
+  );
 };
 
 
+const mapStateToProps = (state) => ({
+  userLocation: state.view.userLocation,
+  userLocationCanBeShown: userLocationCanBeShown(state),
+});
+export default connect(mapStateToProps, null)(memo(NavHomeMenu));
 
-export default NavHomeMenu;
+NavHomeMenu.defaultProps = {
+  onClickCurrentLocation() {
+
+  },
+};
 
 NavHomeMenu.propTypes = {
   maps: PropTypes.array.isRequired,
   selectedMap: PropTypes.object.isRequired,
   onMapSelect: PropTypes.func.isRequired,
+  onClickCurrentLocation: PropTypes.func,
 };

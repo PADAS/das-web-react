@@ -8,7 +8,7 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
-import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer, hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer, pickingLocationOnMapReducer } from '../ducks/map-ui';
+import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer, hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer, pickingLocationOnMapReducer, displayUserLocationReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -16,6 +16,7 @@ import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '..
 import modalsReducer from '../ducks/modals';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
+import userLocationReducer from '../ducks/location';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -72,10 +73,12 @@ const rootReducer = combineReducers({
     subjectTrackState: subjectTrackReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
+    showUserLocation: displayUserLocationReducer,
     modals: modalsReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
+    userLocation: userLocationReducer,
     zendeskEnabled: zendeskReducer,
   }),
 });

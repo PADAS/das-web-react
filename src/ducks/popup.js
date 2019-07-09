@@ -1,4 +1,5 @@
 import { SOCKET_SUBJECT_STATUS } from './subjects';
+import { USER_LOCATION_RETRIEVED } from './location';
 import { uuid } from '../utils/string';
 
 const SHOW_POPUP = 'SHOW_POPUP';
@@ -19,19 +20,30 @@ export const hidePopup = (id) => ({
 
 export default (state = null, action = {}) => {
   const { type, payload } = action;
-  switch (type) {
-  case SHOW_POPUP: {
+  if (type === SHOW_POPUP) {
     const popup = { ...payload, id: uuid() };
     return popup;
   }
-  case HIDE_POPUP: {
+  if (type === HIDE_POPUP) {
     return null;
   }
-  case SOCKET_SUBJECT_STATUS: {
+
+  if (type === USER_LOCATION_RETRIEVED) {
+    if (state && state.type === 'current-user-location') {
+      return {
+        ...state,
+        data: {
+          location: payload,
+        },
+      };
+    }
+  }
+
+  if (type === SOCKET_SUBJECT_STATUS) {
     if (!state
-        || state.type !== 'subject'
-        || !state.data.properties
-        || state.data.properties.id !== payload.properties.id) {
+      || state.type !== 'subject'
+      || !state.data.properties
+      || state.data.properties.id !== payload.properties.id) {
       return state;
     }
     const { geometry, properties } = payload;
@@ -49,8 +61,5 @@ export default (state = null, action = {}) => {
       }
     };
   }
-  default: {
-    return state;
-  }
-  }
+  return state;
 };

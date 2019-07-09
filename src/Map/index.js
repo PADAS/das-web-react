@@ -24,6 +24,7 @@ import TrackLayers from '../TrackLayer';
 import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
+import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
@@ -44,6 +45,7 @@ class Map extends Component {
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
+    this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
   }
 
   cancelToken = CancelToken.source();
@@ -160,6 +162,9 @@ class Map extends Component {
       }
     });
   }
+  onCurrentUserLocationClick(location) {
+    this.props.showPopup('current-user-location', { location } );
+  }
   toggleTrackState(id) {
     const { subjectTrackState: { visible, pinned }, updateTrackState } = this.props;
 
@@ -249,6 +254,8 @@ class Map extends Component {
 
         {map && (
           <Fragment>
+            <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
+
             <SubjectsLayer
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}

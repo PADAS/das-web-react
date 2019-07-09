@@ -6,6 +6,7 @@ import { withMap } from '../EarthRangerMap';
 import SubjectPopup from '../SubjectPopup';
 import TimepointPopup from '../TimepointPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
+import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
 
 const PopupLayer = ({ popup, ...rest }) => {
   const { id, type, data } = popup;
@@ -14,6 +15,7 @@ const PopupLayer = ({ popup, ...rest }) => {
   if (type === 'subject') Template = SubjectPopup;
   if (type === 'timepoint') Template = TimepointPopup;
   if (type === 'dropped-marker') Template = DroppedMarkerPopup;
+  if (type === 'current-user-location') Template = UserCurrentLocationPopup;
   
   return Template ? <Template key={id} data={data} {...rest} /> : null;
 };

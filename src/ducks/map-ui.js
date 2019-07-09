@@ -11,6 +11,7 @@ const SHOW_FEATURES = 'SHOW_FEATURES';
 
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
+const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 
@@ -67,6 +68,10 @@ export const toggleMapLockState = (enabled) => ({
 export const toggleMapNameState = (enabled) => ({
   type: DISPLAY_SUBJECT_NAMES,
   payload: enabled,
+});
+
+export const toggleDisplayUserLocation = enabled => ({
+  type: TOGGLE_DISPLAY_USER_LOCATION,
 });
 
 export const toggleTrackState = (id) => (dispatch, getState) => {
@@ -157,6 +162,14 @@ export const pickingLocationOnMapReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === SET_PICKING_MAP_LOCATION_STATE) {
     return payload;
+  }
+  return state;
+};
+
+export const displayUserLocationReducer = (state = true, action) => {
+  const { type } = action;
+  if (type === TOGGLE_DISPLAY_USER_LOCATION) {
+    return !state;
   }
   return state;
 };

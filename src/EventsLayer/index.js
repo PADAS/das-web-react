@@ -2,9 +2,11 @@ import React, { Fragment, memo } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
+import WithMapNames from '../WithMapNames';
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, GENERATED_LAYER_IDS } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, EVENT_CLUSTER_COUNT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -50,27 +52,25 @@ const eventSymbolLayerOptions = {
   filter: ['!has', 'point_count'],
 };
 
-const eventSymbolLayerLayout = {
-  ...DEFAULT_SYMBOL_LAYOUT,
-  'text-field': '{display_title}',
-};
-
 const eventSymbolLayerPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
+const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [GENERATED_LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
 
-  const layout = {
-    ...eventSymbolLayerLayout,
-    ...mapNameLayout,
+  const handleEventClick = (e) => {
+    e.preventDefault();
+    e.originalEvent.stopPropagation();
+    onEventClick(getEventLayer(e, map));
   };
 
-  const handleEventClick = (e) => {
-    onEventClick(getEventLayer(e, map));
+  const eventSymbolLayerLayout = {
+    ...DEFAULT_SYMBOL_LAYOUT,
+    'text-field': '{display_title}',
+    ...mapNameLayout,
   };
 
   return <Fragment>
@@ -97,7 +97,7 @@ const EventsLayer = (props) => {
       sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
       layerOptions={eventSymbolLayerOptions}
       symbolPaint={eventSymbolLayerPaint}
-      symbolLayout={layout} />
+      symbolLayout={eventSymbolLayerLayout} />
   </Fragment>;
 };
 

@@ -263,6 +263,17 @@
   }
 }
 
+.headerDetails {
+  display: flex;
+  flex-flow: column;
+  text-align: right;
+  margin-left: auto;
+  small {
+    font-size: 0.65rem;
+    line-height: 0.75rem;
+  }
+}
+
 
 .popover {
   max-width: none;
