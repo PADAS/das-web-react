@@ -50,8 +50,4 @@ SubjectsLayer.propTypes = {
   onSubjectIconClick: PropTypes.func,
 };
 
-<<<<<<< HEAD
-export default WithMapNames(withMap(SubjectsLayer));
-=======
 export default withMapNames(withMap(SubjectsLayer));
->>>>>>> c119f057210ebaf7742a4c4d3fe29318bd33cedb
