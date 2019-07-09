@@ -11,12 +11,12 @@ import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
-import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
+import withSocketConnection from '../RealtimeClient';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
@@ -55,15 +55,11 @@ class Map extends Component {
     return !isEqual(this.props, nextProps);
   }
 
-  componentDidMount() {
-    this.socket = createSocket();
-  }
-
   componentDidUpdate(prev) {
     if (!this.props.map) return;
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
-      this.socket.emit('event_filter', this.props.eventFilter);
+      this.props.socket.emit('event_filter', this.props.eventFilter);
       this.onMapMoveEnd();
     }
 
@@ -86,10 +82,6 @@ class Map extends Component {
   createFeatureImages() {
     this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
   }
-  componentWillUnmount() {
-    unbindSocketEvents(this.socket);
-  }
-
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
@@ -327,7 +319,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(Map, 100));
+)(debounceRender(withSocketConnection(Map), 100));
 
 // Map.whyDidYouRender = true;
 
