@@ -28,6 +28,7 @@ import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
+import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
 
 import './Map.scss';
@@ -283,6 +284,7 @@ class Map extends Component {
               trackState={this.props.subjectTrackState} />
             }
             <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
+            <MapRulerControl />
           </Fragment>
         )}
 
