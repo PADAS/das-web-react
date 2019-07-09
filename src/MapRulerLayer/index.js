@@ -54,6 +54,7 @@ const MapRulerLayer = (props) => {
         {!popupLocationAndFirstPointAreIdentical && <Fragment>
           <p>Distance: {distance(points[0], popupCoords).toFixed(2)}km</p>
           <p>Bearing: {bearing(points[0], popupCoords).toFixed(2)}&deg;</p>
+          <small>(Click map to finish)</small>
         </Fragment>}
       </Fragment>}
     </Popup>}
