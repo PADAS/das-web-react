@@ -16,6 +16,7 @@ import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '..
 import modalsReducer from '../ducks/modals';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
+import userLocationReducer from '../ducks/location';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -76,6 +77,7 @@ const rootReducer = combineReducers({
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
+    userLocation: userLocationReducer,
     zendeskEnabled: zendeskReducer,
   }),
 });

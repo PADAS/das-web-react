@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="86px" height="86px" viewBox="0 0 86 86" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
+    <title>gps-location-icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="gps-location-icon" transform="translate(4.000000, 3.000000)">
+            <g id="Crosshairs" stroke-linecap="square" transform="translate(0.000000, 0.670898)" stroke="#007CBF" stroke-width="8">
+                <path d="M39,0.829101562 L39,9.82910156 M39,68.8291016 L39,77.7138672" id="Shape"></path>
+                <path d="M39.1523438,0.557617079 L39.1523438,9.65234364 M39.1523438,68.6523436 L39.1523438,77.4423827" id="Shape" transform="translate(39.152344, 39.000000) rotate(90.000000) translate(-39.152344, -39.000000) "></path>
+            </g>
+            <circle id="Inner-Circle" fill="#007CBF" fill-rule="nonzero" cx="39.5" cy="40.4999996" r="15.5"></circle>
+            <circle id="Outer-circle" stroke="#007CBF" stroke-width="8" cx="39" cy="39.9999996" r="29"></circle>
+        </g>
+    </g>
+</svg>

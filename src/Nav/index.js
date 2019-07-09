@@ -22,6 +22,10 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
     jumpToLocation(map, center, zoom);
   };
 
+  const onClickCurrentLocation = (location) => {
+    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], 18);
+  };
+
   useEffect(() => {
     map && maps.length && !homeMap.id && handleHomeMapSelect(maps.find(m => m.default) || maps[0]);
   }, [map, maps]);
@@ -37,7 +41,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
       <EarthRangerLogo className="logo" />
     </div>
 
-    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} />}
+    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} onClickCurrentLocation={onClickCurrentLocation} />}
     <div className="rightMenus">
       <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>

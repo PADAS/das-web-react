@@ -2,6 +2,7 @@ import React, { Fragment, memo } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
+import WithMapNames from '../WithMapNames';
 import { withMap } from '../EarthRangerMap';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -61,10 +62,16 @@ const eventSymbolLayerPaint = {
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.type === 'symbol')[0];
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, mapNameLayout, map, ...rest } = props;
 
   const handleEventClick = (e) => {
     onEventClick(getEventLayer(e, map));
+  };
+
+  const eventSymbolLayerLayout = {
+    ...DEFAULT_SYMBOL_LAYOUT,
+    'text-field': '{display_title}',
+    ...mapNameLayout,
   };
 
   return <Fragment>
@@ -95,7 +102,7 @@ const EventsLayer = (props) => {
   </Fragment>;
 };
 
-export default memo(withMap(EventsLayer));
+export default memo(WithMapNames(withMap(EventsLayer)));
 
 EventsLayer.defaultProps = {
   onClusterClick() {

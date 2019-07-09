@@ -1,36 +1,71 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
+
+import { setCurrentUserLocation } from '../ducks/location';
 
 import { imgElFromSrc } from '../utils/img';
 import { GEOLOCATOR_OPTIONS } from '../constants';
 import { withMap } from '../EarthRangerMap';
-import GpsLocationIcon from '../common/images/icons/gps-location-icon.svg';
+import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
+
+const framesPerSecond = 20;
+const initialOpacity = 1;
+const initialRadius = 12;
+const initialStrokeWidth = 2;
+const maxRadius = 18;
 
 const UserCurrentLocationLayer = (props) => {
-  const { map, onIconClick } = props;
-  const [currentLocation, setCurrentLocation] = useState(null);
+  const { map, onIconClick, setCurrentUserLocation, userLocation } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
   const [initialized, setInitState] = useState(false);
+  const animationFrameID = useRef(null);
+  const [animationState, setAnimationState] = useState({
+    opacity: initialOpacity,
+    radius: initialRadius,
+    strokeWidth: initialStrokeWidth,
+  });
+
+  const updateBlipAnimation = (animationState) => {
+    setTimeout(() => {
+      const radius = animationState.radius + ((maxRadius - animationState.radius) / framesPerSecond);
+      const opacity = animationState.opacity - .05;
+      const strokeWidth = animationState.strokeWidth - .05;
+      if (opacity <= 0) {
+        setAnimationState({
+          radius: initialRadius, opacity: initialOpacity, strokeWidth: initialStrokeWidth,
+        });
+      } else {
+        setAnimationState({
+          radius, opacity, strokeWidth,
+        });
+      }
+    }, 1000 / framesPerSecond);
+  };
+
+  const blipAnimation = useRef(updateBlipAnimation);
+
 
   const startWatchingPosition = () => {
-    return window.navigator.geolocation.watchPosition(setCurrentLocation, onLocationWatchError, GEOLOCATOR_OPTIONS);
+    return window.navigator.geolocation.watchPosition(setCurrentUserLocation, onLocationWatchError, GEOLOCATOR_OPTIONS);
   };
+
 
   const addImageToMap = async () => {
     if (!map.hasImage('current-location-icon')) {
       const img = await imgElFromSrc(GpsLocationIcon);
       map.addImage('current-location-icon', img);
     }
-  }; 
+  };
 
   const onLocationWatchError = (e) => {
     console.log('error watching current location', e);
   };
 
   const onCurrentLocationIconClick = () => {
-    onIconClick(currentLocation);
+    onIconClick(userLocation);
   };
 
   useEffect(() => {
@@ -40,33 +75,116 @@ const UserCurrentLocationLayer = (props) => {
       setLocationWatcherID(startWatchingPosition());
       return () => {
         window.navigator.geolocation.clearWatch(locationWatcherID);
+        window.cancelAnimationFrame(animationFrameID.current);
       };
     }
   }, []);
 
-  return currentLocation && <GeoJSONLayer
+  useEffect(() => {
+    userLocation && blipAnimation.current(animationState);
+  }, [userLocation]);
+
+  useEffect(() => {
+    animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
+  }, [animationState]);
+
+  return userLocation && <GeoJSONLayer
     data={point([
-      currentLocation.coords.longitude,
-      currentLocation.coords.latitude,
+      userLocation.coords.longitude,
+      userLocation.coords.latitude,
     ])}
     symbolLayout={{
       'icon-image': 'current-location-icon',
       'icon-allow-overlap': true,
       'icon-anchor': 'center',
-      'icon-size': 10,
-    }} 
+      'icon-size': 0.6,
+    }}
+    circlePaint={{
+      'circle-radius': animationState.radius,
+      'circle-radius-transition': { duration: 0 },
+      'circle-opacity-transition': { duration: 0 },
+      'circle-color': 'rgba(0,0,0,0)',
+      'circle-stroke-color': '#007cbf',
+      'circle-stroke-width': animationState.strokeWidth,
+      'circle-stroke-opacity': animationState.opacity,
+    }}
     symbolOnClick={onCurrentLocationIconClick}
   />;
 };
 
-export default memo(withMap(UserCurrentLocationLayer));
+const mapStateToProps = ({ view: { userLocation } }) => ({ userLocation });
+export default connect(mapStateToProps, { setCurrentUserLocation })(withMap(UserCurrentLocationLayer));
 
 UserCurrentLocationLayer.defaultProps = {
   onIconClick() {
-    
+
   },
 };
 
 UserCurrentLocationLayer.propTypes = {
   onIconClick: PropTypes.func,
 };
+
+
+
+/*
+map.on('load', function () {
+
+    // Add a source and layer displaying a point which will be animated in a circle.
+    map.addSource('point', {
+        "type": "geojson",
+        "data": {
+            "type": "Point",
+            "coordinates": [
+                0, 0
+            ]
+        }
+    });
+
+    map.addLayer({
+        "id": "point",
+        "source": "point",
+        "type": "circle",
+        "paint": {
+            "circle-radius": initialRadius,
+            "circle-radius-transition": {duration: 0},
+            "circle-opacity-transition": {duration: 0},
+            "circle-color": "#007cbf"
+        }
+    });
+
+    map.addLayer({
+        "id": "point1",
+        "source": "point",
+        "type": "circle",
+        "paint": {
+            "circle-radius": initialRadius,
+            "circle-color": "#007cbf"
+        }
+    });
+
+
+    function animateMarker(timestamp) {
+        setTimeout(function(){
+            requestAnimationFrame(animateMarker);
+
+            radius += (maxRadius - radius) / framesPerSecond;
+            opacity -= ( .9 / framesPerSecond );
+
+            map.setPaintProperty('point', 'circle-radius', radius);
+            map.setPaintProperty('point', 'circle-opacity', opacity);
+
+            if (opacity <= 0) {
+                radius = initialRadius;
+                opacity = initialOpacity;
+            }
+
+        }, 1000 / framesPerSecond);
+
+    }
+
+    // Start the animation.
+    animateMarker(0);
+});
+
+*/
