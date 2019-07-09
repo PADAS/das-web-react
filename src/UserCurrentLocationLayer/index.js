@@ -5,6 +5,7 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
 
 import { setCurrentUserLocation } from '../ducks/location';
+import { userLocationCanBeShown } from '../selectors/index';
 
 import { imgElFromSrc } from '../utils/img';
 import { GEOLOCATOR_OPTIONS } from '../constants';
@@ -18,7 +19,7 @@ const initialStrokeWidth = 2;
 const maxRadius = 18;
 
 const UserCurrentLocationLayer = (props) => {
-  const { map, onIconClick, setCurrentUserLocation, userLocation } = props;
+  const { map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
   const [initialized, setInitState] = useState(false);
   const animationFrameID = useRef(null);
@@ -88,7 +89,7 @@ const UserCurrentLocationLayer = (props) => {
     animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
   }, [animationState]);
 
-  return userLocation && <GeoJSONLayer
+  return userLocationCanBeShown && <GeoJSONLayer
     data={point([
       userLocation.coords.longitude,
       userLocation.coords.latitude,
@@ -112,7 +113,10 @@ const UserCurrentLocationLayer = (props) => {
   />;
 };
 
-const mapStateToProps = ({ view: { userLocation } }) => ({ userLocation });
+const mapStateToProps = (state) => ({
+  userLocation: state.view.userLocation,
+  userLocationCanBeShown: userLocationCanBeShown(state),
+});
 export default connect(mapStateToProps, { setCurrentUserLocation })(withMap(UserCurrentLocationLayer));
 
 UserCurrentLocationLayer.defaultProps = {

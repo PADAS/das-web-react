@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { toggleMapLockState } from '../ducks/map-ui';
+
+import { withMap } from '../EarthRangerMap';
+
 import styles from './styles.module.scss';
 import { lockMap } from '../utils/map';
 
@@ -24,4 +27,4 @@ const mapStateToProps = ( {view:{mapIsLocked}} ) => {
   return {mapIsLocked};
 };
 
-export default connect(mapStateToProps, {toggleMapLockState})(MapLockControl);
+export default connect(mapStateToProps, {toggleMapLockState})(withMap(MapLockControl));

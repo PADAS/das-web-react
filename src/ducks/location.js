@@ -1,5 +1,5 @@
 /* ACTIONS */
-const USER_LOCATION_RETRIEVED = 'USER_LOCATION_RETRIEVED';
+export const USER_LOCATION_RETRIEVED = 'USER_LOCATION_RETRIEVED';
 
 
 export const setCurrentUserLocation = location => dispatch => dispatch({
