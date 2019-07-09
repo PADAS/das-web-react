@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import TimeAgo from 'react-timeago';
 import Popover from 'react-bootstrap/Popover';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -32,6 +33,8 @@ const ReportFormHeader = (props) => {
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
 
+  const updateTime = report.updated_at || report.created_at;
+
   const onStartAddToIncident = () => {
     setHeaderPopoverState(false);
     addModal({
@@ -56,9 +59,14 @@ const ReportFormHeader = (props) => {
       <EventIcon className={styles.icon} iconId={report.icon_id.replace('.svg', '')} />
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
-      <OverlayTrigger shouldUpdatePosition={true} onExiting={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click' overlay={ReportHeaderPopover}>
-        <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
-      </OverlayTrigger>
+      <div className={styles.headerDetails}>
+        <OverlayTrigger shouldUpdatePosition={true} onExiting={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click' overlay={ReportHeaderPopover}>
+          <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
+        </OverlayTrigger>
+        {updateTime && <small>
+          Updated <TimeAgo date={updateTime} />
+        </small>}
+      </div>
     </h4>
   </div>;
 };
