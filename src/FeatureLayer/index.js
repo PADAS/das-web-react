@@ -1,6 +1,7 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
+import withMapNames from '../WithMapNames';
 
 import { GENERATED_LAYER_IDS, LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -63,8 +64,14 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons }) => {
+const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout }) => {
   console.log('re rendering the feature layer', symbols, lines, polygons);
+
+  const layout = {
+    ...symbolLayout,
+    ...mapNameLayout,
+  }
+
   return <Fragment>
     <GeoJSONLayer id={FEATURE_FILLS} before={SUBJECT_SYMBOLS} data={polygons}
       fillPaint={fillPaint}
@@ -75,7 +82,7 @@ const FeatureLayer = ({ symbols, lines, polygons }) => {
       linePaint={linePaint}
     />
     <GeoJSONLayer id={FEATURE_SYMBOLS} before={SUBJECT_SYMBOLS} data={symbols}
-      symbolLayout={symbolLayout} symbolPaint={symbolPaint}
+      symbolLayout={layout} symbolPaint={symbolPaint}
     />
   </Fragment>;
 };
@@ -86,4 +93,4 @@ FeatureLayer.propTypes = {
   polygons: PropTypes.object.isRequired,
 };
 
-export default memo(FeatureLayer);
+export default memo(withMapNames(FeatureLayer));

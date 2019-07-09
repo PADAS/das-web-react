@@ -4,6 +4,8 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 
 import WithMapNames from '../WithMapNames';
 import { withMap } from '../EarthRangerMap';
+import withMapNames from '../WithMapNames';
+
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, GENERATED_LAYER_IDS } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, EVENT_CLUSTER_COUNT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
@@ -62,7 +64,12 @@ const eventSymbolLayerPaint = {
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [GENERATED_LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, mapNameLayout, map, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
+
+  const layout = {
+    ...eventSymbolLayerLayout,
+    ...mapNameLayout,
+  };
 
   const handleEventClick = (e) => {
     e.preventDefault();
@@ -100,11 +107,11 @@ const EventsLayer = (props) => {
       sourceOptions={MAP_EVENT_CLUSTER_SOURCE_OPTIONS}
       layerOptions={eventSymbolLayerOptions}
       symbolPaint={eventSymbolLayerPaint}
-      symbolLayout={eventSymbolLayerLayout} />
+      symbolLayout={layout} />
   </Fragment>;
 };
 
-export default memo(WithMapNames(withMap(EventsLayer)));
+export default memo(withMapNames(withMap(EventsLayer)));
 
 EventsLayer.defaultProps = {
   onClusterClick() {

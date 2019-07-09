@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-const WithMapNames = Component => connect(mapStatetoProps, null)(({ showMapNames, ...rest }) => {
+const withMapNames = Component => connect(mapStatetoProps, null)(({ showMapNames, ...rest }) => {
   const mapNameLayout = showMapNames ? {} : {
     'text-size': 0
   };
@@ -10,4 +10,4 @@ const WithMapNames = Component => connect(mapStatetoProps, null)(({ showMapNames
 
 const mapStatetoProps = ({ view: { showMapNames } }) => ({ showMapNames });
 
-export default WithMapNames;
+export default withMapNames;

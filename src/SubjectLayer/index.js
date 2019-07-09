@@ -4,7 +4,7 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
 import { withMap } from '../EarthRangerMap';
-import WithMapNames from '../WithMapNames';
+import withMapNames from '../WithMapNames';
 
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -50,4 +50,8 @@ SubjectsLayer.propTypes = {
   onSubjectIconClick: PropTypes.func,
 };
 
+<<<<<<< HEAD
 export default WithMapNames(withMap(SubjectsLayer));
+=======
+export default withMapNames(withMap(SubjectsLayer));
+>>>>>>> c119f057210ebaf7742a4c4d3fe29318bd33cedb
