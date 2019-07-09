@@ -235,7 +235,9 @@ class Map extends Component {
   }
 
   render() {
-    const { children, maps, map, popup, mapSubjectFeatureCollection, mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, trackCollection, heatmapTracks, mapIsLocked } = this.props;
+    const { children, maps, map, popup, mapSubjectFeatureCollection,
+      mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
+      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
@@ -267,7 +269,7 @@ class Map extends Component {
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
-            {tracksAvailable && <TrackLayers onPointClick={this.onTimepointClick} trackCollection={trackCollection} />}
+            {tracksAvailable && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackCollection={trackCollection} />}
 
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
@@ -292,7 +294,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints } = view;
 
   return ({
     maps,
@@ -303,6 +305,7 @@ const mapStatetoProps = (state, props) => {
     popup,
     eventFilter,
     subjectTrackState,
+    showTrackTimepoints,
     trackCollection: getArrayOfVisibleTracks(state, props),
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(state),

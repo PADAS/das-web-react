@@ -47,7 +47,7 @@ const timepointLayerLayout = {
 
 
 const TracksLayer = memo(function TracksLayer(props) {
-  const { map, onPointClick, trackCollection, ...rest } = props;
+  const { map, onPointClick, trackCollection, showTimepoints, ...rest } = props;
   const tracksAsPoints = convertArrayOfTracksToPointFeatureCollection(trackCollection);
   const tracksAsFeatureCollection = convertArrayOfTracksIntoFeatureCollection(trackCollection);
   const onSymbolClick = e => onPointClick(getPointLayer(e, map));
@@ -71,15 +71,15 @@ const TracksLayer = memo(function TracksLayer(props) {
         linePaint={trackLayerLinePaint}
         lineLayout={trackLayerLineLayout}
       />
-      <GeoJSONLayer before={SUBJECT_SYMBOLS} id={TRACK_TIMEPOINTS_SYMBOLS} data={tracksAsPoints} {...rest}
+      {showTimepoints && <GeoJSONLayer before={SUBJECT_SYMBOLS} id={TRACK_TIMEPOINTS_SYMBOLS} data={tracksAsPoints} {...rest}
         symbolOnMouseEnter={onSymbolMouseEnter}
         symbolOnClick={onSymbolClick}
         symbolOnMouseLeave={onSymbolMouseLeave}
         symbolLayout={timepointLayerLayout}
-      />
+      />}
     </Fragment>
   );
-}, (prev, current) => isEqual(prev.trackCollection, current.trackCollection));
+}, (prev, current) => isEqual(prev.trackCollection, current.trackCollection) && isEqual(prev.showTimepoints && current.showTimepoints));
 
 export default withMap(TracksLayer);
 
@@ -87,10 +87,12 @@ TracksLayer.defaultProps = {
   onPointClick(layer) {
     console.log('clicked timepoint', layer);
   },
+  showTimepoints: true,
 };
 
 TracksLayer.propTypes = {
   map: PropTypes.object.isRequired,
   onPointClick: PropTypes.func,
+  showTimepoints: PropTypes.bool,
   trackCollection: PropTypes.array.isRequired,
 };

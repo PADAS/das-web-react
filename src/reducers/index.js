@@ -8,7 +8,9 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
-import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer, hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer, pickingLocationOnMapReducer, displayUserLocationReducer } from '../ducks/map-ui';
+import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
+  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
+  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -74,6 +76,7 @@ const rootReducer = combineReducers({
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
     showUserLocation: displayUserLocationReducer,
+    showTrackTimepoints: displayTrackTimepointsReducer,
     modals: modalsReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,

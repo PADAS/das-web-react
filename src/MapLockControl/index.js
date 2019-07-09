@@ -19,7 +19,7 @@ const MapLockControl = (props) => {
 
   return <label>
     <input type='checkbox' name='maplock' checked={mapIsLocked} onChange={handleChange}/>
-    <span className={styles.cbxlabel}>Lock Movement</span>
+    <span className={styles.cbxlabel}>Lock Map</span>
   </label>;
 };
 

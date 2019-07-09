@@ -5,6 +5,7 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
+import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import styles from './styles.module.scss';
 
@@ -18,6 +19,7 @@ const MapSettingsControl = (props) => {
       <ul>
         <li><MapLockControl /></li>
         <li><MapNamesControl /></li>
+        <li><MapTrackTimepointsControl /></li>
         {hasUserLocation && <li><UserLocationMapControl /></li>}
       </ul>
     </Popover>

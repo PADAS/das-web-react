@@ -12,6 +12,7 @@ const SHOW_FEATURES = 'SHOW_FEATURES';
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
+const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
 
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 
@@ -70,8 +71,12 @@ export const toggleMapNameState = (enabled) => ({
   payload: enabled,
 });
 
-export const toggleDisplayUserLocation = enabled => ({
+export const toggleDisplayUserLocation = () => ({
   type: TOGGLE_DISPLAY_USER_LOCATION,
+});
+
+export const toggleTrackTimepointState = () => ({
+  type: TOGGLE_TRACK_TIMEPOINTS,
 });
 
 export const toggleTrackState = (id) => (dispatch, getState) => {
@@ -169,6 +174,14 @@ export const pickingLocationOnMapReducer = (state = false, action) => {
 export const displayUserLocationReducer = (state = true, action) => {
   const { type } = action;
   if (type === TOGGLE_DISPLAY_USER_LOCATION) {
+    return !state;
+  }
+  return state;
+};
+
+export const displayTrackTimepointsReducer = (state = true, action) => {
+  const { type } = action;
+  if (type === TOGGLE_TRACK_TIMEPOINTS) {
     return !state;
   }
   return state;
