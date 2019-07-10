@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { CancelToken } from 'axios';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
@@ -16,7 +15,7 @@ import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayO
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
-import withSocketConnection from '../RealtimeClient';
+import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
@@ -49,8 +48,6 @@ class Map extends Component {
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
   }
 
-  cancelToken = CancelToken.source();
-
   shouldComponentUpdate(nextProps) {
     return !isEqual(this.props, nextProps);
   }
@@ -60,7 +57,7 @@ class Map extends Component {
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.props.socket.emit('event_filter', this.props.eventFilter);
-      this.onMapMoveEnd();
+      this.fetchMapData();
     }
 
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
@@ -88,10 +85,8 @@ class Map extends Component {
   }
 
   onMapMoveEnd = debounce((e) => {
-    this.cancelToken.cancel();
-    this.cancelToken = CancelToken.source();
     this.fetchMapData();
-  }, 500)
+  }, 400);
 
   toggleMapLockState(e) {
     console.log('Map.toggleLockState');
@@ -103,10 +98,10 @@ class Map extends Component {
     this.fetchMapEvents();
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map, this.cancelToken);
+    this.props.fetchMapSubjects(this.props.map);
   }
   fetchMapEvents() {
-    this.props.fetchMapEvents(this.props.map, this.cancelToken);
+    this.props.fetchMapEvents(this.props.map);
   }
   onMapClick(map, event) {
     if (this.props.popup) {

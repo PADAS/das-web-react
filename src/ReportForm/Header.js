@@ -66,6 +66,7 @@ const ReportFormHeader = (props) => {
         {updateTime && <small>
           Updated <TimeAgo date={updateTime} />
         </small>}
+        {report.state === 'resolved' && <small>resolved</small>}
       </div>
     </h4>
   </div>;

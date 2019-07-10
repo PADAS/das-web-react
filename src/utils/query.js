@@ -22,4 +22,4 @@ export const recursivePaginatedQuery = (initialQuery, cancelToken = null, onEach
       reject(e);
     }
   });
-}
+};

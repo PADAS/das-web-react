@@ -1,15 +1,17 @@
 const SOCKET_ACTIVITY_RECEIVED = 'SOCKET_ACTIVITY_RECEIVED';
-const SOCKET_PING_TIMEOUT = 'SOCKET_PING_TIMEOUT';
+const RESET_SOCKET_ACTIVITY_STATE = 'RESET_SOCKET_ACTIVITY_STATE' ;
 
-export const socketPingTimeout = () => ({
-  type: SOCKET_PING_TIMEOUT,
-});
+export const newSocketActivity = ({ type, mid = 0, timestamp = new Date().toISOString() }) => (dispatch) => {
+  dispatch({
+    type: SOCKET_ACTIVITY_RECEIVED,
+    payload: {
+      type, mid, timestamp,
+    },
+  });
+};
 
-export const newSocketActivity = ({ type, mid = 0, timestamp = new Date().toISOString() }) => ({
-  type: SOCKET_ACTIVITY_RECEIVED,
-  payload: {
-    type, mid, timestamp,
-  },
+export const resetSocketActivityState = () => ({
+  type: RESET_SOCKET_ACTIVITY_STATE,
 });
 
 const INITIAL_ACTIVITY_STATE = {
@@ -25,7 +27,7 @@ const socketActivityReducer = (state = INITIAL_ACTIVITY_STATE, action) => {
       [type]: { mid, timestamp },
     };
   }
-  if (type === SOCKET_PING_TIMEOUT) {
+  if (type === RESET_SOCKET_ACTIVITY_STATE) {
     return INITIAL_ACTIVITY_STATE;
   }
   return state;

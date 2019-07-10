@@ -18,8 +18,6 @@ const SOCKET_DISPATCHES = {
   update_event: [SOCKET_UPDATE_EVENT, SOCKET_HEALTHY_STATUS],
 };
 
-const SOCKET_INVALIDATION_DISPATCHES = {
-  subject_status: [''],
-};
+export const SOCKET_INVALIDATION_DISPATCHES = [];
 
 export { SOCKET_DISPATCHES as events };

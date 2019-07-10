@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import createSocket, { unbindSocketEvents } from '../socket';
 
 const withSocketConnection = (Component) => (props) => { // eslint-disable-line react/display-name

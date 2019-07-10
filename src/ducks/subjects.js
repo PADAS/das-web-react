@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import unionBy from 'lodash/unionBy';
 
 import { API_URL } from '../constants';
@@ -20,22 +20,29 @@ export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
 
 // action creators
 
-export const fetchMapSubjects = (map, { token }) => {
-  return function (dispatch) {
+const cancelableMapSubjectsFetch = () => {
+  let cancelToken = CancelToken.source();
+  const fetchFn = map => (dispatch) => {
     if (!map) return;
-
+  
     const bbox = getBboxParamsFromMap(map);
 
+    cancelToken.cancel();
+    cancelToken = CancelToken.source();
+  
     return axios.get(SUBJECTS_API_URL, {
-      cancelToken: token,
+      cancelToken: cancelToken.token,
       params: {
         bbox,
       }
     })
-      .then(response => dispatch(fetchMapSubjectsSuccess(response)))
-      .catch(error => dispatch(fetchMapSubjectsError(error)));
+      .then(response => dispatch(fetchMapSubjectsSuccess(response)));
+    // .catch(error => dispatch(fetchMapSubjectsError(error)));
   };
+  return [fetchFn, cancelToken];
 };
+
+export const [fetchMapSubjects] = cancelableMapSubjectsFetch();
 
 export const fetchSubjectGroups = () => (dispatch) =>
   axios.get(SUBJECT_GROUPS_API_URL)
@@ -60,28 +67,28 @@ const INITIAL_MAP_SUBJECT_STATE = [];
 
 export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, action = {}) {
   switch (action.type) {
-    case FETCH_MAP_SUBJECTS_SUCCESS: {
-      const { payload: { data: subjects } } = action;
-      const newSubjects = subjects.map((subject) => {
-        subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
-        return subject;
-      });
-      return unionBy(newSubjects, state, 'id');
-    }
-    case SOCKET_SUBJECT_STATUS: {
-      const { payload } = action;
-      console.log('realtime: subject update', payload);
-      payload.properties.image = calcUrlForImage(payload.properties.image);
-      return state.map((subject) => {
-        if (subject.id === payload.properties.id) {
-          return updateSubjectLastPositionFromSocketStatusUpdate(subject, payload);
-        }
-        return subject;
-      });
-    }
-    default: {
-      return state;
-    }
+  case FETCH_MAP_SUBJECTS_SUCCESS: {
+    const { payload: { data: subjects } } = action;
+    const newSubjects = subjects.map((subject) => {
+      subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
+      return subject;
+    });
+    return unionBy(newSubjects, state, 'id');
+  }
+  case SOCKET_SUBJECT_STATUS: {
+    const { payload } = action;
+    console.log('realtime: subject update', payload);
+    payload.properties.image = calcUrlForImage(payload.properties.image);
+    return state.map((subject) => {
+      if (subject.id === payload.properties.id) {
+        return updateSubjectLastPositionFromSocketStatusUpdate(subject, payload);
+      }
+      return subject;
+    });
+  }
+  default: {
+    return state;
+  }
   }
 };
 

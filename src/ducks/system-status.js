@@ -54,7 +54,7 @@ const setZendeskConfigStatus = response => (dispatch) => {
     type: SET_ZENDESK_CONFIG,
     payload: enabled,
   });
-} 
+}; 
 
 export const updateNetworkStatus = (status) => ({
   type: NETWORK_STATUS_CHANGE,
@@ -100,35 +100,35 @@ const genericStatusModel = (config = {}) => ({
 const genericStatusReducer = (reducer, onApiResponse = (update, state) => state) => (state, action) => {
   const { payload, type } = action;
   switch (type) {
-    case FETCH_SYSTEM_STATUS_SUCCESS: {
-      return onApiResponse(payload, state);
-    }
-    case FETCH_SYSTEM_STATUS_ERROR: {
+  case FETCH_SYSTEM_STATUS_SUCCESS: {
+    return onApiResponse(payload, state);
+  }
+  case FETCH_SYSTEM_STATUS_ERROR: {
+    return {
+      ...state,
+      ...genericStatusModel({
+        status: UNHEALTHY_STATUS,
+      }),
+    };
+  }
+  case NETWORK_STATUS_CHANGE: {
+    if (payload === UNHEALTHY_STATUS) {
+      if (Array.isArray(state)) {
+        return state.map(item => ({ ...item, status: UNKNOWN_STATUS }));
+      }
       return {
         ...state,
-        ...genericStatusModel({
-          status: UNHEALTHY_STATUS,
-        }),
+        status: UNKNOWN_STATUS,
       };
-    }
-    case NETWORK_STATUS_CHANGE: {
-      if (payload === UNHEALTHY_STATUS) {
-        if (Array.isArray(state)) {
-          return state.map(item => ({ ...item, status: UNKNOWN_STATUS }))
-        }
-        return {
-          ...state,
-          status: UNKNOWN_STATUS,
-        }
-      } else {
-        return reducer(state, action);
-      }
-    }
-    default: {
+    } else {
       return reducer(state, action);
     }
   }
-}
+  default: {
+    return reducer(state, action);
+  }
+  }
+};
 
 const INITIAL_NETWORK_STATUS_STATE = genericStatusModel({
   title: 'Network',
@@ -137,16 +137,16 @@ const INITIAL_NETWORK_STATUS_STATE = genericStatusModel({
 });
 const networkStatusReducer = function (state = INITIAL_NETWORK_STATUS_STATE, { payload, type }) {
   switch (type) {
-    case (NETWORK_STATUS_CHANGE): {
-      return {
-        ...state,
-        details: payload === HEALTHY_STATUS ? 'online' : 'offline',
-        status: payload,
-      };
-    }
-    default: {
-      return state;
-    }
+  case (NETWORK_STATUS_CHANGE): {
+    return {
+      ...state,
+      details: payload === HEALTHY_STATUS ? 'online' : 'offline',
+      status: payload,
+    };
+  }
+  default: {
+    return state;
+  }
   }
 };
 
@@ -157,34 +157,34 @@ const INITIAL_SERVER_STATUS_STATE = genericStatusModel({
 
 const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_STATE, { type, payload }) => {
   switch (type) {
-    case (SERVER_VERSION_CHANGE): {
-      const { version } = payload;
+  case (SERVER_VERSION_CHANGE): {
+    const { version } = payload;
+    return {
+      ...state,
+      version,
+      title: `EarthRanger Server ${version}`,
+    };
+  }
+  case (NETWORK_STATUS_CHANGE): {
+    if (payload === HEALTHY_STATUS) {
       return {
         ...state,
-        version,
-        title: `EarthRanger Server ${version}`,
-      }
-    }
-    case (NETWORK_STATUS_CHANGE): {
-      if (payload === HEALTHY_STATUS) {
-        return {
-          ...state,
-          status: HEALTHY_STATUS,
-        };
-      }
-      return state;
-    }
-    case (SERVER_STATUS_CHANGE): {
-      const { status } = payload;
-      return {
-        ...state,
-        details: status === HEALTHY_STATUS ? 'online' : 'offline',
-        status,
+        status: HEALTHY_STATUS,
       };
     }
-    default: {
-      return state;
-    }
+    return state;
+  }
+  case (SERVER_STATUS_CHANGE): {
+    const { status } = payload;
+    return {
+      ...state,
+      details: status === HEALTHY_STATUS ? 'online' : 'offline',
+      status,
+    };
+  }
+  default: {
+    return state;
+  }
   }
 }, ({ version }) => {
   return {
@@ -202,58 +202,58 @@ const INITIAL_REALTIME_STATUS_STATE = genericStatusModel({
 });
 const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STATUS_STATE, { type, payload }) => {
   switch (type) {
-    case (SOCKET_HEALTHY_STATUS): {
-      const timestamp = new Date();
+  case (SOCKET_HEALTHY_STATUS): {
+    const timestamp = new Date();
 
+    return {
+      ...state,
+      status: HEALTHY_STATUS,
+      timestamp,
+    };
+  }
+  case(SERVER_STATUS_CHANGE): {
+    if (payload === UNKNOWN_STATUS) {
       return {
         ...state,
-        status: HEALTHY_STATUS,
-        timestamp,
+        status: UNKNOWN_STATUS,
       };
     }
-    case(SERVER_STATUS_CHANGE): {
-      if (payload === UNKNOWN_STATUS) {
-        return {
-          ...state,
-          status: UNKNOWN_STATUS,
-        }
-      }
-      return state;
-    }
-    case (SOCKET_UNHEALTHY_STATUS): {
-      return {
-        ...state,
-        status: UNHEALTHY_STATUS,
-      };
-    }
-    case (SOCKET_WARNING_STATUS): {
-      return {
-        ...state,
-        status: WARNING_STATUS,
-      };
-    }
-    default: {
-      return state;
-    }
+    return state;
+  }
+  case (SOCKET_UNHEALTHY_STATUS): {
+    return {
+      ...state,
+      status: UNHEALTHY_STATUS,
+    };
+  }
+  case (SOCKET_WARNING_STATUS): {
+    return {
+      ...state,
+      status: WARNING_STATUS,
+    };
+  }
+  default: {
+    return state;
+  }
   }
 });
 
 const INITIAL_SERVICES_STATUS_STATE = [];
 const serviceStatusReducer = genericStatusReducer((state = INITIAL_SERVICES_STATUS_STATE, { type, payload }) => {
   switch (type) {
-    case (SOCKET_SERVICE_STATUS): {
-      const { services } = payload;
-      return createServiceModelsFromApiResponse(services);
+  case (SOCKET_SERVICE_STATUS): {
+    const { services } = payload;
+    return createServiceModelsFromApiResponse(services);
+  }
+  case(SERVER_STATUS_CHANGE): {
+    if (payload === UNKNOWN_STATUS) {
+      return state.map(service => ({ ...service, status: UNKNOWN_STATUS }));
     }
-    case(SERVER_STATUS_CHANGE): {
-      if (payload === UNKNOWN_STATUS) {
-        return state.map(service => ({ ...service, status: UNKNOWN_STATUS }));
-      }
-      return state;
-    }
-    default: {
-      return state;
-    }
+    return state;
+  }
+  default: {
+    return state;
+  }
   }
 }, ({ services }) => createServiceModelsFromApiResponse(services));
 
