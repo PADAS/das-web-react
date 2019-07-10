@@ -223,7 +223,7 @@ const EventFilter = memo((props) => {
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
       <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
         <FilterIcon />
-        <span>Filters</span>
+        <span>Report Filters</span>
       </span>
     </OverlayTrigger>
     <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} onChange={onSearchChange} />
