@@ -190,7 +190,7 @@ class Map extends Component {
         this.props.map.flyTo({
           center: this.props.map.getCenter(),
         });
-      }, 200);
+      }, 1000);
     }
   }
   async onMapSubjectClick(layer) {

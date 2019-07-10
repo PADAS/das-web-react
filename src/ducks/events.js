@@ -261,17 +261,22 @@ export { fetchEventFeed, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextInc
 
 const cancelableMapEventsFetch = () => {
   let cancelToken = CancelToken.source();
-  const fetchFn = (map) => async (dispatch) => {
-    if (!map) return;
+  const fetchFn = (map) => async (dispatch, getState) => {
+    let lastKnownBbox;
+    if (!map) {
+      lastKnownBbox = getState().data.mapEvents.bbox;
+    }
+
+    if (!map && !lastKnownBbox) return;
+    
+    const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
+    const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false });
     
     dispatch({
       type: FETCH_MAP_EVENTS_START,
+      payload: { bbox },
     });
-    
-    const bbox = getBboxParamsFromMap(map);
-    
-    const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false });
-    
+
     const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
     
     cancelToken.cancel();
@@ -431,21 +436,43 @@ export const incidentFeedReducer = namedFeedReducer('INCIDENT_FEED', (state, { t
 });
 
 
-const INITIAL_MAP_EVENTS_STATE = [];
+// const INITIAL_MAP_EVENTS_STATE = [];
+
+const INITIAL_MAP_EVENTS_STATE = {
+  bbox: null,
+  events: [],
+};
+
 export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, { type, payload }) {
   const extractEventIDs = events => events.map(e => e.id);
 
+  if (type === FETCH_MAP_EVENTS_START) {
+    const { bbox } = payload;
+    return {
+      ...state,
+      bbox,
+    };
+  }
   if (type === FETCH_MAP_EVENTS_PAGE_SUCCESS) {
-    return union(extractEventIDs(payload), state);
+    return {
+      ...state,
+      events: union(extractEventIDs(payload), state.events),
+    };
   }
   if (type === FETCH_MAP_EVENTS_SUCCESS) {
-    return extractEventIDs(payload);
+    return {
+      ...state,
+      events: extractEventIDs(payload)
+    };
   }
   if (SOCKET_EVENTS.includes(type)) {
     const { event_data, event_id } = payload;
     if (!event_data.geojson) return state;
 
-    return union([event_id], state);
+    return {
+      ...state,
+      events: union([event_id], state.events),
+    };
   }
   return state;
 };

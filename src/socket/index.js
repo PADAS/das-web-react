@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 import { store } from '../index';
 import { REACT_APP_DAS_HOST } from '../constants';
-import { events, recoveryDi } from './config';
+import { events, SOCKET_RECOVERY_DISPATCHES } from './config';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
 
@@ -83,6 +83,7 @@ const resetSocket = (socket) => {
   unbindSocketEvents(socket);
   store.dispatch(resetSocketActivityState());
   bindSocketEvents(socket, store);
+  SOCKET_RECOVERY_DISPATCHES.forEach(actionCreator => store.dispatch(actionCreator()));
   return socket;
 };
 
