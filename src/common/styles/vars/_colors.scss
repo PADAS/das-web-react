@@ -14,6 +14,7 @@ $bright-red: #D0031B;
 $green: #4F8317;
 $mustard-yellow: #d1c22e;
 
+
 $off-black: #333333;
 $dark-gray: darken($secondary-medium-gray, 20%);
 $medium-light-gray: $secondary-medium-light-gray;
@@ -46,6 +47,8 @@ $primary-button-color: $bright-blue;
 $filter-popover-header-color: $bright-blue;
 
 $light-gray-background: darken($light-gray, 3%);
+
+$link-color: darken(#428bca, 6.5%);
 
 $alert-text: $bright-red;
 

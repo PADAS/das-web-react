@@ -1,20 +1,21 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';
 import Popover from 'react-bootstrap/Popover';
 import Button from 'react-bootstrap/Button';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Overlay from 'react-bootstrap/Overlay';
 
 import { addModal } from '../ducks/modals';
 
+import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-to-incident.svg';
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import AddToIncidentModal from './AddToIncidentModal';
 
-import { displayTitleForEventByEventType } from '../utils/events';
+import { displayTitleForEventByEventType } from '../utils/events'; 
 
 import styles from './styles.module.scss';
 
@@ -29,6 +30,7 @@ const calcClassNameForPriority = (priority) => {
 const ReportFormHeader = (props) => {
   const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const reportTitle = displayTitleForEventByEventType(report);
+  const menuRef = useRef(null);
 
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
@@ -50,7 +52,13 @@ const ReportFormHeader = (props) => {
     <h6>Priority:</h6>
     <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
     <br />
-    {canAddToIncident && <Button variant='secondary' onClick={onStartAddToIncident}>Add to incident</Button>}
+    {canAddToIncident && <Fragment>
+      <hr />
+      <Button className={styles.addToIncidentBtn} variant='secondary' onClick={onStartAddToIncident}>
+        <AddToIncidentIcon style={{height: '3rem', width: '3rem'}} /> Add to incident
+      </Button>
+    </Fragment>
+    }
   </Popover>;
 
 
@@ -60,9 +68,10 @@ const ReportFormHeader = (props) => {
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
-        <OverlayTrigger shouldUpdatePosition={true} onExiting={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click' overlay={ReportHeaderPopover}>
-          <HamburgerMenuIcon isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
-        </OverlayTrigger>
+        <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
+        <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} onHide={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click'>
+          {ReportHeaderPopover}
+        </Overlay>
         {updateTime && <small>
           Updated <TimeAgo date={updateTime} />
         </small>}
