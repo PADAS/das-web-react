@@ -15,7 +15,7 @@ export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => ne
   img.onload = () => {
     context.drawImage(img, 0, 0);
     const pngImg = new Image();
-    const imgSrc = canvas.toDataURL("image/png");
+    const imgSrc = canvas.toDataURL('image/png');
     pngImg.src = imgSrc;
     pngImg.onload = () => {
       resolve(pngImg);
@@ -53,4 +53,9 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
   };
 });
 
-export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`.replace('http:', '/').replace('https:', '/').replace('.org//', '.org/');
+export const calcUrlForImage = imagePath => {
+  const path = urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`
+    .replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+  console.log('path', path);
+  return path;
+};
