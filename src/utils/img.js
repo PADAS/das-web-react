@@ -4,7 +4,7 @@ const urlContainsOwnHost = url => url.includes('http');
 
 export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => new Promise((resolve, reject) => {
   const { width, height } = config;
-  
+
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
   const canvas = document.createElement('canvas');
@@ -25,7 +25,7 @@ export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => ne
     };
   };
   img.src = svgSrc;
- 
+
 });
 
 export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) => {
@@ -53,9 +53,5 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
   };
 });
 
-export const calcUrlForImage = imagePath => {
-  const path = urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`
-    .replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
-  console.log('path', path);
-  return path;
-};
+export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`
+  .replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
