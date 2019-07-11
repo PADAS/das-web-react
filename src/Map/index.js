@@ -215,6 +215,7 @@ class Map extends Component {
 
   }
   setMap(map) {
+    window.map = map;
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }

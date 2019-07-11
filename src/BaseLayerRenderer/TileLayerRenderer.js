@@ -12,14 +12,17 @@ const RASTER_SOURCE_OPTIONS = {
 
 const TileLayerRenderer = (props) => {
   const { layers, currentBaseLayer } = props;
+  const currentTileLayer = layers.find(l => l.id === currentBaseLayer.id);
 
-  const layerToRender = layers.find(l => l.id === currentBaseLayer.id);
-
-  const renderLayer = () => <Layer sourceId={layerToRender.id} type="raster" id={uuid()} />;
+  const paint = {
+    transition: {
+      duration: 0,
+    },
+  };
 
   const tileSources = layers
     .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
-    .map(layer => <Source key={layer.id} id={layer.id} tileJsonSource={{
+    .map(layer => <Source key={layer.id} id={`layer-source-${layer.id}`} tileJsonSource={{
       ...RASTER_SOURCE_OPTIONS,
       tiles: [
         layer.attributes.url,
@@ -27,9 +30,18 @@ const TileLayerRenderer = (props) => {
     }} >
     </Source>);
 
+  const tileLayers = layers
+    .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
+    .map(layer => {
+      const layout = {
+        'visibility': layer.id === currentBaseLayer.id ? 'visible' : 'none',
+      };
+      return <Layer key={layer.id} layout={layout} sourceId={`layer-source-${layer.id}`} type="raster" />;
+    });
+
   return <Fragment>
     {tileSources}
-    {layerToRender && renderLayer()}
+    {tileLayers}
   </Fragment>;
 
 };
