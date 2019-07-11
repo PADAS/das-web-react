@@ -5,7 +5,7 @@ import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
-import { convertTrackLineStringToPoints, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
+import { convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
 import { mapReportTypesToCategories } from '../utils/event-types';
@@ -15,11 +15,11 @@ export const createSelector = createSelectorCreator(
   isEqual,
 );
 
-const mapEvents = ({ data: { mapEvents } }) => mapEvents;
+const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
-const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
+const mapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;

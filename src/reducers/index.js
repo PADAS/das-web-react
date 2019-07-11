@@ -19,6 +19,7 @@ import modalsReducer from '../ducks/modals';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 import userLocationReducer from '../ducks/location';
+import socketActivityReducer from '../ducks/realtime';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -65,6 +66,7 @@ const rootReducer = combineReducers({
     user: userReducer,
     userProfiles: userProfilesReducer,
     selectedUserProfile: persistReducer(userProfilePersistanceConfig, selectedUserProfileReducer),
+    socketUpdates: socketActivityReducer,
   }),
   view: combineReducers({
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),

@@ -7,7 +7,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { downloadFileFromUrl } from '../utils/file';
+import { downloadFileFromUrl, fetchImageAsBase64FromUrl } from '../utils/file';
 import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
@@ -15,7 +15,6 @@ import { extractObjectDifference } from '../utils/objects';
 import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
 import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
-import { calcUrlForImage } from '../utils/img';
 
 import StateButton from './StateButton';
 import IncidentReportsList from './IncidentReportsList';
@@ -258,15 +257,17 @@ const ReportForm = (props) => {
     setTimeout(clearErrors, 7000);
   };
 
-  const onClickFile = (file) => {
+  const onClickFile = async (file) => {
     if (file.file_type === 'image') {
+      const fileData = await fetchImageAsBase64FromUrl(file.images.original);
+        
       addModal({
         content: ImageModal,
-        src: calcUrlForImage(file.images.original),
+        src: fileData,
         title: file.filename,
       });
     } else {
-      downloadFileFromUrl(file.url, file.filename);
+      await downloadFileFromUrl(file.url, file.filename);
     }
   };
 

@@ -43,56 +43,56 @@ const INITIAL_TRACKS_STATE = {};
 // reducers
 export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {}) {
   switch (action.type) {
-    case SOCKET_SUBJECT_STATUS: {
-      const { payload } = action;
-      const { properties: { id } } = payload;
-      const tracks = state[id];
-      if (!tracks) return state;
+  case SOCKET_SUBJECT_STATUS: {
+    const { payload } = action;
+    const { properties: { id } } = payload;
+    const tracks = state[id];
+    if (!tracks) return state;
 
-      const [trackFeature] = tracks.features;
+    const [trackFeature] = tracks.features;
 
-      if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)) {
-        return state;
-      }
-
-      if (isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
-        return state;
-      }
-      
-      return {
-        ...state,
-        [id]: {
-          ...tracks,
-          features: [
-            {
-              ...trackFeature,
-              properties: {
-                ...trackFeature.properties,
-                coordinateProperties: {
-                  ...trackFeature.coordinateProperties,
-                  times: [payload.properties.coordinateProperties.time, ...trackFeature.properties.coordinateProperties.times],
-                },
-              },
-              geometry: {
-                ...trackFeature.geometry,
-                coordinates: [
-                  payload.geometry.coordinates,
-                  ...trackFeature.geometry.coordinates,
-                ],
-              }
-            }
-          ]
-          
-        }
-      };
-
-    }
-    case FETCH_TRACKS_SUCCESS: {
-      return { ...state, ...action.payload };
-    }
-
-    default: {
+    if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)) {
       return state;
     }
+
+    if (isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
+      return state;
+    }
+      
+    return {
+      ...state,
+      [id]: {
+        ...tracks,
+        features: [
+          {
+            ...trackFeature,
+            properties: {
+              ...trackFeature.properties,
+              coordinateProperties: {
+                ...trackFeature.coordinateProperties,
+                times: [payload.properties.coordinateProperties.time, ...trackFeature.properties.coordinateProperties.times],
+              },
+            },
+            geometry: {
+              ...trackFeature.geometry,
+              coordinates: [
+                payload.geometry.coordinates,
+                ...trackFeature.geometry.coordinates,
+              ],
+            }
+          }
+        ]
+          
+      }
+    };
+
+  }
+  case FETCH_TRACKS_SUCCESS: {
+    return { ...state, ...action.payload };
+  }
+
+  default: {
+    return state;
+  }
   }
 };

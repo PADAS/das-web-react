@@ -178,7 +178,7 @@ const EventFilter = memo((props) => {
   </h5>;
 
   const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4 className={styles.popoverTitle}>
-    Filters
+    Report Filters
     <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
   </h4>}>
     <Dropdown className={styles.dropdown}>

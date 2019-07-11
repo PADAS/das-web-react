@@ -10,6 +10,7 @@ import { getFeedIncidents } from '../selectors';
 import { fetchIncidentFeed, fetchNextIncidentFeedPage } from '../ducks/events';
 import { removeModal } from '../ducks/modals';
 
+import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
 import styles from './styles.module.scss';
@@ -52,14 +53,14 @@ const AddToIncidentModal = (props) => {
     return fetchNextIncidentFeedPage(incidents.next);
   };
 
-  const hasMore = !!incidents.next;
+  const hasMore = !loaded || !!incidents.next;
 
   return <Fragment>
     <Header>
       <Title>Add to Incident</Title>
     </Header>
     <Body>
-      <h6>Add to existing incident</h6>
+      {!loaded && <LoadingOverlay />}
       <div ref={scrollRef} className={styles.incidentScrollList}>
         <InfiniteScroll
           element='ul'
@@ -77,10 +78,8 @@ const AddToIncidentModal = (props) => {
               onTitleClick={onExistingIncidentClick}
               onIconClick={onExistingIncidentClick} />
           )}
-          {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more incidents...</li>}
-          {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>
-            {loaded ? 'Loading incidents...' : 'No more incidents to display.'}
-          </li>}
+          {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
+          {!hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more incidents to display.</li>}
         </InfiniteScroll>
       </div>
       <br />

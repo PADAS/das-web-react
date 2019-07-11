@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { CancelToken } from 'axios';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
@@ -11,12 +10,12 @@ import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
-import createSocket, { unbindSocketEvents } from '../socket';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
+import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
@@ -49,22 +48,16 @@ class Map extends Component {
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
   }
 
-  cancelToken = CancelToken.source();
-
   shouldComponentUpdate(nextProps) {
     return !isEqual(this.props, nextProps);
-  }
-
-  componentDidMount() {
-    this.socket = createSocket();
   }
 
   componentDidUpdate(prev) {
     if (!this.props.map) return;
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
-      this.socket.emit('event_filter', this.props.eventFilter);
-      this.onMapMoveEnd();
+      this.props.socket.emit('event_filter', this.props.eventFilter);
+      this.fetchMapData();
     }
 
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
@@ -86,20 +79,14 @@ class Map extends Component {
   createFeatureImages() {
     this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
   }
-  componentWillUnmount() {
-    unbindSocketEvents(this.socket);
-  }
-
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
   }
 
   onMapMoveEnd = debounce((e) => {
-    this.cancelToken.cancel();
-    this.cancelToken = CancelToken.source();
     this.fetchMapData();
-  }, 500)
+  }, 400);
 
   toggleMapLockState(e) {
     console.log('Map.toggleLockState');
@@ -111,10 +98,10 @@ class Map extends Component {
     this.fetchMapEvents();
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map, this.cancelToken);
+    this.props.fetchMapSubjects(this.props.map);
   }
   fetchMapEvents() {
-    this.props.fetchMapEvents(this.props.map, this.cancelToken);
+    this.props.fetchMapEvents(this.props.map);
   }
   onMapClick(map, event) {
     if (this.props.popup) {
@@ -203,7 +190,7 @@ class Map extends Component {
         this.props.map.flyTo({
           center: this.props.map.getCenter(),
         });
-      }, 200);
+      }, 1000);
     }
   }
   async onMapSubjectClick(layer) {
@@ -327,7 +314,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(Map, 100));
+)(debounceRender(withSocketConnection(Map), 100));
 
 // Map.whyDidYouRender = true;
 
