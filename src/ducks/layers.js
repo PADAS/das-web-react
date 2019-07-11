@@ -20,7 +20,7 @@ export const fetchBaseLayers = () => async (dispatch) => {
       type: FETCH_BASE_LAYERS_SUCCESS,
       payload: results,
     });
-    console.log('layer fetch results', results);
+
   } catch (e) {
     dispatch({
       type: FETCH_BASE_LAYERS_ERROR,

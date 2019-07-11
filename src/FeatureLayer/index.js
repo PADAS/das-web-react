@@ -65,12 +65,10 @@ const symbolPaint = {
 };
 
 const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout }) => {
-  console.log('re rendering the feature layer', symbols, lines, polygons);
-
   const layout = {
     ...symbolLayout,
     ...mapNameLayout,
-  }
+  };
 
   return <Fragment>
     <GeoJSONLayer id={FEATURE_FILLS} before={SUBJECT_SYMBOLS} data={polygons}
