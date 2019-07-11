@@ -26,8 +26,7 @@ const circlePaint = {
 
 const MapRulerLayer = (props) => {
   const { pointerLocation, points } = props;
-  const pointerCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : null;
-  const showPopup = pointerLocation || points.length;
+  const showLayer = pointerLocation || points.length;
   const rulerComplete = points.length === 2;
   const popupCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[1];
 
@@ -46,8 +45,10 @@ const MapRulerLayer = (props) => {
     }
   };
 
+  if (!showLayer) return null;
+
   return <Fragment>
-    {showPopup && <Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
+    {<Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
       {points.length === 0 && <p>Click to start measurement</p>}
       {points.length >= 1 && <Fragment>
         {popupLocationAndFirstPointAreIdentical && <p>Select a second point</p>}
@@ -63,3 +64,8 @@ const MapRulerLayer = (props) => {
 };
 
 export default memo(MapRulerLayer);
+
+PropTypes.propTypes = {
+  pointerLocation: PropTypes.object,
+  points: PropTypes.array,
+};

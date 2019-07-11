@@ -6,6 +6,7 @@ import debounceRender from 'react-debounce-render';
 
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
+import { fetchBaseLayers } from '../ducks/layers';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
@@ -50,6 +51,10 @@ class Map extends Component {
 
   shouldComponentUpdate(nextProps) {
     return !isEqual(this.props, nextProps);
+  }
+
+  componentDidMount() {
+    this.props.fetchBaseLayers();
   }
 
   componentDidUpdate(prev) {
@@ -223,7 +228,7 @@ class Map extends Component {
   }
 
   render() {
-    const { children, maps, map, popup, mapSubjectFeatureCollection,
+    const { baseLayers, children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
       trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
@@ -234,6 +239,7 @@ class Map extends Component {
 
     return (
       <EarthRangerMap
+        baseLayers={baseLayers}
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
         onMoveEnd={this.onMapMoveEnd}
@@ -244,6 +250,7 @@ class Map extends Component {
 
         {map && (
           <Fragment>
+            
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
@@ -282,10 +289,11 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter } = data;
+  const { baseLayers, maps, tracks, eventFilter } = data;
   const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints } = view;
 
   return ({
+    baseLayers,
     maps,
     heatmapSubjectIDs,
     tracks,
@@ -304,6 +312,7 @@ const mapStatetoProps = (state, props) => {
 };
 
 export default connect(mapStatetoProps, {
+  fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
   fetchTracks,

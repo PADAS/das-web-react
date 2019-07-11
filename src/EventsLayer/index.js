@@ -2,7 +2,6 @@ import React, { Fragment, memo } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
 
-import WithMapNames from '../WithMapNames';
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 

@@ -6,6 +6,7 @@ export const {
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
   REACT_APP_ROUTE_PREFIX,
+  REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
 export const MIN_ZOOM = 1;
@@ -144,3 +145,9 @@ export const GEOLOCATOR_OPTIONS = {
   maximumAge: 0,
   timeout: 10000,
 };
+
+
+export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style', 'mapbox_tiles'];
+export const GOOGLE_LAYER_SOURCE_TYPES = ['google_map'];
+export const TILE_LAYER_SOURCE_TYPES = ['tile_server'];
+export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, ...GOOGLE_LAYER_SOURCE_TYPES, ...TILE_LAYER_SOURCE_TYPES];
