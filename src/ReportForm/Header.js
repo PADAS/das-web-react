@@ -9,6 +9,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import { addModal } from '../ducks/modals';
 
 import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-to-incident.svg';
+import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
@@ -26,7 +27,6 @@ const calcClassNameForPriority = (priority) => {
   return 'noPriority';
 };
 
-
 const ReportFormHeader = (props) => {
   const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const reportTitle = displayTitleForEventByEventType(report);
@@ -34,6 +34,10 @@ const ReportFormHeader = (props) => {
 
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
+
+  // DELETE ME - mock payload until we have real data
+  // report['external_link'] = {title: 'View SMART Report', url: 'https://smartconservationtools.org/', icon: 'external_link'};
+  const hasExternalLink = (!!report.external_link && !!report.external_link.url);
 
   const updateTime = report.updated_at || report.created_at;
 
@@ -46,6 +50,16 @@ const ReportFormHeader = (props) => {
     });
   };
 
+  const linkToReport = () => {
+    setHeaderPopoverState(false);
+    try {
+      const url = report.external_link.url;
+      window.open(url,'_blank');
+    } catch (e) {
+      console.log('error occured while opening external report', e);
+    }
+  };
+
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
   const ReportHeaderPopover = <Popover placement='auto' className={styles.popover}>
@@ -56,6 +70,13 @@ const ReportFormHeader = (props) => {
       <hr />
       <Button className={styles.addToIncidentBtn} variant='secondary' onClick={onStartAddToIncident}>
         <AddToIncidentIcon style={{height: '3rem', width: '3rem'}} /> Add to incident
+      </Button>
+    </Fragment>
+    }
+    {hasExternalLink && <Fragment> 
+      <hr />
+      <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
+        <ExternalLinkIcon style={{height: '2.5rem', width: '2.5rem', stroke: 'black'}} /> View SMART Report
       </Button>
     </Fragment>
     }
