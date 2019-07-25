@@ -34,10 +34,9 @@ const ReportFormHeader = (props) => {
 
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
-
   // DELETE ME - mock payload until we have real data
-  // report['external_link'] = {title: 'View SMART Report', url: 'https://smartconservationtools.org/', icon: 'external_link'};
-  const hasExternalLink = (!!report.external_link && !!report.external_link.url);
+  // report['external_source'] = {title: 'View SMART Report', url: 'https://smartconservationtools.org/', icon_url: 'foo'};
+  const hasExternalLink = (!!report.external_source && !!report.external_source.url);
 
   const updateTime = report.updated_at || report.created_at;
 
@@ -53,12 +52,16 @@ const ReportFormHeader = (props) => {
   const linkToReport = () => {
     setHeaderPopoverState(false);
     try {
-      const url = report.external_link.url;
+      const url = report.external_source.url;
       window.open(url,'_blank');
     } catch (e) {
       console.log('error occured while opening external report', e);
     }
   };
+
+  const externalLinkImg = () => {
+    return <img src={report.external_source.icon_url} />;
+  }
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
 
