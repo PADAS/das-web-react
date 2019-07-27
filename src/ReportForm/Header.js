@@ -9,7 +9,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import { addModal } from '../ducks/modals';
 
 import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-to-incident.svg';
-import { ReactComponent as SmartIcon } from '../common/images/icons/smart.svg';
+import { ReactComponent as LinkoutIcon } from '../common/images/icons/smart.svg';
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
@@ -35,7 +35,7 @@ const ReportFormHeader = (props) => {
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
   // DELETE ME - mock payload until we have real data
-  report['external_source'] = {title: 'View SMART Report', url: 'https://smartconservationtools.org/', icon_url: 'smart'};
+  // report['external_source'] = {title: 'View SMART Report', url: 'https://smartconservationtools.org/', icon_url: 'smart'};
   const hasExternalLink = (!!report.external_source && !!report.external_source.url);
 
   const updateTime = report.updated_at || report.created_at;
@@ -79,12 +79,11 @@ const ReportFormHeader = (props) => {
     {hasExternalLink && <Fragment> 
       <hr />
       <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
-        <SmartIcon style={{height: '3.0rem', width: '3.0rem'}} /> View SMART Report
+        <LinkoutIcon style={{height: '3.0rem', width: '3.0rem'}} /> {report.external_source.text}
       </Button>
     </Fragment>
     }
   </Popover>;
-
 
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
     <h4>
