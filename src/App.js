@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
+import ReactGA from 'react-ga';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -7,6 +8,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { STATUSES } from './constants';
+import { REACT_APP_GA_TRACKING_ID } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -86,6 +88,10 @@ const App = memo((props) => {
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
   };
+
+  // Initialize ReactGA with const from .env
+  ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
+  ReactGA.pageview(window.location.pathname);
 
   clearInterval(mapInterval);
   mapInterval = setInterval(() => {

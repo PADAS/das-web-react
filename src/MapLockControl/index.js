@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleMapLockState } from '../ducks/map-ui';
 
@@ -13,6 +14,12 @@ const MapLockControl = (props) => {
 
   const handleChange = (e) => {
     toggleMapLockState(!mapIsLocked);
+
+    ReactGA.event({
+      category: 'Map Interaction',
+      action: 'Click',
+      label: 'Lock Map:' + (!mapIsLocked).toString(),
+    });
   };
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);

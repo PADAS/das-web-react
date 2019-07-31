@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleDisplayUserLocation } from '../ducks/map-ui';
 
@@ -8,7 +9,13 @@ const UserLocationMapControl = (props) => {
 
   const handleChange = () => {
     toggleDisplayUserLocation();
-  };
+
+    ReactGA.event({
+      category: 'Map Interaction',
+      action: 'Click',
+      label: 'Show My Current Location:' + (!mapIsLocked).toString(),
+    });
+};
 
   return <label>
     <input type='checkbox' id='mapname' name='mapname' checked={showUserLocation} onChange={handleChange}/>
