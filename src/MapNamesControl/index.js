@@ -13,8 +13,8 @@ const MapNamesControl = (props) => {
 
     ReactGA.event({
       category: 'Map Interaction',
-      action: 'Click',
-      label: 'Show Names:' + (!showMapNames).toString(),
+      action: "Click 'Show Names' checkbox",
+      label: 'Show Names:' + (showMapNames).toString(),
     });
   };
 

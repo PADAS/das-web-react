@@ -11,8 +11,8 @@ const MapTrackTimepointsControl = (props) => {
 
     ReactGA.event({
       category: 'Map Interaction',
-      action: 'Click',
-      label: 'Show Track Timepoints:' + showTrackTimepoints,
+      action: "Click 'Show Track Timepoints' checkbox",
+      label: 'Show Track Timepoints:' + (showTrackTimepoints).toString(),
     });
   };
 

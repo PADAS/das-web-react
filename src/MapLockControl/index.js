@@ -17,8 +17,8 @@ const MapLockControl = (props) => {
 
     ReactGA.event({
       category: 'Map Interaction',
-      action: 'Click',
-      label: 'Lock Map:' + (!mapIsLocked).toString(),
+      action: "Click 'Lock Map' checkbox",
+      label: 'Lock Map:' + (mapIsLocked).toString(),
     });
   };
 
