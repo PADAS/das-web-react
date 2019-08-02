@@ -6,6 +6,7 @@ import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
+import { trackEvent } from '../utils/analytics';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
@@ -54,10 +55,11 @@ const DataExportMenu = (props) => {
     <Menu>
       <Header>Exports</Header>
       {modals.map((modal, index) =>
-        <Item key={index} onClick={() =>
+        <Item key={index} onClick={() => {
           addModal({
             ...modal,
-          })}>
+          });
+          trackEvent('Report Generation', 'Click', modal.title);}}>
           <span>{modal.title}</span>
         </Item>
       )}
