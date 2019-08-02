@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleMapLockState } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 
 import { withMap } from '../EarthRangerMap';
 
@@ -15,11 +16,9 @@ const MapLockControl = (props) => {
   const handleChange = (e) => {
     toggleMapLockState(!mapIsLocked);
 
-    ReactGA.event({
-      category: 'Map Interaction',
-      action: "Click 'Lock Map' checkbox",
-      label: 'Lock Map:' + (mapIsLocked).toString(),
-    });
+    trackEvent('Map Interaction', 
+      "Click 'Lock Map' checkbox", 
+      'Lock Map:' + mapIsLocked);
   };
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);

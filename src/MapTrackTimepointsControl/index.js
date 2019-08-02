@@ -2,6 +2,7 @@ import React from 'react';
 import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleTrackTimepointState } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 
 const MapTrackTimepointsControl = (props) => {
   const { showTrackTimepoints, toggleTrackTimepointState } = props;
@@ -9,11 +10,9 @@ const MapTrackTimepointsControl = (props) => {
   const handleChange = () => {
     toggleTrackTimepointState();
 
-    ReactGA.event({
-      category: 'Map Interaction',
-      action: "Click 'Show Track Timepoints' checkbox",
-      label: 'Show Track Timepoints:' + (showTrackTimepoints).toString(),
-    });
+    trackEvent('Map Interaction', 
+      "Click 'Show Track Timepoints' checkbox", 
+      'Show Track Timepoints:' + showTrackTimepoints);
   };
 
   return <label>
