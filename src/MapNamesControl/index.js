@@ -14,7 +14,7 @@ const MapNamesControl = (props) => {
     ReactGA.event({
       category: 'Map Interaction',
       action: 'Click',
-      label: 'Show Names:' + (!mapIsLocked).toString(),
+      label: 'Show Names:' + (!showMapNames).toString(),
     });
   };
 

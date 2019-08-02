@@ -13,7 +13,7 @@ const UserLocationMapControl = (props) => {
     ReactGA.event({
       category: 'Map Interaction',
       action: 'Click',
-      label: 'Show My Current Location:' + (!mapIsLocked).toString(),
+      label: 'Show My Current Location:' + showUserLocation.toString(),
     });
 };
 

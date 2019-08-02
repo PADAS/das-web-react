@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { trackEvent } from '../utils/analytics';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
@@ -28,8 +29,15 @@ const DailyReportModal = (props) => {
     }
   };
 
-  const setParamsForYesterday = () => setParamsFor('yesterday');
-  const setParamsForToday = () => setParamsFor('today');
+  const setParamsForYesterday = () => { 
+    setParamsFor('yesterday');
+    trackEvent('Report Generation', 'Button', 'Yesterday\'s Report');
+  };
+
+  const setParamsForToday = () => { 
+    setParamsFor('today');
+    trackEvent('Report Generation', 'Button', 'Today\'s Report');
+  };
 
   const handleInputChange = (type, value) => {
     if (type === 'start') setStartDate(value);

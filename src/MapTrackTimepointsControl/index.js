@@ -12,7 +12,7 @@ const MapTrackTimepointsControl = (props) => {
     ReactGA.event({
       category: 'Map Interaction',
       action: 'Click',
-      label: 'Show Track Timepoints:' + (!mapIsLocked).toString(),
+      label: 'Show Track Timepoints:' + showTrackTimepoints,
     });
   };
 
