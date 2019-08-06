@@ -2,6 +2,7 @@ import React from 'react';
 import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleMapNameState } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const MapNamesControl = (props) => {
@@ -11,11 +12,9 @@ const MapNamesControl = (props) => {
   const handleChange = (e) => {
     toggleMapNameState(!showMapNames);
 
-    ReactGA.event({
-      category: 'Map Interaction',
-      action: 'Click',
-      label: 'Show Names:' + (!showMapNames).toString(),
-    });
+    trackEvent('Map Interaction', 
+      "Click 'Show Names' checkbox", 
+      'Show Names:' + showMapNames);
   };
 
   return <label>
