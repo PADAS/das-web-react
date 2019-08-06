@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
+import { setUserRole } from '../utils/analytics'
 
 export const CURRENT_USER_API_URL = `${API_URL}user/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
@@ -16,7 +17,10 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 export const fetchCurrentUser = () => async (dispatch) => {
   const { data: { data } } = await axios.get(CURRENT_USER_API_URL)
     .catch(error => console.log('error getting user', error));
-  
+  // XXX Should we find a better place to do this?
+  if(!!data.role && data.role.length > 0 ) {
+    setUserRole(data.role);
+  }
   dispatch(fetchUserSuccess(data));
 };
 
