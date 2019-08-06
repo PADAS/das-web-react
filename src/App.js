@@ -1,5 +1,4 @@
 import React, { memo, useEffect, useState } from 'react';
-import ReactGA from 'react-ga';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -8,7 +7,6 @@ import { loadProgressBar } from 'axios-progress-bar';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { STATUSES } from './constants';
-import { REACT_APP_GA_TRACKING_ID } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -25,6 +23,7 @@ import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
+import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -86,12 +85,9 @@ const App = memo((props) => {
   };
 
   const onSidebarHandleClick = () => {
+    trackEvent('Sidebar', !sidebarOpen ? 'Open' : 'Close', '');
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
   };
-
-  // Initialize ReactGA with const from .env
-  ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
-  ReactGA.pageview(window.location.pathname);
 
   clearInterval(mapInterval);
   mapInterval = setInterval(() => {
