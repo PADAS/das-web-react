@@ -12,8 +12,7 @@ const UserLocationMapControl = (props) => {
     toggleDisplayUserLocation();
 
     trackEvent('Map Interaction', 
-      "Click 'Show My Current Location' checkbox", 
-      'Show My Current Location:' + showUserLocation);
+      `${showUserLocation? 'Check' : 'Uncheck'} 'Show My Current Location' checkbox`, null);
   };
 
   return <label>

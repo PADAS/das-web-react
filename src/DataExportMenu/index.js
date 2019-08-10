@@ -44,6 +44,7 @@ const DataExportMenu = (props) => {
   const [isOpen, setOpenState] = useState(false);
 
   const contactSupport = () => {
+    trackEvent('Main Toolbar', "Click 'Contact Support'", null);
     if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
@@ -59,7 +60,7 @@ const DataExportMenu = (props) => {
           addModal({
             ...modal,
           });
-          trackEvent('Report Generation', 'Click', modal.title);}}>
+          trackEvent('Report Export', `Click '${modal.title}' menu item`, null);}}>
           <span>{modal.title}</span>
         </Item>
       )}

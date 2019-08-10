@@ -31,17 +31,23 @@ const DailyReportModal = (props) => {
 
   const setParamsForYesterday = () => { 
     setParamsFor('yesterday');
-    trackEvent('Report Generation', 'Button', 'Yesterday\'s Report');
+    trackEvent('Report Export', "Click 'Yesterday\'s Report' button", null);
   };
 
   const setParamsForToday = () => { 
     setParamsFor('today');
-    trackEvent('Report Generation', 'Button', 'Today\'s Report');
+    trackEvent('Report Export', "Click 'Today\'s Report' button", null);
   };
 
   const handleInputChange = (type, value) => {
-    if (type === 'start') setStartDate(value);
-    if (type === 'end') setEndDate(value);
+    if (type === 'start') {
+      setStartDate(value);
+      trackEvent('Report Export', 'Enter Report Start Date', null);
+    };
+    if (type === 'end') {
+      setEndDate(value);
+      trackEvent('Report Export', 'Enter Report End Date', null);
+    }
   };
 
   const handleStartDateChange = value => handleInputChange('start', value);

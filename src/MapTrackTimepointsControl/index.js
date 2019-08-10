@@ -11,8 +11,7 @@ const MapTrackTimepointsControl = (props) => {
     toggleTrackTimepointState();
 
     trackEvent('Map Interaction', 
-      "Click 'Show Track Timepoints' checkbox", 
-      'Show Track Timepoints:' + showTrackTimepoints);
+      `${showTrackTimepoints? 'Check' : 'Uncheck'} 'Show Track Timepoints' checkbox`, null);
   };
 
   return <label>

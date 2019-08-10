@@ -44,8 +44,13 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
   const handleFormSubmit = (e) => {
     e.preventDefault();
     triggerDownload();
+    trackEvent('Report Export', "Click 'Export' button", null);    
   };
 
+  const handleFormCancel = () => {
+    removeModal(id);
+    trackEvent('Report Export', "Click 'Cancel' button", null);    
+  };
 
   return <Fragment>
     {downloading && <LoadingOverlay />}
@@ -59,7 +64,7 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
         </Body>
       }
       <Footer>
-        <Button variant="secondary" onClick={() => removeModal(id)}>Cancel</Button>
+        <Button variant="secondary" onClick={handleFormCancel}>Cancel</Button>
         <Button type="submit" variant="primary">Export</Button>
       </Footer>
     </Form>

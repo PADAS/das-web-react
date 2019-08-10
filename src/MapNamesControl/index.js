@@ -13,8 +13,7 @@ const MapNamesControl = (props) => {
     toggleMapNameState(!showMapNames);
 
     trackEvent('Map Interaction', 
-      "Click 'Show Names' checkbox", 
-      'Show Names:' + showMapNames);
+      `${showMapNames? 'Check' : 'Uncheck'} 'Show Names' checkbox`, null);
   };
 
   return <label>
