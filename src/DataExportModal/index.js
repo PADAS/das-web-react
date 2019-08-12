@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { CancelToken } from 'axios';
-
+import { trackEvent } from '../utils/analytics';
 
 import { API_URL } from '../constants';
 import { removeModal } from '../ducks/modals';
