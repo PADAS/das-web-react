@@ -85,8 +85,8 @@ const App = memo((props) => {
   };
 
   const onSidebarHandleClick = () => {
-    trackEvent('Sidebar', !sidebarOpen ? 'Open' : 'Close', '');
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    trackEvent('Drawer', `${sidebarOpen?'Open':'Close'} Drawer`, null);
   };
 
   clearInterval(mapInterval);
