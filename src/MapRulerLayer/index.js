@@ -1,5 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import { Popup, GeoJSONLayer } from 'react-mapbox-gl';
+import { Popup, Source, Layer } from 'react-mapbox-gl';
 import bearing from '@turf/bearing';
 import distance from '@turf/distance';
 import { lineString } from '@turf/helpers';
@@ -45,9 +45,15 @@ const MapRulerLayer = (props) => {
     }
   };
 
+  const sourceData = {
+    type: 'geojson',
+    data: calcDataForGeoJsonLayer(),
+  };
+
   if (!showLayer) return null;
 
   return <Fragment>
+   
     {<Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
       {points.length === 0 && <p>Click to start measurement</p>}
       {points.length >= 1 && <Fragment>
@@ -59,7 +65,11 @@ const MapRulerLayer = (props) => {
         </Fragment>}
       </Fragment>}
     </Popup>}
-    {points.length && <GeoJSONLayer circlePaint={circlePaint} linePaint={linePaint} lineLayout={lineLayout} data={calcDataForGeoJsonLayer()} />}
+    {points.length && <Fragment>
+      <Source id='map-ruler-source' geoJsonSource={sourceData} />
+      <Layer sourceId='map-ruler-source' type='circle' paint={circlePaint} />
+      <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />
+    </Fragment>}
   </Fragment>;
 };
 

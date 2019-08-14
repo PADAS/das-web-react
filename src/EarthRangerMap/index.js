@@ -2,8 +2,9 @@ import React, { createContext, Fragment, memo, useRef, useState, useEffect } fro
 import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
+import { jumpToLocation, refreshMapImagesFromStore } from '../utils/map';
 
-import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES, TILE_LAYER_SOURCE_TYPES } from '../constants';
+import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
@@ -28,13 +29,11 @@ export function withMap(Component) {
 };
 
 const EarthRangerMap = (props) => {
-  const { baseLayers, currentBaseLayer, children, onMapLoaded, ...rest } = props;
+  const { currentBaseLayer, children, mapImages, onMapLoaded, ...rest } = props;
   const [map, setMap] = useState(null);
 
-  const [mapConfig, setMapConfig] = useState({
-    style: REACT_APP_BASE_MAP_STYLES,
-    movingMethod: 'easeTo',
-  });
+  
+  const [mapStyle, setMapStyle] = useState(REACT_APP_BASE_MAP_STYLES);
 
   const onLoad = (map) => {
     onMapLoaded && onMapLoaded(map);
@@ -43,38 +42,41 @@ const EarthRangerMap = (props) => {
 
   const id = useRef(uuid());
 
+  const refreshImages = () => {
+    refreshMapImagesFromStore(map);
+  };
+
   useEffect(() => {
     if (currentBaseLayer) {
       if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
-        setMapConfig({
-          ...mapConfig,
-          style: currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url,
-        });
+        setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
       }
     }
+    map && setTimeout(refreshImages, 2000);
   }, [currentBaseLayer]);
 
   return <MapboxMap
     id={`map-${id.current}`}
-    {...mapConfig}
+    style={mapStyle}
+    movingMethod='easeTo'
     {...rest}
     onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
       {map && <Fragment>
-        {children}
         <RotationControl position='top-left' />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
         <MapSettingsControl />
         <MapBaseLayerControl />
+        {children}
         <BaseLayerRenderer />
       </Fragment>}
     </EarthRangerMapContext.Provider>
   </MapboxMap>;
 };
 
-const mapStateToProps = ({ data: { baseLayers }, view: { currentBaseLayer } }) => ({
-  baseLayers,
+const mapStateToProps = ({ view: { currentBaseLayer }, data: { mapImages } }) => ({
+  mapImages,
   currentBaseLayer,
 });
 

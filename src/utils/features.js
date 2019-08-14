@@ -2,9 +2,9 @@
 import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
-import { GENERATED_LAYER_IDS } from '../constants';
+import { LAYER_IDS } from '../constants';
 
-const { FEATURE_FILLS, FEATURE_LINES } = GENERATED_LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
 export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));

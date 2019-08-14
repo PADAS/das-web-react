@@ -49,12 +49,6 @@ export const LAYER_IDS = {
   HEATMAP_LAYER: 'heatmap',
 };
 
-export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [key, value]) => {
-  output[key] = calcLayerName(key, value);
-  return output;
-}, {});
-
-
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',

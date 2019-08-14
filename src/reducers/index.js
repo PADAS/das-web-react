@@ -21,6 +21,7 @@ import featuresReducer from '../ducks/features';
 import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
+import mapImagesReducer from '../ducks/images';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -59,6 +60,7 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
+    mapImages: mapImagesReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
     subjectGroups: subjectGroupsReducer,

@@ -16,6 +16,8 @@ import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayO
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
+import { LAYER_IDS } from '../constants';
+
 import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
@@ -135,9 +137,9 @@ class Map extends Component {
     });
   }
   onClusterClick(e) {
-    const features = this.props.map.queryRenderedFeatures(e.point, { layers: ['event_clusters-circle'] });
+    const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
-    const clusterSource = this.props.map.getSource('event_clusters');
+    const clusterSource = this.props.map.getSource('events-data');
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
@@ -190,12 +192,11 @@ class Map extends Component {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
 
     if (newImages.length) {
-      // a fake flyTo coerces the map to load symbol images
       setTimeout(() => {
         this.props.map.flyTo({
           center: this.props.map.getCenter(),
         });
-      }, 1000);
+      });
     }
   }
   async onMapSubjectClick(layer) {
@@ -215,7 +216,7 @@ class Map extends Component {
 
   }
   setMap(map) {
-    window.map = map;
+    console.log('set map');
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }
@@ -229,7 +230,7 @@ class Map extends Component {
   }
 
   render() {
-    const { baseLayers, children, maps, map, popup, mapSubjectFeatureCollection,
+    const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
       trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
@@ -240,7 +241,6 @@ class Map extends Component {
 
     return (
       <EarthRangerMap
-        baseLayers={baseLayers}
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
         onMoveEnd={this.onMapMoveEnd}
@@ -290,11 +290,10 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { baseLayers, maps, tracks, eventFilter } = data;
+  const { maps, tracks, eventFilter } = data;
   const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints } = view;
 
   return ({
-    baseLayers,
     maps,
     heatmapSubjectIDs,
     tracks,

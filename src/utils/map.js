@@ -3,6 +3,9 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
 
+import { addMapImageToCache } from '../ducks/images';
+import { store } from '../';
+
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
 
@@ -24,6 +27,26 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   return clone;
 };
 
+const cacheImage = (icon_id, imgEl) => {
+  store.dispatch(addMapImageToCache(icon_id, imgEl));
+};
+
+export const addAndCacheMapImage = async (map, icon_id, src) => {
+  const img = await imgElFromSrc(src, MAP_ICON_SIZE);
+  map.addImage(icon_id, img);
+  cacheImage(icon_id, img);
+  return img;
+
+};
+
+const restoreCachedMapImageFromStore = (map, icon_id) => {
+  const img = store.getState().data.mapImages[icon_id];
+  if (img) {
+    map.addImage(icon_id, img);
+  }
+  return img;
+};
+
 export const addFeatureCollectionImagesToMap = async (collection, map) => {
   const { features } = collection;
   const mapImageIDs = map.listImages();
@@ -32,11 +55,7 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties: { image, icon_id } }) => ({ icon_id, image }))
     .filter(({ icon_id }, index, array) => !mapImageIDs.includes(icon_id) && (array.findIndex(item => item.icon_id === icon_id) === index))
-    .map(({ image, icon_id }) => imgElFromSrc(image, MAP_ICON_SIZE)
-      .then((img) => {
-        if (!map.hasImage(icon_id)) map.addImage(icon_id, img);
-        return img;
-      }));
+    .map(({ image, icon_id }) => restoreCachedMapImageFromStore(map, icon_id) || addAndCacheMapImage(map, icon_id, image));
 
   const results = await Promise.all(images);
   return results;
@@ -91,7 +110,7 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
 this is a utility for identifying those layers by name programmatically when required. */
 export const calcLayerName = (key, name) => {
   if (key.includes('_FILLS')) return `${name}-fill`;
-  if (key.includes('_SYMBOLS')) return `${name}-symbol`;
+  if (key.includes('_SYMBOL')) return `${name}-symbol`;
   if (key.includes('_LINES')) return `${name}-line`;
   if (key.includes('_CIRCLES')) return `${name}-circle`;
   return name;
@@ -122,6 +141,16 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
     ...object,
     ...updates,
   };
+};
+
+export const refreshMapImagesFromStore = (map) => {
+  const { mapImages } = store.getState().data;
+
+  Object.entries(mapImages).forEach(([id, img]) => {
+    if (!map.hasImage(id)) {
+      map.addImage(id, img);
+    }
+  });
 };
 
 export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
