@@ -143,5 +143,5 @@ export const GEOLOCATOR_OPTIONS = {
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];
 export const GOOGLE_LAYER_SOURCE_TYPES = ['google_map'];
-export const TILE_LAYER_SOURCE_TYPES = ['tile_server'];
+export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles'];
 export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* ...GOOGLE_LAYER_SOURCE_TYPES, */ ...TILE_LAYER_SOURCE_TYPES];

@@ -15,6 +15,7 @@ import styles from './styles.module.scss';
 
 const renderLayerLogoSrc = ({ attributes: { type, icon_url } }) => {
   if (icon_url) return icon_url;
+  if (type.toLowerCase().includes('mapbox')) return mapboxLogoSrc;
   if (TILE_LAYER_SOURCE_TYPES.includes(type)) return genericGlobeLogoSrc;
   if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(type)) return mapboxLogoSrc;
   if (GOOGLE_LAYER_SOURCE_TYPES.includes(type)) return googleMapsLogoSrc;
