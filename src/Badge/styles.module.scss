@@ -6,13 +6,15 @@
 
 .badge {
   @include badge-box-shadow;
+  align-items: center;
   border-radius: 100%;
   background: $unknown;
   border: 2px solid $unknown-border;
   border-style: solid;
   box-shadow: 0 0 .5rem $unknown-border;
-  display: block;
+  display: flex;
   height: 1rem;
+  justify-content: center;
   width: 1rem;
   &.red {
     background: $error;

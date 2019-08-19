@@ -12,6 +12,7 @@ import UserMenu from '../UserMenu';
 import EarthRangerLogo from '../EarthRangerLogo';
 import DataExportMenu from '../DataExportMenu';
 import SystemStatusComponent from '../SystemStatus';
+import NotificationMenu from '../NotificationMenu';
 
 import './Nav.scss';
 
@@ -44,6 +45,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
 
     {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} onClickCurrentLocation={onClickCurrentLocation} />}
     <div className="rightMenus">
+      <NotificationMenu onNotificationClick={() => console.log('clicky')} />
       <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>
       <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
