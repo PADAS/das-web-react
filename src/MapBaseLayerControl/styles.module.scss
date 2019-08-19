@@ -1,0 +1,66 @@
+
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+
+.wrapper {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 8.25rem;
+}
+
+.button {
+  @include mapboxControlButton;
+  svg path {
+    fill: #333;
+  }
+}
+
+
+.popup {
+  max-width: 26rem;
+  width: 90vw;
+  [class*=popover-body] {
+    padding: 0;
+  }
+}
+
+.layerList {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  margin: 0;
+  li {
+    align-self: stretch;
+    text-align: center;
+    width: calc(100%/3);
+    button {
+      $hover: lighten($secondary-light-gray, 25%);
+      @include unstyledButton;
+      align-items: center;
+      display: flex;
+      height: 100%;
+      flex: 1;
+      flex-flow: column;
+      font-weight: bold;
+      font-size: 0.85rem;
+      justify-content: space-evenly;
+      line-height: normal;
+      padding: 0.5rem;
+      transition: background 0.3s linear;
+      width: 100%;
+      &:hover {
+        background: $hover;
+        text-decoration: underline;
+      }
+      &.active {
+        background: darken($hover, 3%);
+      }
+    }
+  }
+  img {
+    margin-bottom: 0.25rem;
+    max-height: 2.5rem;
+    max-width: 2.5rem;
+  }
+}

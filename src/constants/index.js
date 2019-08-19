@@ -7,6 +7,7 @@ export const {
   REACT_APP_DAS_API_URL,
   REACT_APP_ROUTE_PREFIX,
   REACT_APP_GA_TRACKING_ID,
+  REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
 export const GA_EVENT_CATEGORIES = {
@@ -60,12 +61,6 @@ export const LAYER_IDS = {
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',
 };
-
-export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [key, value]) => {
-  output[key] = calcLayerName(key, value);
-  return output;
-}, {});
-
 
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
@@ -157,3 +152,9 @@ export const GEOLOCATOR_OPTIONS = {
   maximumAge: 0,
   timeout: 10000,
 };
+
+
+export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];
+export const GOOGLE_LAYER_SOURCE_TYPES = ['google_map'];
+export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles'];
+export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* ...GOOGLE_LAYER_SOURCE_TYPES, */ ...TILE_LAYER_SOURCE_TYPES];

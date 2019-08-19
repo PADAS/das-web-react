@@ -1,7 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { GeoJSONLayer } from 'react-mapbox-gl';
-import isEqual from 'react-fast-compare';
+import { Source, Layer } from 'react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -19,10 +18,15 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id === 'subject_symbols-symbol')[0];
+const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [SUBJECT_SYMBOLS] })[0];
 
 const SubjectsLayer = memo((props) => {
   const { onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
+
+  const sourceData = {
+    type: 'geojson',
+    data: subjects,
+  };
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 
@@ -31,22 +35,17 @@ const SubjectsLayer = memo((props) => {
     ...mapNameLayout,
   };
 
-  return (
-    <GeoJSONLayer
-      id={SUBJECT_SYMBOLS}
-      {...rest}
-      symbolOnClick={onSymbolClick}
-      data={subjects}
-      symbolPaint={symbolPaint}
-      symbolLayout={layout} />
-  );
-}, (prev, current) => (prev.map && current.map) 
-            && isEqual(prev.subjects, current.subjects)
-            && isEqual(prev.mapNameLayout, current.mapNameLayout));
+  return <Fragment>
+    <Source id='subject-symbol-source' geoJsonSource={sourceData} />
+    <Layer sourceId='subject-symbol-source' type='symbol'
+      id={SUBJECT_SYMBOLS} {...rest} onClick={onSymbolClick}
+      paint={symbolPaint} layout={layout} />
+
+  </Fragment>;
+});
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
-  map: PropTypes.object.isRequired,
   onSubjectIconClick: PropTypes.func,
 };
 

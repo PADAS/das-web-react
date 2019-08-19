@@ -6,6 +6,7 @@ import debounceRender from 'react-debounce-render';
 
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
+import { fetchBaseLayers } from '../ducks/layers';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
@@ -14,6 +15,8 @@ import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayO
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
+
+import { LAYER_IDS } from '../constants';
 
 import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
@@ -50,6 +53,10 @@ class Map extends Component {
 
   shouldComponentUpdate(nextProps) {
     return !isEqual(this.props, nextProps);
+  }
+
+  componentDidMount() {
+    this.props.fetchBaseLayers();
   }
 
   componentDidUpdate(prev) {
@@ -130,9 +137,9 @@ class Map extends Component {
     });
   }
   onClusterClick(e) {
-    const features = this.props.map.queryRenderedFeatures(e.point, { layers: ['event_clusters-circle'] });
+    const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
-    const clusterSource = this.props.map.getSource('event_clusters');
+    const clusterSource = this.props.map.getSource('events-data');
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
@@ -185,12 +192,11 @@ class Map extends Component {
     const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
 
     if (newImages.length) {
-      // a fake flyTo coerces the map to load symbol images
       setTimeout(() => {
         this.props.map.flyTo({
           center: this.props.map.getCenter(),
         });
-      }, 1000);
+      });
     }
   }
   async onMapSubjectClick(layer) {
@@ -210,6 +216,7 @@ class Map extends Component {
 
   }
   setMap(map) {
+    console.log('set map');
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }
@@ -244,6 +251,7 @@ class Map extends Component {
 
         {map && (
           <Fragment>
+            
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
@@ -304,6 +312,7 @@ const mapStatetoProps = (state, props) => {
 };
 
 export default connect(mapStatetoProps, {
+  fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
   fetchTracks,

@@ -20,6 +20,8 @@ import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
+import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
+import mapImagesReducer from '../ducks/images';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -49,6 +51,7 @@ const userProfilePersistanceConfig = {
 
 const rootReducer = combineReducers({
   data: combineReducers({
+    baseLayers: baseLayersReducer,
     eventStore: eventStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
@@ -57,6 +60,7 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
+    mapImages: mapImagesReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
     subjectGroups: subjectGroupsReducer,
@@ -69,6 +73,7 @@ const rootReducer = combineReducers({
     socketUpdates: socketActivityReducer,
   }),
   view: combineReducers({
+    currentBaseLayer: currentBaseLayerReducer,
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
