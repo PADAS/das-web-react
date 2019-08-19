@@ -1,5 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import { Popup, GeoJSONLayer } from 'react-mapbox-gl';
+import { Popup, Source, Layer } from 'react-mapbox-gl';
 import bearing from '@turf/bearing';
 import distance from '@turf/distance';
 import { lineString } from '@turf/helpers';
@@ -26,8 +26,7 @@ const circlePaint = {
 
 const MapRulerLayer = (props) => {
   const { pointerLocation, points } = props;
-  const pointerCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : null;
-  const showPopup = pointerLocation || points.length;
+  const showLayer = pointerLocation || points.length;
   const rulerComplete = points.length === 2;
   const popupCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[1];
 
@@ -46,8 +45,16 @@ const MapRulerLayer = (props) => {
     }
   };
 
+  const sourceData = {
+    type: 'geojson',
+    data: calcDataForGeoJsonLayer(),
+  };
+
+  if (!showLayer) return null;
+
   return <Fragment>
-    {showPopup && <Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
+   
+    {<Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
       {points.length === 0 && <p>Click to start measurement</p>}
       {points.length >= 1 && <Fragment>
         {popupLocationAndFirstPointAreIdentical && <p>Select a second point</p>}
@@ -58,8 +65,17 @@ const MapRulerLayer = (props) => {
         </Fragment>}
       </Fragment>}
     </Popup>}
-    {points.length && <GeoJSONLayer circlePaint={circlePaint} linePaint={linePaint} lineLayout={lineLayout} data={calcDataForGeoJsonLayer()} />}
+    {points.length && <Fragment>
+      <Source id='map-ruler-source' geoJsonSource={sourceData} />
+      <Layer sourceId='map-ruler-source' type='circle' paint={circlePaint} />
+      <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />
+    </Fragment>}
   </Fragment>;
 };
 
 export default memo(MapRulerLayer);
+
+PropTypes.propTypes = {
+  pointerLocation: PropTypes.object,
+  points: PropTypes.array,
+};
