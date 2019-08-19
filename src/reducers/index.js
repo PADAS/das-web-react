@@ -20,6 +20,7 @@ import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
+import userNotificationReducer from '../ducks/user-notifications';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -85,6 +86,7 @@ const rootReducer = combineReducers({
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
     zendeskEnabled: zendeskReducer,
+    userNotifications: userNotificationReducer,
   }),
 });
 
