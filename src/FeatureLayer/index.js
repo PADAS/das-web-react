@@ -1,12 +1,11 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { GeoJSONLayer } from 'react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 import withMapNames from '../WithMapNames';
 
-import { GENERATED_LAYER_IDS, LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
-const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const ACTIVE_FEATURE_STATE = 'active';
 const IF_ACTIVE = (activeProp) =>  [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
@@ -65,25 +64,43 @@ const symbolPaint = {
 };
 
 const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout }) => {
-  console.log('re rendering the feature layer', symbols, lines, polygons);
-
   const layout = {
     ...symbolLayout,
     ...mapNameLayout,
-  }
+  };
+  
+  const lineData = {
+    type: 'geojson',
+    data: lines,
+  };
+
+  const polygonData = {
+    type: 'geojson',
+    data: polygons,
+  };
+
+  const symbolData = {
+    type: 'geojson',
+    data: symbols,
+  };
+
 
   return <Fragment>
-    <GeoJSONLayer id={FEATURE_FILLS} before={SUBJECT_SYMBOLS} data={polygons}
-      fillPaint={fillPaint}
-      fillLayout={fillLayout}
-    />
-    <GeoJSONLayer id={FEATURE_LINES} before={SUBJECT_SYMBOLS} data={lines}
-      lineLayout={lineLayout}
-      linePaint={linePaint}
-    />
-    <GeoJSONLayer id={FEATURE_SYMBOLS} before={SUBJECT_SYMBOLS} data={symbols}
-      symbolLayout={layout} symbolPaint={symbolPaint}
-    />
+    <Source id='feature-line-source' geoJsonSource={lineData} />
+    <Source id='feature-polygon-source' geoJsonSource={polygonData} />
+    <Source id='feature-symbol-source' geoJsonSource={symbolData} />
+
+    <Layer sourceId='feature-polygon-source' type='fill'
+      id={FEATURE_FILLS} before={SUBJECT_SYMBOLS}
+      paint={fillPaint} layout={fillLayout}/>
+
+    <Layer sourceId='feature-line-source' type='line'
+      id={FEATURE_LINES} before={SUBJECT_SYMBOLS}
+      paint={linePaint} layout={lineLayout}/>
+
+    <Layer sourceId='feature-symbol-source' type='symbol'
+      id={FEATURE_SYMBOLS}
+      paint={symbolPaint} layout={layout}/>
   </Fragment>;
 };
 

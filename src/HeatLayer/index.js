@@ -4,12 +4,11 @@ import { connect } from 'react-redux';
 import { Layer, Source } from 'react-mapbox-gl';
 import centroid from '@turf/centroid';
 
-import { GENERATED_LAYER_IDS, LAYER_IDS, MAX_ZOOM } from '../constants';
+import { LAYER_IDS, MAX_ZOOM } from '../constants';
 
 import { metersToPixelsAtMaxZoom } from '../utils/map';
 
-const { HEATMAP_LAYER } = LAYER_IDS;
-const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
+const { HEATMAP_LAYER, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const HeatLayer = ({ heatmapStyles, points }) => {
   if (!points.features.length) return null;

@@ -1,17 +1,16 @@
 import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { GeoJSONLayer } from 'react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
 import { withMap } from '../EarthRangerMap';
-import { GENERATED_LAYER_IDS, LAYER_IDS } from '../constants';
-import { imgElFromSrc } from '../utils/img';
+import { LAYER_IDS } from '../constants';
+import { addAndCacheMapImage } from '../utils/map';
 import { convertArrayOfTracksIntoFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
-const { TRACKS_LINES, TRACK_TIMEPOINTS_SYMBOLS } = LAYER_IDS;
-const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
+const { TRACKS_LINES, TRACK_TIMEPOINTS_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-timepoint'))[0];
 
@@ -44,8 +43,6 @@ const timepointLayerLayout = {
   'icon-rotation-alignment': 'map',
 };
 
-
-
 const TracksLayer = memo(function TracksLayer(props) {
   const { map, onPointClick, trackCollection, showTimepoints, ...rest } = props;
   const tracksAsPoints = convertArrayOfTracksToPointFeatureCollection(trackCollection);
@@ -54,29 +51,39 @@ const TracksLayer = memo(function TracksLayer(props) {
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
+  const addImage = async () => {
+    if (!map.hasImage(ARROW_IMG_ID)) {
+      addAndCacheMapImage(map, ARROW_IMG_ID, Arrow);
+    }
+  };
+
+  const trackData = {
+    type: 'geojson',
+    data: tracksAsFeatureCollection,
+  };
+
+  const trackPointData = {
+    type: 'geojson',
+    data: tracksAsPoints,
+  };
 
   useEffect(() => {
-    async function addImage() {
-      if (!map.hasImage(ARROW_IMG_ID)) {
-        const arrow = await imgElFromSrc(Arrow);
-        map.addImage(ARROW_IMG_ID, arrow);
-      }
-    }
     addImage();
   }, []);
 
   return (
     <Fragment>
-      <GeoJSONLayer key={'track-layer'} before={SUBJECT_SYMBOLS} id={TRACKS_LINES} data={tracksAsFeatureCollection} {...rest}
-        linePaint={trackLayerLinePaint}
-        lineLayout={trackLayerLineLayout}
-      />
-      {showTimepoints && <GeoJSONLayer before={SUBJECT_SYMBOLS} id={TRACK_TIMEPOINTS_SYMBOLS} data={tracksAsPoints} {...rest}
-        symbolOnMouseEnter={onSymbolMouseEnter}
-        symbolOnClick={onSymbolClick}
-        symbolOnMouseLeave={onSymbolMouseLeave}
-        symbolLayout={timepointLayerLayout}
-      />}
+      <Source id='track-source' geoJsonSource={trackData} />
+      <Source id='track-point-source' geoJsonSource={trackPointData} />
+
+      <Layer sourceId='track-source' type='line' before={SUBJECT_SYMBOLS}
+        paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={TRACKS_LINES} {...rest} />
+
+      {showTimepoints && <Layer sourceId='track-point-source' type='symbol' before={SUBJECT_SYMBOLS}
+        onMouseEnter={onSymbolMouseEnter}
+        onMouseLeave={onSymbolMouseLeave}
+        onClick={onSymbolClick} layout={timepointLayerLayout} id={TRACK_TIMEPOINTS_SYMBOLS} {...rest} />}
+
     </Fragment>
   );
 }, (prev, current) => isEqual(prev.trackCollection, current.trackCollection) && isEqual(prev.showTimepoints && current.showTimepoints));
