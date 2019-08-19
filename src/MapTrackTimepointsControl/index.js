@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleTrackTimepointState } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';

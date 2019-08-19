@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleDisplayUserLocation } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';

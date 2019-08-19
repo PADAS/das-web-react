@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import ReactGA from 'react-ga';
 import { connect } from 'react-redux';
 import { toggleMapLockState } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
