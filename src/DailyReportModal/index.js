@@ -42,11 +42,9 @@ const DailyReportModal = (props) => {
   const handleInputChange = (type, value) => {
     if (type === 'start') {
       setStartDate(value);
-      trackEvent('Report Export', 'Enter Report Start Date', null);
     };
     if (type === 'end') {
       setEndDate(value);
-      trackEvent('Report Export', 'Enter Report End Date', null);
     }
   };
 
@@ -69,6 +67,7 @@ const DailyReportModal = (props) => {
       requireEnd={true}
       onStartDateChange={handleStartDateChange}
       onEndDateChange={handleEndDateChange}
+      gaEventSrc='Report Export'
       />
   </DataExportModal >;
 };

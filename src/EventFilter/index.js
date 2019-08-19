@@ -201,6 +201,7 @@ const EventFilter = memo((props) => {
         showPresets={true}
         startDate={hasLower ? new Date(lower) : lower}
         startDateNullMessage='One month ago'
+        gaEventSrc='Event Filter'
       />
     </Collapsible>
     <Collapsible
