@@ -38,15 +38,12 @@ export default memo(NotificationMenu);
 
 
 NotificationMenu.propTypes = {
-  notifications: PropTypes.array,
-};
-
-NotificationItem.propTypes = {
-  item: PropTypes.shape({
-    message: PropTypes.string.isRequired,
-    onDismiss: PropTypes.func.isRequired,
-    onConfirm: PropTypes.func,
-    confirmText: PropTypes.func,
-  }),
-  index: PropTypes.number,
+  notifications: PropTypes.arrayOf(
+    PropTypes.shape({
+      message: PropTypes.string.isRequired,
+      onDismiss: PropTypes.func.isRequired,
+      onConfirm: PropTypes.func,
+      confirmText: PropTypes.func,
+    })
+  ),
 };
