@@ -1,13 +1,13 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, Fragment, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { GeoJSONLayer } from 'react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
 
 import { setCurrentUserLocation } from '../ducks/location';
 import { userLocationCanBeShown } from '../selectors/index';
 
-import { imgElFromSrc } from '../utils/img';
+import { addAndCacheMapImage } from '../utils/map';
 import { GEOLOCATOR_OPTIONS } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
@@ -18,8 +18,16 @@ const initialRadius = 12;
 const initialStrokeWidth = 2;
 const maxRadius = 18;
 
+const symbolLayout = {
+  'icon-image': 'current-location-icon',
+  'icon-allow-overlap': true,
+  'icon-anchor': 'center',
+  'icon-size': 0.6,
+};
+
+
 const UserCurrentLocationLayer = (props) => {
-  const { map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
+  const { currentBaseLayer, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
   const [initialized, setInitState] = useState(false);
   const animationFrameID = useRef(null);
@@ -56,8 +64,7 @@ const UserCurrentLocationLayer = (props) => {
 
   const addImageToMap = async () => {
     if (!map.hasImage('current-location-icon')) {
-      const img = await imgElFromSrc(GpsLocationIcon);
-      map.addImage('current-location-icon', img);
+      addAndCacheMapImage(map, 'current-location-icon', GpsLocationIcon);
     }
   };
 
@@ -70,7 +77,6 @@ const UserCurrentLocationLayer = (props) => {
   };
 
   useEffect(() => {
-    addImageToMap();
     if (!initialized) {
       setInitState(true);
       setLocationWatcherID(startWatchingPosition());
@@ -86,21 +92,26 @@ const UserCurrentLocationLayer = (props) => {
   }, [userLocation]);
 
   useEffect(() => {
+    setTimeout(addImageToMap);
+  }, [currentBaseLayer]);
+
+  useEffect(() => {
     animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
   }, [animationState]);
 
-  return userLocationCanBeShown && <GeoJSONLayer
-    data={point([
+  const sourceData = userLocationCanBeShown && {
+    type: 'geojson',
+    data: point([
       userLocation.coords.longitude,
       userLocation.coords.latitude,
-    ])}
-    symbolLayout={{
-      'icon-image': 'current-location-icon',
-      'icon-allow-overlap': true,
-      'icon-anchor': 'center',
-      'icon-size': 0.6,
-    }}
-    circlePaint={{
+    ]),
+  };
+
+
+  return userLocationCanBeShown && <Fragment>
+    <Source id='current-user-location' geoJsonSource={sourceData} />
+    <Layer sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
+    <Layer sourceId='current-user-location' paint={{
       'circle-radius': animationState.radius,
       'circle-radius-transition': { duration: 0 },
       'circle-opacity-transition': { duration: 0 },
@@ -108,16 +119,16 @@ const UserCurrentLocationLayer = (props) => {
       'circle-stroke-color': '#007cbf',
       'circle-stroke-width': animationState.strokeWidth,
       'circle-stroke-opacity': animationState.opacity,
-    }}
-    symbolOnClick={onCurrentLocationIconClick}
-  />;
+    }} type="circle" />
+  </Fragment>;
 };
 
 const mapStateToProps = (state) => ({
+  currentBaseLayer: state.view.currentBaseLayer,
   userLocation: state.view.userLocation,
   userLocationCanBeShown: userLocationCanBeShown(state),
 });
-export default connect(mapStateToProps, { setCurrentUserLocation })(withMap(UserCurrentLocationLayer));
+export default connect(mapStateToProps, { setCurrentUserLocation })(withMap(memo(UserCurrentLocationLayer)));
 
 UserCurrentLocationLayer.defaultProps = {
   onIconClick() {
