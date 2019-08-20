@@ -24,6 +24,7 @@
     "react-dom": "^16.8.6",
     "react-fast-compare": "^2.0.4",
     "react-infinite-scroller": "^1.2.4",
+    "react-inlinesvg": "^1.1.6",
     "react-jsonschema-form": "^1.5.0",
     "react-mapbox-gl": "4.6.0",
     "react-redux": "^7.0.3",
