@@ -1,0 +1,51 @@
+@import '../common/styles/buttons';
+
+.legend {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+  padding: 0.5rem;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 20rem;
+  z-index: 11;
+  span {
+    display: block;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  h6 {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+  }
+  button:not(.gearButton) {
+    @include unstyledButton;
+  }
+}
+
+.controlPopover {
+  width: 20rem;
+}
+
+.close {
+  right: 0;
+  position: absolute;
+  top: .25rem;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.gearButton {
+  --dimensions: 1rem;
+  --placement: 0.5rem;
+  @include gearButton;
+  bottom: var(--placement);
+  height: var(--dimensions);
+  position: absolute;
+  right: var(--placement);
+  width: var(--dimensions);
+}

@@ -265,7 +265,10 @@ class Map extends Component {
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
-            {tracksAvailable && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackCollection={trackCollection} />}
+            {tracksAvailable && (
+              /* <TrackLegend /> */
+              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackCollection={trackCollection} />
+            )}
 
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 

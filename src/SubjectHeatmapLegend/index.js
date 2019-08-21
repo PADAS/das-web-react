@@ -64,9 +64,11 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
 
 
   return <HeatmapLegend
-    title={titleElement}
+    collapsedTitle={<h6>Subject heatmap</h6>}
     pointCount={trackPointCount}
-    onClose={onClose} />;
+    onClose={onClose}>
+    {titleElement}
+  </HeatmapLegend>;
 };
 
 const mapStateToProps = (state) => ({
