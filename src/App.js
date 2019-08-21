@@ -23,6 +23,7 @@ import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
+import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -85,6 +86,7 @@ const App = memo((props) => {
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    trackEvent('Drawer', `${sidebarOpen?'Open':'Close'} Drawer`, null);
   };
 
   clearInterval(mapInterval);

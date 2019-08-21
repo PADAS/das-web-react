@@ -6,6 +6,7 @@ import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
+import { trackEvent } from '../utils/analytics';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
@@ -43,6 +44,7 @@ const DataExportMenu = (props) => {
   const [isOpen, setOpenState] = useState(false);
 
   const contactSupport = () => {
+    trackEvent('Main Toolbar', "Click 'Contact Support'", null);
     if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
@@ -54,10 +56,11 @@ const DataExportMenu = (props) => {
     <Menu>
       <Header>Exports</Header>
       {modals.map((modal, index) =>
-        <Item key={index} onClick={() =>
+        <Item key={index} onClick={() => {
           addModal({
             ...modal,
-          })}>
+          });
+          trackEvent('Report Export', `Click '${modal.title}' menu item`, null);}}>
           <span>{modal.title}</span>
         </Item>
       )}
