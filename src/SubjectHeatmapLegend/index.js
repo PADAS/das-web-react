@@ -38,37 +38,34 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
 
   if (subjectCount === 1) {
     const { title, image } = tracks[0].features[0].properties;
-    displayTitle = `${title}: Tracks`;
+    displayTitle = `Heatmap: ${title}`;
     iconSrc = image;
   } else {
-    displayTitle = `Tracks for ${tracks.length} subjects`;
+    displayTitle = `Heatmap: ${tracks.length} subjects`;
   }
 
   const titleElement = <h6>
     {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {displayTitle}
-    {subjectCount > 1 && (
-      <OverlayTrigger trigger="click" rootClose placement="right" overlay={
-        <Popover className={styles.popover} id="track-details">
-          <ul>
-            {tracks.map(convertTrackToSubjectDetailListItem)}
-          </ul>
-        </Popover>
-      }>
-        <button type="button">
-          <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' />
-        </button>
-      </OverlayTrigger>
-    )}
   </h6>;
 
+  const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
+    <Popover className={styles.popover} id="track-details">
+      <ul>
+        {tracks.map(convertTrackToSubjectDetailListItem)}
+      </ul>
+    </Popover>
+  }>
+    <button type="button">
+      <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' />
+    </button>
+  </OverlayTrigger>;
 
   return <HeatmapLegend
-    collapsedTitle={<h6>Subject heatmap</h6>}
+    title={titleElement}
+    triggerSibling={triggerSibling}
     pointCount={trackPointCount}
-    onClose={onClose}>
-    {titleElement}
-  </HeatmapLegend>;
+    onClose={onClose} />;
 };
 
 const mapStateToProps = (state) => ({

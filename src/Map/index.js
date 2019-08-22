@@ -30,6 +30,7 @@ import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
+import MapLegendsContainer from '../MapLegendsContainer';
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
 
@@ -158,7 +159,7 @@ class Map extends Component {
     });
   }
   onCurrentUserLocationClick(location) {
-    this.props.showPopup('current-user-location', { location } );
+    this.props.showPopup('current-user-location', { location });
   }
   toggleTrackState(id) {
     const { subjectTrackState: { visible, pinned }, updateTrackState } = this.props;
@@ -251,15 +252,17 @@ class Map extends Component {
 
         {map && (
           <Fragment>
-            
+
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+
+            <FriendlyEventFilterString className='event-filter-details' />
+
             <div className='map-legends'>
-              <FriendlyEventFilterString className='event-filter-details' />
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
             </div>
 

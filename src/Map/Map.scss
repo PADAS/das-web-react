@@ -23,3 +23,13 @@
     }
   }
 }
+
+.map-legends {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 20rem;
+  z-index: 11;
+}

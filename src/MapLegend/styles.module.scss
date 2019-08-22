@@ -1,14 +1,15 @@
 @import '../common/styles/buttons';
+@import '../common//styles//vars/colors';
 
 .legend {
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+  display: flex;
+  flex-wrap: wrap;
   padding: 0.5rem;
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  width: 20rem;
-  z-index: 11;
+  position: relative;
+  + .legend {
+    border-top: 1px solid $light-gray-border;
+  }
   span {
     display: block;
   }
@@ -20,9 +21,41 @@
     align-items: center;
     display: flex;
     justify-content: flex-start;
+    white-space: nowrap;
   }
   button:not(.gearButton) {
     @include unstyledButton;
+  }
+  [class*=__contentOuter] {
+    width: 100%;
+  }
+  [class*=Collapsible__trigger] {
+    cursor: pointer;
+    padding-left: 1rem;
+    position: relative;
+    &:hover {
+      text-decoration: underline;
+    }
+    &::before {
+      content: '▲';
+      display: block;
+      left: 0;
+      position: absolute;
+      top: 0;
+      transition: transform .2s linear;
+      transform: rotate(90deg);
+    }
+    &[class*=is-open]::before {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.closedLegend {
+  .gearButton {
+    bottom: auto;
+    top: 25%;
+    right: 2.75rem;
   }
 }
 
@@ -33,7 +66,7 @@
 .close {
   right: 0;
   position: absolute;
-  top: .25rem;
+  top: 0.5rem;
   &:hover {
     text-decoration: underline;
   }
@@ -41,11 +74,11 @@
 
 .gearButton {
   --dimensions: 1rem;
-  --placement: 0.5rem;
   @include gearButton;
-  bottom: var(--placement);
+  bottom: 0.5rem;
   height: var(--dimensions);
   position: absolute;
-  right: var(--placement);
+  right: 0.5rem;
   width: var(--dimensions);
 }
+
