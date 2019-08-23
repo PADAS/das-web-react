@@ -22,7 +22,7 @@ const eventStore = ({ data: { eventStore } }) => eventStore;
 const mapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
-const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => [...pinned, ...visible];
+const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
@@ -108,12 +108,9 @@ export const reportedBy = createSelector(
 );
 
 export const getArrayOfVisibleTracks = createSelector(
-  [tracks, subjectTrackState],
-  (tracks, subjectTrackState) => {
-    const { visible, pinned } = subjectTrackState;
-    const trackLayerIDs = uniq([...visible, ...pinned]);
-
-    return trackLayerIDs
+  [tracks, displayedSubjectTrackIDs],
+  (tracks, displayedSubjectTrackIDs) => {
+    return displayedSubjectTrackIDs
       .filter(id => !!tracks[id])
       .map(id => (tracks[id]));
   },

@@ -67,7 +67,7 @@ const TrackLegend = (props) => {
     </button>
   </OverlayTrigger>;
 
-  return <MapLegend
+  return subjectCount && <MapLegend
     titleElement={titleElement}
     onClose={onClose}
     triggerSibling={triggerSibling}
