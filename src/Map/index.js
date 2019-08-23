@@ -28,6 +28,7 @@ import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
+import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 
 import MapRulerControl from '../MapRulerControl';
@@ -46,6 +47,7 @@ class Map extends Component {
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
+    this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
@@ -224,6 +226,13 @@ class Map extends Component {
   onHeatmapClose() {
     this.props.updateHeatmapSubjects([]);
   }
+  onTrackLegendClose() {
+    const { updateTrackState } = this.props;
+    updateTrackState({
+      visible: [],
+      pinned: [],
+    });
+  }
 
   onReportMarkerDrop(location) {
     this.props.showPopup('dropped-marker', { location });
@@ -232,11 +241,12 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
+      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
+    const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
     return (
@@ -263,6 +273,7 @@ class Map extends Component {
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
+              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}

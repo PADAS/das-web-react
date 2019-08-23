@@ -22,8 +22,8 @@ const eventStore = ({ data: { eventStore } }) => eventStore;
 const mapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
+const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => [...pinned, ...visible];
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
-const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
@@ -156,6 +156,18 @@ export const getArrayOfVisibleHeatmapTracks = createSelector(
 export const getHeatmapTrackPoints = createSelector(
   [getArrayOfVisibleHeatmapTracks],
   trackCollection => convertArrayOfTracksToPointFeatureCollection(trackCollection)
+);
+
+export const getArrayOfDisplayedSubjectTracks = createSelector(
+  [tracks, displayedSubjectTrackIDs],
+  (tracks, ids) => ids
+    .filter(id => !!tracks[id])
+    .map(id => tracks[id]),
+);
+
+export const getPinnedSubjectTrackPoints = createSelector(
+  [getArrayOfDisplayedSubjectTracks],
+  trackCollection => convertArrayOfTracksToPointFeatureCollection(trackCollection),
 );
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
