@@ -49,7 +49,7 @@ const ReportFormHeader = (props) => {
 
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen)
-    trackEvent(`${report.is_collection?'Incident':'Event'} Reports`, `${headerPopoverOpen?'Close':'Open'}' Hamburger Menu`);
+    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `${headerPopoverOpen?'Close':'Open'}' Hamburger Menu`);
   };
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);

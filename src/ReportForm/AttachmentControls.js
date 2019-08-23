@@ -43,11 +43,11 @@ const AttachmentControls = (props) => {
   const openFileDialog = (e) => {
     e.preventDefault();
     fileInputRef.current.click();
-    trackEvent(`${isCollection? 'Incident': 'Event'} Reports`, "Click 'Add Attachment' button");
+    trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Click 'Add Attachment' button");
   };
 
   const onFileDrop = (event) => {
-    trackEvent(`${isCollection? 'Incident': 'Event'} Reports`, "Drag'n'Drop Attachment");
+    trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Drag'n'Drop Attachment");
 
     event.preventDefault();
     const { dataTransfer: { files } } = event;
@@ -65,7 +65,7 @@ const AttachmentControls = (props) => {
   };
 
   const startAddNote = () => {
-    trackEvent(`${isCollection? 'Incident': 'Event'} Reports`, "Click 'Add Note' button");
+    trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Click 'Add Note' button");
     addModal({
       content: NoteModal,
       note: {
