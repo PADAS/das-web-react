@@ -6,6 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
 import MapLegend from '../MapLegend';
+import TrackLengthControls from '../TrackLengthControls';
 import InfoIcon from '../common/images/icons/information.svg';
 
 import { updateTrackState } from '../ducks/map-ui';
@@ -62,7 +63,7 @@ const TrackLegend = (props) => {
     </Popover>
   }>
     <button type="button">
-      <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' />
+      <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' / >
     </button>
   </OverlayTrigger>;
 
@@ -70,7 +71,7 @@ const TrackLegend = (props) => {
     titleElement={titleElement}
     onClose={onClose}
     triggerSibling={triggerSibling}
-  // settingsComponent={settingsComponent} 
+    settingsComponent={<TrackLengthControls />} 
   >
     <div className={styles.gradient}></div>
     <span>{trackPointCount} total points</span>

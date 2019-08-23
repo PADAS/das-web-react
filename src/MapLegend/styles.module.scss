@@ -8,7 +8,7 @@
   padding: 0.5rem;
   position: relative;
   + .legend {
-    border-top: 1px solid $light-gray-border;
+    border-top: 0.15rem solid $light-gray-border;
   }
   span {
     display: block;
@@ -66,7 +66,7 @@
 .close {
   right: 0;
   position: absolute;
-  top: 0.5rem;
+  top: 0.333rem;
   &:hover {
     text-decoration: underline;
   }
