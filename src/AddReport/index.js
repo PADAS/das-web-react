@@ -8,19 +8,22 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { trackEvent } from '../utils/analytics';
 
 import EventTypeListItem from '../EventTypeListItem';
 
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, reportData, eventsByCategory, map, showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
+  const { relationshipButtonDisabled, reportData, eventsByCategory, map, 
+    showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
 
   const startEditNewReport = (reportType) => {
+    trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
     const newReport = {
       ...createNewReportForEventType(reportType),
       ...reportData,
@@ -37,10 +40,21 @@ const AddReport = (props) => {
     </li>;
   };
 
+  const onButtonClick = () => {
+    setPopoverState(true);
+    trackEvent('Feed', "Click 'Add Report' button");
+  };
+
+  const onCategoryClick = (category) => {
+    selectCategory(category)
+    trackEvent('Feed', `Click '${category}' Category option`);
+  };
+
   const categoryList = <ul className={styles.categoryMenu}>
     {eventsByCategory.map(({ value, display }) =>
       <li key={value}>
-        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''} onClick={() => selectCategory(value)}>{display}</button>
+        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''} 
+          onClick={() => onCategoryClick(value)}>{display}</button>
       </li>
     )}
   </ul>;
@@ -51,17 +65,21 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement='auto' title={<h4>{title}</h4>}>
+  const AddReportPopover = <Popover className={styles.popover} placement='auto' 
+    title={<h4>{title}</h4>}>
     {categoryList}
     {reportTypeList}
   </Popover>;
 
   return <Fragment>
-    <button title={title} className={styles.addReport} ref={targetRef} type='button' onClick={() => setPopoverState(true)}>
+    <button title={title} className={styles.addReport} ref={targetRef} 
+      type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>{title}</span>}
     </button>
-    <Overlay shouldUpdatePosition={true} show={popoverOpen} rootClose onHide={() => setPopoverState(false)} container={container.current} target={targetRef.current}>
+    <Overlay shouldUpdatePosition={true} show={popoverOpen} rootClose 
+      onHide={() => setPopoverState(false)} container={container.current}
+      target={targetRef.current}>
       {() => AddReportPopover}
     </Overlay>
   </Fragment>;

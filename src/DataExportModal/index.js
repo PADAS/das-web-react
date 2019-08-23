@@ -41,15 +41,15 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
       });
   };
 
-  const handleFormSubmit = (e) => {
+  const onFormSubmit = (e) => {
     e.preventDefault();
     triggerDownload();
-    trackEvent('Report Export', "Click 'Export' button", null);    
+    trackEvent('Report Export', "Click 'Export' button");    
   };
 
-  const handleFormCancel = () => {
+  const onFormCancel = () => {
     removeModal(id);
-    trackEvent('Report Export', "Click 'Cancel' button", null);    
+    trackEvent('Report Export', "Click 'Cancel' button");    
   };
 
   return <Fragment>
@@ -57,14 +57,14 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
     <Header closeButton>
       <Title>{title}</Title>
     </Header>
-    <Form onSubmit={handleFormSubmit}>
+    <Form onSubmit={onFormSubmit}>
       {!!children &&
         <Body>
           {children}
         </Body>
       }
       <Footer>
-        <Button variant="secondary" onClick={handleFormCancel}>Cancel</Button>
+        <Button variant="secondary" onClick={onFormCancel}>Cancel</Button>
         <Button type="submit" variant="primary">Export</Button>
       </Footer>
     </Form>

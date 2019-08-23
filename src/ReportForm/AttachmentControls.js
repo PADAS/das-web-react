@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
+import { trackEvent } from '../utils/analytics';
 
 import NoteModal from '../NoteModal';
 import AddReport from '../AddReport';
@@ -21,7 +22,7 @@ const AttachmentButton = ({ title, icon: Icon, ...rest }) => <button title={titl
 
 const AttachmentControls = (props) => {
   const { addModal, relationshipButtonDisabled, allowMultipleFiles, map, onAddFiles,
-    onSaveNote, onNewReportSaved, isCollectionChild, onGoToCollection } = props;
+    onSaveNote, onNewReportSaved, isCollection, isCollectionChild, onGoToCollection } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
@@ -42,9 +43,12 @@ const AttachmentControls = (props) => {
   const openFileDialog = (e) => {
     e.preventDefault();
     fileInputRef.current.click();
+    trackEvent(`${isCollection? 'Incident': 'Event'} Reports`, "Click 'Add Attachment' button");
   };
 
   const onFileDrop = (event) => {
+    trackEvent(`${isCollection? 'Incident': 'Event'} Reports`, "Drag'n'Drop Attachment");
+
     event.preventDefault();
     const { dataTransfer: { files } } = event;
 
@@ -61,6 +65,7 @@ const AttachmentControls = (props) => {
   };
 
   const startAddNote = () => {
+    trackEvent(`${isCollection? 'Incident': 'Event'} Reports`, "Click 'Add Note' button");
     addModal({
       content: NoteModal,
       note: {
