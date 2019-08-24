@@ -24,7 +24,6 @@ const MapRulerControl = (props) => {
     e.preventDefault();
     e.originalEvent.stopPropagation();
     setPointState(points => [...points, [lngLat.lng, lngLat.lat]]);
-    trackEvent('Map Interaction', "Place 'Measurement Tool' Point");
   };
 
   const onMapClickToReset = () => {
@@ -76,8 +75,19 @@ const MapRulerControl = (props) => {
   useEffect(resetState, [active]);
 
   useEffect(() => {
+    if (active) {
+      if (points.length === 1) {
+        trackEvent('Map Interaction', "Place Start of 'Measurement Tool'");
+      } else if (points.length === 2) {
+        trackEvent('Map Interaction', "Place End of 'Measurement Tool'");
+      }
+    }
+  }, [points]);
+
+  useEffect(() => {
     return () => onComponentUnmount();
   }, []);
+
 
   return <Fragment>
     <div className={styles.buttons}>
