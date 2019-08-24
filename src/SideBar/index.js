@@ -25,7 +25,10 @@ const SideBar = memo((props) => {
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
-  const onEventTitleClick = event => openModalForReport(event, map);
+  const onEventTitleClick = (event) => {
+    openModalForReport(event, map);
+    trackEvent('Feed', `Open ${event.is_collection?'Incident':'Event'} Report`, `Event Type:${event.event_type}`);
+  };
 
   const onTabsSelect = (eventKey) => {
     let tabTitles = {

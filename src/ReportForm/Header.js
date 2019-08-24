@@ -39,6 +39,7 @@ const ReportFormHeader = (props) => {
   const updateTime = report.updated_at || report.created_at;
 
   const onStartAddToIncident = () => {
+    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `Click 'Add to Incident'`);
     setHeaderPopoverState(false);
     addModal({
       content: AddToIncidentModal,

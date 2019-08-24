@@ -16,7 +16,7 @@ const MapLockControl = (props) => {
     toggleMapLockState(!mapIsLocked);
 
     trackEvent('Map Interaction', 
-      `${mapIsLocked? 'Check' : 'Uncheck'} 'Lock Map' checkbox`, null);
+      `${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`, null);
   };
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);
