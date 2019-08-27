@@ -6,6 +6,7 @@ import isEqual from 'react-fast-compare';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
+import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
@@ -32,8 +33,13 @@ const SubjectGroupList = memo((props) => {
   const onGroupCheckClick = (group) => {
     const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
 
-    if (groupIsFullyVisible(group)) return hideSubjects(...subjectIDs);
-    return showSubjects(...subjectIDs);
+    if (groupIsFullyVisible(group)) {
+      trackEvent('Map Layers', 'Uncheck Group Map Layer checkbox', `Group:${group.name}`);
+      return hideSubjects(...subjectIDs);
+    } else {
+      trackEvent('Map Layers', 'Check Group Map Layer checkbox', `Group:${group.name}`);
+      return showSubjects(...subjectIDs);
+    }
   };
 
 

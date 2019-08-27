@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
+import { trackEvent } from '../utils/analytics';
 
 import { withMap } from '../EarthRangerMap';
 
@@ -42,18 +43,21 @@ const MapLocationPicker = (props) => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelectCancel();
+    trackEvent('Map Interaction', "Dismiss 'Drop Marker'");
   };
 
   const onSelect = (e) => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelect(e);
+    trackEvent('Map Interaction', "Place 'Drop Marker' to Create Report");
   };
 
   const onSelectStart = () => {
     setPickingMapLocationState(true);
     bindMapEvents();
     onLocationSelectStart();
+    trackEvent('Map Interaction', "Click 'Drop Marker' button");
   };
 
   return <div className={wrapperClassName}>

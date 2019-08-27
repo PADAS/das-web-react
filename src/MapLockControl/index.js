@@ -1,28 +1,25 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { toggleMapLockState } from '../ducks/map-ui';
+import { withMap } from '../EarthRangerMap';
+import { lockMap } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 
-import { withMap } from '../EarthRangerMap';
-
 import styles from './styles.module.scss';
-import { lockMap } from '../utils/map';
 
 const MapLockControl = (props) => {
 
   const { mapIsLocked, toggleMapLockState, map } = props;
 
-  const handleChange = (e) => {
+  const onCheckboxChange = (e) => {
     toggleMapLockState(!mapIsLocked);
-
-    trackEvent('Map Interaction', 
-      `${mapIsLocked? 'Check' : 'Uncheck'} 'Lock Map' checkbox`, null);
+    trackEvent('Map Interaction',  `${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
   };
 
   useEffect( () => lockMap(map, mapIsLocked), [mapIsLocked]);
 
   return <label>
-    <input type='checkbox' name='maplock' checked={mapIsLocked} onChange={handleChange}/>
+    <input type='checkbox' name='maplock' checked={mapIsLocked} onChange={onCheckboxChange}/>
     <span className={styles.cbxlabel}>Lock Map</span>
   </label>;
 };

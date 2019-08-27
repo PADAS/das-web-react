@@ -13,6 +13,7 @@ import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -24,7 +25,18 @@ const SideBar = memo((props) => {
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
-  const onEventTitleClick = event => openModalForReport(event, map);
+  const onEventTitleClick = (event) => {
+    openModalForReport(event, map);
+    trackEvent('Feed', `Open ${event.is_collection?'Incident':'Event'} Report`, `Event Type:${event.event_type}`);
+  };
+
+  const onTabsSelect = (eventKey) => {
+    let tabTitles = {
+      "reports": "Reports",
+      "layers": "Map Layers",
+    };
+    trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
+  };
 
   useEffect(() => {
     setEventLoadState(true);
@@ -37,7 +49,7 @@ const SideBar = memo((props) => {
   return (
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
-      <Tabs>
+      <Tabs onSelect={onTabsSelect}>
         <Tab className={styles.tab} eventKey="reports" title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />

@@ -4,6 +4,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
 import { setBaseLayer } from '../ducks/layers';
+import { trackEvent } from '../utils/analytics';
 
 import { VALID_LAYER_SOURCE_TYPES, TILE_LAYER_SOURCE_TYPES, MAPBOX_STYLE_LAYER_SOURCE_TYPES, GOOGLE_LAYER_SOURCE_TYPES } from '../constants';
 import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
@@ -26,11 +27,15 @@ const BaseLayerControl = (props) => {
   const [popoverOpen, setPopoverOpenState] = useState(false);
   const wrapperRef = useRef(null);
 
-  const togglePopoverState = () => setPopoverOpenState(!popoverOpen);
+  const togglePopoverState = () => {
+    setPopoverOpenState(!popoverOpen);
+    trackEvent('Map Interaction', 'Click Base Layer button');
+  };
 
   const onItemClick = (layer) => {
     setPopoverOpenState(false);
     setBaseLayer(layer);
+    trackEvent('Base Layer', `Select '${layer.name}' Base Layer`);
   };
   
 

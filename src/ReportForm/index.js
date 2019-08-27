@@ -11,6 +11,7 @@ import { downloadFileFromUrl, fetchImageAsBase64FromUrl } from '../utils/file';
 import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
 import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
+import { trackEvent } from '../utils/analytics';
 
 import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
@@ -28,7 +29,6 @@ import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
 import styles from './styles.module.scss';
-import { trackEvent } from '../utils/analytics';
 
 const ReportForm = (props) => {
   const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, relationshipButtonDisabled,
@@ -78,7 +78,7 @@ const ReportForm = (props) => {
 
   const onCancel = () => {
     removeModal();
-    trackEvent(`${is_collection? 'Incident': 'Event'} Reports`, "Click 'Cancel' button", null);
+    trackEvent(`${is_collection? 'Incident': 'Event'} Report`, "Click 'Cancel' button");
   };
 
   const goToBottomOfForm = () => {
@@ -102,13 +102,13 @@ const ReportForm = (props) => {
     });
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
     goToBottomOfForm();
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Add File' button", null);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Added Attachment");
   };
 
   const onDeleteFile = (file) => {
     const { name } = file;
     updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Delete File' button", null);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Delete Attachment' button");
   };
 
   const startEditNote = (note) => {
@@ -117,6 +117,7 @@ const ReportForm = (props) => {
       note,
       onSubmit: onSaveNote,
     });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Open Report Note");
   };
 
   const onSaveNote = (noteToSave) => {
@@ -141,30 +142,38 @@ const ReportForm = (props) => {
       });
     }
     goToBottomOfForm();
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Save Note' button", null);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Save Note' button");
   };
 
   const onDeleteNote = (note) => {
     const { text } = note;
     updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Delete Note' button", null);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Delete Note' button");
   };
 
-  const onReportedByChange = selection => updateStateReport({
-    ...report,
-    reported_by: selection ? selection : null,
-  });
+  const onReportedByChange = selection => {
+    updateStateReport({
+      ...report,
+      reported_by: selection ? selection : null,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Report By");
+  };
 
-  const onReportDateChange = date => updateStateReport({
-    ...report,
-    time: date.toISOString(),
-  });
+  const onReportDateChange = date => {
+    updateStateReport({
+      ...report,
+      time: date.toISOString(),
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Date");
+  };
 
-
-  const onReportTitleChange = title => updateStateReport({
-    ...report,
-    title,
-  });
+  const onReportTitleChange = title => {
+    updateStateReport({
+      ...report,
+      title,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Title");
+  };
 
   const onDetailChange = ({ formData }) => updateStateReport({
     ...report,
@@ -174,10 +183,13 @@ const ReportForm = (props) => {
     },
   });
 
-  const onPrioritySelect = priority => updateStateReport({
-    ...report,
-    priority,
-  });
+  const onPrioritySelect = priority => {
+    updateStateReport({
+      ...report,
+      priority,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Priority' option", `Priority:${priority}`);
+  };
 
   const onReportLocationChange = location => {
     const updatedLocation = !!location
@@ -190,11 +202,12 @@ const ReportForm = (props) => {
       ...report,
       location: updatedLocation,
     });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Location");
   };
 
   const goToParentCollection = () => {
     const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
-
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Go to Incident' button");
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       openModalForReport(data, map);
@@ -203,12 +216,9 @@ const ReportForm = (props) => {
   };
 
   const onIncidentReportClick = (report) => {
-    if (is_collection) {
-      trackEvent('Feed', 'Click Incident Report from Feed', `Report Type:${report.type}`);
-    } else {
-      trackEvent('Feed', 'Click Event Report from Feed', `Report Type:${report.type}`);
-    }
-
+    trackEvent('Incident Report', 
+      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
+      `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       openModalForReport(data, map, { relationshipButtonDisabled: true });
     });
@@ -237,8 +247,9 @@ const ReportForm = (props) => {
       if (changes.notes) {
         toSubmit.notes = report.notes;
       }
-
     }
+
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click 'Save' button for ${reportIsNew?'new':'existing'} report`);
 
     const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
 
@@ -251,8 +262,6 @@ const ReportForm = (props) => {
   };
 
   const onSubmit = () => {
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Save' button", null);
-
     return saveChanges()
       .then((results) => {
         removeModal();
@@ -285,6 +294,7 @@ const ReportForm = (props) => {
     } else {
       await downloadFileFromUrl(file.url, file.filename);
     }
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Open Report Attachment");
   };
 
   const onAddToNewIncident = async () => {
@@ -294,7 +304,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, newIncident.id);
 
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Add To Incident' button", null);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Add To Incident' button");
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
@@ -306,7 +316,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, incident.id);
 
-    trackEvent(`${is_collection?'Incident':'Event'} Reports`, "Click 'Add To Incident' button", null);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Add To Incident' button");
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
@@ -340,6 +350,11 @@ const ReportForm = (props) => {
     }
   };
 
+  const onUpdateStateReportToggle = (state) => {
+    updateStateReport({ ...report, state });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state=='resolved'?'Resolve':'Reopen'}' button`);
+  };
+
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
@@ -353,6 +368,7 @@ const ReportForm = (props) => {
       onDeleteFile={onDeleteFile} />
     <div className={styles.bottomControls}>
       <ReportFormAttachmentControls
+        isCollection={is_collection}
         isCollectionChild={eventBelongsToCollection(report)}
         onGoToCollection={goToParentCollection}
         relationshipButtonDisabled={disableAddReport}
@@ -363,7 +379,7 @@ const ReportForm = (props) => {
         {/* <Button type="submit" variant="primary">Save</Button> */}
         <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={startSave}>
           <Dropdown.Item>
-            <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => updateStateReport({ ...report, state })} />
+            <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => onUpdateStateReportToggle(state)} />
           </Dropdown.Item>
         </SplitButton>
       </div>
@@ -388,7 +404,8 @@ const ReportForm = (props) => {
       onReportLocationChange={onReportLocationChange}
       report={report} />}
 
-    {is_collection && <IncidentReportsList reports={report.contains} onReportClick={onIncidentReportClick}>
+    {is_collection && <IncidentReportsList reports={report.contains} 
+      onReportClick={onIncidentReportClick}>
       {Controls}
     </IncidentReportsList>}
     {!is_collection && <ReportFormBody
