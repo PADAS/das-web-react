@@ -216,7 +216,9 @@ const ReportForm = (props) => {
   };
 
   const onIncidentReportClick = (report) => {
-    trackEvent('Feed', `Click ${is_collection?'Incident':'Event'} Report from Feed`, `Report Type:${report.type}`);
+    trackEvent('Incident Report', 
+      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
+      `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       openModalForReport(data, map, { relationshipButtonDisabled: true });
     });
@@ -402,7 +404,8 @@ const ReportForm = (props) => {
       onReportLocationChange={onReportLocationChange}
       report={report} />}
 
-    {is_collection && <IncidentReportsList reports={report.contains} onReportClick={onIncidentReportClick}>
+    {is_collection && <IncidentReportsList reports={report.contains} 
+      onReportClick={onIncidentReportClick}>
       {Controls}
     </IncidentReportsList>}
     {!is_collection && <ReportFormBody

@@ -5,6 +5,7 @@ import intersection from 'lodash/intersection';
 
 import { getUniqueIDsFromFeatures } from '../utils/features';
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
@@ -29,7 +30,6 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hidden
 
   const allFeatureIDs = getAllFeatureIDsInList();
 
-
   const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
   const showAllFeatures = () => showFeatures(...allFeatureIDs);
 
@@ -39,6 +39,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hidden
   const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(...featuresByType.reduce((result, { features }) => [...result, ...features], []));
 
   const allVisibleInSet = set => allVisible || !intersection(getFeatureSetFeatureIDs(set), hiddenFeatureIDs).length;
+  
   const someVisibleInSet = set => {
     const featureIDs = getFeatureSetFeatureIDs(set);
     return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
@@ -46,15 +47,25 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hidden
 
   const onFeatureSetToggle = (set) => {
     const featureIDs = getFeatureSetFeatureIDs(set);
-    if (allVisibleInSet(set)) return hideFeatures(...featureIDs);
-    return showFeatures(...featureIDs);
+    if (allVisibleInSet(set)) {
+      trackEvent('Map Layers', 'Uncheck Feature Set checkbox', `Feature Set:${set.name}`);
+      return hideFeatures(...featureIDs);
+    } else {
+      trackEvent('Map Layers', 'Check Feature Set checkbox', `Feature Set:${set.name}`);
+      return showFeatures(...featureIDs);
+    }
   };
 
   const onToggleAllFeatures = (e) => {
     e.stopPropagation();
 
-    if (allVisible) return hideAllFeatures();
-    return showAllFeatures();
+    if (allVisible) {
+      trackEvent('Map Layers', 'Uncheck All Features checkbox');
+      return hideAllFeatures();
+    } else {
+      trackEvent('Map Layers', 'Check All Features checkbox');
+      return showAllFeatures();
+    }
   }
 
   const trigger = <div>

@@ -21,14 +21,13 @@ const LocationJumpButton = memo((props) => {
     }
   };
 
-  const handleClick = () => {
-    trackEvent('Feed', "Click 'Jump to Location' button");
+  const onJumpButtonClick = () => {
     onButtonClick(map, coordinates, zoom);
     closeSidebarForSmallViewports();
   };
 
   return <button title="Jump to this location" type="button" 
-    className={styles.jump} onClick={handleClick}></button>
+    className={styles.jump} onClick={onJumpButtonClick}></button>
 });
 
 export default connect(null, { updateUserPreferences })(LocationJumpButton);
@@ -36,6 +35,7 @@ export default connect(null, { updateUserPreferences })(LocationJumpButton);
 
 LocationJumpButton.defaultProps = {
   onButtonClick(map, coordinates, zoom) {
+    trackEvent('Map Interaction', "Click 'Jump to Location' button");
     jumpToLocation(map, coordinates, zoom);
   }
 }
