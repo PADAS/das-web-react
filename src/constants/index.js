@@ -61,8 +61,8 @@ export const LAYER_IDS = {
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',
   ANALYZER_POLYS: 'analyzer-polys',
-  ANALYZER_LINES: 'analyzer-lines',
-  ANALYZER_SYMBOLS: 'analyzer-symbols',
+  ANALYZER_LINES_WARNINGS: 'analyzer-lines-warning',
+  ANALYZER_LINES_CRITICAL: 'analyzer-lines-critical',
 };
 
 export const DEFAULT_SYMBOL_LAYOUT = {

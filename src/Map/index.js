@@ -11,9 +11,11 @@ import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { trackEvent } from '../utils/analytics';
-
+import {
+  getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks,
+  getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType, getAnalyzerFeatureCollectionsByType
+} from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
@@ -77,9 +79,6 @@ class Map extends Component {
     }
     if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
       this.createFeatureImages();
-    }
-    if (!isEqual(prev.mapAnalyzersFeatureCollection, this.props.mapAnalyzersFeatureCollection)) {
-      this.createAnalyzerFeatures();
     }
   }
   createSubjectImages() {
@@ -162,10 +161,12 @@ class Map extends Component {
       }
     });
   }
+
   onCurrentUserLocationClick(location) {
     this.props.showPopup('current-user-location', { location } );
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
+
   toggleTrackState(id) {
     const { subjectTrackState: { visible, pinned }, updateTrackState } = this.props;
 
@@ -243,9 +244,10 @@ class Map extends Component {
 
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
-      mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
+      mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
+    const { analyzerSymbols, analyzerLines, analyzerPolys, layerGroups } = analyzersFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
@@ -283,7 +285,7 @@ class Map extends Component {
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
-            <AnalyzerLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
+            <AnalyzerLayer symbols={analyzerSymbols} lines={analyzerLines} polygons={analyzerPolys} layerGroups={layerGroups} map={map} />
 
             {!!popup && <PopupLayer
               popup={popup}
@@ -321,7 +323,8 @@ const mapStatetoProps = (state, props) => {
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
-    mapSubjectFeatureCollection: getMapSubjectFeatureCollection(state)
+    mapSubjectFeatureCollection: getMapSubjectFeatureCollection(state),
+    analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
   });
 };
 

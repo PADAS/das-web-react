@@ -9,6 +9,7 @@ import { trackEvent } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
+import { getAnalyzerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
 
@@ -19,8 +20,9 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
+const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
 
-const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
+
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
@@ -28,8 +30,19 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hidden
       ], [])
   );
 
-  const allFeatureIDs = getAllFeatureIDsInList();
+  const getAllAnalyzerIDsInList = () => getUniqueIDsFromFeatures(...analyzerList
+    .reduce((accumulator, { featuresByType }) =>
+      [...accumulator,
+      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+      ], [])
+  );
 
+  const allFeatureIDs = getAllFeatureIDsInList();
+  const allAnalyzerIDs = getAllAnalyzerIDsInList();
+  // one feature list for hiding and showing features, we
+  // split out the map behaviour for analyzers.
+  allFeatureIDs.push(allAnalyzerIDs);
+  
   const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
   const showAllFeatures = () => showFeatures(...allFeatureIDs);
 
@@ -54,6 +67,15 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hidden
       trackEvent('Map Layers', 'Check Feature Set checkbox', `Feature Set:${set.name}`);
       return showFeatures(...featureIDs);
     }
+  };
+
+  // TODO - Grab the list of features tied to this analyzer, add it
+  // to the ids going to the showFeatures call and
+  // activate the visualization, and show a popup on the feature
+  const onAnalyzerSetToggle = (set) => {
+    const featureIDs = getFeatureSetFeatureIDs(set);
+    if (allVisibleInSet(set)) return hideFeatures(...featureIDs);
+    return showFeatures(...featureIDs);
   };
 
   const onToggleAllFeatures = (e) => {
@@ -91,11 +113,20 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, hidden
           onCheckClick={onFeatureSetToggle}
           itemComponent={Content}
         />
+        <CheckableList
+          className={listStyles.list}
+          items={analyzerList}
+          itemProps={itemProps}
+          itemFullyChecked={allVisibleInSet}
+          itemPartiallyChecked={someVisibleInSet}
+          onCheckClick={onAnalyzerSetToggle}
+          itemComponent={Content}
+        />
       </Collapsible>
     </li>
   </ul>;
 });
 
-const mapStateToProps = (state) => ({ featureList: getFeatureLayerListState(state), hiddenFeatureIDs: state.view.hiddenFeatureIDs });
+const mapStateToProps = (state) => ({ featureList: getFeatureLayerListState(state), hiddenFeatureIDs: state.view.hiddenFeatureIDs, analyzerList: getAnalyzerListState(state) });
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);

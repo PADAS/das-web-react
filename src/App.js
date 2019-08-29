@@ -15,6 +15,7 @@ import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
+import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchEventSchema } from './ducks/event-schemas';
 
 import SideBar from './SideBar';
@@ -64,7 +65,7 @@ const bindDirectMapEventing = (map) => {
 
 
 const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchAnalyzers, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -101,6 +102,7 @@ const App = memo((props) => {
     fetchEventSchema();
     fetchMaps();
     fetchSubjectGroups();
+    fetchAnalyzers();
     fetchSystemStatus();
     loadProgressBar();
     window.addEventListener('online', () => {
@@ -147,4 +149,4 @@ const App = memo((props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchAnalyzers, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

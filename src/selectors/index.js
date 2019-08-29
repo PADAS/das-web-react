@@ -26,6 +26,7 @@ const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const trackCollection = trackCollection => trackCollection;
 const tracks = ({ data: { tracks } }) => tracks;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
+export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
@@ -119,20 +120,49 @@ export const getArrayOfVisibleTracks = createSelector(
   },
 );
 
+// TODO - refactor this and the feature call to share a reduce function
+export const getAnalyzerFeatureCollectionsByType = createSelector(
+  [analyzerFeatures],
+  (analyzerFeatures) => {
+    const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
+      [...accumulator,
+      ...data.geojson.features.map(feature => {
+        if (feature.properties.image) {
+          feature = addIconToGeoJson(feature);
+          feature.properties.image = calcUrlForImage(feature.properties.image);
+          feature.properites.analyzer_id = 'foo';
+        }
+        return feature;
+      })], []);
+    // XXX Hack for now - simiulate layergroups
+    const layerGroups = analyzerFeatures.map( (analyzer) => {
+      const featureIds = analyzer.geojson.features.map( feature => feature.id);
+      return {id: analyzer.id, feature_ids: featureIds};
+    });
+
+    return {
+      analyzerSymbols: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
+      analyzerLines: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
+      analyzerPolys: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
+      layerGroups: layerGroups,
+    };
+  },
+);
+
 export const getFeatureSetFeatureCollectionsByType = createSelector(
   [featureSets, hiddenFeatureIDs],
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-        ...data.geojson.features
-          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-          .map(feature => {
-            if (feature.properties.image) {
-              feature = addIconToGeoJson(feature);
-              feature.properties.image = calcUrlForImage(feature.properties.image);
-            }
-            return feature;
-          })], []);
+      ...data.geojson.features
+        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+        .map(feature => {
+          if (feature.properties.image) {
+            feature = addIconToGeoJson(feature);
+            feature.properties.image = calcUrlForImage(feature.properties.image);
+          }
+          return feature;
+        })], []);
     return {
       symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
       lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
