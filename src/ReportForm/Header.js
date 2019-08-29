@@ -56,6 +56,7 @@ const ReportFormHeader = (props) => {
     } catch (e) {
       console.log('error occured while opening external report', e);
     }
+  };
   
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen)
