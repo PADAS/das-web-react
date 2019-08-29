@@ -67,12 +67,12 @@ const ReportFormHeader = (props) => {
       {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
     </span>
   ;
-
+  
   // TODO:Refactor popover className once we standardize popover styles:
   // remove style.reportPopover and style.popoverHeader
-  const ReportHeaderPopover = <Popover placement='auto' className={styles.reportPopover}>
-    <Popover.Title className={styles.popoverHeader}>{eventOrIncidentReport}</Popover.Title>
-    <Popover.Content className={styles.headerPopoverContent}>
+  const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
+    <Popover.Title>{eventOrIncidentReport}</Popover.Title>
+    <Popover.Content>
       <h6>Priority:</h6>
       <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
       {canAddToIncident && <Fragment>
@@ -87,9 +87,9 @@ const ReportFormHeader = (props) => {
 
   // TODO:Refactor popover className once we standardize popover styles:
   // remove style.reportPopover and style.popoverHeader
-  const ReportHistoryPopover = <Popover placement='auto' className={styles.reportPopover}>
-    <Popover.Title className={styles.popoverHeader}>History</Popover.Title>
-    <Popover.Content className={styles.historyPopoverContent}>
+  const ReportHistoryPopover = <Popover placement='auto' className={styles.historyPopover}>
+    <Popover.Title>History</Popover.Title>
+    <Popover.Content>
       <ul>
         {report.updates.map((update) =>
           <li className={styles.listItem} key={update.time}>
