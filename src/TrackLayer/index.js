@@ -6,7 +6,7 @@ import isEqual from 'react-fast-compare';
 import { withMap } from '../EarthRangerMap';
 import { LAYER_IDS } from '../constants';
 import { addAndCacheMapImage } from '../utils/map';
-import { convertArrayOfTracksIntoFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
+import { convertArrayOfTracksToFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -46,7 +46,7 @@ const timepointLayerLayout = {
 const TracksLayer = memo(function TracksLayer(props) {
   const { map, onPointClick, trackCollection, showTimepoints, ...rest } = props;
   const tracksAsPoints = convertArrayOfTracksToPointFeatureCollection(trackCollection);
-  const tracksAsFeatureCollection = convertArrayOfTracksIntoFeatureCollection(trackCollection);
+  const tracksAsFeatureCollection = convertArrayOfTracksToFeatureCollection(trackCollection);
   const onSymbolClick = e => onPointClick(getPointLayer(e, map));
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';

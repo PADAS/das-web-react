@@ -11,6 +11,8 @@ export const FETCH_TRACKS = 'FETCH_TRACKS';
 export const FETCH_TRACKS_SUCCESS = 'FETCH_TRACKS_SUCCESS';
 export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
+const SET_TRACK_DATE_RANGE = 'SET_TRACK_DATE_RANGE';
+
 // action creators
 export const fetchTracks = (...ids) => {
   return async (dispatch) => {
@@ -39,8 +41,13 @@ const fetchTracksError = error => ({
   payload: error,
 });
 
-const INITIAL_TRACKS_STATE = {};
+export const setTrackDateRange = (range) => ({
+  type: SET_TRACK_DATE_RANGE,
+  payload: range,
+});
+
 // reducers
+const INITIAL_TRACKS_STATE = {};
 export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {}) {
   switch (action.type) {
   case SOCKET_SUBJECT_STATUS: {
@@ -95,4 +102,14 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
     return state;
   }
   }
+};
+
+const INITIAL_TRACK_DATE_RANGE_STATE = {};
+export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { type, payload }) => {
+  if (type === SET_TRACK_DATE_RANGE) {
+    return {
+      ...state, ...payload,
+    };
+  }
+  return state;
 };

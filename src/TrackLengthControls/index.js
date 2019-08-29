@@ -11,6 +11,11 @@ const RANGE_MAX = 365;
 
 const { Label, Control } = Form;
 
+const RANGE_INPUT_ATTRS = {
+  min: RANGE_MIN,
+  max: RANGE_MAX,
+};
+
 const TrackLengthControls = (props) => {
   const [rangeValue, setRangeValue] = useState(14);
   const [selected, setSelected] = useState('filter');
@@ -32,10 +37,10 @@ const TrackLengthControls = (props) => {
       <span>Custom length</span>
       <div className={styles.rangeControls}>
         <LogarithmicSlider onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={selected !== 'custom-length'} className={`${styles.rangeSlider} ${selected !== 'custom-length' ? styles.disabled : ''}`} value={rangeValue} min={RANGE_MIN} max={RANGE_MAX} onChange={value => setRangeValue(value)} />
-        <input onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={selected !== 'custom-length'} className={`${styles.rangeFreeformInput} ${selected !== 'custom-length' ? styles.disabled : ''}`} type='text' value={rangeValue} name='range-freeform-input'  onChange={({ target: { value } }) => setRangeValue(value)} />
+        <input onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={selected !== 'custom-length'} className={`${styles.rangeFreeformInput} ${selected !== 'custom-length' ? styles.disabled : ''}`} type='number' min={RANGE_MIN} max={RANGE_MAX} value={rangeValue} name='range-freeform-input'  onChange={({ target: { value } }) => setRangeValue(value)} />
       </div>
     </Label>
-   {/*  <Label htmlFor='all' className={styles.label}>
+    {/*  <Label htmlFor='all' className={styles.label}>
       <Control onChange={onSelectChange} id='all' checked={isSelected('all')} className={styles.radio} value='all' type='radio' name='track-length-method' />
       <span>All available data <em>(may be slow)</em></span>
     </Label> */}

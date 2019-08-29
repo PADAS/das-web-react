@@ -100,14 +100,16 @@ const EventFilter = memo((props) => {
     },
   });
 
-  const onDateRangeChange = ({ lower, upper }) => updateEventFilter({
-    filter: {
-      date_range: {
-        lower,
-        upper,
+  const onDateRangeChange = ({ lower, upper }) => {
+    updateEventFilter({
+      filter: {
+        date_range: {
+          lower,
+          upper,
+        },
       },
-    },
-  });
+    });
+  };
 
   const resetPopoverFilters = () => {
     updateEventFilter({
