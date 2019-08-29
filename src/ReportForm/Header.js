@@ -87,7 +87,7 @@ const ReportFormHeader = (props) => {
 
   // TODO:Refactor popover className once we standardize popover styles:
   // remove style.reportPopover and style.popoverHeader
-  const ReportHistoryPopover = <Popover placement='right' className={styles.reportPopover}>
+  const ReportHistoryPopover = <Popover placement='auto' className={styles.reportPopover}>
     <Popover.Title className={styles.popoverHeader}>History</Popover.Title>
     <Popover.Content className={styles.historyPopoverContent}>
       <ul>

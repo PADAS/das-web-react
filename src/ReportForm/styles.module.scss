@@ -295,7 +295,7 @@
 }
 
 .headerPopoverContent {
-  margin: 0.5rem 0.1rem 0 0.1rem;
+  margin: 0.5rem 0.1rem;
   padding: 0;
   hr {
     margin-top: 0.5rem;
@@ -314,7 +314,7 @@
   max-width: 20rem;
   max-height: 30rem;
   overflow-y: auto;
-  margin: 0.5rem 0 0 0.1rem;
+  margin: 0.5rem 0.1rem;
   padding: 0;
 }
 
@@ -348,7 +348,7 @@
   min-width: 14rem;
   padding: 0.5rem;
   .popoverHeader {
-    background: black;
+    background: #333;
     color: white;
     font-weight: bold;
   }
