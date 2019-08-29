@@ -7,6 +7,7 @@ import MapNamesControl from '../MapNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
 import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 
@@ -25,8 +26,13 @@ const MapSettingsControl = (props) => {
     </Popover>
   );
 
+  const onButtonClick = () => {
+    trackEvent('Map Interaction', "Click 'Map Settings' button");
+  };
+
   return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>
-    <button type='button' className={styles.gearButton} ref={formRef}>
+    <button type='button' className={styles.gearButton} ref={formRef}
+      onClick={onButtonClick}>
       <GearIcon />
     </button>
   </OverlayTrigger>;

@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import { withMap } from '../EarthRangerMap';
 import MapRulerLayer from '../MapRulerLayer';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -55,6 +56,13 @@ const MapRulerControl = (props) => {
     map.off('click', mapClickFunc.current);
   };
 
+  const toggleActiveState = () => {
+    setActiveState(active => !active);
+    active?
+      trackEvent('Map Interaction', "Dismiss 'Measurement Tool'") :
+      trackEvent('Map Interaction', "Click 'Measurement Tool' button");
+  }
+
   useEffect(() => {
     if (completed) {
       unbindRulerMapEvents();
@@ -67,17 +75,29 @@ const MapRulerControl = (props) => {
   useEffect(resetState, [active]);
 
   useEffect(() => {
+    if (active) {
+      if (points.length === 1) {
+        trackEvent('Map Interaction', "Place Start of 'Measurement Tool'");
+      } else if (points.length === 2) {
+        trackEvent('Map Interaction', "Place End of 'Measurement Tool'");
+      }
+    }
+  }, [points]);
+
+  useEffect(() => {
     return () => onComponentUnmount();
   }, []);
 
-  const toggleActiveState = () => setActiveState(active => !active);
 
   return <Fragment>
     <div className={styles.buttons}>
-      <button type='button' title='Map ruler' className={`${styles.button} ${active ? 'active' : ''}`} onClick={toggleActiveState}>
+      <button type='button' title='Map ruler' 
+        className={`${styles.button} ${active ? 'active' : ''}`} 
+        onClick={toggleActiveState}>
         <RulerIcon />
       </button>
-      {active && <Button variant='dark' size='sm' id='cancel-location-select' onClick={toggleActiveState} type='button'>
+      {active && <Button variant='dark' size='sm' id='cancel-location-select' 
+        onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}
     </div>

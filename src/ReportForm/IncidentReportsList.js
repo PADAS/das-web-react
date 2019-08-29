@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import ReportListItem from '../ReportListItem';
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -9,12 +10,16 @@ const IncidentReportsList = (props) => {
 
   const reportList = reports.map(({ related_event: report }) => report);
 
+  const onReportListItemClick = (report) => {
+    onReportClick(report);
+    trackEvent('Incident Report', `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, `Event Type:${report.event_type}`);
+  };
+
   const createReportListItem = report => <ReportListItem
     report={eventStore[report.id] || report}
     key={report.id}
-    onTitleClick={() => onReportClick(report)}
+    onTitleClick={() => onReportListItemClick(report)}
     showJumpButton={false} />;
-
 
   return <form className={styles.form}>
     <ul className={styles.incidentList}>

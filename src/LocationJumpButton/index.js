@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { BREAKPOINTS } from '../constants';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { jumpToLocation } from '../utils/map';
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -20,12 +21,13 @@ const LocationJumpButton = memo((props) => {
     }
   };
 
-  const handleClick = () => {
+  const onJumpButtonClick = () => {
     onButtonClick(map, coordinates, zoom);
     closeSidebarForSmallViewports();
   };
 
-  return <button title="Jump to this location" type="button" className={styles.jump} onClick={handleClick}></button>
+  return <button title="Jump to this location" type="button" 
+    className={styles.jump} onClick={onJumpButtonClick}></button>
 });
 
 export default connect(null, { updateUserPreferences })(LocationJumpButton);
@@ -33,6 +35,7 @@ export default connect(null, { updateUserPreferences })(LocationJumpButton);
 
 LocationJumpButton.defaultProps = {
   onButtonClick(map, coordinates, zoom) {
+    trackEvent('Map Interaction', "Click 'Jump to Location' button");
     jumpToLocation(map, coordinates, zoom);
   }
 }

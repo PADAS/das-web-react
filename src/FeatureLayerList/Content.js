@@ -6,6 +6,7 @@ import intersection from 'lodash/intersection';
 
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { getUniqueIDsFromFeatures } from '../utils/features';
+import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
 import FeatureTypeListItem from './FeatureTypeListItem';
@@ -30,8 +31,15 @@ const Content = memo((props) => {
 
   const onCheckToggle = (type) => {
     const featureIDs = getUniqueIDsFromFeatures(...type.features);
-    if (allVisible(type)) return hideFeatures(...featureIDs);
-    return showFeatures(...featureIDs);
+    if (allVisible(type)) {
+      trackEvent('Map Layers', 'Uncheck Feature Set Type checkbox', 
+        `Feature Set Type:${type.name}`);
+      return hideFeatures(...featureIDs);
+    } else {
+      trackEvent('Map Layers', 'Check Feature Set Type checkbox', 
+        `Feature Set Type:${type.name}`);
+      return showFeatures(...featureIDs);
+    }
   };
 
   const itemProps = { map };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { trackEvent } from '../utils/analytics';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
@@ -28,12 +29,23 @@ const DailyReportModal = (props) => {
     }
   };
 
-  const setParamsForYesterday = () => setParamsFor('yesterday');
-  const setParamsForToday = () => setParamsFor('today');
+  const setParamsForYesterday = () => { 
+    setParamsFor('yesterday');
+    trackEvent('Report Export', "Click 'Yesterday\'s Report' button", null);
+  };
+
+  const setParamsForToday = () => { 
+    setParamsFor('today');
+    trackEvent('Report Export', "Click 'Today\'s Report' button", null);
+  };
 
   const handleInputChange = (type, value) => {
-    if (type === 'start') setStartDate(value);
-    if (type === 'end') setEndDate(value);
+    if (type === 'start') {
+      setStartDate(value);
+    };
+    if (type === 'end') {
+      setEndDate(value);
+    }
   };
 
   const handleStartDateChange = value => handleInputChange('start', value);
@@ -55,6 +67,7 @@ const DailyReportModal = (props) => {
       requireEnd={true}
       onStartDateChange={handleStartDateChange}
       onEndDateChange={handleEndDateChange}
+      gaEventSrc='Report Export'
       />
   </DataExportModal >;
 };

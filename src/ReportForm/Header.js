@@ -16,6 +16,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import AddToIncidentModal from './AddToIncidentModal';
 
 import { displayTitleForEventByEventType } from '../utils/events'; 
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -38,6 +39,7 @@ const ReportFormHeader = (props) => {
   const updateTime = report.updated_at || report.created_at;
 
   const onStartAddToIncident = () => {
+    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `Click 'Add to Incident'`);
     setHeaderPopoverState(false);
     addModal({
       content: AddToIncidentModal,
@@ -54,6 +56,10 @@ const ReportFormHeader = (props) => {
     } catch (e) {
       console.log('error occured while opening external report', e);
     }
+  
+  const onHamburgerMenuIconClick = () => {
+    setHeaderPopoverState(!headerPopoverOpen)
+    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `${headerPopoverOpen?'Close':'Open'}' Hamburger Menu`);
   };
 
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
@@ -84,7 +90,7 @@ const ReportFormHeader = (props) => {
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
-        <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={() => setHeaderPopoverState(!headerPopoverOpen)} />
+        <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
         <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} onHide={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click'>
           {ReportHeaderPopover}
         </Overlay>
