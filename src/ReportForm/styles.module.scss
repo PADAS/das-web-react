@@ -270,12 +270,12 @@
   color: $link-color;
   display: flex;
   font-weight: 600;
-  justify-content: center;
-  padding: 1rem;
+  justify-content: left;
+  padding: 0.5rem 0;
   transition: background .2s linear;
   width: 100%;
   &:hover {
-    background: darken(white, 5%);
+    background: darken($link-color, 5%);
     text-decoration: underline;
   }
   svg {
@@ -294,11 +294,64 @@
   }
 }
 
+.headerPopoverContent {
+  margin: 0.5rem 0.1rem 0 0.1rem;
+  padding: 0;
+  hr {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
 
-.popover {
+.reportHistory {
+  font-size: 0.65rem;
+  line-height: 0.75rem;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+}
+
+.historyPopoverContent {
+  max-width: 20rem;
+  max-height: 30rem;
+  overflow-y: auto;
+  margin: 0.5rem 0 0 0.1rem;
+  padding: 0;
+}
+
+.historyItem {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  .historyDetails {
+    float: left;
+    width: 180px;
+    .historyMessage {
+      font-size: 0.85rem;
+      line-height: 1rem;
+    }
+    .historyUser {
+      font-size: 0.65rem;
+      font-style: italic;
+    }
+  }
+  .historyDate {
+    float: right;
+    align-items: flex-end;
+    margin-left: 0.4rem;
+    margin-right: 0.1rem;
+  }
+}
+
+// TODO: Refactor this once we standardize popover styles
+.reportPopover {
   max-width: none;
   min-width: 14rem;
   padding: 0.5rem;
+  .popoverHeader {
+    background: black;
+    color: white;
+    font-weight: bold;
+  }
   h6 {
     margin-bottom: 0.5rem;
   }
