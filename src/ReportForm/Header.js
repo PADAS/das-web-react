@@ -27,7 +27,6 @@ const calcClassNameForPriority = (priority) => {
   return 'noPriority';
 };
 
-
 const ReportFormHeader = (props) => {
   const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const reportTitle = displayTitleForEventByEventType(report);
@@ -35,6 +34,7 @@ const ReportFormHeader = (props) => {
 
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
+  const hasExternalLink = (!!report.external_source && !!report.external_source.url);
 
   const updateTime = report.updated_at || report.created_at;
 
@@ -48,6 +48,15 @@ const ReportFormHeader = (props) => {
     });
   };
 
+  const linkToReport = () => {
+    setHeaderPopoverState(false);
+    try {
+      const url = report.external_source.url;
+      window.open(url,'_blank');
+    } catch (e) {
+      console.log('error occured while opening external report', e);
+    }
+  
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen)
     trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `${headerPopoverOpen?'Close':'Open'}' Hamburger Menu`);
@@ -66,8 +75,14 @@ const ReportFormHeader = (props) => {
       </Button>
     </Fragment>
     }
+    {hasExternalLink && <Fragment> 
+      <hr />
+      <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
+        <img src={report.external_source.icon_url} style={{height: '3.0rem', width: '3.0rem'}} /> {report.external_source.text}
+      </Button>
+    </Fragment>
+    }
   </Popover>;
-
 
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
     <h4>
