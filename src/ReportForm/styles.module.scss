@@ -269,17 +269,18 @@
   border-radius: 0.5rem;
   color: $link-color;
   display: flex;
-  font-weight: 600;
+  font-weight: normal;
   justify-content: left;
   padding: 0.5rem 0;
   transition: background .2s linear;
   width: 100%;
   &:hover {
-    background: darken($link-color, 5%);
+    background: darken(white, 5%);
     text-decoration: underline;
+    color: $link-color;
   }
   svg {
-    margin-right: 1rem;
+    margin-right: 0.5rem;
   }
 }
 
