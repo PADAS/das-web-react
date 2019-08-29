@@ -1,5 +1,4 @@
 import React, { memo, useState, useRef, Fragment } from 'react';
-import SVG from 'react-inlinesvg';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';
@@ -73,7 +72,7 @@ const ReportFormHeader = (props) => {
     {hasExternalLink && <Fragment> 
       <hr />
       <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
-        <SVG src={report.external_source.icon_url} cacheRequests={true} style={{height: '3.0rem', width: '3.0rem'}} /> {report.external_source.text}
+        <img src={report.external_source.icon_url} style={{height: '3.0rem', width: '3.0rem'}} /> {report.external_source.text}
       </Button>
     </Fragment>
     }
