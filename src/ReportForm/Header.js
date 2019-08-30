@@ -28,7 +28,6 @@ const calcClassNameForPriority = (priority) => {
   return 'noPriority';
 };
 
-
 const ReportFormHeader = (props) => {
   const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const menuRef = useRef(null);
@@ -37,9 +36,10 @@ const ReportFormHeader = (props) => {
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
 
   const reportTitle = displayTitleForEventByEventType(report);
+  const eventOrIncidentReport = `${report.is_collection? 'Incident' : 'Event'} Report`;
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
-  const eventOrIncidentReport = `${report.is_collection? 'Incident' : 'Event'} Report`;
+  const hasExternalLink = (!!report.external_source && !!report.external_source.url);
   const updateTime = report.updated_at || report.created_at;
 
   const onStartAddToIncident = () => {
@@ -52,6 +52,16 @@ const ReportFormHeader = (props) => {
     });
   };
 
+  const linkToReport = () => {
+    setHeaderPopoverState(false);
+    try {
+      const url = report.external_source.url;
+      window.open(url,'_blank');
+    } catch (e) {
+      console.log('error occured while opening external report', e);
+    }
+  };
+  
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen)
     trackEvent(eventOrIncidentReport, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu`);
@@ -79,6 +89,13 @@ const ReportFormHeader = (props) => {
         <hr />
         <Button className={styles.addToIncidentBtn} variant='secondary' onClick={onStartAddToIncident}>
           <AddToIncidentIcon style={{height: '2rem', width: '2rem'}} />Add to incident
+        </Button>
+      </Fragment>
+      }
+      {hasExternalLink && <Fragment> 
+        <hr />
+        <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
+          <img src={report.external_source.icon_url} style={{height: '2rem', width: '2rem'}} /> {report.external_source.text}
         </Button>
       </Fragment>
       }
