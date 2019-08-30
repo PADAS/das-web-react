@@ -5,6 +5,8 @@ import { featureCollection } from '@turf/helpers';
 
 import sortedUniqBy from 'lodash/sortedUniqBy';
 
+import { generateMonthsAgoDate } from './datetime';
+
 /* tracks come in a variety of linestring formats, which we explode into points to generate timepoint layers and heatmap data.
    as such, the exploded version of a track can have duplicate entries ("connection points" between lines), causing strange side effects. the nature of the duplicates
    are dependent on the track source, so this utility function takes a fairly naive but effective approach to de-duping.
@@ -88,7 +90,7 @@ const mergeTrackData = (track, extendedTrackHistory) => {
 };
 
 const createSortedCoordTimePairsForTrack = (track) => {
-  const { features: { properties, geometry } } = track;
+  const { features: [{ properties, geometry }] } = track;
   const { coordinateProperties: { times } } = properties;
   const { coordinates } = geometry;
   return sortCoordTimePairs(
@@ -104,50 +106,85 @@ const sortCoordTimePairs = (pairs) => pairs.sort((pair1, pair2) =>
 
 const removeDuplicatesFromCoordTimePairs = (pairs) => sortedUniqBy(pairs, 'time');
 
-export const dateIsAtOrAfterDate = (date, targetDate) =>
+const dateIsAtOrAfterDate = (date, targetDate) =>
   new Date(date) - new Date(targetDate) >= 0;
 
-const recursiveFindDateIndex = (times, targetDate, startIndex = 0, endIndex = times.length - 1) => {
+const findDateIndexInRange = (times, targetDate, startIndex = 0, endIndex = times.length - 1) => {
   while (startIndex < endIndex) {
     const timeIndex = Math.floor(startIndex + ((endIndex - startIndex) + 1) / 2);
 
     if (dateIsAtOrAfterDate(times[timeIndex], targetDate)) {
-      return recursiveFindDateIndex(times, targetDate, timeIndex, endIndex);
+      return findDateIndexInRange(times, targetDate, timeIndex, endIndex);
     }
     else {
-      return recursiveFindDateIndex(times, targetDate, startIndex, timeIndex - 1);
+      return findDateIndexInRange(times, targetDate, startIndex, timeIndex - 1);
     }
   }
   return (dateIsAtOrAfterDate(times[startIndex], targetDate)) ? startIndex : -1;
 };
 
-export const findDateIndexInRange = (times, targetDate) => recursiveFindDateIndex(times, targetDate, dateIsAtOrAfterDate);
-
-export const trimTimeRange = (times, from = null, until = null) => {
-  let results = [...times];
+const findTimeEnvelopeIndices = (times, from = null, until = null) => {
+  const results = {};
+  if (!from && !until) return {
+    from, until,
+  };
   if (from) {
     const fromIndex = findDateIndexInRange(times, from);
-    results.splice(fromIndex + 1, results.length - 1);
+    if (fromIndex > -1) {
+      results.from = fromIndex;
+    }
   }
   if (until) {
     const untilIndex = findDateIndexInRange(times, until);
-    results.splice(0, untilIndex);
+    if (
+      untilIndex === (times.length - 1)
+      && (new Date(times[untilIndex]) - new Date(until) > 0)
+    ) {
+      results.until = new Date(times[untilIndex]) - new Date(until) > 0 ? times.length : times.length - 1;
+    } else if (untilIndex > -1) {
+      results.until = untilIndex;
+    }
   }
   return results;
 };
 
+const trimTrackFeatureTimeRange = (trackFeatureCollection, from = null, until = null) => {
+  if (!from && !until) return trackFeatureCollection;
 
-/* const dateIsAtOrBeforeEndDate = (date, targetDate) =>
-  new Date(date) - new Date(targetDate) <= 0; */
+  return trackFeatureCollection.features.map((track) => {
+    const envelope = findTimeEnvelopeIndices(track.properties.coordinateProperties.times, from, until);
 
+  
+    if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
+      return track;
+    }
+  
+    const results = { ...track };
+    const toTrim = [results.geometry.coordinates, results.properties.coordinateProperties.times];
 
-// const findEndIndex = (times, targetDate) => findDateIndexRecursive(times, targetDate, dateIsAtOrBeforeEndDate);
+    toTrim.forEach((collection) => {
+      if (envelope.from) {
+        
+        collection.splice((envelope.from + 1), collection.length);
+      }
+      if (envelope.until) {
+        collection.splice(0, envelope.until);
+      }
+    });
+    
+    return results;
+  });
+};
 
-
-/* if trimming by UNTIL
-  find last index of at or after
-*/
-
-/* if trimming by STARTING
-  find last index of at or after
-*/
+const trackHasDataWithinTimeRange = (track, from = null, until = null) => {
+  if (!from && !until) return true;
+  const [first] = track.features[0].properties.coordinateProperties.times;
+  const last = track.features[0].properties.coordinateProperties.times[track.features[0].properties.coordinateProperties.times.length - 1];
+  if (from && (new Date(last) - new Date(from) > 0)) {
+    return false;
+  }
+  if (until && (new Date(first) - new Date(until) < 0)) {
+    return false;
+  }
+  return true;
+};
