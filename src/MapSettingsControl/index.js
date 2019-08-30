@@ -31,16 +31,11 @@ const MapSettingsControl = (props) => {
   };
 
   return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>
-<<<<<<< HEAD
     <button type='button' className={styles.gearButton} ref={formRef}
       onClick={onButtonClick}>
       <GearIcon />
     </button>
   </OverlayTrigger>;
-=======
-      <div className={styles.gearButton}><button ref={formRef}><GearIcon /></button></div>
-    </OverlayTrigger>;
->>>>>>> 2fdb467... Payload processing
 };
 
 const mapStateToProps = ({ view: { userLocation } }) => ({

@@ -61,11 +61,8 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
-<<<<<<< HEAD
     mapImages: mapImagesReducer,
-=======
     analyzerFeatures: analyzersReducer,
->>>>>>> 33693d6... WIP
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
     subjectGroups: subjectGroupsReducer,
