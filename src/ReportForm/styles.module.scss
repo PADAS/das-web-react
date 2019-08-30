@@ -279,7 +279,8 @@
     text-decoration: underline;
     color: $link-color;
   }
-  svg {
+  img, svg {
+    margin-left: 0.1rem;
     margin-right: 0.5rem;
   }
 }

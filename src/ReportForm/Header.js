@@ -9,6 +9,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import { addModal } from '../ducks/modals';
 
 import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-to-incident.svg';
+import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
@@ -96,6 +97,7 @@ const ReportFormHeader = (props) => {
         <hr />
         <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
           <img src={report.external_source.icon_url} style={{height: '2rem', width: '2rem'}} /> {report.external_source.text}
+          <ExternalLinkIcon style={{height: '1rem', width: '1rem', marginLeft: '0.1rem'}} />
         </Button>
       </Fragment>
       }
@@ -112,7 +114,7 @@ const ReportFormHeader = (props) => {
           <li className={styles.listItem} key={update.time}>
             <div className={styles.historyItem}>
               <div className={styles.historyDetails}>
-                <div className={styles.historyMessage}>{update.message.replace(/by (\w+\b)( \w+\b)?$/g, '')}</div>
+                <div className={styles.historyMessage}>{update.message.replace(/ by [ \w+\b]*$/g, '')}</div>
                 <div className={styles.historyUser}>{`${update.user.first_name} ${update.user.last_name}`.trim()}</div>
               </div>
               <DateTime className={styles.historyDate} date={update.time}/>
