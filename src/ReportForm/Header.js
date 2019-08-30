@@ -79,8 +79,6 @@ const ReportFormHeader = (props) => {
     </span>
   ;
   
-  // TODO:Refactor popover className once we standardize popover styles:
-  // remove style.reportPopover and style.popoverHeader
   const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
     <Popover.Title>{eventOrIncidentReport}</Popover.Title>
     <Popover.Content>
@@ -104,8 +102,6 @@ const ReportFormHeader = (props) => {
     </Popover.Content>
   </Popover>;
 
-  // TODO:Refactor popover className once we standardize popover styles:
-  // remove style.reportPopover and style.popoverHeader
   const ReportHistoryPopover = <Popover placement='auto' className={styles.historyPopover}>
     <Popover.Title>History</Popover.Title>
     <Popover.Content>
