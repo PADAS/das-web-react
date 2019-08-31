@@ -7,7 +7,9 @@ import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
-import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
+import systemStatusReducer, { zendeskReducer, dailyReportEnabledReducer, 
+  exportKmlEnabledReducer, eventMatrixEnabledReducer, eventSearchEnabledReducer, 
+  alertsEnabledReducer, showTrackDaysReducer} from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
   pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer } from '../ducks/map-ui';
@@ -90,6 +92,12 @@ const rootReducer = combineReducers({
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
     zendeskEnabled: zendeskReducer,
+    dailyReportEnabled: dailyReportEnabledReducer,
+    exportKmlEnabled: exportKmlEnabledReducer,
+    eventMatrixEnabled: eventMatrixEnabledReducer,
+    eventSearchEnabled: eventSearchEnabledReducer,
+    alertsEnabled: alertsEnabledReducer,
+    showTrackDays: showTrackDaysReducer,
   }),
 });
 

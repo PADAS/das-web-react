@@ -20,9 +20,21 @@ export const SOCKET_SERVICE_STATUS = 'SOCKET_SERVICE_STATUS';
 
 export const SET_ZENDESK_CONFIG = 'SET_ZENDESK_CONFIG';
 
+export const SET_DAILY_REPORT_ENABLED = 'SET_DAILY_REPORT_ENABLED';
+export const SET_EXPORT_KML_ENABLED = 'SET_EXPORT_KML_ENABLED';
+export const SET_EVENT_MATRIX_ENABLED = 'SET_EVENT_MATRIX_ENABLED';
+export const SET_EVENT_SEARCH_ENABLED = 'SET_EVENT_SEARCH_ENABLED';
+export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
+export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
+
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STATUSES;
 
 // action creators
+export const updateNetworkStatus = (status) => ({
+  type: NETWORK_STATUS_CHANGE,
+  payload: status,
+});
+
 export const fetchSystemStatus = () => {
   return async function (dispatch) {
     const response = await axios.get(STATUS_API_URL, {
@@ -32,11 +44,18 @@ export const fetchSystemStatus = () => {
     }).catch(error => dispatch(fetchSystemStatusError(error)));
 
     dispatch(setZendeskConfigStatus(response));
+    dispatch(setDailyReportEnabled(response));
+    dispatch(setExportKmlEnabled(response));
+    dispatch(setEventMatrixEnabled(response));
+    dispatch(setEventSearchEnabled(response));
+    dispatch(setAlertsEnabled(response));
+    dispatch(setShowTrackDays(response));
+
     dispatch(fetchSystemStatusSuccess(response));
   };
 };
 
-const setZendeskConfigStatus = response => (dispatch) => {
+const setZendeskConfigStatus = (response) => (dispatch) => {
   let enabled;
   try {
     window.zE(() => {
@@ -56,11 +75,6 @@ const setZendeskConfigStatus = response => (dispatch) => {
   });
 }; 
 
-export const updateNetworkStatus = (status) => ({
-  type: NETWORK_STATUS_CHANGE,
-  payload: status,
-});
-
 const fetchSystemStatusSuccess = ({ data: { data } }) => ({
   type: FETCH_SYSTEM_STATUS_SUCCESS,
   payload: data,
@@ -69,6 +83,36 @@ const fetchSystemStatusSuccess = ({ data: { data } }) => ({
 const fetchSystemStatusError = error => ({
   type: FETCH_SYSTEM_STATUS_ERROR,
   payload: error,
+});
+
+const setDailyReportEnabled = ({ data: { data } }) => ({
+    type: SET_DAILY_REPORT_ENABLED,
+    payload: data.daily_report_enabled,
+});
+
+const setExportKmlEnabled = ({ data: { data } }) => ({
+  type: SET_EXPORT_KML_ENABLED,
+  payload: data.export_kml_enabled,
+});
+
+const setEventMatrixEnabled = ({ data: { data } }) => ({
+  type: SET_EVENT_MATRIX_ENABLED,
+  payload: data.event_matrix_enabled,
+});
+
+const setEventSearchEnabled = ({ data: { data } }) => ({
+  type: SET_EVENT_SEARCH_ENABLED,
+  payload: data.event_search_enabled,
+});
+
+const setAlertsEnabled = ({ data: { data } }) => ({
+  type: SET_ALERTS_ENABLED,
+  payload: data.alerts_enabled,
+});
+
+const setShowTrackDays = ({ data: { data } }) => ({
+  type: SET_SHOW_TRACK_DAYS,
+  payload: data.show_track_days,
 });
 
 // utility functions
@@ -273,5 +317,41 @@ export const zendeskReducer = (state = INITIAL_ZENDESK_STATE, action) => {
       enabled: payload,
     };
   }
+  return state;
+};
+
+export const dailyReportEnabledReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_DAILY_REPORT_ENABLED) return payload;
+  return state;
+};
+
+export const exportKmlEnabledReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_EXPORT_KML_ENABLED) return payload;
+  return state;
+};
+
+export const eventMatrixEnabledReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_EVENT_MATRIX_ENABLED) return payload;
+  return state;
+};
+
+export const eventSearchEnabledReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_EVENT_SEARCH_ENABLED) return payload;
+  return state;
+};
+
+export const alertsEnabledReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_ALERTS_ENABLED) return payload;
+  return state;
+};
+
+export const showTrackDaysReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === SET_SHOW_TRACK_DAYS) return payload;
   return state;
 };

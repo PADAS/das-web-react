@@ -10,38 +10,38 @@ import { trackEvent } from '../utils/analytics';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
-const modals = [
-  {
-    title: 'Daily Report',
-    content: DailyReportModal,
-  },
-  {
-    title: 'Field Reports',
-    content: DataExportModal,
-    url: 'activity/events/export',
-  },
-  {
-    title: 'Master KML',
-    content: DataExportModal,
-    url: 'subjects/kml/root',
-  },
-  {
-    title: 'Subject Information',
-    content: DataExportModal,
-    url: 'trackingmetadata/export',
-  },
-  {
-    title: 'Subject Reports',
-    content: DataExportModal,
-    url: 'trackingdata/export',
-  },
-];
-
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, zendeskEnabled, ...rest } = props;
+  const { addModal, zendeskEnabled, dailyReportEnabled, exportKmlEnabled, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
+
+  const modals = [
+    ...(dailyReportEnabled? [{
+      title: 'Daily Report',
+      content: DailyReportModal,
+    }] : []),
+    {
+      title: 'Field Reports',
+      content: DataExportModal,
+      url: 'activity/events/export',
+    },
+    ...(exportKmlEnabled? [{
+      title: 'Master KML',
+      content: DataExportModal,
+      url: 'subjects/kml/root',
+    }] : []),
+    {
+      title: 'Subject Information',
+      content: DataExportModal,
+      url: 'trackingmetadata/export',
+    },
+    {
+      title: 'Subject Reports',
+      content: DataExportModal,
+      url: 'trackingdata/export',
+    },
+  ];
 
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
