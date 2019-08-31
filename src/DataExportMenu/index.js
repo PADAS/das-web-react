@@ -13,7 +13,7 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, zendeskEnabled, dailyReportEnabled, exportKmlEnabled, ...rest } = props;
+  const { addModal, systemConfig: {dailyReportEnabled, exportKmlEnabled, zendeskEnabled}, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
   const modals = [
@@ -77,6 +77,6 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { zendeskEnabled } }) => ({ zendeskEnabled });
+const mapStateToProps = ({ view: { systemConfig } }) => ({ systemConfig });
 
 export default connect(mapStateToProps, { addModal })(DataExportMenu);
