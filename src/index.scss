@@ -1,12 +1,13 @@
 @import './common/styles/vars/colors';
+@import "./common/legacy-bootstrap/scss/variables";
 
 body {
   color: $primary-font-color;
-  font-family: 'Roboto', sans-serif;
+  font-family: $font-family-base;
   margin: 0;
   padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Roboto Slab', serif;
+  font-family: $headings-font-family;
 }
