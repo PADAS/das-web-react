@@ -11,7 +11,8 @@ import SubjectListItem from './SubjectListItem';
 
 import { addHeatmapSubjects, removeHeatmapSubjects } from '../ducks/map-ui';
 import { subjectGroupHeatmapControlState } from './selectors';
-import { fetchTracks } from '../ducks/tracks';
+
+import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 
@@ -60,7 +61,7 @@ const ContentComponent = memo(debounceRender((props) => {
     if (groupIsFullyHeatmapped) return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
     
     setTrackLoadingState(true);
-    if (unloadedSubjectTrackIDs.length) await Promise.all(unloadedSubjectTrackIDs.map(id => props.fetchTracks(id)));
+    if (unloadedSubjectTrackIDs.length) await Promise.all(unloadedSubjectTrackIDs.map(id => fetchTracksIfNecessary(id)));
     
     setTrackLoadingState(false);
 
@@ -103,7 +104,7 @@ const ContentComponent = memo(debounceRender((props) => {
 }));
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
-const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects, fetchTracks })(ContentComponent);
+const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(ContentComponent);
 export default ConnectedComponent;
 
 

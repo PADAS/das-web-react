@@ -7,11 +7,11 @@ import debounceRender from 'react-debounce-render';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
-import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType } from '../selectors';
+import { fetchTracksIfNecessary } from '../utils/tracks';
+import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType, trimmedVisibleTrackFeatureCollection } from '../selectors';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
@@ -208,7 +208,7 @@ class Map extends Component {
 
     this.props.showPopup('subject', { geometry, properties });
 
-    await (tracks_available) ? this.props.fetchTracks(id) : new Promise((resolve, reject) => resolve());
+    await (tracks_available) ? fetchTracksIfNecessary(id) : new Promise((resolve, reject) => resolve());
 
     if (tracks_available) {
       updateTrackState({
@@ -241,10 +241,10 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState } = this.props;
+      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
-    const tracksAvailable = !!trackCollection.length;
+    const tracksAvailable = !!trackCollection && !!trackCollection.features.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
@@ -279,8 +279,7 @@ class Map extends Component {
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
             {tracksAvailable && (
-              /* <TrackLegend /> */
-              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackCollection={trackCollection} />
+              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackLength={trackLength} trackCollection={trackCollection} />
             )}
 
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
@@ -307,7 +306,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints, trackLength: { length:trackLength } } = view;
 
   return ({
     maps,
@@ -319,7 +318,8 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
-    trackCollection: getArrayOfVisibleTracks(state, props),
+    trackCollection: trimmedVisibleTrackFeatureCollection(state, props),
+    trackLength,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
@@ -331,7 +331,6 @@ export default connect(mapStatetoProps, {
   fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
-  fetchTracks,
   hidePopup,
   addModal,
   showPopup,
@@ -339,7 +338,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(withSocketConnection(Map), 100));
+)(debounceRender(withSocketConnection(Map), 50));
 
 // Map.whyDidYouRender = true;
 

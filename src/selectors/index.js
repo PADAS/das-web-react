@@ -5,7 +5,7 @@ import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
-import { convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
+import { convertArrayOfTracksToPointFeatureCollection, trimTrackFeatureCollectionToLength } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
 import { mapReportTypesToCategories } from '../utils/event-types';
@@ -25,8 +25,8 @@ const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs
 const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const tracks = ({ data: { tracks } }) => tracks;
+const trackLength = ({ view: { trackLength } }) => trackLength;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
-const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 const userLocation = ({ view: { userLocation } }) => userLocation;
@@ -116,6 +116,16 @@ export const getArrayOfVisibleTracks = createSelector(
   },
 );
 
+export const visibleTrackFeatureCollection = createSelector(
+  [getArrayOfVisibleTracks],
+  trackArray => featureCollection(trackArray.map(track => track.features[0])),
+);
+
+export const trimmedVisibleTrackFeatureCollection = createSelector(
+  [visibleTrackFeatureCollection, trackLength],
+  (trackFeatureCollection, trackLength) => trimTrackFeatureCollectionToLength(trackFeatureCollection, trackLength.length),
+);
+
 export const getFeatureSetFeatureCollectionsByType = createSelector(
   [featureSets, hiddenFeatureIDs],
   (featureSets, hiddenFeatureIDs) => {
@@ -162,7 +172,7 @@ export const getArrayOfDisplayedSubjectTracks = createSelector(
     .map(id => tracks[id]),
 );
 
-export const getPinnedSubjectTrackPoints = createSelector(
+export const getDisplayedSubjectTrackPoints = createSelector(
   [getArrayOfDisplayedSubjectTracks],
   trackCollection => convertArrayOfTracksToPointFeatureCollection(trackCollection),
 );

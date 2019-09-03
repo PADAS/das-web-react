@@ -4,12 +4,13 @@ import { connect } from 'react-redux';
 
 import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
-import { fetchTracks } from '../ducks/tracks';
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { getSubjectControlState } from './selectors';
+
+import { fetchTracksIfNecessary } from '../utils/tracks';
 
 
 import styles from './styles.module.scss';
@@ -28,7 +29,6 @@ const SubjectControls = memo((props) => {
     tracksLoaded,
     tracksVisible,
     tracksPinned,
-    fetchTracks,
     map,
     ...rest } = props;
 
@@ -37,14 +37,14 @@ const SubjectControls = memo((props) => {
 
   const { id } = subject;
 
-  const fetchTracksIfNecessary = () => {
+  const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
-    return fetchTracks(id);
+    return fetchTracksIfNecessary(id);
   };
 
   const onTrackButtonClick = async () => {
     setTrackLoadingState(true);
-    await fetchTracksIfNecessary(id);
+    await fetchSubjectTracks(id);
     setTrackLoadingState(false);
 
     toggleTrackState(id);
@@ -91,4 +91,4 @@ SubjectControls.propTypes = {
 
 const mapStateToProps = (state, props) => getSubjectControlState(state, props);
 
-export default connect(mapStateToProps, { fetchTracks, toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(SubjectControls);
+export default connect(mapStateToProps, { toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(SubjectControls);

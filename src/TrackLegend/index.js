@@ -11,7 +11,7 @@ import InfoIcon from '../common/images/icons/information.svg';
 
 import { updateTrackState } from '../ducks/map-ui';
 
-import { getArrayOfDisplayedSubjectTracks, getPinnedSubjectTrackPoints } from '../selectors';
+import { getArrayOfDisplayedSubjectTracks, getDisplayedSubjectTrackPoints } from '../selectors';
 
 import styles from './styles.module.scss';
 
@@ -80,7 +80,7 @@ const TrackLegend = (props) => {
 
 const mapStatetoProps = (state) => ({
   tracks: getArrayOfDisplayedSubjectTracks(state),
-  tracksAsPoints: getPinnedSubjectTrackPoints(state),
+  tracksAsPoints: getDisplayedSubjectTrackPoints(state),
   subjectTrackState: state.view.subjectTrackState,
 });
 

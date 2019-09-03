@@ -15,10 +15,10 @@ const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 
 // action creators
-export const fetchTracks = (...ids) => {
+export const fetchTracks = (dateParams, ...ids) => {
   return async (dispatch) => {
     try {
-      const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id))));
+      const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams })));
 
       const results = responses.reduce((accumulator, response, index) => {
         accumulator[ids[index]] = response.data.data;
@@ -110,14 +110,14 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
   }
 };
 
-export const LENGTH_ORIGINS = {
+export const TRACK_LENGTH_ORIGINS = {
   eventFilter: 'eventFilter',
   customLength: 'customLength',
 };
 
 const INITIAL_TRACK_DATE_RANGE_STATE = {
-  origin: LENGTH_ORIGINS.customLength,
-  length: 14, // days
+  origin: TRACK_LENGTH_ORIGINS.customLength,
+  length: 21, // days
 };
 
 export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { type, payload }) => {

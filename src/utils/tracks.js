@@ -2,10 +2,13 @@ import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
 import { featureCollection } from '@turf/helpers';
-
+import { subDays } from 'date-fns';
 import sortedUniqBy from 'lodash/sortedUniqBy';
 
-import { generateMonthsAgoDate } from './datetime';
+import cloneDeep from 'lodash/cloneDeep';
+import { store } from '../index';
+import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
+import { removeNullAndUndefinedValuesFromObject } from './objects';
 
 /* tracks come in a variety of linestring formats, which we explode into points to generate timepoint layers and heatmap data.
    as such, the exploded version of a track can have duplicate entries ("connection points" between lines), causing strange side effects. the nature of the duplicates
@@ -148,42 +151,75 @@ const findTimeEnvelopeIndices = (times, from = null, until = null) => {
   return results;
 };
 
-const trimTrackFeatureTimeRange = (trackFeatureCollection, from = null, until = null) => {
-  if (!from && !until) return trackFeatureCollection;
+export const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
+  if (!from && !until) return track;
 
-  return trackFeatureCollection.features.map((track) => {
-    const envelope = findTimeEnvelopeIndices(track.properties.coordinateProperties.times, from, until);
-  
-    if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
-      return track;
-    }
-  
-    const results = { ...track };
-    const toTrim = [results.geometry.coordinates, results.properties.coordinateProperties.times];
-
-    toTrim.forEach((collection) => {
-      if (envelope.from) {
-        
-        collection.splice((envelope.from + 1), collection.length);
-      }
-      if (envelope.until) {
-        collection.splice(0, envelope.until);
-      }
-    });
+  const envelope = findTimeEnvelopeIndices(track.properties.coordinateProperties.times, from, until);
     
-    return results;
-  });
+  if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
+    return track;
+  }
+    
+  const results = cloneDeep(track);
+      
+  results.geometry.coordinates = trimWithEnvelope(results.geometry.coordinates, envelope);
+  results.properties.coordinateProperties.times = trimWithEnvelope(results.properties.coordinateProperties.times, envelope);
+      
+  return results;
 };
 
-const trackHasDataWithinTimeRange = (track, from = null, until = null) => {
-  if (!from && !until) return true;
+const trimWithEnvelope = (collection, envelope = {}) => {
+  const results = [...collection];
+  if (envelope.from) {
+          
+    results.splice((envelope.from + 1), results.length);
+  }
+  if (envelope.until) {
+    results.splice(0, envelope.until);
+  }
+  return results;
+};
+
+export const trackHasDataWithinTimeRange = (track, since = null, until = null) => {
+  if (!since && !until) return true;
   const [first] = track.features[0].properties.coordinateProperties.times;
   const last = track.features[0].properties.coordinateProperties.times[track.features[0].properties.coordinateProperties.times.length - 1];
-  if (from && (new Date(last) - new Date(from) > 0)) {
+  if (since && (new Date(last) - new Date(since) > 0)) {
     return false;
   }
   if (until && (new Date(first) - new Date(until) < 0)) {
     return false;
   }
   return true;
+};
+
+export  const fetchTracksIfNecessary = (id) => {
+  const { data: { tracks, virtualDate, eventFilter }, view: { trackLength } } = store.getState();
+  const track = tracks[id];
+
+  const { length, origin } = trackLength;
+  const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
+  
+  let dateRange;
+
+  if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
+  } else  if (origin === TRACK_LENGTH_ORIGINS.customLength) {
+    dateRange = removeNullAndUndefinedValuesFromObject({ since: subDays(virtualDate || new Date(), length), until: virtualDate });
+  }
+
+  if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
+    return store.dispatch(fetchTracks(dateRange, id));
+  }
+  return Promise.resolve();
+};
+
+export const trimTrackFeatureCollectionToLength = (trackFeatureCollection, lengthInDays) => {
+  return {
+    ...trackFeatureCollection,
+    features: trackFeatureCollection.features.map(track => {
+      const [first] = track.properties.coordinateProperties.times;
+      return trimTrackFeatureTimeRange(track, subDays(first, lengthInDays));
+    }),
+  };
 };

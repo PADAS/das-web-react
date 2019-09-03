@@ -6,7 +6,7 @@ import isEqual from 'react-fast-compare';
 import { withMap } from '../EarthRangerMap';
 import { LAYER_IDS } from '../constants';
 import { addAndCacheMapImage } from '../utils/map';
-import { convertArrayOfTracksToFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
+import { convertTrackLineStringToPoints } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -44,9 +44,9 @@ const timepointLayerLayout = {
 };
 
 const TracksLayer = memo(function TracksLayer(props) {
-  const { map, onPointClick, trackCollection, showTimepoints, ...rest } = props;
-  const tracksAsPoints = convertArrayOfTracksToPointFeatureCollection(trackCollection);
-  const tracksAsFeatureCollection = convertArrayOfTracksToFeatureCollection(trackCollection);
+  const { map, onPointClick, trackCollection, showTimepoints, trackLength, ...rest } = props;
+  console.log('layer trackCollection', trackCollection);
+  const tracksAsPoints = convertTrackLineStringToPoints(trackCollection);
   const onSymbolClick = e => onPointClick(getPointLayer(e, map));
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -59,7 +59,7 @@ const TracksLayer = memo(function TracksLayer(props) {
 
   const trackData = {
     type: 'geojson',
-    data: tracksAsFeatureCollection,
+    data: trackCollection,
   };
 
   const trackPointData = {
@@ -86,7 +86,7 @@ const TracksLayer = memo(function TracksLayer(props) {
 
     </Fragment>
   );
-}, (prev, current) => isEqual(prev.trackCollection, current.trackCollection) && isEqual(prev.showTimepoints && current.showTimepoints));
+});
 
 export default withMap(TracksLayer);
 
