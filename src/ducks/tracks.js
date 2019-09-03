@@ -2,7 +2,7 @@ import axios from 'axios';
 import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
-import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
+import { SOCKET_SUBJECT_STATUS } from './subjects';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -11,7 +11,8 @@ export const FETCH_TRACKS = 'FETCH_TRACKS';
 export const FETCH_TRACKS_SUCCESS = 'FETCH_TRACKS_SUCCESS';
 export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
-const SET_TRACK_DATE_RANGE = 'SET_TRACK_DATE_RANGE';
+const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
+const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 
 // action creators
 export const fetchTracks = (...ids) => {
@@ -41,9 +42,14 @@ const fetchTracksError = error => ({
   payload: error,
 });
 
-export const setTrackDateRange = (range) => ({
-  type: SET_TRACK_DATE_RANGE,
+export const setTrackLength = (range) => ({
+  type: SET_TRACK_LENGTH,
   payload: range,
+});
+
+export const setTrackLengthRangeOrigin = (origin) => ({
+  type: SET_TRACK_LENGTH_ORIGIN,
+  payload: origin,
 });
 
 // reducers
@@ -65,7 +71,7 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
     if (isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
       return state;
     }
-      
+
     return {
       ...state,
       [id]: {
@@ -89,7 +95,7 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
             }
           }
         ]
-          
+
       }
     };
 
@@ -104,12 +110,28 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
   }
 };
 
-const INITIAL_TRACK_DATE_RANGE_STATE = {};
+export const LENGTH_ORIGINS = {
+  eventFilter: 'eventFilter',
+  customLength: 'customLength',
+};
+
+const INITIAL_TRACK_DATE_RANGE_STATE = {
+  origin: LENGTH_ORIGINS.customLength,
+  length: 14, // days
+};
+
 export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { type, payload }) => {
-  if (type === SET_TRACK_DATE_RANGE) {
+  if (type === SET_TRACK_LENGTH_ORIGIN) {
     return {
-      ...state, ...payload,
+      ...state,
+      origin: payload,
     };
   }
+  if (type === SET_TRACK_LENGTH) {
+    return {
+      ...state, length: payload,
+    };
+  }
+
   return state;
 };

@@ -1,4 +1,5 @@
 import isEqual from 'react-fast-compare';
+import { generateMonthsAgoDate } from '../utils/datetime';
 
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
@@ -38,7 +39,7 @@ export const INITIAL_FILTER_STATE = {
   state: ['active', 'new'],
   filter: {
     date_range: {
-      lower: null,
+      lower: generateMonthsAgoDate(1).toISOString(),
       upper: null,
     },
     event_type: [],

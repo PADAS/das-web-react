@@ -5,7 +5,7 @@ import tokenReducer from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
-import tracksReducer from '../ducks/tracks';
+import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
@@ -89,6 +89,7 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
+    trackLength: trackDateRangeReducer,
     zendeskEnabled: zendeskReducer,
   }),
 });

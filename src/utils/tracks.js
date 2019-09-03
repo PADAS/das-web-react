@@ -153,7 +153,6 @@ const trimTrackFeatureTimeRange = (trackFeatureCollection, from = null, until = 
 
   return trackFeatureCollection.features.map((track) => {
     const envelope = findTimeEnvelopeIndices(track.properties.coordinateProperties.times, from, until);
-
   
     if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
       return track;
