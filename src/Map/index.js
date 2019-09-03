@@ -318,7 +318,7 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
-    trackCollection: trimmedVisibleTrackFeatureCollection(state, props),
+    trackCollection: trimmedVisibleTrackFeatureCollection(state),
     trackLength,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(state),

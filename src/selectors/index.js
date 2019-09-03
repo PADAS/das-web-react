@@ -5,7 +5,7 @@ import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
-import { convertArrayOfTracksToPointFeatureCollection, trimTrackFeatureCollectionToLength } from '../utils/tracks';
+import { convertArrayOfTracksToPointFeatureCollection, trimTrackFeatureCollectionToLength, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
 import { mapReportTypesToCategories } from '../utils/event-types';
@@ -88,15 +88,6 @@ export const getMapSubjectFeatureCollection = createSelector(
   (mapSubjects, hiddenSubjectIDs) => createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)))
 );
 
-export const removePersistKey = createSelector(
-  [data => data],
-  data => {
-    const clone = { ...data };
-    delete clone._persist;
-    return clone;
-  },
-);
-
 export const allSubjects = createSelector(
   [getSubjectGroups],
   subjectGroups => getUniqueSubjectGroupSubjects(...subjectGroups),
@@ -124,6 +115,11 @@ export const visibleTrackFeatureCollection = createSelector(
 export const trimmedVisibleTrackFeatureCollection = createSelector(
   [visibleTrackFeatureCollection, trackLength],
   (trackFeatureCollection, trackLength) => trimTrackFeatureCollectionToLength(trackFeatureCollection, trackLength.length),
+);
+
+export const trimmedVisibleTrackPointFeatureCollection = createSelector(
+  [trimmedVisibleTrackFeatureCollection],
+  (trackFeatureCollection) => convertTrackFeatureCollectionToPoints(trackFeatureCollection),
 );
 
 export const getFeatureSetFeatureCollectionsByType = createSelector(

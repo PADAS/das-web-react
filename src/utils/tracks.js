@@ -33,7 +33,7 @@ const mapPointCoordinateTimeToTimeProp = (item, index) => {
   return returnValue;
 };
 
-export const convertTrackLineStringToPoints = feature => {
+export const convertTrackFeatureCollectionToPoints = feature => {
   const pointFeature = addBearingToTrackPoints(explode(feature));
   return ({
     ...pointFeature,
@@ -60,7 +60,7 @@ export const addBearingToTrackPoints = feature => ({
 });
 
 export const convertArrayOfTracksToPointFeatureCollection = trackCollection => trackCollection
-  .map(tracks => convertTrackLineStringToPoints(tracks))
+  .map(tracks => convertTrackFeatureCollectionToPoints(tracks))
   .reduce((accumulator, featureCollection) => {
     return {
       ...accumulator,

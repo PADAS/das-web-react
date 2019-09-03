@@ -11,14 +11,14 @@ import InfoIcon from '../common/images/icons/information.svg';
 
 import { updateTrackState } from '../ducks/map-ui';
 
-import { getArrayOfDisplayedSubjectTracks, getDisplayedSubjectTrackPoints } from '../selectors';
+import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCollection } from '../selectors';
 
 import styles from './styles.module.scss';
 
 const TrackLegend = (props) => {
   const { tracks, tracksAsPoints, onClose, subjectTrackState, updateTrackState } = props;
 
-  const subjectCount = tracks.length;
+  const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
   let displayTitle, iconSrc;
 
@@ -28,26 +28,25 @@ const TrackLegend = (props) => {
       visible: subjectTrackState.visible.filter(item => item !== id),
     });
 
-  const convertTrackToSubjectDetailListItem = ({ features }) => {
-    const [feature] = features;
-    const { properties: { title, image, id } } = feature;
+  const convertTrackToSubjectDetailListItem = (track) => {
+    const { properties: { title, image, id } } = track;
 
     return <li key={id}>
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        <small>{feature.geometry.coordinates.length} points</small>
+        <small>{track.geometry.coordinates.length} points</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
   };
 
   if (subjectCount === 1) {
-    const { title, image } = tracks[0].features[0].properties;
+    const { title, image } = tracks.features[0].properties;
     displayTitle = `Tracks: ${title}`;
     iconSrc = image;
   } else {
-    displayTitle = `Tracks: ${tracks.length} subjects`;
+    displayTitle = `Tracks: ${subjectCount} subjects`;
   }
 
   const titleElement = <h6>
@@ -58,7 +57,7 @@ const TrackLegend = (props) => {
   const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
     <Popover className={styles.popover} id="track-details">
       <ul>
-        {tracks.map(convertTrackToSubjectDetailListItem)}
+        {tracks.features.map(convertTrackToSubjectDetailListItem)}
       </ul>
     </Popover>
   }>
@@ -79,8 +78,8 @@ const TrackLegend = (props) => {
 };
 
 const mapStatetoProps = (state) => ({
-  tracks: getArrayOfDisplayedSubjectTracks(state),
-  tracksAsPoints: getDisplayedSubjectTrackPoints(state),
+  tracks: trimmedVisibleTrackFeatureCollection(state),
+  tracksAsPoints: trimmedVisibleTrackPointFeatureCollection(state),
   subjectTrackState: state.view.subjectTrackState,
 });
 
