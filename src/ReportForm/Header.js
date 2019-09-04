@@ -73,12 +73,14 @@ const ReportFormHeader = (props) => {
     trackEvent(eventOrIncidentReport, `${historyPopoverOpen?'Close':'Open'} Report History`);
   };
 
-  const ReportHistory = 
-    <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
-      {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
-    </span>
-  ;
-  
+  const ReportHistory = <Fragment>
+    {report.updates && <Fragment>
+      <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
+        {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
+      </span>
+    </Fragment>}
+  </Fragment>;
+
   const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
     <Popover.Title>{eventOrIncidentReport}</Popover.Title>
     <Popover.Content>
@@ -106,7 +108,7 @@ const ReportFormHeader = (props) => {
     <Popover.Title>History</Popover.Title>
     <Popover.Content>
       <ul>
-        {report.updates.map((update) =>
+        {report.updates && report.updates.map((update) =>
           <li className={styles.listItem} key={update.time}>
             <div className={styles.historyItem}>
               <div className={styles.historyDetails}>
