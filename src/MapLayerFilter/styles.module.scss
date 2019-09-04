@@ -1,0 +1,21 @@
+@import '../common/styles/vars/colors';
+
+.form {
+  align-items: center;
+  border-bottom: 1px solid $gray-border;
+  display: flex;
+  flex-flow: row;
+  padding: 0.5rem 1rem;
+  position: relative;
+  z-index: 2;
+  justify-content: space-between;
+}
+
+.search {
+  margin-bottom: 0;
+}
+
+.searchLabel {
+  margin-right: 1rem;
+  color: $medium-light-gray;
+}

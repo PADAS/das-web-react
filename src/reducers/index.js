@@ -14,6 +14,7 @@ import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesRedu
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
+import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
 import eventSchemaReducer from '../ducks/event-schemas';
@@ -60,6 +61,7 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
+    mapLayerFilter: mapLayerFilterReducer,
     mapImages: mapImagesReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,

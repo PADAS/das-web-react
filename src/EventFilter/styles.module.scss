@@ -80,7 +80,7 @@
     max-height: 20rem;
   }
   > [class*=arrow]::after {
-    border-bottom-color: $filter-popover-header-color;
+    border-bottom-color: $popover-header-color;
   }
   [class*=popover-header] {
     @include popoverTitle;

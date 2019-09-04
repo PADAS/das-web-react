@@ -1,3 +1,5 @@
+@import '../common/styles/vars/colors';
+
 .search {
   align-items: center;
   display: flex;
@@ -9,8 +11,19 @@
       border-bottom: 1px solid gray;
       outline: none;
     }
+    ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: $light-gray;
+      opacity: 1; /* Firefox */
+    }
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+      color: $light-gray;
+    }
+    
+    ::-ms-input-placeholder { /* Microsoft Edge */
+      color: $light-gray;
+    }
   }
-  svg {
+  .searchIcon {
     height: 1.5rem;
     width: 1.5rem;
     circle {
@@ -22,9 +35,21 @@
       fill: gray;
     }
   }
+  .clearButton {
+    width: 1rem;
+    height: 1rem;
+    visibility: visible;
+    cursor: pointer; 
+    :hover {
+      fill: $bright-red;
+    }
+  }
+  input[value=""] ~ .clearButton {
+    visibility: hidden;
+  }
   &.active, &:hover {
     border: darken(gray, 15%);
-    svg {
+    .searchIcon {
       circle {
         stroke: darken(gray, 15%);
       }

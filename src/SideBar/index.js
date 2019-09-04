@@ -13,6 +13,7 @@ import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
+import MapLayerFilter from '../MapLayerFilter';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -64,9 +65,12 @@ const SideBar = memo((props) => {
             onTitleClick={onEventTitleClick}
           />
         </Tab>
-        <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">
-          <SubjectGroupList map={map} />
-          <FeatureLayerList map={map} />
+        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+          <MapLayerFilter />
+          <div className={styles.mapLayers}>
+            <SubjectGroupList map={map} />
+            <FeatureLayerList map={map} />
+          </div>
         </Tab>
       </Tabs>
     </aside>

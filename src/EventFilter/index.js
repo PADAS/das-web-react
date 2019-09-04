@@ -253,6 +253,6 @@ const EventFilter = memo((props) => {
   </form>;
 });
 
-const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
+const mapStateToProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
 
-export default connect(mapStatetoProps, { updateEventFilter })(EventFilter);
+export default connect(mapStateToProps, { updateEventFilter })(EventFilter);

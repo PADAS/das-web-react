@@ -3,6 +3,7 @@
 @import '../common/styles/inputs';
 @import '../common/styles/layout';
 @import '../common//styles/animations';
+@import '../common//styles/popovers';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -308,16 +309,13 @@
   min-width: 14rem;
   padding: 0;
   [class*=popover-header] {
-    //@include popoverTitle;
-    background: $title-bar-color;
-    color: white;
-    font-weight: bold;
+    @include popoverTitle;
   }
   [class*=popover-header]::before {
-    border-bottom: 1px solid $title-bar-color;
+    border-bottom: 1px solid $popover-header-color;
   }
   > [class*=arrow]::after {
-    border-bottom-color: $title-bar-color;
+    border-bottom-color: $popover-header-color;
   }
   [class*=popover-body] {
     padding: 0;
@@ -337,10 +335,7 @@
   min-width: 14rem;
   padding: 0;
   [class*=popover-header] {
-    //@include popoverTitle;
-    background: $title-bar-color;
-    color: white;
-    font-weight: bold;
+    @include popoverTitle;
   }
   [class*=popover-body] {
     padding: 0;

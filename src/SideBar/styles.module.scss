@@ -6,22 +6,26 @@
   // border-top: 3px solid $gray-border;
   height: 100%;
   overflow: hidden;
-  &.mapLayers {
-    overflow-y: scroll;
+  .mapLayers {
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+    padding-bottom: 4rem;
   }
 }
 
 .list {
   display: block;
   width: 100%;
+  margin-bottom: 0;
   li { 
     align-items: flex-start;
     border-top: 1px solid $gray-border;
-    &:first-of-type {
+    &:first-child {
       border-top: none;
     }
     &:last-child {
-      border-bottom: 1px solid $medium-light-gray;
+      border-bottom: 1px solid $gray-border;
     }
     display: flex;
     flex-wrap: wrap;
