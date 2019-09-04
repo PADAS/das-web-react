@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { toggleDisplayUserLocation } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 
 const UserLocationMapControl = (props) => {
 
@@ -8,6 +9,9 @@ const UserLocationMapControl = (props) => {
 
   const handleChange = () => {
     toggleDisplayUserLocation();
+
+    trackEvent('Map Interaction', 
+      `${showUserLocation? 'Uncheck' : 'Check'} 'Show My Current Location' checkbox`, null);
   };
 
   return <label>

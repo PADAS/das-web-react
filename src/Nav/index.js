@@ -4,6 +4,7 @@ import { fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../d
 import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
+import { trackEvent } from '../utils/analytics';
 
 import { MAX_ZOOM } from '../constants';
 
@@ -17,33 +18,35 @@ import NotificationMenu from '../NotificationMenu';
 import './Nav.scss';
 
 const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
-  const handleHomeMapSelect = (chosenMap) => {
+  
+  const onHomeMapSelect = (chosenMap) => {
     const { zoom, center } = chosenMap;
     setHomeMap(chosenMap);
-
     jumpToLocation(map, center, zoom);
+    trackEvent('Main Toolbar', 'Change Home Area', `Home Area:${chosenMap.title}`);
   };
 
-  const onClickCurrentLocation = (location) => {
+  const onCurrentLocationClick = (location) => {
     jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
+    trackEvent('Main Toolbar', "Click 'My Current Location'");
   };
 
   useEffect(() => {
-    map && maps.length && !homeMap.id && handleHomeMapSelect(maps.find(m => m.default) || maps[0]);
+    map && maps.length && !homeMap.id && onHomeMapSelect(maps.find(m => m.default) || maps[0]);
   }, [map, maps]);
-
 
   useEffect(() => {
     fetchCurrentUser();
     fetchCurrentUserProfiles();
   }, []);
+
   return <nav className="primary-nav">
     <div className="left-controls">
       <SystemStatusComponent />
       <EarthRangerLogo className="logo" />
     </div>
 
-    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={handleHomeMapSelect} onClickCurrentLocation={onClickCurrentLocation} />}
+    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
     <div className="rightMenus">
       <NotificationMenu onNotificationClick={() => console.log('clicky')} />
       <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />

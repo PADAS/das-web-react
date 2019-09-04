@@ -9,6 +9,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { getFeedIncidents } from '../selectors';
 import { fetchIncidentFeed, fetchNextIncidentFeedPage } from '../ducks/events';
 import { removeModal } from '../ducks/modals';
+import { trackEvent } from '../utils/analytics';
 
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
@@ -41,16 +42,23 @@ const AddToIncidentModal = (props) => {
   const onExistingIncidentClick = (report) => {
     onAddToExistingIncident(report);
     hideModal();
+    trackEvent('Add To Incident', 'Click Add to Existing Incident');
   };
   
   const onClickAddNewIncident = () => {
     onAddToNewIncident();
     hideModal();
+    trackEvent('Add To Incident', 'Click Add to new Incident');
   };
 
   const onScroll = () => {
     if (!incidents.next) return null;
     return fetchNextIncidentFeedPage(incidents.next);
+  };
+
+  const onCancelClick = () => {
+    hideModal();
+    trackEvent('Add To Incident', "Click 'Cancel' button");
   };
 
   const hasMore = !loaded || !!incidents.next;

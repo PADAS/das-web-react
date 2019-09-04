@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 import { jumpToLocation, refreshMapImagesFromStore } from '../utils/map';
+import { trackEvent } from '../utils/analytics';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
@@ -46,6 +47,23 @@ const EarthRangerMap = (props) => {
     refreshMapImagesFromStore(map);
   };
 
+  /**
+   * Need to manually zoom in/out here because a onControlClick event handler
+   * needed to be introduced to track the GA event, and having such an event
+   * handler somehow disables the default onControlClick that performs the
+   * zooming. 
+   * Using map.zoomIn and .zoomOut for animated zoom instead of jumpy 
+   * map.setZoom() function.
+   * @param {object} map      The map react-map-gl object.
+   * @param {number} zoomDiff The zoom difference value (+ve: zoom in, -ve: zoom out).
+   */
+  const onZoomControlClick = (map, zoomDiff) => {
+    zoomDiff > 0? 
+      map.zoomIn({ level: map.getZoom() + zoomDiff }) :
+      map.zoomOut({ level: map.getZoom() - zoomDiff });
+    trackEvent('Map Interaction', `Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
+  };
+
   useEffect(() => {
     if (currentBaseLayer) {
       if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
@@ -63,9 +81,9 @@ const EarthRangerMap = (props) => {
     onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
       {map && <Fragment>
-        <RotationControl position='top-left' />
+        <RotationControl position='top-left'/>
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
-        <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
+        <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <MapSettingsControl />
         <MapBaseLayerControl />
         {children}
