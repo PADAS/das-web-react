@@ -101,10 +101,6 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
     };
 
   }
-  case FETCH_TRACKS_ERROR: {
-    console.log('big old error', action.payload);
-    return state;
-  }
   case FETCH_TRACKS_SUCCESS: {
     return {
       ...state,
