@@ -3,6 +3,7 @@ import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
+import { mergeTrackFeatureData } from '../utils/tracks';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -101,7 +102,29 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
 
   }
   case FETCH_TRACKS_SUCCESS: {
-    return { ...state, ...action.payload };
+    const { payload } = action;
+
+    const updates = Object.entries(payload).reduce((updates, [id, data]) => {
+      if (state[id]) {
+        const update = {
+          ...state[id],
+          features: state[id].features.map(feature => mergeTrackFeatureData(feature)),
+        };
+        return {
+          ...updates,
+          [id]: update,
+        };
+      }
+      return {
+        ...updates,
+        [id]: data,
+      };
+    }, {});
+    
+    return {
+      ...state,
+      ...updates
+    };
   }
 
   default: {

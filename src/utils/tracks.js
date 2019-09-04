@@ -2,7 +2,7 @@ import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
 import { featureCollection } from '@turf/helpers';
-import { subDays } from 'date-fns';
+import { subDays, startOfDay } from 'date-fns';
 import sortedUniqBy from 'lodash/sortedUniqBy';
 
 import cloneDeep from 'lodash/cloneDeep';
@@ -70,22 +70,25 @@ export const convertArrayOfTracksToPointFeatureCollection = trackCollection => t
 
 export const getSubjectIDFromFirstFeatureInCollection = ({ features }) => features[0].properties.id;
 
-const mergeTrackData = (track, extendedTrackHistory) => {
-  const trackCoordTimePairs = createSortedCoordTimePairsForTrack(track);
-  const newTrackCoordTimePairs = createSortedCoordTimePairsForTrack(extendedTrackHistory);
-
-  const uniqueValues = removeDuplicatesFromCoordTimePairs([...trackCoordTimePairs, ...newTrackCoordTimePairs]);
+export const mergeTrackFeatureData = (track, extendedTrackHistory) => {
+  const uniqueValues = removeDuplicatesFromCoordTimePairs([
+    ...createSortedCoordTimePairsForTrack(track), 
+    ...createSortedCoordTimePairsForTrack(extendedTrackHistory)
+  ]);
+  
+  const coordinates = uniqueValues.map(({ coordinates }) => coordinates);
+  const times = uniqueValues.map(({ time }) => time);
 
   return {
     ...track,
     geometry: {
       ...track.geometry,
-      coordinates: uniqueValues.map(({ coordinates }) => coordinates),
+      coordinates,
       properties: {
         ...track.properties,
         coordinateProperties: {
           ...track.coordinateProperties,
-          times: uniqueValues.map(({ time }) => time),
+          times,
         },
       },
     },
@@ -112,7 +115,7 @@ const removeDuplicatesFromCoordTimePairs = (pairs) => sortedUniqBy(pairs, 'time'
 const dateIsAtOrAfterDate = (date, targetDate) =>
   new Date(date) - new Date(targetDate) >= 0;
 
-const findDateIndexInRange = (times, targetDate, startIndex = 0, endIndex = times.length - 1) => {
+const findDateIndexInRange = (times, targetDate, startIndex = 0, endIndex = times.length - 1) => { // binary searching in an array of dates for the first date which is at or after a target date.
   while (startIndex < endIndex) {
     const timeIndex = Math.floor(startIndex + ((endIndex - startIndex) + 1) / 2);
 
@@ -162,16 +165,15 @@ export const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
     
   const results = cloneDeep(track);
       
-  results.geometry.coordinates = trimWithEnvelope(results.geometry.coordinates, envelope);
-  results.properties.coordinateProperties.times = trimWithEnvelope(results.properties.coordinateProperties.times, envelope);
+  results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
+  results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
       
   return results;
 };
 
-const trimWithEnvelope = (collection, envelope = {}) => {
+const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   const results = [...collection];
   if (envelope.from) {
-          
     results.splice((envelope.from + 1), results.length);
   }
   if (envelope.until) {
@@ -193,25 +195,30 @@ export const trackHasDataWithinTimeRange = (track, since = null, until = null) =
   return true;
 };
 
-export  const fetchTracksIfNecessary = (id) => {
+export  const fetchTracksIfNecessary = (...ids) => {
   const { data: { tracks, virtualDate, eventFilter }, view: { trackLength } } = store.getState();
-  const track = tracks[id];
 
-  const { length, origin } = trackLength;
-  const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
+  const results = ids.map((id) => {
+    const track = tracks[id];
   
-  let dateRange;
+    const { length, origin } = trackLength;
+    const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
+    
+    let dateRange;
+  
+    if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
+      dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
+    } else  if (origin === TRACK_LENGTH_ORIGINS.customLength) {
+      dateRange = removeNullAndUndefinedValuesFromObject({ since: startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
+    }
+  
+    if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
+      return store.dispatch(fetchTracks(dateRange, id));
+    }
+    return Promise.resolve();
+  });
 
-  if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
-    dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
-  } else  if (origin === TRACK_LENGTH_ORIGINS.customLength) {
-    dateRange = removeNullAndUndefinedValuesFromObject({ since: subDays(virtualDate || new Date(), length), until: virtualDate });
-  }
-
-  if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
-    return store.dispatch(fetchTracks(dateRange, id));
-  }
-  return Promise.resolve();
+  return results;
 };
 
 export const trimTrackFeatureCollectionToLength = (trackFeatureCollection, lengthInDays) => {
@@ -219,7 +226,7 @@ export const trimTrackFeatureCollectionToLength = (trackFeatureCollection, lengt
     ...trackFeatureCollection,
     features: trackFeatureCollection.features.map(track => {
       const [first] = track.properties.coordinateProperties.times;
-      return trimTrackFeatureTimeRange(track, subDays(first, lengthInDays));
+      return trimTrackFeatureTimeRange(track, startOfDay(subDays(first, lengthInDays)));
     }),
   };
 };
