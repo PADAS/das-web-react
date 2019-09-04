@@ -47,7 +47,7 @@ const TrackLengthControls = (props) => {
 
   useEffect(() => {
     if (!initialized) return setInitState(true);
-    return onTrackLengthChange(length);
+    onTrackLengthChange && onTrackLengthChange(length);
   }, [length]);
 
   const onOriginChange = ({ target: { value } }) => setTrackLengthRangeOrigin(value);

@@ -5,10 +5,12 @@ import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
 import { CancelToken } from 'axios';
+import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
+import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
@@ -71,6 +73,10 @@ class Map extends Component {
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.props.socket.emit('event_filter', this.props.eventFilter);
       this.fetchMapData();
+      if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
+        && !isEqual(prev.eventFilter.filter.date_range, this.props.eventFilter.filter.date_range)) {
+        this.setTrackLengthToEventFilterRange();
+      }
     }
 
     if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
@@ -82,6 +88,18 @@ class Map extends Component {
     if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
       this.createFeatureImages();
     }
+    if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+      this.setTrackLengthToEventFilterRange();
+    }
+    if (!isEqual(prev.trackLength, this.props.trackLength)) {
+      this.onTrackLengthChange();
+    }
+  }
+  setTrackLengthToEventFilterRange() {
+    this.props.setTrackLength(differenceInCalendarDays(
+      this.props.eventFilter.filter.date_range.upper || new Date(),
+      this.props.eventFilter.filter.date_range.lower,
+    ));
   }
   createSubjectImages() {
     this.createMapImages(this.props.mapSubjectFeatureCollection);
@@ -283,7 +301,7 @@ class Map extends Component {
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
-              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} onTrackLengthChange={this.onTrackLengthChange} />}
+              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
@@ -316,7 +334,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints, trackLength: { length:trackLength } } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
 
   return ({
     maps,
@@ -330,6 +348,7 @@ const mapStatetoProps = (state, props) => {
     showTrackTimepoints,
     trackCollection: trimmedVisibleTrackFeatureCollection(state),
     trackLength,
+    trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
@@ -343,6 +362,7 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   hidePopup,
   addModal,
+  setTrackLength,
   showPopup,
   toggleMapLockState,
   updateTrackState,
