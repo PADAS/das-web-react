@@ -130,20 +130,22 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
         if (feature.properties.image) {
           feature = addIconToGeoJson(feature);
           feature.properties.image = calcUrlForImage(feature.properties.image);
-          feature.properites.analyzer_id = 'foo';
         }
+        // assign analyzer type to each feature
+        feature.analyzer_type = data.type;
+        if (feature.analyzer_type === 'proximity') feature.threshold_dist_meters = data.threshold_dist_meters;
         return feature;
       })], []);
-    // XXX Hack for now - simiulate layergroups
+    // simulate layergroups found in old codebase
     const layerGroups = analyzerFeatures.map( (analyzer) => {
       const featureIds = analyzer.geojson.features.map( feature => feature.id);
       return {id: analyzer.id, feature_ids: featureIds};
     });
 
     return {
-      analyzerSymbols: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
       analyzerLines: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
       analyzerPolys: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
+      proximityFeatures: featureCollection(allAnalyzers.filter(({ analyzer_type }) => analyzer_type === 'proximity')),  
       layerGroups: layerGroups,
     };
   },

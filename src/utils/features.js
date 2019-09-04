@@ -1,5 +1,6 @@
 
 import uniq from 'lodash/uniq';
+import { circle } from '@turf/turf';
 import { LngLatBounds } from 'mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
@@ -75,4 +76,12 @@ export const setAnalyzerFeatureActiveStateByID = (map, id, state = true) => {
   features.forEach((feature) => {
     map.setFeatureState(feature, { 'active': state });
   });
+};
+
+// use turf.circle to construct a GEOJson Feature of type polygon
+// increase/decrease steps will affect the render fps
+export const createGeoJSONCircle = (center, radius, options) => {
+  if(!options) options = {steps: 64, units: 'kilometers'};
+  const poly_circle = circle(center, radius/1000, options);
+  return poly_circle;
 };
