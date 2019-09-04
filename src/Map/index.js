@@ -338,7 +338,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(withSocketConnection(Map), 50));
+)(withSocketConnection(Map));
 
 // Map.whyDidYouRender = true;
 

@@ -5,7 +5,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
-import { getHeatmapTrackPoints, getArrayOfVisibleHeatmapTracks } from '../selectors';
+import { trimmedVisibleHeatmapTrackFeatureCollection, trimmedHeatmapPointFeatureCollection } from '../selectors';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
 import HeatmapLegend from '../HeatmapLegend';
@@ -15,15 +15,14 @@ import InfoIcon from '../common/images/icons/information.svg';
 import styles from './styles.module.scss';
 
 const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
-  const subjectCount = tracks.length;
+  const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
   let displayTitle, iconSrc;
 
   const onRemoveTrackClick = ({ target: { value: id } }) =>
     updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
 
-  const convertTrackToSubjectDetailListItem = ({ features }) => {
-    const [feature] = features;
+  const convertTrackToSubjectDetailListItem = (feature) => {
     const { properties: { title, image, id } } = feature;
 
     return <li key={id}>
@@ -37,11 +36,11 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
   };
 
   if (subjectCount === 1) {
-    const { title, image } = tracks[0].features[0].properties;
+    const { title, image } = tracks.features[0].properties;
     displayTitle = `Heatmap: ${title}`;
     iconSrc = image;
   } else {
-    displayTitle = `Heatmap: ${tracks.length} subjects`;
+    displayTitle = `Heatmap: ${tracks.features.length} subjects`;
   }
 
   const titleElement = <h6>
@@ -52,7 +51,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
   const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
     <Popover className={styles.popover} id="track-details">
       <ul>
-        {tracks.map(convertTrackToSubjectDetailListItem)}
+        {tracks.features.map(convertTrackToSubjectDetailListItem)}
       </ul>
     </Popover>
   }>
@@ -69,8 +68,8 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
 };
 
 const mapStateToProps = (state) => ({
-  tracks: getArrayOfVisibleHeatmapTracks(state),
-  tracksAsPoints: getHeatmapTrackPoints(state),
+  tracks: trimmedVisibleHeatmapTrackFeatureCollection(state),
+  tracksAsPoints: trimmedHeatmapPointFeatureCollection(state),
   heatmapSubjectIDs: state.view.heatmapSubjectIDs,
 });
 

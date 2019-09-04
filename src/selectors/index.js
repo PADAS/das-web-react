@@ -122,6 +122,28 @@ export const trimmedVisibleTrackPointFeatureCollection = createSelector(
   (trackFeatureCollection) => convertTrackFeatureCollectionToPoints(trackFeatureCollection),
 );
 
+export const getArrayOfVisibleHeatmapTracks = createSelector(
+  [tracks, heatmapSubjectIDs],
+  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs
+    .filter(id => !!tracks[id])
+    .map(id => tracks[id]),
+);
+
+export const visibleHeatmapTrackFeatureCollection = createSelector(
+  [getArrayOfVisibleHeatmapTracks],
+  trackArray => featureCollection(trackArray.map(track => track.features[0])),
+);
+
+export const trimmedVisibleHeatmapTrackFeatureCollection = createSelector(
+  [visibleHeatmapTrackFeatureCollection, trackLength],
+  (heatmapFeatureCollection, trackLength) => trimTrackFeatureCollectionToLength(heatmapFeatureCollection, trackLength.length),
+);
+
+export const trimmedHeatmapPointFeatureCollection = createSelector(
+  [trimmedVisibleHeatmapTrackFeatureCollection],
+  trackCollection => convertTrackFeatureCollectionToPoints(trackCollection),
+);
+
 export const getFeatureSetFeatureCollectionsByType = createSelector(
   [featureSets, hiddenFeatureIDs],
   (featureSets, hiddenFeatureIDs) => {
@@ -149,29 +171,6 @@ export const getReportFormSchemaData = createSelector(
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
 );
 
-export const getArrayOfVisibleHeatmapTracks = createSelector(
-  [tracks, heatmapSubjectIDs],
-  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs
-    .filter(id => !!tracks[id])
-    .map(id => tracks[id]),
-);
-
-export const getHeatmapTrackPoints = createSelector(
-  [getArrayOfVisibleHeatmapTracks],
-  trackCollection => convertArrayOfTracksToPointFeatureCollection(trackCollection)
-);
-
-export const getArrayOfDisplayedSubjectTracks = createSelector(
-  [tracks, displayedSubjectTrackIDs],
-  (tracks, ids) => ids
-    .filter(id => !!tracks[id])
-    .map(id => tracks[id]),
-);
-
-export const getDisplayedSubjectTrackPoints = createSelector(
-  [getArrayOfDisplayedSubjectTracks],
-  trackCollection => convertArrayOfTracksToPointFeatureCollection(trackCollection),
-);
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
