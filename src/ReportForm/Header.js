@@ -74,12 +74,11 @@ const ReportFormHeader = (props) => {
   };
 
   const ReportHistory = <Fragment>
-    {report.updates && <Fragment>
+      {report.updates && 
       <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
         {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
-      </span>
-    </Fragment>}
-  </Fragment>;
+      </span>}
+    </Fragment>;
 
   const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
     <Popover.Title>{eventOrIncidentReport}</Popover.Title>
