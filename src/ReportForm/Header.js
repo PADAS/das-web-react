@@ -9,11 +9,13 @@ import Overlay from 'react-bootstrap/Overlay';
 import { addModal } from '../ducks/modals';
 
 import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-to-incident.svg';
+import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import PriorityPicker from '../PriorityPicker';
 import EventIcon from '../EventIcon';
 import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import AddToIncidentModal from './AddToIncidentModal';
+import DateTime from '../DateTime';
 
 import { displayTitleForEventByEventType } from '../utils/events'; 
 import { trackEvent } from '../utils/analytics';
@@ -29,17 +31,20 @@ const calcClassNameForPriority = (priority) => {
 
 const ReportFormHeader = (props) => {
   const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
-  const reportTitle = displayTitleForEventByEventType(report);
   const menuRef = useRef(null);
+  const historyRef = useRef(null);
+  const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
+  const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
 
+  const reportTitle = displayTitleForEventByEventType(report);
+  const eventOrIncidentReport = `${report.is_collection? 'Incident' : 'Event'} Report`;
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
   const hasExternalLink = (!!report.external_source && !!report.external_source.url);
-
   const updateTime = report.updated_at || report.created_at;
 
   const onStartAddToIncident = () => {
-    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `Click 'Add to Incident'`);
+    trackEvent(eventOrIncidentReport, `Click 'Add to Incident'`);
     setHeaderPopoverState(false);
     addModal({
       content: AddToIncidentModal,
@@ -60,29 +65,61 @@ const ReportFormHeader = (props) => {
   
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen)
-    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, `${headerPopoverOpen?'Close':'Open'}' Hamburger Menu`);
+    trackEvent(eventOrIncidentReport, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu`);
   };
 
-  const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
+  const onReportHistoryClick = () => {
+    setHistoryPopoverState(!historyPopoverOpen);
+    trackEvent(eventOrIncidentReport, `${historyPopoverOpen?'Close':'Open'} Report History`);
+  };
 
-  const ReportHeaderPopover = <Popover placement='auto' className={styles.popover}>
-    <h6>Priority:</h6>
-    <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
-    <br />
-    {canAddToIncident && <Fragment>
-      <hr />
-      <Button className={styles.addToIncidentBtn} variant='secondary' onClick={onStartAddToIncident}>
-        <AddToIncidentIcon style={{height: '3rem', width: '3rem'}} /> Add to incident
-      </Button>
-    </Fragment>
-    }
-    {hasExternalLink && <Fragment> 
-      <hr />
-      <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
-        <img src={report.external_source.icon_url} style={{height: '3.0rem', width: '3.0rem'}} /> {report.external_source.text}
-      </Button>
-    </Fragment>
-    }
+  const ReportHistory = <Fragment>
+      {report.updates && 
+      <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
+        {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
+      </span>}
+    </Fragment>;
+
+  const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
+    <Popover.Title>{eventOrIncidentReport}</Popover.Title>
+    <Popover.Content>
+      <h6>Priority:</h6>
+      <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
+      {canAddToIncident && <Fragment>
+        <hr />
+        <Button className={styles.addToIncidentBtn} variant='secondary' onClick={onStartAddToIncident}>
+          <AddToIncidentIcon style={{height: '2rem', width: '2rem'}} />Add to incident
+        </Button>
+      </Fragment>
+      }
+      {hasExternalLink && <Fragment> 
+        <hr />
+        <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
+          <img src={report.external_source.icon_url} style={{height: '2rem', width: '2rem'}} /> {report.external_source.text}
+          <ExternalLinkIcon style={{height: '1rem', width: '1rem', marginLeft: '0.1rem'}} />
+        </Button>
+      </Fragment>
+      }
+    </Popover.Content>
+  </Popover>;
+
+  const ReportHistoryPopover = <Popover placement='auto' className={styles.historyPopover}>
+    <Popover.Title>History</Popover.Title>
+    <Popover.Content>
+      <ul>
+        {report.updates && report.updates.map((update) =>
+          <li className={styles.listItem} key={update.time}>
+            <div className={styles.historyItem}>
+              <div className={styles.historyDetails}>
+                <div className={styles.historyMessage}>{update.message.replace(/ by [ \w+\b]*$/g, '')}</div>
+                <div className={styles.historyUser}>{`${update.user.first_name} ${update.user.last_name}`.trim()}</div>
+              </div>
+              <DateTime className={styles.historyDate} date={update.time}/>
+            </div>
+          </li>
+        )}
+      </ul>
+    </Popover.Content>
   </Popover>;
 
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
@@ -92,12 +129,15 @@ const ReportFormHeader = (props) => {
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
         <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
-        <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} onHide={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click'>
+        <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} 
+          onHide={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click'>
           {ReportHeaderPopover}
         </Overlay>
-        {updateTime && <small>
-          Updated <TimeAgo date={updateTime} />
-        </small>}
+        {ReportHistory}          
+        <Overlay show={historyPopoverOpen} target={historyRef.current} shouldUpdatePosition={true} 
+          onHide={() => setHistoryPopoverState(false)} placement='right' rootClose trigger='click'>
+          {ReportHistoryPopover}
+        </Overlay>
         {report.state === 'resolved' && <small>resolved</small>}
       </div>
     </h4>

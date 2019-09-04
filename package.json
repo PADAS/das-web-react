@@ -41,8 +41,6 @@
     "reselect": "^4.0.0",
     "socket.io-client": "^2.2.0",
     "streamsaver": "^1.2.0",
-    "typeface-roboto": "^0.0.54",
-    "typeface-roboto-slab": "^0.0.72",
     "uuid": "^3.3.2"
   },
   "scripts": {

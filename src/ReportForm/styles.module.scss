@@ -233,7 +233,6 @@
     background-color: $no-priority;
   }
   button {
-    font-family: 'Roboto', sans-serif;
     margin-left: auto;
   }
   input {
@@ -269,17 +268,19 @@
   border-radius: 0.5rem;
   color: $link-color;
   display: flex;
-  font-weight: 600;
-  justify-content: center;
-  padding: 1rem;
+  font-weight: normal;
+  justify-content: left;
+  padding: 0.5rem 0;
   transition: background .2s linear;
   width: 100%;
   &:hover {
-    background: darken(white, 5%);
+    background: darken($link-color, 5%);
     text-decoration: underline;
+    color: $link-color;
   }
-  svg {
-    margin-right: 1rem;
+  img, svg {
+    margin-left: 0.1rem;
+    margin-right: 0.5rem;
   }
 }
 
@@ -294,13 +295,82 @@
   }
 }
 
+.reportHistory {
+  font-size: 0.65rem;
+  line-height: 0.75rem;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  cursor: pointer;
+}
 
-.popover {
+.headerPopover {
   max-width: none;
   min-width: 14rem;
-  padding: 0.5rem;
-  h6 {
-    margin-bottom: 0.5rem;
+  padding: 0;
+  [class*=popover-header] {
+    //@include popoverTitle;
+    background: $title-bar-color;
+    color: white;
+    font-weight: bold;
+  }
+  [class*=popover-header]::before {
+    border-bottom: 1px solid $title-bar-color;
+  }
+  > [class*=arrow]::after {
+    border-bottom-color: $title-bar-color;
+  }
+  [class*=popover-body] {
+    padding: 0;
+    margin: 0.75rem 0.75rem;
+    h6 {
+      margin-bottom: 0.5rem;
+    }
+    hr {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.historyPopover {
+  max-width: none;
+  min-width: 14rem;
+  padding: 0;
+  [class*=popover-header] {
+    //@include popoverTitle;
+    background: $title-bar-color;
+    color: white;
+    font-weight: bold;
+  }
+  [class*=popover-body] {
+    padding: 0;
+    max-width: 25rem;
+    max-height: 30rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+.historyItem {
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  margin: 0.75rem 0.75rem;
+  .historyDetails {
+    width: 12rem;
+    .historyMessage {
+      font-size: 0.85rem;
+      line-height: 1rem;
+    }
+    .historyUser {
+      font-size: 0.65rem;
+      font-style: italic;
+    }
+  }
+  .historyDate {
+    align-items: flex-end;
+    margin-left: 0.4rem;
+    margin-right: 0.1rem;
   }
 }
 
