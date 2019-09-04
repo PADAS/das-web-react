@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
+import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 import debounceRender from 'react-debounce-render';
+import { CancelToken } from 'axios';
 
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
@@ -51,6 +53,8 @@ class Map extends Component {
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
+    this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
+    this.trackRequestCancelToken = CancelToken.source();
   }
 
   shouldComponentUpdate(nextProps) {
@@ -208,7 +212,7 @@ class Map extends Component {
 
     this.props.showPopup('subject', { geometry, properties });
 
-    await (tracks_available) ? fetchTracksIfNecessary(id) : new Promise((resolve, reject) => resolve());
+    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise((resolve, reject) => resolve());
 
     if (tracks_available) {
       updateTrackState({
@@ -236,6 +240,12 @@ class Map extends Component {
 
   onReportMarkerDrop(location) {
     this.props.showPopup('dropped-marker', { location });
+  }
+
+  onTrackLengthChange() {
+    this.trackRequestCancelToken.cancel();
+    this.trackRequestCancelToken = CancelToken.source();
+    fetchTracksIfNecessary(uniq([...this.props.subjectTrackState.visible, ...this.props.subjectTrackState.pinned, ...this.props.heatmapSubjectIDs]), this.trackRequestCancelToken);
   }
 
   render() {
@@ -273,7 +283,7 @@ class Map extends Component {
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
-              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
+              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} onTrackLengthChange={this.onTrackLengthChange} />}
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
@@ -338,7 +348,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(withSocketConnection(Map));
+)(debounceRender(withSocketConnection(Map), 100));
 
 // Map.whyDidYouRender = true;
 

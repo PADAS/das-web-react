@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
@@ -16,10 +16,10 @@ const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 
 // action creators
-export const fetchTracks = (dateParams, ...ids) => {
+export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...ids) => {
   return async (dispatch) => {
     try {
-      const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams })));
+      const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams, cancelToken: cancelToken.token })));
 
       const results = responses.reduce((accumulator, response, index) => {
         accumulator[ids[index]] = response.data.data;
@@ -101,32 +101,16 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
     };
 
   }
+  case FETCH_TRACKS_ERROR: {
+    console.log('big old error', action.payload);
+    return state;
+  }
   case FETCH_TRACKS_SUCCESS: {
-    const { payload } = action;
-
-    const updates = Object.entries(payload).reduce((updates, [id, data]) => {
-      if (state[id]) {
-        const update = {
-          ...state[id],
-          features: state[id].features.map(feature => mergeTrackFeatureData(feature)),
-        };
-        return {
-          ...updates,
-          [id]: update,
-        };
-      }
-      return {
-        ...updates,
-        [id]: data,
-      };
-    }, {});
-    
     return {
       ...state,
-      ...updates
+      ...action.payload,
     };
   }
-
   default: {
     return state;
   }

@@ -61,7 +61,9 @@ const ContentComponent = memo(debounceRender((props) => {
     if (groupIsFullyHeatmapped) return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
     
     setTrackLoadingState(true);
-    if (unloadedSubjectTrackIDs.length) await Promise.all(unloadedSubjectTrackIDs.map(id => fetchTracksIfNecessary(id)));
+    if (unloadedSubjectTrackIDs.length) {
+      await fetchTracksIfNecessary(unloadedSubjectTrackIDs);
+    }
     
     setTrackLoadingState(false);
 

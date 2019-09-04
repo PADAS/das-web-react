@@ -72,8 +72,8 @@ export const getSubjectIDFromFirstFeatureInCollection = ({ features }) => featur
 
 export const mergeTrackFeatureData = (track, extendedTrackHistory) => {
   const uniqueValues = removeDuplicatesFromCoordTimePairs([
-    ...createSortedCoordTimePairsForTrack(track), 
-    ...createSortedCoordTimePairsForTrack(extendedTrackHistory)
+    ...createSortedCoordTimePairsForTrackFeature(track), 
+    ...createSortedCoordTimePairsForTrackFeature(extendedTrackHistory)
   ]);
   
   const coordinates = uniqueValues.map(({ coordinates }) => coordinates);
@@ -95,8 +95,8 @@ export const mergeTrackFeatureData = (track, extendedTrackHistory) => {
   };
 };
 
-const createSortedCoordTimePairsForTrack = (track) => {
-  const { features: [{ properties, geometry }] } = track;
+const createSortedCoordTimePairsForTrackFeature = (track) => {
+  const { properties, geometry } = track;
   const { coordinateProperties: { times } } = properties;
   const { coordinates } = geometry;
   return sortCoordTimePairs(
@@ -195,7 +195,7 @@ export const trackHasDataWithinTimeRange = (track, since = null, until = null) =
   return true;
 };
 
-export  const fetchTracksIfNecessary = (...ids) => {
+export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   const { data: { tracks, virtualDate, eventFilter }, view: { trackLength } } = store.getState();
 
   const results = ids.map((id) => {
@@ -213,12 +213,12 @@ export  const fetchTracksIfNecessary = (...ids) => {
     }
   
     if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
-      return store.dispatch(fetchTracks(dateRange, id));
+      return store.dispatch(fetchTracks(dateRange, cancelToken, id));
     }
     return Promise.resolve();
   });
 
-  return results;
+  return Promise.all(results);
 };
 
 export const trimTrackFeatureCollectionToLength = (trackFeatureCollection, lengthInDays) => {

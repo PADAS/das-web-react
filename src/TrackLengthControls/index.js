@@ -11,20 +11,18 @@ import LogarithmicSlider from '../LogarithmicSlider';
 
 import styles from './styles.module.scss';
 
-const RANGE_MIN = 1;
-const RANGE_MAX = 365;
-
 const { Label, Control } = Form;
 
 const RANGE_INPUT_ATTRS = {
-  min: RANGE_MIN,
-  max: RANGE_MAX,
+  min: 1,
+  max: 60,
 };
 
 const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin } = props;
+  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, onTrackLengthChange } = props;
 
   const [customLengthValue, setCustomLengthValue] = useState(length);
+  const [initialized, setInitState] = useState(false);
 
   const eventFilterDateRangeLength = differenceInCalendarDays(
     upper || new Date(),
@@ -47,9 +45,14 @@ const TrackLengthControls = (props) => {
     }
   }, [origin, customLengthValue]);
 
+  useEffect(() => {
+    if (!initialized) return setInitState(true);
+    return onTrackLengthChange(length);
+  }, [length]);
+
   const onOriginChange = ({ target: { value } }) => setTrackLengthRangeOrigin(value);
 
-  const onRangeInputChange = val => setCustomLengthValue(val); //setCustomLengthValue(parseFloat(value));
+  const onRangeInputChange = ({ target: { value } }) => setCustomLengthValue(parseFloat(value));
 
   const focusRange = () => {
     if (origin !== TRACK_LENGTH_ORIGINS.customLength) {
@@ -67,8 +70,8 @@ const TrackLengthControls = (props) => {
       <Control onChange={onOriginChange} id='custom-length' checked={isSelected(TRACK_LENGTH_ORIGINS.customLength)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.customLength} type='radio' name='track-length-method' />
       <span>Custom length</span>
       <div className={styles.rangeControls}>
-        <LogarithmicSlider {...RANGE_INPUT_ATTRS} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeSlider} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} value={customLengthValue} onChange={onRangeInputChange} />
-        <input autoCapitalize='off' {...RANGE_INPUT_ATTRS} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeFreeformInput} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} type='number' value={customLengthValue} name='range-freeform-input' onChange={({ target: { value } }) => onRangeInputChange(value)} />
+        <input type='range' {...RANGE_INPUT_ATTRS} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeSlider} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} value={customLengthValue} onChange={onRangeInputChange} />
+        <input autoComplete='off' min={RANGE_INPUT_ATTRS.min} onTouchStart={focusRange} onMouseDown={focusRange} onFocus={focusRange} disabled={origin !== TRACK_LENGTH_ORIGINS.customLength} className={`${styles.rangeFreeformInput} ${origin !== TRACK_LENGTH_ORIGINS.customLength ? styles.disabled : ''}`} type='number' value={customLengthValue} name='range-freeform-input' onChange={onRangeInputChange} />
       </div>
     </Label>
   </Form>;

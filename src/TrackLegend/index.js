@@ -16,7 +16,7 @@ import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCo
 import styles from './styles.module.scss';
 
 const TrackLegend = (props) => {
-  const { tracks, tracksAsPoints, onClose, subjectTrackState, updateTrackState } = props;
+  const { tracks, tracksAsPoints, onClose, subjectTrackState, updateTrackState, onTrackLengthChange } = props;
 
   const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
@@ -70,7 +70,7 @@ const TrackLegend = (props) => {
     titleElement={titleElement}
     onClose={onClose}
     triggerSibling={triggerSibling}
-    settingsComponent={<TrackLengthControls />} 
+    settingsComponent={<TrackLengthControls onTrackLengthChange={onTrackLengthChange} />} 
   >
     <div className={styles.gradient}></div>
     <span>{trackPointCount} total points</span>

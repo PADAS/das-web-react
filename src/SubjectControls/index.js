@@ -39,7 +39,7 @@ const SubjectControls = memo((props) => {
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
-    return fetchTracksIfNecessary(id);
+    return fetchTracksIfNecessary([id]);
   };
 
   const onTrackButtonClick = async () => {
@@ -54,7 +54,7 @@ const SubjectControls = memo((props) => {
 
   const toggleHeatmapState = async () => {
     setHeatmapLoadingState(true);
-    await fetchTracksIfNecessary(id);
+    await fetchTracksIfNecessary([id]);
     setHeatmapLoadingState(false);
 
     if (subjectIsInHeatmap) return removeHeatmapSubjects(id);
