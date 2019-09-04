@@ -14,7 +14,7 @@ const KMLExportModal = (props) => {
 
   const [includeInactive, setInactive] = useState(false);
 
-  const today = setHours(startOfDay(new Date()), 22);
+  const today = setHours(startOfDay(new Date()), 18);
 
   const [customEndDate, setEndDate] = useState(setHours(today, 18));
   const [customStartDate, setStartDate] = useState(subDays(today, 14));
