@@ -11,8 +11,6 @@ import ReduxThunk from 'redux-thunk';
 import { REACT_APP_ROUTE_PREFIX } from './constants';
 
 import registerServiceWorker from './registerServiceWorker';
-import 'typeface-roboto';
-import 'typeface-roboto-slab';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 import withTracker from './WithTracker';
