@@ -1,6 +1,8 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+
+import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -27,6 +29,10 @@ const SubjectsLayer = memo((props) => {
     type: 'geojson',
     data: subjects,
   };
+
+  useEffect(() => {
+    subjects && addFeatureCollectionImagesToMap(subjects, map);
+  }, [subjects]);
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 

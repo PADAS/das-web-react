@@ -78,16 +78,6 @@ class Map extends Component {
         this.setTrackLengthToEventFilterRange();
       }
     }
-
-    if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
-      this.createEventImages();
-    }
-    if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
-      this.createSubjectImages();
-    }
-    if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
-      this.createFeatureImages();
-    }
     if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       this.setTrackLengthToEventFilterRange();
     }
@@ -100,15 +90,6 @@ class Map extends Component {
       this.props.eventFilter.filter.date_range.upper || new Date(),
       this.props.eventFilter.filter.date_range.lower,
     ));
-  }
-  createSubjectImages() {
-    addFeatureCollectionImagesToMap(this.props.mapSubjectFeatureCollection, this.props.map);
-  }
-  createEventImages() {
-    addFeatureCollectionImagesToMap(this.props.mapEventFeatureCollection, this.props.map);
-  }
-  createFeatureImages() {
-    addFeatureCollectionImagesToMap(this.props.mapFeaturesFeatureCollection.symbolFeatures, this.props.map);
   }
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
@@ -229,7 +210,6 @@ class Map extends Component {
 
   }
   setMap(map) {
-    console.log('set map');
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }

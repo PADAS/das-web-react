@@ -29,8 +29,7 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 export const addMapImage = async (map, icon_id, src) => {
   const img = await imgElFromSrc(src, MAP_ICON_SIZE);
   if (!map.hasImage(icon_id)) {
-    console.log('map.addImage(icon_id, img)', map.addImage(icon_id, img));
-    // map.addImage(icon_id, img);
+    map.addImage(icon_id, img);
   }
   return img;
 };
