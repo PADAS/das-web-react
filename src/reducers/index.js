@@ -20,6 +20,7 @@ import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
+import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import mapImagesReducer from '../ducks/images';
 
@@ -88,6 +89,7 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
+    userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
   }),
 });
