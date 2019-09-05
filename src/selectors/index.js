@@ -133,7 +133,6 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
         }
         // assign analyzer type to each feature
         feature.analyzer_type = data.type;
-        if (feature.analyzer_type === 'proximity') feature.threshold_dist_meters = data.threshold_dist_meters;
         return feature;
       })], []);
     // simulate layergroups found in old codebase
@@ -141,6 +140,8 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
       const featureIds = analyzer.geojson.features.map( feature => feature.id);
       return {id: analyzer.id, feature_ids: featureIds};
     });
+
+    console.log('All analyzers', allAnalyzers);
 
     return {
       analyzerLines: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),

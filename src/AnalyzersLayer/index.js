@@ -55,21 +55,17 @@ const polyLayout = {
 
 const AnalyzerLayer = memo(({ lines, polygons, layerGroups, map }) => {
 
-  console.log('layer group', layerGroups);
-  
-  // XXX fix me
+  // XXX better way to do this?
   const getLayerGroup = (feature_id) => {
     const featureSet = []
     layerGroups.forEach( (analyzer) => {
       if (analyzer.feature_ids.indexOf(feature_id) != -1) {
-        console.log('featureSet', analyzer.feature_ids);
         featureSet.push(analyzer.feature_ids);
       }});
     return featureSet.flat(1);
   };
 
-  // XXX cheesy way to hold state for hover, taken from
-  // https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+  // taken from https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
   var hoverStateIds, sourceName;
 
   const onAnalyzerClick = (e) => {
@@ -115,7 +111,6 @@ const AnalyzerLayer = memo(({ lines, polygons, layerGroups, map }) => {
 });
 
 AnalyzerLayer.propTypes = {
-  symbols: PropTypes.object.isRequired,
   lines: PropTypes.object.isRequired,
   polygons: PropTypes.object.isRequired,
 };

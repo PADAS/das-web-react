@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 import { featureCollection } from '@turf/helpers';
+import { createGeoJSONCircle } from '../utils/features';
 
 export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial?active=true`;
 
@@ -15,23 +16,27 @@ let featureLayerIdentifier = 1000;
 
 export const fetchAnalyzers = () => async (dispatch) => {
 
-  // fetch the active analyzers, only processing the non-ull urls
+  // fetch the active analyzers, only processing the non-null spatial group urls
   const { data: { data } } = await axios.get(ANALYZERS_API_URL);
 
-  // XXX redo this one, should just ship the analyzer data and the features
-  // to the selector, and sort it out there.
   try {
     const analyzers = await Promise.all(data.map(async (analyzer) => {
-      const spatialUrls = Object.values(analyzer.spatial_groups);
-      const nonNullLinks = spatialUrls.filter(x => x);
+      const spatialEntries = Object.entries(analyzer.spatial_groups);
+      const nonNullLinks = spatialEntries.filter(entry => entry[1] !== null);
       const fetchedFeatures = await Promise.all(nonNullLinks.map(async (link) => {
-        const { data: result } = await axios.get(link);
+        const { data: result } = await axios.get(link[1]);
         const concatFeatures = [];
-        result.data.features.forEach((feature) => {
-          const { features } = feature;
-          features[0]['id'] = featureLayerIdentifier++;
-          features[0].properties['admin_href'] = analyzer.admin_href;
-          concatFeatures.push(features[0]);
+        result.data.features.forEach((analyzerFeature) => {
+          const feature = analyzerFeature.features[0];
+          feature.id = featureLayerIdentifier++;
+          if (analyzer.analyzer_category === 'proximity') {
+            const proximityPoly = createGeoJSONCircle(feature.geometry, analyzer.threshold_dist_meters);
+            feature.geometry = proximityPoly;
+            feature.properties['spatial_category'] = 'warning_category';
+          }
+          feature.properties['admin_href'] = analyzer.admin_href;
+          feature.properties['spatial_category'] = link[0];
+          concatFeatures.push(feature);
         });
         return concatFeatures;
       }));
