@@ -37,9 +37,6 @@ const EarthRangerMap = (props) => {
   const onLoad = (map) => {
     onMapLoaded && onMapLoaded(map);
     setMap(map);
-    map.on('styleimagemissing', (e) => {
-      // do nothing
-    });
   };
 
   const id = useRef(uuid());
