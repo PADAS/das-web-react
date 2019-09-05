@@ -6,9 +6,6 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, fetchTracks } from '../ducks/tracks';
 
-
-import LogarithmicSlider from '../LogarithmicSlider';
-
 import styles from './styles.module.scss';
 
 const { Label, Control } = Form;
@@ -89,19 +86,3 @@ export default connect(mapStatetoProps, { fetchTracks, setTrackLength, setTrackL
 TrackLengthControls.defaultProps = {
   virtualDate: null,
 };
-
-
-/*
-
-  if (payload.origin === TRACK_LENGTH_ORIGINS.eventFilter) {
-    const { data: { eventFilter: { filter: { date_range: { lower, upper } } } } } = getState();
-    data = {
-      origin: payload.origin,
-      length: differenceInCalendarDays(
-        upper || new Date(),
-        lower,
-      ),
-    };
-  }
-  data = payload;
-*/

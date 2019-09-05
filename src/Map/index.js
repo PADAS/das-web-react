@@ -102,13 +102,13 @@ class Map extends Component {
     ));
   }
   createSubjectImages() {
-    this.createMapImages(this.props.mapSubjectFeatureCollection);
+    addFeatureCollectionImagesToMap(this.props.mapSubjectFeatureCollection, this.props.map);
   }
   createEventImages() {
-    this.createMapImages(this.props.mapEventFeatureCollection);
+    addFeatureCollectionImagesToMap(this.props.mapEventFeatureCollection, this.props.map);
   }
   createFeatureImages() {
-    this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
+    addFeatureCollectionImagesToMap(this.props.mapFeaturesFeatureCollection.symbolFeatures, this.props.map);
   }
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
@@ -212,17 +212,6 @@ class Map extends Component {
     }
     return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
   }
-  async createMapImages(featureCollection) {
-    const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
-
-    if (newImages.length) {
-      setTimeout(() => {
-        this.props.map.flyTo({
-          center: this.props.map.getCenter(),
-        });
-      });
-    }
-  }
   async onMapSubjectClick(layer) {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
@@ -290,7 +279,7 @@ class Map extends Component {
         {map && (
           <Fragment>
 
-            <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
+            {/* <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} /> */}
 
             <SubjectsLayer
               subjects={mapSubjectFeatureCollection}
@@ -368,7 +357,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(withSocketConnection(Map), 100));
+)(withSocketConnection(Map));
 
 // Map.whyDidYouRender = true;
 

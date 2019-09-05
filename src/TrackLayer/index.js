@@ -5,7 +5,7 @@ import isEqual from 'react-fast-compare';
 
 import { withMap } from '../EarthRangerMap';
 import { LAYER_IDS } from '../constants';
-import { addAndCacheMapImage } from '../utils/map';
+import { addMapImage } from '../utils/map';
 import { convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
@@ -52,7 +52,7 @@ const TracksLayer = memo(function TracksLayer(props) {
 
   const addImage = async () => {
     if (!map.hasImage(ARROW_IMG_ID)) {
-      addAndCacheMapImage(map, ARROW_IMG_ID, Arrow);
+      addMapImage(map, ARROW_IMG_ID, Arrow);
     }
   };
 

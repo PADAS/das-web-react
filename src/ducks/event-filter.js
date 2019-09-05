@@ -55,14 +55,12 @@ export default (state = INITIAL_FILTER_STATE, action) => {
 
   switch (type) {
   case (UPDATE_EVENT_FILTER): {
-    const updated = {
+    return {
       ...state, ...payload, filter: {
         ...state.filter,
         ...payload.filter,
       }
     };
-    if (isEqual(state, updated)) return state;
-    return updated;
   }
   case (RESET_EVENT_FILTER): {
     return { ...payload };

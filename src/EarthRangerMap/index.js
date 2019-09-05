@@ -2,7 +2,6 @@ import React, { createContext, Fragment, memo, useRef, useState, useEffect } fro
 import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
-import { jumpToLocation, refreshMapImagesFromStore } from '../utils/map';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
@@ -29,7 +28,7 @@ export function withMap(Component) {
 };
 
 const EarthRangerMap = (props) => {
-  const { currentBaseLayer, children, mapImages, onMapLoaded, ...rest } = props;
+  const { currentBaseLayer, children, onMapLoaded, ...rest } = props;
   const [map, setMap] = useState(null);
 
   
@@ -38,13 +37,12 @@ const EarthRangerMap = (props) => {
   const onLoad = (map) => {
     onMapLoaded && onMapLoaded(map);
     setMap(map);
+    map.on('styleimagemissing', (e) => {
+      // do nothing
+    });
   };
 
   const id = useRef(uuid());
-
-  const refreshImages = () => {
-    refreshMapImagesFromStore(map);
-  };
 
   useEffect(() => {
     if (currentBaseLayer) {
@@ -52,7 +50,6 @@ const EarthRangerMap = (props) => {
         setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
       }
     }
-    map && setTimeout(refreshImages, 2000);
   }, [currentBaseLayer]);
 
   return <MapboxMap
@@ -75,8 +72,7 @@ const EarthRangerMap = (props) => {
   </MapboxMap>;
 };
 
-const mapStateToProps = ({ view: { currentBaseLayer }, data: { mapImages } }) => ({
-  mapImages,
+const mapStateToProps = ({ view: { currentBaseLayer }}) => ({
   currentBaseLayer,
 });
 

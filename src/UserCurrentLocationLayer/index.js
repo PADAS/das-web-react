@@ -7,7 +7,7 @@ import { point } from '@turf/helpers';
 import { setCurrentUserLocation } from '../ducks/location';
 import { userLocationCanBeShown } from '../selectors/index';
 
-import { addAndCacheMapImage } from '../utils/map';
+import { addMapImage } from '../utils/map';
 import { GEOLOCATOR_OPTIONS } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
@@ -64,7 +64,7 @@ const UserCurrentLocationLayer = (props) => {
 
   const addImageToMap = async () => {
     if (!map.hasImage('current-location-icon')) {
-      addAndCacheMapImage(map, 'current-location-icon', GpsLocationIcon);
+      addMapImage(map, 'current-location-icon', GpsLocationIcon);
     }
   };
 
@@ -139,67 +139,3 @@ UserCurrentLocationLayer.defaultProps = {
 UserCurrentLocationLayer.propTypes = {
   onIconClick: PropTypes.func,
 };
-
-
-
-/*
-map.on('load', function () {
-
-    // Add a source and layer displaying a point which will be animated in a circle.
-    map.addSource('point', {
-        "type": "geojson",
-        "data": {
-            "type": "Point",
-            "coordinates": [
-                0, 0
-            ]
-        }
-    });
-
-    map.addLayer({
-        "id": "point",
-        "source": "point",
-        "type": "circle",
-        "paint": {
-            "circle-radius": initialRadius,
-            "circle-radius-transition": {duration: 0},
-            "circle-opacity-transition": {duration: 0},
-            "circle-color": "#007cbf"
-        }
-    });
-
-    map.addLayer({
-        "id": "point1",
-        "source": "point",
-        "type": "circle",
-        "paint": {
-            "circle-radius": initialRadius,
-            "circle-color": "#007cbf"
-        }
-    });
-
-
-    function animateMarker(timestamp) {
-        setTimeout(function(){
-            requestAnimationFrame(animateMarker);
-
-            radius += (maxRadius - radius) / framesPerSecond;
-            opacity -= ( .9 / framesPerSecond );
-
-            map.setPaintProperty('point', 'circle-radius', radius);
-            map.setPaintProperty('point', 'circle-opacity', opacity);
-
-            if (opacity <= 0) {
-                radius = initialRadius;
-                opacity = initialOpacity;
-            }
-
-        }, 1000 / framesPerSecond);
-
-    }
-
-    // Start the animation.
-    animateMarker(0);
-});
-
-*/
