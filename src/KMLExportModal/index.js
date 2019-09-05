@@ -36,7 +36,7 @@ const KMLExportModal = (props) => {
   const handleStartDateChange = value => handleInputChange('start', value);
   const handleEndDateChange = value => handleInputChange('end', value);
 
-  const exportParams = {end: customEndDate, start: customStartDate, active: !includeInactive};
+  const exportParams = {end: customEndDate, start: customStartDate, include_inactive: includeInactive};
 
   return <DataExportModal {...props} title='Export Master KML File' params={exportParams}>
     <DateRangeSelector
