@@ -24,9 +24,42 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const ContentComponent = memo(debounceRender((props) => {
-  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, hiddenSubjectIDs, subjectIsVisible, addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
+  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
+    hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter, 
+    addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, 
+    groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
+
+  // filterSubjects is a function that filters a given subgroup array based on 
+  // a given predicate - in this case the hasSubjectMatch function.
+  const filterSubjects = (pred, [head, ...tail]) => head === undefined ? [] : (
+    pred(head) ? [head, ...filterSubjects(pred, tail)] : [...filterSubjects(pred, tail)]
+   );
+
+   // hasSubectMatch is a recursive function to drill down the group/subgroup 
+   // tree to find if there are subjects matching the search filter as given by
+   // the function subjectMatchesFilter.
+  const hasSubjectMatch = (groupOrSubject) => {
+    if (groupOrSubject.subject_type) // subject:
+      return subjectMatchesFilter(groupOrSubject);
+    if (groupOrSubject.subjects)     // group or subgroup:
+      return groupOrSubject.subjects.some(subject => hasSubjectMatch(subject)) ||
+        groupOrSubject.subgroups.some(subgroup => hasSubjectMatch(subgroup));
+    return false;
+  };
 
   const nonEmptySubgroups = subgroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
+
+  const filteredSubgroups = subjectFilterEnabled ? 
+    filterSubjects(hasSubjectMatch, nonEmptySubgroups) : nonEmptySubgroups;
+  const filteredSubjects = subjectFilterEnabled ? 
+    filterSubjects(hasSubjectMatch, subjects) : subjects;
+
+  // if (subjectFilterEnabled) {
+  //   console.log('filteredSubgroups:');
+  //   console.log(filteredSubgroups);
+  //   console.log('filteredSubjects:');
+  //   console.log(filteredSubjects);
+  // };
 
   const [loadingTracks, setTrackLoadingState] = useState(false);
 
@@ -48,11 +81,15 @@ const ContentComponent = memo(debounceRender((props) => {
     onSubjectCheckClick,
     hiddenSubjectIDs,
     subjectIsVisible,
+    subjectFilterEnabled,
+    subjectMatchesFilter,
   };
 
   const subjectItemProps = {
     map,
   };
+
+  const collapsibleShouldBeOpen = subjectFilterEnabled && (!!filteredSubgroups.length || !!filteredSubjects.length);
 
   const onGroupHeatmapToggle = async (e) => {
     const { heatmapEligibleSubjectIDs, groupIsFullyHeatmapped } = props;
@@ -86,21 +123,23 @@ const ContentComponent = memo(debounceRender((props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-    trigger={trigger}>
-    {!!subgroups.length &&
+    trigger={trigger}
+    open={collapsibleShouldBeOpen}
+    triggerDisabled={subjectFilterEnabled}>
+    {!!filteredSubgroups.length &&
       <CheckableList
         className={listStyles.list}
-        items={nonEmptySubgroups}
+        items={filteredSubgroups}
         itemProps={groupItemProps}
         itemFullyChecked={groupIsFullyVisible}
         itemPartiallyChecked={groupIsPartiallyVisible}
         onCheckClick={onGroupCheckClick}
         itemComponent={ConnectedComponent} />
     }
-    {!!subjects.length &&
+    {!!filteredSubjects.length &&
       <CheckableList
         className={`${listStyles.list} ${listStyles.itemList}`}
-        items={subjects}
+        items={filteredSubjects}
         itemProps={subjectItemProps}
         itemFullyChecked={subjectIsVisible}
         onCheckClick={onSubjectCheckClick}

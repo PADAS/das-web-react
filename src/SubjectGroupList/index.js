@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -14,7 +14,10 @@ import listStyles from '../SideBar/styles.module.scss';
 
 
 const SubjectGroupList = memo((props) => {
-  const { subjectGroups, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
+  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
+
+  const [searchText, setSearchTextState] = useState('');
+  const [subjectFilterEnabled, setsubjectFilterEnabledState] = useState(false);
 
   const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
   const groupIsPartiallyVisible = (group) => {
@@ -24,7 +27,6 @@ const SubjectGroupList = memo((props) => {
 
   const onSubjectCheckClick = (subject) => {
     if (subjectIsVisible(subject)) return hideSubjects(subject.id);
-
     return showSubjects(subject.id);
   };
 
@@ -32,7 +34,6 @@ const SubjectGroupList = memo((props) => {
 
   const onGroupCheckClick = (group) => {
     const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
-
     if (groupIsFullyVisible(group)) {
       trackEvent('Map Layers', 'Uncheck Group Map Layer checkbox', `Group:${group.name}`);
       return hideSubjects(...subjectIDs);
@@ -42,6 +43,16 @@ const SubjectGroupList = memo((props) => {
     }
   };
 
+  const subjectMatchesFilter = (subject) => {
+    if (searchText.length === 0) return true;
+    return (subject.name.toLowerCase().includes(searchText));
+  };
+
+  useEffect(() => {
+    const filterText = mapLayerFilter.filter.text || '';
+    setSearchTextState(filterText);
+    setsubjectFilterEnabledState(filterText.length > 0);
+  }, [mapLayerFilter]);
 
   const itemProps = {
     map,
@@ -49,6 +60,8 @@ const SubjectGroupList = memo((props) => {
     onSubjectCheckClick,
     hiddenSubjectIDs,
     subjectIsVisible,
+    subjectFilterEnabled,
+    subjectMatchesFilter,
   };
 
   return <CheckableList
@@ -64,7 +77,8 @@ const SubjectGroupList = memo((props) => {
     isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
 );
 
-const mapStateToProps = ({ data: { subjectGroups }, view: { hiddenSubjectIDs } }) => ({ subjectGroups, hiddenSubjectIDs });
+const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) => 
+  ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(SubjectGroupList);
 
 SubjectGroupList.defaultProps = {

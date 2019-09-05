@@ -22,7 +22,6 @@ export const resetEventFilter = () => (dispatch) => {
 
 // REDUCER
 export const INITIAL_FILTER_STATE = {
-  state: ['active', 'new'],
   filter: {
     text: '',
   },
