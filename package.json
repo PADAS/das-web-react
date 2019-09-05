@@ -15,14 +15,8 @@
     "mapbox-gl": "^0.54.0",
     "mapboxgl-spiderifier": "^1.0.9",
     "prop-types": "^15.7.2",
-<<<<<<< HEAD
     "react": "^16.9.0",
     "react-bootstrap": "^1.0.0-beta.10",
-=======
-    "react": "^16.8.6",
-    "react-app": "^1.1.2",
-    "react-bootstrap": "^1.0.0-beta.6",
->>>>>>> develop
     "react-collapsible": "^2.6.0",
     "react-css-loaders": "^0.0.5",
     "react-datetime-picker": "^2.4.0",
@@ -46,8 +40,6 @@
     "reselect": "^4.0.0",
     "socket.io-client": "^2.2.0",
     "streamsaver": "^1.2.0",
-    "typeface-roboto": "^0.0.54",
-    "typeface-roboto-slab": "^0.0.72",
     "uuid": "^3.3.2"
   },
   "scripts": {

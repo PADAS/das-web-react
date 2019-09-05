@@ -7,7 +7,7 @@ import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
-import systemStatusReducer, { zendeskReducer } from '../ducks/system-status';
+import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
   pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer } from '../ducks/map-ui';
@@ -43,7 +43,6 @@ const heatmapConfigPersistanceConfig = {
   key: 'heatmapConfig',
   storage,
 };
-
 
 const userProfilePersistanceConfig = {
   key: 'userProfile',
@@ -90,8 +89,8 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
-    zendeskEnabled: zendeskReducer,
     userNotifications: userNotificationReducer,
+    systemConfig: systemConfigReducer,
   }),
 });
 
