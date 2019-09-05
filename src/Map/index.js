@@ -259,7 +259,7 @@ class Map extends Component {
         {map && (
           <Fragment>
 
-            {/* <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} /> */}
+            <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
               subjects={mapSubjectFeatureCollection}
