@@ -73,11 +73,10 @@ const ReportFormHeader = (props) => {
     trackEvent(eventOrIncidentReport, `${historyPopoverOpen?'Close':'Open'} Report History`);
   };
 
-  const ReportHistory = <Fragment>
-      {report.updates && 
+  const ReportHistory = report.updates && <Fragment>
       <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
         {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
-      </span>}
+      </span>
     </Fragment>;
 
   const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
