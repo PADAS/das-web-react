@@ -30,7 +30,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        {feature.geometry && <small>{feature.geometry.coordinates.length} points</small>}
+        <small>{feature.geometry? feature.geometry.coordinates.length : 0} points</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
