@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 import { postAuth, clearAuth } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
+
+import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
+
+import styles from './styles.module.scss';
+
+const { Control, Label } = Form;
 
 class LoginPage extends Component {
   constructor(props) {
@@ -63,16 +71,19 @@ class LoginPage extends Component {
         state: { from: this.props.location, },
       }}
     />) : (
-      <form onSubmit={this.onFormSubmit}>
-        <label htmlFor="username">Username</label>
-        <input value={this.state.username} required={true} onChange={this.onInputChange} type="text" name="username" id="username" />
-        <label htmlFor="password">Password</label>
-        <input value={this.state.password} required={true} onChange={this.onInputChange} type="password" name="password" id="password" />
-        <button type="submit">Submit</button>
-        {this.state.hasError && (
-          <p>An error has occured. Please try again.</p>
-        )}
-      </form>
+      <div className={styles.container}>
+        <EarthRangerLogo className={styles.logo} />
+        <Form className={styles.form} onSubmit={this.onFormSubmit}>
+          <Label htmlFor='username'>Username</Label>
+          <Control value={this.state.username} required={true} onChange={this.onInputChange} type='text' name='username' id='username' />
+          <Label htmlFor='password'>Password</Label>
+          <Control value={this.state.password} required={true} onChange={this.onInputChange} type='password' name='password' id='password' />
+          <Button variant='primary' type='submit'>Log in</Button>
+          {this.state.hasError && (
+            <p>An error has occured. Please try again.</p>
+          )}
+        </Form>
+      </div>
     );
   }
 }
