@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 const KMLExportModal = (props) => {
 
-  const [includeInactive, setInactive] = useState(false);
+  const [includeInactive, setIncludeInactive] = useState(false);
 
   const today = setHours(startOfDay(new Date()), 18);
 
@@ -29,31 +29,33 @@ const KMLExportModal = (props) => {
   };
 
   const onCheckboxChange = (e) => {
-    setInactive(!includeInactive);
-    trackEvent('KML Export',  `${includeInactive}? 'Uncheck' : 'Check'} 'Show Inactive' checkbox`);
+    setIncludeInactive(!includeInactive);
+    trackEvent('KML Export', `${includeInactive}? 'Uncheck' : 'Check'} 'Show Inactive' checkbox`);
   };
 
   const handleStartDateChange = value => handleInputChange('start', value);
   const handleEndDateChange = value => handleInputChange('end', value);
 
-  const exportParams = {end: customEndDate, start: customStartDate, include_inactive: includeInactive};
+  const exportParams = { end: customEndDate, start: customStartDate, include_inactive: includeInactive };
 
   return <DataExportModal {...props} title='Export Master KML File' params={exportParams}>
-    <DateRangeSelector
-      className={styles.controls} 
-      maxDate={today}
-      startDate={customStartDate}
-      endDate={customEndDate}
-      requireStart={true}
-      requireEnd={true}
-      onStartDateChange={handleStartDateChange}
-      onEndDateChange={handleEndDateChange}
-      gaEventSrc='KML Export'
+    <div>
+      <DateRangeSelector
+        className={styles.controls}
+        maxDate={today}
+        startDate={customStartDate}
+        endDate={customEndDate}
+        requireStart={true}
+        requireEnd={true}
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+        gaEventSrc='KML Export'
       />
+    </div>
     <div className={styles.inactiveSubjects}>
       <label>
-        <input type='checkbox' name='inactivesubjects' checked={includeInactive} onChange={onCheckboxChange}/>
-        <span className={styles.cbxlabel}>Include Inactive Subjects</span>
+        <input type='checkbox' checked={includeInactive} onChange={onCheckboxChange} />
+        <span className={styles.checkboxLabel}>Include inactive subjects</span>
       </label>
     </div>
   </DataExportModal >;
