@@ -6,8 +6,21 @@ export const {
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
   REACT_APP_ROUTE_PREFIX,
+  REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
+
+export const GA_EVENT_CATEGORIES = {
+  EVENT_REPORTS: "Event Reports",
+  REPORT_EXPORT: "Report Export",
+  MAP_INTERATION: "Map Interaction",
+  MAP_LAYERS: "Map Layers",
+  FEED: "Feed",
+  TABS: "Tabs",
+  DRAWER: "Drawer",
+  GPS_FORMAT: "GPS Format",
+  SYSTEM_STATUS: "System Status",
+};
 
 export const MIN_ZOOM = 1;
 export const MAX_ZOOM = 18;
@@ -145,3 +158,5 @@ export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];
 export const GOOGLE_LAYER_SOURCE_TYPES = ['google_map'];
 export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles'];
 export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* ...GOOGLE_LAYER_SOURCE_TYPES, */ ...TILE_LAYER_SOURCE_TYPES];
+
+export const DEFAULT_SHOW_TRACK_DAYS = 7;

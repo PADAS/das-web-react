@@ -23,6 +23,7 @@ import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
+import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -49,7 +50,7 @@ const setZendeskInterval = () => {
         clearInterval(zendeskInterval);
       });
     }
-  }, 100);
+  }, 1000);
 };
 
 let mapResized = false;
@@ -85,6 +86,7 @@ const App = memo((props) => {
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    trackEvent('Drawer', `${sidebarOpen?'Close':'open'} Drawer`, null);
   };
 
   clearInterval(mapInterval);
@@ -113,7 +115,8 @@ const App = memo((props) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (zendeskEnabled && zendeskEnabled.enabled) {
+    console.log('zendeskEnabled', zendeskEnabled)
+    if (zendeskEnabled) {
       setZendeskInterval();
     }
   }, [zendeskEnabled]);
@@ -143,6 +146,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
+const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
 export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

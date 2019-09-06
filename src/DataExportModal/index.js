@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { CancelToken } from 'axios';
-
+import { trackEvent } from '../utils/analytics';
 
 import { API_URL } from '../constants';
 import { removeModal } from '../ducks/modals';
@@ -41,25 +41,30 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
       });
   };
 
-  const handleFormSubmit = (e) => {
+  const onFormSubmit = (e) => {
     e.preventDefault();
     triggerDownload();
+    trackEvent('Report Export', "Click 'Export' button");    
   };
 
+  const onFormCancel = () => {
+    removeModal(id);
+    trackEvent('Report Export', "Click 'Cancel' button");    
+  };
 
   return <Fragment>
     {downloading && <LoadingOverlay />}
     <Header closeButton>
       <Title>{title}</Title>
     </Header>
-    <Form onSubmit={handleFormSubmit}>
+    <Form onSubmit={onFormSubmit}>
       {!!children &&
         <Body>
           {children}
         </Body>
       }
       <Footer>
-        <Button variant="secondary" onClick={() => removeModal(id)}>Cancel</Button>
+        <Button variant="secondary" onClick={onFormCancel}>Cancel</Button>
         <Button type="submit" variant="primary">Export</Button>
       </Footer>
     </Form>

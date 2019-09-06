@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { toggleMapNameState } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const MapNamesControl = (props) => {
@@ -9,6 +10,9 @@ const MapNamesControl = (props) => {
 
   const handleChange = (e) => {
     toggleMapNameState(!showMapNames);
+
+    trackEvent('Map Interaction', 
+      `${showMapNames? 'Uncheck' : 'Check'} 'Show Names' checkbox`, null);
   };
 
   return <label>

@@ -7,6 +7,8 @@ import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
+import { trackEvent } from '../utils/analytics';
+import { jumpToLocation } from '../utils/map';
 
 import { getSubjectControlState } from './selectors';
 
@@ -46,8 +48,15 @@ const SubjectControls = memo((props) => {
     setTrackLoadingState(true);
     await fetchSubjectTracks(id);
     setTrackLoadingState(false);
-
     toggleTrackState(id);
+
+    if (tracksPinned) {
+      trackEvent('Map Layers', 'Uncheck Subject Show Tracks button', `Subject:${subject.subject_type}`);
+    } else if (tracksVisible) {
+      trackEvent('Map Layers', 'Pin Subject Show Tracks button', `Subject:${subject.subject_type}`);
+    } else {
+      trackEvent('Map Layers', 'Check Subject Show Tracks button', `Subject:${subject.subject_type}`);
+    }
   };
 
   const coordinates = getSubjectLastPositionCoordinates(subject);
@@ -57,18 +66,37 @@ const SubjectControls = memo((props) => {
     await fetchTracksIfNecessary([id]);
     setHeatmapLoadingState(false);
 
-    if (subjectIsInHeatmap) return removeHeatmapSubjects(id);
-    return addHeatmapSubjects(id);
+    if (subjectIsInHeatmap) {
+      trackEvent('Map Layers', 'Uncheck Subject Heatmap button', 
+        `Subject Type:${subject.subject_type}`);
+      return removeHeatmapSubjects(id);
+    } else {
+      trackEvent('Map Layers', 'Check Subject Heatmap button', 
+        `Subject Type:${subject.subject_type}`);
+      return addHeatmapSubjects(id);
+    }
   };
+
+  const onJumpButtonClick = (map, coordinates, zoom) => {
+    // Need to handle the JumpButtonClick here instead of allowing the default
+    // LocationJumpButton handler because we need to distinguish the GA event.
+    trackEvent('Map Layers', 'Click Jump To Subject Location button', 
+      `Subject Type:${subject.subject_type}`);
+    jumpToLocation(map, coordinates, zoom);
+  }
 
   if (!canShowTrackForSubject(subject)) return null;
   if (!showHeatmapButton && !showTrackButton && !showJumpButton) return null;
 
-
-  return <div className={`${styles.controls} ${className || ''} ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {showTrackButton && <TrackToggleButton loading={loadingTracks} onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
-    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} map={map} />}
+  return <div className={`${styles.controls} ${className || ''} 
+    ${showTitles ? '' : styles.noTitles}`} {...rest}>
+    {showTrackButton && <TrackToggleButton loading={loadingTracks} 
+      onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} 
+      trackPinned={tracksPinned} />}
+    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} 
+      onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
+    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
+      map={map} onButtonClick={onJumpButtonClick}/>}
   </div>;
 });
 

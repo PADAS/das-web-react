@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 
+import { trackEvent } from '../utils/analytics';
+
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
 import MapBaseLayerControl from '../MapBaseLayerControl';
@@ -41,6 +43,13 @@ const EarthRangerMap = (props) => {
 
   const id = useRef(uuid());
 
+  const onZoomControlClick = (map, zoomDiff) => {
+    zoomDiff > 0? 
+      map.zoomIn({ level: map.getZoom() + zoomDiff }) :
+      map.zoomOut({ level: map.getZoom() - zoomDiff });
+    trackEvent('Map Interaction', `Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
+  };
+
   useEffect(() => {
     if (currentBaseLayer) {
       if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
@@ -57,9 +66,9 @@ const EarthRangerMap = (props) => {
     onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
       {map && <Fragment>
-        <RotationControl position='top-left' />
+        <RotationControl position='top-left'/>
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
-        <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' />
+        <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <MapSettingsControl />
         <MapBaseLayerControl />
         {children}

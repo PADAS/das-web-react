@@ -15,6 +15,7 @@ import uniq from 'lodash/uniq';
 import { EVENT_STATE_CHOICES as states } from '../constants';
 import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
+import { trackEvent } from '../utils/analytics';
 
 import FriendlyEventFilterString from './FriendlyEventFilterString';
 import DateRangeSelector from '../DateRangeSelector';
@@ -46,8 +47,10 @@ const EventFilter = memo((props) => {
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
     if (allReportTypesChecked) {
+      trackEvent('Feed', 'Uncheck All Event Types Filter');
       updateEventFilter({ filter: { event_type: [null] } });
     } else {
+      trackEvent('Feed', 'Check All Event Types Filter');
       updateEventFilter({ filter: { event_type: eventTypeIDs } });
     }
   };
@@ -56,16 +59,20 @@ const EventFilter = memo((props) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
     const allShown = intersection(currentFilterReportTypes, toToggle).length === toToggle.length;
     if (allShown) {
+      trackEvent('Feed', 'Uncheck Event Type Category Filter');
       updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(id => !toToggle.includes(id)) } });
     } else {
+      trackEvent('Feed', 'Uncheck Event Type Category Filter');
       updateEventFilter({ filter: { event_type: uniq([...currentFilterReportTypes, ...toToggle]) } });
     }
   };
 
   const onReportTypeToggle = ({ id }) => {
     if (currentFilterReportTypes.includes(id)) {
+      trackEvent('Feed', 'Uncheck Event Type Filter');
       updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(item => item !== id) } });
     } else {
+      trackEvent('Feed', 'Check Event Type Filter');
       updateEventFilter({ filter: { event_type: [...currentFilterReportTypes, id] } });
     }
   };
@@ -80,25 +87,34 @@ const EventFilter = memo((props) => {
     updateEventFilter(update);
   }, 200);
 
-  const onStateSelect = ({ value }) => updateEventFilter({ state: value });
+  const onStateSelect = ({ value }) => {
+    updateEventFilter({ state: value });
+    trackEvent('Feed', `Select '${value}' State Filter`);
+  };
 
-  const onStartDateChange = (val) => updateEventFilter({
-    filter: {
-      date_range: {
-        ...eventFilter.filter.date_range,
-        lower: dateIsValid(val) ? val.toISOString() : null,
+  const onStartDateChange = (val) => {
+    updateEventFilter({
+      filter: {
+        date_range: {
+          ...eventFilter.filter.date_range,
+          lower: dateIsValid(val) ? val.toISOString() : null,
+        },
       },
-    },
-  });
+    });
+    trackEvent('Feed', 'Change Start Date Filter');
+  };
 
-  const onEndDateChange = (val) => updateEventFilter({
-    filter: {
-      date_range: {
-        ...eventFilter.filter.date_range,
-        upper: dateIsValid(val) ? val.toISOString() : null,
+  const onEndDateChange = (val) => {
+    updateEventFilter({
+      filter: {
+        date_range: {
+          ...eventFilter.filter.date_range,
+          upper: dateIsValid(val) ? val.toISOString() : null,
+        },
       },
-    },
-  });
+    });
+    trackEvent('Feed', 'Change Filter End Date Filter');
+  };
 
   const onDateRangeChange = ({ lower, upper }) => {
     updateEventFilter({
@@ -109,6 +125,7 @@ const EventFilter = memo((props) => {
         },
       },
     });
+    trackEvent('Feed', 'Click Reset All Filters');
   };
 
   const resetPopoverFilters = () => {
@@ -117,7 +134,6 @@ const EventFilter = memo((props) => {
 
   const clearDateRange = (e) => {
     e.stopPropagation();
-
     updateEventFilter({
       filter: {
         date_range: {
@@ -126,11 +142,13 @@ const EventFilter = memo((props) => {
         },
       },
     });
+    trackEvent('Feed', 'Click Reset Date Range Filter');
   };
 
   const resetStateFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ state: INITIAL_FILTER_STATE.state });
+    trackEvent('Feed', 'Click Reset State Filter');
   };
 
   const SelectedState = () => <Toggle>
@@ -145,11 +163,14 @@ const EventFilter = memo((props) => {
     {states.map(choice => <Item key={choice.label} onClick={() => onStateSelect(choice)}>{choice.label}</Item>)}
   </Menu>;
 
-  const onSearchChange = ({ target: { value } }) => updateEventFilterDebounced({
-    filter: {
-      text: !!value ? value.toLowerCase() : null,
-    }
-  });
+  const onSearchChange = ({ target: { value } }) => {
+    updateEventFilterDebounced({
+      filter: {
+        text: !!value ? value.toLowerCase() : null,
+      }
+    });
+    trackEvent('Feed', 'Change Search Text Filter');
+  };
 
   const DateRangeTrigger = <h5 className={styles.filterTitle}>
     Date Range
@@ -194,6 +215,7 @@ const EventFilter = memo((props) => {
         showPresets={true}
         startDate={hasLower ? new Date(lower) : lower}
         startDateNullMessage='One month ago'
+        gaEventSrc='Event Filter'
       />
     </Collapsible>
     <Collapsible

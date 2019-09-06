@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
+import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
 import FeatureListItem from './FeatureListItem';
@@ -29,8 +30,15 @@ const FeatureTypeListItem = memo((props) => {
 
   const onCheckToggle = (item) => {
     const { properties: { id } } = item;
-    if (featureIsVisible(item)) return hideFeatures(id);
-    return showFeatures(id);
+    console.log('onCheckToggle item:');
+    console.log(item);
+    if (featureIsVisible(item)) {
+      trackEvent('Map Layer', 'Uncheck Feature checkbox');
+        return hideFeatures(id);
+    } else {
+      trackEvent('Map Layer', 'Check Feature checkbox');
+      return showFeatures(id);
+    }
   };
 
   return <Collapsible

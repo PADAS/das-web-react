@@ -15,6 +15,7 @@ import { subjectGroupHeatmapControlState } from './selectors';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
+import { trackEvent } from '../utils/analytics';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -58,7 +59,10 @@ const ContentComponent = memo(debounceRender((props) => {
     const { heatmapEligibleSubjectIDs, groupIsFullyHeatmapped } = props;
 
     e.stopPropagation();
-    if (groupIsFullyHeatmapped) return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
+    if (groupIsFullyHeatmapped) {
+      trackEvent('Map Layers', 'Uncheck Group Heatmap checkbox', `Group:${name}`);
+      return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
+    }
     
     setTrackLoadingState(true);
     if (unloadedSubjectTrackIDs.length) {
@@ -67,6 +71,7 @@ const ContentComponent = memo(debounceRender((props) => {
     
     setTrackLoadingState(false);
 
+    trackEvent('Map Layers', 'Check Group Heatmap checkbox', `Group:${name}`);
     return addHeatmapSubjects(...heatmapEligibleSubjectIDs);
   };
 
@@ -75,7 +80,10 @@ const ContentComponent = memo(debounceRender((props) => {
 
   const trigger = <div className={listStyles.trigger}>
     <h5>{name}</h5>
-    {showHeatmapControl && <HeatmapToggleButton loading={loadingTracks} heatmapVisible={groupIsFullyHeatmapped} heatmapPartiallyVisible={groupIsPartiallyHeatmapped} onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
+    {showHeatmapControl && <HeatmapToggleButton loading={loadingTracks} 
+      heatmapVisible={groupIsFullyHeatmapped} 
+      heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
+      onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
   </div>;
 
   return <Collapsible

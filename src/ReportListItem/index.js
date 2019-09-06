@@ -4,9 +4,11 @@ import PropTypes from 'prop-types';
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
+import { jumpToLocation } from '../utils/map';
 
 import { getCoordinatesForEvent } from '../utils/events';
 import { displayTitleForEventByEventType } from '../utils/events';
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -15,6 +17,14 @@ const ReportListItem = (props) => {
   const coordinates = getCoordinatesForEvent(report);
 
   const iconClickHandler = onIconClick || onTitleClick;
+
+  const onJumpButtonClick = (map, coordinates, zoom) => {
+    // Need to handle the JumpButtonClick here instead of allowing the default
+    // LocationJumpButton handler because we need to distinguish the GA event.
+    trackEvent('Map Layers', 'Click Jump To Report Location button', 
+      `Report Type:${report.event_type}`);
+    jumpToLocation(map, coordinates, zoom);
+  }
 
   return <li className={`${styles.listItem} ${styles[`priority-${report.priority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}><EventIcon iconId={report.icon_id} /></button>
@@ -26,7 +36,8 @@ const ReportListItem = (props) => {
     </span>
     {coordinates && showJumpButton &&
       <div className={styles.jump}>
-        <LocationJumpButton coordinates={coordinates} map={map} />
+        <LocationJumpButton coordinates={coordinates} map={map} 
+          onButtonClick={onJumpButtonClick}/>
       </div>
     }
   </li>;

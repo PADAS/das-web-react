@@ -16,6 +16,7 @@ import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolL
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType, trimmedVisibleTrackFeatureCollection } from '../selectors';
+import { trackEvent } from '../utils/analytics';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
@@ -101,7 +102,6 @@ class Map extends Component {
   }, 400);
 
   toggleMapLockState(e) {
-    console.log('Map.toggleLockState');
     return toggleMapLockState();
   }
 
@@ -126,6 +126,7 @@ class Map extends Component {
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
+    trackEvent('Map Interaction', 'Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
   }
 
@@ -163,23 +164,27 @@ class Map extends Component {
     });
   }
   onCurrentUserLocationClick(location) {
-    this.props.showPopup('current-user-location', { location });
+    this.props.showPopup('current-user-location', { location } );
+    trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
   toggleTrackState(id) {
     const { subjectTrackState: { visible, pinned }, updateTrackState } = this.props;
 
     if (pinned.includes(id)) {
+      trackEvent('Map Interaction', 'Uncheck Subject Show Tracks button');
       return updateTrackState({
         pinned: pinned.filter(item => item !== id),
         visible: visible.filter(item => item !== id),
       });
     }
     if (visible.includes(id)) {
+      trackEvent('Map Interaction', 'Pin Subject Show Tracks button');
       return updateTrackState({
         pinned: [...pinned, id],
         visible: visible.filter(item => item !== id),
       });
     }
+    trackEvent('Map Interaction', 'Check Subject Show Tracks button');
     return updateTrackState({
       visible: [...visible, id],
     });
@@ -189,9 +194,12 @@ class Map extends Component {
     const visible = heatmapSubjectIDs.includes(id);
 
     if (visible) {
+      trackEvent('Map Interaction', 'Uncheck Subject Heatmap button');
       return updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
+    } else {
+      trackEvent('Map Interaction', 'Check Subject Heatmap button');
+      return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
     }
-    return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
   }
   async onMapSubjectClick(layer) {
     const { geometry, properties } = layer;
@@ -207,7 +215,7 @@ class Map extends Component {
         visible: [...subjectTrackState.visible, id]
       });
     }
-
+    trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   }
   setMap(map) {
     this.props.onMapLoad(map);
