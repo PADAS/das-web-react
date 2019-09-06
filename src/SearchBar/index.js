@@ -1,6 +1,8 @@
 import React, { memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
+import { trackEvent } from '../utils/analytics';
+
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { ReactComponent as ClearButton } from '../common/images/icons/close-icon.svg';
 import styles from './styles.module.scss';
@@ -18,6 +20,7 @@ const SearchBar = memo((props) => {
   const onClearButtonClick = () => {
     searchBoxRef.current.value = '';
     onChange({target: {value: searchBoxRef.current.value}});
+    trackEvent('General', 'Click Clear Search button');
   };
 
   return <label className={`${styles.search} ${active && styles.active} ${className ? className : ''}`} {...rest}>

@@ -13,7 +13,7 @@ import { addHeatmapSubjects, removeHeatmapSubjects } from '../ducks/map-ui';
 import { subjectGroupHeatmapControlState } from './selectors';
 import { fetchTracks } from '../ducks/tracks';
 
-import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjectIDs, filterSubjectGroups } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 
 import listStyles from '../SideBar/styles.module.scss';
@@ -29,37 +29,12 @@ const ContentComponent = memo(debounceRender((props) => {
     addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, 
     groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
 
-  // filterSubjects is a function that filters a given subgroup array based on 
-  // a given predicate - in this case the hasSubjectMatch function.
-  const filterSubjects = (pred, [head, ...tail]) => head === undefined ? [] : (
-    pred(head) ? [head, ...filterSubjects(pred, tail)] : [...filterSubjects(pred, tail)]
-   );
-
-   // hasSubectMatch is a recursive function to drill down the group/subgroup 
-   // tree to find if there are subjects matching the search filter as given by
-   // the function subjectMatchesFilter.
-  const hasSubjectMatch = (groupOrSubject) => {
-    if (groupOrSubject.subject_type) // subject:
-      return subjectMatchesFilter(groupOrSubject);
-    if (groupOrSubject.subjects)     // group or subgroup:
-      return groupOrSubject.subjects.some(subject => hasSubjectMatch(subject)) ||
-        groupOrSubject.subgroups.some(subgroup => hasSubjectMatch(subgroup));
-    return false;
-  };
-
   const nonEmptySubgroups = subgroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
   const filteredSubgroups = subjectFilterEnabled ? 
-    filterSubjects(hasSubjectMatch, nonEmptySubgroups) : nonEmptySubgroups;
+    filterSubjectGroups(nonEmptySubgroups, subjectMatchesFilter) : nonEmptySubgroups;
   const filteredSubjects = subjectFilterEnabled ? 
-    filterSubjects(hasSubjectMatch, subjects) : subjects;
-
-  // if (subjectFilterEnabled) {
-  //   console.log('filteredSubgroups:');
-  //   console.log(filteredSubgroups);
-  //   console.log('filteredSubjects:');
-  //   console.log(filteredSubjects);
-  // };
+    subjects.filter(subjectMatchesFilter) : subjects;
 
   const [loadingTracks, setTrackLoadingState] = useState(false);
 

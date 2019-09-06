@@ -5,7 +5,7 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
-import { getUniqueIDsFromFeatures } from '../utils/features';
+import { getUniqueIDsFromFeatures, filterFeaturesets } from '../utils/features';
 import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
@@ -19,8 +19,8 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const Content = memo((props) => {
-  const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map } = props;
-  const trigger = <h5 className={listStyles.trigger}>{name}</h5>;
+  const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map, 
+    featureFilterEnabled, featureMatchesFilter } = props;
 
   const allVisible = type => !hiddenFeatureIDs.length || !intersection(hiddenFeatureIDs, getUniqueIDsFromFeatures(...type.features)).length;
 
@@ -42,16 +42,25 @@ const Content = memo((props) => {
     }
   };
 
-  const itemProps = { map };
+  const filteredFeaturesByType = featureFilterEnabled ? 
+    filterFeaturesets(featuresByType, featureMatchesFilter) : featuresByType;
+
+  const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeaturesByType.length;
+
+  const itemProps = { map, featureFilterEnabled, featureMatchesFilter, };
+
+  const trigger = <h5 className={listStyles.trigger}>{name}</h5>;
 
   return <Collapsible
   {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
   className={listStyles.collapsed}
   openedClassName={listStyles.opened}
-  trigger={trigger}>
+  trigger={trigger}
+  open={collapsibleShouldBeOpen}
+  triggerDisabled={featureFilterEnabled} >
   <CheckableList
     className={listStyles.list}
-    items={featuresByType}
+    items={filteredFeaturesByType}
     itemProps={itemProps}
     itemFullyChecked={allVisible}
     itemPartiallyChecked={someVisible}

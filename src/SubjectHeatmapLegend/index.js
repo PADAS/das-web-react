@@ -44,7 +44,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
     displayTitle = `Tracks for ${tracks.length} subjects`;
   }
 
-  const titleElement = <h6>
+  const titleElement = <h5>
     {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {displayTitle}
     {subjectCount > 1 && (
@@ -60,7 +60,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
         </button>
       </OverlayTrigger>
     )}
-  </h6>;
+  </h5>;
 
 
   return <HeatmapLegend

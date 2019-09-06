@@ -2,8 +2,9 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
 @import '../common/styles/layout';
-@import '../common//styles/animations';
-@import '../common//styles/popovers';
+@import '../common/styles/animations';
+@import '../common/styles/popovers';
+@import '../common/styles/vars/fonts';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -65,7 +66,7 @@
   position: absolute;
   width: 100%;
   z-index: 5;
-  h6 {
+  h5 {
     margin-bottom: 1rem;
   }
   ul {
@@ -202,13 +203,13 @@
   h4 {
     align-items: center;
     display: flex;
-    font-size: 1rem;
+    //font-size: 1rem;
     width: 100%;
     > span, > form {
       margin-left: 0.5rem;
     }
     @media #{$whenPageIsAtMediumHeightAndWidth} {
-      font-size: 1.5rem;
+      //font-size: 1.5rem;
     }
   }
   .icon {
@@ -291,14 +292,14 @@
   text-align: right;
   margin-left: auto;
   small {
-    font-size: 0.65rem;
-    line-height: 0.75rem;
+    font-size: $font-size-smaller;
+    line-height: $line-height-small;
   }
 }
 
 .reportHistory {
-  font-size: 0.65rem;
-  line-height: 0.75rem;
+  font-size: $font-size-smaller;
+  line-height: $line-height-small;
   text-decoration: underline;
   text-decoration-style: dashed;
   cursor: pointer;
@@ -358,7 +359,7 @@
       line-height: 1rem;
     }
     .historyUser {
-      font-size: 0.65rem;
+      font-size: $font-size-tiny;
       font-style: italic;
     }
   }
@@ -471,24 +472,34 @@
   margin-bottom: 0;
   width: calc(100% + 2rem);
   li {
-    align-items: center;
     border-top: 1px solid $light-gray-border;
     border-bottom: 1px solid $light-gray-border;
+    padding: 0 1rem 0 0;
     display: flex;
-    padding: 0.5rem 1rem;
-    div {
+    align-items: center;
+    flex-flow: row;
+    justify-content: flex-start;
+    .attachmentInfo {
       flex: 1;
-    }
-    h6 {
-      align-items: center;
+      align-items: flex-start;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
+      flex-flow: column;
+      margin: 0.5rem;
     }
-    time {
-      color: $light-font-color;
-      margin-left: 0.5rem;
-      font-size: 0.8rem;
+    .attachmentUser {
+      font-size: $font-size-tiny;
+      font-style: italic;
+      line-height: $line-height-small;
+    }
+    .attachmentDate {
+      align-items: flex-end;
+    }
+    .attachmentIcon {
+      padding: 1rem;
+      svg {
+        height: 2rem;
+        width: 2rem;
+      }
     }
     button {
       @include unstyledButton;
@@ -498,14 +509,18 @@
       }
     }
     .x {
-      margin-left: auto;
+      width: 1rem;
+      height: 1rem;
+      align-items: flex-end;
+      margin-right: 0.5rem;
+      fill: black;
+      cursor: pointer; 
+      :hover {
+        fill: $bright-red;
+      }
     }
     + li {
       border-top: none;
-    }
-    svg {
-      margin-right: 1rem;
-      max-width: 1rem;
     }
   }
 }

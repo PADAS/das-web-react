@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
-import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, filterSubjectGroups } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 
@@ -17,7 +17,7 @@ const SubjectGroupList = memo((props) => {
   const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
 
   const [searchText, setSearchTextState] = useState('');
-  const [subjectFilterEnabled, setsubjectFilterEnabledState] = useState(false);
+  const [subjectFilterEnabled, setSubjectFilterEnabledState] = useState(false);
 
   const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
   const groupIsPartiallyVisible = (group) => {
@@ -43,16 +43,19 @@ const SubjectGroupList = memo((props) => {
     }
   };
 
+  useEffect(() => {
+    const filterText = mapLayerFilter.filter.text || '';
+    setSearchTextState(filterText);
+    setSubjectFilterEnabledState(filterText.length > 0);
+  }, [mapLayerFilter]);
+
   const subjectMatchesFilter = (subject) => {
     if (searchText.length === 0) return true;
     return (subject.name.toLowerCase().includes(searchText));
   };
 
-  useEffect(() => {
-    const filterText = mapLayerFilter.filter.text || '';
-    setSearchTextState(filterText);
-    setsubjectFilterEnabledState(filterText.length > 0);
-  }, [mapLayerFilter]);
+  const filteredSubjectGroups = subjectFilterEnabled ? 
+    filterSubjectGroups(subjectGroups, subjectMatchesFilter) : subjectGroups;
 
   const itemProps = {
     map,
@@ -70,7 +73,7 @@ const SubjectGroupList = memo((props) => {
     onCheckClick={onGroupCheckClick}
     itemComponent={Content}
     itemProps={itemProps}
-    items={subjectGroups}
+    items={filteredSubjectGroups}
     itemFullyChecked={groupIsFullyVisible}
     itemPartiallyChecked={groupIsPartiallyVisible} />
 }, (prev, current) =>

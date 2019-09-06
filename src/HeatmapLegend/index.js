@@ -12,7 +12,7 @@ import HeatmapStyleControls from '../HeatmapStyleControls';
 
 const HeatmapLegend = ({ title, pointCount, onClose }) => {
 
-  const titleElement = isValidElement(title) ? title: <h6>{title}</h6>;
+  const titleElement = isValidElement(title) ? title: <h4>{title}</h4>;
 
   return (
     <div className={styles.legend}>

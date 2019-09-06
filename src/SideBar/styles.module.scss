@@ -67,6 +67,11 @@
         transform: scaleY(1.25) scaleX(0.75) rotate(-180deg);
         transition: 0.15s transform linear;
       }
+      &[class*=is-disabled] {
+        &::after {
+          color: $medium-light-gray;
+        }
+      }
       &[class*=is-open] {
         box-shadow: 0 2px 3px $medium-light-gray;
         &::after {
