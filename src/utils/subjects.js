@@ -95,29 +95,41 @@ export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroup
   });
 };
 
+
 /**
- * hasSubectMatch is a recursive function to drill down the group/subgroup 
- * tree to find if there are subjects matching the search filter as given by
- * the function subjectMatchesFilter.
- * @param {Object} groupOrSubject either a subject group, subgroup, or subject. 
- * @param {function} subjectMatchesFilter function to check if subject matches the filter.
+ * filterSubjects is a function to drill down a given subject group array tree 
+ * to filter for subjects matching the search filter as given by the function 
+ * isMatch. 
+ * @param {Object} s a subject groups array. 
+ * @param {function} isMatch function to check if subject matches the filter.
  */
-const hasSubjectMatch = (groupOrSubject, subjectMatchesFilter) => {
-  if (groupOrSubject.subject_type) // subject:
-    return subjectMatchesFilter(groupOrSubject);
-  if (groupOrSubject.subjects)     // group or subgroup:
-    return groupOrSubject.subjects.some(subject => subjectMatchesFilter(subject)) ||
-      groupOrSubject.subgroups.some(subgroup => hasSubjectMatch(subgroup, subjectMatchesFilter));
-  return false;
+export const filterSubjects = (s, isMatch) => {
+  // call recursive helper function and then filter out empty subject groups.
+  return s
+    .map(sg => filterSubjectsHelper(sg, isMatch))
+    .filter(sg => !!sg.subgroups.length || !!sg.subjects.length);
 };
 
 /**
- * filterSubjectGroups is a function that filters a given subject group array based on 
- * the recursive hasSubjectMatch predicate function given the filter function 
- * subjectMatchesFilter that does the actual filter matching of the subject.
- * @param {array} subjects array of subject groups.
- * @param {*} subjectMatchesFilter  filter function to determine if subject matches filter criteria.
+ * filterSubjectsHelper is a recursive function to drill down a given subject group 
+ * array tree to filter for subjects matching the search filter as given by the 
+ * function isMatch. 
+ * NOTE that subject groups have both a subgroups and subjects array.
+ * @param {Object} s either a subject group or subgroup. 
+ * @param {function} isMatch function to check if subject matches the filter.
  */
-export const filterSubjectGroups = (subjects, subjectMatchesFilter) => {
-  return subjects.filter(subject => hasSubjectMatch(subject, subjectMatchesFilter))
+const filterSubjectsHelper = (s, isMatch) => {
+  let newS = [];
+  if (s.subjects) { // filter the subjects array:
+    newS = {...s, subjects: s.subjects.filter(isMatch)};
+  }
+  if (s.subgroups) { // filter subgroups array:
+    newS = {
+      ...newS, 
+      subgroups: newS.subgroups
+        .map(sg => filterSubjectsHelper(sg, isMatch))
+        .filter(sg=> !!sg.subjects.length || !!sg.subgroups.length)
+    };
+  } 
+  return newS;
 };

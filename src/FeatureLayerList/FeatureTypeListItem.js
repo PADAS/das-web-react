@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
-import { filterFeaturesets } from '../utils/features';
 import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
@@ -20,7 +19,9 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 const FeatureTypeListItem = memo((props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
-    featureFilterEnabled, featureMatchesFilter } = props;
+    featureFilterEnabled } = props;
+
+  if (featureFilterEnabled && !features.length) return null;
 
   const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
 
@@ -37,10 +38,7 @@ const FeatureTypeListItem = memo((props) => {
     }
   };
 
-  const filteredFeatures = featureFilterEnabled ? 
-    filterFeaturesets(features, featureMatchesFilter) : features;
-
-  const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatures.length;
+  const collapsibleShouldBeOpen = featureFilterEnabled && !!features.length;
 
   const itemProps = { map };
 
@@ -53,10 +51,9 @@ const FeatureTypeListItem = memo((props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     trigger={trigger}
-    open={collapsibleShouldBeOpen}
-    triggerDisabled={featureFilterEnabled} >
+    open={collapsibleShouldBeOpen} >
     <CheckableList
-      items={filteredFeatures}
+      items={features}
       className={`${listStyles.list} ${listStyles.itemList} ${listStyles.compressed}`}
       itemProps={itemProps}
       itemFullyChecked={featureIsVisible}

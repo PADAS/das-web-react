@@ -66,29 +66,24 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
 };
 
 /**
- * hasFeatureMatch is a recursive function to drill down the featureset 
- * tree to find if there are features matching the search filter as given by
- * the function featureMatchesFilter.
- * @param {Object} features either a featureset, featureType, or feature. 
- * @param {function} featureMatchesFilter function to check if feature matches the filter.
+ * filterFeatures is a recursive function to drill down a featureset 
+ * tree to filter for features matching the search filter as given by the 
+ * function isMatch.
+ * @param {Object} f either a featureset, featureType, or feature. 
+ * @param {function} isMatch function to check if feature matches the filter.
  */
-const hasFeatureMatch = (features, featureMatchesFilter) => {
-  if (features.type)           // feature:
-    return featureMatchesFilter(features);
-  if (features.featuresByType) // featureset:
-    return features.featuresByType.some(featuresByType => hasFeatureMatch(featuresByType, featureMatchesFilter));
-  if (features.features)       // featuresByType:
-    return features.features.some(feature => hasFeatureMatch(feature, featureMatchesFilter));
-  return false;
-};
-
-/**
- * filterFeaturesets is a function that filters a given featureset array based on 
- * the recursive hasFeatureMatch predicate function given the filter function 
- * featureMatchesFilter that does the actual filter matching of the feature.
- * @param {array} features array of featureset, featureType, or feature.
- * @param {*} featureMatchesFilter  filter function to determine if feature matches filter criteria.
- */
-export const filterFeaturesets = (features, featureMatchesFilter) => {
-  return features.filter(feature => hasFeatureMatch(feature, featureMatchesFilter))
+export const filterFeatures = (f, isMatch) => {
+  let newF = [];
+  if (f.featuresByType) { // a featureset obj has featuresByType array
+    newF = {...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch))};
+    newF.featuresByType = newF.featuresByType.filter(fbt=> !!fbt.features.length);
+  } 
+  else if (f.features) { // a featuresByType obj has features array:
+    newF = {...f, features: f.features.filter(isMatch)};
+  } 
+  else { // top level featureset array:
+    newF = f.map(fs => filterFeatures(fs, isMatch));
+    newF = newF.filter(fs => !!fs.featuresByType.length);
+  }
+  return newF;
 };

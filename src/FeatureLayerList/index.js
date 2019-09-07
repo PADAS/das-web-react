@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
-import { getUniqueIDsFromFeatures, filterFeaturesets } from '../utils/features';
+import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 
@@ -72,7 +72,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
     }
   }
 
-  const featureMatchesFilter = (feature) => {
+  const featureFilterIsMatch = (feature) => {
     if (searchText.length === 0) return true;
     return (feature.properties.title.toLowerCase().includes(searchText));
   };
@@ -84,12 +84,12 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
   }, [mapLayerFilter]);
 
   const filteredFeatureList = featureFilterEnabled ? 
-    filterFeaturesets(featureList, featureMatchesFilter) : featureList;
+    filterFeatures(featureList, featureFilterIsMatch) : featureList;
 
   const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
   if (featureFilterEnabled && !filteredFeatureList.length) return null;
 
-  const itemProps = { map, featureFilterEnabled, featureMatchesFilter, };
+  const itemProps = { map, featureFilterEnabled, };
 
   const trigger = <div>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
@@ -103,8 +103,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
         openedClassName={listStyles.opened}
         {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
         trigger={trigger}
-        open={collapsibleShouldBeOpen}
-        triggerDisabled={featureFilterEnabled} >
+        open={collapsibleShouldBeOpen}>
         <CheckableList
           className={listStyles.list}
           items={filteredFeatureList}

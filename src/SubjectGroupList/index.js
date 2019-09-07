@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
-import { getUniqueSubjectGroupSubjects, filterSubjectGroups } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 
@@ -49,13 +49,16 @@ const SubjectGroupList = memo((props) => {
     setSubjectFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);
 
-  const subjectMatchesFilter = (subject) => {
+  const subjectFilterIsMatch = (subject) => {
     if (searchText.length === 0) return true;
     return (subject.name.toLowerCase().includes(searchText));
   };
 
+  // if search filter is enabled, filter the subjectGroups array otherwise
+  // just make sure to filter out any empty subject groups.
   const filteredSubjectGroups = subjectFilterEnabled ? 
-    filterSubjectGroups(subjectGroups, subjectMatchesFilter) : subjectGroups;
+    filterSubjects(subjectGroups, subjectFilterIsMatch) : 
+    subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
   const itemProps = {
     map,
@@ -64,7 +67,7 @@ const SubjectGroupList = memo((props) => {
     hiddenSubjectIDs,
     subjectIsVisible,
     subjectFilterEnabled,
-    subjectMatchesFilter,
+    subjectFilterIsMatch,
   };
 
   return <CheckableList

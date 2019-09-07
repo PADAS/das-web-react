@@ -24,8 +24,8 @@ import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 
-
 import styles from './styles.module.scss';
+
 
 const { Toggle, Menu, Item } = Dropdown;
 
@@ -172,11 +172,17 @@ const EventFilter = memo((props) => {
 
   const onSearchChange = ({ target: { value } }) => {
     updateEventFilterDebounced({
-      filter: {
-        text: !!value ? value.toLowerCase() : null,
-      }
+      filter: {text: !!value ? value.toLowerCase() : null,}
     });
     trackEvent('Feed', 'Change Search Text Filter');
+  };
+
+  const onSearchClear = (e) => {
+    e.stopPropagation();
+    updateEventFilter({ 
+      filter: {text: '',}
+    });
+    trackEvent('Feed', 'Clear Search Text Filter');
   };
 
   const DateRangeTrigger = <h5 className={styles.filterTitle}>
@@ -248,7 +254,8 @@ const EventFilter = memo((props) => {
         <span>Filters</span>
       </span>
     </OverlayTrigger>
-    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} onChange={onSearchChange} />
+    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} 
+      onChange={onSearchChange} onClear={onSearchClear}/>
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 });

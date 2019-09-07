@@ -30,21 +30,19 @@
     display: flex;
     flex-wrap: wrap;
     position: relative;
-    > h5 {
-      margin: 0 1rem;
-      position: relative;
-      top: 0.5rem;
+    h4 h5 h6 {
+      margin: 0;
     }
     [class*=checkmark] {
       cursor: pointer;
       left: 1rem;
       position: absolute;
       z-index: 1;
-      top: 1rem;
+      top: 1.15rem;
     }
     [class*=Collapsible__trigger], .itemTitle {
       display: block;
-      padding-left: 4rem;
+      padding-left: 3.5rem;
       padding-right: 2rem;
       word-break: break-all;
       @media (min-width: $md-layout-width-min) {
@@ -63,7 +61,7 @@
         font-size: 1.5rem;
         position: absolute;
         right: 1rem;
-        top: 0.5rem;
+        top: 20%;
         transform: scaleY(1.25) scaleX(0.75) rotate(-180deg);
         transition: 0.15s transform linear;
       }
@@ -98,7 +96,7 @@
     li {
       padding: 1rem 0;
       > [class*=checkmark] {
-        top: 0.75rem;
+        top: 1rem;
       }
     }
   }
@@ -113,7 +111,7 @@
     margin: 0;
     position: absolute;
     right: 1rem;
-    top: 0.333rem;
+    top: 0.7rem;
   }
 }
 
@@ -121,12 +119,13 @@
   display: flex;
   justify-content: space-between;
   padding-right: 1rem;
+  align-items: center;
 }
 
 .featureTitle {
   @extend .trigger;
   align-items: center;
-  padding-left: 4rem;
+  padding-left: 3.5rem;
   width: 100%;
 }
 

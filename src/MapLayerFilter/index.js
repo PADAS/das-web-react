@@ -1,11 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-// import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
-//import isNil from 'lodash/isNil';
-//import intersection from 'lodash/intersection';
-//import uniq from 'lodash/uniq';
 
 import { updateMapLayerFilter, INITIAL_FILTER_STATE } from '../ducks/map-layer-filter';
 import { trackEvent } from '../utils/analytics';
@@ -15,17 +11,19 @@ import styles from './styles.module.scss';
 
 const MapLayerFilter = memo((props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;
-  const { state, filter: { text } } = mapLayerFilter;
+  const { filter: { text } } = mapLayerFilter;
 
   const updateMapLayerFilterDebounced = debounce(function (update) {
     updateMapLayerFilter(update);
   }, 200);
 
-  // const resetStateFilter = (e) => {
-  //   e.stopPropagation();
-  //   updateMapLayerFilter({ state: INITIAL_FILTER_STATE.state });
-  //   trackEvent('Map Layers', 'Click Reset State Filter');
-  // };
+  const onClearSearch = (e) => {
+    e.stopPropagation();
+    updateMapLayerFilter({
+       filter: {text: ''}
+    });
+    trackEvent('Map Layers', 'Clear Search Text Filter');
+  };
 
   const onSearchChange = ({ target: { value } }) => {
     updateMapLayerFilterDebounced({
@@ -38,7 +36,8 @@ const MapLayerFilter = memo((props) => {
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
     <span className={styles.searchLabel}>Display on map:</span>
-    <SearchBar className={styles.search} placeholder='Search Layers...' text={text || ''} onChange={onSearchChange} />
+    <SearchBar className={styles.search} placeholder='Search Layers...' text={text || ''} 
+      onChange={onSearchChange} onClear={onClearSearch}/>
   </form>;
 });
 
