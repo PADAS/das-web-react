@@ -144,9 +144,10 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
     console.log('All analyzers', allAnalyzers);
 
     return {
-      analyzerLines: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
-      analyzerPolys: featureCollection(allAnalyzers.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
-      proximityFeatures: featureCollection(allAnalyzers.filter(({ analyzer_type }) => analyzer_type === 'proximity')),  
+      analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => warningAnalyzerLineTypes.includes(spatial_category))),
+      analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => criticalAnalyzerLineTypes.includes(spatial_category))),
+      analyzerWarningPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => warningAnalyzerPolyTypes.includes(spatial_category))),
+      analyzerCriticalPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => criticalAnalyzerPolyTypes.includes(spatial_category))),
       layerGroups: layerGroups,
     };
   },
@@ -194,3 +195,8 @@ export const getHeatmapTrackPoints = createSelector(
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
 const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
+
+const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group'];
+const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
+const warningAnalyzerPolyTypes= ['Polygon.warning_group', 'MultiPolygon.warning_group'];
+const criticalAnalyzerPolyTypes= ['Polygon.critical_group', 'MultiPolygon.critical_group'];

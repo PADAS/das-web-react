@@ -60,7 +60,8 @@ export const LAYER_IDS = {
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',
-  ANALYZER_POLYS: 'analyzer-polys',
+  ANALYZER_POLYS_WARNING: 'analyzer-polys-warning',
+  ANALYZER_POLYS_CRITICAL: 'analyzer-polys-critical',
   ANALYZER_LINES_WARNINGS: 'analyzer-lines-warning',
   ANALYZER_LINES_CRITICAL: 'analyzer-lines-critical',
 };

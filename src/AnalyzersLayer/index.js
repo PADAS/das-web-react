@@ -4,7 +4,7 @@ import { GeoJSONLayer } from 'react-mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
 
-const { ANALYZER_POLYS, ANALYZER_LINES_WARNING, ANALYZER_LINES_CRITICAL} = LAYER_IDS;
+const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING, ANALYZER_LINES_CRITICAL} = LAYER_IDS;
 
 const IF_HAS_STATE = (stateType, activeProp, defaultProp) =>  [['boolean', ['feature-state', stateType], false], activeProp, defaultProp];
 
@@ -49,11 +49,22 @@ const polyPaint = {
   ],
 };
 
+const criticalPolyPaint = {
+  'fill-color': [
+    'case',
+    ...IF_HAS_STATE('active', 'red', '#CCC'),
+  ],
+  'fill-opacity': [
+    'case',
+    ...IF_HAS_PROPERTY('fill-opacity', 0),
+  ],
+};
+
 const polyLayout = {
   'visibility': 'visible',
 };
 
-const AnalyzerLayer = memo(({ lines, polygons, layerGroups, map }) => {
+const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, map }) => {
 
   // XXX better way to do this?
   const getLayerGroup = (feature_id) => {
@@ -88,19 +99,24 @@ const AnalyzerLayer = memo(({ lines, polygons, layerGroups, map }) => {
   }
 
   return <Fragment>
-    <GeoJSONLayer id={ANALYZER_POLYS} data={polygons}
+    <GeoJSONLayer id={ANALYZER_POLYS_WARNING} data={warningPolys}
       fillPaint={polyPaint}
       fillLayout={polyLayout}
       fillOnClick={onAnalyzerClick}
     />
-    <GeoJSONLayer id={ANALYZER_LINES_WARNING} data={lines}
+    <GeoJSONLayer id={ANALYZER_POLYS_CRITICAL} data={criticalPolys}
+      fillPaint={criticalPolyPaint}
+      fillLayout={polyLayout}
+      fillOnClick={onAnalyzerClick}
+    />
+    <GeoJSONLayer id={ANALYZER_LINES_WARNING} data={warningLines}
       lineLayout={lineLayout}
       linePaint={linePaint}
       lineOnMouseEnter={onAnalyzerFeatureEnter}
       lineOnMouseLeave={onAnalyzerFeatureExit}
       lineOnClick={onAnalyzerClick}
     />
-    <GeoJSONLayer id={ANALYZER_LINES_CRITICAL} data={[]}
+    <GeoJSONLayer id={ANALYZER_LINES_CRITICAL} data={criticalLines}
       lineLayout={lineLayout}
       linePaint={criticalLinePaint}
       lineOnMouseEnter={onAnalyzerFeatureEnter}
@@ -110,9 +126,5 @@ const AnalyzerLayer = memo(({ lines, polygons, layerGroups, map }) => {
   </Fragment>
 });
 
-AnalyzerLayer.propTypes = {
-  lines: PropTypes.object.isRequired,
-  polygons: PropTypes.object.isRequired,
-};
 
 export default AnalyzerLayer;

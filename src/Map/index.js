@@ -248,7 +248,8 @@ class Map extends Component {
       trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
 
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
-    const { analyzerLines, analyzerPolys, layerGroups } = analyzersFeatureCollection;
+    const { analyzerWarningLines, analyzerCriticalLines, 
+      analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
 
     const tracksAvailable = !!trackCollection.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
@@ -286,7 +287,8 @@ class Map extends Component {
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
-            <AnalyzerLayer lines={analyzerLines} polygons={analyzerPolys} layerGroups={layerGroups} map={map} />
+            <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys} 
+              criticalPolys={analyzerCriticalPolys}layerGroups={layerGroups} map={map} />
 
             {!!popup && <PopupLayer
               popup={popup}
