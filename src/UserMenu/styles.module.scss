@@ -3,8 +3,10 @@
 
 .icon {
   height: 1rem;
-  margin-right: 0.5rem;
   width: auto;
+  @media (min-width: $md-layout-width-min) {
+    margin-right: 0.5rem;
+  }
 }
 
 .username {

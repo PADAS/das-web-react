@@ -6,6 +6,7 @@ import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
+import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
@@ -28,7 +29,7 @@ const DataExportMenu = (props) => {
     },
     ...(exportKmlEnabled? [{
       title: 'Master KML',
-      content: DataExportModal,
+      content: KMLExportModal,
       url: 'subjects/kml/root',
     }] : []),
     {

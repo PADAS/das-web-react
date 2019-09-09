@@ -51,7 +51,7 @@ const setZendeskInterval = () => {
         clearInterval(zendeskInterval);
       });
     }
-  }, 100);
+  }, 1000);
 };
 
 let mapResized = false;
@@ -117,7 +117,8 @@ const App = memo((props) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (zendeskEnabled && zendeskEnabled.enabled) {
+    console.log('zendeskEnabled', zendeskEnabled)
+    if (zendeskEnabled) {
       setZendeskInterval();
     }
   }, [zendeskEnabled]);
@@ -147,6 +148,6 @@ const App = memo((props) => {
   );
 });
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, zendeskEnabled, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
+const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
 export default connect(mapStateToProps, { fetchMaps, fetchAnalyzers, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
