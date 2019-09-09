@@ -5,7 +5,7 @@ import { LngLatBounds } from 'mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
 
-const { FEATURE_FILLS, FEATURE_LINES, ANALYZER_POLYS, 
+const { FEATURE_FILLS, FEATURE_LINES, ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, 
   ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNINGS } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
@@ -70,7 +70,7 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
 export const setAnalyzerFeatureActiveStateByID = (map, id, state = true) => {
   const features = map.queryRenderedFeatures({
     filter: ['in', 'id', id],
-    layers: [ANALYZER_POLYS, ANALYZER_LINES_CRITICAL, 
+    layers: [ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_CRITICAL, 
       ANALYZER_LINES_WARNINGS],
   });
   features.forEach((feature) => {

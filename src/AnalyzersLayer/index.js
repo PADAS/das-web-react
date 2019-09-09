@@ -1,6 +1,7 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
+import { setAnalyzerFeatureActiveStateByID } from '../utils/features';
 
 import { LAYER_IDS } from '../constants';
 

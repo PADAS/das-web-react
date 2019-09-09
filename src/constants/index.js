@@ -62,7 +62,7 @@ export const LAYER_IDS = {
   HEATMAP_LAYER: 'heatmap',
   ANALYZER_POLYS_WARNING: 'analyzer-polys-warning',
   ANALYZER_POLYS_CRITICAL: 'analyzer-polys-critical',
-  ANALYZER_LINES_WARNINGS: 'analyzer-lines-warning',
+  ANALYZER_LINES_WARNING: 'analyzer-lines-warning',
   ANALYZER_LINES_CRITICAL: 'analyzer-lines-critical',
 };
 
