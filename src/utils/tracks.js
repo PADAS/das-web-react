@@ -196,8 +196,10 @@ export const trackHasDataWithinTimeRange = (track, since = null, until = null) =
 };
 
 export  const fetchTracksIfNecessary = (ids, cancelToken) => {
-  const { data: { tracks, virtualDate, eventFilter }, view: { trackLength } } = store.getState();
+  const { data: { tracks, virtualDate, eventFilter }, view: { trackLength, timeSliderState } } = store.getState();
 
+  const { active:timeSliderActive } = timeSliderState;
+  
   const results = ids.map((id) => {
     const track = tracks[id];
   
@@ -209,7 +211,7 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
     if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
     } else  if (origin === TRACK_LENGTH_ORIGINS.customLength) {
-      dateRange = removeNullAndUndefinedValuesFromObject({ since: startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
+      dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
   
     if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {

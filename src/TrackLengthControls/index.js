@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, fetchTracks } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin } from '../ducks/tracks';
 
 import styles from './styles.module.scss';
 
@@ -80,7 +80,7 @@ const mapStatetoProps = ({ view: { trackLength }, data: { eventFilter, tracks } 
   eventFilterTimeRange: eventFilter.filter.date_range,
 });
 
-export default connect(mapStatetoProps, { fetchTracks, setTrackLength, setTrackLengthRangeOrigin })(memo(TrackLengthControls));
+export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin })(memo(TrackLengthControls));
 
 
 TrackLengthControls.defaultProps = {
