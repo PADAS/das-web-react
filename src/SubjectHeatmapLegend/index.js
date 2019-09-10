@@ -5,7 +5,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
-import { trimmedVisibleHeatmapTrackFeatureCollection, trimmedHeatmapPointFeatureCollection } from '../selectors';
+import { trimmedVisibleHeatmapTrackFeatureCollection, trimmedHeatmapPointFeatureCollection } from '../selectors/tracks';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
 import HeatmapLegend from '../HeatmapLegend';

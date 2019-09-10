@@ -221,12 +221,40 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   return Promise.all(results);
 };
 
+export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = null, until = null) => {
+  if (!from && !until) return featureCollection;
+
+  return {
+    ...featureCollection,
+    features: featureCollection.features.map((feature) => {
+      const envelope = findTimeEnvelopeIndices(feature.properties.coordinateProperties.times, from, until);
+    
+      if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
+        return feature;
+      }
+
+      const results = cloneDeep(feature);
+      
+      results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
+      results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
+          
+      return results;
+    }),
+  };
+
+};
+
+
 export const trimTrackFeatureCollectionToLength = (trackFeatureCollection, lengthInDays) => {
   return {
     ...trackFeatureCollection,
     features: trackFeatureCollection.features.map(track => {
       const [first] = track.properties.coordinateProperties.times;
-      return trimTrackFeatureTimeRange(track, startOfDay(subDays(first, lengthInDays)));
+      const startDate = startOfDay(
+        subDays(first, lengthInDays),
+      );
+
+      return trimTrackFeatureTimeRange(track, startDate);
     }),
   };
 };

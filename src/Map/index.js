@@ -15,7 +15,9 @@ import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType, trimmedVisibleTrackFeatureCollection } from '../selectors';
+import { getMapEventFeatureCollection, getFeatureSetFeatureCollectionsByType } from '../selectors';
+import { getArrayOfVisibleHeatmapTracks, trimmedVisibleTrackFeatureCollection } from '../selectors/tracks';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEvent } from '../utils/analytics';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
@@ -35,6 +37,7 @@ import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
+import TimeSlider from '../TimeSlider';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -246,7 +249,7 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength } = this.props;
+      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength, timeSliderState: { active:timeSliderActive } } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection && !!trackCollection.features.length;
@@ -303,6 +306,8 @@ class Map extends Component {
           </Fragment>
         )}
 
+        {timeSliderActive && <TimeSlider />}
+
       </EarthRangerMap>
     );
   }
@@ -311,7 +316,8 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
+    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
 
   return ({
     maps,
@@ -323,13 +329,14 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
+    timeSliderState,
     trackCollection: trimmedVisibleTrackFeatureCollection(state),
     trackLength,
     trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollection(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
-    mapSubjectFeatureCollection: getMapSubjectFeatureCollection(state)
+    mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state)
   });
 };
 

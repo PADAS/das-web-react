@@ -22,8 +22,16 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
   const clone2 = { ...item };
   delete clone2[key];
-  clone[key].properties = { ...clone2, ...clone[key].properties };
-  return clone;
+  return {
+    ...clone,
+    [key]: {
+      ...clone[key],
+      properties: {
+        ...clone2,
+        ...clone[key].properties,
+      },
+    },
+  };
 };
 
 export const addMapImage = async (map, icon_id, src) => {

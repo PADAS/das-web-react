@@ -1,13 +1,10 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
 import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
-import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
 
-import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
-import { convertArrayOfTracksToPointFeatureCollection, trimTrackFeatureCollectionToLength, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
+import { createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
-import { getUniqueSubjectGroupSubjects } from '../utils/subjects';
 import { mapReportTypesToCategories } from '../utils/event-types';
 
 export const createSelector = createSelectorCreator(
@@ -19,18 +16,13 @@ const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
-const mapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
-const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
-const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
-const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
-const tracks = ({ data: { tracks } }) => tracks;
-const trackLength = ({ view: { trackLength } }) => trackLength;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
-const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
+export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
+export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
 const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
@@ -83,65 +75,10 @@ export const getUserCreatableEventTypesByCategory = createSelector(
   categories => categories,
 );
 
-export const getMapSubjectFeatureCollection = createSelector(
-  [mapSubjects, hiddenSubjectIDs],
-  (mapSubjects, hiddenSubjectIDs) => createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)))
-);
-
-export const allSubjects = createSelector(
-  [getSubjectGroups],
-  subjectGroups => getUniqueSubjectGroupSubjects(...subjectGroups),
-);
 
 export const reportedBy = createSelector(
   [getEventReporters],
   reporters => reporters,
-);
-
-export const getArrayOfVisibleTracks = createSelector(
-  [tracks, displayedSubjectTrackIDs],
-  (tracks, displayedSubjectTrackIDs) => {
-    return displayedSubjectTrackIDs
-      .filter(id => !!tracks[id])
-      .map(id => (tracks[id]));
-  },
-);
-
-export const visibleTrackFeatureCollection = createSelector(
-  [getArrayOfVisibleTracks],
-  trackArray => featureCollection(trackArray.map(track => track.features[0])),
-);
-
-export const trimmedVisibleTrackFeatureCollection = createSelector(
-  [visibleTrackFeatureCollection, trackLength],
-  (trackFeatureCollection, trackLength) => trimTrackFeatureCollectionToLength(trackFeatureCollection, trackLength.length),
-);
-
-export const trimmedVisibleTrackPointFeatureCollection = createSelector(
-  [trimmedVisibleTrackFeatureCollection],
-  (trackFeatureCollection) => convertTrackFeatureCollectionToPoints(trackFeatureCollection),
-);
-
-export const getArrayOfVisibleHeatmapTracks = createSelector(
-  [tracks, heatmapSubjectIDs],
-  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs
-    .filter(id => !!tracks[id])
-    .map(id => tracks[id]),
-);
-
-export const visibleHeatmapTrackFeatureCollection = createSelector(
-  [getArrayOfVisibleHeatmapTracks],
-  trackArray => featureCollection(trackArray.map(track => track.features[0])),
-);
-
-export const trimmedVisibleHeatmapTrackFeatureCollection = createSelector(
-  [visibleHeatmapTrackFeatureCollection, trackLength],
-  (heatmapFeatureCollection, trackLength) => trimTrackFeatureCollectionToLength(heatmapFeatureCollection, trackLength.length),
-);
-
-export const trimmedHeatmapPointFeatureCollection = createSelector(
-  [trimmedVisibleHeatmapTrackFeatureCollection],
-  trackCollection => convertTrackFeatureCollectionToPoints(trackCollection),
 );
 
 export const getFeatureSetFeatureCollectionsByType = createSelector(
@@ -170,7 +107,6 @@ export const getReportFormSchemaData = createSelector(
   [getReportSchemas],
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
 );
-
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];

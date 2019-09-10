@@ -28,7 +28,6 @@ CheckableList.defaultProps = {
     return false;
   },
   onCheckClick(item) {
-    console.log('check clicked', item);
   },
   itemProps: {},
 };

@@ -6,7 +6,8 @@ import TimeAgo from 'react-timeago';
 
 import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
 import { DEFAULT_SELECT_STYLES } from '../constants';
-import { reportedBy, allSubjects } from '../selectors';
+import { reportedBy } from '../selectors';
+import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 

@@ -6,6 +6,34 @@ const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
 const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
 
+export const pinSubjectPositionToLastKnownTrackPosition = (subjects, tracks) => {
+  const { features:subjectFeatures } = subjects;
+  const { features:subjectTracks } = tracks;
+
+  if (!subjectTracks.length) return subjects;
+  return {
+    ...subjects,
+    features: subjectFeatures.map((feature) => {
+      const trackMatch = subjectTracks.find(trackFeature => trackFeature.properties.id === feature.properties.id);
+      if (!trackMatch) return feature;
+      return {
+        ...feature,
+        geometry: {
+          ...feature.geometry,
+          coordinates: trackMatch.geometry.coordinates[0],
+        },
+        properties: {
+          ...feature.properties,
+          coordinateProperties: {
+            ...feature.coordinateProperties,
+            time: trackMatch.properties.coordinateProperties.times[0],
+          },
+        },
+      };
+    }),
+  }
+};
+
 export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(subject.subject_subtype);

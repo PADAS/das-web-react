@@ -55,7 +55,6 @@ export default connect(mapStateToProps, null)(memo(NavHomeMenu));
 
 NavHomeMenu.defaultProps = {
   onCurrentLocationClick() {
-    console.log('My Current Location click');
   },
 };
 

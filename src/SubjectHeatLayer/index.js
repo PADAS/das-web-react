@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { trimmedHeatmapPointFeatureCollection } from '../selectors';
+import { trimmedHeatmapPointFeatureCollection } from '../selectors/tracks';
 
 import HeatLayer from '../HeatLayer';
 

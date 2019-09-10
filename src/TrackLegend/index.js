@@ -11,7 +11,7 @@ import InfoIcon from '../common/images/icons/information.svg';
 
 import { updateTrackState } from '../ducks/map-ui';
 
-import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCollection } from '../selectors';
+import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCollection } from '../selectors/tracks';
 
 import styles from './styles.module.scss';
 

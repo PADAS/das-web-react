@@ -22,6 +22,7 @@ import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
 import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
+import timeSliderReducer from '../ducks/timeslider';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -90,6 +91,7 @@ const rootReducer = combineReducers({
     trackLength: trackDateRangeReducer,
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
+    timeSliderState: timeSliderReducer,
   }),
 });
 
