@@ -13,7 +13,7 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES as states } from '../constants';
-import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
 import { trackEvent } from '../utils/analytics';
 
@@ -30,7 +30,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const EventFilter = memo((props) => {
-  const { eventFilter, eventTypes, updateEventFilter } = props;
+  const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -39,7 +39,7 @@ const EventFilter = memo((props) => {
   const someReportTypesChecked = !allReportTypesChecked && !!intersection(eventTypeIDs, currentFilterReportTypes).length;
   const noReportTypesChecked = !allReportTypesChecked && !someReportTypesChecked;
 
-  const dateRangeModified = !isNil(date_range.lower) || !isNil(date_range.upper);
+  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
 
   const filterModified = dateRangeModified || !allReportTypesChecked || stateFilterModified;
@@ -116,27 +116,20 @@ const EventFilter = memo((props) => {
     trackEvent('Feed', 'Change Filter End Date Filter');
   };
 
-  const onDateRangeChange = ({ lower, upper }) => updateEventFilter({
-    filter: {
-      date_range: {
-        lower,
-        upper,
-      },
-    },
-  });
-
-  const resetPopoverFilters = () => {
+  const onDateRangeChange = ({ lower, upper }) => {
     updateEventFilter({
-      state: INITIAL_FILTER_STATE.state,
       filter: {
-        event_type: eventTypeIDs,
         date_range: {
-          lower: null,
-          upper: null,
+          lower,
+          upper,
         },
       },
     });
     trackEvent('Feed', 'Click Reset All Filters');
+  };
+
+  const resetPopoverFilters = () => {
+    resetEventFilter();
   };
 
   const clearDateRange = (e) => {
@@ -255,4 +248,4 @@ const EventFilter = memo((props) => {
 
 const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
 
-export default connect(mapStatetoProps, { updateEventFilter })(EventFilter);
+export default connect(mapStatetoProps, { updateEventFilter, resetEventFilter })(EventFilter);

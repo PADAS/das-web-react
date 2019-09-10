@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withMap } from '../EarthRangerMap';
 
 import { validateLngLat } from '../utils/location';
-import { addAndCacheMapImage } from '../utils/map';
+import { addMapImage } from '../utils/map';
 
 import MapLocationPicker from '../MapLocationPicker';
 import MouseMarkerLayer from '../MouseMarkerLayer';
@@ -25,7 +25,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
   
   const addImageToMap = async () => {
     if (!map.hasImage('marker-icon')) {
-      addAndCacheMapImage(map, 'marker-icon', MarkerImage);
+      addMapImage(map, 'marker-icon', MarkerImage);
     }
   };
   

@@ -113,7 +113,6 @@ export default connect(mapStateToProps, null)(GpsInput);
 
 GpsInput.defaultProps = {
   onValidChange(value) {
-    console.log('a new valid value has been established', value);
   },
   inputProps: {},
   showFormatToggle: true,

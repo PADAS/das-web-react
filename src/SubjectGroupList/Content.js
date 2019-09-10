@@ -11,7 +11,8 @@ import SubjectListItem from './SubjectListItem';
 
 import { addHeatmapSubjects, removeHeatmapSubjects } from '../ducks/map-ui';
 import { subjectGroupHeatmapControlState } from './selectors';
-import { fetchTracks } from '../ducks/tracks';
+
+import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
@@ -64,7 +65,10 @@ const ContentComponent = memo(debounceRender((props) => {
     }
     
     setTrackLoadingState(true);
-    if (unloadedSubjectTrackIDs.length) await Promise.all(unloadedSubjectTrackIDs.map(id => props.fetchTracks(id)));
+    if (unloadedSubjectTrackIDs.length) {
+      await fetchTracksIfNecessary(unloadedSubjectTrackIDs);
+    }
+    
     setTrackLoadingState(false);
 
     trackEvent('Map Layers', 'Check Group Heatmap checkbox', `Group:${name}`);
@@ -110,7 +114,7 @@ const ContentComponent = memo(debounceRender((props) => {
 }));
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
-const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects, fetchTracks })(ContentComponent);
+const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(ContentComponent);
 export default ConnectedComponent;
 
 

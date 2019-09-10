@@ -1,6 +1,8 @@
-import React, { Fragment, memo } from 'react';
+import React, { Fragment, memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+
+import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -43,6 +45,10 @@ const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
+
+  useEffect(() => {
+    events && addFeatureCollectionImagesToMap(events, map);
+  }, [events]);
 
   const handleEventClick = (e) => {
     e.preventDefault();
