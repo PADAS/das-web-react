@@ -158,14 +158,14 @@ div.filterPopover {
 }
 
 .modified {
-  color: $alert-text;
+  color: $highlight-color;
   svg, svg * {
-    fill: $alert-text;
+    fill: $highlight-color;
   }
   &:hover {
-    color: darken($alert-text, 6%);
+    color: darken($highlight-color, 6%);
     svg * {
-      fill:  darken($alert-text, 6%);
+      fill:  darken($highlight-color, 6%);
     }
   }
 }

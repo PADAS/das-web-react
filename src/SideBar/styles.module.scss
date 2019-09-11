@@ -11,6 +11,16 @@
     overflow: hidden;
     overflow-y: auto;
     padding-bottom: 4rem;
+    > .noItems {
+      visibility: hidden;
+      font-size: .75rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 1rem;
+    }
+    > .noItems:only-child {
+      visibility: visible;
+    }
   }
 }
 

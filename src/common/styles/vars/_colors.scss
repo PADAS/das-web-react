@@ -46,7 +46,6 @@ $light-font-color: lighten($primary-font-color, 25%);
 $primary-button-color: $bright-blue;
 $popover-header-color: $title-bar-color;
 $popover-header-font-color: white;
-$filter-popover-header-color: $bright-blue;
 
 $light-gray-background: darken($light-gray, 3%);
 
@@ -55,7 +54,6 @@ $link-color: darken(#428bca, 6.5%);
 $alert-text: $bright-red;
 
 $highlight-color: $bright-blue;
-
 
 $priorities: (
   (0, (

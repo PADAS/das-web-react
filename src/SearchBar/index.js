@@ -4,30 +4,42 @@ import PropTypes from 'prop-types';
 import { trackEvent } from '../utils/analytics';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
-import { ReactComponent as ClearButton } from '../common/images/icons/close-icon.svg';
+import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 import styles from './styles.module.scss';
 
 const SearchBar = memo((props) => {
   const { text, onChange, onClear, placeholder, className, ...rest } = props;
 
-  const [active, setActiveState] = useState(false);
+  const [isActive, setIsActiveState] = useState(false);
+  const [isFiltered, setIsFilteredState] = useState(false);
 
   const searchBoxRef = useRef(null);
   const clearButtonRef = useRef(null);
   
-  const setActive = () => setActiveState(true);
-  const setInactive = () => setActiveState(false);
+  const onInputFocus = () => setIsActiveState(true);
+  const onInputBlur = () => setIsActiveState(false);
+
+  const onInputChange = (e) => {
+    if (e.target.value && !!e.target.value.length)
+      setIsFilteredState(true); 
+    else
+      setIsFilteredState(false); 
+    onChange(e);
+  };
 
   const onClearClick = (e) => {
     searchBoxRef.current.value = '';
+    setIsFilteredState(false); 
     onClear(e);
   };
 
-  return <label className={`${styles.search} ${active && styles.active} ${className ? className : ''}`} {...rest}>
+  return <label className={`${styles.search} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
-    <input ref={searchBoxRef} onFocus={setActive} placeholder={placeholder} 
-      onBlur={setInactive} onChange={onChange} defaultValue={text} type="text" />
-    <ClearButton ref={clearButtonRef} className={styles.clearButton} onClick={onClearClick}/>
+    <input ref={searchBoxRef} placeholder={placeholder} defaultValue={text} type="text" 
+      onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur}/>
+    <button ref={clearButtonRef} className={styles.clearButton} onClick={onClearClick}>
+      <ClearIcon className={styles.clearIcon} />
+    </button>    
   </label>;
 });
 

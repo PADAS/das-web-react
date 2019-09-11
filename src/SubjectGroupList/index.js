@@ -70,7 +70,7 @@ const SubjectGroupList = memo((props) => {
     subjectFilterIsMatch,
   };
 
-  return <CheckableList
+  return !!filteredSubjectGroups.length && <CheckableList
     className={listStyles.list}
     id='subjectgroups'
     onCheckClick={onGroupCheckClick}

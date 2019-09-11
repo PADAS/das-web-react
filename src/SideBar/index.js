@@ -70,6 +70,7 @@ const SideBar = memo((props) => {
           <div className={styles.mapLayers}>
             <SubjectGroupList map={map} />
             <FeatureLayerList map={map} />
+            <div className={styles.noItems}>No items to display.</div>
           </div>
         </Tab>
       </Tabs>

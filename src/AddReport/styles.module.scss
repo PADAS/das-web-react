@@ -63,7 +63,7 @@
     @include popoverTitle;
   }
   > [class*=arrow]::after {
-    border-left-color: $filter-popover-header-color;
+    border-left-color: $popover-header-color;
   }
 }
 
