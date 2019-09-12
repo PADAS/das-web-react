@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 import { featureCollection } from '@turf/helpers';
-import { createGeoJSONCircle } from '../utils/features';
+import { createGeoJSONCircle } from '../utils/analyzers';
 
 export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial?active=true`;
 
@@ -32,10 +32,11 @@ export const fetchAnalyzers = () => async (dispatch) => {
           if (analyzer.analyzer_category === 'proximity') {
             const proximityPoly = createGeoJSONCircle(feature.geometry, analyzer.threshold_dist_meters);
             feature.geometry = proximityPoly;
-            feature.properties['spatial_category'] = feature.geometry.type + '.' + 'warning_category';
+            feature.properties.spatial_category = feature.geometry.type + '.' + 'warning_category';
           }
-          feature.properties['admin_href'] = analyzer.admin_href;
-          feature.properties['spatial_category'] = feature.geometry.type + '.' + link[0];
+          feature.properties.admin_href = analyzer.admin_href;
+          feature.properties.spatial_category = feature.geometry.type + '.' + link[0];
+          feature.properties.id = feature.properties.pk
           concatFeatures.push(feature);
         });
         return concatFeatures;

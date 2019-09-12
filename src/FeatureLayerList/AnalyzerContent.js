@@ -9,7 +9,7 @@ import { getUniqueIDsFromFeatures } from '../utils/features';
 import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
-import AnalyzerFeatureTypeListItem from './FeatureTypeListItem';
+import AnalyzerFeatureTypeListItem from './AnalyzerFeatureTypeListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
 

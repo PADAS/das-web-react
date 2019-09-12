@@ -70,15 +70,6 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
     }
   };
 
-  // TODO - Grab the list of features tied to this analyzer, add it
-  // to the ids going to the showFeatures call and
-  // activate the visualization, and show a popup on the feature
-  const onAnalyzerSetToggle = (set) => {
-    const featureIDs = getFeatureSetFeatureIDs(set);
-    if (allVisibleInSet(set)) return hideFeatures(...featureIDs);
-    return showFeatures(...featureIDs);
-  };
-
   const onToggleAllFeatures = (e) => {
     e.stopPropagation();
 
@@ -120,7 +111,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
           itemProps={itemProps}
           itemFullyChecked={allVisibleInSet}
           itemPartiallyChecked={someVisibleInSet}
-          onCheckClick={onAnalyzerSetToggle}
+          onCheckClick={onFeatureSetToggle}
           itemComponent={AnalyzerContent}
         />
       </Collapsible>

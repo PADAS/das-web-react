@@ -1,7 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import { GeoJSONLayer } from 'react-mapbox-gl';
-import { setAnalyzerFeatureActiveStateByID } from '../utils/features';
 
 import { LAYER_IDS } from '../constants';
 
@@ -65,38 +63,33 @@ const polyLayout = {
   'visibility': 'visible',
 };
 
-const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, map }) => {
+const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, map }) => {
 
   // XXX better way to do this?
-  const getLayerGroup = (feature_id) => {
-    const featureSet = []
+  const getLayerGroup = (featureId) => {
+    const featureGroup = []
     layerGroups.forEach( (analyzer) => {
-      if (analyzer.feature_ids.indexOf(feature_id) != -1) {
-        featureSet.push(analyzer.feature_ids);
+      if (analyzer.feature_ids.includes(featureId)) {
+        featureGroup.push(...analyzer.feature_ids);
       }});
-    return featureSet.flat(1);
+    return featureGroup;
   };
 
-  // taken from https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
-  var hoverStateIds, sourceName;
+  // loosely inspired from https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+  let hoverStateIds;
 
   const onAnalyzerClick = (e) => {
-    console.log("Feature Click", e);
+    onAnalyzerFeatureClick(e);
   }
 
   const onAnalyzerFeatureEnter = (e) => {
-    const featureId = e.features[0].id;
+    const featureId = e.features[0].properties.id;
     hoverStateIds = getLayerGroup(featureId);
-    sourceName = e.features[0].source;
-    hoverStateIds.forEach( (feature) => {
-      map.setFeatureState({ source: sourceName, id: feature }, { active: true });
-    });
+    onAnalyzerGroupEnter(e, hoverStateIds);
   }
 
   const onAnalyzerFeatureExit = (e) => {
-    hoverStateIds.forEach( (feature) => {
-      map.setFeatureState({ source: sourceName, id: feature }, { active: false });
-    });
+    onAnalyzerGroupExit(e, hoverStateIds);
   }
 
   return <Fragment>
@@ -122,7 +115,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       linePaint={criticalLinePaint}
       lineOnMouseEnter={onAnalyzerFeatureEnter}
       lineOnMouseLeave={onAnalyzerFeatureExit}
-      fillOnClick={onAnalyzerClick}
+      lineOnClick={onAnalyzerClick}
     />
   </Fragment>
 });

@@ -137,12 +137,10 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
       })], []);
     // simulate layergroups found in old codebase
     const layerGroups = analyzerFeatures.map( (analyzer) => {
-      const featureIds = analyzer.geojson.features.map( feature => feature.id);
+      const featureIds = analyzer.geojson.features.map( feature => feature.properties.id);
       return {id: analyzer.id, feature_ids: featureIds};
     });
-
-    console.log('All analyzers', allAnalyzers);
-
+    
     return {
       analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => warningAnalyzerLineTypes.includes(spatial_category))),
       analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => criticalAnalyzerLineTypes.includes(spatial_category))),

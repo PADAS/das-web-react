@@ -157,7 +157,6 @@ export const GEOLOCATOR_OPTIONS = {
   timeout: 10000,
 };
 
-
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];
 export const GOOGLE_LAYER_SOURCE_TYPES = ['google_map'];
 export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles'];

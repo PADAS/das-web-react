@@ -12,6 +12,7 @@ import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { trackEvent } from '../utils/analytics';
+import { setAnalyzerFeatureActiveStateByID, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import {
   getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks,
   getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType, getAnalyzerFeatureCollectionsByType
@@ -128,6 +129,27 @@ class Map extends Component {
     openModalForReport(event, map);
   }
 
+  onAnalyzerGroupEnter = (e, groupIds) => {
+    const { map } = this.props;
+    groupIds.forEach( id => {
+      setAnalyzerFeatureActiveStateByID(map, id, true);
+    });
+  }
+
+  onAnalyzerGroupExit = (e, groupIds) => {
+    const { map } = this.props;
+    groupIds.forEach( id => {
+      setAnalyzerFeatureActiveStateByID(map, id, false);
+    });
+  }
+
+  onAnalyzerFeatureClick = (e) => {
+    const { map } = this.props;
+    const features = getAnalyzerFeaturesAtPoint(map, e.point);
+    const { admin_href, name } = features[0].properties;
+    this.props.showPopup('analyzer-layer', { admin_href, name });
+  }
+
   hideUnpinnedTrackLayers(map, event) {
     const { updateTrackState, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
@@ -229,7 +251,6 @@ class Map extends Component {
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   }
   setMap(map) {
-    console.log('set map');
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }
@@ -288,7 +309,8 @@ class Map extends Component {
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys} 
-              criticalPolys={analyzerCriticalPolys}layerGroups={layerGroups} map={map} />
+              criticalPolys={analyzerCriticalPolys}layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter} 
+              onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
 
             {!!popup && <PopupLayer
               popup={popup}

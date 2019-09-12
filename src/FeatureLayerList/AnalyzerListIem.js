@@ -4,7 +4,7 @@ import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-
 import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
 
 import { showFeatures } from '../ducks/map-ui';
-import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
+import { fitMapBoundsToGeoJson } from '../utils/features';
 import { trackEvent } from '../utils/analytics';
 
 import LocationJumpButton from '../LocationJumpButton';
@@ -19,6 +19,8 @@ const AnalyzerListItem = memo((props) => {
     return GeofenceIcon;
   };
 
+  console.log('analyzerIcon', analyzerIcon);
+
   const onJumpButtonClick = () => {
     showFeatures(properties.id);
     fitMapBoundsToGeoJson(map, { geometry });
@@ -31,7 +33,7 @@ const AnalyzerListItem = memo((props) => {
   }
 
 return <h6 className={listStyles.featureTitle}>
-    {properties.title} <LocationJumpButton onButtonClick={onJumpButtonClick} />
+    {properties.title} {analyzerIcon} <LocationJumpButton onButtonClick={onJumpButtonClick} />
     </h6>; 
 });
 
