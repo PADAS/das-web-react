@@ -1,5 +1,5 @@
 import { createSelector, getTimeSliderState } from './';
-import { trimmedVisibleTrackFeatureCollection } from './tracks';
+import { getMapSubjectTracksFeatureCollection } from './tracks';
 
 import { createFeatureCollectionFromSubjects } from '../utils/map';
 
@@ -21,7 +21,7 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, trimmedVisibleTrackFeatureCollection, getTimeSliderState],
+  [getMapSubjectFeatureCollection, getMapSubjectTracksFeatureCollection, getTimeSliderState],
   (mapSubjectFeatureCollection, trimmedTracks, timeSliderState) => {
     const { active:timeSliderActive } = timeSliderState;
     if (!timeSliderActive) {

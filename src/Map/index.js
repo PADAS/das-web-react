@@ -10,7 +10,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
-import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
@@ -38,6 +38,7 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
+import MapTimeSliderControl from '../TimeSlider/MapTimeSliderControl';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -88,6 +89,9 @@ class Map extends Component {
     if (!isEqual(prev.trackLength, this.props.trackLength)) {
       this.onTrackLengthChange();
     }
+    if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
+      this.fetchMapData();
+    }
   }
   setTrackLengthToEventFilterRange() {
     this.props.setTrackLength(differenceInCalendarDays(
@@ -108,12 +112,18 @@ class Map extends Component {
     return toggleMapLockState();
   }
 
-  fetchMapData() {
-    this.fetchMapSubjects();
+  async fetchMapData() {
     this.fetchMapEvents();
+    await this.fetchMapSubjects();
+    if (this.props.timeSliderState.active) {
+      console.log('this.props.mapSubjectFeatureCollection', this.props.mapSubjectFeatureCollection);
+      fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
+        .filter(({ properties: { tracks_available } }) => !!tracks_available)
+        .map(({ properties: { id } }) => id));
+    }
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map);
+    return this.props.fetchMapSubjects(this.props.map);
   }
   fetchMapEvents() {
     this.props.fetchMapEvents(this.props.map);
@@ -303,6 +313,7 @@ class Map extends Component {
             }
             <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
             <MapRulerControl />
+            <MapTimeSliderControl />
           </Fragment>
         )}
 

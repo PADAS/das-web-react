@@ -1,0 +1,5 @@
+@import '../common/styles/buttons';
+
+.mapControl {
+  @include mapboxControlButton;
+}

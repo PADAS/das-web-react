@@ -155,15 +155,15 @@ const findTimeEnvelopeIndices = (times, from = null, until = null) => {
 };
 
 export const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
-  if (!from && !until) return track;
+  const results = cloneDeep(track);
+  
+  if (!from && !until) return results;
 
-  const envelope = findTimeEnvelopeIndices(track.properties.coordinateProperties.times, from, until);
+  const envelope = findTimeEnvelopeIndices(results.properties.coordinateProperties.times, from, until);
     
   if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
-    return track;
+    return results;
   }
-    
-  const results = cloneDeep(track);
       
   results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
   results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
@@ -203,14 +203,14 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   const results = ids.map((id) => {
     const track = tracks[id];
   
-    const { length, origin } = trackLength;
+    const { length, origin:trackLengthOrigin } = trackLength;
     const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
     
     let dateRange;
   
-    if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
+    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
-    } else  if (origin === TRACK_LENGTH_ORIGINS.customLength) {
+    } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.customLength) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
   
