@@ -62,7 +62,6 @@ const rootReducer = combineReducers({
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
     mapLayerFilter: mapLayerFilterReducer,
-    mapImages: mapImagesReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
     subjectGroups: subjectGroupsReducer,
