@@ -197,47 +197,53 @@ const EventFilter = memo((props) => {
     <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
   </h5>;
 
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4 className={styles.popoverTitle}>
-    Report Filters
-    <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
-  </h4>}>
-    <Dropdown className={styles.dropdown}>
-      <SelectedState />
-      <StateChoices />
-    </Dropdown>
-    <Collapsible
-      transitionTime={0.1}
-      lazyRender={true}
-      className={styles.closedFilterDrawer}
-      openedClassName={styles.openedFilterDrawer}
-      trigger={DateRangeTrigger}>
-      <DateRangeSelector
-        className={styles.dateSelect}
-        endDate={hasUpper ? new Date(upper) : upper}
-        endDateNullMessage='Now'
-        onDateRangeChange={onDateRangeChange}
-        onEndDateChange={onEndDateChange}
-        onStartDateChange={onStartDateChange}
-        showPresets={true}
-        startDate={hasLower ? new Date(lower) : lower}
-        startDateNullMessage='One month ago'
-        gaEventSrc='Event Filter'
-      />
-    </Collapsible>
-    <Collapsible
-      transitionTime={0.1}
-      lazyRender={true}
-      className={styles.closedFilterDrawer}
-      openedClassName={styles.openedFilterDrawer}
-      trigger={ReportTypeTrigger}>
-      {/* <span className={styles.toggleAllReportTypes}>
-        <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
-        {allReportTypesChecked && 'All'}
-        {someReportTypesChecked && 'Some'}
-        {noReportTypesChecked && 'None'}
-      </span> */}
-      <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
-    </Collapsible>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover'>
+    <Popover.Title>
+      <div className={styles.popoverTitle}>
+      Report Filters
+      <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' 
+        onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
+      </div>
+    </Popover.Title>
+    <Popover.Content>
+      <Dropdown className={styles.dropdown}>
+        <SelectedState />
+        <StateChoices />
+      </Dropdown>
+      <Collapsible
+        transitionTime={0.1}
+        lazyRender={true}
+        className={styles.closedFilterDrawer}
+        openedClassName={styles.openedFilterDrawer}
+        trigger={DateRangeTrigger}>
+        <DateRangeSelector
+          className={styles.dateSelect}
+          endDate={hasUpper ? new Date(upper) : upper}
+          endDateNullMessage='Now'
+          onDateRangeChange={onDateRangeChange}
+          onEndDateChange={onEndDateChange}
+          onStartDateChange={onStartDateChange}
+          showPresets={true}
+          startDate={hasLower ? new Date(lower) : lower}
+          startDateNullMessage='One month ago'
+          gaEventSrc='Event Filter'
+        />
+      </Collapsible>
+      <Collapsible
+        transitionTime={0.1}
+        lazyRender={true}
+        className={styles.closedFilterDrawer}
+        openedClassName={styles.openedFilterDrawer}
+        trigger={ReportTypeTrigger}>
+        {/* <span className={styles.toggleAllReportTypes}>
+          <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
+          {allReportTypesChecked && 'All'}
+          {someReportTypesChecked && 'Some'}
+          {noReportTypesChecked && 'None'}
+        </span> */}
+        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
+      </Collapsible>
+    </Popover.Content>  
   </Popover>;
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
