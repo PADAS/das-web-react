@@ -39,6 +39,11 @@ const clusterCountSymbolLayout = {
 
 const eventSymbolLayerPaint = {
   ...DEFAULT_SYMBOL_PAINT,
+  'text-halo-color': ['case',
+    ['has', 'distanceFromVirtualDate'],
+    ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .15, 'rgba(255,255,255,0.7)'],
+    'rgba(255,255,255,0.7)',
+  ],
 };
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];

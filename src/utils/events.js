@@ -187,10 +187,30 @@ export const generateErrorListForApiResponseDetails = (response) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-      []);
+        []);
   } catch (e) {
     return [{ label: 'Unkown error' }];
   }
+};
+
+export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualDate) => ({
+  ...mapEventFeatureCollection,
+  features: mapEventFeatureCollection.features.filter((feature) => {
+    return new Date(virtualDate ? virtualDate : new Date()) - new Date(feature.properties.time) >= 0;
+  }),
+});
+
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (featureCollection, virtualDate, totalRangeDistance) => {
+  return {
+    ...featureCollection,
+    features: featureCollection.features.map((feature) => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
+      },
+    })),
+  };
 };
 
 

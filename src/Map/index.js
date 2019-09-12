@@ -15,9 +15,10 @@ import { showPopup, hidePopup } from '../ducks/popup';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { getMapEventFeatureCollection, getFeatureSetFeatureCollectionsByType } from '../selectors';
+import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getArrayOfVisibleHeatmapTracks, trimmedVisibleTrackFeatureCollection } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
@@ -345,7 +346,7 @@ const mapStatetoProps = (state, props) => {
     trackLength,
     trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
-    mapEventFeatureCollection: getMapEventFeatureCollection(state),
+    mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state)
   });
