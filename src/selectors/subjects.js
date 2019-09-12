@@ -3,7 +3,7 @@ import { getMapSubjectTracksFeatureCollection } from './tracks';
 
 import { createFeatureCollectionFromSubjects } from '../utils/map';
 
-import { getUniqueSubjectGroupSubjects, pinSubjectPositionToLastKnownTrackPosition } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, pinMapSubjectsToLastKnownTrackPosition } from '../utils/subjects';
 
 const mapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -27,7 +27,7 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
     if (!timeSliderActive) {
       return mapSubjectFeatureCollection;
     }
-    return pinSubjectPositionToLastKnownTrackPosition(mapSubjectFeatureCollection, trimmedTracks);
+    return pinMapSubjectsToLastKnownTrackPosition(mapSubjectFeatureCollection, trimmedTracks);
     
   },
 );

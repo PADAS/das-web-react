@@ -1,7 +1,11 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
+
+import EventFilterDateRangeSelector from '../EventFilter/DateRange';
+
+import styles from './styles.module.scss';
 
 const TimeSlider = (props) => {
   const { timeSliderState, since, until, clearVirtualDate, setVirtualDate } = props;
@@ -21,7 +25,13 @@ const TimeSlider = (props) => {
     return setVirtualDate(new Date(dateValue).toISOString());
   };
 
-  return <input style={{zIndex: 1000, width: '100%', position: 'absolute'}} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+  useEffect(() => {
+    onRangeChange({ target: { value: 1 } });
+  }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return <EventFilterDateRangeSelector className={styles.wrapper} showPresets={false} style={{zIndex: 1000, width: '100%', position: 'absolute'}}>
+    <input type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+  </EventFilterDateRangeSelector>;
 };
 
 const mapStatetoProps = ({ view: { timeSliderState }, data: { eventFilter: { filter: { date_range } } } }) => ({

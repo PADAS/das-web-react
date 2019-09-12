@@ -28,7 +28,7 @@
       "always"
     ],
     "react/prop-types": [
-      true
+      0
     ],
     "strict": "off",
     "max-len": "off",

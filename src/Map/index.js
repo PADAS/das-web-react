@@ -117,9 +117,8 @@ class Map extends Component {
     this.fetchMapEvents();
     await this.fetchMapSubjects();
     if (this.props.timeSliderState.active) {
-      console.log('this.props.mapSubjectFeatureCollection', this.props.mapSubjectFeatureCollection);
       fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
-        .filter(({ properties: { tracks_available } }) => !!tracks_available)
+        .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
         .map(({ properties: { id } }) => id));
     }
   }

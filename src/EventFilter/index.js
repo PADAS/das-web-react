@@ -8,17 +8,16 @@ import Collapsible from 'react-collapsible';
 
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
-import isNil from 'lodash/isNil';
 import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES as states } from '../constants';
 import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
+import { calcFriendlyDurationString } from '../utils/datetime';
 import { trackEvent } from '../utils/analytics';
 
+import EventFilterDateRangeSelector from './DateRange';
 import FriendlyEventFilterString from './FriendlyEventFilterString';
-import DateRangeSelector from '../DateRangeSelector';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 // import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
@@ -29,7 +28,7 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
-const EventFilter = memo((props) => {
+const EventFilter = (props) => {
   const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
@@ -80,9 +79,6 @@ const EventFilter = memo((props) => {
 
   const { lower, upper } = date_range;
 
-  const hasLower = !isNil(lower);
-  const hasUpper = !isNil(upper);
-
   const updateEventFilterDebounced = debounce(function (update) {
     updateEventFilter(update);
   }, 200);
@@ -90,42 +86,6 @@ const EventFilter = memo((props) => {
   const onStateSelect = ({ value }) => {
     updateEventFilter({ state: value });
     trackEvent('Feed', `Select '${value}' State Filter`);
-  };
-
-  const onStartDateChange = (val) => {
-    updateEventFilter({
-      filter: {
-        date_range: {
-          ...eventFilter.filter.date_range,
-          lower: dateIsValid(val) ? val.toISOString() : null,
-        },
-      },
-    });
-    trackEvent('Feed', 'Change Start Date Filter');
-  };
-
-  const onEndDateChange = (val) => {
-    updateEventFilter({
-      filter: {
-        date_range: {
-          ...eventFilter.filter.date_range,
-          upper: dateIsValid(val) ? val.toISOString() : null,
-        },
-      },
-    });
-    trackEvent('Feed', 'Change Filter End Date Filter');
-  };
-
-  const onDateRangeChange = ({ lower, upper }) => {
-    updateEventFilter({
-      filter: {
-        date_range: {
-          lower,
-          upper,
-        },
-      },
-    });
-    trackEvent('Feed', 'Click Reset All Filters');
   };
 
   const resetPopoverFilters = () => {
@@ -205,18 +165,7 @@ const EventFilter = memo((props) => {
       className={styles.closedFilterDrawer}
       openedClassName={styles.openedFilterDrawer}
       trigger={DateRangeTrigger}>
-      <DateRangeSelector
-        className={styles.dateSelect}
-        endDate={hasUpper ? new Date(upper) : upper}
-        endDateNullMessage='Now'
-        onDateRangeChange={onDateRangeChange}
-        onEndDateChange={onEndDateChange}
-        onStartDateChange={onStartDateChange}
-        showPresets={true}
-        startDate={hasLower ? new Date(lower) : lower}
-        startDateNullMessage='One month ago'
-        gaEventSrc='Event Filter'
-      />
+      <EventFilterDateRangeSelector />
     </Collapsible>
     <Collapsible
       transitionTime={0.1}
@@ -244,8 +193,8 @@ const EventFilter = memo((props) => {
     <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} onChange={onSearchChange} />
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
-});
+};
 
 const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
 
-export default connect(mapStatetoProps, { updateEventFilter, resetEventFilter })(EventFilter);
+export default connect(mapStatetoProps, { updateEventFilter, resetEventFilter })(memo(EventFilter));

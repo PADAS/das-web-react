@@ -239,6 +239,13 @@ export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = 
       
       results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
       results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
+
+      // if there are no results, return the oldest-known position as the only track point
+      if (!results.geometry.coordinates.length && feature.geometry.coordinates.length) {
+        const lastIndex = feature.geometry.coordinates.length - 1;
+        results.geometry.coordinates = [feature.geometry.coordinates[lastIndex]];
+        results.properties.coordinateProperties.times = [results.properties.coordinateProperties.times[lastIndex]];
+      }
           
       return results;
     }),

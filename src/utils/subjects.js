@@ -6,7 +6,7 @@ const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
 const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
 
-export const pinSubjectPositionToLastKnownTrackPosition = (subjectsFeatureCollection, tracksFeatureCollection) => {
+export const pinMapSubjectsToLastKnownTrackPosition = (subjectsFeatureCollection, tracksFeatureCollection) => {
   const { features:subjectFeatures } = subjectsFeatureCollection;
   const { features:subjectTracks } = tracksFeatureCollection;
 
@@ -15,7 +15,10 @@ export const pinSubjectPositionToLastKnownTrackPosition = (subjectsFeatureCollec
     ...subjectsFeatureCollection,
     features: subjectFeatures.map((feature) => {
       const trackMatch = subjectTracks.find(trackFeature => trackFeature.properties.id === feature.properties.id);
-      if (!trackMatch || !trackMatch.geometry.coordinates.length) return feature;
+      // this guard clause is a bit overboard because we're potentially querying very old/quirky track data.
+      if (!trackMatch || !trackMatch.geometry || !trackMatch.geometry.coordinates || !trackMatch.geometry.coordinates.length) {
+        return feature;
+      }
       return {
         ...feature,
         geometry: {

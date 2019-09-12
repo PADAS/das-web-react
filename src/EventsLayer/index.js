@@ -41,7 +41,7 @@ const eventSymbolLayerPaint = {
   ...DEFAULT_SYMBOL_PAINT,
   'text-halo-color': ['case',
     ['has', 'distanceFromVirtualDate'],
-    ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .15, 'rgba(255,255,255,0.7)'],
+    ['interpolate', 'linear', ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .2, 'rgba(255,255,255,0.7)'],
     'rgba(255,255,255,0.7)',
   ],
 };
