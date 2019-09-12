@@ -44,7 +44,6 @@ export default memo(EventFeed);
 
 EventFeed.defaultProps = {
   onTitleClick(event) {
-    console.log('title click', event);
   },
 };
 

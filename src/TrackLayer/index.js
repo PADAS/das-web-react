@@ -5,8 +5,8 @@ import isEqual from 'react-fast-compare';
 
 import { withMap } from '../EarthRangerMap';
 import { LAYER_IDS } from '../constants';
-import { addAndCacheMapImage } from '../utils/map';
-import { convertArrayOfTracksIntoFeatureCollection, convertArrayOfTracksToPointFeatureCollection } from '../utils/tracks';
+import { addMapImage } from '../utils/map';
+import { convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -44,22 +44,21 @@ const timepointLayerLayout = {
 };
 
 const TracksLayer = memo(function TracksLayer(props) {
-  const { map, onPointClick, trackCollection, showTimepoints, ...rest } = props;
-  const tracksAsPoints = convertArrayOfTracksToPointFeatureCollection(trackCollection);
-  const tracksAsFeatureCollection = convertArrayOfTracksIntoFeatureCollection(trackCollection);
+  const { map, onPointClick, trackCollection, showTimepoints, trackLength, ...rest } = props;
+  const tracksAsPoints = convertTrackFeatureCollectionToPoints(trackCollection);
   const onSymbolClick = e => onPointClick(getPointLayer(e, map));
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
   const addImage = async () => {
     if (!map.hasImage(ARROW_IMG_ID)) {
-      addAndCacheMapImage(map, ARROW_IMG_ID, Arrow);
+      addMapImage(map, ARROW_IMG_ID, Arrow);
     }
   };
 
   const trackData = {
     type: 'geojson',
-    data: tracksAsFeatureCollection,
+    data: trackCollection,
   };
 
   const trackPointData = {
@@ -86,7 +85,7 @@ const TracksLayer = memo(function TracksLayer(props) {
 
     </Fragment>
   );
-}, (prev, current) => isEqual(prev.trackCollection, current.trackCollection) && isEqual(prev.showTimepoints && current.showTimepoints));
+});
 
 export default withMap(TracksLayer);
 
@@ -101,5 +100,5 @@ TracksLayer.propTypes = {
   map: PropTypes.object.isRequired,
   onPointClick: PropTypes.func,
   showTimepoints: PropTypes.bool,
-  trackCollection: PropTypes.array.isRequired,
+  trackCollection: PropTypes.object.isRequired,
 };

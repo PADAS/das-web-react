@@ -115,7 +115,6 @@ const App = memo((props) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log('zendeskEnabled', zendeskEnabled)
     if (zendeskEnabled) {
       setZendeskInterval();
     }

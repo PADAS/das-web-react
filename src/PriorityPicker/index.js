@@ -32,7 +32,6 @@ export default memo(PriorityPicker);
 PriorityPicker.defaultProps = {
   className: '',
   onSelect(value) {
-    console.log('i chose', value);
   },
   selected: 0,
 };

@@ -19,7 +19,6 @@ export default HeatmapToggleButton;
 
 HeatmapToggleButton.defaultProps = {
   onButtonClick() {
-    console.log('heatmap button click');
   },
   showLabel: true,
   loading: false,

@@ -80,6 +80,7 @@ DateRangeSelector.defaultProps = {
   requireStart: false,
   requireEnd: false,
   startDateLabel: 'From:',
+  //format: 'yyyy-MM-dd HH:mm',
   onDateRangeChange: ({ lower, upper }) => null,
   showPresets: false,
 };

@@ -77,10 +77,8 @@ GeoLocator.defaultProps = {
   onStart() {
   },
   onError(error) {
-    console.log('error fetching location', error);
   },
   onSuccess(coordinates) {
-    console.log('here we are', coordinates);
   },
 };
 
