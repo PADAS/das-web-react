@@ -96,10 +96,7 @@ const EventFilter = (props) => {
     e.stopPropagation();
     updateEventFilter({
       filter: {
-        date_range: {
-          lower: null,
-          upper: null,
-        },
+        date_range: INITIAL_FILTER_STATE.filter.date_range,
       },
     });
     trackEvent('Feed', 'Click Reset Date Range Filter');

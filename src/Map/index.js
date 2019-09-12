@@ -39,7 +39,7 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
-import MapTimeSliderControl from '../TimeSlider/MapTimeSliderControl';
+import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -271,6 +271,11 @@ class Map extends Component {
       <EarthRangerMap
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
+        controls={<Fragment>
+          <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
+          <MapRulerControl />
+          <TimeSliderMapControl />
+        </Fragment>}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
@@ -311,9 +316,7 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-            <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
-            <MapRulerControl />
-            <MapTimeSliderControl />
+            
           </Fragment>
         )}
 

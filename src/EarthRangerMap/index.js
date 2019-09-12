@@ -30,7 +30,7 @@ export function withMap(Component) {
 };
 
 const EarthRangerMap = (props) => {
-  const { currentBaseLayer, children, onMapLoaded, ...rest } = props;
+  const { currentBaseLayer, children, controls, onMapLoaded, ...rest } = props;
   const [map, setMap] = useState(null);
 
   
@@ -69,8 +69,11 @@ const EarthRangerMap = (props) => {
         <RotationControl position='top-left'/>
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
-        <MapSettingsControl />
-        <MapBaseLayerControl />
+        <div className='map-controls-container'>
+          {controls}
+          <MapBaseLayerControl />
+          <MapSettingsControl />
+        </div>
         {children}
         <BaseLayerRenderer />
       </Fragment>}

@@ -1,6 +1,9 @@
 import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { format } from 'date-fns';
+import TimeAgo from 'react-timeago';
 
+import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
@@ -17,21 +20,26 @@ const TimeSlider = (props) => {
   const value = (currentDate - startDate) / (endDate - startDate);
 
   const onRangeChange = ({ target: { value } }) => {
-    if (value === 1) return clearVirtualDate();
+    // slight 'snap' at upper limit
+    if (value >= .99999) return until ? setVirtualDate(until) : clearVirtualDate();
 
     const dateValue = new Date(startDate);
     dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * value));
 
-    return setVirtualDate(new Date(dateValue).toISOString());
+    return setVirtualDate(dateValue.toISOString());
   };
 
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <EventFilterDateRangeSelector className={styles.wrapper} showPresets={false} style={{zIndex: 1000, width: '100%', position: 'absolute'}}>
-    <input type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
-  </EventFilterDateRangeSelector>;
+  return <div className={styles.wrapper}>
+    <EventFilterDateRangeSelector className={styles.rangeControls} showPresets={false} style={{zIndex: 1000, width: '100%', position: 'absolute'}}>
+      <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+    </EventFilterDateRangeSelector>
+    {(until || virtualDate) ?  <TimeAgo date={currentDate} /> : <span>Timeslider</span>}
+    <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span>
+  </div>;
 };
 
 const mapStatetoProps = ({ view: { timeSliderState }, data: { eventFilter: { filter: { date_range } } } }) => ({
