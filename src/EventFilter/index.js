@@ -255,4 +255,4 @@ const EventFilter = memo((props) => {
 
 const mapStateToProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
 
-export default connect(mapStatetoProps, { updateEventFilter, resetEventFilter })(EventFilter);
+export default connect(mapStateToProps, { updateEventFilter, resetEventFilter })(EventFilter);
