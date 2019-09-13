@@ -18,13 +18,10 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 
 const FeatureTypeListItem = memo((props) => {
-  const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map } = props;
+  const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
+    featureFilterEnabled } = props;
 
-  const trigger = <div className={listStyles.trigger}>
-    <h6>{name}</h6>
-  </div>;
-  
-  const itemProps = { map };
+  if (featureFilterEnabled && !features.length) return null;
 
   const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
 
@@ -39,11 +36,20 @@ const FeatureTypeListItem = memo((props) => {
     }
   };
 
+  const collapsibleShouldBeOpen = featureFilterEnabled && !!features.length;
+
+  const itemProps = { map };
+
+  const trigger = <div className={listStyles.trigger}>
+    <h6>{name}</h6>
+  </div>;
+
   return <Collapsible
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
-    trigger={trigger}>
+    trigger={trigger}
+    open={collapsibleShouldBeOpen} >
     <CheckableList
       items={features}
       className={`${listStyles.list} ${listStyles.itemList} ${listStyles.compressed}`}

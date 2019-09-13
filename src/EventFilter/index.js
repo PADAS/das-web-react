@@ -24,8 +24,8 @@ import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 
-
 import styles from './styles.module.scss';
+
 
 const { Toggle, Menu, Item } = Dropdown;
 
@@ -165,11 +165,17 @@ const EventFilter = memo((props) => {
 
   const onSearchChange = ({ target: { value } }) => {
     updateEventFilterDebounced({
-      filter: {
-        text: !!value ? value.toLowerCase() : null,
-      }
+      filter: {text: !!value ? value.toLowerCase() : null,}
     });
     trackEvent('Feed', 'Change Search Text Filter');
+  };
+
+  const onSearchClear = (e) => {
+    e.stopPropagation();
+    updateEventFilter({ 
+      filter: {text: '',}
+    });
+    trackEvent('Feed', 'Clear Search Text Filter');
   };
 
   const DateRangeTrigger = <h5 className={styles.filterTitle}>
@@ -191,47 +197,53 @@ const EventFilter = memo((props) => {
     <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
   </h5>;
 
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover' title={<h4 className={styles.popoverTitle}>
-    Report Filters
-    <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
-  </h4>}>
-    <Dropdown className={styles.dropdown}>
-      <SelectedState />
-      <StateChoices />
-    </Dropdown>
-    <Collapsible
-      transitionTime={0.1}
-      lazyRender={true}
-      className={styles.closedFilterDrawer}
-      openedClassName={styles.openedFilterDrawer}
-      trigger={DateRangeTrigger}>
-      <DateRangeSelector
-        className={styles.dateSelect}
-        endDate={hasUpper ? new Date(upper) : upper}
-        endDateNullMessage='Now'
-        onDateRangeChange={onDateRangeChange}
-        onEndDateChange={onEndDateChange}
-        onStartDateChange={onStartDateChange}
-        showPresets={true}
-        startDate={hasLower ? new Date(lower) : lower}
-        startDateNullMessage='One month ago'
-        gaEventSrc='Event Filter'
-      />
-    </Collapsible>
-    <Collapsible
-      transitionTime={0.1}
-      lazyRender={true}
-      className={styles.closedFilterDrawer}
-      openedClassName={styles.openedFilterDrawer}
-      trigger={ReportTypeTrigger}>
-      {/* <span className={styles.toggleAllReportTypes}>
-        <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
-        {allReportTypesChecked && 'All'}
-        {someReportTypesChecked && 'Some'}
-        {noReportTypesChecked && 'None'}
-      </span> */}
-      <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
-    </Collapsible>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover'>
+    <Popover.Title>
+      <div className={styles.popoverTitle}>
+      Report Filters
+      <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' 
+        onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
+      </div>
+    </Popover.Title>
+    <Popover.Content>
+      <Dropdown className={styles.dropdown}>
+        <SelectedState />
+        <StateChoices />
+      </Dropdown>
+      <Collapsible
+        transitionTime={0.1}
+        lazyRender={true}
+        className={styles.closedFilterDrawer}
+        openedClassName={styles.openedFilterDrawer}
+        trigger={DateRangeTrigger}>
+        <DateRangeSelector
+          className={styles.dateSelect}
+          endDate={hasUpper ? new Date(upper) : upper}
+          endDateNullMessage='Now'
+          onDateRangeChange={onDateRangeChange}
+          onEndDateChange={onEndDateChange}
+          onStartDateChange={onStartDateChange}
+          showPresets={true}
+          startDate={hasLower ? new Date(lower) : lower}
+          startDateNullMessage='One month ago'
+          gaEventSrc='Event Filter'
+        />
+      </Collapsible>
+      <Collapsible
+        transitionTime={0.1}
+        lazyRender={true}
+        className={styles.closedFilterDrawer}
+        openedClassName={styles.openedFilterDrawer}
+        trigger={ReportTypeTrigger}>
+        {/* <span className={styles.toggleAllReportTypes}>
+          <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
+          {allReportTypesChecked && 'All'}
+          {someReportTypesChecked && 'Some'}
+          {noReportTypesChecked && 'None'}
+        </span> */}
+        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
+      </Collapsible>
+    </Popover.Content>  
   </Popover>;
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
@@ -241,11 +253,12 @@ const EventFilter = memo((props) => {
         <span>Filters</span>
       </span>
     </OverlayTrigger>
-    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} onChange={onSearchChange} />
+    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} 
+      onChange={onSearchChange} onClear={onSearchClear}/>
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 });
 
-const mapStatetoProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
+const mapStateToProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
 
-export default connect(mapStatetoProps, { updateEventFilter, resetEventFilter })(EventFilter);
+export default connect(mapStateToProps, { updateEventFilter, resetEventFilter })(EventFilter);

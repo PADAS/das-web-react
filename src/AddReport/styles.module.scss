@@ -56,14 +56,14 @@
     overflow-y: auto;
     padding: 0;
     @media (min-height: $lg-height-min) {
-      max-height: 22rem;
+      max-height: 26rem;
     }
   }
   [class*=popover-header] {
     @include popoverTitle;
   }
   > [class*=arrow]::after {
-    border-left-color: $filter-popover-header-color;
+    border-left-color: $popover-header-color;
   }
 }
 

@@ -29,7 +29,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        <small>{feature.geometry.coordinates.length} points</small>
+        <small>{feature.geometry? feature.geometry.coordinates.length : 0} points</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
@@ -43,10 +43,10 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
     displayTitle = `Heatmap: ${tracks.features.length} subjects`;
   }
 
-  const titleElement = <h6>
+  const titleElement = <h5>
     {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {displayTitle}
-  </h6>;
+  </h5>;
 
   const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
     <Popover className={styles.popover} id="track-details">

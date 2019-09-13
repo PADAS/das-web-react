@@ -65,10 +65,12 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement='auto' 
-    title={<h4>{title}</h4>}>
-    {categoryList}
-    {reportTypeList}
+  const AddReportPopover = <Popover className={styles.popover} placement='auto'>
+    <Popover.Title>{title}</Popover.Title>
+    <Popover.Content>
+      {categoryList}
+      {reportTypeList}
+    </Popover.Content>
   </Popover>;
 
   return <Fragment>
@@ -78,8 +80,8 @@ const AddReport = (props) => {
       {showLabel && <span>{title}</span>}
     </button>
     <Overlay shouldUpdatePosition={true} show={popoverOpen} rootClose 
-      onHide={() => setPopoverState(false)} container={container.current}
-      target={targetRef.current}>
+      placement='auto' onHide={() => setPopoverState(false)} 
+      container={container.current} target={targetRef.current}>
       {() => AddReportPopover}
     </Overlay>
   </Fragment>;

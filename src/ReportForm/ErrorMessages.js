@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 const ReportFormErrorMessages = (props) => {
   const { errorData, onClose } = props;
   return <Alert onClose={onClose} dismissible={true} className={styles.saveErrorAlert} variant='danger'>
-    <h6>Error saving report: {errorData.message}</h6>
+    <h5>Error saving report: {errorData.message}</h5>
     {<ul>
       {generateErrorListForApiResponseDetails(errorData).map(item =>
         <li key={`${item.label} ${item.message}`}>
