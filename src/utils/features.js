@@ -64,3 +64,26 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
     map.setFeatureState(feature, { 'active': state });
   });
 };
+
+/**
+ * filterFeatures is a recursive function to drill down a featureset 
+ * tree to filter for features matching the search filter as given by the 
+ * function isMatch.
+ * @param {Object} f either a featureset, featureType, or feature. 
+ * @param {function} isMatch function to check if feature matches the filter.
+ */
+export const filterFeatures = (f, isMatch) => {
+  let newF = [];
+  if (f.featuresByType) { // a featureset obj has featuresByType array
+    newF = {...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch))};
+    newF.featuresByType = newF.featuresByType.filter(fbt=> !!fbt.features.length);
+  } 
+  else if (f.features) { // a featuresByType obj has features array:
+    newF = {...f, features: f.features.filter(isMatch)};
+  } 
+  else { // top level featureset array:
+    newF = f.map(fs => filterFeatures(fs, isMatch));
+    newF = newF.filter(fs => !!fs.featuresByType.length);
+  }
+  return newF;
+};

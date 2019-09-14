@@ -22,9 +22,9 @@ const FeatureListItem = memo((props) => {
       `Feature Type:${properties.type_name}`);
   }
 
-return <h6 className={listStyles.featureTitle}>
+return <span className={listStyles.featureTitle}>
     {properties.title} <LocationJumpButton onButtonClick={onJumpButtonClick} />
-    </h6>; 
+    </span>; 
 });
 
 export default connect(null, { showFeatures })(FeatureListItem);
