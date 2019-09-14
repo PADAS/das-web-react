@@ -55,18 +55,23 @@
         text-decoration: underline;
       }
       &::after {
-        content: '>';
+        content: '<';
+        color: transparent;
+        background-image: url(../common/images/icons/arrow.svg);
+        background-size: 1rem 1rem;
+        background-repeat: no-repeat;
+        background-position: center;
         font-size: 1.5rem;
         position: absolute;
         right: 1rem;
         top: 0.5rem;
-        transform: scaleY(1.25) scaleX(0.75) rotate(-180deg);
+        transform: inherit;
         transition: 0.15s transform linear;
       }
       &[class*=is-open] {
         box-shadow: 0 2px 3px $medium-light-gray;
         &::after {
-          transform: rotate(-270deg);
+          transform: rotate(-90deg);
         }
       }
     }

@@ -6,6 +6,7 @@ import Tab from 'react-bootstrap/Tab';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
+import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
@@ -48,7 +49,7 @@ const SideBar = memo((props) => {
 
   return (
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
-      <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
+      <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
       <Tabs onSelect={onTabsSelect}>
         <Tab className={styles.tab} eventKey="reports" title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
