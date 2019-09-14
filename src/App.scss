@@ -352,9 +352,6 @@ div.mapboxgl-popup-tip {
   display: flex;
   padding: .5rem 1rem;
   user-select: text;
-  &:hover {
-    // background: none;
-  }
   &:active, &:visited, &:focus {
     background-color: unset;
     color: unset;

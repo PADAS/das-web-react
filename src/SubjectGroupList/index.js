@@ -54,6 +54,8 @@ const SubjectGroupList = memo((props) => {
     return (subject.name.toLowerCase().includes(searchText));
   };
 
+  const listLevel = 0;
+
   // if search filter is enabled, filter the subjectGroups array otherwise
   // just make sure to filter out any empty subject groups.
   const filteredSubjectGroups = subjectFilterEnabled ? 
@@ -68,6 +70,7 @@ const SubjectGroupList = memo((props) => {
     subjectIsVisible,
     subjectFilterEnabled,
     subjectFilterIsMatch,
+    listLevel,
   };
 
   return !!filteredSubjectGroups.length && <CheckableList
