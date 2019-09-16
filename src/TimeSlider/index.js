@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { format } from 'date-fns';
 import TimeAgo from 'react-timeago';
@@ -12,6 +12,7 @@ import styles from './styles.module.scss';
 
 const TimeSlider = (props) => {
   const { timeSliderState, since, until, clearVirtualDate, setVirtualDate } = props;
+  const [sliderPositionValue, setSliderPositionValue] = useState(100);
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
   const endDate = until ? new Date(until) : new Date();
@@ -21,12 +22,19 @@ const TimeSlider = (props) => {
 
   const onRangeChange = ({ target: { value } }) => {
     // slight 'snap' at upper limit
-    if (value >= .99999) return until ? setVirtualDate(until) : clearVirtualDate();
-
-    const dateValue = new Date(startDate);
-    dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * value));
-
-    return setVirtualDate(dateValue.toISOString());
+    if (value >= .99999) {
+      until ? setVirtualDate(until) : clearVirtualDate();
+      setSliderPositionValue(100);
+    } 
+    else {
+      
+      setSliderPositionValue(Math.round(value * 100));
+      
+      const dateValue = new Date(startDate);
+      dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * value));
+      
+      setVirtualDate(dateValue.toISOString());
+    }
   };
 
   useEffect(() => {
@@ -34,11 +42,15 @@ const TimeSlider = (props) => {
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div className={styles.wrapper}>
-    <EventFilterDateRangeSelector className={styles.rangeControls} showPresets={false} style={{zIndex: 1000, width: '100%', position: 'absolute'}}>
-      <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+    <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' 
+      className={styles.rangeControls} showPresets={false} style={{zIndex: 1000, width: '100%', position: 'absolute'}}>
+      <div style={{position: 'relative', width: '100%'}}>
+        <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+        <span style={{position: 'absolute', left: `${sliderPositionValue}%`}}>{format(currentDate, STANDARD_DATE_FORMAT)}</span>
+      </div>
     </EventFilterDateRangeSelector>
     {(until || virtualDate) ?  <TimeAgo date={currentDate} /> : <span>Timeslider</span>}
-    <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span>
+    
   </div>;
 };
 

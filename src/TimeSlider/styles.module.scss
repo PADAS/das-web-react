@@ -1,9 +1,9 @@
 $track-color: red;
-$thumb-color: #555bc8;
+$thumb-color: #ccc;
 
-$thumb-radius: 0.5rem;
+$thumb-radius: 0.75rem;
 $thumb-height: 1.87rem;
-$thumb-width: 1.87rem;
+$thumb-width: 3.5rem;
 $thumb-shadow-size: 0.0625rem;
 $thumb-shadow-blur: 0.0625rem;
 $thumb-shadow-color: #111;
@@ -44,25 +44,22 @@ $contrast: 5%;
 
 @import '../common/styles/buttons';
 
-@mixin thumbStyles {
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-}
 
 .wrapper {
-  background: white;
-  padding: 1rem;
+  bottom: 1rem;
+  left: 6.5rem;
   position: absolute;
+  width: calc(100vw - 14rem);
   z-index: 1000;
 }
 
 .rangeControls {
   display: flex;
+  > label {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
 }
 
 .mapControl {
@@ -71,6 +68,7 @@ $contrast: 5%;
 
 .slider {
   -webkit-appearance: none;
+  background: none;
   margin: $thumb-height/2 0;
   width: $track-width;
 

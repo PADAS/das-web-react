@@ -129,7 +129,7 @@ const findDateIndexInRange = (times, targetDate, startIndex = 0, endIndex = time
   return (dateIsAtOrAfterDate(times[startIndex], targetDate)) ? startIndex : -1;
 };
 
-const findTimeEnvelopeIndices = (times, from = null, until = null) => {
+export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
   const results = {};
   if (!from && !until) return {
     from, until,
@@ -154,7 +154,7 @@ const findTimeEnvelopeIndices = (times, from = null, until = null) => {
   return results;
 };
 
-export const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
+const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
   const results = cloneDeep(track);
   
   if (!from && !until) return results;
@@ -165,21 +165,20 @@ export const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
     return results;
   }
       
-  results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
-  results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
+  results.geometry.coordinates = trimArrayWithEnvelopeIndices([...results.geometry.coordinates], envelope);
+  results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices([...results.properties.coordinateProperties.times], envelope);
       
   return results;
 };
 
-const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
-  const results = [...collection];
+export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   if (envelope.from) {
-    results.splice((envelope.from + 1), results.length);
+    collection.splice((envelope.from + 1), collection.length);
   }
   if (envelope.until) {
-    results.splice(0, envelope.until);
+    collection.splice(0, envelope.until);
   }
-  return results;
+  return collection;
 };
 
 export const trackHasDataWithinTimeRange = (track, since = null, until = null) => {
