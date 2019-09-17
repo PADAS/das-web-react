@@ -25,11 +25,10 @@ export const getAnalyzerListState = createSelector(
   (analyzerFeatures, hiddenFeatureIDs) => {
     const featuresByType = (analyzerFeatures).map( (analyzer) => {
       const feature = analyzer.geojson.features[0];
-      feature.properties.title = analyzer.name;
       feature.properties.type_name = analyzer.name;
       feature.properties.id = feature.properties.pk;
       return {name: analyzer.name, features: [feature]};
     });
-    return ([{name: 'Analyzers', id:'analyzers', featuresByType}]);
+    return ([{name: 'Analyzers', id:'analyzers', featuresByType }]);
   });
 

@@ -140,12 +140,14 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
       const featureIds = analyzer.geojson.features.map( feature => feature.properties.id);
       return {id: analyzer.id, feature_ids: featureIds};
     });
+
+    console.log('all analyzers', allAnalyzers);
     
     return {
-      analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => warningAnalyzerLineTypes.includes(spatial_category))),
-      analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => criticalAnalyzerLineTypes.includes(spatial_category))),
-      analyzerWarningPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => warningAnalyzerPolyTypes.includes(spatial_category))),
-      analyzerCriticalPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_category } }) => criticalAnalyzerPolyTypes.includes(spatial_category))),
+      analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerLineTypes.includes(spatial_group))),
+      analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerLineTypes.includes(spatial_group))),
+      analyzerWarningPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerPolyTypes.includes(spatial_group))),
+      analyzerCriticalPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerPolyTypes.includes(spatial_group))),
       layerGroups: layerGroups,
     };
   },

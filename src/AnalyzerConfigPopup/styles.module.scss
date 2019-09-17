@@ -3,12 +3,18 @@
     line-height: normal;
     h4 {
       display: flex;
-      font-size: 1.25rem;
+      font-size: .5rem;
+      font-weight: normal;
       line-height: normal;
+      svg {
+        height: .75rem;
+        width: .75rem;
+        stroke: 'blue'; 
+      }
     }
     h5 {
       color: #999;
-      font-size: 1.25rem;
+      font-size: .75rem;
       font-weight: normal;
       margin: 0;
       text-align: center;

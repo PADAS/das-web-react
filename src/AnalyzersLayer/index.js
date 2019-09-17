@@ -75,7 +75,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
     return featureGroup;
   };
 
-  // loosely inspired from https://docs.mapbox.com/mapbox-gl-js/example/hover-styles/
+  // hold state of feature group
   let hoverStateIds;
 
   const onAnalyzerClick = (e) => {

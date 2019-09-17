@@ -26,7 +26,8 @@ const AnalyzerFeatureTypeListItem = memo((props) => {
   
   const itemProps = { map };
 
-  const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
+  //const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
+  const featureIsVisible = item => true;
 
   const onCheckToggle = (item) => {
     const { properties: { id } } = item;

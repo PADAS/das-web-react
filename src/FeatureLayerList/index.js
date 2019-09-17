@@ -23,15 +23,9 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
 
+  const combinedList = featureList.concat(analyzerList);
 
-  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
-    .reduce((accumulator, { featuresByType }) =>
-      [...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
-      ], [])
-  );
-
-  const getAllAnalyzerIDsInList = () => getUniqueIDsFromFeatures(...analyzerList
+  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...combinedList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
       ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
@@ -39,10 +33,6 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
   );
 
   const allFeatureIDs = getAllFeatureIDsInList();
-  const allAnalyzerIDs = getAllAnalyzerIDsInList();
-  // one feature list for hiding and showing features, we
-  // split out the map behaviour for analyzers.
-  allFeatureIDs.push(allAnalyzerIDs);
   
   const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
   const showAllFeatures = () => showFeatures(...allFeatureIDs);
@@ -98,21 +88,12 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
         trigger={trigger}>
         <CheckableList
           className={listStyles.list}
-          items={featureList}
+          items={combinedList}
           itemProps={itemProps}
           itemFullyChecked={allVisibleInSet}
           itemPartiallyChecked={someVisibleInSet}
           onCheckClick={onFeatureSetToggle}
           itemComponent={Content}
-        />
-        <CheckableList
-          className={listStyles.list}
-          items={analyzerList}
-          itemProps={itemProps}
-          itemFullyChecked={allVisibleInSet}
-          itemPartiallyChecked={someVisibleInSet}
-          onCheckClick={onFeatureSetToggle}
-          itemComponent={AnalyzerContent}
         />
       </Collapsible>
     </li>

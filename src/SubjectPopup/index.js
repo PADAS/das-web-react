@@ -12,6 +12,7 @@ import styles from './styles.module.scss';
 
 const SubjectPopup = (props) => {
   const { data: { geometry, properties }, onTrackToggle, onHeatmapToggle, trackState, heatmapState, map, ...rest } = props;
+  console.log(geometry, properties);
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 

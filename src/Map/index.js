@@ -146,8 +146,9 @@ class Map extends Component {
   onAnalyzerFeatureClick = (e) => {
     const { map } = this.props;
     const features = getAnalyzerFeaturesAtPoint(map, e.point);
-    const { admin_href, name } = features[0].properties;
-    this.props.showPopup('analyzer-layer', { admin_href, name });
+    const properties = features[0].properties;
+    const geometry = e.lngLat;
+    this.props.showPopup('analyzer-config', { geometry, properties });
   }
 
   hideUnpinnedTrackLayers(map, event) {
