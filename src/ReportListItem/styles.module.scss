@@ -62,6 +62,7 @@ $colors in $priorities {
   display: none;
   padding-left: 0.5rem;
   padding-right: 0;
+  color: $secondary-medium-gray;
   @media (min-width: $md-layout-width-min) {
     display: flex;
   }

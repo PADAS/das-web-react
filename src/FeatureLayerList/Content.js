@@ -48,7 +48,7 @@ const Content = memo((props) => {
 
   const itemProps = { map, featureFilterEnabled, };
 
-  const trigger = <h5 className={listStyles.trigger}>{name}</h5>;
+  const trigger = <h6 className={listStyles.trigger}>{name}</h6>;
 
   return <Collapsible
   {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
