@@ -9,7 +9,7 @@
   line-height: normal;
   padding: 0 0.5rem 0 0;
   + .listItem {
-    border-top: 1px solid $medium-light-gray;
+    border-top: 1px solid $light-gray-border;
   }
   > * {
     padding: 0.75rem 0.5rem;
@@ -61,7 +61,7 @@ $colors in $priorities {
 .serialNumber {
   display: none;
   padding-left: 0.5rem;
-  padding-right: 0;
+  padding-right: 0.5rem;
   color: $secondary-medium-gray;
   @media (min-width: $md-layout-width-min) {
     display: flex;

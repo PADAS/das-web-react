@@ -35,8 +35,9 @@ const EventFilter = memo((props) => {
 
   const eventTypeIDs = eventTypes.map(type => type.id);
 
-  const allReportTypesChecked = intersection(eventTypeIDs, currentFilterReportTypes).length === eventTypeIDs.length;
-  const someReportTypesChecked = !allReportTypesChecked && !!intersection(eventTypeIDs, currentFilterReportTypes).length;
+  const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
+  const allReportTypesChecked = reportTypesCheckedCount === eventTypeIDs.length;
+  const someReportTypesChecked = !allReportTypesChecked && !!reportTypesCheckedCount;
   const noReportTypesChecked = !allReportTypesChecked && !someReportTypesChecked;
 
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
@@ -190,9 +191,9 @@ const EventFilter = memo((props) => {
   const ReportTypeTrigger = <h5 className={styles.filterTitle}>
     Report Types
     <small className={!allReportTypesChecked ? styles.modified : ''}>
-      {allReportTypesChecked && 'All visible'}
-      {someReportTypesChecked && 'Some visible'}
-      {noReportTypesChecked && 'None visible'}
+      {allReportTypesChecked && 'All selected'}
+      {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
+      {noReportTypesChecked && 'None selected'}
     </small>
     <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
   </h5>;

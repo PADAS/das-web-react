@@ -91,6 +91,11 @@ export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
 
   if (!eventTypeFilterCount) return 'no report types';
   if (totalNumberOfEventTypes === eventTypeFilterCount) return 'all report types';
+  if (eventTypeFilterCount === 1) {
+    const eventTypeId = eventFilter.filter.event_type[0];
+    const eventType = eventTypes.find(eventType => eventType.id === eventTypeId);
+    if (eventType) return `"${eventType.display}" report type`;
+  }
   return `${eventTypeFilterCount} report types`;
 };
 
