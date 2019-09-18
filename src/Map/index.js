@@ -15,7 +15,7 @@ import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getArrayOfVisibleHeatmapTracks, trimmedVisibleTrackFeatureCollection } from '../selectors/tracks';
+import { getArrayOfVisibleHeatmapTracks, displayedSubjectTrackIDs } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
@@ -29,7 +29,7 @@ import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
-import TrackLayers from '../TrackLayer';
+import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
@@ -258,10 +258,10 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength, timeSliderState: { active:timeSliderActive } } = this.props;
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, timeSliderState: { active:timeSliderActive } } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
-    const tracksAvailable = !!trackCollection && !!trackCollection.features.length;
+    const tracksAvailable = !!trackIds && !!trackIds.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
@@ -301,7 +301,7 @@ class Map extends Component {
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
             {tracksAvailable && (
-              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackLength={trackLength} trackCollection={trackCollection} />
+              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackIds={trackIds} />
             )}
 
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
@@ -343,7 +343,7 @@ const mapStatetoProps = (state, props) => {
     subjectTrackState,
     showTrackTimepoints,
     timeSliderState,
-    trackCollection: trimmedVisibleTrackFeatureCollection(state),
+    trackIds: displayedSubjectTrackIDs(state),
     trackLength,
     trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),

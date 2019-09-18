@@ -1,9 +1,7 @@
 import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
-import { featureCollection } from '@turf/helpers';
 import { subDays, startOfDay } from 'date-fns';
-import sortedUniqBy from 'lodash/sortedUniqBy';
 
 import cloneDeep from 'lodash/cloneDeep';
 import { store } from '../index';
@@ -43,8 +41,6 @@ export const convertTrackFeatureCollectionToPoints = feature => {
   });
 };
 
-export const convertArrayOfTracksToFeatureCollection = trackArray => featureCollection(trackArray.reduce((accumulator, array) => [...accumulator, array.features[0]], []));
-
 export const addBearingToTrackPoints = feature => ({
   ...feature,
   features: feature.features.map((item, index, collection) => {
@@ -59,58 +55,6 @@ export const addBearingToTrackPoints = feature => ({
   }),
 });
 
-export const convertArrayOfTracksToPointFeatureCollection = trackCollection => trackCollection
-  .map(tracks => convertTrackFeatureCollectionToPoints(tracks))
-  .reduce((accumulator, featureCollection) => {
-    return {
-      ...accumulator,
-      features: [...accumulator.features, ...featureCollection.features],
-    };
-  }, featureCollection([]));
-
-export const getSubjectIDFromFirstFeatureInCollection = ({ features }) => features[0].properties.id;
-
-export const mergeTrackFeatureData = (track, extendedTrackHistory) => {
-  const uniqueValues = removeDuplicatesFromCoordTimePairs([
-    ...createSortedCoordTimePairsForTrackFeature(track), 
-    ...createSortedCoordTimePairsForTrackFeature(extendedTrackHistory)
-  ]);
-  
-  const coordinates = uniqueValues.map(({ coordinates }) => coordinates);
-  const times = uniqueValues.map(({ time }) => time);
-
-  return {
-    ...track,
-    geometry: {
-      ...track.geometry,
-      coordinates,
-      properties: {
-        ...track.properties,
-        coordinateProperties: {
-          ...track.coordinateProperties,
-          times,
-        },
-      },
-    },
-  };
-};
-
-const createSortedCoordTimePairsForTrackFeature = (track) => {
-  const { properties, geometry } = track;
-  const { coordinateProperties: { times } } = properties;
-  const { coordinates } = geometry;
-  return sortCoordTimePairs(
-    times.map((time, index) => ({
-      time, coordinates: coordinates[index],
-    }))
-  );
-};
-
-const sortCoordTimePairs = (pairs) => pairs.sort((pair1, pair2) =>
-  new Date(pair1.time) - new Date(pair2.time),
-);
-
-const removeDuplicatesFromCoordTimePairs = (pairs) => sortedUniqBy(pairs, 'time');
 
 const dateIsAtOrAfterDate = (date, targetDate) =>
   new Date(date) - new Date(targetDate) >= 0;
@@ -151,23 +95,6 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
       results.until = untilIndex;
     }
   }
-  return results;
-};
-
-const trimTrackFeatureTimeRange = (track, from = null, until = null) => {
-  const results = cloneDeep(track);
-  
-  if (!from && !until) return results;
-
-  const envelope = findTimeEnvelopeIndices(results.properties.coordinateProperties.times, from, until);
-    
-  if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
-    return results;
-  }
-      
-  results.geometry.coordinates = trimArrayWithEnvelopeIndices([...results.geometry.coordinates], envelope);
-  results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices([...results.properties.coordinateProperties.times], envelope);
-      
   return results;
 };
 
@@ -250,19 +177,4 @@ export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = 
     }),
   };
 
-};
-
-
-export const trimTrackFeatureCollectionToLength = (trackFeatureCollection, lengthInDays) => {
-  return {
-    ...trackFeatureCollection,
-    features: trackFeatureCollection.features.map(track => {
-      const [first] = track.properties.coordinateProperties.times;
-      const startDate = startOfDay(
-        subDays(first, lengthInDays),
-      );
-
-      return trimTrackFeatureTimeRange(track, startDate);
-    }),
-  };
 };

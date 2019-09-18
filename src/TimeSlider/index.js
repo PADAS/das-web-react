@@ -31,7 +31,7 @@ const TimeSlider = (props) => {
     } 
     else {
       
-      setSliderPositionValue(Math.round(value * 100));
+      setSliderPositionValue(value * 100);
       
       const dateValue = new Date(startDate);
       dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * value));

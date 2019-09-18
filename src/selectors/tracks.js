@@ -1,13 +1,16 @@
 import uniq from 'lodash/uniq';
 import { featureCollection } from '@turf/helpers';
+import { startOfDay ,subDays } from 'date-fns';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
-import { trimTrackFeatureCollectionToTimeRange, trimTrackFeatureCollectionToLength, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
+import { trimTrackFeatureCollectionToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
-const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
+export const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
+
+const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId];
 
 const getArrayOfVisibleTracks = createSelector(
   [tracks, displayedSubjectTrackIDs],
@@ -18,9 +21,25 @@ const getArrayOfVisibleTracks = createSelector(
   },
 );
 
+
 export const visibleTrackFeatureCollection = createSelector(
   [getArrayOfVisibleTracks],
   trackArray => featureCollection(trackArray.map(track => track.features[0])),
+);
+
+export const trimmedTrack = createSelector(
+  [getTrackById, trackLength, getTimeSliderState, getEventFilterDateRange],
+  (trackFeatureCollection, trackLength, timeSliderState, eventFilterDateRange) => {
+
+    if (!trackFeatureCollection) return null;
+   
+    return trimTracksForLengthAndRange(trackFeatureCollection, trackLength, timeSliderState, eventFilterDateRange);
+  },
+);
+
+export const trimmedTrackPoints = createSelector(
+  [trimmedTrack],
+  (trackFeatureCollection) => trackFeatureCollection ? convertTrackFeatureCollectionToPoints(trackFeatureCollection) : null,
 );
 
 export const trimmedVisibleTrackFeatureCollection = createSelector(
@@ -44,11 +63,12 @@ export const getArrayOfVisibleHeatmapTracks = createSelector(
 );
 
 export const trimmedVisibleHeatmapTrackFeatureCollection = createSelector(
-  [trimmedVisibleTrackFeatureCollection, heatmapSubjectIDs],
-  (mapSubjectTracksFeatureCollection, heatmapSubjectIDs) => ({
-    ...mapSubjectTracksFeatureCollection,
-    features: mapSubjectTracksFeatureCollection.features.filter(({ properties: { id } }) => heatmapSubjectIDs.includes(id)),
-  }),
+  [getArrayOfVisibleHeatmapTracks, trackLength, getTimeSliderState, getEventFilterDateRange],
+  (arrayOfHeatmapTracks, trackLength, timeSliderState, eventFilterDateRange) => {
+    const heatmapFeatureCollection = featureCollection(arrayOfHeatmapTracks.map(({ features: [track] }) => track));
+    
+    return trimTracksForLengthAndRange(heatmapFeatureCollection, trackLength, timeSliderState, eventFilterDateRange);
+  }, 
 );
 
 export const trimmedHeatmapPointFeatureCollection = createSelector(
@@ -60,9 +80,16 @@ const trimTracksForLengthAndRange = (collection, trackLength, timeSliderState, e
   const { virtualDate, active:timeSliderActive } = timeSliderState;
   const { lower } = eventFilterDateRange;
 
-  const tracks = timeSliderActive ?
-    trimTrackFeatureCollectionToTimeRange(collection, lower, virtualDate)
-    : collection;
+  const trackLengthStartDate = startOfDay(
+    subDays(new Date(), trackLength.length),
+  );
 
-  return trimTrackFeatureCollectionToLength(tracks, trackLength.length);
+  if (timeSliderActive) {
+    const startDate = !!(lower - trackLengthStartDate) ? trackLengthStartDate : lower;
+
+    return trimTrackFeatureCollectionToTimeRange(collection, startDate, virtualDate);
+
+  };
+
+  return trimTrackFeatureCollectionToTimeRange(collection, trackLengthStartDate);
 };
