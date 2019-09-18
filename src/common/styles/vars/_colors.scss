@@ -39,12 +39,10 @@ $light-gray-border: darken($light-gray, 10%);
 
 $title-bar-color: $off-black;
 $primary-font-color: $dark-gray;
-$primary-modal-header: $off-black;
-
 $light-font-color: lighten($primary-font-color, 25%);
 
 $primary-button-color: $bright-blue;
-$popover-header-color: $title-bar-color;
+$popover-header-color: lighten($title-bar-color, 5%);
 $popover-header-font-color: white;
 
 $light-gray-background: darken($light-gray, 3%);

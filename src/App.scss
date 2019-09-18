@@ -217,7 +217,7 @@ aside {
 
   .handle {
     @include unstyledButton;
-    background: $dark-gray;
+    background: $off-black;
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
     font-size: .75rem;
@@ -228,11 +228,11 @@ aside {
     position: absolute;
 
     &:hover {
-      background: darken($dark-gray, 10%);
+      background: darken($off-black, 10%);
     }
 
     &:active {
-      background: darken($dark-gray, 16%);
+      background: darken($off-black, 16%);
     }
 
     span {
@@ -282,7 +282,7 @@ aside {
 }
 
 .modal-header {
-  background: $primary-modal-header;
+  background: $popover-header-color;
   color: white;
 
   .close {
