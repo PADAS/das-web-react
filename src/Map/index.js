@@ -9,6 +9,7 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
+import { showAnalyzers, hideAnalyzers } from '../ducks/map-ui';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { trackEvent } from '../utils/analytics';
@@ -163,6 +164,7 @@ class Map extends Component {
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
   }
+  
   onClusterClick(e) {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
@@ -365,6 +367,8 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
+  showAnalyzers,
+  hideAnalyzers
 }
 )(debounceRender(withSocketConnection(Map), 100));
 

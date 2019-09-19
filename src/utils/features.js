@@ -46,6 +46,7 @@ const fitMapBoundsToMultiPolygon = (map, geojson) => {
 
 export const fitMapBoundsToGeoJson = (map, geojson) => {
   const { geometry: { type } } = geojson;
+  console.log('geometry', type, geojson);
 
   if (type === 'Point') return fitMapBoundsToPoint(map, geojson);
   if (type === 'MultiPoint') return fitMapBoundsToMultiPoint(map, geojson);

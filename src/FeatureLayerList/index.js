@@ -12,7 +12,6 @@ import { getFeatureLayerListState } from './selectors';
 import { getAnalyzerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
-import AnalyzerContent from './AnalyzerContent';
 
 import listStyles from '../SideBar/styles.module.scss';
 

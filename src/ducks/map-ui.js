@@ -9,6 +9,9 @@ const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
+const HIDE_ANALYZERS = 'HIDE_ANALYZERS';
+const SHOW_ANALYZERS = 'SHOW_ANALYZERS';
+
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
@@ -44,6 +47,16 @@ export const hideFeatures = (...featureIDs) => ({
 export const showFeatures = (...featureIDs) => ({
   type: SHOW_FEATURES,
   payload: featureIDs,
+});
+
+export const hideAnalyzers = (...analyzerFeatureIDs) => ({
+  type: HIDE_ANALYZERS,
+  payload: analyzerFeatureIDs,
+});
+
+export const showAnalyzers = (...analyzerFeatureIDs) => ({
+  type: SHOW_ANALYZERS,
+  payload: analyzerFeatureIDs,
 });
 
 export const addHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => {

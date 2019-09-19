@@ -21,12 +21,19 @@ export const getFeatureLayerListState = createSelector(
 );
 
 export const getAnalyzerListState = createSelector(
-  [analyzerFeatures, hiddenFeatureIDs],
-  (analyzerFeatures, hiddenFeatureIDs) => {
+  [analyzerFeatures],
+  (analyzerFeatures) => {
     const featuresByType = (analyzerFeatures).map( (analyzer) => {
+      // aggregate the feature ids, and store them in the first feature,
+      // so that we can be FeatureLayerList compatible
+      const analyzerFeatures = analyzer.geojson.features.reduce((accumulator, feature) => {
+        accumulator.push(feature.properties.id);
+        return accumulator;
+      }, []);
       const feature = analyzer.geojson.features[0];
       feature.properties.type_name = analyzer.name;
       feature.properties.id = feature.properties.pk;
+      feature.properties.feature_group = analyzerFeatures;
       return {name: analyzer.name, features: [feature]};
     });
     return ([{name: 'Analyzers', id:'analyzers', featuresByType }]);

@@ -13,13 +13,19 @@ export const calcAnalyzerLayerId = (layer) => {
 const analyzerLayerIds = [calcAnalyzerLayerId(ANALYZER_POLYS_WARNING), calcAnalyzerLayerId(ANALYZER_POLYS_CRITICAL),
                           calcAnalyzerLayerId(ANALYZER_LINES_CRITICAL), calcAnalyzerLayerId(ANALYZER_LINES_WARNING)];
 
-export const setAnalyzerFeatureActiveStateByID = (map, ids, state = true) => {
+export const setAnalyzerFeatureActiveStateByID = (map, id, state = true) => {
   const features = map.queryRenderedFeatures({
-    filter: ['in', 'id', ids],
+    filter: ['in', 'id', id],
     layers: analyzerLayerIds,
   });
   features.forEach((feature) => {
     map.setFeatureState(feature, { 'active': state });
+  });
+};
+
+export const setAnalyzerFeatureActiveStateForIDs = (map, ids, state = true) => {
+  ids.forEach((id) => {
+    setAnalyzerFeatureActiveStateByID(map, id, state);
   });
 };
 
