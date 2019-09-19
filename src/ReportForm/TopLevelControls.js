@@ -68,6 +68,7 @@ const ReportFormTopLevelControls = memo((props) => {
         required={true}
         value={report.time ? new Date(report.time) : null}
         maxDate={new Date()}
+        format='yyyy-MM-dd HH:mm'
         onChange={onReportDateChange} />
     </label>
     <label ref={gpsInputLabelRef}>
