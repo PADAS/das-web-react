@@ -1,4 +1,5 @@
-$dimension: 2.5rem;
+@import '../common/styles/buttons';
+
 $background_image_url: '../common/images/icons/';
 
 @mixin button($image: 'tracks_on') {
@@ -7,9 +8,9 @@ $background_image_url: '../common/images/icons/';
   border: none;
   display: block;
   filter: grayscale(100%);
-  height: $dimension;
+  height: $square-button-dimension;
   outline: none;
-  width: $dimension;
+  width: $square-button-dimension;
 }
 
 .button {

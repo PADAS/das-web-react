@@ -221,7 +221,8 @@ aside {
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
     font-size: .75rem;
-    height: 3rem;
+    height: 4rem;
+    width: 1.5rem;
     left: -1.5rem;
     top: 45%;
     position: absolute;
@@ -236,9 +237,13 @@ aside {
 
     span {
       display: block;
-      font-weight: bold;
       transform: rotate(180deg);
       transition: transform .2s .3s ease-in-out;
+      svg {
+        width: 0.75rem;
+        height: 0.75rem;
+        fill: white;
+      }
     }
 
     @media (min-width: $md-layout-width-min) {
@@ -299,6 +304,7 @@ h4,
 h5,
 h6 {
   margin: 0;
+  margin-bottom: 0.25rem;
 }
 
 div.mapboxgl-popup-content {
@@ -307,8 +313,7 @@ div.mapboxgl-popup-content {
   text-align: center;
   width: 13rem;
 
-  h4 {
-    font-size: 1.1rem;
+  h5 {
     margin-bottom: 0.5rem;
   }
 }
@@ -347,9 +352,6 @@ div.mapboxgl-popup-tip {
   display: flex;
   padding: .5rem 1rem;
   user-select: text;
-  &:hover {
-    // background: none;
-  }
   &:active, &:visited, &:focus {
     background-color: unset;
     color: unset;

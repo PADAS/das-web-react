@@ -1,5 +1,6 @@
 @mixin popoverTitle {
-  background: $filter-popover-header-color;
-  color: white;
+  background: $popover-header-color;
+  color: $popover-header-font-color;
+  font-weight: bold;
   padding: 0.5rem 1rem;
 }

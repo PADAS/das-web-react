@@ -26,7 +26,7 @@ const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, ...rest }
   };
 
   return <Popup className={styles.popup} anchor='bottom' offset={[0, -6]} coordinates={coordinates} id='dropped-marker-popup' {...rest}>
-    <h6>Your current location:</h6>
+    <h4>Your current location:</h4>
     <GpsFormatToggle lng={coords.longitude} lat={coords.latitude} />
     <p>Accurate to within {coords.accuracy} meters</p>
     <p>Last checked <TimeAgo date={lastRead} /></p>

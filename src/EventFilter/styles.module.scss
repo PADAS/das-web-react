@@ -80,7 +80,7 @@
     max-height: 20rem;
   }
   > [class*=arrow]::after {
-    border-bottom-color: $filter-popover-header-color;
+    border-bottom-color: $popover-header-color;
   }
   [class*=popover-header] {
     @include popoverTitle;
@@ -158,14 +158,14 @@ div.filterPopover {
 }
 
 .modified {
-  color: $alert-text;
+  color: $highlight-color;
   svg, svg * {
-    fill: $alert-text;
+    fill: $highlight-color;
   }
   &:hover {
-    color: darken($alert-text, 6%);
+    color: darken($highlight-color, 6%);
     svg * {
-      fill:  darken($alert-text, 6%);
+      fill:  darken($highlight-color, 6%);
     }
   }
 }
@@ -174,7 +174,6 @@ div.filterPopover {
   align-items: center;
   display: flex;
   line-height: normal;
-  padding: 0.5rem;
   width: 100%;
   button {
     margin-left: auto;
