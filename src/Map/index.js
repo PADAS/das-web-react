@@ -20,7 +20,7 @@ import { getArrayOfVisibleHeatmapTracks, trimmedVisibleTrackFeatureCollection } 
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEvent } from '../utils/analytics';
 
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, clearAllMapFeatures  } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
 import { LAYER_IDS } from '../constants';
@@ -249,7 +249,9 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength, timeSliderState: { active:timeSliderActive } } = this.props;
+      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength, 
+      timeSliderState: { active:timeSliderActive }, clearAllMapFeatures } = this.props;
+
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackCollection && !!trackCollection.features.length;

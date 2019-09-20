@@ -17,6 +17,7 @@ import MapLayerFilter from '../MapLayerFilter';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
+import ClearAllControl from '../ClearAllControl';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;

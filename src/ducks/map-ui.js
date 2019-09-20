@@ -13,6 +13,7 @@ const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
+const CLEAR_ALL_MAP_FEATURES = 'CLEAR_ALL_MAP_FEATURES';
 
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
 
@@ -79,6 +80,11 @@ export const toggleTrackTimepointState = () => ({
   type: TOGGLE_TRACK_TIMEPOINTS,
 });
 
+export const clearMapFeaturesState = (enabled) => ({
+  type: CLEAR_ALL_MAP_FEATURES,
+  payload: enabled,
+})
+
 export const toggleTrackState = (id) => (dispatch, getState) => {
   const { view: { subjectTrackState: { pinned, visible } } } = getState();
   if (pinned.includes(id)) {
@@ -143,6 +149,12 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
 export const mapLockStateReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === SET_MAP_LOCK_STATE) return payload;
+  return state;
+};
+
+export const clearMapFeaturesReducer = (state = false, action) => {
+  const { type, payload } = action;
+  if (type === CLEAR_ALL_MAP_FEATURES) return payload;
   return state;
 };
 

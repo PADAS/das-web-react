@@ -11,6 +11,7 @@ import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
+import ClearAllControl from '../ClearAllControl';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -115,6 +116,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
         />
       </Collapsible>
     </li>
+    <li><ClearAllControl /></li>
   </ul>;
 });
 
