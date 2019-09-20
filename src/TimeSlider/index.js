@@ -2,6 +2,8 @@ import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { format } from 'date-fns';
 import TimeAgo from 'react-timeago';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
@@ -44,18 +46,30 @@ const TimeSlider = (props) => {
     onRangeChange({ target: { value: 1 } });
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const PopoverContent = <Popover className={styles.popover}>
+    <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
+  </Popover>;
+
   return <div className={styles.wrapper}>
-    <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' 
-      className={styles.rangeControls} showPresets={false} style={{zIndex: 1000, width: '100%', position: 'absolute'}}>
-      <div style={{position: 'relative', width: '100%'}}>
-        <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
-        <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
-          {(until || virtualDate) ? <TimeAgo date={currentDate}/> : 'Now'}
-          <ClockIcon className={styles.icon} />
-        </span>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+      <div className={`${styles.handle} ${styles.left}`}>
+        <span className={styles.handleDate}>{format(startDate, STANDARD_DATE_FORMAT)}</span>
+        <TimeAgo date={startDate}/>
       </div>
-    </EventFilterDateRangeSelector>
-    <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span>
+    </OverlayTrigger>
+    <div style={{position: 'relative', width: '100%'}}>
+      <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+      <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
+        <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
+        {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> : 'Timeslider'}
+      </span>
+    </div>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+      <div className={`${styles.handle} ${styles.right}`}>
+        <span className={styles.handleDate}>{format(endDate, STANDARD_DATE_FORMAT)}</span>
+        <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
+      </div>
+    </OverlayTrigger>
   </div>;
 };
 

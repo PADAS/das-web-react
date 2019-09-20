@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="185px" height="134px" viewBox="0 0 185 134" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
+    <title>timeslider-icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="bevel">
+        <g id="timeslider-icon" transform="translate(6.000000, 6.000000)" stroke="#000000" stroke-width="11">
+            <g id="Clock3" transform="translate(0.000000, 3.000000)">
+                <circle id="Oval" stroke-opacity="0.25" fill="#FFFFFF" cx="58" cy="58" r="58"></circle>
+                <polyline id="Line" points="54 29 54 64.4838867 71 82"></polyline>
+            </g>
+            <g id="Clock2" transform="translate(23.000000, 0.000000)">
+                <circle id="Oval" stroke-opacity="0.5" fill="#FFFFFF" cx="61" cy="61" r="61"></circle>
+                <polyline id="Line" points="57 30 57 67.4924085 75 86"></polyline>
+            </g>
+            <g id="Clock" transform="translate(51.000000, 0.000000)">
+                <circle id="Oval" fill="#FFFFFF" cx="61" cy="61" r="61"></circle>
+                <polyline id="Line" points="57 30 57 67.4924085 75 86"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -230,6 +230,7 @@ class Map extends Component {
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   }
   setMap(map) {
+    window.map = map;
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }

@@ -99,13 +99,14 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
 };
 
 export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
+  let results = [...collection];
   if (envelope.from) {
-    collection.splice((envelope.from + 1), collection.length);
+    results = results.slice(0, envelope.from + 1);
   }
   if (envelope.until) {
-    collection.splice(0, envelope.until);
+    results = results.slice(envelope.until, collection.length + 1);
   }
-  return collection;
+  return results;
 };
 
 export const trackHasDataWithinTimeRange = (track, since = null, until = null) => {
