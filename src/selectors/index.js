@@ -196,8 +196,7 @@ const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
 const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
 
-const warningPointTypes = ['Point.containment_regions_group'];
 const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group'];
 const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
-const warningAnalyzerPolyTypes= ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.proximity_group','Polygon.containment_regions_group'];
+const warningAnalyzerPolyTypes= ['Polygon.warning_group', 'MultiPolygon.warning_group'];
 const criticalAnalyzerPolyTypes= ['Polygon.critical_group', 'MultiPolygon.critical_group'];
