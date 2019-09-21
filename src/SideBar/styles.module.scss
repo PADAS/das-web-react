@@ -3,7 +3,6 @@
 
 
 .tab {
-  // border-top: 3px solid $gray-border;
   height: 100%;
   overflow: hidden;
   .mapLayers {
@@ -30,12 +29,12 @@
   margin-bottom: 0;
   li { 
     align-items: flex-start;
-    border-top: 1px solid $gray-border;
+    border-top: 1px solid $light-gray-border;
     &:first-child {
       border-top: none;
     }
     &:last-child {
-      border-bottom: 1px solid $gray-border;
+      border-bottom: 1px solid $light-gray-border;
     }
     display: flex;
     flex-wrap: wrap;
@@ -99,7 +98,7 @@
   }
   .list {
     background: $light-gray-background;
-    border-left: 0.5rem solid $gray-border;
+    border-left: 0.5rem solid $light-gray-border;
   }
   .itemList {
     background: lighten($light-gray-background, 3.5%);
