@@ -3,7 +3,6 @@
 
 
 .tab {
-  // border-top: 3px solid $gray-border;
   height: 100%;
   overflow: hidden;
   .mapLayers {
@@ -30,18 +29,19 @@
   margin-bottom: 0;
   li { 
     align-items: flex-start;
-    border-top: 1px solid $gray-border;
+    border-top: 1px solid $light-gray-border;
     &:first-child {
       border-top: none;
     }
     &:last-child {
-      border-bottom: 1px solid $gray-border;
+      border-bottom: 1px solid $light-gray-border;
     }
     display: flex;
     flex-wrap: wrap;
     position: relative;
-    h4 h5 h6 {
+    h4, h5, h6 {
       margin: 0;
+      font-weight: 600;
     }
     [class*=checkmark] {
       cursor: pointer;
@@ -67,12 +67,17 @@
         text-decoration: underline;
       }
       &::after {
-        content: '>';
+        content: '<';
+        color: transparent;
+        background-image: url(../common/images/icons/arrow.svg);
+        background-size: 1rem 1rem;
+        background-repeat: no-repeat;
+        background-position: center;
         font-size: 1.5rem;
         position: absolute;
         right: 1rem;
         top: 20%;
-        transform: scaleY(1.25) scaleX(0.75) rotate(-180deg);
+        transform: inherit;
         transition: 0.15s transform linear;
       }
       &[class*=is-disabled] {
@@ -83,7 +88,7 @@
       &[class*=is-open] {
         box-shadow: 0 2px 3px $medium-light-gray;
         &::after {
-          transform: rotate(-270deg);
+          transform: rotate(-90deg);
         }
       }
     }
@@ -93,7 +98,7 @@
   }
   .list {
     background: $light-gray-background;
-    border-left: 0.5rem solid $gray-border;
+    border-left: 0.5rem solid $light-gray-border;
   }
   .itemList {
     background: lighten($light-gray-background, 3.5%);

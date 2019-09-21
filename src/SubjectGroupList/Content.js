@@ -27,7 +27,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 const ContentComponent = memo(debounceRender((props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
     hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter, 
-    addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, 
+    addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, listLevel,
     groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
 
   const [loadingTracks, setTrackLoadingState] = useState(false);
@@ -67,7 +67,6 @@ const ContentComponent = memo(debounceRender((props) => {
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
 
-
   const groupItemProps = {
     map,
     onGroupCheckClick,
@@ -76,6 +75,7 @@ const ContentComponent = memo(debounceRender((props) => {
     subjectIsVisible,
     subjectFilterEnabled,
     subjectMatchesFilter,
+    listLevel: listLevel+1,
   };
 
   const subjectItemProps = {
@@ -87,7 +87,8 @@ const ContentComponent = memo(debounceRender((props) => {
   const collapsibleShouldBeOpen = subjectFilterEnabled && (!!subgroups.length || !!subjects.length);
 
   const trigger = <div className={listStyles.trigger}>
-    <h5>{name}</h5>
+    {listLevel===0 && <h5>{name}</h5>}
+    {listLevel>0 && <h6>{name}</h6>}
     {showHeatmapControl && <HeatmapToggleButton loading={loadingTracks} 
       heatmapVisible={groupIsFullyHeatmapped} 
       heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
