@@ -14,10 +14,15 @@ const AnalyzerConfigPopup = (props) => {
 
   const { data: { geometry, properties }, ...rest } = props;
 
+  const hideAnalyzerPopup = (id) => {
+    hidePopup(id)
+  }
+
   // XXX better way to inject style and stroke?
   const iconForCategory = category => { 
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{height: '2rem', width: '2rem'}} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={{height: '2rem', width: '2rem'}} />;
+    const style = {height: '2rem', width: '2rem', marginRight: '.25rem'};
+    if (category === 'geofence') return <GeofenceIcon stroke='black' style={style} />;
+    if (category === 'proximity') return <ProximityIcon stroke='black' style={style} />;
     return null;
   }
 
@@ -25,7 +30,7 @@ const AnalyzerConfigPopup = (props) => {
     <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry} id={`analyzer-config`}>
       <div className={styles.analyzerPopup}>
         <h4>{iconForCategory(properties.analyzer_type)}{properties.title}
-          <a target="_blank" href={properties.admin_href}><GearIcon style={{height: '.5rem', width: '.5rem'}}/>
+          <a target="_blank" href={properties.admin_href}><GearIcon fill = '#1E90FF' style={{height: '1.0rem', width: '1.0rem', marginLeft: '.5rem'}}/>
           </a>
         </h4>
         <h5>{properties.analyzer_type}</h5>
