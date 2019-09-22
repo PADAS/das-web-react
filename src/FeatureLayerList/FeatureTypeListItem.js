@@ -30,8 +30,6 @@ const FeatureTypeListItem = memo((props) => {
 
   const onCheckToggle = (item) => {
     const { properties: { id } } = item;
-    console.log('onCheckToggle item:');
-    console.log(item);
     if (featureIsVisible(item)) {
       trackEvent('Map Layer', 'Uncheck Feature checkbox');
         return hideFeatures(id);

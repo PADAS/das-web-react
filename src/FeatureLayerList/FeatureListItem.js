@@ -2,8 +2,9 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
 import { showFeatures, showAnalyzers } from '../ducks/map-ui';
+import { showPopup } from '../ducks/popup';
 import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
-import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
+import { setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { trackEvent } from '../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
@@ -22,12 +23,13 @@ const FeatureListItem = memo((props) => {
   }
 
   const onAnalyzerJumpButtonClick = () => {
-    showAnalyzers(properties.feature_group);
-    fitMapBoundsToGeoJson(map, { geometry });
-    // XXX why the timeout?
+    showFeatures(properties.id);
+    fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     setTimeout(() => {
       setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
     }, 200);
+    const dialogPoint = getAnalyzerAdminPoint(geometry);
+    showPopup('analyzer-config', { dialogPoint, properties });
     trackEvent('Map Layers', 'Click Jump To Feature Location button', 
       `Feature Type:${properties.type_name}`);
   }
@@ -54,4 +56,4 @@ const FeatureListItem = memo((props) => {
   }
 });
 
-export default connect(null, { showFeatures, showAnalyzers })(FeatureListItem);
+export default connect(null, { showFeatures, showAnalyzers, showPopup })(FeatureListItem);
