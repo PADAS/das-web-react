@@ -1,5 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import { GeoJSONLayer } from 'react-mapbox-gl';
+import { Source, Layer, GeoJSONLayer } from 'react-mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
 
@@ -44,7 +44,7 @@ const polyPaint = {
   ],
   'fill-opacity': [
     'case',
-    ...IF_HAS_PROPERTY('fill-opacity', 0),
+    ...IF_HAS_PROPERTY('fill-opacity', .25),
   ],
 };
 
@@ -55,7 +55,7 @@ const criticalPolyPaint = {
   ],
   'fill-opacity': [
     'case',
-    ...IF_HAS_PROPERTY('fill-opacity', 0),
+    ...IF_HAS_PROPERTY('fill-opacity', .25),
   ],
 };
 
@@ -92,7 +92,60 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
     onAnalyzerGroupExit(e, hoverStateIds);
   }
 
+  // const warningLinesData = {
+  //   type: 'geojson',
+  //   data: warningLines,
+  // };
+
+  // const criticalLinesData = {
+  //   type: 'geojson',
+  //   data: criticalLines,
+  // };
+
+  // const warningPolysData = {
+  //   type: 'geojson',
+  //   data: warningPolys,
+  // };
+
+  // const criticalPolysData = {
+  //   type: 'geojson',
+  //   data: criticalPolys,
+  // };
+
   return <Fragment>
+    {/* <Source id='analyzer-polygon-warning-source' geoJsonSource={warningLinesData} />
+    <Source id='analyzer-polygon-critical-source' geoJsonSource={criticalPolysData} />
+    <Source id='analyzer-line-warning-source' geoJsonSource={warningLinesData} />
+    <Source id='analyzer-line-critical-source' geoJsonSource={criticalLinesData} />
+
+    <Layer sourceId='analyzer-polygon-warning-source' type='line'
+      id={ANALYZER_POLYS_WARNING} 
+      paint={linePaint} layout={lineLayout}
+      onMouseEnter={onAnalyzerFeatureEnter}
+      onMouseLeave={onAnalyzerFeatureExit}
+      onClick={onAnalyzerClick}/>
+
+    <Layer sourceId='analyzer-polygon-critical-source' type='line'
+      id={ANALYZER_POLYS_CRITICAL} 
+      paint={criticalLinePaint} layout={lineLayout}
+      onMouseEnter={onAnalyzerFeatureEnter}
+      onMouseLeave={onAnalyzerFeatureExit}
+      onClick={onAnalyzerClick}/>
+
+    <Layer sourceId='analyzer-line-warning-source' type='line'
+      id={ANALYZER_LINES_WARNING}
+      paint={linePaint} layout={lineLayout}
+      onMouseEnter={onAnalyzerFeatureEnter}
+      onMouseLeave={onAnalyzerFeatureExit}
+      onClick={onAnalyzerClick}/>
+
+    <Layer sourceId='analyzer-line-critical-source' type='line'
+      id={ANALYZER_LINES_CRITICAL} 
+      paint={criticalLinePaint} layout={lineLayout}
+      onMouseEnter={onAnalyzerFeatureEnter}
+      onMouseLeave={onAnalyzerFeatureExit}
+      onClick={onAnalyzerClick}/>  */}
+
     <GeoJSONLayer id={ANALYZER_POLYS_WARNING} data={warningPolys}
       fillPaint={polyPaint}
       fillLayout={polyLayout}
