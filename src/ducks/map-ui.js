@@ -54,7 +54,7 @@ export const hideAnalyzers = (...analyzerFeatureIDs) => ({
   payload: analyzerFeatureIDs,
 });
 
-export const showAnalyzers = (...analyzerFeatureIDs) => ({
+export const currentAnalyzerFeatures = (...analyzerFeatureIDs) => ({
   type: SHOW_ANALYZERS,
   payload: analyzerFeatureIDs,
 });
