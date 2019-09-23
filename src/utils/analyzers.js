@@ -1,5 +1,4 @@
-import { centroid, circle, bbox } from '@turf/turf';
-import { featureCollection } from '@turf/helpers';
+import {  bbox, bboxPolygon, circle, centroid } from '@turf/turf';
 import { LAYER_IDS } from '../constants';
 
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, 
@@ -43,18 +42,22 @@ export const getAnalyzerFeaturesAtPoint = (map, geo) => {
   return features;
 };
 
+// this assumes a FeatureCollection. It appears that if you
+// add a type option of 'FeatureCollection' the bbox call fails.
 export const getBoundsForAnalyzerFeatures = (features) => {
   const bounds = bbox(features);
   return bounds;
 };
 
 export const fitMapBoundsForAnalyzer = (map, bounds) => {
-  console.log('bounds for fit', bounds);
-  map.fitBounds(bounds, { duration: 0, padding: 30 });
+  map.fitBounds(bounds, { duration: 0, maxZoom: MAX_JUMP_ZOOM, padding: 20 });
 };
 
 export const getAnalyzerAdminPoint = (geometry) => {
-  return centroid(geometry);
+  const poly =  bboxPolygon(geometry);
+  console.log('poly', poly);
+  const centerPt = centroid(poly);
+  return centerPt.geometry.coordinates;
 };
 
 // use turf.circle to construct a GEOJson Feature of type polygon
