@@ -1,0 +1,224 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
+
+$track-color: lighten($bright-blue, 15%);
+$thumb-color: lighten(#CCC, 15%);
+
+$thumb-radius: 2.25rem;
+$thumb-height: 2.75rem;
+$thumb-width: 8rem;
+$thumb-shadow-size: 0.0625rem;
+$thumb-shadow-blur: 0.0625rem;
+$thumb-shadow-color: #111;
+$thumb-border-width: 0.0625rem;
+$thumb-border-color: white;
+
+$track-width: 100%;
+$track-height: 0.333rem;
+$track-shadow-size: 0;
+$track-shadow-blur: 0;
+$track-shadow-color: #222;
+$track-border-width: 0;
+$track-border-color: black;
+
+$track-radius: 5px;
+$contrast: 25%;
+
+@mixin shadow($shadow-size,$shadow-blur,$shadow-color) {
+  box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0px 0px $shadow-size lighten($shadow-color,5%);
+}
+
+@mixin track {
+  width: $track-width;
+  height: $track-height;
+  cursor: pointer;
+  animate: 0.2s;
+}
+
+@mixin thumb {
+  // @include shadow($thumb-shadow-size,$thumb-shadow-blur,$thumb-shadow-color);
+  border: $thumb-border-width solid $thumb-border-color;
+  height: $thumb-height;
+  width: $thumb-width;
+  border-radius: $thumb-radius;
+  background: $thumb-color;
+  cursor: pointer;
+}
+
+@import '../common/styles/buttons';
+
+
+.wrapper {
+  bottom: 1rem;
+  display: flex;
+  left: 6.5rem;
+  position: absolute;
+  width: calc(100vw - 20rem);
+  z-index: 1000;
+}
+
+.handle {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  height: $thumb-height;
+  justify-content: center;
+  padding: 0.5rem;
+  position: relative;
+  top: 0.15rem;
+  width: 10rem;
+  &::before {
+    background: url('../common/images/timeslider-bumper.png') bottom right/$thumb-width $thumb-height no-repeat;
+    content: '';
+    display: block;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+  &.left {
+    left: 1.15rem;
+  }
+  &.right {
+    right: 1.15rem;
+    &::before {
+      transform: rotate(180deg);
+    }
+  }
+  > * {
+    @include unstyledButton;
+    cursor: pointer;
+    font-size: 0.7rem;
+    line-height: normal;
+    position: relative;
+    text-align: center;
+  }
+}
+
+.handleDate {
+  font-size: 0.6rem;
+}
+
+.mapControl {
+  @include mapboxControlButton;
+}
+
+.slider {
+  -webkit-appearance: none;
+  background: none;
+  margin: $thumb-height/2 0;
+  width: $track-width;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::-webkit-slider-runnable-track {
+    @include track;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    background: $track-color;
+    border-radius: $track-radius;
+    border: $track-border-width solid $track-border-color;
+  }
+  
+  &::-webkit-slider-thumb {
+    @include thumb;
+    -webkit-appearance: none;
+    margin-top: ((-$track-border-width * 2 + $track-height) / 2) - ($thumb-height / 2);
+  }
+
+  &:focus::-webkit-slider-runnable-track {
+    background: lighten($bright-blue, $contrast);
+  }
+
+  &::-moz-range-track {
+    @include track;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    background: $track-color;
+    border-radius: $track-radius;
+     border: $track-border-width solid $track-border-color;
+  }
+  &::-moz-range-thumb {
+     @include thumb;
+  }
+
+  &::-ms-track {
+    @include track; 
+    background: transparent;
+    border-color: transparent;
+    border-width: $thumb-width 0;
+    color: transparent;
+  }
+
+  &::-ms-fill-lower {
+    background: darken($track-color, $contrast);
+    border: $track-border-width solid $track-border-color;
+    border-radius: $track-radius*2;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+  }
+  &::-ms-fill-upper {
+    // background: $track-color;
+    border: $track-border-width solid $track-border-color;
+    border-radius: $track-radius*2;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+  }
+  &::-ms-thumb {
+    @include thumb;
+  }
+  &:focus::-ms-fill-lower {
+    background: $bright-blue;
+  }
+  &:focus::-ms-fill-upper {
+    background: lighten($bright-blue, $contrast);
+  }
+}
+
+.handleText {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  font-size: 0.6rem;
+  justify-content: center;
+  text-align: center;
+  position: absolute;
+  pointer-events: none;
+  top: 15%;
+  white-space: nowrap;
+  width: $thumb-width;
+}
+
+.icon {
+  --dimensions: 1rem;
+  height: var(--dimensions);
+  width: var(--dimensions);
+  g {
+    stroke: $primary-font-color;
+  }
+  &.iconFill, &.iconFill * {
+    fill: $primary-font-color; 
+  }
+  circle, g, path {
+    transition: stroke 0.1s linear;
+  }
+}
+
+.popover {
+  display: flex;
+  flex-flow: column;
+  max-width: unset;
+  width: 14rem;
+}
+
+.activeIcon {
+  circle, g, path {
+    stroke: $bright-blue;
+  }
+}
+
+.warningIcon {
+  circle, g, path {
+    stroke: $bright-red;
+  }
+}

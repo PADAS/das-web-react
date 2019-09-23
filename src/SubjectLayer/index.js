@@ -22,7 +22,7 @@ const symbolPaint = {
 
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [SUBJECT_SYMBOLS] })[0];
 
-const SubjectsLayer = memo((props) => {
+const SubjectsLayer = (props) => {
   const { onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
 
   const sourceData = {
@@ -32,7 +32,7 @@ const SubjectsLayer = memo((props) => {
 
   useEffect(() => {
     subjects && addFeatureCollectionImagesToMap(subjects, map);
-  }, [subjects]);
+  }, [map, subjects]);
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 
@@ -48,11 +48,11 @@ const SubjectsLayer = memo((props) => {
       paint={symbolPaint} layout={layout} />
 
   </Fragment>;
-});
+};
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
   onSubjectIconClick: PropTypes.func,
 };
 
-export default withMapNames(withMap(SubjectsLayer));
+export default withMapNames(withMap(memo(SubjectsLayer)));

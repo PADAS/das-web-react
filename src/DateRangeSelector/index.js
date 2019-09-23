@@ -11,7 +11,7 @@ import { trackEvent } from '../utils/analytics';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
-  const { startDate, endDate, onStartDateChange, onEndDateChange, onDateRangeChange, startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, startDateNullMessage, endDateNullMessage, className, gaEventSrc, ...rest } = props;
+  const { startDate, endDate, onStartDateChange, onEndDateChange, onDateRangeChange, startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, startDateNullMessage, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
 
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
@@ -36,6 +36,7 @@ const DateRangeSelector = (props) => {
         <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={startOpen} clearIcon={null} onClockOpen={onStartOpen} onCloseClose={onStartClose} onCalendarOpen={onStartOpen} onCalendarClose={onStartClose} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
       </span>
     </label>
+    {children}
     <label className={styles.label}>
       <span>{endDateLabel}</span>
       <span className={styles.wrapper}>

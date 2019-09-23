@@ -89,10 +89,10 @@ export const DEFAULT_SYMBOL_PAINT = {
   'text-halo-color': 'rgba(255,255,255,0.7)',
   'text-halo-width': [
     'interpolate', ['exponential', 0.5], ['zoom'],
-    6, 0,
+    6, 1,
     12, 3,
   ],
-  'text-halo-blur': 1,
+  'text-halo-blur': 3,
   'text-translate-anchor': 'viewport'
 };
 

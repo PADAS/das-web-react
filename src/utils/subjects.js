@@ -1,38 +1,12 @@
 import uniqBy from 'lodash/uniqBy';
 import { differenceInSeconds } from 'date-fns';
 
+import { findTimeEnvelopeIndices } from './tracks';
+
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
 const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
-
-export const pinSubjectPositionToLastKnownTrackPosition = (subjects, tracks) => {
-  const { features:subjectFeatures } = subjects;
-  const { features:subjectTracks } = tracks;
-
-  if (!subjectTracks.length) return subjects;
-  return {
-    ...subjects,
-    features: subjectFeatures.map((feature) => {
-      const trackMatch = subjectTracks.find(trackFeature => trackFeature.properties.id === feature.properties.id);
-      if (!trackMatch) return feature;
-      return {
-        ...feature,
-        geometry: {
-          ...feature.geometry,
-          coordinates: trackMatch.geometry.coordinates[0],
-        },
-        properties: {
-          ...feature.properties,
-          coordinateProperties: {
-            ...feature.coordinateProperties,
-            time: trackMatch.properties.coordinateProperties.times[0],
-          },
-        },
-      };
-    }),
-  }
-};
 
 export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
@@ -123,6 +97,54 @@ export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroup
   });
 };
 
+export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {
+  return {
+    ...mapSubjectFeatureCollection,
+    features: mapSubjectFeatureCollection.features
+      .map((feature) => {
+        const trackMatch = tracks[feature.properties.id];
+
+        if (!trackMatch) return feature;
+
+        const [trackFeature] = trackMatch.features;
+
+        // this guard clause is a bit overboard because we're potentially querying very old/quirky track data.
+        if (!trackFeature || !trackFeature.geometry || !trackFeature.geometry.coordinates || !trackFeature.geometry.coordinates.length) {
+          return feature;
+        }
+
+        const { properties: { coordinateProperties: { times } } } = trackFeature;
+        const { until } = findTimeEnvelopeIndices(times, null, virtualDate);
+
+        const hasUntil = until > -1;
+
+        let index = 0;
+
+        if (hasUntil) {
+          if (until === times.length) {
+            index = until - 1;
+          } else {
+            index = until;
+          }
+        }
+
+        return {
+          ...feature,
+          geometry: {
+            ...feature.geometry,
+            coordinates: trackFeature.geometry.coordinates[index] || feature.geometry.coordinates,
+          },
+          properties: {
+            ...feature.properties,
+            coordinateProperties: {
+              ...feature.properties.coordinateProperties,
+              time: trackFeature.properties.coordinateProperties.times[index] || feature.properties.coordinateProperties.time,
+            }
+          }
+        };
+      }),
+  };
+};
 
 /**
  * filterSubjects is a function to drill down a given subject group array tree 
