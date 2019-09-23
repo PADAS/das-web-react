@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { showFeatures, showAnalyzers } from '../ducks/map-ui';
+import { showFeatures } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
 import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
 import { setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
@@ -14,7 +14,7 @@ import LocationJumpButton from '../LocationJumpButton';
 import listStyles from '../SideBar/styles.module.scss';
 
 const FeatureListItem = memo((props) => {
-  const { properties, map, geometry, showFeatures, showAnalyzers } = props;
+  const { properties, map, geometry, showFeatures } = props;
 
   const iconForCategory = category => { 
     if (category === 'geofence') return <GeofenceIcon stroke='black' style={{height: '2rem', width: '2rem'}} />;
@@ -28,8 +28,8 @@ const FeatureListItem = memo((props) => {
     setTimeout(() => {
       setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
     }, 200);
-    const dialogPoint = getAnalyzerAdminPoint(geometry);
-    showPopup('analyzer-config', { dialogPoint, properties });
+    const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
+    props.showPopup('analyzer-config', { geometry, properties });
     trackEvent('Map Layers', 'Click Jump To Feature Location button', 
       `Feature Type:${properties.type_name}`);
   }
@@ -56,4 +56,4 @@ const FeatureListItem = memo((props) => {
   }
 });
 
-export default connect(null, { showFeatures, showAnalyzers, showPopup })(FeatureListItem);
+export default connect(null, { showFeatures, showPopup })(FeatureListItem);
