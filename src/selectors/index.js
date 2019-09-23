@@ -127,29 +127,26 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
     const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
       [...accumulator,
       ...data.geojson.features.map(feature => {
-        if (feature.properties.image) {
-          feature = addIconToGeoJson(feature);
-          feature.properties.image = calcUrlForImage(feature.properties.image);
-        }
         // assign analyzer type to each feature
         feature.analyzer_type = data.type;
         return feature;
       })], []);
-    // simulate layergroups found in old codebase
+    // simulate layergroups found in old codebase by passing the feature ids
+    // of the analyzer feature collection so they can be looked up at runtime
     const layerGroups = analyzerFeatures.map( (analyzer) => {
       const featureIds = analyzer.geojson.features.map( feature => feature.properties.id);
       return {id: analyzer.id, feature_ids: featureIds};
     });
 
-    console.log('all analyzers', allAnalyzers);
-    
-    return {
+    const analyzerPayload = {
       analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerLineTypes.includes(spatial_group))),
       analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerLineTypes.includes(spatial_group))),
       analyzerWarningPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerPolyTypes.includes(spatial_group))),
       analyzerCriticalPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerPolyTypes.includes(spatial_group))),
       layerGroups: layerGroups,
     };
+
+    return analyzerPayload;
   },
 );
 
@@ -196,7 +193,7 @@ const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
 const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
 
-const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group'];
+const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group', 'Point.containment_regions_group'];
 const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
-const warningAnalyzerPolyTypes= ['Polygon.warning_group', 'MultiPolygon.warning_group'];
+const warningAnalyzerPolyTypes= ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group'];
 const criticalAnalyzerPolyTypes= ['Polygon.critical_group', 'MultiPolygon.critical_group'];
