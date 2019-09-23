@@ -1,5 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import { Source, Layer, GeoJSONLayer } from 'react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
 
@@ -37,32 +37,6 @@ const lineLayout = {
   'line-cap': 'round',
 };
 
-const polyPaint = {
-  'fill-color': [
-    'case',
-    ...IF_HAS_STATE('active', 'yellow', '#CCC'),
-  ],
-  'fill-opacity': [
-    'case',
-    ...IF_HAS_PROPERTY('fill-opacity', .25),
-  ],
-};
-
-const criticalPolyPaint = {
-  'fill-color': [
-    'case',
-    ...IF_HAS_STATE('active', 'red', '#CCC'),
-  ],
-  'fill-opacity': [
-    'case',
-    ...IF_HAS_PROPERTY('fill-opacity', .25),
-  ],
-};
-
-const polyLayout = {
-  'visibility': 'visible',
-};
-
 const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, map }) => {
 
   // XXX better way to do this?
@@ -92,35 +66,38 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
     onAnalyzerGroupExit(e, hoverStateIds);
   }
 
-  // const warningLinesData = {
-  //   type: 'geojson',
-  //   data: warningLines,
-  // };
+  const warningLinesData = {
+    type: 'geojson',
+    data: warningLines,
+  };
 
-  // const criticalLinesData = {
-  //   type: 'geojson',
-  //   data: criticalLines,
-  // };
+  const criticalLinesData = {
+    type: 'geojson',
+    data: criticalLines,
+  };
 
-  // const warningPolysData = {
-  //   type: 'geojson',
-  //   data: warningPolys,
-  // };
+  const warningPolysData = {
+    type: 'geojson',
+    data: warningPolys,
+  };
 
-  // const criticalPolysData = {
-  //   type: 'geojson',
-  //   data: criticalPolys,
-  // };
+  const criticalPolysData = {
+    type: 'geojson',
+    data: criticalPolys,
+  };
 
   return <Fragment>
-    {/* <Source id='analyzer-polygon-warning-source' geoJsonSource={warningLinesData} />
+    <Source id='analyzer-polygon-warning-source' geoJsonSource={warningPolysData} />
     <Source id='analyzer-polygon-critical-source' geoJsonSource={criticalPolysData} />
     <Source id='analyzer-line-warning-source' geoJsonSource={warningLinesData} />
     <Source id='analyzer-line-critical-source' geoJsonSource={criticalLinesData} />
 
+     {/* due to a bug in mapboxgl, we need to treat polys as lines, to 
+     get a dotted border line to appear */}
+
     <Layer sourceId='analyzer-polygon-warning-source' type='line'
       id={ANALYZER_POLYS_WARNING} 
-      paint={linePaint} layout={lineLayout}
+      paint={linePaint} 
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
       onClick={onAnalyzerClick}/>
@@ -144,9 +121,9 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       paint={criticalLinePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerClick}/>  */}
+      onClick={onAnalyzerClick}/> 
 
-    <GeoJSONLayer id={ANALYZER_POLYS_WARNING} data={warningPolys}
+    {/* <GeoJSONLayer id={ANALYZER_POLYS_WARNING} data={warningPolys}
       fillPaint={polyPaint}
       fillLayout={polyLayout}
       fillOnClick={onAnalyzerClick}
@@ -169,7 +146,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       lineOnMouseEnter={onAnalyzerFeatureEnter}
       lineOnMouseLeave={onAnalyzerFeatureExit}
       lineOnClick={onAnalyzerClick}
-    />
+    /> */}
   </Fragment>
 });
 

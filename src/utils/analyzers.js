@@ -5,14 +5,8 @@ const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,
   ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
-export const calcAnalyzerLayerId = (layer) => {
-    if (layer.includes('-polys-')) return `${layer}-fill`;
-    if (layer.includes('-lines-')) return `${layer}-line`;
-    return layer;
-  };
-
-const analyzerLayerIds = [calcAnalyzerLayerId(ANALYZER_POLYS_WARNING), calcAnalyzerLayerId(ANALYZER_POLYS_CRITICAL),
-                          calcAnalyzerLayerId(ANALYZER_LINES_CRITICAL), calcAnalyzerLayerId(ANALYZER_LINES_WARNING)];
+const analyzerLayerIds = [ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,
+                          ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING];
 
 const getAnalyzerFeaturesForId = (map, id) => {
   const features = map.queryRenderedFeatures({
