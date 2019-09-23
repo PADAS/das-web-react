@@ -9,7 +9,6 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { showAnalyzers, hideAnalyzers } from '../ducks/map-ui';
 import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { trackEvent } from '../utils/analytics';
@@ -138,10 +137,13 @@ class Map extends Component {
   }
 
   onAnalyzerGroupExit = (e, groupIds) => {
+    // XXX this is hacky, need a better way via state
+    // to inactivate features when popup is dismissed
+    if (this.props.popup && this.props.popup.type === 'analyzer-config') return;
     const { map } = this.props;
-    groupIds.forEach( id => {
-      setAnalyzerFeatureActiveStateByID(map, id, false);
-    });
+      groupIds.forEach( id => {
+        setAnalyzerFeatureActiveStateByID(map, id, false);
+      });
   }
 
   onAnalyzerFeatureClick = (e) => {
@@ -253,6 +255,7 @@ class Map extends Component {
     }
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   }
+
   setMap(map) {
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
@@ -272,6 +275,7 @@ class Map extends Component {
       trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
 
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
+
     const { analyzerWarningLines, analyzerCriticalLines, 
       analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
 
@@ -335,7 +339,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints, currentAnalyzerFeatures } = view;
 
   return ({
     maps,
@@ -367,8 +371,6 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
-  showAnalyzers,
-  hideAnalyzers
 }
 )(debounceRender(withSocketConnection(Map), 100));
 
