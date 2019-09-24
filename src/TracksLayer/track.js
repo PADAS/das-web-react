@@ -59,7 +59,7 @@ const TrackLayer = (props) => {
   const pointSourceId = `${sourceId}-points`;
 
   const layerId = `${TRACKS_LINES}-${trackId}`;
-  const pointLayerId = `${TRACKS_LINES}-${trackId}-points`;
+  const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
 
   return <Fragment>
     <Source id={sourceId} geoJsonSource={trackData} />

@@ -1,5 +1,3 @@
-import { calcLayerName } from '../utils/map';
-
 export const {
   REACT_APP_DAS_HOST,
   REACT_APP_DAS_AUTH_TOKEN_URL,
@@ -64,6 +62,7 @@ export const LAYER_IDS = {
   ANALYZER_POLYS_CRITICAL: 'analyzer-polys-critical',
   ANALYZER_LINES_WARNING: 'analyzer-lines-warning',
   ANALYZER_LINES_CRITICAL: 'analyzer-lines-critical',
+  ISOCHRONE_LAYER: 'isochrone',
 };
 
 export const DEFAULT_SYMBOL_LAYOUT = {

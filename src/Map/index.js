@@ -43,6 +43,7 @@ import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
+import IsochroneLayer from '../IsochroneLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -344,6 +345,10 @@ class Map extends Component {
               <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackIds={trackIds} />
             )}
 
+            {/* uncomment the below coordinates and go to easter island for a demo of the isochrone layer */}
+            <IsochroneLayer /* coords={[-109.36664693358205, -27.114147441540396]} */ />
+
+
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
@@ -364,6 +369,7 @@ class Map extends Component {
         )}
 
         {timeSliderActive && <TimeSlider />}
+
 
       </EarthRangerMap>
     );
