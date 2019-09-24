@@ -18,7 +18,6 @@ export const fetchCurrentUser = () => async (dispatch) => {
   const { data: { data } } = await axios.get(CURRENT_USER_API_URL)
     .catch(error => console.log('error getting user', error));
   if(!!data.role && data.role.length > 0) {
-    console.log('Set user role: ', data.role);
     setUserRole(data.role);
   }
   dispatch(fetchUserSuccess(data));

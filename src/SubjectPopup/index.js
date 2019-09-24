@@ -38,10 +38,8 @@ export default memo(SubjectPopup, (prev, current) => isEqual(prev.trackState, cu
 
 SubjectPopup.defaultProps = {
   onTrackToggle() {
-    console.log('track toggle');
   },
   onHeatmapToggle() {
-    console.log('heatmap toggle');
   },
 };
 

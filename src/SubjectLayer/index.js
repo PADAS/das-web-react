@@ -1,6 +1,8 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+
+import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -20,13 +22,17 @@ const symbolPaint = {
 
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [SUBJECT_SYMBOLS] })[0];
 
-const SubjectsLayer = memo((props) => {
+const SubjectsLayer = (props) => {
   const { onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
 
   const sourceData = {
     type: 'geojson',
     data: subjects,
   };
+
+  useEffect(() => {
+    subjects && addFeatureCollectionImagesToMap(subjects, map);
+  }, [map, subjects]);
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 
@@ -42,11 +48,11 @@ const SubjectsLayer = memo((props) => {
       paint={symbolPaint} layout={layout} />
 
   </Fragment>;
-});
+};
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
   onSubjectIconClick: PropTypes.func,
 };
 
-export default withMapNames(withMap(SubjectsLayer));
+export default withMapNames(withMap(memo(SubjectsLayer)));

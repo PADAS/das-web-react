@@ -1,5 +1,8 @@
 @import './vars/colors';
 
+$square-button-dimension: 2.25rem;
+$square-button-border-radius: .25rem;
+
 @mixin unstyledButton {
   background: none;
   border: none;
@@ -13,13 +16,13 @@
 }
 
 @mixin jumpButton {
-  background:  rgba($medium-light-gray, 0.15) url('../images/icons/marker-feed.svg') .7rem no-repeat;
+  background:  rgba($medium-light-gray, 0.15) url('../images/icons/marker-feed.svg') .6rem no-repeat;
   background-size: 1rem;
   border: none;
-  border-radius: .25rem;
-  height: 2.5rem;
+  border-radius: $square-button-border-radius;
+  height: $square-button-dimension;
   padding: 0;
-  width: 2.5rem;
+  width: $square-button-dimension;
   &:hover {
     background-color: rgba(darken($medium-light-gray, 15%), 0.18);
   }

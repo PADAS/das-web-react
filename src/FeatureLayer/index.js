@@ -1,8 +1,11 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+
+import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 
+import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
@@ -63,11 +66,13 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout }) => {
+const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, map }) => {
   const layout = {
     ...symbolLayout,
     ...mapNameLayout,
   };
+
+  addFeatureCollectionImagesToMap(symbols, map);
   
   const lineData = {
     type: 'geojson',
@@ -110,4 +115,4 @@ FeatureLayer.propTypes = {
   polygons: PropTypes.object.isRequired,
 };
 
-export default memo(withMapNames(FeatureLayer));
+export default memo(withMap(withMapNames(FeatureLayer)));

@@ -1,6 +1,8 @@
-import React, { Fragment, memo } from 'react';
+import React, { Fragment, memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+
+import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -37,12 +39,21 @@ const clusterCountSymbolLayout = {
 
 const eventSymbolLayerPaint = {
   ...DEFAULT_SYMBOL_PAINT,
+  'text-halo-color': ['case',
+    ['has', 'distanceFromVirtualDate'],
+    ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .225, 'rgba(255,255,255,0.7)'],
+    'rgba(255,255,255,0.7)',
+  ],
 };
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
+
+  useEffect(() => {
+    events && addFeatureCollectionImagesToMap(events, map);
+  }, [events]);
 
   const handleEventClick = (e) => {
     e.preventDefault();

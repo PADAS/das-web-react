@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React from 'react';
 import { Popup } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
@@ -25,7 +25,7 @@ const AnalyzerConfigPopup = (props) => {
     <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry} id={`analyzer-config`}>
       <div className={styles.analyzerPopup}>
         <h4>{iconForCategory(properties.analyzer_type)}{properties.title}
-          <a target="_blank" href={properties.admin_href}><GearIcon fill = '#1E90FF' style={{height: '1.0rem', width: '1.0rem', marginLeft: '.5rem'}}/>
+          <a target="_blank" rel= "noopener noreferrer" href={properties.admin_href}><GearIcon fill = '#1E90FF' style={{height: '1.0rem', width: '1.0rem', marginLeft: '.5rem'}}/>
           </a>
         </h4>
         <h5>{properties.analyzer_type}</h5>

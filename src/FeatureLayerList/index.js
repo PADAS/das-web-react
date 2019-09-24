@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
-import { getUniqueIDsFromFeatures } from '../utils/features';
+import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 
@@ -20,7 +20,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
-const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map }) => {
+const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
   const combinedList = featureList.concat(analyzerList);
 
@@ -30,6 +30,9 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
       ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
       ], [])
   );
+
+  const [searchText, setSearchTextState] = useState('');
+  const [featureFilterEnabled, setFeatureFilterEnabledState] = useState(false);
 
   const allFeatureIDs = getAllFeatureIDsInList();
   
@@ -71,12 +74,29 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
     }
   }
 
+  const featureFilterIsMatch = (feature) => {
+    if (searchText.length === 0) return true;
+    return (feature.properties.title.toLowerCase().includes(searchText));
+  };
+
+  useEffect(() => {
+    const filterText = mapLayerFilter.filter.text || '';
+    setSearchTextState(filterText);
+    setFeatureFilterEnabledState(filterText.length > 0);
+  }, [mapLayerFilter]);
+
+  const filteredFeatureList = featureFilterEnabled ? 
+    filterFeatures(featureList, featureFilterIsMatch) : featureList;
+
+  const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
+  if (featureFilterEnabled && !filteredFeatureList.length) return null;
+
+  const itemProps = { map, featureFilterEnabled, };
+
   const trigger = <div>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={someVisible} />
     <h5 className={listStyles.trigger}>Features</h5>
   </div>;
-
-  const itemProps = { map };
 
   return <ul className={listStyles.list}>
     <li>
@@ -84,7 +104,8 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
         className={listStyles.collapsed}
         openedClassName={listStyles.opened}
         {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-        trigger={trigger}>
+        trigger={trigger}
+        open={collapsibleShouldBeOpen}>
         <CheckableList
           className={listStyles.list}
           items={combinedList}
@@ -99,6 +120,11 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
   </ul>;
 });
 
-const mapStateToProps = (state) => ({ featureList: getFeatureLayerListState(state), hiddenFeatureIDs: state.view.hiddenFeatureIDs, analyzerList: getAnalyzerListState(state) });
+const mapStateToProps = (state) => ({ 
+  featureList: getFeatureLayerListState(state), 
+  hiddenFeatureIDs: state.view.hiddenFeatureIDs, 
+  analyzerList: getAnalyzerListState(state),
+  mapLayerFilter: state.data.mapLayerFilter 
+});
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);

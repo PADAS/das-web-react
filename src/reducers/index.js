@@ -5,7 +5,7 @@ import tokenReducer from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
-import tracksReducer from '../ducks/tracks';
+import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
@@ -14,6 +14,7 @@ import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesRedu
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
+import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
 import eventSchemaReducer from '../ducks/event-schemas';
@@ -22,8 +23,8 @@ import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
 import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
-import mapImagesReducer from '../ducks/images';
 import analyzersReducer from '../ducks/analyzers';
+import timeSliderReducer from '../ducks/timeslider';
 
 const tokenPersistanceConfig = {
   key: 'token',
@@ -61,7 +62,7 @@ const rootReducer = combineReducers({
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
-    mapImages: mapImagesReducer,
+    mapLayerFilter: mapLayerFilterReducer,
     analyzerFeatures: analyzersReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
@@ -91,8 +92,10 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
+    trackLength: trackDateRangeReducer,
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
+    timeSliderState: timeSliderReducer,
   }),
 });
 

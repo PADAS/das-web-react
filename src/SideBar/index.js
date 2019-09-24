@@ -6,6 +6,7 @@ import Tab from 'react-bootstrap/Tab';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
+import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import SubjectGroupList from '../SubjectGroupList';
@@ -13,6 +14,7 @@ import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
+import MapLayerFilter from '../MapLayerFilter';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -48,7 +50,7 @@ const SideBar = memo((props) => {
 
   return (
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
-      <button onClick={onHandleClick} className="handle" type="button"><span>>></span></button>
+      <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
       <Tabs onSelect={onTabsSelect}>
         <Tab className={styles.tab} eventKey="reports" title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
@@ -64,9 +66,13 @@ const SideBar = memo((props) => {
             onTitleClick={onEventTitleClick}
           />
         </Tab>
-        <Tab className={`${styles.tab} ${styles.mapLayers}`} eventKey="layers" title="Map Layers">
-          <SubjectGroupList map={map} />
-          <FeatureLayerList map={map} />
+        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+          <MapLayerFilter />
+          <div className={styles.mapLayers}>
+            <SubjectGroupList map={map} />
+            <FeatureLayerList map={map} />
+            <div className={styles.noItems}>No items to display.</div>
+          </div>
         </Tab>
       </Tabs>
     </aside>

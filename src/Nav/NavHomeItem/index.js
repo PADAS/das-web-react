@@ -10,7 +10,7 @@ const NavHomeItem = ({ icon, title, name }) => {
         <img alt={title} src={calcUrlForImage(icon.src)} />
       }
       {!!displayTitle &&
-        <h6>{displayTitle}</h6>
+        <h5>{displayTitle}</h5>
       }
     </Fragment>
   );

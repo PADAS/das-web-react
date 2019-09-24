@@ -1,22 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
+import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
-import debounceRender from 'react-debounce-render';
+import { CancelToken } from 'axios';
+import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
-import { fetchTracks } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
+import { fetchTracksIfNecessary } from '../utils/tracks';
+import { getFeatureSetFeatureCollectionsByType } from '../selectors';
+import { getArrayOfVisibleHeatmapTracks, displayedSubjectTrackIDs } from '../selectors/tracks';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 import { setAnalyzerFeatureActiveStateByID, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
-import {
-  getMapEventFeatureCollection, getMapSubjectFeatureCollection, getArrayOfVisibleTracks,
-  getArrayOfVisibleHeatmapTracks, getFeatureSetFeatureCollectionsByType, getAnalyzerFeatureCollectionsByType
-} from '../selectors';
+// XXX check unused imports
+import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
@@ -26,14 +31,17 @@ import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectLayer';
-import TrackLayers from '../TrackLayer';
+import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
+import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
+import TimeSlider from '../TimeSlider';
+import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -51,9 +59,12 @@ class Map extends Component {
     this.toggleTrackState = this.toggleTrackState.bind(this);
     this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
     this.onHeatmapClose = this.onHeatmapClose.bind(this);
+    this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
+    this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
+    this.trackRequestCancelToken = CancelToken.source();
   }
 
   shouldComponentUpdate(nextProps) {
@@ -70,26 +81,26 @@ class Map extends Component {
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.props.socket.emit('event_filter', this.props.eventFilter);
       this.fetchMapData();
+      if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
+        && !isEqual(prev.eventFilter.filter.date_range, this.props.eventFilter.filter.date_range)) {
+        this.setTrackLengthToEventFilterRange();
+      }
     }
-
-    if (!isEqual(prev.mapEventFeatureCollection, this.props.mapEventFeatureCollection)) {
-      this.createEventImages();
+    if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+      this.setTrackLengthToEventFilterRange();
     }
-    if (!isEqual(prev.mapSubjectFeatureCollection, this.props.mapSubjectFeatureCollection)) {
-      this.createSubjectImages();
+    if (!isEqual(prev.trackLength, this.props.trackLength)) {
+      this.onTrackLengthChange();
     }
-    if (!isEqual(prev.mapFeaturesFeatureCollection.symbolFeatures, this.props.mapFeaturesFeatureCollection.symbolFeatures)) {
-      this.createFeatureImages();
+    if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
+      this.fetchMapData();
     }
   }
-  createSubjectImages() {
-    this.createMapImages(this.props.mapSubjectFeatureCollection);
-  }
-  createEventImages() {
-    this.createMapImages(this.props.mapEventFeatureCollection);
-  }
-  createFeatureImages() {
-    this.createMapImages(this.props.mapFeaturesFeatureCollection.symbolFeatures);
+  setTrackLengthToEventFilterRange() {
+    this.props.setTrackLength(differenceInCalendarDays(
+      this.props.eventFilter.filter.date_range.upper || new Date(),
+      this.props.eventFilter.filter.date_range.lower,
+    ));
   }
   onTimepointClick(layer) {
     const { geometry, properties } = layer;
@@ -104,12 +115,17 @@ class Map extends Component {
     return toggleMapLockState();
   }
 
-  fetchMapData() {
-    this.fetchMapSubjects();
+  async fetchMapData() {
     this.fetchMapEvents();
+    await this.fetchMapSubjects();
+    if (this.props.timeSliderState.active) {
+      fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
+        .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
+        .map(({ properties: { id } }) => id));
+    }
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map);
+    return this.props.fetchMapSubjects(this.props.map);
   }
   fetchMapEvents() {
     this.props.fetchMapEvents(this.props.map);
@@ -228,17 +244,6 @@ class Map extends Component {
       return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
     }
   }
-  async createMapImages(featureCollection) {
-    const newImages = await addFeatureCollectionImagesToMap(featureCollection, this.props.map);
-
-    if (newImages.length) {
-      setTimeout(() => {
-        this.props.map.flyTo({
-          center: this.props.map.getCenter(),
-        });
-      });
-    }
-  }
   async onMapSubjectClick(layer) {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
@@ -246,7 +251,7 @@ class Map extends Component {
 
     this.props.showPopup('subject', { geometry, properties });
 
-    await (tracks_available) ? this.props.fetchTracks(id) : new Promise((resolve, reject) => resolve());
+    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise((resolve, reject) => resolve());
 
     if (tracks_available) {
       updateTrackState({
@@ -257,6 +262,7 @@ class Map extends Component {
   }
 
   setMap(map) {
+    window.map = map;
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }
@@ -264,29 +270,48 @@ class Map extends Component {
   onHeatmapClose() {
     this.props.updateHeatmapSubjects([]);
   }
+  onTrackLegendClose() {
+    const { updateTrackState } = this.props;
+    updateTrackState({
+      visible: [],
+      pinned: [],
+    });
+  }
 
   onReportMarkerDrop(location) {
     this.props.showPopup('dropped-marker', { location });
   }
 
+  onTrackLengthChange() {
+    this.trackRequestCancelToken.cancel();
+    this.trackRequestCancelToken = CancelToken.source();
+    fetchTracksIfNecessary(uniq([...this.props.subjectTrackState.visible, ...this.props.subjectTrackState.pinned, ...this.props.heatmapSubjectIDs]), this.trackRequestCancelToken);
+  }
+
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints } = this.props;
-
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, timeSliderState: { active:timeSliderActive } } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const { analyzerWarningLines, analyzerCriticalLines, 
       analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
 
-    const tracksAvailable = !!trackCollection.length;
+    const tracksAvailable = !!trackIds && !!trackIds.length;
+
     const subjectHeatmapAvailable = !!heatmapTracks.length;
+    const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
     return (
       <EarthRangerMap
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
+        controls={<Fragment>
+          <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
+          <MapRulerControl />
+          <TimeSliderMapControl />
+        </Fragment>}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
@@ -295,21 +320,26 @@ class Map extends Component {
 
         {map && (
           <Fragment>
-            
+
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+
+            <FriendlyEventFilterString className='event-filter-details' />
+
             <div className='map-legends'>
-              <FriendlyEventFilterString className='event-filter-details' />
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
+              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
-            {tracksAvailable && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackCollection={trackCollection} />}
+            {tracksAvailable && (
+              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackIds={trackIds} />
+            )}
 
             <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
@@ -326,10 +356,11 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-            <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
-            <MapRulerControl />
+            
           </Fragment>
         )}
+
+        {timeSliderActive && <TimeSlider />}
 
       </EarthRangerMap>
     );
@@ -339,7 +370,8 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, showTrackTimepoints, currentAnalyzerFeatures } = view;
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
+    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
 
   return ({
     maps,
@@ -351,11 +383,14 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
-    trackCollection: getArrayOfVisibleTracks(state, props),
+    timeSliderState,
+    trackIds: displayedSubjectTrackIDs(state),
+    trackLength,
+    trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
-    mapEventFeatureCollection: getMapEventFeatureCollection(state),
+    mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
-    mapSubjectFeatureCollection: getMapSubjectFeatureCollection(state),
+    mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
   });
 };
@@ -364,15 +399,15 @@ export default connect(mapStatetoProps, {
   fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
-  fetchTracks,
   hidePopup,
   addModal,
+  setTrackLength,
   showPopup,
   toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(debounceRender(withSocketConnection(Map), 100));
+)(withSocketConnection(Map));
 
 // Map.whyDidYouRender = true;
 

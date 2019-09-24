@@ -2,7 +2,7 @@ import React, { createContext, Fragment, memo, useRef, useState, useEffect } fro
 import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
-import { jumpToLocation, refreshMapImagesFromStore } from '../utils/map';
+
 import { trackEvent } from '../utils/analytics';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
@@ -30,7 +30,7 @@ export function withMap(Component) {
 };
 
 const EarthRangerMap = (props) => {
-  const { currentBaseLayer, children, mapImages, onMapLoaded, ...rest } = props;
+  const { currentBaseLayer, children, controls, onMapLoaded, ...rest } = props;
   const [map, setMap] = useState(null);
 
   
@@ -43,20 +43,6 @@ const EarthRangerMap = (props) => {
 
   const id = useRef(uuid());
 
-  const refreshImages = () => {
-    refreshMapImagesFromStore(map);
-  };
-
-  /**
-   * Need to manually zoom in/out here because a onControlClick event handler
-   * needed to be introduced to track the GA event, and having such an event
-   * handler somehow disables the default onControlClick that performs the
-   * zooming. 
-   * Using map.zoomIn and .zoomOut for animated zoom instead of jumpy 
-   * map.setZoom() function.
-   * @param {object} map      The map react-map-gl object.
-   * @param {number} zoomDiff The zoom difference value (+ve: zoom in, -ve: zoom out).
-   */
   const onZoomControlClick = (map, zoomDiff) => {
     zoomDiff > 0? 
       map.zoomIn({ level: map.getZoom() + zoomDiff }) :
@@ -70,7 +56,6 @@ const EarthRangerMap = (props) => {
         setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
       }
     }
-    map && setTimeout(refreshImages, 2000);
   }, [currentBaseLayer]);
 
   return <MapboxMap
@@ -84,8 +69,11 @@ const EarthRangerMap = (props) => {
         <RotationControl position='top-left'/>
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
-        <MapSettingsControl />
-        <MapBaseLayerControl />
+        <div className='map-controls-container'>
+          {controls}
+          <MapBaseLayerControl />
+          <MapSettingsControl />
+        </div>
         {children}
         <BaseLayerRenderer />
       </Fragment>}
@@ -93,8 +81,7 @@ const EarthRangerMap = (props) => {
   </MapboxMap>;
 };
 
-const mapStateToProps = ({ view: { currentBaseLayer }, data: { mapImages } }) => ({
-  mapImages,
+const mapStateToProps = ({ view: { currentBaseLayer }}) => ({
   currentBaseLayer,
 });
 

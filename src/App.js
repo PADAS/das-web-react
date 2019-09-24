@@ -117,7 +117,6 @@ const App = memo((props) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log('zendeskEnabled', zendeskEnabled)
     if (zendeskEnabled) {
       setZendeskInterval();
     }
@@ -127,7 +126,7 @@ const App = memo((props) => {
     if (map) {
       resizeInterval(map);
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   return (
@@ -150,4 +149,4 @@ const App = memo((props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
-export default connect(mapStateToProps, { fetchMaps, fetchAnalyzers, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);

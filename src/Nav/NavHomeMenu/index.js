@@ -36,10 +36,9 @@ const NavHomeMenu = function NavHomeMenu(props) {
           <Divider />
           <Item className={styles.currentLocationJump} 
             onClick={() => onCurrentLocationClick(userLocation)}>
-            <h6>
-              <GpsLocationIcon />
-            My Current Location
-            </h6>
+            <h5>
+              <GpsLocationIcon /> My Current Location
+            </h5>
           </Item>
         </Fragment>}
       </Menu>
@@ -55,7 +54,6 @@ export default connect(mapStateToProps, null)(memo(NavHomeMenu));
 
 NavHomeMenu.defaultProps = {
   onCurrentLocationClick() {
-    console.log('My Current Location click');
   },
 };
 

@@ -2,11 +2,7 @@
 
 .buttons {
   align-items: center;
-  bottom: 5.75rem;
   display: flex;
-  left: 0.65rem;
-  position: absolute;
-  z-index: 6;
   button + button {
     font-size: 0.75rem;
     margin-left: 0.25rem;

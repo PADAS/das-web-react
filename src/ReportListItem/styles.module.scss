@@ -7,9 +7,9 @@
   color: $primary-font-color;
   display: flex;
   line-height: normal;
-  padding: 0 1rem 0 0;
+  padding: 0 0.5rem 0 0;
   + .listItem {
-    border-top: 1px solid $medium-light-gray;
+    border-top: 1px solid $light-gray-border;
   }
   > * {
     padding: 0.75rem 0.5rem;
@@ -61,7 +61,8 @@ $colors in $priorities {
 .serialNumber {
   display: none;
   padding-left: 0.5rem;
-  padding-right: 0;
+  padding-right: 0.5rem;
+  color: $secondary-medium-gray;
   @media (min-width: $md-layout-width-min) {
     display: flex;
   }
@@ -71,9 +72,7 @@ $colors in $priorities {
   flex: 1;
   justify-content: flex-start;
   text-align: left;
-  &:hover {
-    text-decoration: underline;
-  }
+  outline: none;
 }
 
 .title, .icon {
@@ -88,18 +87,8 @@ $colors in $priorities {
   text-align: right;
 }
 
-
 .jump button {
-  background:  rgba($medium-light-gray, 0.15) url('../common/images/icons/marker-feed.svg') .7rem no-repeat;
-  background-size: 1rem;
-  border: none;
-  border-radius: .25rem;
-  height: 2.5rem;
-  padding: 0;
-  width: 2.5rem;
-  &:hover {
-    background-color: rgba(darken($medium-light-gray, 15%), 0.18);
-  }
+  @include jumpButton;
 }
 
 .resolved {

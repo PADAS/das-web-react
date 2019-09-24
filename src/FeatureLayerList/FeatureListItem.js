@@ -46,13 +46,13 @@ const FeatureListItem = memo((props) => {
 
   // XXX better way to do this?
   if( properties.analyzer_type) {
-    return <h6 className={listStyles.featureTitle}>
+    return <span className={listStyles.featureTitle}>
             {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton onButtonClick={onAnalyzerJumpButtonClick} />
-          </h6>; 
+          </span>; 
   } else {
-    return <h6 className={listStyles.featureTitle}>
+    return <span className={listStyles.featureTitle}>
             {properties.title} <LocationJumpButton onButtonClick={onJumpButtonClick} />
-          </h6>; 
+          </span>; 
   }
 });
 

@@ -91,6 +91,11 @@ export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
 
   if (!eventTypeFilterCount) return 'no report types';
   if (totalNumberOfEventTypes === eventTypeFilterCount) return 'all report types';
+  if (eventTypeFilterCount === 1) {
+    const eventTypeId = eventFilter.filter.event_type[0];
+    const eventType = eventTypes.find(eventType => eventType.id === eventTypeId);
+    if (eventType) return `"${eventType.display}" report type`;
+  }
   return `${eventTypeFilterCount} report types`;
 };
 
@@ -187,10 +192,30 @@ export const generateErrorListForApiResponseDetails = (response) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-      []);
+        []);
   } catch (e) {
     return [{ label: 'Unkown error' }];
   }
+};
+
+export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualDate) => ({
+  ...mapEventFeatureCollection,
+  features: mapEventFeatureCollection.features.filter((feature) => {
+    return new Date(virtualDate ? virtualDate : new Date()) - new Date(feature.properties.time) >= 0;
+  }),
+});
+
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (featureCollection, virtualDate, totalRangeDistance) => {
+  return {
+    ...featureCollection,
+    features: featureCollection.features.map((feature) => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
+      },
+    })),
+  };
 };
 
 
