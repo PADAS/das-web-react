@@ -9,7 +9,7 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import listStyles from '../SideBar/styles.module.scss';
 
-const FeatureListItem = memo((props) => {
+const FeatureListItem = (props) => {
   const { properties, map, geometry, showFeatures } = props;
 
   const onJumpButtonClick = () => {
@@ -25,6 +25,6 @@ const FeatureListItem = memo((props) => {
 return <span className={listStyles.featureTitle}>
     {properties.title} <LocationJumpButton onButtonClick={onJumpButtonClick} />
     </span>; 
-});
+};
 
-export default connect(null, { showFeatures })(FeatureListItem);
+export default connect(null, { showFeatures })(memo(FeatureListItem));
