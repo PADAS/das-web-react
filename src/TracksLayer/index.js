@@ -9,7 +9,7 @@ import TrackLayer from './track';
 
 const ARROW_IMG_ID = 'track_arrow';
 
-const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-timepoint'))[0];
+const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const TracksLayer = (props) => {
   const { map, onPointClick, trackIds, showTimepoints } = props;
