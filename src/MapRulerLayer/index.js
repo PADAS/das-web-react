@@ -51,9 +51,6 @@ const MapRulerLayer = (props) => {
     data: calcDataForGeoJsonLayer(),
   };
 
-  console.log('showLayer', showLayer);
-  console.log('popupCoords', popupCoords);
-
   if (!showLayer) return null;
 
   return <Fragment>
