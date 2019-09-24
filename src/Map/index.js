@@ -169,7 +169,7 @@ class Map extends Component {
   onClusterClick(e) {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
-    const clusterSource = this.props.map.getSource('events-data');
+    const clusterSource = this.props.map.getSource('events-data-clustered');
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
@@ -279,6 +279,8 @@ class Map extends Component {
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
+    const enableEventClustering = timeSliderActive ? false : true;
+
     return (
       <EarthRangerMap
         center={homeMap.center}
@@ -321,7 +323,7 @@ class Map extends Component {
             {/* <IsochroneLayer coords={[-109.36664693358205, -27.114147441540396]} /> */}
 
 
-            <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
+            <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
