@@ -22,9 +22,9 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
-  const combinedList = featureList.concat(analyzerList);
+  featureList.push(...analyzerList);
 
-  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...combinedList
+  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
       ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
@@ -108,7 +108,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
         open={collapsibleShouldBeOpen}>
         <CheckableList
           className={listStyles.list}
-          items={combinedList}
+          items={filteredFeatureList}
           itemProps={itemProps}
           itemFullyChecked={allVisibleInSet}
           itemPartiallyChecked={someVisibleInSet}
