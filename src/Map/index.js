@@ -28,7 +28,7 @@ import { LAYER_IDS } from '../constants';
 import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
-import SubjectsLayer from '../SubjectLayer';
+import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
@@ -92,6 +92,17 @@ class Map extends Component {
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
       this.fetchMapData();
+    }
+    if (!!this.props.timeSliderState.active && !!this.props.popup
+      && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
+      && this.props.popup.type === 'subject') {
+      const subjectMatch = this.props.mapSubjectFeatureCollection.features.find(item => item.properties.id === this.props.popup.data.properties.id);
+      if (subjectMatch) {
+        this.props.showPopup('subject', {
+          geometry: subjectMatch.geometry,
+          properties: subjectMatch.properties,
+        });
+      }
     }
   }
   setTrackLengthToEventFilterRange() {
