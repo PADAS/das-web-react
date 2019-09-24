@@ -12,6 +12,7 @@ import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength, fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
@@ -65,6 +66,7 @@ class Map extends Component {
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
+    this.currentAnalyzerIds = [];
   }
 
   shouldComponentUpdate(nextProps) {
@@ -132,6 +134,11 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
+      // XXX TD 
+      if (this.props.popup.type === 'analyzer-config') {
+        const { map } = this.props;
+        setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
+      }
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
@@ -146,20 +153,16 @@ class Map extends Component {
   }
 
   onAnalyzerGroupEnter = (e, groupIds) => {
+    this.currentAnalyzerIds = groupIds;
     const { map } = this.props;
-    groupIds.forEach( id => {
-      setAnalyzerFeatureActiveStateByID(map, id, true);
-    });
+    setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);
   }
 
   onAnalyzerGroupExit = (e, groupIds) => {
-    // XXX this is hacky, need a better way via state
-    // to inactivate features when popup is dismissed
+    // shortcircuit when the analyzer popup is displayed
     if (this.props.popup && this.props.popup.type === 'analyzer-config') return;
     const { map } = this.props;
-      groupIds.forEach( id => {
-        setAnalyzerFeatureActiveStateByID(map, id, false);
-      });
+    setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
   }
 
   onAnalyzerFeatureClick = (e) => {
