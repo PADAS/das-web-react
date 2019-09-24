@@ -60,6 +60,7 @@ export const LAYER_IDS = {
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',
+  ISOCHRONE_LAYER: 'isochrone',
 };
 
 export const DEFAULT_SYMBOL_LAYOUT = {

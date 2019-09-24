@@ -8,7 +8,6 @@ $thumb-color: lighten(#CCC, 15%);
 
 $thumb-radius: 2.25rem;
 $thumb-height: 2.75rem;
-$thumb-width: 8rem;
 $thumb-shadow-size: 0.0625rem;
 $thumb-shadow-blur: 0.0625rem;
 $thumb-shadow-color: #111;
@@ -37,11 +36,19 @@ $contrast: 25%;
   animate: 0.2s;
 }
 
+@mixin thumbWidth {
+  --thumb-width: 5rem;
+  @media (min-width: $lg-layout-width-min) {
+    --thumb-width: 8rem;
+  }
+}
+
 @mixin thumb {
+  @include thumbWidth;
   // @include shadow($thumb-shadow-size,$thumb-shadow-blur,$thumb-shadow-color);
   border: $thumb-border-width solid $thumb-border-color;
   height: $thumb-height;
-  width: $thumb-width;
+  width: var(--thumb-width);
   border-radius: $thumb-radius;
   background: $thumb-color;
   cursor: pointer;
@@ -49,19 +56,26 @@ $contrast: 25%;
 
 @import '../common/styles/buttons';
 
-
 .wrapper {
-  bottom: 1rem;
+  bottom: 4rem;
   display: flex;
   left: 6.5rem;
   position: absolute;
-  width: calc(100vw - 20rem);
-  z-index: 1000;
+  width: 70%;
+  z-index: 10;
+  @media (min-width: $md-layout-width-min) {
+    left: 3.5rem;
+    width: 84%;
+  }
+  @media (min-width: $lg-layout-width-min) {
+    left: 6.5rem;
+  }
 }
 
 .handle {
+  @include thumbWidth;
   align-items: center;
-  display: flex;
+  display: none;
   flex-flow: column;
   height: $thumb-height;
   justify-content: center;
@@ -70,9 +84,9 @@ $contrast: 25%;
   top: 0.15rem;
   width: 10rem;
   &::before {
-    background: url('../common/images/timeslider-bumper.png') bottom right/$thumb-width $thumb-height no-repeat;
+    background: url('../common/images/timeslider-bumper.png') bottom right/var(--thumb-width) $thumb-height no-repeat;
     content: '';
-    display: block;
+    display: none;
     height: 100%;
     position: absolute;
     top: 0;
@@ -90,15 +104,28 @@ $contrast: 25%;
   > * {
     @include unstyledButton;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.5rem;
     line-height: normal;
     position: relative;
     text-align: center;
   }
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
+    &::before {
+      display: block;
+    }
+    > * {
+      font-size: 0.7rem;
+    }
+  }
 }
 
 .handleDate {
+  display: none;
   font-size: 0.6rem;
+  @media (min-width: $lg-layout-width-min) {
+    display: initial;
+  }
 }
 
 .mapControl {
@@ -146,9 +173,10 @@ $contrast: 25%;
 
   &::-ms-track {
     @include track; 
+    @include thumbWidth;
     background: transparent;
     border-color: transparent;
-    border-width: $thumb-width 0;
+    border-width: var(--thumb-width) 0;
     color: transparent;
   }
 
@@ -176,6 +204,7 @@ $contrast: 25%;
 }
 
 .handleText {
+  @include thumbWidth;
   align-items: center;
   display: flex;
   flex-flow: column;
@@ -186,7 +215,7 @@ $contrast: 25%;
   pointer-events: none;
   top: 15%;
   white-space: nowrap;
-  width: $thumb-width;
+  width: var(--thumb-width);
 }
 
 .icon {
