@@ -20,7 +20,7 @@ import { getArrayOfVisibleHeatmapTracks, trimmedVisibleTrackFeatureCollection } 
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEvent } from '../utils/analytics';
 
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, clearMapFeaturesState  } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, clearMapItemsState  } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
 import { LAYER_IDS } from '../constants';
@@ -250,7 +250,9 @@ class Map extends Component {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
       trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength, 
-      timeSliderState: { active:timeSliderActive }, clearMapFeatures } = this.props;
+      timeSliderState: { active:timeSliderActive }, clearMapItems } = this.props;
+
+    console.log(clearMapItems);
 
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
@@ -318,7 +320,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, clearMapFeatures, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
+  const { homeMap, mapIsLocked, clearMapItems, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
     showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
 
   return ({
@@ -327,7 +329,7 @@ const mapStatetoProps = (state, props) => {
     tracks,
     homeMap,
     mapIsLocked,
-    clearMapFeatures,
+    clearMapItems,
     popup,
     eventFilter,
     subjectTrackState,
@@ -354,7 +356,7 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
-  clearMapFeaturesState,
+  clearMapItemsState,
 }
 )(withSocketConnection(Map));
 

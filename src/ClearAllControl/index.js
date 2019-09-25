@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { clearMapFeaturesState } from '../ducks/map-ui';
+import { hideFeatures, hideSubjects, clearMapItemsState } from '../ducks/map-ui';
+import { removeMapLayer } from '../utils/map'
+import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
+import { getFeatureLayerListState } from '../FeatureLayerList/selectors';
+import { getAllFeatureIDsInList } from '../utils/features';
 import { trackEvent } from '../utils/analytics';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
@@ -8,23 +12,37 @@ import styles from './styles.module.scss';
 
 const ClearAllControl = (props) => {
 
-  const { clearMapFeatures, clearMapFeaturesState, map } = props;
+  const { subjectGroups, featureList, map } = props;
 
-  console.log('clearAllControl', props);
-
-  const onClearAllClick = (e) => {
-    clearMapFeaturesState(true);
+  const clearAll = () => {
+    const subjectIDs = getUniqueSubjectGroupSubjectIDs(...subjectGroups);
+    props.hideSubjects(...subjectIDs);
+    const featureListIDs = getAllFeatureIDsInList(featureList);
+    props.hideFeatures(...featureListIDs);
+    removeMapLayer(map, 'event_symbols');
     trackEvent('Clear All', 'Click'); 
+  }
+  const onClearAllClick = (e) => {
+    clearAll();
   };
 
   return <div className={styles.clearAllRow}>
-    <CheckIcon style={{height: '1.5rem', width: '1.5rem', stroke: '#000', fill: '#fff'}} />
-    <a href="#" onClick={() => onClearAllClick()}>Clear All</a>
+    <div className={styles.clearAll}><CheckIcon style={{height: '1.5rem', width: '1.5rem', stroke: '#000', fill: '#fff'}} />
+    <a href="#" onClick={() => onClearAllClick()}>Clear All</a></div>
   </div>
 };
 
-const mapStateToProps = ( {view:{clearMapFeatures}} ) => {
-  return {clearMapFeatures};
+const mapStateToProps = (state) => {
+  const { data, view } = state;
+  const { clearMapItems } = view;
+  const { subjectGroups, mapEvents } = data;
+
+  return ({
+    clearMapItems,
+    subjectGroups,
+    featureList: getFeatureLayerListState(state),
+    mapEvents
+  });
 };
 
-export default connect(mapStateToProps, {clearMapFeaturesState}) (ClearAllControl);
+export default connect(mapStateToProps, { clearMapItemsState, hideSubjects, hideFeatures }) (ClearAllControl);

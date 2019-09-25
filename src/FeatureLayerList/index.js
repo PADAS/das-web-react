@@ -4,14 +4,13 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 
 import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
-import { hideFeatures, showFeatures } from '../ducks/map-ui';
+import { hideFeatures, showFeatures, clearMapItemsState} from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
-import ClearAllControl from '../ClearAllControl';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -22,7 +21,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 
 const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, 
-  hiddenFeatureIDs, map, mapLayerFilter }) => {
+  hiddenFeatureIDs, map, mapLayerFilter, clearMapItems }) => {
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
@@ -37,6 +36,12 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
 
   const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
   const showAllFeatures = () => showFeatures(...allFeatureIDs);
+
+  useEffect(() => {
+    if(clearMapItems) {
+      hideAllFeatures();
+    }
+  }, [clearMapItems]);
 
   const allVisible = !hiddenFeatureIDs.length;
   const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
@@ -116,14 +121,14 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
         />
       </Collapsible>
     </li>
-    <li><ClearAllControl /></li>
   </ul>;
 });
 
 const mapStateToProps = (state) => ({ 
   featureList: getFeatureLayerListState(state), 
   hiddenFeatureIDs: state.view.hiddenFeatureIDs, 
-  mapLayerFilter: state.data.mapLayerFilter 
+  mapLayerFilter: state.data.mapLayerFilter,
+  clearMapItems: state.view.clearMapItems
 });
 
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);
+export default connect(mapStateToProps, { hideFeatures, showFeatures, clearMapItemsState })(FeatureLayerList);

@@ -198,7 +198,6 @@ export const generateErrorListForApiResponseDetails = (response) => {
   }
 };
 
-
 /*
 {
   state: Array<String> | of ‘new’, ‘active’, ‘resolved’,

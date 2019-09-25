@@ -69,6 +69,7 @@ const SideBar = memo((props) => {
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
           <MapLayerFilter />
+          <ClearAllControl map={map} />
           <div className={styles.mapLayers}>
             <SubjectGroupList map={map} />
             <FeatureLayerList map={map} />

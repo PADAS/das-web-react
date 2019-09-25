@@ -3,6 +3,7 @@ import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
+import { featureSets } from '../selectors';
 
 const { FEATURE_FILLS, FEATURE_LINES } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
@@ -87,3 +88,10 @@ export const filterFeatures = (f, isMatch) => {
   }
   return newF;
 };
+
+export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(...featureList
+  .reduce((accumulator, { featuresByType }) =>
+    [...accumulator,
+    ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+    ], [])
+);

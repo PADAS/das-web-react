@@ -4,13 +4,20 @@ $checkmark-color: $medium-light-gray;
 $hover-color: darken($checkmark-color, 12.5%);
 
 .clearAllRow {
-    background-color: #fff;
-    vertical-align: bottom;
+    background-color: #ccc;
+    width:100%;
+    text-align:left;
+    padding-left: 1rem;
+    a {
+        margin-left: .5rem;
+    }
 }
 
 .checkmark {
     --dimensions: 1.5rem;
-    stroke: #000;
-    fill: #fff;
-    stroke-width: 1;
+    fill: none;
+    flex-shrink: 0;
+    height: --dimensions;
+    stroke: rgb(71, 97, 184);
+    stroke-width: calc(var(--dimensions)/6);
 }

@@ -80,7 +80,7 @@ export const toggleTrackTimepointState = () => ({
   type: TOGGLE_TRACK_TIMEPOINTS,
 });
 
-export const clearMapFeaturesState = (enabled) => ({
+export const clearMapItemsState = (enabled) => ({
   type: CLEAR_ALL_MAP_FEATURES,
   payload: enabled,
 })
@@ -152,7 +152,7 @@ export const mapLockStateReducer = (state = false, action) => {
   return state;
 };
 
-export const clearMapFeaturesReducer = (state = false, action) => {
+export const clearMapItemsReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === CLEAR_ALL_MAP_FEATURES) return payload;
   return state;

@@ -155,6 +155,13 @@ export const lockMap = (map, isLocked) => {
   }
 };
 
+export const removeMapLayer = (map, layerId, sourceId) => {
+  // TODO - find a way to find all of the map dependencies, and remove
+  // them. For example, clusters create a dependency on the source of an event,
+  // so you cant remove the event source without knowing the name of it
+  map.removeLayer(layerId);
+};
+
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>
   // 0.20115532905502917 is for a max zoom of 18,
   // use the code snippet below to change this formula if our MAX_ZOOM configuration changes

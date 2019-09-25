@@ -4,17 +4,16 @@ import { connect } from 'react-redux';
 
 import isEqual from 'react-fast-compare';
 
-import { hideSubjects, showSubjects } from '../ducks/map-ui';
-import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
+import { hideSubjects, showSubjects, clearMapItemsState } from '../ducks/map-ui';
+import { getUniqueSubjectGroupSubjects, getUniqueSubjectGroupSubjectIDs, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
 import listStyles from '../SideBar/styles.module.scss';
 
-
 const SubjectGroupList = memo((props) => {
-  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
+  const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, clearMapItems, map } = props;
 
   const [searchText, setSearchTextState] = useState('');
   const [subjectFilterEnabled, setSubjectFilterEnabledState] = useState(false);
@@ -42,6 +41,14 @@ const SubjectGroupList = memo((props) => {
       return showSubjects(...subjectIDs);
     }
   };
+
+  useEffect( () => {
+    if(clearMapItems) {
+      console.log('clear map subject items')
+      const subjectIDs = getUniqueSubjectGroupSubjectIDs(...subjectGroups);
+      hideSubjects(...subjectIDs);
+    }
+  }, [clearMapItems]);
 
   useEffect(() => {
     const filterText = mapLayerFilter.filter.text || '';
@@ -86,9 +93,9 @@ const SubjectGroupList = memo((props) => {
     isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
 );
 
-const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) => 
-  ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
-export default connect(mapStateToProps, { hideSubjects, showSubjects })(SubjectGroupList);
+const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs, clearMapItems } }) => 
+  ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs, clearMapItems });
+export default connect(mapStateToProps, { hideSubjects, showSubjects, clearMapItemsState })(SubjectGroupList);
 
 SubjectGroupList.defaultProps = {
   map: {},
