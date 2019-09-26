@@ -302,6 +302,7 @@ class Map extends Component {
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
+              allowOverlap={timeSliderActive}
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
