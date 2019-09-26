@@ -2,11 +2,13 @@ import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
-
-import { store } from '../';
-
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
+
+const emptyFeatureCollection = {
+  'type': 'FeatureCollection',
+  'features': []
+};
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
@@ -56,12 +58,19 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
   return results;
 };
 
-const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
+export const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
   item[key] = item[key] || {};
   item[key].properties = item[key].properties || {};
   item[key].properties.id = item.id;
   return item;
 });
+
+export const filterInactiveRadiosFromCollection = (subjects) => {
+  if (subjects && subjects.features.length) {
+    return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
+  }
+  return emptyFeatureCollection;
+};
 
 const addTitleToGeoJson = (geojson, title) => (geojson.properties.display_title = title) && geojson;
 

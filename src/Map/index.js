@@ -11,7 +11,7 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength, fetchTracks } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer, filterInactiveRadiosFromCollection } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
@@ -20,7 +20,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, toggleShowInactiveRadioState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
 import { LAYER_IDS } from '../constants';
@@ -260,13 +260,17 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, timeSliderState: { active:timeSliderActive } } = this.props;
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, 
+      timeSliderState: { active:timeSliderActive }, showInactiveRadios } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackIds && !!trackIds.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
+
+    const filteredMapSubjectsCollection =  showInactiveRadios ? mapSubjectFeatureCollection :
+      filterInactiveRadiosFromCollection(mapSubjectFeatureCollection);
 
     return (
       <EarthRangerMap
@@ -289,7 +293,7 @@ class Map extends Component {
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
-              subjects={mapSubjectFeatureCollection}
+              subjects={filteredMapSubjectsCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
@@ -337,7 +341,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
-    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
+    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin }, showInactiveRadios } = view;
 
   return ({
     maps,
@@ -349,6 +353,7 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
+    showInactiveRadios,
     timeSliderState,
     trackIds: displayedSubjectTrackIDs(state),
     trackLength,
@@ -371,6 +376,7 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
+  toggleShowInactiveRadioState
 }
 )(withSocketConnection(Map));
 
