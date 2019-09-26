@@ -49,7 +49,7 @@ const TimeSlider = (props) => {
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const PopoverContent = <Popover className={styles.popover}>
-    <Title>Date Range</Title>
+    <Title className={styles.popoverTitle}><ClockIcon /> Date Range</Title>
     <Content className={styles.popoverBody}>
       <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
     </Content>

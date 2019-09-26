@@ -240,6 +240,23 @@ $contrast: 25%;
   width: 24rem;
 }
 
+.popoverTitle {
+  align-items: center;
+  background: $highlight-color;
+  color: white;
+  display: flex;
+  padding: 1rem;
+  * {
+    color: white;
+    stroke: white;
+  }
+  svg {
+    height: 1.5rem;
+    margin-right: 1rem;
+    width: 1.5rem;
+  }
+}
+
 .popoverBody {
   padding: 1rem 0 0;
 }
