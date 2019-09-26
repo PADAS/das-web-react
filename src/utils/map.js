@@ -58,7 +58,7 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
   return results;
 };
 
-export const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
+const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
   item[key] = item[key] || {};
   item[key].properties = item[key].properties || {};
   item[key].properties.id = item.id;
