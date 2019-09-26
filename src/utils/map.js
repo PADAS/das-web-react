@@ -155,6 +155,10 @@ export const lockMap = (map, isLocked) => {
   }
 };
 
+export const displayInactiveRadios = (map, display) => {
+
+};
+
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>
   // 0.20115532905502917 is for a max zoom of 18,
   // use the code snippet below to change this formula if our MAX_ZOOM configuration changes
