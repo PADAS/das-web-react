@@ -18,13 +18,14 @@
 
   .nullMessage, [class*=react-datetime-picker__wrapper] {
     align-items: center;
-    border: 1px solid gray;
     display: flex;
     font-size: 0.75rem;
     height: 2rem;
     padding: 0.25rem;
   }
   .nullMessage {
+    border: 1px solid $light-gray-border;
+    color: $link-color;
     position: absolute;
     + [class*=react-datetime-picker--closed] {
       opacity: 0;
