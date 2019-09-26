@@ -29,6 +29,14 @@ export const getCoordinatesForEvent = evt => evt.geojson
   && evt.geojson.geometry
   && evt.geojson.geometry.coordinates;
 
+
+export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
+
+export const getCoordinatesForCollection = collection => collection.contains &&
+  collection.contains
+    .map(contained => getCoordinatesForEvent(contained.related_event))
+    .filter(item => !!item);
+
 export const eventHasLocation = (evt) => {
   if (evt.is_collection) {
     return evt.contains && evt.contains.some(contained => !!getCoordinatesForEvent(contained.related_event));

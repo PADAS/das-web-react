@@ -16,15 +16,30 @@ $square-button-border-radius: .25rem;
 }
 
 @mixin jumpButton {
-  background:  rgba($medium-light-gray, 0.15) url('../images/icons/marker-feed.svg') .6rem no-repeat;
-  background-size: 1rem;
+  background:  rgba($medium-light-gray, 0.15);
   border: none;
   border-radius: $square-button-border-radius;
   height: $square-button-dimension;
   padding: 0;
+  position: relative;
   width: $square-button-dimension;
   &:hover {
     background-color: rgba(darken($medium-light-gray, 15%), 0.18);
+  }
+}
+
+@mixin multiJumpButton {
+  @include jumpButton;
+  svg {
+    left: 12.5%;
+    position: absolute;
+    top: 12.5%;
+    + svg {
+      bottom: 12.5%;
+      left: unset;
+      right: 12.5%;
+      top: unset;
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 import { jumpToLocation } from '../utils/map';
 
-import { getCoordinatesForEvent } from '../utils/events';
+import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations } from '../utils/events';
 import { displayTitleForEventByEventType } from '../utils/events';
 import { trackEvent } from '../utils/analytics';
 
@@ -14,17 +14,17 @@ import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
   const { map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, ...rest } = props;
-  const coordinates = getCoordinatesForEvent(report);
+  
+  const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
+  const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 
   const iconClickHandler = onIconClick || onTitleClick;
 
-  const onJumpButtonClick = (map, coordinates, zoom) => {
-    // Need to handle the JumpButtonClick here instead of allowing the default
-    // LocationJumpButton handler because we need to distinguish the GA event.
-    trackEvent('Map Layers', 'Click Jump To Report Location button', 
+  const onJumpButtonClick = () => {
+    trackEvent('Map Layers', 'Click Jump To Report Location button',
       `Report Type:${report.event_type}`);
-    jumpToLocation(map, coordinates, zoom);
-  }
+    jumpToLocation(map, coordinates);
+  };
 
   return <li className={`${styles.listItem} ${styles[`priority-${report.priority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}><EventIcon iconId={report.icon_id} /></button>
@@ -34,11 +34,8 @@ const ReportListItem = (props) => {
       <DateTime date={report.updated_at || report.time} />
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
-    {coordinates && showJumpButton &&
-      <div className={styles.jump}>
-        <LocationJumpButton coordinates={coordinates} map={map} 
-          onButtonClick={onJumpButtonClick}/>
-      </div>
+    {coordinates && !!coordinates.length && showJumpButton &&
+      <LocationJumpButton isMulti={hasMultipleLocations} onButtonClick={onJumpButtonClick} />
     }
   </li>;
 };

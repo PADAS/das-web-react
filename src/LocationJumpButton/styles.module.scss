@@ -3,3 +3,7 @@
 .jump {
   @include jumpButton;
 }
+
+.multi {
+  @include multiJumpButton;
+}
