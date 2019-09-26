@@ -13,6 +13,8 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 
 import styles from './styles.module.scss';
 
+const { Title, Content } = Popover;
+
 const TimeSlider = (props) => {
   const { timeSliderState, since, until, clearVirtualDate, setVirtualDate } = props;
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
@@ -47,7 +49,10 @@ const TimeSlider = (props) => {
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const PopoverContent = <Popover className={styles.popover}>
-    <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
+    <Title>Date Range</Title>
+    <Content className={styles.popoverBody}>
+      <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
+    </Content>
   </Popover>;
 
   return <div className={styles.wrapper}>

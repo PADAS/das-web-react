@@ -3,8 +3,6 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
 
-import { store } from '../';
-
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
 
@@ -154,8 +152,8 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
   };
 };
 
-export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
-export const unbindGetMapCoordinatesOnClick = (map, fn) => map.off('click', fn);
+export const bindMapClickFunction = (map, fn) => map.on('click', fn);
+export const unbindMapClickFunction = (map, fn) => map.off('click', fn);
 
 export const lockMap = (map, isLocked) => {
   const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];

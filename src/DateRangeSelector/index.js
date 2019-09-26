@@ -29,37 +29,30 @@ const DateRangeSelector = (props) => {
   const showEndNullMessage = !requireEnd && !endOpen && !endDate && !!endDateNullMessage;
 
   return <div className={className || ''}>
-    <label className={styles.label}>
-      <span>{startDateLabel}</span>
-      <span className={styles.wrapper}>
-        {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-        <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={startOpen}/*  clearIcon={null} */ onClockOpen={onStartOpen} onCloseClose={onStartClose} onCalendarOpen={onStartOpen} onCalendarClose={onStartClose} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
-      </span>
-    </label>
-    {children}
-    <label className={styles.label}>
-      <span>{endDateLabel}</span>
-      <span className={styles.wrapper}>
-        {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-        <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={endOpen}/*  clearIcon={null} */ onClockOpen={onEndOpen} onCloseClose={onEndClose} onCalendarOpen={onEndOpen} onCalendarClose={onEndClose} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur}/>
-      </span>
-    </label>
+    <div className={styles.dateSelectorWrapper}>
+      <label className={styles.label}>
+        <span>{startDateLabel}</span>
+        <span>
+          {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={startOpen} calendarIcon={null} onClockOpen={onStartOpen} onCloseClose={onStartClose} onCalendarOpen={onStartOpen} onCalendarClose={onStartClose} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
+        </span>
+      </label>
+      <span className={styles.dateRangeArrow}>⇨</span>
+      {children}
+      <label className={styles.label}>
+        <span>{endDateLabel}</span>
+        <span>
+          {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={endOpen} calendarIcon={null} onClockOpen={onEndOpen} onCloseClose={onEndClose} onCalendarOpen={onEndOpen} onCalendarClose={onEndClose} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur} />
+        </span>
+      </label>
+    </div>
 
     {showPresets && <div className={styles.presets}>
       <Button variant='info' onClick={() => onDateRangeChange({
-        lower: generateMonthsAgoDate(3),
+        lower: generateDaysAgoDate(0),
         upper: null,
-      })}>Last three months</Button>
-
-      <Button variant='info' onClick={() => onDateRangeChange({
-        lower: generateDaysAgoDate(30),
-        upper: null,
-      })}>Last 30 days</Button>
-
-      <Button variant='info' onClick={() => onDateRangeChange({
-        lower: generateWeeksAgoDate(1),
-        upper: null,
-      })}>Last week</Button>
+      })}>Today</Button>
 
       <Button variant='info' onClick={() => onDateRangeChange({
         lower: generateDaysAgoDate(1),
@@ -67,10 +60,19 @@ const DateRangeSelector = (props) => {
       })}>Yesterday</Button>
 
       <Button variant='info' onClick={() => onDateRangeChange({
-        lower: generateDaysAgoDate(0),
+        lower: generateWeeksAgoDate(1),
         upper: null,
-      })}>Today</Button>
+      })}>Last week</Button>
 
+      <Button variant='info' onClick={() => onDateRangeChange({
+        lower: generateDaysAgoDate(30),
+        upper: null,
+      })}>Last 30 days</Button>
+
+      <Button variant='info' onClick={() => onDateRangeChange({
+        lower: generateMonthsAgoDate(3),
+        upper: null,
+      })}>Last three months</Button>
     </div>}
   </div>;
 };

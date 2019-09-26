@@ -57,14 +57,13 @@ $contrast: 25%;
 @import '../common/styles/buttons';
 
 .wrapper {
-  bottom: 4rem;
+  bottom: 0.5rem;
   display: flex;
-  left: 6.5rem;
+  left: 4.5rem;
   position: absolute;
-  width: 70%;
+  width: 72%;
   z-index: 10;
   @media (min-width: $md-layout-width-min) {
-    left: 3.5rem;
     width: 84%;
   }
   @media (min-width: $lg-layout-width-min) {
@@ -237,7 +236,12 @@ $contrast: 25%;
   display: flex;
   flex-flow: column;
   max-width: unset;
-  width: 14rem;
+  padding: 0;
+  width: 24rem;
+}
+
+.popoverBody {
+  padding: 1rem 0 0;
 }
 
 .activeIcon {

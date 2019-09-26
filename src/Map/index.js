@@ -9,7 +9,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import { fetchMapSubjects } from '../ducks/subjects';
 import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
-import { TRACK_LENGTH_ORIGINS, setTrackLength, fetchTracks } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
@@ -284,7 +284,7 @@ class Map extends Component {
     return (
       <EarthRangerMap
         center={homeMap.center}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />

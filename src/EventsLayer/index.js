@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect } from 'react';
+import React, { Fragment, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
@@ -51,16 +51,20 @@ const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
 
-  useEffect(() => {
-    !!events && addFeatureCollectionImagesToMap(events, map);
-  }, [events]);
-
-  const handleEventClick = (e) => {
+  const handleEventClick = useRef((e) => {
     e.preventDefault();
     e.originalEvent.stopPropagation();
     const clickedLayer = getEventLayer(e, map);
     onEventClick(clickedLayer);
-  };
+  });
+
+  useEffect(() => {
+    !!events && addFeatureCollectionImagesToMap(events, map);
+    map.on('click', EVENT_SYMBOLS, handleEventClick.current);
+    return () => {
+      map.off('click', EVENT_SYMBOLS, handleEventClick.current); // eslint-disable-line
+    };
+  }, [events, map]);
 
   const eventClusterDisabledLayout = enableClustering ? {} : {
     'icon-allow-overlap': true,
@@ -95,12 +99,12 @@ const EventsLayer = (props) => {
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
 
     {!enableClustering && <Layer geoJSONSourceOptions={clusterConfig} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
-      onClick={handleEventClick} paint={eventSymbolLayerPaint}
+      paint={eventSymbolLayerPaint}
       layout={eventSymbolLayerLayout} {...rest} />}
 
     {enableClustering && <Layer geoJSONSourceOptions={clusterConfig} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
       filter={['!has', 'point_count']}
-      onClick={handleEventClick} paint={eventSymbolLayerPaint}
+      paint={eventSymbolLayerPaint}
       layout={eventSymbolLayerLayout} {...rest} />}
 
 
@@ -112,7 +116,7 @@ const EventsLayer = (props) => {
   </Fragment>;
 };
 
-export default memo(withMapNames(withMap(EventsLayer)));
+export default withMapNames(withMap(memo(EventsLayer)));
 
 EventsLayer.defaultProps = {
   onClusterClick() {
