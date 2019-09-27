@@ -46,3 +46,9 @@
   width: 20rem;
   z-index: 11;
 }
+
+.timeslider-active {
+  .mapbox-scale-ctrl {
+    display: none !important;
+  }
+}

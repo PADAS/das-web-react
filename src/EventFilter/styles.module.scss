@@ -96,7 +96,7 @@ div.filterPopover {
   width: 90vw;
   [class*=popover-body] {
     max-height: unset;
-    padding-top: 0;
+    padding: 0;
   }
   [class*=Collapsible__trigger] {
     cursor: pointer;
@@ -215,7 +215,8 @@ div.filterPopover {
 
 .openedFilterDrawer {
   [class*=Collapsible__contentOuter] {
-    min-height: 20rem;
+    // min-height: 20rem;
+    height: 70vh;
     max-height: 24rem;
     overflow-y: auto !important;
   }

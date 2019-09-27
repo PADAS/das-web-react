@@ -1,26 +1,44 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
+import Button from 'react-bootstrap/Button';
 import { format } from 'date-fns';
 import TimeAgo from 'react-timeago';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import isEqual from 'react-fast-compare';
 
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
+import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { trackEvent } from '../utils/analytics';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
 
+const { Title, Content } = Popover;
+
 const TimeSlider = (props) => {
-  const { timeSliderState, since, until, clearVirtualDate, setVirtualDate } = props;
+  const { timeSliderState, since, until, clearVirtualDate, setVirtualDate, updateEventFilter } = props;
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
   const handleTextRef = useRef(null);
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
   const endDate = until ? new Date(until) : new Date();
+  
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
+
+  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, { lower: since, upper: until });
+  const clearDateRange = (e) => {
+    e.stopPropagation();
+    updateEventFilter({
+      filter: {
+        date_range: INITIAL_FILTER_STATE.filter.date_range,
+      },
+    });
+    trackEvent('Feed', 'Click Reset Date Range Filter');
+  };
   
   const value = (currentDate - startDate) / (endDate - startDate);
   const handleOffset = ((handleTextRef && handleTextRef.current && handleTextRef.current.offsetWidth) || 0) * value;
@@ -47,7 +65,14 @@ const TimeSlider = (props) => {
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const PopoverContent = <Popover className={styles.popover}>
-    <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
+    <Title className={styles.popoverTitle}>
+      <ClockIcon />
+      Date Range
+      <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
+    </Title>
+    <Content className={styles.popoverBody}>
+      <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
+    </Content>
   </Popover>;
 
   return <div className={styles.wrapper}>
@@ -79,4 +104,4 @@ const mapStatetoProps = ({ view: { timeSliderState }, data: { eventFilter: { fil
   until: date_range.upper,
 });
 
-export default connect(mapStatetoProps, { clearVirtualDate, setVirtualDate })(memo(TimeSlider));
+export default connect(mapStatetoProps, { clearVirtualDate, setVirtualDate, updateEventFilter })(memo(TimeSlider));
