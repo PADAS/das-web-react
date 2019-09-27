@@ -15,6 +15,7 @@ import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
+import ClearTracksControl from '../ClearTracksControl';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -72,6 +73,9 @@ const SideBar = memo((props) => {
             <SubjectGroupList map={map} />
             <FeatureLayerList map={map} />
             <div className={styles.noItems}>No items to display.</div>
+          </div>
+          <div className={styles.mapLayerFooter}>
+            <ClearTracksControl />
           </div>
         </Tab>
       </Tabs>

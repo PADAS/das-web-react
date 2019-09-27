@@ -1,0 +1,13 @@
+@import '../common/styles/vars/colors';
+
+.clearTracks {
+    float: right;
+    padding-right: 1rem;
+    img {
+        height: 1.5rem;
+    }
+    a {
+        vertical-align: middle;
+        margin-left: .5rem;
+    }
+}
