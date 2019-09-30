@@ -9,23 +9,27 @@ import { getFeedEvents } from '../selectors';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
+import { setReportHeatmapVisibility } from '../ducks/map-ui';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
+import HeatmapToggleButton from '../HeatmapToggleButton';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
-const SideBar = memo((props) => {
-  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;
+const SideBar = (props) => {
+  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const addReportContainerRef = useRef(null);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
+
+  const toggleReportHeatmapVisibility = () => setReportHeatmapVisibility(!reportHeatmapVisible);
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
@@ -34,8 +38,8 @@ const SideBar = memo((props) => {
 
   const onTabsSelect = (eventKey) => {
     let tabTitles = {
-      "reports": "Reports",
-      "layers": "Map Layers",
+      'reports': 'Reports',
+      'layers': 'Map Layers',
     };
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
@@ -44,7 +48,7 @@ const SideBar = memo((props) => {
     setEventLoadState(true);
     fetchEventFeed({}, calcEventFilterForRequest())
       .then(() => setEventLoadState(false));
-  }, [eventFilter]);
+  }, [eventFilter, fetchEventFeed]);
 
   if (!map) return null;
 
@@ -56,7 +60,9 @@ const SideBar = memo((props) => {
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
-          <EventFilter />
+          <EventFilter>
+            <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible}  />
+          </EventFilter>
           <EventFeed
             hasMore={!!events.next}
             map={map}
@@ -77,15 +83,16 @@ const SideBar = memo((props) => {
       </Tabs>
     </aside>
   );
-});
+};
 
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
+  reportHeatmapVisible: state.view.showReportHeatmap,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage })(SideBar);
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, setReportHeatmapVisibility })(memo(SideBar));
 
 SideBar.propTypes = {
   events: PropTypes.shape({

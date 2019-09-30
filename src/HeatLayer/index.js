@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Layer, Source } from 'react-mapbox-gl';
@@ -7,10 +7,13 @@ import centroid from '@turf/centroid';
 import { LAYER_IDS, MAX_ZOOM } from '../constants';
 
 import { metersToPixelsAtMaxZoom } from '../utils/map';
+import { uuid } from '../utils/string';
 
 const { HEATMAP_LAYER, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const HeatLayer = ({ heatmapStyles, points }) => {
+  const idRef = useRef(uuid());
+
   if (!points.features.length) return null;
 
   const { geometry: { coordinates: [, latitude] } } = centroid(points);
@@ -32,8 +35,8 @@ const HeatLayer = ({ heatmapStyles, points }) => {
   };
 
   return <Fragment>
-    <Source id='heatmap-source' geoJsonSource={sourceData} />;
-    <Layer sourceId='heatmap-source'  paint={paint} before={SUBJECT_SYMBOLS} id={HEATMAP_LAYER} type="heatmap" />
+    <Source id={`heatmap-source-${idRef.current}`} geoJsonSource={sourceData} />;
+    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={SUBJECT_SYMBOLS} id={`${HEATMAP_LAYER}-${idRef.current}`} type="heatmap" />
   </Fragment>;
 };
 

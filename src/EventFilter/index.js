@@ -29,7 +29,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const EventFilter = (props) => {
-  const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
+  const { children, eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -202,6 +202,7 @@ const EventFilter = (props) => {
     </OverlayTrigger>
     <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
       onChange={onSearchChange} onClear={onSearchClear} />
+    {children}
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 };

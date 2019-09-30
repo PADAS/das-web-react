@@ -63,7 +63,7 @@ const bindDirectMapEventing = (map) => {
 };
 
 
-const App = memo((props) => {
+const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
@@ -143,8 +143,8 @@ const App = memo((props) => {
       </div>
     </div>
   );
-});
+};
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));

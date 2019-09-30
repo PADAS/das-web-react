@@ -14,13 +14,21 @@ const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
 
-const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
-
+const UPDATE_SUBJECT_HEATMAP_STATE = 'UPDATE_SUBJECT_HEATMAP_STATE';
 const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
+
+const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
 const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
 
+
+
 // action creators
+export const setReportHeatmapVisibility = (show) => ({
+  type: SET_REPORT_HEATMAP_VISIBILITY,
+  payload: show,
+})
+
 export const updateHeatmapConfig = (config) => ({
   type: UPDATE_HEATMAP_CONFIG,
   payload: config,
@@ -57,7 +65,7 @@ export const removeHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => 
 };
 
 export const updateHeatmapSubjects = (update) => ({
-  type: UPDATE_HEATMAP_SUBJECT_STATE,
+  type: UPDATE_SUBJECT_HEATMAP_STATE,
   payload: update,
 });
 
@@ -110,6 +118,15 @@ export const updateTrackState = (update) => ({
 });
 
 // reducers
+const INITIAL_REPORT_HEATMAP_STATE = false;
+export const reportHeatmapStateReducer = (state = INITIAL_REPORT_HEATMAP_STATE, action) => {
+  const { type, payload } = action;
+  if (type === SET_REPORT_HEATMAP_VISIBILITY) return payload;
+  return state;
+};
+
+
+
 const INITIAL_HEATMAP_STYLE_STATE = {
   radiusInMeters: 500,
   intensity: 0.2,
@@ -122,7 +139,7 @@ export const heatmapStyleConfigReducer = (state = INITIAL_HEATMAP_STYLE_STATE, a
 
 export const heatmapSubjectIDsReducer = (state = [], action) => {
   const { type, payload } = action;
-  if (type === UPDATE_HEATMAP_SUBJECT_STATE) return payload;
+  if (type === UPDATE_SUBJECT_HEATMAP_STATE) return payload;
   return state;
 };
 
