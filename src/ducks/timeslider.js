@@ -1,7 +1,6 @@
 const SET_VIRTUAL_DATE = 'SET_VIRTUAL_DATE';
 const CLEAR_VIRTUAL_DATE = 'CLEAR_VIRTUAL_DATE';
-const HIDE_TIME_SLIDER = 'HIDE_TIME_SLIDER';
-const SHOW_TIME_SLIDER = 'SHOW_TIME_SLIDER';
+const SET_ACTIVE_STATE = 'SET_ACTIVE_STATE';
 
 export const setVirtualDate = (date) => ({
   type: SET_VIRTUAL_DATE,
@@ -10,6 +9,11 @@ export const setVirtualDate = (date) => ({
 
 export const clearVirtualDate = () => ({
   type: CLEAR_VIRTUAL_DATE,
+});
+
+export const setTimeSliderState = state => ({
+  type: SET_ACTIVE_STATE,
+  payload: state,
 });
 
 const INITIAL_STATE = {
@@ -30,11 +34,8 @@ export default (state = INITIAL_STATE, { type, payload }) => {
       virtualDate: null,
     };
   }
-  if (type === HIDE_TIME_SLIDER) {
-    return INITIAL_STATE;
-  }
-  if (type === SHOW_TIME_SLIDER) { 
-    return {
+  if (type === SET_ACTIVE_STATE) {
+    return !payload ? INITIAL_STATE : {
       ...state,
       active: true,
     };

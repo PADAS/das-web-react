@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import uniq from 'lodash/uniq';
 import isEqual from 'react-fast-compare';
-import debounceRender from 'react-debounce-render';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
@@ -12,12 +11,13 @@ import { fetchMapEvents } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { addFeatureCollectionImagesToMap, cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { getMapEventFeatureCollection, getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getArrayOfVisibleHeatmapTracks, trimmedVisibleTrackFeatureCollection } from '../selectors/tracks';
+import { getFeatureSetFeatureCollectionsByType } from '../selectors';
+import { getArrayOfVisibleHeatmapTracks, displayedSubjectTrackIDs } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, clearMapItemsState  } from '../ducks/map-ui';
@@ -28,8 +28,8 @@ import { LAYER_IDS } from '../constants';
 import withSocketConnection from '../withSocketConnection';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
-import SubjectsLayer from '../SubjectLayer';
-import TrackLayers from '../TrackLayer';
+import SubjectsLayer from '../SubjectsLayer';
+import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
@@ -38,6 +38,8 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
+import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
+import IsochroneLayer from '../IsochroneLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -88,6 +90,20 @@ class Map extends Component {
     if (!isEqual(prev.trackLength, this.props.trackLength)) {
       this.onTrackLengthChange();
     }
+    if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
+      this.fetchMapData();
+    }
+    if (!!this.props.timeSliderState.active && !!this.props.popup
+      && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
+      && this.props.popup.type === 'subject') {
+      const subjectMatch = this.props.mapSubjectFeatureCollection.features.find(item => item.properties.id === this.props.popup.data.properties.id);
+      if (subjectMatch) {
+        this.props.showPopup('subject', {
+          geometry: subjectMatch.geometry,
+          properties: subjectMatch.properties,
+        });
+      }
+    }
   }
   setTrackLengthToEventFilterRange() {
     this.props.setTrackLength(differenceInCalendarDays(
@@ -108,12 +124,17 @@ class Map extends Component {
     return toggleMapLockState();
   }
 
-  fetchMapData() {
-    this.fetchMapSubjects();
+  async fetchMapData() {
     this.fetchMapEvents();
+    await this.fetchMapSubjects();
+    if (this.props.timeSliderState.active) {
+      fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
+        .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
+        .map(({ properties: { id } }) => id));
+    }
   }
   fetchMapSubjects() {
-    this.props.fetchMapSubjects(this.props.map);
+    return this.props.fetchMapSubjects(this.props.map);
   }
   fetchMapEvents() {
     this.props.fetchMapEvents(this.props.map);
@@ -148,7 +169,7 @@ class Map extends Component {
   onClusterClick(e) {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
-    const clusterSource = this.props.map.getSource('events-data');
+    const clusterSource = this.props.map.getSource('events-data-clustered');
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
@@ -221,6 +242,7 @@ class Map extends Component {
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   }
   setMap(map) {
+    window.map = map;
     this.props.onMapLoad(map);
     this.onMapMoveEnd();
   }
@@ -249,22 +271,26 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackCollection, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, trackLength, 
-      timeSliderState: { active:timeSliderActive }, clearMapItems } = this.props;
-
-    console.log(clearMapItems);
-
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, 
+      timeSliderState: { active:timeSliderActive } } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
-    const tracksAvailable = !!trackCollection && !!trackCollection.features.length;
+    const tracksAvailable = !!trackIds && !!trackIds.length;
     const subjectHeatmapAvailable = !!heatmapTracks.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
+    const enableEventClustering = timeSliderActive ? false : true;
+
     return (
       <EarthRangerMap
         center={homeMap.center}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
+        controls={<Fragment>
+          <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
+          <MapRulerControl />
+          <TimeSliderMapControl />
+        </Fragment>}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
@@ -277,6 +303,7 @@ class Map extends Component {
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
+              allowOverlap={timeSliderActive}
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
@@ -291,10 +318,14 @@ class Map extends Component {
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
 
             {tracksAvailable && (
-              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackLength={trackLength} trackCollection={trackCollection} />
+              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackIds={trackIds} />
             )}
 
-            <EventsLayer events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
+            {/* uncomment the below coordinates and go to easter island for a demo of the isochrone layer */}
+            {/* <IsochroneLayer coords={[-109.36664693358205, -27.114147441540396]} /> */}
+
+
+            <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
@@ -305,12 +336,12 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-            <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
-            <MapRulerControl />
+            
           </Fragment>
         )}
 
         {timeSliderActive && <TimeSlider />}
+
 
       </EarthRangerMap>
     );
@@ -335,11 +366,11 @@ const mapStatetoProps = (state, props) => {
     subjectTrackState,
     showTrackTimepoints,
     timeSliderState,
-    trackCollection: trimmedVisibleTrackFeatureCollection(state),
+    trackIds: displayedSubjectTrackIDs(state),
     trackLength,
     trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
-    mapEventFeatureCollection: getMapEventFeatureCollection(state),
+    mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state)
   });

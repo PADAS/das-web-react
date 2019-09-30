@@ -3,8 +3,6 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
 
-import { store } from '../';
-
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
 
@@ -91,12 +89,28 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 17) => {
-  map.flyTo({
-    center: coords,
-    zoom,
-    speed: 50,
-  });
+  if (Array.isArray(coords[0])) {
+    if (coords.length > 1) {
 
+      const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
+      map.fitBounds(boundaries, {
+        linear: true,
+        speed: 50,
+      });
+    } else {
+      map.flyTo({
+        center: coords[0],
+        zoom,
+        speed: 50,
+      });
+    }
+  } else {
+    map.flyTo({
+      center: coords,
+      zoom,
+      speed: 50,
+    });
+  };
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
@@ -138,12 +152,12 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
   };
 };
 
-export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
-export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);
+export const bindMapClickFunction = (map, fn) => map.on('click', fn);
+export const unbindMapClickFunction = (map, fn) => map.off('click', fn);
 
 export const lockMap = (map, isLocked) => {
   const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
-  if(isLocked === true) {
+  if (isLocked === true) {
     mapControls.forEach(function (control) {
       map[control].disable();
     });
@@ -153,13 +167,6 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
-};
-
-export const removeMapLayer = (map, layerId, sourceId) => {
-  // TODO - find a way to find all of the map dependencies, and remove
-  // them. For example, clusters create a dependency on the source of an event,
-  // so you cant remove the event source without knowing the name of it
-  map.removeLayer(layerId);
 };
 
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>

@@ -1,10 +1,11 @@
 import React, { memo, Fragment } from 'react';
 import { Popup, Source, Layer } from 'react-mapbox-gl';
-import bearing from '@turf/bearing';
 import distance from '@turf/distance';
 import { lineString } from '@turf/helpers';
 import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
+
+import { calcPositiveBearing } from '../utils/location';
 
 import styles from './styles.module.scss';
 
@@ -60,12 +61,12 @@ const MapRulerLayer = (props) => {
         {popupLocationAndFirstPointAreIdentical && <p>Select a second point</p>}
         {!popupLocationAndFirstPointAreIdentical && <Fragment>
           <p>Distance: {distance(points[0], popupCoords).toFixed(2)}km</p>
-          <p>Bearing: {bearing(points[0], popupCoords).toFixed(2)}&deg;</p>
+          <p>Bearing: {calcPositiveBearing(points[0], popupCoords).toFixed(2)}&deg;</p>
           {points.length === 1 && <small>(Click map to finish)</small>}
         </Fragment>}
       </Fragment>}
     </Popup>}
-    {points.length && <Fragment>
+    {!!points.length && <Fragment>
       <Source id='map-ruler-source' geoJsonSource={sourceData} />
       <Layer sourceId='map-ruler-source' type='circle' paint={circlePaint} />
       <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />

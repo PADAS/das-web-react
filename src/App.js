@@ -124,7 +124,7 @@ const App = memo((props) => {
     if (map) {
       resizeInterval(map);
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   return (

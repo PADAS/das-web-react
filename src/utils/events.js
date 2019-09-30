@@ -29,6 +29,14 @@ export const getCoordinatesForEvent = evt => evt.geojson
   && evt.geojson.geometry
   && evt.geojson.geometry.coordinates;
 
+
+export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
+
+export const getCoordinatesForCollection = collection => collection.contains &&
+  collection.contains
+    .map(contained => getCoordinatesForEvent(contained.related_event))
+    .filter(item => !!item);
+
 export const eventHasLocation = (evt) => {
   if (evt.is_collection) {
     return evt.contains && evt.contains.some(contained => !!getCoordinatesForEvent(contained.related_event));
@@ -192,11 +200,32 @@ export const generateErrorListForApiResponseDetails = (response) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-      []);
+        []);
   } catch (e) {
     return [{ label: 'Unkown error' }];
   }
 };
+
+export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualDate) => ({
+  ...mapEventFeatureCollection,
+  features: mapEventFeatureCollection.features.filter((feature) => {
+    return new Date(virtualDate ? virtualDate : new Date()) - new Date(feature.properties.time) >= 0;
+  }),
+});
+
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (featureCollection, virtualDate, totalRangeDistance) => {
+  return {
+    ...featureCollection,
+    features: featureCollection.features.map((feature) => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
+      },
+    })),
+  };
+};
+
 
 /*
 {

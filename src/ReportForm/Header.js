@@ -44,7 +44,7 @@ const ReportFormHeader = (props) => {
   const updateTime = report.updated_at || report.created_at;
 
   const onStartAddToIncident = () => {
-    trackEvent(eventOrIncidentReport, `Click 'Add to Incident'`);
+    trackEvent(eventOrIncidentReport, 'Click \'Add to Incident\'');
     setHeaderPopoverState(false);
     addModal({
       content: AddToIncidentModal,
@@ -64,7 +64,7 @@ const ReportFormHeader = (props) => {
   };
   
   const onHamburgerMenuIconClick = () => {
-    setHeaderPopoverState(!headerPopoverOpen)
+    setHeaderPopoverState(!headerPopoverOpen);
     trackEvent(eventOrIncidentReport, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu`);
   };
 
@@ -74,10 +74,10 @@ const ReportFormHeader = (props) => {
   };
 
   const ReportHistory = report.updates && <Fragment>
-      <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
-        {report.updates.length > 1? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
-      </span>
-    </Fragment>;
+    <span ref={historyRef} onClick={onReportHistoryClick} className={styles.reportHistory}>
+      {report.updates.length > 1 ? 'Updated' : 'Created'} <TimeAgo date={updateTime}/>
+    </span>
+  </Fragment>;
 
   const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
     <Popover.Title>{eventOrIncidentReport}</Popover.Title>

@@ -11,33 +11,36 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../const
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
-// TODO - make the text-size 0 for hiding names
-const symbolLayout = {
-  ...DEFAULT_SYMBOL_LAYOUT,
-};
 
 const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
+
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [SUBJECT_SYMBOLS] })[0];
 
-const SubjectsLayer = memo((props) => {
-  const { onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
+const SubjectsLayer = (props) => {
+  const { allowOverlap, onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
 
   const sourceData = {
     type: 'geojson',
     data: subjects,
   };
 
+  const layoutConfig = allowOverlap ? {
+    'icon-allow-overlap': true,
+    'text-allow-overlap': true,
+  } : {};
+
   useEffect(() => {
     subjects && addFeatureCollectionImagesToMap(subjects, map);
-  }, [subjects]);
+  }, [map, subjects]);
 
   const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
 
   const layout = {
-    ...symbolLayout,
+    ...DEFAULT_SYMBOL_LAYOUT,
+    ...layoutConfig,
     ...mapNameLayout,
   };
 
@@ -48,11 +51,11 @@ const SubjectsLayer = memo((props) => {
       paint={symbolPaint} layout={layout} />
 
   </Fragment>;
-});
+};
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
   onSubjectIconClick: PropTypes.func,
 };
 
-export default withMapNames(withMap(SubjectsLayer));
+export default withMapNames(withMap(memo(SubjectsLayer)));

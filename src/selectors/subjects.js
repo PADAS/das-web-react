@@ -1,9 +1,8 @@
 import { createSelector, getTimeSliderState } from './';
-import { trimmedVisibleTrackFeatureCollection } from './tracks';
+import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects } from '../utils/map';
-
-import { getUniqueSubjectGroupSubjects, pinSubjectPositionToLastKnownTrackPosition } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, pinMapSubjectsToVirtualPosition } from '../utils/subjects';
 
 const mapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -21,13 +20,13 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, trimmedVisibleTrackFeatureCollection, getTimeSliderState],
-  (mapSubjectFeatureCollection, trimmedTracks, timeSliderState) => {
-    const { active:timeSliderActive } = timeSliderState;
+  [getMapSubjectFeatureCollection, tracks, getTimeSliderState],
+  (mapSubjectFeatureCollection, tracks, timeSliderState) => {
+    const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {
       return mapSubjectFeatureCollection;
     }
-    return pinSubjectPositionToLastKnownTrackPosition(mapSubjectFeatureCollection, trimmedTracks);
-    
+    return pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection, tracks, virtualDate);
   },
 );
+
