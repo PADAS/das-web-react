@@ -215,7 +215,6 @@ div.filterPopover {
 
 .openedFilterDrawer {
   [class*=Collapsible__contentOuter] {
-    // min-height: 20rem;
     height: 70vh;
     max-height: 24rem;
     overflow-y: auto !important;
