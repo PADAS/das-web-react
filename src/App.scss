@@ -45,10 +45,13 @@ body {
   position: fixed;
 }
 
+.App, #root {
+  height: 100%;
+}
+
 .App {
   display: flex;
   flex-flow: column;
-  height: 100vh;
   &.picking-location {
     #{$non-map-top-level-components} {
       cursor: not-allowed !important;
