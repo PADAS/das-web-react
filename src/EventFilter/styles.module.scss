@@ -220,4 +220,13 @@ div.filterPopover {
     max-height: 24rem;
     overflow-y: auto !important;
   }
+  &.reportTypeDrawer {
+    [class*=Collapsible__contentOuter] {
+      overflow-y: hidden !important;
+      [class*=Collapsible__contentInner] {
+        height: 70vh;
+        max-height: 24rem;
+      }
+    }
+  }
 }

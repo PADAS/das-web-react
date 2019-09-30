@@ -77,6 +77,10 @@ const EventFilter = (props) => {
     }
   };
 
+  const onFilteredReportsSelect = (types) => {
+    updateEventFilter({ filter: { event_type: types.map(({ id }) => id) } });
+  };
+
 
   const { lower, upper } = date_range;
 
@@ -180,7 +184,7 @@ const EventFilter = (props) => {
         transitionTime={0.1}
         lazyRender={true}
         className={styles.closedFilterDrawer}
-        openedClassName={styles.openedFilterDrawer}
+        openedClassName={`${styles.openedFilterDrawer} ${styles.reportTypeDrawer}`}
         trigger={ReportTypeTrigger}>
         {/* <span className={styles.toggleAllReportTypes}>
           <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
@@ -188,7 +192,7 @@ const EventFilter = (props) => {
           {someReportTypesChecked && 'Some'}
           {noReportTypesChecked && 'None'}
         </span> */}
-        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
+        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
       </Collapsible>
     </Popover.Content>
   </Popover>;
