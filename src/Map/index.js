@@ -269,9 +269,6 @@ class Map extends Component {
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
-    const filteredMapSubjectsCollection =  showInactiveRadios ? mapSubjectFeatureCollection :
-      filterInactiveRadiosFromCollection(mapSubjectFeatureCollection);
-
     return (
       <EarthRangerMap
         center={homeMap.center}
@@ -293,7 +290,7 @@ class Map extends Component {
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
-              subjects={filteredMapSubjectsCollection}
+              subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
