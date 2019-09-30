@@ -160,3 +160,16 @@
     }
   }
 }
+
+.mapLayerFooter {
+  background-color: $map-layers-footer;
+  height: 2rem;
+  width:100%;
+  text-align:left;
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  a {
+      margin-left: .5rem;
+  }
+}

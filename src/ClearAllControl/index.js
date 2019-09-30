@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { hideFeatures, hideSubjects, clearMapItemsState } from '../ducks/map-ui';
-import { removeMapLayer } from '../utils/map'
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { getFeatureLayerListState } from '../FeatureLayerList/selectors';
 import { getAllFeatureIDsInList } from '../utils/features';
@@ -19,10 +18,9 @@ const ClearAllControl = (props) => {
     props.hideSubjects(...subjectIDs);
     const featureListIDs = getAllFeatureIDsInList(featureList);
     props.hideFeatures(...featureListIDs);
-    removeMapLayer(map, 'event_symbols');
-    trackEvent('Clear All', 'Click'); 
   }
   const onClearAllClick = (e) => {
+    trackEvent('Map Layer', 'Clicked Clear All link');
     clearAll();
   };
 

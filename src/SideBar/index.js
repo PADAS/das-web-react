@@ -74,7 +74,9 @@ const SideBar = memo((props) => {
             <FeatureLayerList map={map} />
             <div className={styles.noItems}>No items to display.</div>
           </div>
-          <ClearAllControl map={map} />
+          <div className={styles.mapLayerFooter}>
+            <ClearAllControl map={map} />
+          </div>
         </Tab>
       </Tabs>
     </aside>
