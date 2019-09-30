@@ -7,6 +7,11 @@ $square-button-border-radius: .25rem;
   background: none;
   border: none;
   outline: none;
+  &:hover, &:active {
+    background: none;
+    border: none;
+    outline: none;
+  }
 }
 
 @mixin imageButton($icon_name: 'gear', $color: darken(gray, 15%)) {
