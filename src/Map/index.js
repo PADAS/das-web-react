@@ -20,7 +20,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
 import { LAYER_IDS } from '../constants';
@@ -39,6 +39,8 @@ import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
+import ReportsHeatLayer from '../ReportsHeatLayer';
+import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import IsochroneLayer from '../IsochroneLayer';
 
 import MapRulerControl from '../MapRulerControl';
@@ -54,14 +56,13 @@ class Map extends Component {
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
-    this.toggleTrackState = this.toggleTrackState.bind(this);
-    this.toggleHeatmapState = this.toggleHeatmapState.bind(this);
-    this.onHeatmapClose = this.onHeatmapClose.bind(this);
+    this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
+    this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
   }
 
@@ -92,6 +93,12 @@ class Map extends Component {
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
       this.fetchMapData();
+    }
+    if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
+      this.onSubjectHeatmapClose();
+    }
+    if (!isEqual(this.props.heatmapTracks, prev.heatmapTracks) && !!this.props.heatmapTracks.length && this.props.showReportHeatmap) {
+      this.onCloseReportHeatmap();
     }
     if (!!this.props.timeSliderState.active && !!this.props.popup
       && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
@@ -166,6 +173,9 @@ class Map extends Component {
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
   }
+  onCloseReportHeatmap() {
+    this.props.setReportHeatmapVisibility(false);
+  }
   onClusterClick(e) {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
@@ -191,40 +201,6 @@ class Map extends Component {
     this.props.showPopup('current-user-location', { location } );
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
-  toggleTrackState(id) {
-    const { subjectTrackState: { visible, pinned }, updateTrackState } = this.props;
-
-    if (pinned.includes(id)) {
-      trackEvent('Map Interaction', 'Uncheck Subject Show Tracks button');
-      return updateTrackState({
-        pinned: pinned.filter(item => item !== id),
-        visible: visible.filter(item => item !== id),
-      });
-    }
-    if (visible.includes(id)) {
-      trackEvent('Map Interaction', 'Pin Subject Show Tracks button');
-      return updateTrackState({
-        pinned: [...pinned, id],
-        visible: visible.filter(item => item !== id),
-      });
-    }
-    trackEvent('Map Interaction', 'Check Subject Show Tracks button');
-    return updateTrackState({
-      visible: [...visible, id],
-    });
-  }
-  toggleHeatmapState(id) {
-    const { heatmapSubjectIDs, updateHeatmapSubjects } = this.props;
-    const visible = heatmapSubjectIDs.includes(id);
-
-    if (visible) {
-      trackEvent('Map Interaction', 'Uncheck Subject Heatmap button');
-      return updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
-    } else {
-      trackEvent('Map Interaction', 'Check Subject Heatmap button');
-      return updateHeatmapSubjects([...heatmapSubjectIDs, id]);
-    }
-  }
   async onMapSubjectClick(layer) {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
@@ -247,7 +223,7 @@ class Map extends Component {
     this.onMapMoveEnd();
   }
 
-  onHeatmapClose() {
+  onSubjectHeatmapClose() {
     this.props.updateHeatmapSubjects([]);
   }
   onTrackLegendClose() {
@@ -272,6 +248,9 @@ class Map extends Component {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
       trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, timeSliderState: { active:timeSliderActive } } = this.props;
+
+    const { showReportHeatmap } = this.props;
+      
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackIds && !!trackIds.length;
@@ -310,11 +289,13 @@ class Map extends Component {
             <FriendlyEventFilterString className='event-filter-details' />
 
             <div className='map-legends'>
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onHeatmapClose} />}
+              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
+              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
+            {showReportHeatmap && <ReportsHeatLayer />}
 
             {tracksAvailable && (
               <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackIds={trackIds} />
@@ -329,11 +310,7 @@ class Map extends Component {
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
             {!!popup && <PopupLayer
-              popup={popup}
-              onTrackToggle={this.toggleTrackState}
-              onHeatmapToggle={this.toggleHeatmapState}
-              heatmapState={this.props.heatmapSubjectIDs}
-              trackState={this.props.subjectTrackState} />
+              popup={popup} />
             }
             
           </Fragment>
@@ -370,7 +347,8 @@ const mapStatetoProps = (state, props) => {
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
-    mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state)
+    mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
+    showReportHeatmap: state.view.showReportHeatmap,
   });
 };
 
@@ -380,6 +358,7 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   hidePopup,
   addModal,
+  setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
   toggleMapLockState,

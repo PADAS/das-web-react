@@ -10,7 +10,7 @@ import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer } from '../ducks/map-ui';
+  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -90,6 +90,7 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
+    showReportHeatmap: reportHeatmapStateReducer,
     trackLength: trackDateRangeReducer,
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
