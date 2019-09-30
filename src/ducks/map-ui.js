@@ -54,7 +54,7 @@ export const hideAnalyzers = (...analyzerFeatureIDs) => ({
   payload: analyzerFeatureIDs,
 });
 
-export const currentAnalyzerFeatures = (...analyzerFeatureIDs) => ({
+export const showAnalyzers = (...analyzerFeatureIDs) => ({
   type: SHOW_ANALYZERS,
   payload: analyzerFeatureIDs,
 });
@@ -150,6 +150,13 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
   if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
+  return state;
+};
+
+export const hiddenAnalyzerIDsReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === HIDE_ANALYZERS) return uniq([...payload, ...state]);
+  if (type === SHOW_ANALYZERS) return state.filter(item => !payload.includes(item));
   return state;
 };
 

@@ -12,6 +12,7 @@ import { getFeatureLayerListState } from './selectors';
 import { getAnalyzerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
+import AnalyzerGroupList from '../AnalyzerGroupList';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -21,9 +22,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
-
-  featureList.push(...analyzerList);
-
+  
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
@@ -115,6 +114,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
           onCheckClick={onFeatureSetToggle}
           itemComponent={Content}
         />
+        <AnalyzerGroupList analyzers = {analyzerList[0].features} map = {map} />
       </Collapsible>
     </li>
   </ul>;

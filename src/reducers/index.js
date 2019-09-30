@@ -9,7 +9,7 @@ import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
-  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
+  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
   pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
@@ -82,6 +82,7 @@ const rootReducer = combineReducers({
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
     hiddenSubjectIDs: hiddenSubjectIDsReducer,
     hiddenFeatureIDs: hiddenFeatureIDsReducer,
+    hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,

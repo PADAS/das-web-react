@@ -24,7 +24,7 @@ export const getFeatureLayerListState = createSelector(
 export const getAnalyzerListState = createSelector(
   [analyzerFeatures],
   (analyzerFeatures) => {
-    const featuresByType = (analyzerFeatures).map( (analyzer) => {
+    const features = (analyzerFeatures).map( (analyzer) => {
       // aggregate the feature ids, and store them in the first feature,
       // so that we can be FeatureLayerList compatible, but still know 
       // what features are related. 
@@ -43,6 +43,6 @@ export const getAnalyzerListState = createSelector(
 
       return {name: analyzer.name, features: [feature]};
     });
-    return ([{name: 'Analyzers', id:'analyzers', featuresByType }]);
+    return ([{name: 'Analyzers', id:'analyzers', features }]);
   });
 
