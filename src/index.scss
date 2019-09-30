@@ -1,10 +1,13 @@
 @import './common/styles/vars/colors';
 @import "./common/styles/vars/fonts";
 
+html, body {
+  height: 100%;
+}
+
 body {
   color: $primary-font-color;
   font-family: $font-family-base;
-  height: 100vh;
   margin: 0;
   padding: 0;
 }
