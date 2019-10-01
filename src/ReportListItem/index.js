@@ -1,24 +1,37 @@
 import React, { memo } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
+import EventCollectionIcon from '../EventCollectionIcon';
 import LocationJumpButton from '../LocationJumpButton';
 import { jumpToLocation } from '../utils/map';
 
-import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations } from '../utils/events';
-import { displayTitleForEventByEventType } from '../utils/events';
+import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, displayTitleForEventByEventType } from '../utils/events';
+import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, ...rest } = props;
+  const { eventTypes, map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, dispatch:_dispatch, ...rest } = props;
   
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 
   const iconClickHandler = onIconClick || onTitleClick;
+
+  let displayPriority;
+
+  if (report.is_collection) {
+    const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+    console.log('collection info', topRatedReportAndType);
+    displayPriority = topRatedReportAndType.related_event.priority || topRatedReportAndType.event_type.default_priority;
+  } else {
+    displayPriority = report.priority;
+  }
+  
 
   const onJumpButtonClick = () => {
     trackEvent('Map Layers', 'Click Jump To Report Location button',
@@ -26,8 +39,11 @@ const ReportListItem = (props) => {
     jumpToLocation(map, coordinates);
   };
 
-  return <li className={`${styles.listItem} ${styles[`priority-${report.priority}`]} ${className}`} key={key} {...rest}>
-    <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}><EventIcon iconId={report.icon_id} /></button>
+  return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
+    <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
+      {report.is_collection ? <EventCollectionIcon color='white' report={report} /> : <EventIcon iconId={report.icon_id} />
+      }
+    </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
     <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEventByEventType(report)}</button>
     <span className={styles.date}>
@@ -40,7 +56,8 @@ const ReportListItem = (props) => {
   </li>;
 };
 
-export default memo(ReportListItem);
+const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+export default connect(mapStateToProps, null)(memo(ReportListItem));
 
 ReportListItem.defaultProps = {
   showJumpButton: true,
