@@ -9,6 +9,8 @@ const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
+const SHOW_INACTIVE_RADIOS = 'SHOW_INACTIVE_RADIOS';
+
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
@@ -85,6 +87,11 @@ export const toggleDisplayUserLocation = () => ({
 
 export const toggleTrackTimepointState = () => ({
   type: TOGGLE_TRACK_TIMEPOINTS,
+});
+
+export const toggleShowInactiveRadioState = (enabled) => ({
+  type: SHOW_INACTIVE_RADIOS,
+  payload: enabled,
 });
 
 export const toggleTrackState = (id) => (dispatch, getState) => {
@@ -199,6 +206,14 @@ export const displayUserLocationReducer = (state = true, action) => {
 export const displayTrackTimepointsReducer = (state = true, action) => {
   const { type } = action;
   if (type === TOGGLE_TRACK_TIMEPOINTS) {
+    return !state;
+  }
+  return state;
+};
+
+export const displayInactiveRadiosReducer = (state = true, action) => {
+  const { type } = action;
+  if (type === SHOW_INACTIVE_RADIOS) {
     return !state;
   }
   return state;

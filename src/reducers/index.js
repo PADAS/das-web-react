@@ -10,7 +10,7 @@ import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer } from '../ducks/map-ui';
+  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -95,6 +95,7 @@ const rootReducer = combineReducers({
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
+    showInactiveRadios: displayInactiveRadiosReducer,
   }),
 });
 
