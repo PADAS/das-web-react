@@ -43,10 +43,10 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
     displayTitle = `Heatmap: ${tracks.features.length} subjects`;
   }
 
-  const titleElement = <h5>
+  const titleElement = <h6>
     {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {displayTitle}
-  </h5>;
+  </h6>;
 
   const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
     <Popover className={styles.popover} id="track-details">

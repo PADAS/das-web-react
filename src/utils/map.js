@@ -100,12 +100,28 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 17) => {
-  map.flyTo({
-    center: coords,
-    zoom,
-    speed: 50,
-  });
+  if (Array.isArray(coords[0])) {
+    if (coords.length > 1) {
 
+      const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
+      map.fitBounds(boundaries, {
+        linear: true,
+        speed: 50,
+      });
+    } else {
+      map.flyTo({
+        center: coords[0],
+        zoom,
+        speed: 50,
+      });
+    }
+  } else {
+    map.flyTo({
+      center: coords,
+      zoom,
+      speed: 50,
+    });
+  };
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
@@ -147,12 +163,12 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
   };
 };
 
-export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
-export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);
+export const bindMapClickFunction = (map, fn) => map.on('click', fn);
+export const unbindMapClickFunction = (map, fn) => map.off('click', fn);
 
 export const lockMap = (map, isLocked) => {
   const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
-  if(isLocked === true) {
+  if (isLocked === true) {
     mapControls.forEach(function (control) {
       map[control].disable();
     });

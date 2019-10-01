@@ -59,6 +59,7 @@ const TrackLengthControls = (props) => {
   const isSelected = val => val === origin;
 
   return <Form className={styles.form} onSubmit={e => e.preventDefault()}>
+    <h6>Track Length:</h6>
     <Label htmlFor='filter' className={styles.label}>
       <Control onChange={onOriginChange} id='filter' checked={isSelected(TRACK_LENGTH_ORIGINS.eventFilter)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.eventFilter} type='radio' name='track-length-method' />
       <span>Match report filter ({eventFilterDateRangeLength} days)</span>

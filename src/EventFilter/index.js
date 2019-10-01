@@ -29,7 +29,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const EventFilter = (props) => {
-  const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
+  const { children, eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -123,15 +123,15 @@ const EventFilter = (props) => {
 
   const onSearchChange = ({ target: { value } }) => {
     updateEventFilterDebounced({
-      filter: {text: !!value ? value.toLowerCase() : null,}
+      filter: { text: !!value ? value.toLowerCase() : null, }
     });
     trackEvent('Feed', 'Change Search Text Filter');
   };
 
   const onSearchClear = (e) => {
     e.stopPropagation();
-    updateEventFilter({ 
-      filter: {text: '',}
+    updateEventFilter({
+      filter: { text: '', }
     });
     trackEvent('Feed', 'Clear Search Text Filter');
   };
@@ -158,9 +158,9 @@ const EventFilter = (props) => {
   const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
-      Report Filters
-      <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm' 
-        onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
+        Report Filters
+        <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm'
+          onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
       </div>
     </Popover.Title>
     <Popover.Content>
@@ -174,7 +174,7 @@ const EventFilter = (props) => {
         className={styles.closedFilterDrawer}
         openedClassName={styles.openedFilterDrawer}
         trigger={DateRangeTrigger}>
-        <EventFilterDateRangeSelector />
+        <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
       </Collapsible>
       <Collapsible
         transitionTime={0.1}
@@ -190,7 +190,7 @@ const EventFilter = (props) => {
         </span> */}
         <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
       </Collapsible>
-    </Popover.Content>  
+    </Popover.Content>
   </Popover>;
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
@@ -200,8 +200,9 @@ const EventFilter = (props) => {
         <span>Filters</span>
       </span>
     </OverlayTrigger>
-    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''} 
-      onChange={onSearchChange} onClear={onSearchClear}/>
+    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
+      onChange={onSearchChange} onClear={onSearchClear} />
+    {children}
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 };

@@ -20,7 +20,7 @@
     "react-bootstrap": "^1.0.0-beta.10",
     "react-collapsible": "^2.6.0",
     "react-css-loaders": "^0.0.5",
-    "react-datetime-picker": "^2.4.0",
+    "react-datetime-picker": "^2.7.1",
     "react-debounce-render": "^5.0.0",
     "react-dom": "^16.8.6",
     "react-fast-compare": "^2.0.4",
@@ -30,7 +30,7 @@
     "react-mapbox-gl": "4.6.0",
     "react-redux": "^7.0.3",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "3.1.1",
+    "react-scripts": "3.1.2",
     "react-select": "^3.0.3",
     "react-timeago": "^4.4.0",
     "reactstrap": "^7.0.2",
@@ -62,5 +62,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "resolutions": {
+    "eslint-loader": "3.0.2"
+  }
 }

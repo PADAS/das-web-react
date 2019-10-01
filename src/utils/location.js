@@ -3,6 +3,8 @@ import Utm, { LatLon as LatLon_Utm } from 'geodesy/utm';
 import Mgrs, { LatLon as Latlon_Utm_Mgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
 
+import bearing from '@turf/bearing';
+
 export const GPS_FORMATS = {
   DEG: 'DEG',
   DMS: 'DMS',
@@ -128,3 +130,9 @@ export const calcActualGpsPositionForRawText = (rawText, formatKey) => {
 };
 
 export const validateLngLat = (lng, lat) => isLatitude(lat) && isLongitude(lng);
+
+export const calcPositiveBearing = (point1, point2) => {
+  const bearingMeasurement = bearing(point1, point2);
+  if (bearingMeasurement >= 0) return bearingMeasurement;
+  return (360 + bearingMeasurement);
+};

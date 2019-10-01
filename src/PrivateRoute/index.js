@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 
 import authConfig from '../utils/auth';
 
@@ -30,16 +30,16 @@ class PrivateRoute extends Component {
           token.access_token ? (
             <Component {...this.props} />
           ) : (
-              <Redirect
-                to={{
-                  pathname: `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`,
-                  state: { from: this.props.location, },
-                }}
-              />
-            )
+            <Redirect
+              to={{
+                pathname: `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`,
+                state: { from: this.props.location, },
+              }}
+            />
+          )
         }
       />
-    )
+    );
   }
 }
 

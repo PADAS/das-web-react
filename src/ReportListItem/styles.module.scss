@@ -20,8 +20,9 @@
   > .icon {
     padding: 0.5rem 1rem;
   }
-  > [class*=jump] {
-    padding-right: 0;
+  > button:last-child {
+    margin: 0.75rem 0 0.75rem 0.5rem;
+    padding: 0;
   }
 }
 
@@ -85,10 +86,6 @@ $colors in $priorities {
   margin-left: auto;
   padding-right: 0;
   text-align: right;
-}
-
-.jump button {
-  @include jumpButton;
 }
 
 .resolved {
