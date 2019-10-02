@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
-import EventCollectionIcon from '../EventCollectionIcon';
 import LocationJumpButton from '../LocationJumpButton';
 import { jumpToLocation } from '../utils/map';
 
@@ -15,8 +14,8 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { eventTypes, map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, dispatch:_dispatch, ...rest } = props;
-  
+  const { eventTypes, map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, dispatch: _dispatch, ...rest } = props;
+
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 
@@ -31,7 +30,7 @@ const ReportListItem = (props) => {
   } else {
     displayPriority = report.priority;
   }
-  
+
 
   const onJumpButtonClick = () => {
     trackEvent('Map Layers', 'Click Jump To Report Location button',
@@ -41,8 +40,7 @@ const ReportListItem = (props) => {
 
   return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
-      {report.is_collection ? <EventCollectionIcon color='white' report={report} /> : <EventIcon iconId={report.icon_id} />
-      }
+      <EventIcon report={report} />
     </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
     <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEventByEventType(report)}</button>

@@ -123,7 +123,7 @@ const ReportFormHeader = (props) => {
 
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
     <h4>
-      <EventIcon className={styles.icon} iconId={report.icon_id.replace('.svg', '')} />
+      <EventIcon className={styles.icon} report={report} />
       {report.serial_number && `${report.serial_number}:`}
       <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
