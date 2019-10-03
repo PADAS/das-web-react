@@ -21,7 +21,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 
 const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
-  hiddenFeatureIDs, map, mapLayerFilter, clearMapItems }) => {
+  hiddenFeatureIDs, map, mapLayerFilter }) => {
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
@@ -36,12 +36,6 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
 
   const hideAllFeatures = () => hideFeatures(...allFeatureIDs);
   const showAllFeatures = () => showFeatures(...allFeatureIDs);
-
-  useEffect(() => {
-    if (clearMapItems) {
-      hideAllFeatures();
-    }
-  }, [clearMapItems]);
 
   const allVisible = !hiddenFeatureIDs.length;
   const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
@@ -127,8 +121,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
 const mapStateToProps = (state) => ({
   featureList: getFeatureLayerListState(state),
   hiddenFeatureIDs: state.view.hiddenFeatureIDs,
-  mapLayerFilter: state.data.mapLayerFilter,
-  clearMapItems: state.view.clearMapItems
+  mapLayerFilter: state.data.mapLayerFilter
 });
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);

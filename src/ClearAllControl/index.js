@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { hideFeatures, hideSubjects, displayReportsOnMapState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
@@ -34,11 +34,9 @@ const ClearAllControl = (props) => {
 
 const mapStateToProps = (state) => {
   const { data, view } = state;
-  const { clearMapItems } = view;
   const { subjectGroups, mapEvents } = data;
 
   return ({
-    clearMapItems,
     subjectGroups,
     featureList: getFeatureLayerListState(state),
     mapEvents

@@ -272,7 +272,7 @@ class Map extends Component {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
       trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState,
-      clearMapItems, timeSliderState: { active: timeSliderActive }, showReportsOnMap } = this.props;
+      timeSliderState: { active: timeSliderActive }, showReportsOnMap } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackIds && !!trackIds.length;
@@ -350,7 +350,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, clearMapItems, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
+  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, showReportsOnMap } = view;
 
   return ({
