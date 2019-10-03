@@ -45,7 +45,13 @@ body {
   position: fixed;
 }
 
+.App, #root {
+  height: 100%;
+}
+
 .App {
+  display: flex;
+  flex-flow: column;
   &.picking-location {
     #{$non-map-top-level-components} {
       cursor: not-allowed !important;
@@ -198,8 +204,8 @@ aside {
 }
 
 .app-container {
+  flex: 1;
   position: relative;
-  height: calc(100vh - var(--nav-height));
   width: 100vw;
   z-index: 1;
 
@@ -231,7 +237,7 @@ aside {
   }
 
   .mapboxgl-map {
-    height: calc(100vh - var(--nav-height));
+    height: 100%;
     transition: width .3s ease-in-out;
     width: 100vw;
   }
@@ -247,7 +253,7 @@ aside {
   display: flex;
   flex-flow: column;
   flex-grow: 0;
-  height: calc(100vh - var(--nav-height));
+  height: 100%;
   position: absolute;
   right: 0;
   transition: transform .3s ease-in-out;

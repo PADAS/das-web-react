@@ -1,13 +1,11 @@
 import React, { memo, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-import { trackEvent } from '../utils/analytics';
-
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 import styles from './styles.module.scss';
 
-const SearchBar = memo((props) => {
+const SearchBar = (props) => {
   const { text, onChange, onClear, placeholder, className, ...rest } = props;
 
   const [isActive, setIsActiveState] = useState(false);
@@ -41,7 +39,7 @@ const SearchBar = memo((props) => {
       <ClearIcon className={styles.clearIcon} />
     </button>    
   </label>;
-});
+};
 
 SearchBar.defaultProps = {
   placeholder: 'Search...',
@@ -56,4 +54,4 @@ SearchBar.propTypes = {
   onClear: PropTypes.func,
 };
 
-export default SearchBar;
+export default memo(SearchBar);

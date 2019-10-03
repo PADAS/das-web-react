@@ -36,9 +36,9 @@ const NavHomeMenu = function NavHomeMenu(props) {
           <Divider />
           <Item className={styles.currentLocationJump} 
             onClick={() => onCurrentLocationClick(userLocation)}>
-            <h5>
+            <h6>
               <GpsLocationIcon /> My Current Location
-            </h5>
+            </h6>
           </Item>
         </Fragment>}
       </Menu>

@@ -29,7 +29,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const EventFilter = (props) => {
-  const { eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
+  const { children, eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -75,6 +75,10 @@ const EventFilter = (props) => {
       trackEvent('Feed', 'Check Event Type Filter');
       updateEventFilter({ filter: { event_type: [...currentFilterReportTypes, id] } });
     }
+  };
+
+  const onFilteredReportsSelect = (types) => {
+    updateEventFilter({ filter: { event_type: types.map(({ id }) => id) } });
   };
 
 
@@ -180,7 +184,7 @@ const EventFilter = (props) => {
         transitionTime={0.1}
         lazyRender={true}
         className={styles.closedFilterDrawer}
-        openedClassName={styles.openedFilterDrawer}
+        openedClassName={`${styles.openedFilterDrawer} ${styles.reportTypeDrawer}`}
         trigger={ReportTypeTrigger}>
         {/* <span className={styles.toggleAllReportTypes}>
           <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
@@ -188,7 +192,7 @@ const EventFilter = (props) => {
           {someReportTypesChecked && 'Some'}
           {noReportTypesChecked && 'None'}
         </span> */}
-        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onTypeToggle={onReportTypeToggle} />
+        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
       </Collapsible>
     </Popover.Content>
   </Popover>;
@@ -202,6 +206,7 @@ const EventFilter = (props) => {
     </OverlayTrigger>
     <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
       onChange={onSearchChange} onClear={onSearchClear} />
+    {children}
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 };
