@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import isEqual from 'react-fast-compare';
 
-import { hideSubjects, showSubjects, clearMapItemsState } from '../ducks/map-ui';
+import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects, getUniqueSubjectGroupSubjectIDs, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
@@ -42,8 +42,8 @@ const SubjectGroupList = memo((props) => {
     }
   };
 
-  useEffect( () => {
-    if(clearMapItems) {
+  useEffect(() => {
+    if (clearMapItems) {
       console.log('clear map subject items')
       const subjectIDs = getUniqueSubjectGroupSubjectIDs(...subjectGroups);
       hideSubjects(...subjectIDs);
@@ -65,8 +65,8 @@ const SubjectGroupList = memo((props) => {
 
   // if search filter is enabled, filter the subjectGroups array otherwise
   // just make sure to filter out any empty subject groups.
-  const filteredSubjectGroups = subjectFilterEnabled ? 
-    filterSubjects(subjectGroups, subjectFilterIsMatch) : 
+  const filteredSubjectGroups = subjectFilterEnabled ?
+    filterSubjects(subjectGroups, subjectFilterIsMatch) :
     subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
   const itemProps = {
@@ -93,9 +93,9 @@ const SubjectGroupList = memo((props) => {
     isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
 );
 
-const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs, clearMapItems } }) => 
+const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs, clearMapItems } }) =>
   ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs, clearMapItems });
-export default connect(mapStateToProps, { hideSubjects, showSubjects, clearMapItemsState })(SubjectGroupList);
+export default connect(mapStateToProps, { hideSubjects, showSubjects })(SubjectGroupList);
 
 SubjectGroupList.defaultProps = {
   map: {},

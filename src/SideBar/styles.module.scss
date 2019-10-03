@@ -115,6 +115,10 @@
       }
     }
   }
+  .reportDesc {
+    background: lighten($light-gray-background, 3.5%);
+    width: 100%;
+  }
 }
 
 .controls {

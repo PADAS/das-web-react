@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { hideFeatures, hideSubjects, clearMapItemsState } from '../ducks/map-ui';
+import { hideFeatures, hideSubjects, displayReportsOnMapState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { getFeatureLayerListState } from '../FeatureLayerList/selectors';
 import { getAllFeatureIDsInList } from '../utils/features';
@@ -18,15 +18,17 @@ const ClearAllControl = (props) => {
     props.hideSubjects(...subjectIDs);
     const featureListIDs = getAllFeatureIDsInList(featureList);
     props.hideFeatures(...featureListIDs);
+    props.displayReportsOnMapState(false);
   }
+
   const onClearAllClick = (e) => {
     trackEvent('Map Layer', 'Clicked Clear All link');
     clearAll();
   };
 
   return <div className={styles.clearAllRow}>
-    <div className={styles.clearAll}><CheckIcon style={{height: '1.5rem', width: '1.5rem', stroke: '#000', fill: '#fff'}} />
-    <a href="#" onClick={() => onClearAllClick()}>Clear All</a></div>
+    <div className={styles.clearAll}><CheckIcon style={{ height: '1.5rem', width: '1.5rem', stroke: '#000', fill: '#fff' }} />
+      <a href="#" onClick={() => onClearAllClick()}>Clear All</a></div>
   </div>
 };
 
@@ -43,4 +45,4 @@ const mapStateToProps = (state) => {
   });
 };
 
-export default connect(mapStateToProps, { clearMapItemsState, hideSubjects, hideFeatures }) (ClearAllControl);
+export default connect(mapStateToProps, { displayReportsOnMapState, hideSubjects, hideFeatures })(ClearAllControl);

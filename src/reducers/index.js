@@ -8,9 +8,11 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
-import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
+import {
+  heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer, clearMapItemsReducer } from '../ducks/map-ui';
+  pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer, displayReportsOnMapReducer
+} from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -62,6 +64,7 @@ const rootReducer = combineReducers({
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
     mapLayerFilter: mapLayerFilterReducer,
+    showReportsOnMap: displayReportsOnMapReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
     subjectGroups: subjectGroupsReducer,
@@ -85,6 +88,7 @@ const rootReducer = combineReducers({
     showMapNames: displayMapNamesReducer,
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
+    showReportsOnMap: displayReportsOnMapReducer,
     modals: modalsReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,
@@ -94,7 +98,6 @@ const rootReducer = combineReducers({
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
-    clearMapItems: clearMapItemsReducer,
   }),
 });
 

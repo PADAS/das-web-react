@@ -1,0 +1,10 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
+.reportTitle {
+  text-decoration: none;
+}
+
+.reportDesc {
+  background: $light-gray-background;
+}

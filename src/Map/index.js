@@ -20,7 +20,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, clearMapItemsState  } from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
 import { LAYER_IDS } from '../constants';
@@ -39,7 +39,7 @@ import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
-import IsochroneLayer from '../IsochroneLayer';
+//import IsochroneLayer from '../IsochroneLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -188,7 +188,7 @@ class Map extends Component {
     });
   }
   onCurrentUserLocationClick(location) {
-    this.props.showPopup('current-user-location', { location } );
+    this.props.showPopup('current-user-location', { location });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
   toggleTrackState(id) {
@@ -271,8 +271,8 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, 
-      timeSliderState: { active:timeSliderActive } } = this.props;
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState,
+      clearMapItems, timeSliderState: { active: timeSliderActive }, showReportsOnMap } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackIds && !!trackIds.length;
@@ -324,8 +324,7 @@ class Map extends Component {
             {/* uncomment the below coordinates and go to easter island for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-109.36664693358205, -27.114147441540396]} /> */}
 
-
-            <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
+            {showReportsOnMap && <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />}
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
@@ -336,7 +335,7 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-            
+
           </Fragment>
         )}
 
@@ -352,7 +351,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { homeMap, mapIsLocked, clearMapItems, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
-    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, showReportsOnMap } = view;
 
   return ({
     maps,
@@ -360,11 +359,11 @@ const mapStatetoProps = (state, props) => {
     tracks,
     homeMap,
     mapIsLocked,
-    clearMapItems,
     popup,
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
+    showReportsOnMap,
     timeSliderState,
     trackIds: displayedSubjectTrackIDs(state),
     trackLength,
@@ -387,7 +386,6 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateTrackState,
   updateHeatmapSubjects,
-  clearMapItemsState,
 }
 )(withSocketConnection(Map));
 

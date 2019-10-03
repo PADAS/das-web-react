@@ -13,6 +13,7 @@ const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
+const DISPLAY_REPORTS_ON_MAP = 'DISPLAY_REPORTS_ON_MAP';
 const CLEAR_ALL_MAP_FEATURES = 'CLEAR_ALL_MAP_FEATURES';
 
 const UPDATE_HEATMAP_SUBJECT_STATE = 'UPDATE_HEATMAP_SUBJECT_STATE';
@@ -72,6 +73,11 @@ export const toggleMapNameState = (enabled) => ({
   payload: enabled,
 });
 
+export const displayReportsOnMapState = (enabled) => ({
+  type: DISPLAY_REPORTS_ON_MAP,
+  payload: enabled,
+});
+
 export const toggleDisplayUserLocation = () => ({
   type: TOGGLE_DISPLAY_USER_LOCATION,
 });
@@ -79,11 +85,6 @@ export const toggleDisplayUserLocation = () => ({
 export const toggleTrackTimepointState = () => ({
   type: TOGGLE_TRACK_TIMEPOINTS,
 });
-
-export const clearMapItemsState = (enabled) => ({
-  type: CLEAR_ALL_MAP_FEATURES,
-  payload: enabled,
-})
 
 export const toggleTrackState = (id) => (dispatch, getState) => {
   const { view: { subjectTrackState: { pinned, visible } } } = getState();
@@ -161,6 +162,12 @@ export const clearMapItemsReducer = (state = false, action) => {
 export const displayMapNamesReducer = (state = true, action) => {
   const { type, payload } = action;
   if (type === DISPLAY_SUBJECT_NAMES) return payload;
+  return state;
+};
+
+export const displayReportsOnMapReducer = (state = true, action) => {
+  const { type, payload } = action;
+  if (type === DISPLAY_REPORTS_ON_MAP) return payload;
   return state;
 };
 

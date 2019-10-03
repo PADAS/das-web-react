@@ -19,6 +19,7 @@ import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import ClearAllControl from '../ClearAllControl';
+import ReportMapControl from '../ReportMapControl';
 
 const SideBar = memo((props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;
@@ -70,6 +71,7 @@ const SideBar = memo((props) => {
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
           <MapLayerFilter />
           <div className={styles.mapLayers}>
+            <ReportMapControl />
             <SubjectGroupList map={map} />
             <FeatureLayerList map={map} />
             <div className={styles.noItems}>No items to display.</div>
