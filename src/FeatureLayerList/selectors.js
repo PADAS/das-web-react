@@ -17,7 +17,7 @@ export const getFeatureLayerListState = createSelector(
       name: set.name,
       id: set.id,
       featuresByType,
-    })
+    });
   }),
 );
 
@@ -33,16 +33,20 @@ export const getAnalyzerListState = createSelector(
         return accumulator;
       }, []);
       // Likewise, precalc the bounds, as we wont have access to all 
-      // of the features at selection time in the feature list itm
+      // of the features at selection time in the feature list item
       const bounds = getBoundsForAnalyzerFeatures(analyzer.geojson);
       const feature = analyzer.geojson.features[0];
       feature.properties.type_name = analyzer.name;
       feature.properties.id = feature.properties.pk;
       feature.properties.feature_group = analyzerFeatures;
       feature.properties.feature_bounds = bounds;
-
-      return {name: analyzer.name, features: [feature]};
+      return feature;
     });
-    return ([{name: 'Analyzers', id:'analyzers', features }]);
+    const typeNames = uniq(analyzerFeatures.map(analyzer => analyzer.type));
+    const featuresByType = typeNames.map((name) => ({
+      name,
+      features: features.filter(f => f.analyzer_type === name),
+    }));
+    return ([{name: 'Analyzers', id:'analyzers', featuresByType }]);
   });
 
