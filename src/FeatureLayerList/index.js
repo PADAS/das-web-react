@@ -20,10 +20,12 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
+// eslint-disable-next-line react/display-name
 const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
-  // necessary to concatentate, a push directly to the property will cause the 
-  // featurelist to grow, due to the memo function
+  // necessary to concatentate, a push directly to the featureKist property will 
+  // cause the featureList to add a new analyzer list with each render, due to the 
+  // function holding state due to the memoization function
   const allFeaturesList = featureList.concat(analyzerList[0]);
   
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...allFeaturesList
