@@ -23,18 +23,17 @@ const ReportListItem = (props) => {
 
   let displayPriority;
 
-  if (report.is_collection) {
+  if (report.is_collection && !!report.contains.length) {
     const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
     console.log('collection info', topRatedReportAndType);
-    displayPriority = topRatedReportAndType.related_event.priority || topRatedReportAndType.event_type.default_priority;
+    displayPriority = topRatedReportAndType ? (topRatedReportAndType.related_event.priority || topRatedReportAndType.event_type.default_priority) : report.priority;
   } else {
     displayPriority = report.priority;
   }
 
 
   const onJumpButtonClick = () => {
-    trackEvent('Map Layers', 'Click Jump To Report Location button',
-      `Report Type:${report.event_type}`);
+    trackEvent('Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`);
     jumpToLocation(map, coordinates);
   };
 
