@@ -204,7 +204,7 @@ class Map extends Component {
     });
   }
   onCurrentUserLocationClick(location) {
-    this.props.showPopup('current-user-location', { location } );
+    this.props.showPopup('current-user-location', { location });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
   async onMapSubjectClick(layer) {
@@ -252,11 +252,11 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, 
-      timeSliderState: { active:timeSliderActive } } = this.props;
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap,
+      timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
-      
+
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
     const tracksAvailable = !!trackIds && !!trackIds.length;
@@ -310,15 +310,14 @@ class Map extends Component {
             {/* uncomment the below coordinates and go to easter island for a demo of the isochrone layer */}
             {/* {<IsochroneLayer coords={[-109.36664693358205, -27.114147441540396]} />} */}
 
-
-            <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />
+            {showReportsOnMap && <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />}
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
             {!!popup && <PopupLayer
               popup={popup} />
             }
-            
+
           </Fragment>
         )}
 
@@ -334,7 +333,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
-    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, showReportsOnMap } = view;
 
   return ({
     maps,
@@ -346,6 +345,7 @@ const mapStatetoProps = (state, props) => {
     eventFilter,
     subjectTrackState,
     showTrackTimepoints,
+    showReportsOnMap,
     timeSliderState,
     trackIds: displayedSubjectTrackIDs(state),
     trackLength,

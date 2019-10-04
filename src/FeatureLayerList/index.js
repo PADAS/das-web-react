@@ -20,7 +20,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 
-const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, 
+const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
   hiddenFeatureIDs, map, mapLayerFilter }) => {
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
@@ -39,11 +39,11 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
 
   const allVisible = !hiddenFeatureIDs.length;
   const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
-  
+
   const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(...featuresByType.reduce((result, { features }) => [...result, ...features], []));
 
   const allVisibleInSet = set => allVisible || !intersection(getFeatureSetFeatureIDs(set), hiddenFeatureIDs).length;
-  
+
   const someVisibleInSet = set => {
     const featureIDs = getFeatureSetFeatureIDs(set);
     return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
@@ -83,7 +83,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
     setFeatureFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);
 
-  const filteredFeatureList = featureFilterEnabled ? 
+  const filteredFeatureList = featureFilterEnabled ?
     filterFeatures(featureList, featureFilterIsMatch) : featureList;
 
   const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
@@ -118,10 +118,10 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
   </ul>;
 });
 
-const mapStateToProps = (state) => ({ 
-  featureList: getFeatureLayerListState(state), 
-  hiddenFeatureIDs: state.view.hiddenFeatureIDs, 
-  mapLayerFilter: state.data.mapLayerFilter 
+const mapStateToProps = (state) => ({
+  featureList: getFeatureLayerListState(state),
+  hiddenFeatureIDs: state.view.hiddenFeatureIDs,
+  mapLayerFilter: state.data.mapLayerFilter
 });
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);

@@ -15,6 +15,7 @@ const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
+const DISPLAY_REPORTS_ON_MAP = 'DISPLAY_REPORTS_ON_MAP';
 
 const UPDATE_SUBJECT_HEATMAP_STATE = 'UPDATE_SUBJECT_HEATMAP_STATE';
 const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
@@ -78,6 +79,11 @@ export const toggleMapLockState = (enabled) => ({
 
 export const toggleMapNameState = (enabled) => ({
   type: DISPLAY_SUBJECT_NAMES,
+  payload: enabled,
+});
+
+export const displayReportsOnMapState = (enabled) => ({
+  type: DISPLAY_REPORTS_ON_MAP,
   payload: enabled,
 });
 
@@ -173,6 +179,12 @@ export const mapLockStateReducer = (state = false, action) => {
 export const displayMapNamesReducer = (state = true, action) => {
   const { type, payload } = action;
   if (type === DISPLAY_SUBJECT_NAMES) return payload;
+  return state;
+};
+
+export const displayReportsOnMapReducer = (state = true, action) => {
+  const { type, payload } = action;
+  if (type === DISPLAY_REPORTS_ON_MAP) return payload;
   return state;
 };
 
