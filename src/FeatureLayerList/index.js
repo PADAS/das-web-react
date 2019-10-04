@@ -12,7 +12,6 @@ import { getFeatureLayerListState } from './selectors';
 import { getAnalyzerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
-import AnalyzerGroupList from '../AnalyzerGroupList';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -22,11 +21,15 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
+
+  // necessary to concatentate, a push directly to the property will cause the 
+  // featurelist to grow, due to the memo function
+  const allFeaturesList = featureList.concat(analyzerList[0]);
   
-  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
+  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...allFeaturesList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+        ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
       ], [])
   );
 
@@ -71,7 +74,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
       trackEvent('Map Layers', 'Check All Features checkbox');
       return showAllFeatures();
     }
-  }
+  };
 
   const featureFilterIsMatch = (feature) => {
     if (searchText.length === 0) return true;
@@ -85,7 +88,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
   }, [mapLayerFilter]);
 
   const filteredFeatureList = featureFilterEnabled ? 
-    filterFeatures(featureList, featureFilterIsMatch) : featureList;
+    filterFeatures(allFeaturesList, featureFilterIsMatch) : allFeaturesList;
 
   const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
   if (featureFilterEnabled && !filteredFeatureList.length) return null;
@@ -114,7 +117,6 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
           onCheckClick={onFeatureSetToggle}
           itemComponent={Content}
         />
-        <AnalyzerGroupList analyzers = {analyzerList[0].features} map = {map} />
       </Collapsible>
     </li>
   </ul>;
