@@ -214,7 +214,6 @@
   }
   .icon {
     --dimensions: 1.5rem;
-    margin-right: 0.5rem;
     max-height: var(--dimensions);
     width: var(--dimensions);
     @media #{$whenPageIsAtMediumHeightAndWidth} {

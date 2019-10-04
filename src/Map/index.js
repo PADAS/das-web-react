@@ -131,13 +131,19 @@ class Map extends Component {
     return toggleMapLockState();
   }
 
+  resetTrackRequestCancelToken() {
+    this.trackRequestCancelToken.cancel();
+    this.trackRequestCancelToken = CancelToken.source();
+  }
+
   async fetchMapData() {
     this.fetchMapEvents();
     await this.fetchMapSubjects();
     if (this.props.timeSliderState.active) {
+      this.resetTrackRequestCancelToken();
       fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
         .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-        .map(({ properties: { id } }) => id));
+        .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
     }
   }
   fetchMapSubjects() {
@@ -239,8 +245,7 @@ class Map extends Component {
   }
 
   onTrackLengthChange() {
-    this.trackRequestCancelToken.cancel();
-    this.trackRequestCancelToken = CancelToken.source();
+    this.resetTrackRequestCancelToken();
     fetchTracksIfNecessary(uniq([...this.props.subjectTrackState.visible, ...this.props.subjectTrackState.pinned, ...this.props.heatmapSubjectIDs]), this.trackRequestCancelToken);
   }
 

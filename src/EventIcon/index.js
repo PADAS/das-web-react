@@ -32,5 +32,5 @@ const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
 export default connect(mapStateToProps, null)(memo(EventIcon));
 
 EventIcon.propTypes = {
-  iconId: PropTypes.string.isRequired,
+  report: PropTypes.object.isRequired,
 };
