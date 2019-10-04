@@ -6,11 +6,11 @@
 }
 
 .wrapper {
-  flex-grow: 1;
+  position: relative;
 }
 
 .content {
-  left: 21%;
+  left: 25%;
   top: 30%;
   max-height: 50%;
   position: absolute;

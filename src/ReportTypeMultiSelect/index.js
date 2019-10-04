@@ -77,7 +77,7 @@ const ReportTypeMultiSelect = (props) => {
       {!!filterText.length
         && <Button onClick={selectFilteredItems} type="button" variant='info' size='sm' disabled={!filteredEventTypes.length}>
           {filteredEventTypes.length ?
-            `Set to these ${filteredEventTypes.length}`
+            `Set to ${filteredEventTypes.length > 1 ? `these ${filteredEventTypes.length}`  : 'this one'}`
             : 'No matches'
           }
         </Button>

@@ -84,7 +84,10 @@ export const getFeedIncidents = createSelector(
 
 export const getUserCreatableEventTypesByCategory = createSelector(
   [userCreatableEventTypesByCategory],
-  categories => categories,
+  categories => categories.map(cat => ({
+    ...cat,
+    types: cat.types.filter(t => !t.is_collection),
+  })),
 );
 
 

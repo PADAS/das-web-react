@@ -100,6 +100,8 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 17) => {
+  map.setZoom(map.getZoom() + 0.01);
+
   if (Array.isArray(coords[0])) {
     if (coords.length > 1) {
 
@@ -213,3 +215,11 @@ export const metersToPixelsAtMaxZoom = (meters, latitude) =>
 
   return maxMeters / maxWidth;
 }; */
+
+
+/* 
+CANCEL MAPBOX ZOOM PROGRMAMATICALLY
+
+Unfortunately there’s no public Mapbox method to cancel a camera movement, but you can change the zoom level to trigger a halt.
+map.setZoom(map.getZoom() + 0.01);
+*/

@@ -22,24 +22,24 @@ const calcIconUrl = (type, iconId) => {
   } else {
     return `#${ICON_PREFIX}generic_rep`;
   }
-}
+};
 
-const Icon = memo((props) => {
+const DasIcon = (props) => {
   const { type, iconId, color, ...rest } = props;
   return (
     <svg {...rest} fill={color}>
       <use href={calcIconUrl(type, iconId)} />
     </svg>
   );
-});
+};
 
-export default Icon;
+export default memo(DasIcon);
 
-Icon.defaultProps = {
+DasIcon.defaultProps = {
   color: 'white',
 };
 
-Icon.propTypes = {
+DasIcon.propTypes = {
   type: PropTypes.string.isRequired,
   iconId: PropTypes.string.isRequired,
   color: PropTypes.string,
