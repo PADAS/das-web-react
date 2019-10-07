@@ -20,8 +20,7 @@ import { getArrayOfVisibleHeatmapTracks, displayedSubjectTrackIDs } from '../sel
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
-import { setAnalyzerFeatureActiveStateByID, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
-// XXX check unused imports
+import { getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
@@ -186,7 +185,7 @@ class Map extends Component {
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
   }
-  
+
   onClusterClick(e) {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
@@ -210,7 +209,7 @@ class Map extends Component {
   }
 
   onCurrentUserLocationClick(location) {
-    this.props.showPopup('current-user-location', { location } );
+    this.props.showPopup('current-user-location', { location });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
 
@@ -295,10 +294,10 @@ class Map extends Component {
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, timeSliderState: { active:timeSliderActive } } = this.props;
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, timeSliderState: { active: timeSliderActive } } = this.props;
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
-    const { analyzerWarningLines, analyzerCriticalLines, 
+    const { analyzerWarningLines, analyzerCriticalLines,
       analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
 
     const tracksAvailable = !!trackIds && !!trackIds.length;
@@ -353,8 +352,8 @@ class Map extends Component {
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
-            <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys} 
-              criticalPolys={analyzerCriticalPolys}layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter} 
+            <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
+              criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
 
             {!!popup && <PopupLayer
@@ -364,7 +363,7 @@ class Map extends Component {
               heatmapState={this.props.heatmapSubjectIDs}
               trackState={this.props.subjectTrackState} />
             }
-            
+
           </Fragment>
         )}
 
@@ -380,7 +379,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
-    showTrackTimepoints, trackLength: { length:trackLength, origin:trackLengthOrigin } } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin } } = view;
 
   return ({
     maps,

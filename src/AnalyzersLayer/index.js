@@ -3,9 +3,9 @@ import { Source, Layer } from 'react-mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
 
-const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING, ANALYZER_LINES_CRITICAL} = LAYER_IDS;
+const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING, ANALYZER_LINES_CRITICAL } = LAYER_IDS;
 
-const IF_HAS_STATE = (stateType, activeProp, defaultProp) =>  [['boolean', ['feature-state', stateType], false], activeProp, defaultProp];
+const IF_HAS_STATE = (stateType, activeProp, defaultProp) => [['boolean', ['feature-state', stateType], false], activeProp, defaultProp];
 
 const IF_HAS_PROPERTY = (prop, defaultValue) => {
   return [['has', prop], ['get', prop], defaultValue];
@@ -15,56 +15,47 @@ const linePaint = {
   'line-dasharray': [1, 1.5],
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', 'yellow', '#CCC'), 
+    ...IF_HAS_STATE('active', 'yellow', '#CCC'),
   ],
   'line-opacity': [
     'case',
     ...IF_HAS_PROPERTY('stroke-opacity', .75),
   ],
   'line-width': 4,
- };
+};
 
- const criticalLinePaint = {
+const criticalLinePaint = {
   ...linePaint,
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', 'red', '#CCC'), 
+    ...IF_HAS_STATE('active', 'red', '#CCC'),
   ]
- };
+};
 
 const lineLayout = {
   'line-join': 'round',
   'line-cap': 'round',
 };
 
+// eslint-disable-next-line react/display-name
 const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, map }) => {
 
-  // XXX better way to do this?
-  const getLayerGroup = (featureId) => {
-    const featureGroup = []
-    layerGroups.forEach( (analyzer) => {
-      if (analyzer.feature_ids.includes(featureId)) {
-        featureGroup.push(...analyzer.feature_ids);
-      }});
-    return featureGroup;
-  };
+  const getLayerGroup = featureId => layerGroups
+    .filter(group => !!group.feature_ids.includes(featureId))
+    .reduce((accumulator, group) => [...accumulator, ...group.feature_ids], []);
 
   // hold state of feature group
   let hoverStateIds;
-
-  const onAnalyzerClick = (e) => {
-    onAnalyzerFeatureClick(e);
-  }
 
   const onAnalyzerFeatureEnter = (e) => {
     const featureId = e.features[0].properties.id;
     hoverStateIds = getLayerGroup(featureId);
     onAnalyzerGroupEnter(e, hoverStateIds);
-  }
+  };
 
   const onAnalyzerFeatureExit = (e) => {
     onAnalyzerGroupExit(e, hoverStateIds);
-  }
+  };
 
   const warningLinesData = {
     type: 'geojson',
@@ -92,63 +83,37 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
     <Source id='analyzer-line-warning-source' geoJsonSource={warningLinesData} />
     <Source id='analyzer-line-critical-source' geoJsonSource={criticalLinesData} />
 
-     {/* due to a bug in mapboxgl, we need to treat polys as lines, to 
-     get a dotted border line to appear */}
+    {/* due to a bug in mapboxgl, we need to treat polys as lines, to 
+     get a dotted border line to appear*/}
 
     <Layer sourceId='analyzer-polygon-warning-source' type='line'
-      id={ANALYZER_POLYS_WARNING} 
-      paint={linePaint} 
+      id={ANALYZER_POLYS_WARNING}
+      paint={linePaint}
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerClick}/>
+      onClick={onAnalyzerFeatureClick} />
 
     <Layer sourceId='analyzer-polygon-critical-source' type='line'
-      id={ANALYZER_POLYS_CRITICAL} 
+      id={ANALYZER_POLYS_CRITICAL}
       paint={criticalLinePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerClick}/>
+      onClick={onAnalyzerFeatureClick} />
 
     <Layer sourceId='analyzer-line-warning-source' type='line'
       id={ANALYZER_LINES_WARNING}
       paint={linePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerClick}/>
+      onClick={onAnalyzerFeatureClick} />
 
     <Layer sourceId='analyzer-line-critical-source' type='line'
-      id={ANALYZER_LINES_CRITICAL} 
+      id={ANALYZER_LINES_CRITICAL}
       paint={criticalLinePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerClick}/> 
-
-    {/* <GeoJSONLayer id={ANALYZER_POLYS_WARNING} data={warningPolys}
-      fillPaint={polyPaint}
-      fillLayout={polyLayout}
-      fillOnClick={onAnalyzerClick}
-    />
-    <GeoJSONLayer id={ANALYZER_POLYS_CRITICAL} data={criticalPolys}
-      fillPaint={criticalPolyPaint}
-      fillLayout={polyLayout}
-      fillOnClick={onAnalyzerClick}
-    />
-    <GeoJSONLayer id={ANALYZER_LINES_WARNING} data={warningLines}
-      lineLayout={lineLayout}
-      linePaint={linePaint}
-      lineOnMouseEnter={onAnalyzerFeatureEnter}
-      lineOnMouseLeave={onAnalyzerFeatureExit}
-      lineOnClick={onAnalyzerClick}
-    />
-    <GeoJSONLayer id={ANALYZER_LINES_CRITICAL} data={criticalLines}
-      lineLayout={lineLayout}
-      linePaint={criticalLinePaint}
-      lineOnMouseEnter={onAnalyzerFeatureEnter}
-      lineOnMouseLeave={onAnalyzerFeatureExit}
-      lineOnClick={onAnalyzerClick}
-    /> */}
-  </Fragment>
+      onClick={onAnalyzerFeatureClick} />
+  </Fragment>;
 });
-
 
 export default AnalyzerLayer;

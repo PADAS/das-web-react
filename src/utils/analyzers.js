@@ -1,12 +1,12 @@
-import {  bbox, bboxPolygon, circle, centroid } from '@turf/turf';
+import { bbox, bboxPolygon, circle, centroid } from '@turf/turf';
 import { LAYER_IDS } from '../constants';
 
-const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, 
+const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,
   ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
 const analyzerLayerIds = [ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,
-                          ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING];
+  ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING];
 
 const getAnalyzerFeaturesForId = (map, id) => {
   const features = map.queryRenderedFeatures({
@@ -48,8 +48,7 @@ export const fitMapBoundsForAnalyzer = (map, bounds) => {
 };
 
 export const getAnalyzerAdminPoint = (geometry) => {
-  const poly =  bboxPolygon(geometry);
-  console.log('poly', poly);
+  const poly = bboxPolygon(geometry);
   const centerPt = centroid(poly);
   return centerPt.geometry.coordinates;
 };
@@ -57,19 +56,19 @@ export const getAnalyzerAdminPoint = (geometry) => {
 // use turf.circle to construct a GEOJson Feature of type polygon
 // increase/decrease steps will affect the render fps
 export const createGeoJSONCircle = (center, radius, options) => {
-  if(!options) options = {steps: 32, units: 'kilometers'};
-  const poly_circle = circle(center, radius/1000, options);
+  if (!options) options = { steps: 32, units: 'kilometers' };
+  const poly_circle = circle(center, radius / 1000, options);
   return poly_circle;
 };
 
 export const analyzerSourceLayerMap = {
-  'LineString.warning_group' : ANALYZER_LINES_WARNING,
-  'MultiLineString.warning_group' : ANALYZER_LINES_WARNING,
-  'LineString.critical_group' : ANALYZER_LINES_CRITICAL,
-  'MultiLineString.critical_group' : ANALYZER_LINES_WARNING,
-  'Polygon.critical_group' : ANALYZER_POLYS_CRITICAL,
-  'Polygon.warning_group' : ANALYZER_POLYS_WARNING,
-  'Polygon.proximity_group' : ANALYZER_POLYS_WARNING,
-  'MultiPolygon.warning_group' : ANALYZER_POLYS_WARNING,
-  'MultiPolygon.critical_group' : ANALYZER_POLYS_CRITICAL
+  'LineString.warning_group': ANALYZER_LINES_WARNING,
+  'MultiLineString.warning_group': ANALYZER_LINES_WARNING,
+  'LineString.critical_group': ANALYZER_LINES_CRITICAL,
+  'MultiLineString.critical_group': ANALYZER_LINES_WARNING,
+  'Polygon.critical_group': ANALYZER_POLYS_CRITICAL,
+  'Polygon.warning_group': ANALYZER_POLYS_WARNING,
+  'Polygon.proximity_group': ANALYZER_POLYS_WARNING,
+  'MultiPolygon.warning_group': ANALYZER_POLYS_WARNING,
+  'MultiPolygon.critical_group': ANALYZER_POLYS_CRITICAL
 }

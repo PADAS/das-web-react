@@ -11,21 +11,19 @@ import { hidePopup } from '../ducks/popup';
 
 const AnalyzerConfigPopup = (props) => {
 
-  const { data: { geometry, properties }, ...rest } = props;
+  const { data: { geometry, properties } } = props;
 
-  // XXX better way to inject style and stroke?
-  const iconForCategory = category => { 
-    const style = {height: '2rem', width: '2rem', marginRight: '.25rem'};
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={style} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={style} />;
+  const iconForCategory = category => {
+    if (category === 'geofence') return <GeofenceIcon className={styles.typeIcon} />;
+    if (category === 'proximity') return <ProximityIcon className={styles.typeIcon} />;
     return null;
-  }
+  };
 
   return (
-    <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry} id={`analyzer-config`}>
+    <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry} id='analyzer-config-popup'>
       <div className={styles.analyzerPopup}>
         <h4>{iconForCategory(properties.analyzer_type)}{properties.title}
-          <a target="_blank" rel= "noopener noreferrer" href={properties.admin_href}><GearIcon fill = '#1E90FF' style={{height: '1.0rem', width: '1.0rem', marginLeft: '.5rem'}}/>
+          <a target="_blank" rel="noopener noreferrer" href={properties.admin_href}><GearIcon className={styles.gearIcon} />
           </a>
         </h4>
         <h5>{properties.analyzer_type}</h5>
