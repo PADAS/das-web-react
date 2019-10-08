@@ -14,7 +14,7 @@ export const createSelector = createSelectorCreator(
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
-const showInactiveRadios = ({ view: { showInactiveRadios}}) => showInactiveRadios;
+const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
@@ -97,22 +97,21 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
-// TODO - refactor this and the feature call to share a reduce function
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures],
   (analyzerFeatures) => {
     const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
       [...accumulator,
       ...data.geojson.features.map(feature => {
-        // assign analyzer type to each feature
         feature.analyzer_type = data.type;
         return feature;
       })], []);
     // simulate layergroups found in old codebase by passing the feature ids
-    // of the analyzer feature collection so they can be looked up at runtime
-    const layerGroups = analyzerFeatures.map( (analyzer) => {
-      const featureIds = analyzer.geojson.features.map( feature => feature.properties.id);
-      return {id: analyzer.id, feature_ids: featureIds};
+    // of the analyzer feature collection so they can be looked up at runtime - 
+    // ie when a rollover occurs with a mouse
+    const layerGroups = analyzerFeatures.map((analyzer) => {
+      const featureIds = analyzer.geojson.features.map(feature => feature.properties.id);
+      return { id: analyzer.id, feature_ids: featureIds };
     });
 
     const analyzerPayload = {
@@ -160,5 +159,5 @@ const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
 
 const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group', 'Point.containment_regions_group'];
 const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
-const warningAnalyzerPolyTypes= ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group'];
-const criticalAnalyzerPolyTypes= ['Polygon.critical_group', 'MultiPolygon.critical_group'];
+const warningAnalyzerPolyTypes = ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group'];
+const criticalAnalyzerPolyTypes = ['Polygon.critical_group', 'MultiPolygon.critical_group'];

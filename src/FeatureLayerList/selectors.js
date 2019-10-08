@@ -25,7 +25,6 @@ export const getAnalyzerListState = createSelector(
   [analyzerFeatures],
   (analyzerFeatures) => {
     const features = (analyzerFeatures).map((analyzer) => {
-      console.log('analyzerFeatures', analyzerFeatures);
       // aggregate the feature ids, and store them in the first feature,
       // so that we can be FeatureLayerList compatible, but still know 
       // what features are related when used in a transient (rolling on 

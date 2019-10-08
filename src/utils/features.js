@@ -60,7 +60,6 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
     filter: ['in', 'id', id],
     layers: [FEATURE_FILLS, FEATURE_LINES],
   });
-  console.log('id', id, 'features', features);
   features.forEach((feature) => {
     map.setFeatureState(feature, { 'active': state });
   });
