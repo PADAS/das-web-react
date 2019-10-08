@@ -24,7 +24,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
-const ContentComponent = memo(debounceRender((props) => {
+const ContentComponent = debounceRender((props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
     hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter, 
     addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, listLevel,
@@ -121,10 +121,10 @@ const ContentComponent = memo(debounceRender((props) => {
         itemComponent={SubjectListItem} />
     }
   </Collapsible>;
-}));
+});
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
-const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(ContentComponent);
+const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(memo(ContentComponent));
 export default ConnectedComponent;
 
 

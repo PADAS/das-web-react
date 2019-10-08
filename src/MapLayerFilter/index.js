@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 
 import debounce from 'lodash/debounce';
 
-import { updateMapLayerFilter, INITIAL_FILTER_STATE } from '../ducks/map-layer-filter';
+import { updateMapLayerFilter } from '../ducks/map-layer-filter';
 import { trackEvent } from '../utils/analytics';
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
 
-const MapLayerFilter = memo((props) => {
+const MapLayerFilter = (props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;
   const { filter: { text } } = mapLayerFilter;
 
@@ -20,7 +20,7 @@ const MapLayerFilter = memo((props) => {
   const onClearSearch = (e) => {
     e.stopPropagation();
     updateMapLayerFilter({
-       filter: {text: ''}
+      filter: {text: ''}
     });
     trackEvent('Map Layers', 'Clear Search Text Filter');
   };
@@ -39,8 +39,8 @@ const MapLayerFilter = memo((props) => {
     <SearchBar className={styles.search} placeholder='Search Layers...' text={text || ''} 
       onChange={onSearchChange} onClear={onClearSearch}/>
   </form>;
-});
+};
 
 const mapStatetoProps = ({ data: { mapLayerFilter } }) => ({ mapLayerFilter });
 
-export default connect(mapStatetoProps, { updateMapLayerFilter })(MapLayerFilter);
+export default connect(mapStatetoProps, { updateMapLayerFilter })(memo(MapLayerFilter));

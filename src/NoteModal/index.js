@@ -10,7 +10,7 @@ import { removeModal } from '../ducks/modals';
 
 const { Header, Title, Body, Footer } = Modal;
 
-const NoteModal = memo((props) => {
+const NoteModal = (props) => {
   const { note, id, removeModal, onSubmit } = props;
 
   const inputRef = useRef(null);
@@ -47,7 +47,7 @@ const NoteModal = memo((props) => {
         <Button tabIndex={2} type="submit" variant="primary">Save</Button>
       </Footer>
     </Form>
-  </Fragment>
-});
+  </Fragment>;
+};
 
-export default connect(null, { removeModal })(NoteModal);
+export default connect(null, { removeModal })(memo(NoteModal));

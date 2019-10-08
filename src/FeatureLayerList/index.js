@@ -20,12 +20,12 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 
-const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures, 
+const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, 
   hiddenFeatureIDs, map, mapLayerFilter }) => {
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+        ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
       ], [])
   );
 
@@ -70,7 +70,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
       trackEvent('Map Layers', 'Check All Features checkbox');
       return showAllFeatures();
     }
-  }
+  };
 
   const featureFilterIsMatch = (feature) => {
     if (searchText.length === 0) return true;
@@ -116,7 +116,7 @@ const FeatureLayerList = memo(({ featureList, hideFeatures, showFeatures,
       </Collapsible>
     </li>
   </ul>;
-});
+};
 
 const mapStateToProps = (state) => ({ 
   featureList: getFeatureLayerListState(state), 
@@ -124,4 +124,4 @@ const mapStateToProps = (state) => ({
   mapLayerFilter: state.data.mapLayerFilter 
 });
 
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);
+export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureLayerList));

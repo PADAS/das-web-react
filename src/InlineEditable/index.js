@@ -5,7 +5,7 @@ import styles from './styles.module.scss';
 
 import Checkmark from '../Checkmark';
 
-const InlineEditable = memo((props) => {
+const InlineEditable = (props) => {
   const { validationFunc, value:originalValue, onSave, onChange, showCancel,showEditButton, ...rest } = props;
   const inputRef = useRef(null);
 
@@ -82,9 +82,9 @@ const InlineEditable = memo((props) => {
   );
 
 
-});
+};
 
-export default InlineEditable;
+export default memo(InlineEditable);
 
 
 InlineEditable.defaultProps = {

@@ -11,7 +11,7 @@ import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 
-const ReportedBySelect = memo((props) => {
+const ReportedBySelect = (props) => {
   const { reporters, subjects, onChange, numberOfRecentRadiosToShow, value } = props;
 
   const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
@@ -60,14 +60,14 @@ const ReportedBySelect = memo((props) => {
     placeholder='Reported By...'
     styles={DEFAULT_SELECT_STYLES}
     getOptionLabel={getOptionLabel} />;
-});
+};
 
 const mapStateToProps = (state) => ({
   reporters: reportedBy(state),
   subjects: allSubjects(state),
 });
 
-export default connect(mapStateToProps, null)(ReportedBySelect);
+export default connect(mapStateToProps, null)(memo(ReportedBySelect));
 
 ReportedBySelect.defaultProps = {
   value: null,

@@ -57,7 +57,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const reportTypeChecked = (type) => selectedReportTypeIDs.includes(type.id);
 
-  const ListItem = memo((props) => { // eslint-disable-line react/display-name
+  const ListItem = (props) => { // eslint-disable-line react/display-name
     const { display, types } = props;
     return <Fragment key={display}>
       <h5>{display}</h5>
@@ -68,7 +68,9 @@ const ReportTypeMultiSelect = (props) => {
         itemFullyChecked={reportTypeChecked}
       />
     </Fragment>;
-  });
+  };
+
+  const MemoizedListItem = memo(ListItem);
 
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
@@ -87,7 +89,7 @@ const ReportTypeMultiSelect = (props) => {
       className={styles.reportTypeList}
       onCheckClick={onCategoryToggle}
       items={itemsGroupedByCategory}
-      itemComponent={ListItem}
+      itemComponent={MemoizedListItem}
       itemFullyChecked={categoryFullyChecked}
       itemPartiallyChecked={categoryPartiallyChecked}
     />
