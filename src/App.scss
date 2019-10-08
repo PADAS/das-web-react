@@ -45,21 +45,30 @@ body {
   position: fixed;
 }
 
+.App, #root {
+  height: 100%;
+}
+
 .App {
+  display: flex;
+  flex-flow: column;
   &.picking-location {
     #{$non-map-top-level-components} {
       cursor: not-allowed !important;
       pointer-events: none !important;
     }
+
     #{$map-canvas} {
       cursor: crosshair;
     }
+
     .mapboxgl-ctrl-bottom-right,
     .mapbox-scale-ctrl,
     .mapbox-zoom-ctrl {
       display: none !important;
     }
   }
+
   &.dragging {
     cursor: no-drop;
   }
@@ -96,11 +105,13 @@ aside {
   .modal-content {
     max-height: 98vh;
     padding: 0;
+
     @media (min-height: $lg-height-min) {
       max-height: 80vh;
     }
+
     >div>*:not(form) {
-      padding: 1rem;
+      padding: 1rem 0.5rem;
     }
 
     >div>form {
@@ -126,13 +137,75 @@ aside {
 
 }
 
+.react-calendar {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 3px $light-gray-border;
+  padding: 0.5rem;
+  .react-calendar__month-view__days {
+    button {
+      border-radius: 100%;
+      height: 3rem;
+      width: 3rem;
+  
+      &:not(:disabled):hover,
+      &.react-calendar__tile--active {
+        border: 1px solid $light-gray-border;
+      }
+  
+      &.react-calendar__tile--active {
+        background: unset;
+        color: unset;
+      }
+    }
+  }
+  .react-calendar__navigation__label {
+    font-weight: bold;
+  }
+  .react-calendar__tile:disabled {
+    background: none;
+    opacity: 0.5;
+  }
+}
+
+.react-datetime-picker__inputGroup, .react-datetime-picker__inputGroup__input {
+  color: $bright-blue;
+}
+
+.react-datetime-picker__wrapper {
+  border: 1px solid $light-gray-border;
+  cursor: pointer;
+  > * {
+    cursor: pointer;
+  }
+}
+
+/* .react-datetime-picker__clear-button {
+  align-items: center;
+  border: 1px solid $bright-blue;
+  border-radius: 100%;
+  display: flex;
+  height: 1rem;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  top: -0.25rem;
+  width: 1rem;
+  svg {
+    height: 75%;
+    fill: $bright-blue;
+    stroke: $bright-blue;
+    width: 75%;
+  }
+} */
+
 .maplock {
   text-align: center;
 }
 
 .app-container {
+  flex: 1;
   position: relative;
-  height: calc(100vh - var(--nav-height));
   width: 100vw;
   z-index: 1;
 
@@ -164,7 +237,7 @@ aside {
   }
 
   .mapboxgl-map {
-    height: calc(100vh - var(--nav-height));
+    height: 100%;
     transition: width .3s ease-in-out;
     width: 100vw;
   }
@@ -180,7 +253,7 @@ aside {
   display: flex;
   flex-flow: column;
   flex-grow: 0;
-  height: calc(100vh - var(--nav-height));
+  height: 100%;
   position: absolute;
   right: 0;
   transition: transform .3s ease-in-out;
@@ -239,6 +312,7 @@ aside {
       display: block;
       transform: rotate(180deg);
       transition: transform .2s .3s ease-in-out;
+
       svg {
         width: 0.75rem;
         height: 0.75rem;
@@ -329,7 +403,7 @@ div.mapboxgl-popup-tip {
 
 .modal[role=dialog] {
   @include fade-in;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .modal-backdrop {
@@ -337,7 +411,7 @@ div.mapboxgl-popup-tip {
 }
 
 @media (min-width: $md-layout-width-min) {
-  .event-form-modal + .modal-backdrop + .event-form-modal .modal-dialog {
+  .event-form-modal+.modal-backdrop+.event-form-modal .modal-dialog {
     left: 1rem;
     top: 1rem;
   }
@@ -352,7 +426,10 @@ div.mapboxgl-popup-tip {
   display: flex;
   padding: .5rem 1rem;
   user-select: text;
-  &:active, &:visited, &:focus {
+
+  &:active,
+  &:visited,
+  &:focus {
     background-color: unset;
     color: unset;
     outline: none;

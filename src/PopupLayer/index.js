@@ -26,5 +26,4 @@ export default memo(withMap(PopupLayer));
 
 PopupLayer.propTypes = {
   popup: PropTypes.object.isRequired,
-  trackState: PropTypes.object.isRequired,
 };

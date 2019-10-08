@@ -5,13 +5,12 @@ import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
-import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, getUniqueSubjectGroupSubjectIDs, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
 import listStyles from '../SideBar/styles.module.scss';
-
 
 const SubjectGroupList = memo((props) => {
   const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
@@ -58,8 +57,8 @@ const SubjectGroupList = memo((props) => {
 
   // if search filter is enabled, filter the subjectGroups array otherwise
   // just make sure to filter out any empty subject groups.
-  const filteredSubjectGroups = subjectFilterEnabled ? 
-    filterSubjects(subjectGroups, subjectFilterIsMatch) : 
+  const filteredSubjectGroups = subjectFilterEnabled ?
+    filterSubjects(subjectGroups, subjectFilterIsMatch) :
     subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
   const itemProps = {
@@ -86,7 +85,7 @@ const SubjectGroupList = memo((props) => {
     isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
 );
 
-const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) => 
+const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) =>
   ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(SubjectGroupList);
 

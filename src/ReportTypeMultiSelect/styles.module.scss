@@ -1,6 +1,29 @@
 @import '../common/styles/vars/colors';
 
+
+.wrapper {
+  height: 100%;
+  overflow: hidden;
+  padding-top: 3rem;
+  position: relative;
+}
+
+.searchBar {
+  align-items: center;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  left: 0;
+  padding: 0 0.75rem;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
 .reportTypeList {
+  height: 100%;
+  margin: 0;
+  overflow-y: auto;
   > li {
     background: $light-gray-background;
     display: flex;

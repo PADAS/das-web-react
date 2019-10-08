@@ -3,7 +3,7 @@ import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 
-import { createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
+import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
 
@@ -13,6 +13,9 @@ export const createSelector = createSelectorCreator(
 );
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
+const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
+const showInactiveRadios = ({ view: { showInactiveRadios}}) => showInactiveRadios;
+const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
@@ -45,6 +48,14 @@ const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
       return false;
     });
 
+export const getMapSubjectFeatureCollection = createSelector(
+  [mapSubjects, hiddenSubjectIDs, showInactiveRadios],
+  (mapSubjects, hiddenSubjectIDs, showInactiveRadios) => {
+    const mapSubjectFeatureCollection = createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)));
+    if (showInactiveRadios) return mapSubjectFeatureCollection;
+    return filterInactiveRadiosFromCollection(mapSubjectFeatureCollection);
+  });
+
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents, eventStore],
   (mapEvents, eventStore) => createFeatureCollectionFromEvents(mapEvents
@@ -74,7 +85,10 @@ export const getFeedIncidents = createSelector(
 
 export const getUserCreatableEventTypesByCategory = createSelector(
   [userCreatableEventTypesByCategory],
-  categories => categories,
+  categories => categories.map(cat => ({
+    ...cat,
+    types: cat.types.filter(t => !t.is_collection),
+  })),
 );
 
 

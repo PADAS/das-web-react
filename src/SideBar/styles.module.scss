@@ -115,6 +115,10 @@
       }
     }
   }
+  .reportDesc {
+    background: lighten($light-gray-background, 3.5%);
+    width: 100%;
+  }
 }
 
 .controls {
@@ -165,5 +169,18 @@
     [role=tooltip] {
       left: -1rem;
     }
+  }
+}
+
+.mapLayerFooter {
+  background-color: $map-layers-footer;
+  height: 2rem;
+  width:100%;
+  text-align:left;
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  a {
+      margin-left: .5rem;
   }
 }

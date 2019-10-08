@@ -1,0 +1,26 @@
+@import '../common/styles/vars/colors';
+
+$checkmark-color: $medium-light-gray;
+$hover-color: darken($checkmark-color, 12.5%);
+
+.clearAllRow {
+    width:100%;
+    text-align:left;
+    padding: .25rem 0 .25rem 1rem;
+    position: absolute;
+	bottom: 0;
+    z-index: 3;
+    a {
+        color: $medium-blue;
+        margin-left: .5rem;
+    }
+}
+
+.checkmark {
+    --dimensions: 1.5rem;
+    fill: none;
+    flex-shrink: 0;
+    height: --dimensions;
+    stroke: $medium-blue;
+    stroke-width: calc(var(--dimensions)/6);
+}

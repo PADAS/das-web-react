@@ -1,4 +1,14 @@
-export const calcTopRatedIconForEventTypes = reportTypes => [...reportTypes].sort((a, b) => b.default_priority - a.default_priority).sort((a, b) => a.ordernum - b.ordernum)[0];
+export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
+  const { contains } = collection;
+  const reportsWithTypes = contains.map(({ related_event }) => {
+    const { event_type } = related_event;
+    return { related_event,
+      event_type: reportTypes.find(({ value }) => value === event_type),
+    };
+  });
+  return reportsWithTypes
+    .sort((a, b) => (b.related_event.priority || b.event_type.default_priority) - (a.related_event.priority || a.event_type.default_priority))[0];
+};
 
 export const calcIconColorByPriority = (priority) => {
   switch (priority) {

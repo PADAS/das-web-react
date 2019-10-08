@@ -1,12 +1,13 @@
-.label {
-  .wrapper {
-    display: block;
-    position: relative;
-  }
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
 
+.label {
+  position: relative;
+  width: 50%;
   .nullMessage {
     pointer-events: none;
   }
+
 
   // .nullMessage, [class*=react-datetime-picker__inputGroup__input] [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open], [class*=react-datetime-picker__wrapper] {
   //   cursor: pointer;
@@ -17,26 +18,60 @@
 
   .nullMessage, [class*=react-datetime-picker__wrapper] {
     align-items: center;
-    border: 1px solid gray;
     display: flex;
+    font-size: 0.75rem;
     height: 2rem;
     padding: 0.25rem;
   }
   .nullMessage {
+    border: 1px solid $light-gray-border;
+    color: $link-color;
     position: absolute;
     + [class*=react-datetime-picker--closed] {
       opacity: 0;
     }
   }
+  [class|=react-calendar] {
+    // top: 45% !important;
+    position: fixed !important;
+  }
+  + .label [class*=react-datetime-picker__calendar] {
+    left: 50% !important;
+  }
 }
 
 .presets {
   align-items: center;
+  background: lighten($light-gray-background, 5%);
   display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  padding: 1rem 1rem 0;
   button {
+    @include linkButton;
+    color: $medium-light-gray;
     margin-bottom: 1rem;
+    text-decoration: none;
+    &:hover, &:active {
+      background: none !important;
+      text-decoration: underline;
+    }
   }
+  &:hover {
+    button {
+      color: $link-color;
+    }
+  }
+}
+
+.dateSelectorWrapper {
+  align-items: baseline;
+  display: flex;
+  margin: 0.5rem 0 1rem;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.dateRangeArrow {
+  margin: 0 0.5rem;
 }

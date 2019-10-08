@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import DateTime from '../DateTime';
@@ -6,44 +7,54 @@ import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 import { jumpToLocation } from '../utils/map';
 
-import { getCoordinatesForEvent } from '../utils/events';
-import { displayTitleForEventByEventType } from '../utils/events';
+import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, displayTitleForEventByEventType } from '../utils/events';
+import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, ...rest } = props;
-  const coordinates = getCoordinatesForEvent(report);
+  const { eventTypes, map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, dispatch: _dispatch, ...rest } = props;
+
+  const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
+  const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 
   const iconClickHandler = onIconClick || onTitleClick;
 
-  const onJumpButtonClick = (map, coordinates, zoom) => {
-    // Need to handle the JumpButtonClick here instead of allowing the default
-    // LocationJumpButton handler because we need to distinguish the GA event.
-    trackEvent('Map Layers', 'Click Jump To Report Location button', 
-      `Report Type:${report.event_type}`);
-    jumpToLocation(map, coordinates, zoom);
+  let displayPriority;
+
+  if (report.is_collection && !!report.contains.length) {
+    const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+    console.log('collection info', topRatedReportAndType);
+    displayPriority = topRatedReportAndType ? (topRatedReportAndType.related_event.priority || topRatedReportAndType.event_type.default_priority) : report.priority;
+  } else {
+    displayPriority = report.priority;
   }
 
-  return <li className={`${styles.listItem} ${styles[`priority-${report.priority}`]} ${className}`} key={key} {...rest}>
-    <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}><EventIcon iconId={report.icon_id} /></button>
+
+  const onJumpButtonClick = () => {
+    trackEvent('Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`);
+    jumpToLocation(map, coordinates);
+  };
+
+  return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
+    <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
+      <EventIcon report={report} />
+    </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
     <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEventByEventType(report)}</button>
     <span className={styles.date}>
       <DateTime date={report.updated_at || report.time} />
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
-    {coordinates && showJumpButton &&
-      <div className={styles.jump}>
-        <LocationJumpButton coordinates={coordinates} map={map} 
-          onButtonClick={onJumpButtonClick}/>
-      </div>
+    {coordinates && !!coordinates.length && showJumpButton &&
+      <LocationJumpButton isMulti={hasMultipleLocations} onButtonClick={onJumpButtonClick} />
     }
   </li>;
 };
 
-export default memo(ReportListItem);
+const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+export default connect(mapStateToProps, null)(memo(ReportListItem));
 
 ReportListItem.defaultProps = {
   showJumpButton: true,

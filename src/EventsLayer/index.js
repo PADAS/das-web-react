@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect } from 'react';
+import React, { Fragment, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
@@ -51,49 +51,72 @@ const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
 
-  useEffect(() => {
-    events && addFeatureCollectionImagesToMap(events, map);
-  }, [events]);
-
-  const handleEventClick = (e) => {
+  const handleEventClick = useRef((e) => {
     e.preventDefault();
     e.originalEvent.stopPropagation();
     const clickedLayer = getEventLayer(e, map);
     onEventClick(clickedLayer);
+  });
+
+  useEffect(() => {
+    !!events && addFeatureCollectionImagesToMap(events, map);
+    map.on('click', EVENT_SYMBOLS, handleEventClick.current);
+    return () => {
+      map.off('click', EVENT_SYMBOLS, handleEventClick.current); // eslint-disable-line
+    };
+  }, [events, map]);
+
+  const eventClusterDisabledLayout = enableClustering ? {} : {
+    'icon-allow-overlap': true,
+    'text-allow-overlap': true,
   };
 
   const eventSymbolLayerLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-field': '{display_title}',
     ...mapNameLayout,
+    ...eventClusterDisabledLayout,
   };
 
-  const sourceData = {
-    type: 'geojson',
-    data: events,
+  const clusterConfig = {
     cluster: true,
     clusterMaxZoom: 17, // Max zoom to cluster points on
     clusterRadius: 40,
   };
 
+  const sourceData = {
+    type: 'geojson',
+    data: events,
+  };
+
+  const clusteredSourceData = {
+    ...sourceData,
+    ...clusterConfig,
+  };
+
   return <Fragment>
-    <Source id='events-data' geoJsonSource={sourceData} />
+    <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />
+    <Source id='events-data-unclustered' geoJsonSource={sourceData} />
 
-    <Layer sourceId='events-data' id={EVENT_SYMBOLS} type='symbol'
+    {!enableClustering && <Layer geoJSONSourceOptions={clusterConfig} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
+      paint={eventSymbolLayerPaint}
+      layout={eventSymbolLayerLayout} {...rest} />}
+
+    {enableClustering && <Layer geoJSONSourceOptions={clusterConfig} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
       filter={['!has', 'point_count']}
-      onClick={handleEventClick} paint={eventSymbolLayerPaint}
-      layout={eventSymbolLayerLayout} {...rest} />
+      paint={eventSymbolLayerPaint}
+      layout={eventSymbolLayerLayout} {...rest} />}
 
 
-    <Layer sourceId='events-data' id={EVENT_CLUSTER_COUNT_SYMBOLS} type='symbol'
-      filter={['has', 'point_count']} layout={clusterCountSymbolLayout} />
+    {enableClustering && <Layer geoJSONSourceOptions={clusterConfig} sourceId='events-data-clustered' id={EVENT_CLUSTER_COUNT_SYMBOLS} type='symbol'
+      filter={['has', 'point_count']} layout={clusterCountSymbolLayout} />}
 
-    <Layer before={EVENT_CLUSTER_COUNT_SYMBOLS} sourceId='events-data' id={EVENT_CLUSTERS_CIRCLES} type='circle'
-      filter={['has', 'point_count']} onClick={onClusterClick} paint={clusterPaint} />
+    {enableClustering && <Layer geoJSONSourceOptions={clusterConfig} before={EVENT_CLUSTER_COUNT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='circle'
+      filter={['has', 'point_count']} onClick={onClusterClick} paint={clusterPaint} />}
   </Fragment>;
 };
 
-export default memo(withMapNames(withMap(EventsLayer)));
+export default withMapNames(withMap(memo(EventsLayer)));
 
 EventsLayer.defaultProps = {
   onClusterClick() {

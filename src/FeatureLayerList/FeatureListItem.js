@@ -26,11 +26,13 @@ const FeatureListItem = memo((props) => {
   const onAnalyzerJumpButtonClick = () => {
     showFeatures(properties.id);
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
-    setTimeout(() => {
-      setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
-    }, 200);
     const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
     props.showPopup('analyzer-config', { geometry, properties });
+    setTimeout(() => {
+      const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
+      props.showPopup('analyzer-config', { geometry, properties });
+      setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
+    }, 200);
     trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
       `Feature Type:${properties.type_name}`);
   };

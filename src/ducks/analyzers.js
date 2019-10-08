@@ -49,6 +49,7 @@ export const fetchAnalyzers = () => async (dispatch) => {
     }));
 
     const results = analyzers.filter(item => !!item.geojson.features.length);
+
     dispatch({
       type: FETCH_ANALYZERS_SUCCESS,
       payload: results,

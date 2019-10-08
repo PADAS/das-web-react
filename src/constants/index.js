@@ -147,6 +147,8 @@ export const DEFAULT_SELECT_STYLES = {
 
 export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,
+  clearIcon: null,
+  calendarIcon: null,
   format: 'dd-MM-yyyy HH:mm',
 };
 

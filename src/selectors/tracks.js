@@ -80,16 +80,18 @@ const trimTracksForLengthAndRange = (collection, trackLength, timeSliderState, e
   const { virtualDate, active:timeSliderActive } = timeSliderState;
   const { lower } = eventFilterDateRange;
 
-  const trackLengthStartDate = startOfDay(
+  let trackLengthStartDate = startOfDay(
     subDays(new Date(), trackLength.length),
   );
 
   if (timeSliderActive) {
-    const startDate = !!(lower - trackLengthStartDate) ? trackLengthStartDate : lower;
+    if (virtualDate) {
+      trackLengthStartDate = virtualDate ? subDays(virtualDate, trackLength.length) : trackLengthStartDate;
+    }
 
+    const startDate = !!(trackLengthStartDate - new Date(lower)) ? trackLengthStartDate : new Date(lower);
     return trimTrackFeatureCollectionToTimeRange(collection, startDate, virtualDate);
-
-  };
+  }
 
   return trimTrackFeatureCollectionToTimeRange(collection, trackLengthStartDate);
 };

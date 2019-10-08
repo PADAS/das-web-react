@@ -17,7 +17,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import styles from './styles.module.scss';
 
-const SubjectControls = memo((props) => {
+const SubjectControls = (props) => {
   const { subject,
     showHeatmapButton,
     showTrackButton,
@@ -83,7 +83,7 @@ const SubjectControls = memo((props) => {
     trackEvent('Map Layers', 'Click Jump To Subject Location button', 
       `Subject Type:${subject.subject_type}`);
     jumpToLocation(map, coordinates, zoom);
-  }
+  };
 
   if (!canShowTrackForSubject(subject)) return null;
   if (!showHeatmapButton && !showTrackButton && !showJumpButton) return null;
@@ -98,7 +98,7 @@ const SubjectControls = memo((props) => {
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
       map={map} onButtonClick={onJumpButtonClick}/>}
   </div>;
-});
+};
 
 
 SubjectControls.defaultProps = {
@@ -119,4 +119,4 @@ SubjectControls.propTypes = {
 
 const mapStateToProps = (state, props) => getSubjectControlState(state, props);
 
-export default connect(mapStateToProps, { toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(SubjectControls);
+export default connect(mapStateToProps, { toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(memo(SubjectControls));

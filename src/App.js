@@ -63,9 +63,8 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
-
-const App = memo((props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchAnalyzers, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
+const App = (props) => {
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -87,7 +86,7 @@ const App = memo((props) => {
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    trackEvent('Drawer', `${sidebarOpen?'Close':'open'} Drawer`, null);
+    trackEvent('Drawer', `${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
   };
 
   clearInterval(mapInterval);
@@ -145,8 +144,8 @@ const App = memo((props) => {
       </div>
     </div>
   );
-});
+};
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(App);
+export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));

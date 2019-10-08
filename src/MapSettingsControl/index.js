@@ -9,6 +9,7 @@ import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
+import InactiveRadioControl from '../InactiveRadioControl';
 
 
 const MapSettingsControl = (props) => {
@@ -21,6 +22,7 @@ const MapSettingsControl = (props) => {
         <li><MapLockControl /></li>
         <li><MapNamesControl /></li>
         <li><MapTrackTimepointsControl /></li>
+        <li><InactiveRadioControl /></li>
         {hasUserLocation && <li><UserLocationMapControl /></li>}
       </ul>
     </Popover>

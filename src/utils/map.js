@@ -2,11 +2,13 @@ import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
-
-import { store } from '../';
-
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
+
+const emptyFeatureCollection = {
+  'type': 'FeatureCollection',
+  'features': []
+};
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
@@ -63,6 +65,13 @@ const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((
   return item;
 });
 
+export const filterInactiveRadiosFromCollection = (subjects) => {
+  if (subjects && subjects.features.length) {
+    return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
+  }
+  return emptyFeatureCollection;
+};
+
 const addTitleToGeoJson = (geojson, title) => (geojson.properties.display_title = title) && geojson;
 
 const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleToGeoJson(addIconToGeoJson(geojson), title || event_type));
@@ -91,12 +100,30 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 17) => {
-  map.flyTo({
-    center: coords,
-    zoom,
-    speed: 50,
-  });
+  map.setZoom(map.getZoom() + 0.01);
 
+  if (Array.isArray(coords[0])) {
+    if (coords.length > 1) {
+
+      const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
+      map.fitBounds(boundaries, {
+        linear: true,
+        speed: 50,
+      });
+    } else {
+      map.flyTo({
+        center: coords[0],
+        zoom,
+        speed: 50,
+      });
+    }
+  } else {
+    map.flyTo({
+      center: coords,
+      zoom,
+      speed: 50,
+    });
+  };
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
   setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
@@ -138,12 +165,12 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
   };
 };
 
-export const bindGetMapCoordinatesOnClick = (map, fn) => map.on('click', fn);
-export const unbindGetMapCoordinatesOnClick  = (map, fn) => map.off('click', fn);
+export const bindMapClickFunction = (map, fn) => map.on('click', fn);
+export const unbindMapClickFunction = (map, fn) => map.off('click', fn);
 
 export const lockMap = (map, isLocked) => {
   const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
-  if(isLocked === true) {
+  if (isLocked === true) {
     mapControls.forEach(function (control) {
       map[control].disable();
     });
@@ -153,6 +180,10 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
+};
+
+export const displayInactiveRadios = (map, display) => {
+
 };
 
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>
@@ -184,3 +215,11 @@ export const metersToPixelsAtMaxZoom = (meters, latitude) =>
 
   return maxMeters / maxWidth;
 }; */
+
+
+/* 
+CANCEL MAPBOX ZOOM PROGRMAMATICALLY
+
+Unfortunately there’s no public Mapbox method to cancel a camera movement, but you can change the zoom level to trigger a halt.
+map.setZoom(map.getZoom() + 0.01);
+*/
