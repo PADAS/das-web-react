@@ -5,7 +5,7 @@ import { LngLatBounds } from 'mapbox-gl';
 import { LAYER_IDS } from '../constants';
 import { featureSets } from '../selectors';
 
-const { FEATURE_FILLS, FEATURE_LINES } = LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
 export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));
@@ -76,12 +76,12 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
 export const filterFeatures = (f, isMatch) => {
   let newF = [];
   if (f.featuresByType) { // a featureset obj has featuresByType array
-    newF = {...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch))};
-    newF.featuresByType = newF.featuresByType.filter(fbt=> !!fbt.features.length);
-  } 
+    newF = { ...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch)) };
+    newF.featuresByType = newF.featuresByType.filter(fbt => !!fbt.features.length);
+  }
   else if (f.features) { // a featuresByType obj has features array:
-    newF = {...f, features: f.features.filter(isMatch)};
-  } 
+    newF = { ...f, features: f.features.filter(isMatch) };
+  }
   else { // top level featureset array:
     newF = f.map(fs => filterFeatures(fs, isMatch));
     newF = newF.filter(fs => !!fs.featuresByType.length);
@@ -95,3 +95,10 @@ export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(
     ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
     ], [])
 );
+
+export const getFeatureSymbolAtPoint = (geo, map) => {
+  const features = map.queryRenderedFeatures(geo, {
+    layers: [FEATURE_SYMBOLS],
+  });
+  return features[0].properties;
+};

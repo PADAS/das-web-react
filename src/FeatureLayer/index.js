@@ -5,13 +5,14 @@ import { Source, Layer } from 'react-mapbox-gl';
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 
+import { getFeatureSymbolAtPoint } from '../utils/features';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const ACTIVE_FEATURE_STATE = 'active';
-const IF_ACTIVE = (activeProp) =>  [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
+const IF_ACTIVE = (activeProp) => [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
 
 const IF_HAS_PROPERTY = (prop, defaultValue) => {
   return [['has', prop], ['get', prop], defaultValue];
@@ -33,8 +34,6 @@ const linePaint = {
     ...IF_HAS_PROPERTY('stroke-width', 1),
   ],
 };
-
-
 
 const fillLayout = {
   'visibility': 'visible',
@@ -60,20 +59,31 @@ const lineLayout = {
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
+  //'text-size': 0
 };
 
 const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, map }) => {
+const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameLayout, map }) => {
   const layout = {
     ...symbolLayout,
     ...mapNameLayout,
   };
 
   addFeatureCollectionImagesToMap(symbols, map);
-  
+
+  const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
+  const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
+
+  // find the symbol in the feature layer before propogating to callback
+  const onSymbolClick = e => {
+    const geometry = e.lngLat;
+    const properties = getFeatureSymbolAtPoint(e.latLng, map);
+    onFeatureSymbolClick(geometry, properties);
+  };
+
   const lineData = {
     type: 'geojson',
     data: lines,
@@ -89,7 +99,6 @@ const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, map }) => {
     data: symbols,
   };
 
-
   return <Fragment>
     <Source id='feature-line-source' geoJsonSource={lineData} />
     <Source id='feature-polygon-source' geoJsonSource={polygonData} />
@@ -97,15 +106,18 @@ const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, map }) => {
 
     <Layer sourceId='feature-polygon-source' type='fill'
       id={FEATURE_FILLS} before={SUBJECT_SYMBOLS}
-      paint={fillPaint} layout={fillLayout}/>
+      paint={fillPaint} layout={fillLayout} />
 
     <Layer sourceId='feature-line-source' type='line'
       id={FEATURE_LINES} before={SUBJECT_SYMBOLS}
-      paint={linePaint} layout={lineLayout}/>
+      paint={linePaint} layout={lineLayout} />
 
     <Layer sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
-      paint={symbolPaint} layout={layout}/>
+      paint={symbolPaint} layout={layout}
+      onMouseEnter={onSymbolMouseEnter}
+      onMouseLeave={onSymbolMouseLeave}
+      onClick={onSymbolClick} />
   </Fragment>;
 };
 

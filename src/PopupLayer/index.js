@@ -7,6 +7,7 @@ import SubjectPopup from '../SubjectPopup';
 import TimepointPopup from '../TimepointPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
+import FeatureSymbolPopup from '../FeatureLayer/FeatureSymbolPopup';
 
 const PopupLayer = ({ popup, ...rest }) => {
   const { id, type, data } = popup;
@@ -16,7 +17,8 @@ const PopupLayer = ({ popup, ...rest }) => {
   if (type === 'timepoint') Template = TimepointPopup;
   if (type === 'dropped-marker') Template = DroppedMarkerPopup;
   if (type === 'current-user-location') Template = UserCurrentLocationPopup;
-  
+  if (type === 'feature-symbol') Template = FeatureSymbolPopup;
+
   return Template ? <Template key={id} data={data} {...rest} /> : null;
 };
 

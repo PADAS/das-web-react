@@ -19,7 +19,7 @@ const ClearAllControl = (props) => {
     const featureListIDs = getAllFeatureIDsInList(featureList);
     props.hideFeatures(...featureListIDs);
     props.displayReportsOnMapState(false);
-  }
+  };
 
   const onClearAllClick = (e) => {
     trackEvent('Map Layer', 'Clicked Clear All link');

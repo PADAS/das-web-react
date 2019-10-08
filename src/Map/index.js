@@ -59,6 +59,7 @@ class Map extends Component {
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
+    this.onFeatureSymbolClick = this.onFeatureSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
@@ -165,6 +166,12 @@ class Map extends Component {
 
     trackEvent('Map Interaction', 'Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
+  }
+
+  onFeatureSymbolClick(geometry, properties) {
+    this.props.showPopup('feature-symbol', { geometry, properties });
+    //trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${event.event_type}`);
+    //this.props.showPopup('feature-symbol');
   }
 
   hideUnpinnedTrackLayers(map, event) {
@@ -312,7 +319,7 @@ class Map extends Component {
 
             {showReportsOnMap && <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />}
 
-            <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
+            <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
             {!!popup && <PopupLayer
               popup={popup} />
