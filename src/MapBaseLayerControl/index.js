@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -67,7 +67,7 @@ const mapStateToProps = ({ data: { baseLayers }, view: { currentBaseLayer } }) =
   currentBaseLayer,
 });
 
-export default connect(mapStateToProps, { setBaseLayer })(BaseLayerControl);
+export default connect(mapStateToProps, { setBaseLayer })(memo(BaseLayerControl));
 
 
 /* ADD ALL SOURCES AND LAYERS?
