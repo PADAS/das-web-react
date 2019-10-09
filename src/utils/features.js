@@ -100,7 +100,6 @@ export const getFeatureSymbolAtPoint = (geo, map) => {
   const features = map.queryRenderedFeatures(geo, {
     layers: [FEATURE_SYMBOLS],
   });
-  // can't rely on feature[0] being the closet object
-  console.log(features);
+  // assume fist feature returned is closest
   return features[0].properties;
 };

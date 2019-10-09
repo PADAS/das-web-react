@@ -170,8 +170,7 @@ class Map extends Component {
 
   onFeatureSymbolClick(geometry, properties) {
     this.props.showPopup('feature-symbol', { geometry, properties });
-    //trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${event.event_type}`);
-    //this.props.showPopup('feature-symbol');
+    trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   }
 
   hideUnpinnedTrackLayers(map, event) {
