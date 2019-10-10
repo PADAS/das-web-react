@@ -12,6 +12,7 @@ import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
@@ -19,7 +20,8 @@ import { getArrayOfVisibleHeatmapTracks, displayedSubjectTrackIDs } from '../sel
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
-
+import { getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
+import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
@@ -31,6 +33,7 @@ import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
+import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
@@ -64,6 +67,7 @@ class Map extends Component {
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
+    this.currentAnalyzerIds = [];
   }
 
   shouldComponentUpdate(nextProps) {
@@ -154,6 +158,11 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
+      // XXX TD 
+      if (this.props.popup.type === 'analyzer-config') {
+        const { map } = this.props;
+        setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
+      }
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
@@ -165,6 +174,27 @@ class Map extends Component {
 
     trackEvent('Map Interaction', 'Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
+  }
+
+  onAnalyzerGroupEnter = (e, groupIds) => {
+    this.currentAnalyzerIds = groupIds;
+    const { map } = this.props;
+    setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);
+  }
+
+  onAnalyzerGroupExit = (e, groupIds) => {
+    // shortcircuit when the analyzer popup is displayed
+    if (this.props.popup && this.props.popup.type === 'analyzer-config') return;
+    const { map } = this.props;
+    setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
+  }
+
+  onAnalyzerFeatureClick = (e) => {
+    const { map } = this.props;
+    const features = getAnalyzerFeaturesAtPoint(map, e.point);
+    const properties = features[0].properties;
+    const geometry = e.lngLat;
+    this.props.showPopup('analyzer-config', { geometry, properties });
   }
 
   hideUnpinnedTrackLayers(map, event) {
@@ -203,10 +233,12 @@ class Map extends Component {
       }
     });
   }
+
   onCurrentUserLocationClick(location) {
     this.props.showPopup('current-user-location', { location });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   }
+
   async onMapSubjectClick(layer) {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
@@ -223,6 +255,7 @@ class Map extends Component {
     }
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   }
+
   setMap(map) {
     window.map = map;
     this.props.onMapLoad(map);
@@ -251,7 +284,7 @@ class Map extends Component {
 
   render() {
     const { children, maps, map, popup, mapSubjectFeatureCollection,
-      mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection,
+      mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
@@ -259,7 +292,11 @@ class Map extends Component {
 
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
+    const { analyzerWarningLines, analyzerCriticalLines,
+      analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
+
     const tracksAvailable = !!trackIds && !!trackIds.length;
+
     const subjectHeatmapAvailable = !!heatmapTracks.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
@@ -314,6 +351,10 @@ class Map extends Component {
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} />
 
+            <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
+              criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
+              onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
+
             {!!popup && <PopupLayer
               popup={popup} />
             }
@@ -354,6 +395,7 @@ const mapStatetoProps = (state, props) => {
     mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
+    analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     showReportHeatmap: state.view.showReportHeatmap,
   });
 };

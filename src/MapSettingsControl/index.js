@@ -29,7 +29,7 @@ const MapSettingsControl = (props) => {
   );
 
   const onButtonClick = () => {
-    trackEvent('Map Interaction', "Click 'Map Settings' button");
+    trackEvent('Map Interaction', 'Clicked Map Settings button');
   };
 
   return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>

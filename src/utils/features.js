@@ -19,7 +19,6 @@ const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bo
   return bounds.extend(coords);
 }, new LngLatBounds(collection[0], collection[0]));
 
-
 const jumpAndFitBounds = (map, bounds) => map.fitBounds(bounds, { duration: 0, maxZoom: MAX_JUMP_ZOOM, padding: 30 });
 
 const fitMapBoundsToPoint = (map, geojson) => jumpAndFitBounds(map, new LngLatBounds(geojson.geometry.coordinates));
@@ -76,12 +75,12 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
 export const filterFeatures = (f, isMatch) => {
   let newF = [];
   if (f.featuresByType) { // a featureset obj has featuresByType array
-    newF = {...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch))};
-    newF.featuresByType = newF.featuresByType.filter(fbt=> !!fbt.features.length);
-  } 
+    newF = { ...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch)) };
+    newF.featuresByType = newF.featuresByType.filter(fbt => !!fbt.features.length);
+  }
   else if (f.features) { // a featuresByType obj has features array:
-    newF = {...f, features: f.features.filter(isMatch)};
-  } 
+    newF = { ...f, features: f.features.filter(isMatch) };
+  }
   else { // top level featureset array:
     newF = f.map(fs => filterFeatures(fs, isMatch));
     newF = newF.filter(fs => !!fs.featuresByType.length);
