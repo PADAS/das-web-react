@@ -9,6 +9,8 @@ const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
+const HIDE_ANALYZERS = 'HIDE_ANALYZERS';
+const SHOW_ANALYZERS = 'SHOW_ANALYZERS';
 const SHOW_INACTIVE_RADIOS = 'SHOW_INACTIVE_RADIOS';
 
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
@@ -55,6 +57,16 @@ export const hideFeatures = (...featureIDs) => ({
 export const showFeatures = (...featureIDs) => ({
   type: SHOW_FEATURES,
   payload: featureIDs,
+});
+
+export const hideAnalyzers = (...analyzerFeatureIDs) => ({
+  type: HIDE_ANALYZERS,
+  payload: analyzerFeatureIDs,
+});
+
+export const showAnalyzers = (...analyzerFeatureIDs) => ({
+  type: SHOW_ANALYZERS,
+  payload: analyzerFeatureIDs,
 });
 
 export const addHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => {
@@ -167,6 +179,13 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
   if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
+  return state;
+};
+
+export const hiddenAnalyzerIDsReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === HIDE_ANALYZERS) return uniq([...payload, ...state]);
+  if (type === SHOW_ANALYZERS) return state.filter(item => !payload.includes(item));
   return state;
 };
 

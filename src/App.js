@@ -15,6 +15,7 @@ import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
+import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchEventSchema } from './ducks/event-schemas';
 
 import SideBar from './SideBar';
@@ -62,9 +63,8 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
-
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -86,7 +86,7 @@ const App = (props) => {
 
   const onSidebarHandleClick = () => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    trackEvent('Drawer', `${sidebarOpen?'Close':'open'} Drawer`, null);
+    trackEvent('Drawer', `${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
   };
 
   clearInterval(mapInterval);
@@ -101,6 +101,7 @@ const App = (props) => {
     fetchEventSchema();
     fetchMaps();
     fetchSubjectGroups();
+    fetchAnalyzers();
     fetchSystemStatus();
     loadProgressBar();
     window.addEventListener('online', () => {
@@ -147,4 +148,4 @@ const App = (props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
+export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));

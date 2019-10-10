@@ -19,7 +19,6 @@ const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bo
   return bounds.extend(coords);
 }, new LngLatBounds(collection[0], collection[0]));
 
-
 const jumpAndFitBounds = (map, bounds) => map.fitBounds(bounds, { duration: 0, maxZoom: MAX_JUMP_ZOOM, padding: 30 });
 
 const fitMapBoundsToPoint = (map, geojson) => jumpAndFitBounds(map, new LngLatBounds(geojson.geometry.coordinates));

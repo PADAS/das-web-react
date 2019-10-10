@@ -10,7 +10,7 @@ import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
-  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
+  hiddenFeatureIDsReducer, hiddenAnalyzerIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
   pickingLocationOnMapReducer, displayUserLocationReducer, displayTrackTimepointsReducer,
   reportHeatmapStateReducer, displayInactiveRadiosReducer, displayReportsOnMapReducer
 } from '../ducks/map-ui';
@@ -26,6 +26,7 @@ import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
 import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
+import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 
 const tokenPersistanceConfig = {
@@ -65,6 +66,7 @@ const rootReducer = combineReducers({
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
     mapLayerFilter: mapLayerFilterReducer,
+    analyzerFeatures: analyzersReducer,
     showReportsOnMap: displayReportsOnMapReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
@@ -84,6 +86,7 @@ const rootReducer = combineReducers({
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
     hiddenSubjectIDs: hiddenSubjectIDsReducer,
     hiddenFeatureIDs: hiddenFeatureIDsReducer,
+    hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,

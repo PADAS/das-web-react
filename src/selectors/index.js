@@ -14,7 +14,7 @@ export const createSelector = createSelectorCreator(
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
-const showInactiveRadios = ({ view: { showInactiveRadios}}) => showInactiveRadios;
+const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
@@ -23,6 +23,7 @@ const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
+export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
@@ -96,20 +97,49 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
+export const getAnalyzerFeatureCollectionsByType = createSelector(
+  [analyzerFeatures],
+  (analyzerFeatures) => {
+    const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
+      [...accumulator,
+      ...data.geojson.features.map(feature => {
+        feature.analyzer_type = data.type;
+        return feature;
+      })], []);
+    // simulate layergroups found in old codebase by passing the feature ids
+    // of the analyzer feature collection so they can be looked up at runtime - 
+    // ie when a rollover occurs with a mouse
+    const layerGroups = analyzerFeatures.map((analyzer) => {
+      const featureIds = analyzer.geojson.features.map(feature => feature.properties.id);
+      return { id: analyzer.id, feature_ids: featureIds };
+    });
+
+    const analyzerPayload = {
+      analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerLineTypes.includes(spatial_group))),
+      analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerLineTypes.includes(spatial_group))),
+      analyzerWarningPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerPolyTypes.includes(spatial_group))),
+      analyzerCriticalPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerPolyTypes.includes(spatial_group))),
+      layerGroups: layerGroups,
+    };
+
+    return analyzerPayload;
+  },
+);
+
 export const getFeatureSetFeatureCollectionsByType = createSelector(
   [featureSets, hiddenFeatureIDs],
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-        ...data.geojson.features
-          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-          .map(feature => {
-            if (feature.properties.image) {
-              feature = addIconToGeoJson(feature);
-              feature.properties.image = calcUrlForImage(feature.properties.image);
-            }
-            return feature;
-          })], []);
+      ...data.geojson.features
+        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+        .map(feature => {
+          if (feature.properties.image) {
+            feature = addIconToGeoJson(feature);
+            feature.properties.image = calcUrlForImage(feature.properties.image);
+          }
+          return feature;
+        })], []);
     return {
       symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
       lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
@@ -126,3 +156,8 @@ export const getReportFormSchemaData = createSelector(
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
 const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
+
+const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group', 'Point.containment_regions_group'];
+const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
+const warningAnalyzerPolyTypes = ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group'];
+const criticalAnalyzerPolyTypes = ['Polygon.critical_group', 'MultiPolygon.critical_group'];
