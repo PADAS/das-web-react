@@ -23,11 +23,7 @@ const ReportListItem = (props) => {
 
   let displayPriority;
 
-  if (report.is_collection && !report.contains) {
-    console.log('i am buuuuuuuuusteeeeed', report);
-  }
-
-  if (report.is_collection && !!report.contains && !!report.contains.length) {
+  if (report.is_collection) {
     const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
     displayPriority = topRatedReportAndType ? (topRatedReportAndType.related_event.priority || topRatedReportAndType.event_type.default_priority) : report.priority;
   } else {

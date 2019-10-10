@@ -9,6 +9,7 @@ import { trackEvent } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
+import { getAnalyzerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
 
@@ -19,10 +20,15 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
+// eslint-disable-next-line react/display-name
+const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
-const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, 
-  hiddenFeatureIDs, map, mapLayerFilter }) => {
-  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
+  // necessary to concatentate, a push directly to the featureKist property will 
+  // cause the featureList to add a new analyzer list with each render, due to the 
+  // function holding state due to the memoization function
+  const allFeaturesList = featureList.concat(analyzerList[0]);
+
+  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...allFeaturesList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
         ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
@@ -39,11 +45,11 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures,
 
   const allVisible = !hiddenFeatureIDs.length;
   const someVisible = !allVisible && hiddenFeatureIDs.length !== allFeatureIDs.length;
-  
+
   const getFeatureSetFeatureIDs = ({ featuresByType }) => getUniqueIDsFromFeatures(...featuresByType.reduce((result, { features }) => [...result, ...features], []));
 
   const allVisibleInSet = set => allVisible || !intersection(getFeatureSetFeatureIDs(set), hiddenFeatureIDs).length;
-  
+
   const someVisibleInSet = set => {
     const featureIDs = getFeatureSetFeatureIDs(set);
     return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
@@ -83,8 +89,8 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures,
     setFeatureFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);
 
-  const filteredFeatureList = featureFilterEnabled ? 
-    filterFeatures(featureList, featureFilterIsMatch) : featureList;
+  const filteredFeatureList = featureFilterEnabled ?
+    filterFeatures(allFeaturesList, featureFilterIsMatch) : allFeaturesList;
 
   const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
   if (featureFilterEnabled && !filteredFeatureList.length) return null;
@@ -118,10 +124,11 @@ const FeatureLayerList = ({ featureList, hideFeatures, showFeatures,
   </ul>;
 };
 
-const mapStateToProps = (state) => ({ 
-  featureList: getFeatureLayerListState(state), 
-  hiddenFeatureIDs: state.view.hiddenFeatureIDs, 
-  mapLayerFilter: state.data.mapLayerFilter 
+const mapStateToProps = (state) => ({
+  featureList: getFeatureLayerListState(state),
+  hiddenFeatureIDs: state.view.hiddenFeatureIDs,
+  analyzerList: getAnalyzerListState(state),
+  mapLayerFilter: state.data.mapLayerFilter
 });
 
 export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureLayerList));

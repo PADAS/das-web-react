@@ -9,12 +9,15 @@ const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
+const HIDE_ANALYZERS = 'HIDE_ANALYZERS';
+const SHOW_ANALYZERS = 'SHOW_ANALYZERS';
 const SHOW_INACTIVE_RADIOS = 'SHOW_INACTIVE_RADIOS';
 
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
+const DISPLAY_REPORTS_ON_MAP = 'DISPLAY_REPORTS_ON_MAP';
 
 const UPDATE_SUBJECT_HEATMAP_STATE = 'UPDATE_SUBJECT_HEATMAP_STATE';
 const UPDATE_SUBJECT_TRACK_STATE = 'UPDATE_SUBJECT_TRACK_STATE';
@@ -58,6 +61,16 @@ export const showFeatures = (...featureIDs) => ({
   payload: featureIDs,
 });
 
+export const hideAnalyzers = (...analyzerFeatureIDs) => ({
+  type: HIDE_ANALYZERS,
+  payload: analyzerFeatureIDs,
+});
+
+export const showAnalyzers = (...analyzerFeatureIDs) => ({
+  type: SHOW_ANALYZERS,
+  payload: analyzerFeatureIDs,
+});
+
 export const addHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => {
   const { view: { heatmapSubjectIDs } } = getState();
   return dispatch(updateHeatmapSubjects(uniq([...subjectIDs, ...heatmapSubjectIDs])));
@@ -80,6 +93,11 @@ export const toggleMapLockState = (enabled) => ({
 
 export const toggleMapNameState = (enabled) => ({
   type: DISPLAY_SUBJECT_NAMES,
+  payload: enabled,
+});
+
+export const displayReportsOnMapState = (enabled) => ({
+  type: DISPLAY_REPORTS_ON_MAP,
   payload: enabled,
 });
 
@@ -180,6 +198,13 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
   return state;
 };
 
+export const hiddenAnalyzerIDsReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === HIDE_ANALYZERS) return uniq([...payload, ...state]);
+  if (type === SHOW_ANALYZERS) return state.filter(item => !payload.includes(item));
+  return state;
+};
+
 export const mapLockStateReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === SET_MAP_LOCK_STATE) return payload;
@@ -189,6 +214,12 @@ export const mapLockStateReducer = (state = false, action) => {
 export const displayMapNamesReducer = (state = true, action) => {
   const { type, payload } = action;
   if (type === DISPLAY_SUBJECT_NAMES) return payload;
+  return state;
+};
+
+export const displayReportsOnMapReducer = (state = true, action) => {
+  const { type, payload } = action;
+  if (type === DISPLAY_REPORTS_ON_MAP) return payload;
   return state;
 };
 

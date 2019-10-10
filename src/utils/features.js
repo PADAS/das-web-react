@@ -3,6 +3,7 @@ import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
+import { featureSets } from '../selectors';
 
 const { FEATURE_FILLS, FEATURE_LINES } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
@@ -17,7 +18,6 @@ export const setDirectMapBindingsForFeatureHighlightStates = (map) => {
 const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bounds, coords) => {
   return bounds.extend(coords);
 }, new LngLatBounds(collection[0], collection[0]));
-
 
 const jumpAndFitBounds = (map, bounds) => map.fitBounds(bounds, { duration: 0, maxZoom: MAX_JUMP_ZOOM, padding: 30 });
 
@@ -75,15 +75,22 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
 export const filterFeatures = (f, isMatch) => {
   let newF = [];
   if (f.featuresByType) { // a featureset obj has featuresByType array
-    newF = {...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch))};
-    newF.featuresByType = newF.featuresByType.filter(fbt=> !!fbt.features.length);
-  } 
+    newF = { ...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch)) };
+    newF.featuresByType = newF.featuresByType.filter(fbt => !!fbt.features.length);
+  }
   else if (f.features) { // a featuresByType obj has features array:
-    newF = {...f, features: f.features.filter(isMatch)};
-  } 
+    newF = { ...f, features: f.features.filter(isMatch) };
+  }
   else { // top level featureset array:
     newF = f.map(fs => filterFeatures(fs, isMatch));
     newF = newF.filter(fs => !!fs.featuresByType.length);
   }
   return newF;
 };
+
+export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(...featureList
+  .reduce((accumulator, { featuresByType }) =>
+    [...accumulator,
+    ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+    ], [])
+);

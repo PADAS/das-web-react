@@ -48,8 +48,8 @@ const cancelableMapSubjectsFetch = () => {
         bbox,
       }
     })
-      .then(response => dispatch(fetchMapSubjectsSuccess(response)));
-    // .catch(error => dispatch(fetchMapSubjectsError(error)));
+      .then(response => dispatch(fetchMapSubjectsSuccess(response)))
+      .catch(error => dispatch(fetchMapSubjectsError(error)));
   };
   return [fetchFn, cancelToken];
 };

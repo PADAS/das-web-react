@@ -115,6 +115,10 @@
       }
     }
   }
+  .reportDesc {
+    background: lighten($light-gray-background, 3.5%);
+    width: 100%;
+  }
 }
 
 .controls {
@@ -144,6 +148,13 @@
   width: 100%;
 }
 
+.analyzerTitle {
+  display: block;
+  padding-left: 3.5rem;
+  padding-right: 2rem;
+  width: 100%;
+}
+
 .addReportContainer {
   position: absolute;
   top: 0.75rem;
@@ -158,5 +169,18 @@
     [role=tooltip] {
       left: -1rem;
     }
+  }
+}
+
+.mapLayerFooter {
+  background-color: $map-layers-footer;
+  height: 2rem;
+  width:100%;
+  text-align:left;
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  a {
+      margin-left: .5rem;
   }
 }

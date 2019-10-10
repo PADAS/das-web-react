@@ -6,7 +6,7 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const IncidentReportsList = (props) => {
-  const { eventStore, reports, onReportClick, children } = props;
+  const { eventStore, reports = [], onReportClick, children } = props;
 
   const reportList = reports.map(({ related_event: report }) => report);
 

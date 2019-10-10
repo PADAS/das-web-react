@@ -9,8 +9,8 @@ import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
-  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  pickingLocationOnMapReducer, printTitleReducer, displayUserLocationReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer } from '../ducks/map-ui';
+  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
+  pickingLocationOnMapReducer, printTitleReducer, displayUserLocationReducer, displayReportsOnMapReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
@@ -23,6 +23,7 @@ import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
 import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
+import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 
 const tokenPersistanceConfig = {
@@ -62,6 +63,8 @@ const rootReducer = combineReducers({
     eventTypes: eventTypesReducer,
     featureSets: featuresReducer,
     mapLayerFilter: mapLayerFilterReducer,
+    analyzerFeatures: analyzersReducer,
+    showReportsOnMap: displayReportsOnMapReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
     subjectGroups: subjectGroupsReducer,
@@ -80,11 +83,13 @@ const rootReducer = combineReducers({
     heatmapSubjectIDs: heatmapSubjectIDsReducer,
     hiddenSubjectIDs: hiddenSubjectIDsReducer,
     hiddenFeatureIDs: hiddenFeatureIDsReducer,
+    hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
+    showReportsOnMap: displayReportsOnMapReducer,
     modals: modalsReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,
