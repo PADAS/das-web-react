@@ -180,6 +180,7 @@ class Map extends Component {
   onFeatureSymbolClick(geometry, properties) {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+  }
 
   onAnalyzerGroupEnter = (e, groupIds) => {
     this.currentAnalyzerIds = groupIds;

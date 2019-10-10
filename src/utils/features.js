@@ -95,7 +95,7 @@ export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(
     ], [])
 );
 
-export const getFeatureSymbolAtPoint = (geo, map) => {
+export const getFeatureGeoJsonPropsAtPoint = (geo, map) => {
   const features = map.queryRenderedFeatures(geo, {
     layers: [FEATURE_SYMBOLS],
   });

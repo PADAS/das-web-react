@@ -13,7 +13,7 @@ const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item
 
 const TracksLayer = (props) => {
   const { map, onPointClick, trackIds, showTimepoints } = props;
-  const onSymbolClick = e => onPointClick(getPointLayer(e, map));
+  const onSymbolClick = (e) => onPointClick(getPointLayer(e, map));
 
   const addImage = async () => {
     if (!map.hasImage(ARROW_IMG_ID)) {
@@ -23,7 +23,7 @@ const TracksLayer = (props) => {
 
   useEffect(() => {
     addImage();
-  }, []);
+  }, [addImage]);
 
   return <Fragment>{trackIds.map(id => <TrackLayer key={`track-layer-${id}`} map={map} onPointClick={onSymbolClick} showTimepoints={showTimepoints} trackId={id} />)}</Fragment>;
 };

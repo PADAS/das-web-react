@@ -36,7 +36,7 @@ const SubjectsLayer = (props) => {
     subjects && addFeatureCollectionImagesToMap(subjects, map);
   }, [map, subjects]);
 
-  const onSymbolClick = e => onSubjectIconClick(getSubjectLayer(e, map));
+  const onSymbolClick = (e) => onSubjectIconClick(getSubjectLayer(e, map));
 
   const layout = {
     ...DEFAULT_SYMBOL_LAYOUT,
