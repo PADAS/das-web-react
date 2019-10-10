@@ -91,11 +91,11 @@ export const filterFeatures = (f, isMatch) => {
 export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(...featureList
   .reduce((accumulator, { featuresByType }) =>
     [...accumulator,
-    ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
     ], [])
 );
 
-export const getFeatureGeoJsonPropsAtPoint = (geo, map) => {
+export const getFeatureSymbolPropsAtPoint = (geo, map) => {
   const features = map.queryRenderedFeatures(geo, {
     layers: [FEATURE_SYMBOLS],
   });
