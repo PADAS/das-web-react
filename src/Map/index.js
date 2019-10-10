@@ -44,6 +44,7 @@ import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import IsochroneLayer from '../IsochroneLayer';
 
 import MapRulerControl from '../MapRulerControl';
+import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
 
 import './Map.scss';
@@ -274,6 +275,7 @@ class Map extends Component {
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
           <TimeSliderMapControl />
+          <MapPrintControl />
         </Fragment>}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}

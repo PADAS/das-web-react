@@ -1,0 +1,47 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+
+.wrapper {
+  position: relative;
+}
+
+.form {
+  align-items: center;
+  background: rgba(white, 0.65);
+  box-shadow: 0 0 3px $light-gray-border;
+  display: flex;
+  left: 3rem;
+  line-height: normal;
+  padding: 0.5rem;
+  position: absolute;
+  top: 0;
+  max-width: 18rem;
+  width: 100vw;
+  button {
+    width: 6rem;
+  }
+  label {
+    padding-right: 0.5rem;
+    * {
+      width: 100%;
+    }
+  }
+}
+
+.button {
+  @include mapboxControlButton;
+  &.active svg {
+    path, g, rect, polyline {
+      fill: $bright-blue;
+      stroke: $bright-blue;
+    }
+    polyline, polygon {
+      fill: none;
+    }
+  }
+  /* svg {
+    path, g {
+      fill: #333;
+    }
+  } */
+}

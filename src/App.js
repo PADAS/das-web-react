@@ -18,6 +18,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchEventSchema } from './ducks/event-schemas';
 
 import SideBar from './SideBar';
+import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
@@ -129,6 +130,7 @@ const App = (props) => {
 
   return (
     <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+      <PrintTitle />
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} />

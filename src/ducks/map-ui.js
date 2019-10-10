@@ -23,6 +23,8 @@ const SET_REPORT_HEATMAP_VISIBILITY = 'SET_REPORT_HEATMAP_VISIBILITY';
 
 const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
 
+const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
+
 
 
 // action creators
@@ -124,7 +126,21 @@ export const updateTrackState = (update) => ({
   payload: update,
 });
 
+export const setPrintTitle = (title) => ({
+  type: SET_PRINT_TITLE,
+  payload: title,
+});
+
 // reducers
+
+const INITIAL_PRINT_TITLE_STATE = '';
+export const printTitleReducer = (state = INITIAL_PRINT_TITLE_STATE, action) => {
+  const { type, payload } = action;
+  if (type === SET_PRINT_TITLE) return payload;
+  return state;
+};
+
+
 const INITIAL_REPORT_HEATMAP_STATE = false;
 export const reportHeatmapStateReducer = (state = INITIAL_REPORT_HEATMAP_STATE, action) => {
   const { type, payload } = action;

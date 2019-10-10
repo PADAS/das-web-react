@@ -69,6 +69,9 @@ $contrast: 25%;
   @media (min-width: $lg-layout-width-min) {
     left: 6.5rem;
   }
+  @media print {
+    display: none;
+  }
 }
 
 .handle {

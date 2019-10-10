@@ -437,6 +437,9 @@ div.mapboxgl-popup-tip {
 }
 
 @media print {
+  @page {
+    size: landscape;
+  }
   .primary-nav .rightMenus > div {
     &:first-child, &:last-child {
       display: none !important;
