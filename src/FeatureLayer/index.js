@@ -11,7 +11,7 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../const
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const ACTIVE_FEATURE_STATE = 'active';
-const IF_ACTIVE = (activeProp) =>  [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
+const IF_ACTIVE = (activeProp) => [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
 
 const IF_HAS_PROPERTY = (prop, defaultValue) => {
   return [['has', prop], ['get', prop], defaultValue];
@@ -66,14 +66,14 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, map }) => {
+const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, missingMapIcons, map }) => {
   const layout = {
     ...symbolLayout,
     ...mapNameLayout,
   };
 
   addFeatureCollectionImagesToMap(symbols, map);
-  
+
   const lineData = {
     type: 'geojson',
     data: lines,
@@ -97,15 +97,15 @@ const FeatureLayer = ({ symbols, lines, polygons, mapNameLayout, map }) => {
 
     <Layer sourceId='feature-polygon-source' type='fill'
       id={FEATURE_FILLS} before={SUBJECT_SYMBOLS}
-      paint={fillPaint} layout={fillLayout}/>
+      paint={fillPaint} layout={fillLayout} />
 
     <Layer sourceId='feature-line-source' type='line'
       id={FEATURE_LINES} before={SUBJECT_SYMBOLS}
-      paint={linePaint} layout={lineLayout}/>
+      paint={linePaint} layout={lineLayout} />
 
     <Layer sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
-      paint={symbolPaint} layout={layout}/>
+      paint={symbolPaint} layout={layout} />
   </Fragment>;
 };
 
@@ -113,6 +113,12 @@ FeatureLayer.propTypes = {
   symbols: PropTypes.object.isRequired,
   lines: PropTypes.object.isRequired,
   polygons: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = (state) => {
+  const { view } = state;
+  const { missingMapIcons } = view;
+  return ({ missingMapIcons });
 };
 
 export default memo(withMap(withMapNames(FeatureLayer)));

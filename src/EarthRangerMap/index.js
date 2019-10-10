@@ -4,6 +4,7 @@ import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react
 import { uuid } from '../utils/string';
 
 import { trackEvent } from '../utils/analytics';
+import { notifyMissingMapIcons } from '../ducks/map-ui';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
@@ -33,21 +34,25 @@ const EarthRangerMap = (props) => {
   const { currentBaseLayer, children, controls, onMapLoaded, ...rest } = props;
   const [map, setMap] = useState(null);
 
-  
+
   const [mapStyle, setMapStyle] = useState(REACT_APP_BASE_MAP_STYLES);
 
   const onLoad = (map) => {
     onMapLoaded && onMapLoaded(map);
+    // notify components of missing icons via redux
+    map.on('styleimagemissing', function (e) {
+      notifyMissingMapIcons(e.id);
+    });
     setMap(map);
   };
 
   const id = useRef(uuid());
 
   const onZoomControlClick = (map, zoomDiff) => {
-    zoomDiff > 0? 
+    zoomDiff > 0 ?
       map.zoomIn({ level: map.getZoom() + zoomDiff }) :
       map.zoomOut({ level: map.getZoom() - zoomDiff });
-    trackEvent('Map Interaction', `Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
+    trackEvent('Map Interaction', `Click 'Zoom ${zoomDiff > 0 ? 'In' : 'Out'}' button`);
   };
 
   useEffect(() => {
@@ -66,9 +71,9 @@ const EarthRangerMap = (props) => {
     onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
       {map && <Fragment>
-        <RotationControl position='top-left'/>
+        <RotationControl position='top-left' />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
-        <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
+        <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick} />
         <div className='map-controls-container'>
           {controls}
           <MapBaseLayerControl />
@@ -81,8 +86,8 @@ const EarthRangerMap = (props) => {
   </MapboxMap>;
 };
 
-const mapStateToProps = ({ view: { currentBaseLayer }}) => ({
-  currentBaseLayer,
+const mapStateToProps = ({ view: { currentBaseLayer } }) => ({
+  currentBaseLayer
 });
 
-export default connect(mapStateToProps, null)(memo(EarthRangerMap));
+export default connect(mapStateToProps, { notifyMissingMapIcons })(memo(EarthRangerMap));

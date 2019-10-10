@@ -9,6 +9,9 @@ const SHOW_SUBJECTS = 'SHOW_SUBJECTS';
 const HIDE_FEATURES = 'HIDE_FEATURES';
 const SHOW_FEATURES = 'SHOW_FEATURES';
 
+const MISSING_ICONS = 'MISSING_ICONS';
+const RESTORED_ICONS = 'RESTORED_ICONS';
+
 const SHOW_INACTIVE_RADIOS = 'SHOW_INACTIVE_RADIOS';
 
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
@@ -35,6 +38,16 @@ export const setReportHeatmapVisibility = (show) => ({
 export const updateHeatmapConfig = (config) => ({
   type: UPDATE_HEATMAP_CONFIG,
   payload: config,
+});
+
+export const notifyMissingMapIcons = (...iconIDs) => ({
+  type: MISSING_ICONS,
+  payload: iconIDs,
+});
+
+export const notifyRestoredMapIcons = (...iconIDs) => ({
+  type: RESTORED_ICONS,
+  payload: iconIDs,
 });
 
 export const hideSubjects = (...subjectIDs) => ({
@@ -167,6 +180,13 @@ export const hiddenFeatureIDsReducer = (state = [], action) => {
   const { type, payload } = action;
   if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
   if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
+  return state;
+};
+
+export const missingIconIDsReducer = (state = [], action) => {
+  const { type, payload } = action;
+  if (type === MISSING_ICONS) return uniq([...payload, ...state]);
+  if (type === RESTORED_ICONS) return state.filter(item => !payload.includes(item));
   return state;
 };
 
