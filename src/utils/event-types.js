@@ -1,5 +1,8 @@
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;
+
+  if (!contains || !contains.length) return null;
+  
   const reportsWithTypes = contains.map(({ related_event }) => {
     const { event_type } = related_event;
     return { related_event,
