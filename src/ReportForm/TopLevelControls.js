@@ -21,7 +21,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 
 import styles from './styles.module.scss';
 
-const ReportFormTopLevelControls = memo((props) => {
+const ReportFormTopLevelControls = (props) => {
   const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
@@ -88,11 +88,11 @@ const ReportFormTopLevelControls = memo((props) => {
       </a>
     </label>
   </div>;
-});
+};
 
 const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({
   gpsFormat
 });
 
 
-export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(ReportFormTopLevelControls);
+export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(ReportFormTopLevelControls));

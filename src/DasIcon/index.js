@@ -25,7 +25,7 @@ const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = (props) => {
-  const { type, iconId, color, ...rest } = props;
+  const { type, iconId, color, dispatch:_dispatch, ...rest } = props;
   return (
     <svg {...rest} fill={color}>
       <use href={calcIconUrl(type, iconId)} />

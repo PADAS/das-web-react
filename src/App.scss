@@ -435,3 +435,22 @@ div.mapboxgl-popup-tip {
     outline: none;
   }
 }
+
+@media print {
+  @page {
+    size: landscape;
+  }
+  .primary-nav .rightMenus > div {
+    &:first-child, &:last-child {
+      display: none !important;
+    }
+  }
+  .side-menu, .map-controls-container, .mapbox-zoom-ctrl, .mapboxgl-ctrl-top-left {
+    display: none !important;
+  }
+  .primary-nav {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

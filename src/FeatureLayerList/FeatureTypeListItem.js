@@ -17,7 +17,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 
-const FeatureTypeListItem = memo((props) => {
+const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
     featureFilterEnabled } = props;
 
@@ -29,7 +29,7 @@ const FeatureTypeListItem = memo((props) => {
     const { properties: { id } } = item;
     if (featureIsVisible(item)) {
       trackEvent('Map Layer', 'Uncheck Feature checkbox');
-        return hideFeatures(id);
+      return hideFeatures(id);
     } else {
       trackEvent('Map Layer', 'Check Feature checkbox');
       return showFeatures(id);
@@ -58,12 +58,12 @@ const FeatureTypeListItem = memo((props) => {
       onCheckClick={onCheckToggle}
       itemComponent={FeatureListItem}
     />
-  </Collapsible>
-});
+  </Collapsible>;
+};
 
 
 
 
 const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
 
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureTypeListItem);
+export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureTypeListItem));

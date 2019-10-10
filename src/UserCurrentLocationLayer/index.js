@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
+import bboxPolygon from '@turf/bbox-polygon';
+import booleanContains from '@turf/boolean-contains';
 
 import { setCurrentUserLocation } from '../ducks/location';
 import { userLocationCanBeShown } from '../selectors/index';
@@ -27,7 +29,7 @@ const symbolLayout = {
 
 
 const UserCurrentLocationLayer = (props) => {
-  const { currentBaseLayer, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
+  const { map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
   const [initialized, setInitState] = useState(false);
   const animationFrameID = useRef(null);
@@ -62,7 +64,7 @@ const UserCurrentLocationLayer = (props) => {
   };
 
 
-  const addImageToMap = async () => {
+  const addImageToMap = () => {
     if (!map.hasImage('current-location-icon')) {
       addMapImage(map, 'current-location-icon', GpsLocationIcon);
     }
@@ -78,6 +80,7 @@ const UserCurrentLocationLayer = (props) => {
 
   useEffect(() => {
     if (!initialized) {
+      addImageToMap();
       setInitState(true);
       setLocationWatcherID(startWatchingPosition());
       return () => {
@@ -91,24 +94,33 @@ const UserCurrentLocationLayer = (props) => {
     userLocation && blipAnimation.current(animationState);
   }, [userLocation]);
 
+
   useEffect(() => {
-    setTimeout(addImageToMap);
-  }, [currentBaseLayer]);
+    return () => {
+      !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
+    };
+  }, []);
 
   useEffect(() => {
     animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
   }, [animationState]);
 
-  const sourceData = userLocationCanBeShown && {
+  const [[minX, minY], [maxX, maxY]] = map.getBounds().toArray();
+  const userLocationIsInMapBounds = !!userLocation && !!userLocation.coords && booleanContains(bboxPolygon([minX, minY, maxX, maxY]), point([userLocation.coords.longitude, userLocation.coords.latitude]));
+
+  const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
+
+  const sourceData = showLayer && {
     type: 'geojson',
     data: point([
       userLocation.coords.longitude,
       userLocation.coords.latitude,
     ]),
   };
+  
 
 
-  return userLocationCanBeShown && <Fragment>
+  return showLayer && <Fragment>
     <Source id='current-user-location' geoJsonSource={sourceData} />
     <Layer sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
     <Layer sourceId='current-user-location' paint={{
@@ -124,7 +136,6 @@ const UserCurrentLocationLayer = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  currentBaseLayer: state.view.currentBaseLayer,
   userLocation: state.view.userLocation,
   userLocationCanBeShown: userLocationCanBeShown(state),
 });

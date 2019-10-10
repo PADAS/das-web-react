@@ -12,7 +12,8 @@ import CheckableList from '../CheckableList';
 import Content from './Content';
 import listStyles from '../SideBar/styles.module.scss';
 
-const SubjectGroupList = memo((props) => {
+
+const SubjectGroupList = (props) => {
   const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
 
   const [searchText, setSearchTextState] = useState('');
@@ -80,14 +81,14 @@ const SubjectGroupList = memo((props) => {
     itemProps={itemProps}
     items={filteredSubjectGroups}
     itemFullyChecked={groupIsFullyVisible}
-    itemPartiallyChecked={groupIsPartiallyVisible} />
-}, (prev, current) =>
-    isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
-);
+    itemPartiallyChecked={groupIsPartiallyVisible} />;
+};
 
 const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) =>
   ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
-export default connect(mapStateToProps, { hideSubjects, showSubjects })(SubjectGroupList);
+export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList, (prev, current) =>
+  isEqual(prev.map && current.map) && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
+));
 
 SubjectGroupList.defaultProps = {
   map: {},

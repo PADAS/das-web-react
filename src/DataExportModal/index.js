@@ -16,7 +16,7 @@ import LoadingOverlay from '../LoadingOverlay';
 const { Header, Title, Body, Footer } = Modal;
 
 
-const DataExportModal = memo(({ id, title, removeModal, params = {}, url, children }) => {
+const DataExportModal = ({ id, title, removeModal, params = {}, url, children }) => {
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
   
@@ -27,7 +27,7 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
       downloadCancelToken && downloadCancelToken.cancel();
       setDownloadState(false);
     };
-  }, []);
+  }, [downloadCancelToken]);
 
   const triggerDownload = () => {
     setDownloadState(true);
@@ -44,12 +44,12 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
   const onFormSubmit = (e) => {
     e.preventDefault();
     triggerDownload();
-    trackEvent('Report Export', "Click 'Export' button");    
+    trackEvent('Report Export', 'Click \'Export\' button');    
   };
 
   const onFormCancel = () => {
     removeModal(id);
-    trackEvent('Report Export', "Click 'Cancel' button");    
+    trackEvent('Report Export', 'Click \'Cancel\' button');    
   };
 
   return <Fragment>
@@ -69,7 +69,7 @@ const DataExportModal = memo(({ id, title, removeModal, params = {}, url, childr
       </Footer>
     </Form>
   </Fragment>;
-});
+};
 
 DataExportModal.defaultProps = {
   params: {},
@@ -84,4 +84,4 @@ DataExportModal.propTypes = {
 };
 
 
-export default connect(null, { removeModal })(DataExportModal);
+export default connect(null, { removeModal })(memo(DataExportModal));

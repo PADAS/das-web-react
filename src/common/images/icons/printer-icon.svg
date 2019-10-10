@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="219px" height="223px" viewBox="0 0 219 223" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.1 (78136) - https://sketchapp.com -->
+    <title>Printer Icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Printer-Icon" transform="translate(5.000000, 2.000000)">
+            <g id="Group" transform="translate(44.000000, 142.000000)" stroke="#1A2026">
+                <polygon id="Path" stroke-width="10" points="120 0 120 74 0 74 0 1.89473437e-13"></polygon>
+                <path d="M21.25,37 L100.75,37" id="Line" stroke-width="7"></path>
+                <path d="M21.25,55 L100.75,55" id="Line" stroke-width="7"></path>
+                <path d="M21.25,19 L100.75,19" id="Line" stroke-width="7"></path>
+            </g>
+            <rect id="Rectangle" fill="#1A2026" x="3" y="72" width="203" height="83"></rect>
+            <path d="M155,71 L167.202567,71 L197,71 C203.627417,71 209,75.4628256 209,80.968 L209,150.032 C209,155.537174 203.627417,160 197,160 C182.303745,160 171.281554,160 163.933427,160 M44.495852,160 C37.5802943,160 26.7340103,160 11.9569999,160 C5.35333119,160 0,155.537174 0,150.032 L0,80.968 C0,75.4628256 5.35333119,71 11.9569999,71 L54,71" id="Shape" stroke="#1A2026" stroke-width="10"></path>
+            <polyline id="Path" stroke="#1A2026" stroke-width="10" points="164 18.5029297 164 71 44 71 44 3 149.542969 3"></polyline>
+            <rect id="Rectangle" fill="#FFFFFF" x="173" y="82" width="25" height="9" rx="2"></rect>
+            <polyline id="Path" fill="#1A2026" points="167 19 149 19 149 0"></polyline>
+        </g>
+    </g>
+</svg>

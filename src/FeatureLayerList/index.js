@@ -21,7 +21,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 // eslint-disable-next-line react/display-name
-const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
+const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
   // necessary to concatentate, a push directly to the featureKist property will 
   // cause the featureList to add a new analyzer list with each render, due to the 
@@ -31,7 +31,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...allFeaturesList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+        ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
       ], [])
   );
 
@@ -122,7 +122,7 @@ const FeatureLayerList = memo(({ featureList, analyzerList, hideFeatures, showFe
       </Collapsible>
     </li>
   </ul>;
-});
+};
 
 const mapStateToProps = (state) => ({
   featureList: getFeatureLayerListState(state),
@@ -131,4 +131,4 @@ const mapStateToProps = (state) => ({
   mapLayerFilter: state.data.mapLayerFilter
 });
 
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(FeatureLayerList);
+export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureLayerList));

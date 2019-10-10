@@ -18,7 +18,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
-const Content = memo((props) => {
+const Content = (props) => {
   const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map, 
     featureFilterEnabled } = props;
 
@@ -51,23 +51,23 @@ const Content = memo((props) => {
   const trigger = <h6 className={listStyles.trigger}>{name}</h6>;
 
   return <Collapsible
-  {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-  className={listStyles.collapsed}
-  openedClassName={listStyles.opened}
-  trigger={trigger}
-  open={collapsibleShouldBeOpen} >
-  <CheckableList
-    className={listStyles.list}
-    items={featuresByType}
-    itemProps={itemProps}
-    itemFullyChecked={allVisible}
-    itemPartiallyChecked={someVisible}
-    onCheckClick={onCheckToggle}
-    itemComponent={FeatureTypeListItem}
-  />
-</Collapsible>
-});
+    {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
+    className={listStyles.collapsed}
+    openedClassName={listStyles.opened}
+    trigger={trigger}
+    open={collapsibleShouldBeOpen} >
+    <CheckableList
+      className={listStyles.list}
+      items={featuresByType}
+      itemProps={itemProps}
+      itemFullyChecked={allVisible}
+      itemPartiallyChecked={someVisible}
+      onCheckClick={onCheckToggle}
+      itemComponent={FeatureTypeListItem}
+    />
+  </Collapsible>;
+};
 
 const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
 
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(Content);
+export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(Content));

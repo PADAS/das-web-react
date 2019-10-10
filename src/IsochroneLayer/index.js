@@ -2,6 +2,7 @@ import React, { memo, Fragment, useEffect, useState } from 'react';
 import { Source, Layer } from 'react-mapbox-gl';
 import getIsochrone from 'mb-isochrone';
 import area from '@turf/area';
+import isEqual from 'react-fast-compare';
 
 import { LAYER_IDS, REACT_APP_MAPBOX_TOKEN } from '../constants';
 
@@ -161,38 +162,39 @@ const labelPaint = {
 };
 
 const IsochroneLayer = ({ coords }) => {
-  
+
   const [isochrone, setIsochrone] = useState(null);
 
-  const fetchData = () => getIsochrone([-109.36664693358205, -27.114147441540396], { token: REACT_APP_MAPBOX_TOKEN, threshold: 3600, mode: 'walking' }, function (err, output) {
-    const data = {
-      ...output,
-      features: output.features.map((feature) => {
-        const seconds = feature.properties.time;
-      
-        return {
-          ...feature,
-          properties: {
-            ...feature.properties,
-            minutes: seconds / 60,
-            quantized: seconds % 600 === 0 ? 3600 : (seconds % 300 === 0 ? 1800 : (seconds % 300 === 0 ? 900 : 1)),
-            area: area(feature),
-          },
-        };
-      })
-    };
-    if (err) throw err;
-    setIsochrone({
-      type: 'geojson',
-      data,
-    });
-  });
-  
+
   useEffect(() => {
     if (coords) {
-      fetchData();
+      getIsochrone(coords, { token: REACT_APP_MAPBOX_TOKEN, threshold: 3600, mode: 'walking' }, function (err, output) {
+        const data = {
+          ...output,
+          features: output.features.map((feature) => {
+            const seconds = feature.properties.time;
+
+            return {
+              ...feature,
+              properties: {
+                ...feature.properties,
+                minutes: seconds / 60,
+                quantized: seconds % 600 === 0 ? 3600 : (seconds % 300 === 0 ? 1800 : (seconds % 300 === 0 ? 900 : 1)),
+                area: area(feature),
+              },
+            };
+          })
+        };
+        if (err) throw err;
+        setIsochrone({
+          type: 'geojson',
+          data,
+        });
+      });
     }
   }, [coords]);
+
+  if (!coords) return null;
 
   return isochrone && <Fragment>
     <Source id='isochrone-data' geoJsonSource={isochrone} />
@@ -210,4 +212,4 @@ const IsochroneLayer = ({ coords }) => {
   </Fragment>;
 };
 
-export default memo(IsochroneLayer);
+export default memo(IsochroneLayer, (prev, current) => isEqual(prev.coords, current.coords));
