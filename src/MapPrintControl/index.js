@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
@@ -11,7 +11,10 @@ import styles from './styles.module.scss';
 
 const MapPrintControl = (props) => {
   const { printTitle, setPrintTitle } = props;
+  const closeFormAfterPrint = () => setActiveState(false);
+
   const [active, setActiveState] = useState(false);
+  const onAfterPrint = useRef(closeFormAfterPrint);
 
   const toggleActiveState = () => setActiveState(!active);
   const onInputChange = ({ target: { value } }) => setPrintTitle(value);
@@ -20,6 +23,14 @@ const MapPrintControl = (props) => {
     e.preventDefault();
     window.print();
   };
+
+  useEffect(() => {
+    window.addEventListener('afterprint', onAfterPrint.current);
+    return () => {
+      console.log('removing, byebye');
+      window.removeEventListener('afterprint', onAfterPrint.current);
+    };
+  }, []);
   
   return <div className={styles.wrapper}>
     <button type='button' title='Print map' 
