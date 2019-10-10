@@ -191,7 +191,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
 
 export const createNewIncidentCollection = attributes =>
   createNewReportForEventType(
-    { value: 'incident_collection', icon_id: 'incident_collection', is_collection: true, ...attributes }
+    { value: 'incident_collection', icon_id: 'incident_collection', is_collection: true, contains: [], ...attributes }
   );
 
 export const generateErrorListForApiResponseDetails = (response) => {
