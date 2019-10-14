@@ -45,6 +45,7 @@ import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import IsochroneLayer from '../IsochroneLayer';
+import MapImagesLayer from '../MapImagesLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -70,10 +71,6 @@ class Map extends Component {
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return !isEqual(this.props, nextProps);
   }
 
   componentDidMount() {
@@ -371,7 +368,7 @@ class Map extends Component {
         )}
 
         {timeSliderActive && <TimeSlider />}
-
+        <MapImagesLayer />
 
       </EarthRangerMap>
     );
@@ -401,6 +398,7 @@ const mapStatetoProps = (state, props) => {
     trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
+    mapImages: state.view.mapImages,
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),

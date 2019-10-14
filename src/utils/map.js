@@ -1,3 +1,7 @@
+import { store } from '../';
+
+import { addImageToMapIfNecessary } from '../ducks/map-images';
+
 import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
@@ -38,10 +42,11 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 
 export const addMapImage = async (map, icon_id, src) => {
   const img = await imgElFromSrc(src, MAP_ICON_SIZE);
-  if (!map.hasImage(icon_id)) {
-    map.addImage(icon_id, img);
-  }
-  return img;
+  store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
+  return {
+    icon_id,
+    img,
+  };
 };
 
 export const addFeatureCollectionImagesToMap = async (collection, map) => {
@@ -180,10 +185,6 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
-};
-
-export const displayInactiveRadios = (map, display) => {
-
 };
 
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>

@@ -12,6 +12,7 @@ import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesRedu
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
   pickingLocationOnMapReducer, printTitleReducer, displayUserLocationReducer, displayReportsOnMapReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
+import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
@@ -85,6 +86,7 @@ const rootReducer = combineReducers({
     hiddenFeatureIDs: hiddenFeatureIDsReducer,
     hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
+    mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
     showUserLocation: displayUserLocationReducer,
