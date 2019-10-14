@@ -7,7 +7,7 @@ import bboxPolygon from '@turf/bbox-polygon';
 import booleanContains from '@turf/boolean-contains';
 
 import { setCurrentUserLocation } from '../ducks/location';
-import { userLocationCanBeShown } from '../selectors/index';
+import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
 
 import { addMapImage } from '../utils/map';
 import { GEOLOCATOR_OPTIONS } from '../constants';
@@ -29,9 +29,11 @@ const symbolLayout = {
 
 
 const UserCurrentLocationLayer = (props) => {
-  const { map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
+  const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
+  const[userLocationIsInMapBounds, setUserLocationWithinMapBounds] = useState(false);
   const [initialized, setInitState] = useState(false);
+  
   const animationFrameID = useRef(null);
   const [animationState, setAnimationState] = useState({
     opacity: initialOpacity,
@@ -105,8 +107,11 @@ const UserCurrentLocationLayer = (props) => {
     animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
   }, [animationState]);
 
-  const [[minX, minY], [maxX, maxY]] = map.getBounds().toArray();
-  const userLocationIsInMapBounds = !!userLocation && !!userLocation.coords && booleanContains(bboxPolygon([minX, minY, maxX, maxY]), point([userLocation.coords.longitude, userLocation.coords.latitude]));
+  useEffect(() => {
+    setUserLocationWithinMapBounds(
+      !!currentMapBbox && !!userLocation && !!userLocation.coords && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude])),
+    );
+  }, [currentMapBbox, userLocation]);
 
   const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
 
@@ -136,6 +141,7 @@ const UserCurrentLocationLayer = (props) => {
 };
 
 const mapStateToProps = (state) => ({
+  currentMapBbox: bboxBoundsPolygon(state),
   userLocation: state.view.userLocation,
   userLocationCanBeShown: userLocationCanBeShown(state),
 });

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
-import { getUniqueSubjectGroupSubjects, getUniqueSubjectGroupSubjectIDs, filterSubjects } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 

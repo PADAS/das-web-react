@@ -1,9 +1,13 @@
 import uniq from 'lodash/uniq';
 import { featureCollection } from '@turf/helpers';
+import booleanDisjoint from '@turf/boolean-disjoint';
+import { booleanIntersects } from '@turf/turf';
 import { startOfDay ,subDays } from 'date-fns';
 
-import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
+import { createSelector, getTimeSliderState, getEventFilterDateRange, bboxBoundsPolygon } from './';
 import { trimTrackFeatureCollectionToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
+
+console.log('booleanIntersects', booleanIntersects);
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
@@ -27,8 +31,19 @@ export const visibleTrackFeatureCollection = createSelector(
   trackArray => featureCollection(trackArray.map(track => track.features[0])),
 );
 
+export const getTrackWhichCrossesCurrentMapViewById = createSelector(
+  [getTrackById, bboxBoundsPolygon],
+  (track, bboxPolygon) => {
+    if (!track) return null;
+    if (!bboxPolygon) return track;
+
+    const doesIntersect = !booleanDisjoint(track, bboxPolygon);
+    return doesIntersect && track;
+  },
+);
+
 export const trimmedTrack = createSelector(
-  [getTrackById, trackLength, getTimeSliderState, getEventFilterDateRange],
+  [getTrackWhichCrossesCurrentMapViewById, trackLength, getTimeSliderState, getEventFilterDateRange],
   (trackFeatureCollection, trackLength, timeSliderState, eventFilterDateRange) => {
 
     if (!trackFeatureCollection) return null;
@@ -39,7 +54,7 @@ export const trimmedTrack = createSelector(
 
 export const trimmedTrackPoints = createSelector(
   [trimmedTrack],
-  (trackFeatureCollection) => trackFeatureCollection ? convertTrackFeatureCollectionToPoints(trackFeatureCollection) : null,
+  (trackFeatureCollection) => trackFeatureCollection && convertTrackFeatureCollectionToPoints(trackFeatureCollection),
 );
 
 export const trimmedVisibleTrackFeatureCollection = createSelector(
