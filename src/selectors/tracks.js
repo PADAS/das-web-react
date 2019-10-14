@@ -54,7 +54,7 @@ export const trimmedTrack = createSelector(
 
 export const trimmedTrackPoints = createSelector(
   [trimmedTrack],
-  (trackFeatureCollection) => trackFeatureCollection ? convertTrackFeatureCollectionToPoints(trackFeatureCollection) : null,
+  (trackFeatureCollection) => trackFeatureCollection && convertTrackFeatureCollectionToPoints(trackFeatureCollection),
 );
 
 export const trimmedVisibleTrackFeatureCollection = createSelector(
