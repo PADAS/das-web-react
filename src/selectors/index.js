@@ -1,6 +1,8 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
 import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
+import bboxPolygon from '@turf/bbox-polygon';
+
 import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson, filterInactiveRadiosFromCollection } from '../utils/map';
@@ -23,6 +25,7 @@ const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
+const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 
 export const featureSets = ({ data: { featureSets } }) => featureSets;
@@ -36,6 +39,11 @@ const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSch
 export const userLocationCanBeShown = createSelector(
   [userLocation, showUserLocation],
   (userLocation, showUserLocation) => userLocation && showUserLocation,
+);
+
+export const bboxBoundsPolygon = createSelector(
+  [getLastKnownMapBbox],
+  (bbox) => bbox && bboxPolygon(bbox.split(',').map(coord => parseFloat(coord))),
 );
 
 const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
@@ -102,10 +110,10 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
   (analyzerFeatures) => {
     const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
       [...accumulator,
-      ...data.geojson.features.map(feature => {
-        feature.analyzer_type = data.type;
-        return feature;
-      })], []);
+        ...data.geojson.features.map(feature => {
+          feature.analyzer_type = data.type;
+          return feature;
+        })], []);
     // simulate layergroups found in old codebase by passing the feature ids
     // of the analyzer feature collection so they can be looked up at runtime - 
     // ie when a rollover occurs with a mouse
@@ -131,15 +139,15 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-      ...data.geojson.features
-        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-        .map(feature => {
-          if (feature.properties.image) {
-            feature = addIconToGeoJson(feature);
-            feature.properties.image = calcUrlForImage(feature.properties.image);
-          }
-          return feature;
-        })], []);
+        ...data.geojson.features
+          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+          .map(feature => {
+            if (feature.properties.image) {
+              feature = addIconToGeoJson(feature);
+              feature.properties.image = calcUrlForImage(feature.properties.image);
+            }
+            return feature;
+          })], []);
     return {
       symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
       lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),

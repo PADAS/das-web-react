@@ -27,7 +27,6 @@ const MapPrintControl = (props) => {
   useEffect(() => {
     window.addEventListener('afterprint', onAfterPrint.current);
     return () => {
-      console.log('removing, byebye');
       window.removeEventListener('afterprint', onAfterPrint.current);
     };
   }, []);

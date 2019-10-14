@@ -71,4 +71,4 @@ export const analyzerSourceLayerMap = {
   'Polygon.proximity_group': ANALYZER_POLYS_WARNING,
   'MultiPolygon.warning_group': ANALYZER_POLYS_WARNING,
   'MultiPolygon.critical_group': ANALYZER_POLYS_CRITICAL
-}
+};
