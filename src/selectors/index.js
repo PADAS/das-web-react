@@ -149,9 +149,31 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
             return feature;
           })], []);
     return {
-      symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
-      lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
-      fillFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
+      symbolFeatures: featureCollection(
+        allFeatures
+          .filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))
+          .map(feature => !!feature.properties.icon_id
+            ? feature
+            : {
+              ...feature,
+              properties: {
+                ...feature.properties,
+                icon_id: 'marker-icon',
+              }
+            })
+      ),
+      lineFeatures: featureCollection(
+        allFeatures
+          .filter(({ geometry: { type } }) =>
+            lineFeatureTypes.includes(type)
+          )
+      ),
+      fillFeatures: featureCollection(
+        allFeatures
+          .filter(({ geometry: { type } }) =>
+            fillFeatureTypes.includes(type)
+          )
+      ),
     };
   },
 );
