@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 
@@ -11,11 +11,18 @@ const SelectField = (props) => {
 
   const getOptionLabel = ({ label, name }) => label || name;
   const getOptionValue = ({ value }) => value;
-  const selected = enumOptions.find(({ value:v }) => v === value);
+  const selected = enumOptions.find((item) => value ?
+    item.value === value.value
+    : null
+  );
+
+  console.log('enumOptions', enumOptions);
+  console.log('value', value);
+  console.log('selected', selected);
 
   const handleChange = (update) => {
-    if (update) return onChange(update.value);
-    return onChange(update);
+    console.log('handling changing', update);
+    if (update) return onChange(update);
   };
 
   return <Select
@@ -35,7 +42,7 @@ const SelectField = (props) => {
 
 
 const DateTimeField = (props) => {
-  const { idSchema: { id }, schema: { title:label }, onChange, required, formData } = props;
+  const { idSchema: { id }, schema: { title: label }, onChange, required, formData } = props;
   const date = formData ? new Date(formData) : undefined;
 
   const handleChange = newVal => onChange(newVal ? newVal.toISOString() : newVal);

@@ -119,10 +119,11 @@ const generateSchemaAndUiSchemaForSelect = (key) => {
   };
 };
 
-export const unwrapEventDetailSelectValues = (data) => {
-  const itemHasNameAndValue = item => item && item.name && item.value;
+const itemHasNameAndValue = item => item && item.name && item.value;
 
-  const updates = Object.entries(data).reduce((propsObject, [key, val]) => {
+export const unwrapEventDetailSelectValues = (data) => {
+  return data;
+ /*  const updates = Object.entries(data).reduce((propsObject, [key, val]) => {
     if (itemHasNameAndValue(val)) {
       propsObject[key] = val.value;
     } else if (Array.isArray(val) && itemHasNameAndValue(val[0])) {
@@ -131,5 +132,5 @@ export const unwrapEventDetailSelectValues = (data) => {
     return propsObject;
   }, {});
 
-  return { ...data, ...updates };
+  return { ...data, ...updates }; */
 };

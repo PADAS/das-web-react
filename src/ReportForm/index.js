@@ -247,6 +247,9 @@ const ReportForm = (props) => {
       if (changes.notes) {
         toSubmit.notes = report.notes;
       }
+      if (changes.event_details) {
+        toSubmit.event_details = report.event_details;
+      }
     }
 
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click 'Save' button for ${reportIsNew?'new':'existing'} report`);
