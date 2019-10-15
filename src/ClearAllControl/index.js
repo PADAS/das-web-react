@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { hideFeatures, hideSubjects, displayReportsOnMapState } from '../ducks/map-ui';
+import { hideFeatures, hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { getFeatureLayerListState } from '../FeatureLayerList/selectors';
 import { getAllFeatureIDsInList } from '../utils/features';
@@ -11,7 +11,7 @@ import styles from './styles.module.scss';
 
 const ClearAllControl = (props) => {
 
-  const { subjectGroups, featureList, map } = props;
+  const { subjectGroups, featureList } = props;
 
   const clearAll = () => {
     const subjectIDs = getUniqueSubjectGroupSubjectIDs(...subjectGroups);
@@ -19,6 +19,8 @@ const ClearAllControl = (props) => {
     const featureListIDs = getAllFeatureIDsInList(featureList);
     props.hideFeatures(...featureListIDs);
     props.displayReportsOnMapState(false);
+    props.updateTrackState({ visible: [], pinned: [], });
+    props.updateHeatmapSubjects([]);
   };
 
   const onClearAllClick = (e) => {
@@ -27,13 +29,15 @@ const ClearAllControl = (props) => {
   };
 
   return <div className={styles.clearAllRow}>
-    <div className={styles.clearAll}><CheckIcon style={{ height: '1.5rem', width: '1.5rem', stroke: '#000', fill: '#fff' }} />
-      <a href="#" onClick={() => onClearAllClick()}>Clear All</a></div>
-  </div>
+    <div>
+      <CheckIcon className={styles.checkmark} onClick={() => onClearAllClick()} />
+      <button onClick={() => onClearAllClick()}>Clear All</button>
+    </div>
+  </div>;
 };
 
 const mapStateToProps = (state) => {
-  const { data, view } = state;
+  const { data } = state;
   const { subjectGroups, mapEvents } = data;
 
   return ({
@@ -43,4 +47,7 @@ const mapStateToProps = (state) => {
   });
 };
 
-export default connect(mapStateToProps, { displayReportsOnMapState, hideSubjects, hideFeatures })(ClearAllControl);
+export default connect(mapStateToProps, {
+  displayReportsOnMapState, hideSubjects,
+  hideFeatures, updateTrackState, updateHeatmapSubjects
+})(ClearAllControl);
