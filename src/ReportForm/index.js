@@ -236,19 +236,23 @@ const ReportForm = (props) => {
       toSubmit = {
         ...changes,
         id: report.id,
+        event_details: {
+          ...originalReport.event_details,
+          ...(!!changes && changes.event_details),
+        },
       };
 
       /* reported_by requires the entire object. bring it over if it's changed and needs updating. */
       if (changes.reported_by) {
-        toSubmit.reported_by = report.reported_by;
+        toSubmit.reported_by = {
+          ...report.reported_by,
+          ...changes.reported_by,
+        };
       }
 
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
       if (changes.notes) {
         toSubmit.notes = report.notes;
-      }
-      if (changes.event_details) {
-        toSubmit.event_details = report.event_details;
       }
     }
 

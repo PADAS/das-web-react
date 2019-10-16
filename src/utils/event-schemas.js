@@ -84,7 +84,7 @@ const generateSchemaAndUiSchemaForCheckbox = (definition) => {
       uniqueItems: true,
     },
     uiSchemaEntry: {
-      'ui:widget': 'checkboxes',
+      'ui:widget': customSchemaFields.checkboxes,
     },
   };
 };
