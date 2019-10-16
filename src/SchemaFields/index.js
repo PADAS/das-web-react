@@ -17,10 +17,6 @@ const SelectField = (props) => {
     : null
   );
 
-  console.log('enumOptions', enumOptions);
-  console.log('value', value);
-  console.log('selected', selected);
-
   const handleChange = (update) => {
     return onChange(update);
   };
