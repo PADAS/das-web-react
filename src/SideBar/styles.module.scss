@@ -50,6 +50,16 @@
       z-index: 1;
       top: 1.15rem;
     }
+    featureTitle {
+      display: block;
+      background: red;
+      padding-left: 3.5rem;
+      padding-right: 2rem;
+      word-break: break-all;
+      @media (min-width: $md-layout-width-min) {
+        word-break: initial;
+      }
+    }
     [class*=Collapsible__trigger], .itemTitle {
       display: block;
       padding-left: 3.5rem;

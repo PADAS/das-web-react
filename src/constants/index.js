@@ -9,15 +9,15 @@ export const {
 } = process.env;
 
 export const GA_EVENT_CATEGORIES = {
-  EVENT_REPORTS: "Event Reports",
-  REPORT_EXPORT: "Report Export",
-  MAP_INTERATION: "Map Interaction",
-  MAP_LAYERS: "Map Layers",
-  FEED: "Feed",
-  TABS: "Tabs",
-  DRAWER: "Drawer",
-  GPS_FORMAT: "GPS Format",
-  SYSTEM_STATUS: "System Status",
+  EVENT_REPORTS: 'Event Reports',
+  REPORT_EXPORT: 'Report Export',
+  MAP_INTERATION: 'Map Interaction',
+  MAP_LAYERS: 'Map Layers',
+  FEED: 'Feed',
+  TABS: 'Tabs',
+  DRAWER: 'Drawer',
+  GPS_FORMAT: 'GPS Format',
+  SYSTEM_STATUS: 'System Status',
 };
 
 export const MIN_ZOOM = 1;
@@ -146,7 +146,7 @@ export const DEFAULT_SELECT_STYLES = {
 };
 
 export const DATEPICKER_DEFAULT_CONFIG = {
-  disableClock: true,
+  disableClock: false,
   clearIcon: null,
   calendarIcon: null,
   format: 'dd-MM-yyyy HH:mm',
