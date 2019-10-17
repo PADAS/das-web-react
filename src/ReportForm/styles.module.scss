@@ -275,7 +275,6 @@
   transition: background .2s linear;
   width: 100%;
   &:hover {
-    background: darken($link-color, 5%);
     text-decoration: underline;
     color: $link-color;
   }

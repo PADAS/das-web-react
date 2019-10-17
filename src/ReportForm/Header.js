@@ -94,7 +94,7 @@ const ReportFormHeader = (props) => {
       {hasExternalLink && <Fragment> 
         <hr />
         <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
-          <img src={report.external_source.icon_url} style={{height: '2rem', width: '2rem'}} /> {report.external_source.text}
+          <img src={report.external_source.icon_url} style={{height: '2rem', width: '2rem'}} alt={report.external_source.text} /> {report.external_source.text}
           <ExternalLinkIcon style={{height: '1rem', width: '1rem', marginLeft: '0.1rem'}} />
         </Button>
       </Fragment>
