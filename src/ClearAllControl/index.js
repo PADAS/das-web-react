@@ -2,8 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { hideFeatures, hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
-import { getFeatureLayerListState } from '../FeatureLayerList/selectors';
-import { getAllFeatureIDsInList } from '../utils/features';
+import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
@@ -11,15 +10,14 @@ import styles from './styles.module.scss';
 
 const ClearAllControl = (props) => {
 
-  const { subjectGroups, featureList } = props;
+  const { subjectGroups } = props;
 
   const clearAll = () => {
+    // Note: no longer removing the map features in a clear all
     const subjectIDs = getUniqueSubjectGroupSubjectIDs(...subjectGroups);
     props.hideSubjects(...subjectIDs);
-    const featureListIDs = getAllFeatureIDsInList(featureList);
-    props.hideFeatures(...featureListIDs);
     props.displayReportsOnMapState(false);
-    props.updateTrackState({ visible: [], pinned: [], });
+    props.updateTrackState(INITIAL_TRACK_STATE);
     props.updateHeatmapSubjects([]);
   };
 
@@ -37,12 +35,10 @@ const ClearAllControl = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { data } = state;
-  const { subjectGroups, mapEvents } = data;
+  const { data: { subjectGroups, mapEvents } } = state;
 
   return ({
     subjectGroups,
-    featureList: getFeatureLayerListState(state),
     mapEvents
   });
 };

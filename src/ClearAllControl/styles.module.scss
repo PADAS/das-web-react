@@ -4,7 +4,6 @@ $checkmark-color: $medium-light-gray;
 $hover-color: darken($checkmark-color, 12.5%);
 
 .clearAllRow {
-    width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -15,10 +14,10 @@ $hover-color: darken($checkmark-color, 12.5%);
         border: none;
         text-align: center;
         background: none;
-        color: $clear-all-blue;
-        margin-left: .5rem;
-        padding-top: .5rem;
-        padding-bottom: .5rem;
+        color: $clear-all-link-color;
+        margin-left: 0.5rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
         &:focus {
           outline: 0;
         }
@@ -29,10 +28,11 @@ $hover-color: darken($checkmark-color, 12.5%);
 }
 
 .checkmark {
-    fill: white;
-    height: 1.5rem;
-    width: 1.5rem;
-    stroke: $clear-all-blue;
-    stroke-width: .125rem;
-    margin-left: 1.0rem;
+  --dimensions: 1.5rem;
+  fill: white;
+  height: var(--dimensions);
+  width: var(--dimensions);
+  stroke: $clear-all-link-color;
+  stroke-width: calc(var(--dimensions)/8);
+  margin-left: 1.0rem;
 }
