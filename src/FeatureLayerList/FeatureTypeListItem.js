@@ -10,6 +10,8 @@ import CheckableList from '../CheckableList';
 import FeatureListItem from './FeatureListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
+import styles from './styles.module.scss';
+
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: true,
@@ -52,7 +54,7 @@ const FeatureTypeListItem = (props) => {
     open={collapsibleShouldBeOpen} >
     <CheckableList
       items={features}
-      className={`${listStyles.list} ${listStyles.itemList} ${listStyles.compressed}`}
+      className={`${listStyles.list} ${listStyles.itemList} ${styles.featureItemList} ${listStyles.compressed}`}
       itemProps={itemProps}
       itemFullyChecked={featureIsVisible}
       onCheckClick={onCheckToggle}

@@ -1,0 +1,8 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/layout';
+
+.featureItemList li {
+  &:hover {
+    background: lighten($light-gray-background, 10%);
+  }
+}
