@@ -31,6 +31,13 @@ const ReportFormTopLevelControls = (props) => {
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
 
+  const handleGpsInputKeydown = (event) => {
+    const { key } = event;
+    if (key === 'Enter') {
+      setGpsPopoverState(false);
+    }
+  };
+
   const onLocationSelectFromMapStart = () => {
     setModalVisibilityState(false);
     updateUserPreferences({ sidebarOpen: false });
@@ -76,7 +83,7 @@ const ReportFormTopLevelControls = (props) => {
       <span>Location:</span>
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
-          <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
+          <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
           <div className={styles.locationButtons}>
             <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
             <GeoLocator className={styles.geoLocator} onSuccess={onGeoLocationSuccess} />

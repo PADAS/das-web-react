@@ -5,7 +5,6 @@ import DateTimePicker from 'react-datetime-picker';
 import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
 
 import styles from './styles.module.scss';
-import { isEqual } from 'date-fns';
 
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
