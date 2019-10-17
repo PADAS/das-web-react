@@ -394,6 +394,7 @@
     line-height: normal;
     flex: 1;
     flex-flow: column;
+    margin: 0 0.25rem;
     padding: 0.5rem 0.25rem;
     transition: all .1s linear;
     @media #{$whenPageIsAtMediumHeightAndWidth} {
@@ -434,7 +435,7 @@
       }
     }
   }
-  [class*=popover] {
+  [class*=bs-popover] {
     bottom: 50%;
     left: 3vw;
     top: auto;
