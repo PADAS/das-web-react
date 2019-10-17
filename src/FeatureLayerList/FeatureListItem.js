@@ -47,9 +47,13 @@ const FeatureListItem = memo((props) => {
       `Feature Type:${properties.type_name}`);
   };
 
+  const onMouseOverFeature = (enter) => { 
+    setFeatureActiveStateByID(map, properties.id, (enter)); 
+  };
+
   const onItemJumpButtonClick = () => properties.analyzer_type ? onAnalyzerJumpButtonClick() : onJumpButtonClick();
 
-  return <span className={listStyles.featureTitle}>
+  return <span className={listStyles.featureTitle} onMouseEnter={()=> onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
     {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton onButtonClick={onItemJumpButtonClick} />
   </span>;
 
