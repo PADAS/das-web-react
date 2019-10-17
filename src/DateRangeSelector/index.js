@@ -11,22 +11,15 @@ import { trackEvent } from '../utils/analytics';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
-  const { startDate, endDate, onStartDateChange, onEndDateChange, onDateRangeChange, startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, startDateNullMessage, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
-
-  const [startOpen, setStartOpen] = useState(false);
-  const [endOpen, setEndOpen] = useState(false);
-
-  const onStartOpen = () => setStartOpen(true);
-  const onStartClose = () => setStartOpen(false);
-
-  const onEndOpen = () => setEndOpen(true);
-  const onEndClose = () => setEndOpen(false);
+  const { startDate, endDate, onStartDateChange, onEndDateChange, onDateRangeChange,
+    startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
+    startDateNullMessage, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
 
   const onStartDateBlur = () => trackEvent(gaEventSrc, 'Enter Start Date', null);
   const onEndDateBlur = () => trackEvent(gaEventSrc, 'Enter End Date', null);
 
-  const showStartNullMessage = !requireStart && !startOpen && !startDate && !!startDateNullMessage;
-  const showEndNullMessage = !requireEnd && !endOpen && !endDate && !!endDateNullMessage;
+  const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
+  const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
 
   return <div className={className || ''}>
     <div className={styles.dateSelectorWrapper}>
@@ -34,7 +27,7 @@ const DateRangeSelector = (props) => {
         <span>{startDateLabel}</span>
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={startOpen} onClockOpen={onStartOpen} onCloseClose={onStartClose} onCalendarOpen={onStartOpen} onCalendarClose={onStartClose} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -43,7 +36,7 @@ const DateRangeSelector = (props) => {
         <span>{endDateLabel}</span>
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} isCalendarOpen={endOpen} onClockOpen={onEndOpen} onCloseClose={onEndClose} onCalendarOpen={onEndOpen} onCalendarClose={onEndClose} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur} />
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur} />
         </span>
       </label>
     </div>
