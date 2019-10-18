@@ -34,7 +34,7 @@ const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 export const setReportHeatmapVisibility = (show) => ({
   type: SET_REPORT_HEATMAP_VISIBILITY,
   payload: show,
-})
+});
 
 export const updateHeatmapConfig = (config) => ({
   type: UPDATE_HEATMAP_CONFIG,
@@ -223,7 +223,7 @@ export const displayReportsOnMapReducer = (state = true, action) => {
   return state;
 };
 
-const INITIAL_TRACK_STATE = {
+export const INITIAL_TRACK_STATE = {
   visible: [],
   pinned: [],
 };
