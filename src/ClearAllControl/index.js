@@ -10,15 +10,15 @@ import styles from './styles.module.scss';
 
 const ClearAllControl = (props) => {
 
-  const { subjectGroups } = props;
+  const { subjectGroups, hideSubjects, displayReportsOnMapState, updateTrackState, updateHeatmapSubjects } = props;
 
   const clearAll = () => {
     // Note: no longer removing the map features in a clear all
     const subjectIDs = getUniqueSubjectGroupSubjectIDs(...subjectGroups);
-    props.hideSubjects(...subjectIDs);
-    props.displayReportsOnMapState(false);
-    props.updateTrackState(INITIAL_TRACK_STATE);
-    props.updateHeatmapSubjects([]);
+    hideSubjects(...subjectIDs);
+    displayReportsOnMapState(false);
+    updateTrackState(INITIAL_TRACK_STATE);
+    updateHeatmapSubjects([]);
   };
 
   const onClearAllClick = (e) => {
@@ -45,5 +45,5 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps, {
   displayReportsOnMapState, hideSubjects,
-  hideFeatures, updateTrackState, updateHeatmapSubjects
+  updateTrackState, updateHeatmapSubjects
 })(ClearAllControl);
