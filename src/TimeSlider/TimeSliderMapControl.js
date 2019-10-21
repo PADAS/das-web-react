@@ -11,9 +11,9 @@ import styles from './styles.module.scss';
 
 const TimeSliderMapControl = ({ active, dateSet, setTimeSliderState }) => {
   const toggleState = () => {
-    const newState = !active;
-    setTimeSliderState(newState);
-    trackEvent('Map Interaction', `${newState ? 'Open' : 'Close'} 'Time Slider' control`);
+    const isOpen = !active;
+    setTimeSliderState(isOpen);
+    trackEvent('Map Interaction', `${isOpen ? 'Open' : 'Close'} 'Time Slider' control`);
   };
   
   return <button className={styles.mapControl} type="button" onClick={toggleState}>
