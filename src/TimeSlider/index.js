@@ -43,6 +43,10 @@ const TimeSlider = (props) => {
   const value = (currentDate - startDate) / (endDate - startDate);
   const handleOffset = ((handleTextRef && handleTextRef.current && handleTextRef.current.offsetWidth) || 0) * value;
 
+  const onHandleClick = (direction) => {
+    trackEvent('Map Interaction', `Click '${direction} Time Slider Anchor'`);
+  };
+
   const onRangeChange = ({ target: { value } }) => {
     // slight 'snap' at upper limit
     if (value >= .99999) {
@@ -58,10 +62,13 @@ const TimeSlider = (props) => {
       
       setVirtualDate(dateValue.toISOString());
     }
-  };
 
+    trackEvent('Map Interaction', 'Changed \'Time Slider\'');
+  };
+  
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
+    trackEvent('Map Interaction', 'Update Time Slider Date Range');
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const PopoverContent = <Popover className={styles.popover}>
@@ -76,7 +83,7 @@ const TimeSlider = (props) => {
   </Popover>;
 
   return <div className={styles.wrapper}>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+    <OverlayTrigger onClick={() => onHandleClick('Left')} shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
       <div className={`${styles.handle} ${styles.left}`}>
         <span className={styles.handleDate}>{format(startDate, STANDARD_DATE_FORMAT)}</span>
         <TimeAgo date={startDate}/>
@@ -89,7 +96,7 @@ const TimeSlider = (props) => {
         {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> : 'Timeslider'}
       </span>
     </div>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+    <OverlayTrigger onClick={() => onHandleClick('Right')} shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
       <div className={`${styles.handle} ${styles.right}`}>
         <span className={styles.handleDate}>{format(endDate, STANDARD_DATE_FORMAT)}</span>
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>

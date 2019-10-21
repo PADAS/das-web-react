@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
+
+import { trackEvent } from '../utils/analytics';
 import { setTimeSliderState } from '../ducks/timeslider';
 
 import { ReactComponent as TimeSliderIcon } from '../common/images/icons/timeslider-icon.svg';
@@ -8,7 +10,11 @@ import { ReactComponent as TimeSliderIcon } from '../common/images/icons/timesli
 import styles from './styles.module.scss';
 
 const TimeSliderMapControl = ({ active, dateSet, setTimeSliderState }) => {
-  const toggleState = () => setTimeSliderState(!active);
+  const toggleState = () => {
+    const newState = !active;
+    setTimeSliderState(newState);
+    trackEvent('Map Interaction', `${newState ? 'Open' : 'Close'} 'Time Slider' control`);
+  };
   
   return <button className={styles.mapControl} type="button" onClick={toggleState}>
     <TimeSliderIcon className={`${styles.icon} ${active ? styles.activeIcon : ''} ${dateSet ? styles.warningIcon : ''}`} />
