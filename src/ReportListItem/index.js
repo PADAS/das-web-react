@@ -25,7 +25,15 @@ const ReportListItem = (props) => {
 
   if (report.is_collection) {
     const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
-    displayPriority = topRatedReportAndType ? (topRatedReportAndType.related_event.priority || topRatedReportAndType.event_type.default_priority) : report.priority;
+    if (topRatedReportAndType) {
+      displayPriority =
+        (topRatedReportAndType.related_event && topRatedReportAndType.related_event.hasOwnProperty('priority')) ?
+          topRatedReportAndType.related_event.priority :
+          (topRatedReportAndType.event_type && topRatedReportAndType.event_type.hasOwnProperty('default_priority')) ?
+            topRatedReportAndType.event_type.default_priority : report.priority;
+    } else {
+      displayPriority = report.priority;
+    }
   } else {
     displayPriority = report.priority;
   }

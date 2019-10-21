@@ -11,8 +11,10 @@ const EventIcon = ({report, eventTypes, color, ...rest}) => {
   const { is_collection } = report;
 
   if (!is_collection) {
-    const { icon_id } = eventTypes.find(({ value }) => value === report.event_type);
-    return <DasIcon type='events' iconId={icon_id} {...rest} />;
+    let iconId = null;
+    const matchingEventType = eventTypes.find(({ value }) => value === report.event_type);
+    if (matchingEventType) iconId = matchingEventType.icon_id;
+    return <DasIcon type='events' iconId={iconId} {...rest} />;
 
   }
 
@@ -20,7 +22,7 @@ const EventIcon = ({report, eventTypes, color, ...rest}) => {
 
   return <span className={styles.wrapper}>
     <DasIcon type='events' iconId='incident_collection'  {...rest}  />
-    {topRatedReportAndType && <DasIcon type='events'  {...rest} 
+    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events'  {...rest} 
       style={{
         fill: 'white',
       }}

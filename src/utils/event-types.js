@@ -2,16 +2,24 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
   const { contains } = collection;
 
   if (!contains || !contains.length) return null;
-  
+
+  const calcPriorityRatingForEventAndEventType = (event, eventType) => {
+    if (event.hasOwnProperty('priority')) return event.priority;
+    if (eventType && eventType.hasOwnProperty('default_priority')) return eventType.default_priority;
+    return 0;
+  };
+
   const reportsWithTypes = contains.map(({ related_event }) => {
     const { event_type } = related_event;
-    return { related_event,
+    return {
+      related_event,
       event_type: reportTypes.find(({ value }) => value === event_type),
     };
   });
   return reportsWithTypes
-    .sort((a, b) => (b.related_event.priority || b.event_type.default_priority) - (a.related_event.priority || a.event_type.default_priority))[0];
+    .sort((a, b) => calcPriorityRatingForEventAndEventType(b) - calcPriorityRatingForEventAndEventType(a))[0];
 };
+
 
 export const calcIconColorByPriority = (priority) => {
   switch (priority) {

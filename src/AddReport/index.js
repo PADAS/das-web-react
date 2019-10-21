@@ -42,11 +42,11 @@ const AddReport = (props) => {
 
   const onButtonClick = () => {
     setPopoverState(true);
-    trackEvent('Feed', "Click 'Add Report' button");
+    trackEvent('Feed', 'Click \'Add Report\' button');
   };
 
   const onCategoryClick = (category) => {
-    selectCategory(category)
+    selectCategory(category);
     trackEvent('Feed', `Click '${category}' Category option`);
   };
 
