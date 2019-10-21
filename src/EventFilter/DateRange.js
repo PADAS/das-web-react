@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 
 const EventFilterDateRangeSelector = (props) => {
-  const { children, eventFilter, updateEventFilter, ...rest } = props;
+  const { children, eventFilter, updateEventFilter, onStartChange, onEndChange, ...rest } = props;
 
   const { filter: { date_range } } = eventFilter;
 
@@ -34,45 +34,49 @@ const EventFilterDateRangeSelector = (props) => {
   };
 
   const onEndDateChange = (val) => {
+    const dateRangeUpdate = {
+      ...eventFilter.filter.date_range,
+      upper: dateIsValid(val) ? val.toISOString() : null,
+    };
     updateEventFilter({
       filter: {
-        date_range: {
-          ...eventFilter.filter.date_range,
-          upper: dateIsValid(val) ? val.toISOString() : null,
-        },
+        date_range: dateRangeUpdate,
       },
     });
     trackEvent('Feed', 'Change Filter End Date Filter');
+    onEndChange && onEndChange(dateRangeUpdate);
   };
 
 
   const onStartDateChange = (val) => {
+    const dateRangeUpdate = {
+      ...eventFilter.filter.date_range,
+      lower: dateIsValid(val) ? val.toISOString() : null,
+    };
     updateEventFilter({
       filter: {
-        date_range: {
-          ...eventFilter.filter.date_range,
-          lower: dateIsValid(val) ? val.toISOString() : null,
-        },
+        date_range: dateRangeUpdate,
       },
     });
     trackEvent('Feed', 'Change Start Date Filter');
+    onStartChange && onStartChange(dateRangeUpdate);
   };
 
   return <DateRangeSelector
-  className={styles.dateSelect}
-  endDate={hasUpper ? new Date(upper) : upper}
-  endDateNullMessage='Now'
-  onDateRangeChange={onDateRangeChange}
-  onEndDateChange={onEndDateChange}
-  onStartDateChange={onStartDateChange}
-  showPresets={true}
-  startDate={hasLower ? new Date(lower) : lower}
-  startDateNullMessage='One month ago'
-  gaEventSrc='Event Filter'
-  {...rest}
+    className={styles.dateSelect}
+    endDate={hasUpper ? new Date(upper) : upper}
+    endDateNullMessage='Now'
+    onDateRangeChange={onDateRangeChange}
+    onEndDateChange={onEndDateChange}
+    onStartDateChange={onStartDateChange}
+    showPresets={true}
+    startDate={hasLower ? new Date(lower) : lower}
+    startDateNullMessage='One month ago'
+    gaEventSrc='Event Filter'
+    {...rest}
   >
     {children}
-  </DateRangeSelector>
+  </DateRangeSelector>;
 };
 
 const mapStatetoProps = ({ data: { eventFilter } }) => ({ eventFilter });

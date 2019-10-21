@@ -37,7 +37,7 @@ const TimeSlider = (props) => {
         date_range: INITIAL_FILTER_STATE.filter.date_range,
       },
     });
-    trackEvent('Feed', 'Click Reset Date Range Filter');
+    onDateChange();
   };
   
   const value = (currentDate - startDate) / (endDate - startDate);
@@ -63,12 +63,18 @@ const TimeSlider = (props) => {
       setVirtualDate(dateValue.toISOString());
     }
 
+
+  };
+
+  const onSliderChange = (event) => {
+    onRangeChange(event);
     trackEvent('Map Interaction', 'Changed \'Time Slider\'');
   };
-  
+
+  const onDateChange = () => trackEvent('Map Interaction', 'Update Time Slider Date Range');
+
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
-    trackEvent('Map Interaction', 'Update Time Slider Date Range');
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const PopoverContent = <Popover className={styles.popover}>
@@ -78,7 +84,7 @@ const TimeSlider = (props) => {
       <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
     </Title>
     <Content className={styles.popoverBody}>
-      <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' className={styles.rangeControls} />
+      <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' className={styles.rangeControls} />
     </Content>
   </Popover>;
 
@@ -90,7 +96,7 @@ const TimeSlider = (props) => {
       </div>
     </OverlayTrigger>
     <div style={{position: 'relative', width: '100%'}}>
-      <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onRangeChange} value={value} />
+      <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onSliderChange} value={value} />
       <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
         <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
         {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> : 'Timeslider'}
