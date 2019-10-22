@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
-import { hideFeatures, showFeatures } from '../ducks/map-ui';
+import { hideFeatures, showFeatures, setCurrentFeatureType } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
@@ -21,7 +21,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 
 const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
-    featureFilterEnabled } = props;
+    featureFilterEnabled, currentFeatureType, setCurrentFeatureType } = props;
 
   if (featureFilterEnabled && !features.length) return null;
 
@@ -38,9 +38,12 @@ const FeatureTypeListItem = (props) => {
     }
   };
 
-  const collapsibleShouldBeOpen = featureFilterEnabled && !!features.length;
+  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) || name === currentFeatureType;
 
   const itemProps = { map };
+
+  const onOpening = () => setCurrentFeatureType(name);
+  const onClosing = () => setCurrentFeatureType('');
 
   const trigger = <div className={listStyles.trigger}>
     <h6>{name}</h6>
@@ -51,7 +54,9 @@ const FeatureTypeListItem = (props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     trigger={trigger}
-    open={collapsibleShouldBeOpen} >
+    open={collapsibleShouldBeOpen}
+    onOpening={onOpening}
+    onClosing={onClosing} >
     <CheckableList
       items={features}
       className={`${listStyles.list} ${listStyles.itemList} ${styles.featureItemList} ${listStyles.compressed}`}
@@ -66,6 +71,6 @@ const FeatureTypeListItem = (props) => {
 
 
 
-const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
+const mapStateToProps = ({ view: { hiddenFeatureIDs, currentFeatureType } }) => ({ hiddenFeatureIDs, currentFeatureType });
 
-export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureTypeListItem));
+export default connect(mapStateToProps, { hideFeatures, showFeatures, setCurrentFeatureType })(memo(FeatureTypeListItem));
