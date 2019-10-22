@@ -26,8 +26,6 @@ const FeatureListItem = memo((props) => {
   const onAnalyzerJumpButtonClick = () => {
     showFeatures(properties.id);
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
-    const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
-    props.showPopup('analyzer-config', { geometry, properties });
     setTimeout(() => {
       const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
       props.showPopup('analyzer-config', { geometry, properties });
@@ -36,7 +34,7 @@ const FeatureListItem = memo((props) => {
     trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
       `Feature Type:${properties.type_name}`);
   };
-
+ 
   const onJumpButtonClick = () => {
     showFeatures(properties.id);
     fitMapBoundsToGeoJson(map, { geometry });
@@ -54,7 +52,7 @@ const FeatureListItem = memo((props) => {
   const onItemJumpButtonClick = () => properties.analyzer_type ? onAnalyzerJumpButtonClick() : onJumpButtonClick();
 
   return <span className={listStyles.featureTitle} onMouseEnter={()=> onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton onButtonClick={onItemJumpButtonClick} />
+    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton onClick={onItemJumpButtonClick} />
   </span>;
 
 });
