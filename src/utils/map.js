@@ -41,6 +41,7 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 };
 
 export const addMapImage = async (map, icon_id, src) => {
+  console.log(icon_id, src);
   const img = await imgElFromSrc(src, MAP_ICON_SIZE);
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
   return {
@@ -72,7 +73,7 @@ const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((
 
 export const filterInactiveRadiosFromCollection = (subjects) => {
   if (subjects && subjects.features.length) {
-    return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
+    return featureCollection(subjects.features.filter((subject) => subject.properties.radio_state !== 'offline'));
   }
   return emptyFeatureCollection;
 };
@@ -218,7 +219,7 @@ export const metersToPixelsAtMaxZoom = (meters, latitude) =>
 }; */
 
 
-/* 
+/*
 CANCEL MAPBOX ZOOM PROGRMAMATICALLY
 
 Unfortunately there’s no public Mapbox method to cancel a camera movement, but you can change the zoom level to trigger a halt.
