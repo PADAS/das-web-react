@@ -4,13 +4,13 @@ import styles from './styles.module.scss';
 import LoadingOverlay from '../LoadingOverlay';
 
 const HeatmapToggleButton = (props) => {
-  const { heatmapVisible, heatmapPartiallyVisible, onButtonClick, showLabel, loading } = props;
+  const { className: externalClass, heatmapVisible, heatmapPartiallyVisible, onButtonClick, showLabel, loading } = props;
   const className = heatmapVisible ? 'heatmap-on' : heatmapPartiallyVisible ? 'heatmap-partial' : '';
   const hoverText = className ? 'Heatmap on' : 'Heatmap off';
 
   return <div className={`${styles.container}${showLabel ? ` ${styles.hasLabel}` : ''}`}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
-    <button title={hoverText} type="button" className={`${styles.button} ${styles[className]}`} onClick={onButtonClick}></button>
+    <button title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClass || ''}`} onClick={onButtonClick}></button>
     {showLabel && <span>{hoverText}</span>}
   </div>;
 };

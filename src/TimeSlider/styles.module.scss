@@ -87,6 +87,7 @@ $contrast: 25%;
   width: 10rem;
   &::before {
     background: url('../common/images/timeslider-bumper.png') bottom right/var(--thumb-width) $thumb-height no-repeat;
+    background-size: 100% 100%;
     content: '';
     display: none;
     height: 100%;

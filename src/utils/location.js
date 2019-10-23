@@ -14,6 +14,7 @@ export const GPS_FORMATS = {
 };
 
 export const GPS_FORMAT_LABELS = {
+  DDM: 'Degrees, Decimals, Minutes',
   DEG: 'Latitude, Longitude',
   DMS: 'Degrees, Minutes, Seconds',
   UTM: 'Universal Transverse Mercator',
@@ -21,6 +22,7 @@ export const GPS_FORMAT_LABELS = {
 };
 
 export const GPS_FORMAT_EXAMPLES = {
+  DDM: '00° 09.1758′ S, 037° 18.5436′ E',
   DEG: ' -0.15293, 37.30906',
   DMS: '0 9′ 10.5624″ S, 37 18′ 32.6185″ E',
   UTM: '37 S 311814 9983089',
