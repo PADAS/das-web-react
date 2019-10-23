@@ -223,7 +223,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
 }, ({ version }) => {
   return {
     version: version,
-    details: REACT_APP_DAS_HOST,
+    details: REACT_APP_DAS_HOST || window.location.origin,
     status: HEALTHY_STATUS,
     title: `EarthRanger Server ${version}`,
   };
