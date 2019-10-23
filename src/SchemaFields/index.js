@@ -6,6 +6,8 @@ import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
 
 import styles from './styles.module.scss';
 
+import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
+
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
 
@@ -94,8 +96,18 @@ const CustomCheckboxes = (props) => {
   );
 };
 
+const ExternalLink = (props) => {
+  const { idSchema: { id }, schema: { title: label }, formData:value } = props;
+
+  return <div>
+    <label htmlFor={id}>{label} <ExternalLinkIcon /></label>
+    <a target='_blank' rel='noopener noreferrer' href={value}>{value}</a>
+  </div>;
+};
+
 export default {
   select: SelectField,
   checkboxes: CustomCheckboxes,
   datetime: DateTimeField,
+  externalUri: ExternalLink,
 };

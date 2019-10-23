@@ -38,10 +38,12 @@ $filtered-color : $highlight-color;
     width: 1rem;
     height: 1rem;
     padding: 0;
+    position: relative;
     outline: none;
     border: none;
-    background: none;
+    background: white;
     visibility: hidden;
+    right: 1rem;
     cursor: pointer; 
     &:hover > svg {
       fill: $filtered-color;

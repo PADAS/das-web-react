@@ -6,6 +6,7 @@ import { BREAKPOINTS } from '../constants';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
+import { validateLngLat } from '../utils/location';
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
@@ -14,7 +15,13 @@ import styles from './styles.module.scss';
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
-  const { map, coordinates, isMulti, zoom, updateUserPreferences, onButtonClick } = props;
+  const { clickAnalytics, onClick, map, coordinates, isMulti, zoom, updateUserPreferences, onButtonClick, ...rest } = props;
+
+  const isValidLocation = !!coordinates &&
+    (Array.isArray(coordinates[0]) ? 
+      coordinates.every(coords => validateLngLat(coords[0], coords[1]))
+      : validateLngLat(coordinates[0], coordinates[1])
+    );
 
   const closeSidebarForSmallViewports = () => {
     if (!screenIsMediumLayoutOrLarger.matches) {
@@ -22,13 +29,17 @@ const LocationJumpButton = (props) => {
     }
   };
 
-  const onJumpButtonClick = () => {
-    onButtonClick(map, coordinates, zoom);
+  const onJumpButtonClick = (e) => {
+    const clickHandler = onClick ? e => onClick(e) : () => jumpToLocation(map, coordinates, zoom);
+    if (clickAnalytics) {
+      trackEvent(...clickAnalytics);
+    }
+    clickHandler(e);
     closeSidebarForSmallViewports();
   };
 
-  return <button title="Jump to this location" type="button" 
-    className={isMulti ? styles.multi : styles.jump} onClick={onJumpButtonClick}>
+  return isValidLocation && <button title="Jump to this location" type="button" 
+    className={isMulti ? styles.multi : styles.jump} onClick={onJumpButtonClick} {...rest}>
     <MarkerIcon />
     {isMulti && <MarkerIcon />}
   </button>;
@@ -37,16 +48,10 @@ const LocationJumpButton = (props) => {
 export default connect(null, { updateUserPreferences })(memo(LocationJumpButton));
 
 
-LocationJumpButton.defaultProps = {
-  onButtonClick(map, coordinates, zoom) {
-    trackEvent('Map Interaction', 'Click \'Jump to Location\' button');
-    jumpToLocation(map, coordinates, zoom);
-  }
-};
-
 LocationJumpButton.propTypes = {
-  coordinates: PropTypes.arrayOf(PropTypes.number),
-  onButtonClick: PropTypes.func,
+  coordinates: PropTypes.array,
+  clickAnalytics: PropTypes.arrayOf(PropTypes.string),
+  onClick: PropTypes.func,
   map: PropTypes.object,
   zoom: PropTypes.number,
 };

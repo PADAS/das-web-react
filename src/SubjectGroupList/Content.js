@@ -89,7 +89,7 @@ const ContentComponent = debounceRender((props) => {
   const trigger = <div className={listStyles.trigger}>
     {listLevel===0 && <h5>{name}</h5>}
     {listLevel>0 && <h6>{name}</h6>}
-    {showHeatmapControl && <HeatmapToggleButton loading={loadingTracks} 
+    {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks} 
       heatmapVisible={groupIsFullyHeatmapped} 
       heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
       onButtonClick={onGroupHeatmapToggle} showLabel={false} />}

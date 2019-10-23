@@ -77,14 +77,6 @@ const SubjectControls = (props) => {
     }
   };
 
-  const onJumpButtonClick = (map, coordinates, zoom) => {
-    // Need to handle the JumpButtonClick here instead of allowing the default
-    // LocationJumpButton handler because we need to distinguish the GA event.
-    trackEvent('Map Layers', 'Click Jump To Subject Location button', 
-      `Subject Type:${subject.subject_type}`);
-    jumpToLocation(map, coordinates, zoom);
-  };
-
   if (!canShowTrackForSubject(subject)) return null;
   if (!showHeatmapButton && !showTrackButton && !showJumpButton) return null;
 
@@ -96,7 +88,8 @@ const SubjectControls = (props) => {
     {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} 
       onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
-      map={map} onButtonClick={onJumpButtonClick}/>}
+      map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button', 
+        `Subject Type:${subject.subject_type}`]} />}
   </div>;
 };
 

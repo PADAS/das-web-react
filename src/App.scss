@@ -454,3 +454,10 @@ div.mapboxgl-popup-tip {
     print-color-adjust: exact !important;
   }
 }
+
+#nprogress .spinner {
+  left: 0.45rem;
+  pointer-events: none;
+  right: unset;
+  top: 0.95rem;
+}

@@ -14,8 +14,9 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
 
   const schemasFromDefinitions = convertDefinitionsToSchemas(definitions, schema);
   const schemasForSelectFields = addCustomSelectFieldForEnums(schema);
+  const schemasForExternalURIs = addCustomLinksForExternalURIs(schema);
 
-  const toUpdate = [...schemasFromDefinitions, ...schemasForSelectFields];
+  const toUpdate = [...schemasFromDefinitions, ...schemasForSelectFields, ...schemasForExternalURIs];
 
   toUpdate.forEach(({ schemaEntry, uiSchemaEntry }) => {
     withEnums.properties[schemaEntry.key] = { ...withEnums.properties[schemaEntry.key], ...schemaEntry };
@@ -118,6 +119,17 @@ const generateSchemaAndUiSchemaForSelect = (key) => {
     },
   };
 };
+
+const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properties)
+  .filter(([key, value]) => value.format && value.format === 'uri')
+  .map(([key]) => ({
+    schemaEntry: {
+      key,
+    },
+    uiSchemaEntry: {
+      'ui:field': customSchemaFields.externalUri,
+    },
+  }));
 
 const itemHasNameAndValue = item => item && item.name && item.value;
 

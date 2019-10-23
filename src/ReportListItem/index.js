@@ -39,10 +39,7 @@ const ReportListItem = (props) => {
   }
 
 
-  const onJumpButtonClick = () => {
-    trackEvent('Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`);
-    jumpToLocation(map, coordinates);
-  };
+
 
   return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
@@ -55,7 +52,8 @@ const ReportListItem = (props) => {
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
     {coordinates && !!coordinates.length && showJumpButton &&
-      <LocationJumpButton isMulti={hasMultipleLocations} onButtonClick={onJumpButtonClick} />
+      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates}
+        clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
     }
   </li>;
 };
