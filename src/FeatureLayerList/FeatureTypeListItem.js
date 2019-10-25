@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
+import uniq from 'lodash/uniq';
 
-import { hideFeatures, showFeatures, setCurrentFeatureType } from '../ducks/map-ui';
+import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
@@ -12,16 +13,16 @@ import FeatureListItem from './FeatureListItem';
 import listStyles from '../SideBar/styles.module.scss';
 import styles from './styles.module.scss';
 
-
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: true,
   transitionTime: 1,
 };
 
-
 const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
-    featureFilterEnabled, currentFeatureType, setCurrentFeatureType } = props;
+    featureFilterEnabled } = props;
+
+  const [openFeatureTypes, setOpenFeatureTypes] = useState([]);
 
   if (featureFilterEnabled && !features.length) return null;
 
@@ -38,12 +39,21 @@ const FeatureTypeListItem = (props) => {
     }
   };
 
-  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) || name === currentFeatureType;
+  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) || openFeatureTypes.includes(name);
+
+  const onFeatureTypeOpen = () => {
+    console.log('adding ', name);
+    const featureTypes = uniq([...openFeatureTypes, name]);
+    setOpenFeatureTypes(featureTypes);
+  };
+
+  const onFeatureTypeClose = () => {
+    console.log('removing ', name);
+    const featureTypes = openFeatureTypes.filter((f) => f !== name);
+    setOpenFeatureTypes(featureTypes);
+  };
 
   const itemProps = { map };
-
-  const onOpening = () => setCurrentFeatureType(name);
-  const onClosing = () => setCurrentFeatureType('');
 
   const trigger = <div className={listStyles.trigger}>
     <h6>{name}</h6>
@@ -54,9 +64,9 @@ const FeatureTypeListItem = (props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     trigger={trigger}
-    open={collapsibleShouldBeOpen}
-    onOpening={onOpening}
-    onClosing={onClosing} >
+    onClosing={onFeatureTypeClose}
+    onOpening={onFeatureTypeOpen}
+    open={collapsibleShouldBeOpen} >
     <CheckableList
       items={features}
       className={`${listStyles.list} ${listStyles.itemList} ${styles.featureItemList} ${listStyles.compressed}`}
@@ -68,9 +78,6 @@ const FeatureTypeListItem = (props) => {
   </Collapsible>;
 };
 
+const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
 
-
-
-const mapStateToProps = ({ view: { hiddenFeatureIDs, currentFeatureType } }) => ({ hiddenFeatureIDs, currentFeatureType });
-
-export default connect(mapStateToProps, { hideFeatures, showFeatures, setCurrentFeatureType })(memo(FeatureTypeListItem));
+export default connect(mapStateToProps, { hideFeatures, showFeatures })(memo(FeatureTypeListItem));
