@@ -28,8 +28,6 @@ const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 
-const CURRENT_FEATURE_TYPE = 'CURRENT_FEATURE_TYPE';
-
 
 
 // action creators
@@ -86,11 +84,6 @@ export const removeHeatmapSubjects = (...subjectIDs) => (dispatch, getState) => 
 export const updateHeatmapSubjects = (update) => ({
   type: UPDATE_SUBJECT_HEATMAP_STATE,
   payload: update,
-});
-
-export const setCurrentFeatureType = (featureType) => ({
-  type: CURRENT_FEATURE_TYPE,
-  payload: featureType,
 });
 
 export const toggleMapLockState = (enabled) => ({
@@ -215,12 +208,6 @@ export const hiddenAnalyzerIDsReducer = (state = [], action) => {
 export const mapLockStateReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === SET_MAP_LOCK_STATE) return payload;
-  return state;
-};
-
-export const currFeatureTypeReducer = (state = '', action) => {
-  const { type, payload } = action;
-  if (type === CURRENT_FEATURE_TYPE) return payload;
   return state;
 };
 
