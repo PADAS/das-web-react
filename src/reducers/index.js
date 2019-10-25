@@ -8,11 +8,9 @@ import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
-import {
-  heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
-  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer, currFeatureTypeReducer,
-  pickingLocationOnMapReducer, printTitleReducer, displayUserLocationReducer, displayReportsOnMapReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer
-} from '../ducks/map-ui';
+import { heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
+  hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
+  pickingLocationOnMapReducer, printTitleReducer, displayUserLocationReducer, displayReportsOnMapReducer, displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
@@ -106,7 +104,6 @@ const rootReducer = combineReducers({
     timeSliderState: timeSliderReducer,
     printTitle: printTitleReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
-    currentFeatureType: currFeatureTypeReducer,
   }),
 });
 
