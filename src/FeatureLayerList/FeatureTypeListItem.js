@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 // import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
-import uniq from 'lodash/uniq';
 
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
@@ -22,7 +21,9 @@ const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
     featureFilterEnabled } = props;
 
-  const [openFeatureTypes, setOpenFeatureTypes] = useState([]);
+  const [openFeatureType, setOpenFeatureType] = useState('');
+
+  console.log('feature type', name, 'openFeatureType', openFeatureType);
 
   if (featureFilterEnabled && !features.length) return null;
 
@@ -39,18 +40,16 @@ const FeatureTypeListItem = (props) => {
     }
   };
 
-  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) || openFeatureTypes.includes(name);
+  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) || openFeatureType === name;
 
   const onFeatureTypeOpen = () => {
-    console.log('adding ', name);
-    const featureTypes = uniq([...openFeatureTypes, name]);
-    setOpenFeatureTypes(featureTypes);
+    console.log('setOpenFeatureType', name);
+    setOpenFeatureType(name);
   };
 
   const onFeatureTypeClose = () => {
-    console.log('removing ', name);
-    const featureTypes = openFeatureTypes.filter((f) => f !== name);
-    setOpenFeatureTypes(featureTypes);
+    console.log('setOpenFeatureType', '');
+    setOpenFeatureType('');
   };
 
   const itemProps = { map };
