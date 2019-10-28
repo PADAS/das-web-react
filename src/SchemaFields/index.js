@@ -100,7 +100,11 @@ const ExternalLink = (props) => {
   const { idSchema: { id }, schema: { title: label }, formData:value } = props;
 
   return <div>
-    <label htmlFor={id}>{label} <ExternalLinkIcon /></label>
+    <label className={styles.linkLabel} htmlFor={id}>{label} 
+      <a target='_blank' rel='noopener noreferrer' href={value}>
+        <ExternalLinkIcon />
+      </a>
+    </label>
     <a target='_blank' rel='noopener noreferrer' href={value}>{value}</a>
   </div>;
 };
