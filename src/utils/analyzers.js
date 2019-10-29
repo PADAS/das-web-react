@@ -55,9 +55,9 @@ export const getAnalyzerAdminPoint = (geometry) => {
 
 // use turf.circle to construct a GEOJson Feature of type polygon
 // increase/decrease steps will affect the render fps
-export const createGeoJSONCircle = (center, radius, options) => {
+export const createGeoJSONCircle = (geometry, radius, options) => {
   if (!options) options = { steps: 32, units: 'kilometers' };
-  const poly_circle = circle(center, radius / 1000, options);
+  const poly_circle = circle(centroid(geometry), radius / 1000, options);
   return poly_circle;
 };
 
