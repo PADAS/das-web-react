@@ -21,7 +21,6 @@
     align-items: center;
     display: flex;
     justify-content: flex-start;
-    white-space: nowrap;
   }
   button:not(.gearButton) {
     @include unstyledButton;
@@ -32,7 +31,10 @@
   [class*=Collapsible__trigger] {
     cursor: pointer;
     padding-left: 1rem;
+    margin-right: 4rem;
+    overflow: hidden;
     position: relative;
+    width: 100%;
     &:hover {
       text-decoration: underline;
     }
@@ -54,7 +56,7 @@
 .closedLegend {
   .gearButton {
     bottom: auto;
-    top: 25%;
+    top: 0.5rem;
     right: 2.75rem;
   }
 }
