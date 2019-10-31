@@ -30,6 +30,7 @@
   display: flex;
   line-height: normal;
   margin-bottom: 0;
+  width: 100%;
   button {
     @include unstyledButton;
     font-weight: bold;
@@ -73,7 +74,6 @@
   padding: 0.5rem;
   position: absolute;
   top: 0;
-  width: 100%;
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
   }

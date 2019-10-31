@@ -65,16 +65,22 @@ export const LAYER_IDS = {
   ISOCHRONE_LAYER: 'isochrone',
 };
 
+/* "match" will be replaced with "in" once that expression is merged into master for the mapbox-gl style spec, at which point this expression will work for half-sised generic icons. */
+const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['match', ['get', 'image'], 'generic', ifGeneric, ifNonGeneric];
+
+const symbolIconSize = [
+  'interpolate', ['exponential', 0.5], ['zoom'],
+  7, 0,
+  12, IF_IS_GENERIC(0.5, 1),
+  MAX_ZOOM, IF_IS_GENERIC(0.75, 1.5),
+];
+
+
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'icon_id'],
-  'icon-size': [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    7, 0,
-    12, 1,
-    MAX_ZOOM, 1.5,
-  ],
+  'icon-size': symbolIconSize,
   'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
   'text-offset': [0, .75],

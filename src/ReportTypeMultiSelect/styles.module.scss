@@ -41,10 +41,16 @@
 
 
   svg {
+    --dimensions: 1.5rem;
+    --half-size: calc(var(--dimensions)/2);
     cursor: pointer;
-    max-height: 1.5rem;
+    max-height: var(--dimensions);
     margin: 0 0.75rem 0.5rem 0;
-    max-width: 1.5rem;
+    max-width: var(--dimensions);
+    &[class*=generic] {
+      max-width: var(--half-size);
+      max-height: var(--half-size);
+    }
   }
 }
 
