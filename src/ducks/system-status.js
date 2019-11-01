@@ -2,6 +2,7 @@ import axios from 'axios';
 import { combineReducers } from 'redux';
 
 import { API_URL, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
+import { setServerVersionAnalyticsDimension } from '../utils/analytics';
 
 const STATUS_API_URL = `${API_URL}status`;
 
@@ -193,6 +194,8 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
   switch (type) {
   case (SERVER_VERSION_CHANGE): {
     const { version } = payload;
+    
+    setServerVersionAnalyticsDimension(version);
     return {
       ...state,
       version,
@@ -221,6 +224,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
   }
   }
 }, ({ version }) => {
+  setServerVersionAnalyticsDimension(version);
   return {
     version: version,
     details: REACT_APP_DAS_HOST || window.location.origin,

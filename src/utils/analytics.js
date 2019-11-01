@@ -29,8 +29,15 @@ export function trackEvent(category, action, label=null) {
  * 
  * @param {string} role User role string. 
  */
+
+export const setServerVersionAnalyticsDimension = (version) => {
+  ReactGA.set({
+    dimension1: version,
+  });
+};
+
 export function setUserRole(role) {
   ReactGA.set({
-    'dimension1' : role
+    dimension2: role
   });
 }
