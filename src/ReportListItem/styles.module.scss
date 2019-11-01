@@ -50,12 +50,20 @@ $colors in $priorities {
 .icon {
   align-items: center;
   display: flex;
+  height: 3.75rem;
   justify-content: center;
   padding: 0.5rem 1rem;
+  width: 3.75rem;
   svg, svg > svg {
+    --dimensions: 2rem;
+    --half-size: calc(var(--dimensions)/2);
     fill: white;
-    height: 2rem;
-    width: 2rem;
+    height: var(--dimensions);
+    width: var(--dimensions);
+    &[class*=generic] {
+      height: var(--half-size);
+      width: var(--half-size);
+    }
   }
 }
 
@@ -74,7 +82,6 @@ $colors in $priorities {
   flex: 1;
   justify-content: flex-start;
   text-align: left;
-  outline: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

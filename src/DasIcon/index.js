@@ -25,10 +25,16 @@ const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = (props) => {
-  const { type, iconId, color, dispatch:_dispatch, ...rest } = props;
+  const { type, iconId, color, dispatch:_dispatch, className, ...rest } = props;
+
+  const svgHref = calcIconUrl(type, iconId);
+
+  const isGeneric = svgHref.includes('generic');
+
+
   return (
-    <svg {...rest} fill={color}>
-      <use href={calcIconUrl(type, iconId)} />
+    <svg className={`${className || ''} ${isGeneric ? 'generic' : ''}`} {...rest} fill={color}>
+      <use href={svgHref} />
     </svg>
   );
 };
