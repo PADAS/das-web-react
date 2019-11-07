@@ -26,10 +26,11 @@ export const postAuth = (userData) => {
     return axios.post(AUTH_URL, formData)
       .then(response => {
         dispatch(postAuthSuccess(response));
-      })
-      .catch(error => {
-        dispatch(postAuthError(error));
       });
+    /* .catch((error) => {
+        dispatch(postAuthError(error));
+        throw new Error(error);
+      }); */
   };
 };
 
