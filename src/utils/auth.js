@@ -26,7 +26,13 @@ const addUserProfileHeaderIfNecessary = (config) => {
   return config;
 };
 
+const addMasterCancelTokenForRequests = (config) => ({
+  ...config,
+  cancelToken: config.cancelToken || store.getState().data.masterRequestCancelToken.token,
+});
+
 export default () => {
+  axios.interceptors.request.use(addMasterCancelTokenForRequests);
   axios.interceptors.request.use(addUserProfileHeaderIfNecessary);
   axios.interceptors.response.use(response => response, goToLoginPageOnAuthFailure);
 

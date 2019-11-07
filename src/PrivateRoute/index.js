@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { resetMasterCancelToken } from '../ducks/auth';
 
 authConfig();
 
@@ -15,13 +16,18 @@ class PrivateRoute extends Component {
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
   }
 
-  render() {
-    const { component: Component, token, ...rest } = this.props;
+  componentDidMount() {
+    const { token } = this.props;
+    
     const hasToken = !!token;
-
+  
     if (hasToken) {
       this.setToken(token);
     }
+  }
+
+  render() {
+    const { component: Component, resetMasterCancelToken, dispatch: _dispatch, token, ...rest } = this.props;
 
     return (
       <Route
@@ -45,4 +51,4 @@ class PrivateRoute extends Component {
 
 const mapStateToProps = ({ data: { token } }) => ({ token });
 
-export default connect(mapStateToProps)(PrivateRoute);
+export default connect(mapStateToProps, { resetMasterCancelToken })(PrivateRoute);
