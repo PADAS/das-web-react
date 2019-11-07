@@ -46,6 +46,7 @@ import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
+import EsriContentModal from '../esriContentModal';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -320,6 +321,8 @@ class Map extends Component {
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
+
+        <EsriContentModal />
 
         {children}
 
