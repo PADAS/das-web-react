@@ -3,7 +3,7 @@ import { Source, Layer } from 'react-mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
 
-const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING, ANALYZER_LINES_CRITICAL } = LAYER_IDS;
+const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING, ANALYZER_LINES_CRITICAL, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const IF_HAS_STATE = (stateType, activeProp, defaultProp) => [['boolean', ['feature-state', stateType], false], activeProp, defaultProp];
 
@@ -94,6 +94,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       onClick={onAnalyzerFeatureClick} />
 
     <Layer sourceId='analyzer-polygon-critical-source' type='line'
+      before={SUBJECT_SYMBOLS}
       id={ANALYZER_POLYS_CRITICAL}
       paint={criticalLinePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
@@ -101,6 +102,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       onClick={onAnalyzerFeatureClick} />
 
     <Layer sourceId='analyzer-line-warning-source' type='line'
+      before={SUBJECT_SYMBOLS}
       id={ANALYZER_LINES_WARNING}
       paint={linePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
@@ -108,6 +110,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       onClick={onAnalyzerFeatureClick} />
 
     <Layer sourceId='analyzer-line-critical-source' type='line'
+      before={SUBJECT_SYMBOLS}
       id={ANALYZER_LINES_CRITICAL}
       paint={criticalLinePaint} layout={lineLayout}
       onMouseEnter={onAnalyzerFeatureEnter}
