@@ -12,6 +12,8 @@ import { resetMasterCancelToken } from '../ducks/auth';
 authConfig();
 
 class PrivateRoute extends Component {
+  loginPath = `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`;
+  
   setToken({ access_token }) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
   }
@@ -24,6 +26,7 @@ class PrivateRoute extends Component {
     if (hasToken) {
       this.setToken(token);
     }
+    
   }
 
   render() {
@@ -32,13 +35,13 @@ class PrivateRoute extends Component {
     return (
       <Route
         {...rest}
-        render={props =>
+        render={_props =>
           token.access_token ? (
             <Component {...this.props} />
           ) : (
             <Redirect
               to={{
-                pathname: `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`,
+                pathname: this.loginPath,
                 state: { from: this.props.location, },
               }}
             />

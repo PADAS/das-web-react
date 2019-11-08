@@ -1,3 +1,7 @@
+import { toast } from 'react-toastify';
+
+const { POSITION: TOAST_POSITIONS } = toast;
+
 export const {
   REACT_APP_DAS_HOST,
   REACT_APP_DAS_AUTH_TOKEN_URL,
@@ -162,6 +166,10 @@ export const GEOLOCATOR_OPTIONS = {
   enableHighAccuracy: true,
   maximumAge: 0,
   timeout: 10000,
+};
+
+export const DEFAULT_TOAST_CONFIG = {
+  position: TOAST_POSITIONS.TOP_CENTER,
 };
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];

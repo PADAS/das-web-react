@@ -7,7 +7,6 @@ const goToLoginPageOnAuthFailure = (error) => {
   if (error && error.response && error.response.data && error.response.data.status && error.response.data.status.code === 401) {
     store.dispatch(clearAuth());
     store.dispatch(resetMasterCancelToken());
-    return error;
   }
   return Promise.reject(error);
 };

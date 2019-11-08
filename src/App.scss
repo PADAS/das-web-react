@@ -461,3 +461,13 @@ div.mapboxgl-popup-tip {
   right: unset;
   top: 0.95rem;
 }
+.Toastify__toast-container {
+  --width: 28rem;
+  &[class*=center] {
+    margin-left: calc(-var(--width)/2);
+  }
+}
+
+.Toastify__toast--default {
+  color: $primary-font-color;
+}

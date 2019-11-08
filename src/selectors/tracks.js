@@ -1,13 +1,10 @@
 import uniq from 'lodash/uniq';
 import { featureCollection } from '@turf/helpers';
 import booleanDisjoint from '@turf/boolean-disjoint';
-import { booleanIntersects } from '@turf/turf';
 import { startOfDay ,subDays } from 'date-fns';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange, bboxBoundsPolygon } from './';
 import { trimTrackFeatureCollectionToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
-
-console.log('booleanIntersects', booleanIntersects);
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);

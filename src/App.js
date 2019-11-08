@@ -3,10 +3,11 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
+import { toast } from 'react-toastify';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
+import { STATUSES, DEFAULT_TOAST_CONFIG } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -18,6 +19,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchEventSchema } from './ducks/event-schemas';
 
+import DetectOffline from './DetectOffline';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
@@ -90,6 +92,11 @@ const App = (props) => {
     trackEvent('Drawer', `${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
   };
 
+  const showToast = (message, config) => toast(message, {
+    ...DEFAULT_TOAST_CONFIG,
+    ...config,
+  });
+
   clearInterval(mapInterval);
   mapInterval = setInterval(() => {
     if (!mapResized || !map) return;
@@ -98,12 +105,32 @@ const App = (props) => {
   }, 3000);
 
   useEffect(() => {
-    fetchEventTypes();
-    fetchEventSchema();
-    fetchMaps();
-    fetchSubjectGroups();
-    fetchAnalyzers();
-    fetchSystemStatus();
+    fetchEventTypes()
+      .catch((e) => {
+        
+      });
+    fetchEventSchema()
+      .catch((e) => {
+        
+      });
+    fetchMaps()
+      .catch((e) => {
+
+      });
+    fetchSubjectGroups()
+      .catch((e) => {
+
+      });
+    fetchAnalyzers()
+      .catch((e) => {
+
+      });
+    fetchSystemStatus()
+      .catch((e) => {
+        showToast('Error fetching system status. Please refresh and try again.', {
+          type: toast.TYPE.ERROR,
+        });
+      });
     loadProgressBar();
     window.addEventListener('online', () => {
       updateNetworkStatus(HEALTHY_STATUS);
@@ -144,6 +171,7 @@ const App = (props) => {
         <ReportTypeIconSprite id="reportTypeIconSprite" />
         <EarthRangerLogoSprite />
       </div>
+      <DetectOffline />
     </div>
   );
 };
