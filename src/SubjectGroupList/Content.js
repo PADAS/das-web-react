@@ -87,8 +87,8 @@ const ContentComponent = debounceRender((props) => {
   const collapsibleShouldBeOpen = subjectFilterEnabled && (!!subgroups.length || !!subjects.length);
 
   const trigger = <div className={listStyles.trigger}>
-    {listLevel===0 && <h5>{name}</h5>}
-    {listLevel>0 && <h6>{name}</h6>}
+    {listLevel === 0 && <h5>{name}</h5>}
+    {listLevel > 0 && <h6>{name}</h6>}
     {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks} 
       heatmapVisible={groupIsFullyHeatmapped} 
       heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
@@ -124,6 +124,7 @@ const ContentComponent = debounceRender((props) => {
 });
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
+
 const ConnectedComponent = connect(mapStateToProps, { addHeatmapSubjects, removeHeatmapSubjects })(memo(ContentComponent));
 export default ConnectedComponent;
 

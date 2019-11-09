@@ -268,11 +268,18 @@ aside {
     border-radius: 0;
   }
 
+
+  .nav-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+  }
+
   .nav-link {
     background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 48%, #ffffff 100%);
   }
 
   .nav-item {
+    border: none;
     flex-grow: 1;
     font-weight: bold;
     padding: 0.5rem;
@@ -284,6 +291,9 @@ aside {
 
       &:hover {
         text-decoration: underline;
+      }
+      &:hover, &:focus {
+        border: none;
       }
     }
   }
@@ -460,14 +470,4 @@ div.mapboxgl-popup-tip {
   pointer-events: none;
   right: unset;
   top: 0.95rem;
-}
-.Toastify__toast-container {
-  --width: 28rem;
-  &[class*=center] {
-    margin-left: calc(-var(--width)/2);
-  }
-}
-
-.Toastify__toast--default {
-  color: $primary-font-color;
 }

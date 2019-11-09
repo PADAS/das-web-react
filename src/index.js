@@ -20,8 +20,6 @@ import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
 
-import 'react-toastify/dist/ReactToastify.css';
-import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 
 if (process.env.NODE_ENV !== 'production') {

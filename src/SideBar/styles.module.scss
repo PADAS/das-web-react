@@ -5,6 +5,9 @@
 .tab {
   height: 100%;
   overflow: hidden;
+  &:hover, &:focus {
+    border: none;
+  }
   .mapLayers {
     height: 100%;
     overflow: hidden;

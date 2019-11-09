@@ -1,3 +1,6 @@
+@import '~react-toastify/dist/ReactToastify.css';
+@import '~bootstrap/dist/css/bootstrap.css';
+
 @import './common/styles/vars/colors';
 @import "./common/styles/vars/fonts";
 
@@ -35,4 +38,26 @@ h5 {
 }
 h6 {
   font-size: $font-size-h6;
+}
+
+
+$toastify-mq: only screen and (min-width: 481px); // using pixel values here, which is gross, but so we can have alignment with the media query boundaries from Toastify.
+
+@media #{$toastify-mq} {
+  .Toastify__toast-container {
+    --width: 28rem;
+    width: var(--width);
+    &[class*=center] {
+      margin-left: calc((var(--width)/2) * -1);
+    }
+  }
+}
+
+
+.Toastify__toast--default {
+  color: $primary-font-color;
+}
+
+.Toastify__toast-body {
+  padding: 0.25rem 0.5rem;
 }
