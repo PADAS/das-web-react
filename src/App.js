@@ -3,7 +3,7 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-import { toast } from 'react-toastify';
+import toast from './utils/toast';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
@@ -25,6 +25,7 @@ import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
+import ErrorBoundary from './ErrorBoundary';
 
 import './App.scss';
 import { trackEvent } from './utils/analytics';
@@ -92,11 +93,6 @@ const App = (props) => {
     trackEvent('Drawer', `${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
   };
 
-  const showToast = (message, config) => toast(message, {
-    ...DEFAULT_TOAST_CONFIG,
-    ...config,
-  });
-
   clearInterval(mapInterval);
   mapInterval = setInterval(() => {
     if (!mapResized || !map) return;
@@ -107,7 +103,7 @@ const App = (props) => {
   useEffect(() => {
     fetchEventTypes()
       .catch((e) => {
-        
+        toast('')
       });
     fetchEventSchema()
       .catch((e) => {
@@ -127,7 +123,7 @@ const App = (props) => {
       });
     fetchSystemStatus()
       .catch((e) => {
-        showToast('Error fetching system status. Please refresh and try again.', {
+        toast('Error fetching system status. Please refresh and try again.', {
           type: toast.TYPE.ERROR,
         });
       });
@@ -156,7 +152,9 @@ const App = (props) => {
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  return (
+  return <ErrorBoundary renderOnError={({ reset }) => {
+      return <button onClick={reset}>Oh fuck try again</button>
+    }}>
     <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
       <PrintTitle />
       <Nav map={map} />
@@ -173,7 +171,7 @@ const App = (props) => {
       </div>
       <DetectOffline />
     </div>
-  );
+    </ErrorBoundary>;
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });

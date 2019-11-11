@@ -1,6 +1,10 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
-
+import axios from 'axios';
 import { toast, Slide } from 'react-toastify';
+
+import { REACT_APP_DAS_HOST } from '../constants';
+
+const { get } = axios;
 
 const DetectOffline = () => {
   const [isOnline, setNetwork] = useState(window.navigator.onLine);
@@ -25,39 +29,48 @@ const DetectOffline = () => {
     };
   });
 
+  const showOfflineToast = () => {
+    toastDelay.current = setTimeout(
+      () => {
+        toastId.current = toast(<div>
+          <p>You are currently offline.
+          EarthRanger may not function as expected.
+      Please check your network connection.</p>
+        </div>, {
+          autoClose: false,
+          closeOnClick: false,
+          onClose: onToastClose,
+          position: toast.POSITION.TOP_CENTER,
+          transition: Slide,
+        });
+      }, 2000);
+  };
 
-
-
-  useEffect(() => {
-    const showOfflineToast = () => {
-      toastId.current = toast(<div>
-        <p>You are currently offline.
-        EarthRanger may not function as expected.
-        Please check your network connection.</p>
-      </div>, {
-        autoClose: false,
-        closeOnClick: false,
-        onClose: onToastClose,
-        position: toast.POSITION.TOP_CENTER,
-        transition: Slide,
-      });
-    };
-
-    clearTimeout(toastDelay.current);
-
-    if (!isOnline) {
-      toastDelay.current = setTimeout(showOfflineToast, 2000);
-    } else if (toastId.current) {
+  const handleReconnect = () => {
+    if (toastId.current) {
       toast.update(
         toastId.current, {
-          render: 'Back online!',
-          type: toast.TYPE.SUCCESS,
-        }
+        render: 'Back online!',
+        type: toast.TYPE.SUCCESS,
+      }
       );
       setTimeout(() => {
         toastId.current && toast.dismiss(toastId.current);
         toastId.current = null;
-      }, 1000);
+      }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    clearTimeout(toastDelay.current);
+
+    if (!isOnline) {
+      showOfflineToast();
+    } else {
+      handleReconnect();
+    }
+    return () => {
+      clearTimeout(toastDelay.current);
     }
   }, [isOnline]);
 };

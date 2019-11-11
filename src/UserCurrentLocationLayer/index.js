@@ -98,13 +98,10 @@ const UserCurrentLocationLayer = (props) => {
 
 
   useEffect(() => {
+    animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
-  }, []);
-
-  useEffect(() => {
-    animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
   }, [animationState]);
 
   useEffect(() => {

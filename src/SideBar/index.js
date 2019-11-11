@@ -22,6 +22,7 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 import ClearAllControl from '../ClearAllControl';
 import ReportMapControl from '../ReportMapControl';
+import ErrorBoundary from '../ErrorBoundary';
 
 const SideBar = (props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
@@ -75,16 +76,18 @@ const SideBar = (props) => {
           />
         </Tab>
         <Tab className={styles.tab} eventKey="layers" title="Map Layers">
-          <MapLayerFilter />
-          <div className={styles.mapLayers}>
-            <ReportMapControl />
-            <SubjectGroupList map={map} />
-            <FeatureLayerList map={map} />
-            <div className={styles.noItems}>No items to display.</div>
-          </div>
-          <div className={styles.mapLayerFooter}>
-            <ClearAllControl map={map} />
-          </div>
+          <ErrorBoundary>
+            <MapLayerFilter />
+            <div className={styles.mapLayers}>
+              <ReportMapControl />
+              <SubjectGroupList map={map} />
+              <FeatureLayerList map={map} />
+              <div className={styles.noItems}>No items to display.</div>
+            </div>
+            <div className={styles.mapLayerFooter}>
+              <ClearAllControl map={map} />
+            </div>
+          </ErrorBoundary>
         </Tab>
       </Tabs>
     </aside>
