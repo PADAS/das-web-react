@@ -15,13 +15,13 @@ import styles from './styles.module.scss';
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
-  const { clickAnalytics, onClick, map, coordinates, isMulti, zoom, updateUserPreferences, onButtonClick, ...rest } = props;
+  const { clickAnalytics, onClick, map, coordinates, isMulti, isFeature, zoom, updateUserPreferences, onButtonClick, ...rest } = props;
 
   const isValidLocation = (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
       coordinates.every(coords => validateLngLat(coords[0], coords[1]))
       : validateLngLat(coordinates[0], coordinates[1])
-    ));
+    )) || isFeature;
 
   const closeSidebarForSmallViewports = () => {
     if (!screenIsMediumLayoutOrLarger.matches) {
