@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-// import PropTypes from 'prop-types';
+import React, { memo, useState } from 'react';
+
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
@@ -23,6 +23,9 @@ const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, hideFeatures, showFeatures, map,
     featureFilterEnabled } = props;
 
+  const [openFeatureType, setOpenFeatureType] = useState('');
+  console.log('feature type', name, 'openFeatureType', openFeatureType);
+
   if (featureFilterEnabled && !features.length) return null;
 
   const featureIsVisible = item => !hiddenFeatureIDs.includes(item.properties.id);
@@ -38,7 +41,17 @@ const FeatureTypeListItem = (props) => {
     }
   };
 
-  const collapsibleShouldBeOpen = featureFilterEnabled && !!features.length;
+  const collapsibleShouldBeOpen = (featureFilterEnabled && !!features.length) || openFeatureType === name;
+
+  const onFeatureTypeOpen = () => {
+    console.log('opening feature type ', name);
+    setOpenFeatureType(name);
+  };
+
+  const onFeatureTypeClose = () => {
+    console.log('closing feature type ', name);
+    setOpenFeatureType('');
+  };
 
   const itemProps = { map };
 
@@ -51,6 +64,8 @@ const FeatureTypeListItem = (props) => {
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     trigger={trigger}
+    onClosing={onFeatureTypeClose}
+    onOpening={onFeatureTypeOpen}
     open={collapsibleShouldBeOpen} >
     <CheckableList
       items={features}
@@ -62,9 +77,6 @@ const FeatureTypeListItem = (props) => {
     />
   </Collapsible>;
 };
-
-
-
 
 const mapStateToProps = ({ view: { hiddenFeatureIDs } }) => ({ hiddenFeatureIDs });
 
