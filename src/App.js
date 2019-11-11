@@ -152,15 +152,18 @@ const App = (props) => {
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  return <ErrorBoundary renderOnError={({ reset }) => {
-      return <button onClick={reset}>Oh fuck try again</button>
-    }}>
+  return <ErrorBoundary>
     <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
       <PrintTitle />
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={onMapHasLoaded} />
-        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        
+        <ErrorBoundary>
+          <Map map={map} onMapLoad={onMapHasLoaded} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        </ErrorBoundary>
         <ModalRenderer />
       </div>
       <div style={{

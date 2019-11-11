@@ -82,7 +82,7 @@ const fetchNamedFeedActionCreator = (name) => {
           type: FEED_FETCH_ERROR,
           payload: error,
         });
-        return error;
+        return Promise.reject(error);
       });
   };
 
@@ -102,7 +102,7 @@ const fetchNamedFeedActionCreator = (name) => {
         type: FEED_FETCH_ERROR,
         payload: error,
       });
-      return error;
+      return Promise.reject(error);
     });
 
   return [fetchFn, fetchNextPageFn, cancelToken];
@@ -292,6 +292,7 @@ const cancelableMapEventsFetch = () => {
       })
       .catch((error) => {
         dispatch(fetchMapEventsError(error));
+        return Promise.reject(error);
       });
   };
   return [fetchFn, cancelToken];
@@ -478,13 +479,3 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
 };
 
 export default eventStoreReducer;
-
-/* 
-export const fetchNextEventFeedPage = (url) => {
-  return function (dispatch) {
-    return axios.get(url)
-      .then(response => dispatch(fetchNamedFeedEventsNextPageSucess(response)))
-      .catch(error => dispatch(fetchNamedFeedEventsError(error)));
-  };
-};
- */

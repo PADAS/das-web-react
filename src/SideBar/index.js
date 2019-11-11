@@ -43,7 +43,7 @@ const SideBar = (props) => {
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
-    trackEvent('Feed', `Open ${event.is_collection?'Incident':'Event'} Report`, `Event Type:${event.event_type}`);
+    trackEvent('Feed', `Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
   };
 
   const onTabsSelect = (eventKey) => {
@@ -69,7 +69,7 @@ const SideBar = (props) => {
 
   if (!map) return null;
 
-  return (
+  return <ErrorBoundary>
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
       <Tabs activeKey={activeTab} onSelect={onTabsSelect}>
@@ -78,16 +78,18 @@ const SideBar = (props) => {
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
           <EventFilter>
-            <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible}  />
+            <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
           </EventFilter>
-          <EventFeed
-            hasMore={!!events.next}
-            map={map}
-            loading={loadingEvents}
-            events={events.results}
-            onScroll={onScroll}
-            onTitleClick={onEventTitleClick}
-          />
+          <ErrorBoundary>
+            <EventFeed
+              hasMore={!!events.next}
+              map={map}
+              loading={loadingEvents}
+              events={events.results}
+              onScroll={onScroll}
+              onTitleClick={onEventTitleClick}
+            />
+          </ErrorBoundary>
         </Tab>
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
@@ -105,7 +107,7 @@ const SideBar = (props) => {
         </Tab>
       </Tabs>
     </aside>
-  );
+  </ErrorBoundary>;
 };
 
 const mapStateToProps = (state) => ({
