@@ -24,10 +24,17 @@ import ClearAllControl from '../ClearAllControl';
 import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
 
+const TAB_KEYS = {
+  REPORTS: 'reports',
+  LAYERS: 'layers',
+}
+
 const SideBar = (props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+
   const addReportContainerRef = useRef(null);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
@@ -40,9 +47,10 @@ const SideBar = (props) => {
   };
 
   const onTabsSelect = (eventKey) => {
+    setActiveTab(eventKey);
     let tabTitles = {
-      'reports': 'Reports',
-      'layers': 'Map Layers',
+      [TAB_KEYS.REPORTS]: 'Reports',
+      [TAB_KEYS.LAYERS]: 'Map Layers',
     };
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
@@ -53,13 +61,19 @@ const SideBar = (props) => {
       .then(() => setEventLoadState(false));
   }, [eventFilter, fetchEventFeed]);
 
+  useEffect(() => {
+    if (!sidebarOpen) {
+      setActiveTab(TAB_KEYS.REPORTS);
+    }
+  }, [sidebarOpen])
+
   if (!map) return null;
 
   return (
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-      <Tabs onSelect={onTabsSelect}>
-        <Tab className={styles.tab} eventKey="reports" title="Reports">
+      <Tabs activeKey={activeTab} onSelect={onTabsSelect}>
+        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
@@ -75,7 +89,7 @@ const SideBar = (props) => {
             onTitleClick={onEventTitleClick}
           />
         </Tab>
-        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
+        <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
             <MapLayerFilter />
             <div className={styles.mapLayers}>
