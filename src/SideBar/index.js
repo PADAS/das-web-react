@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Button from 'react-bootstrap/Button';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
@@ -20,9 +21,12 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
+
+import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import ClearAllControl from '../ClearAllControl';
 import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
+import ErrorMessage from '../ErrorMessage';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -55,17 +59,23 @@ const SideBar = (props) => {
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
 
-  useEffect(() => {
+  const loadFeedEvents = () => {
     setEventLoadState(true);
     fetchEventFeed({}, calcEventFilterForRequest())
       .then(() => setEventLoadState(false));
+  };
+
+  useEffect(() => {
+    loadFeedEvents();
   }, [eventFilter, fetchEventFeed]);
 
   useEffect(() => {
     if (!sidebarOpen) {
       setActiveTab(TAB_KEYS.REPORTS);
     }
-  }, [sidebarOpen])
+  }, [sidebarOpen]);
+
+  const showEventFeedError = !loadingEvents && !!events.error;
 
   if (!map) return null;
 
@@ -81,7 +91,14 @@ const SideBar = (props) => {
             <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
           </EventFilter>
           <ErrorBoundary>
-            <EventFeed
+            {showEventFeedError && <div className={styles.feedError}>
+              <ErrorMessage message='Could not load events. Please try again.' details={events.error} />
+              <Button type='button' variant='primary' onClick={loadFeedEvents}>
+                <RefreshIcon />
+                Try again
+              </Button>
+            </div>}
+            {!showEventFeedError && <EventFeed
               hasMore={!!events.next}
               map={map}
               loading={loadingEvents}
@@ -89,6 +106,7 @@ const SideBar = (props) => {
               onScroll={onScroll}
               onTitleClick={onEventTitleClick}
             />
+            }
           </ErrorBoundary>
         </Tab>
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">

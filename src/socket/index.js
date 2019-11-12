@@ -35,7 +35,7 @@ const validateSocketIncrement = (type, mid) => {
 };
 
 export const pingSocket = (socket) => {
-  let pinged = true;
+  let pinged = false;
   socket.on('echo_resp', () => {
     pinged = true;
   });

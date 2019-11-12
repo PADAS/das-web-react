@@ -4,6 +4,7 @@ import union from 'lodash/union';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
+import { generateErrorMessageForRequest } from '../utils/request';
 import { eventBelongsToCollection, calcEventFilterForRequest } from '../utils/events';
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
@@ -355,6 +356,12 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
       results: payload.results.map(event => event.id),
     };
   }
+  if (type === FEED_FETCH_ERROR) {
+    return {
+      ...state,
+      error: generateErrorMessageForRequest(payload),
+    };
+  }
   if (type === FEED_FETCH_NEXT_PAGE_SUCCESS) {
     const { results: events, count, next, previous } = payload;
     return {
@@ -405,6 +412,7 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
 
 export const INITIAL_EVENT_FEED_STATE = {
   count: null,
+  error: null,
   next: null,
   previous: null,
   results: [],

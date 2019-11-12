@@ -63,7 +63,6 @@ export default (state = INITIAL_FILTER_STATE, action) => {
     };
   }
   case (RESET_EVENT_FILTER): {
-    console.log('reset', payload);
     return { ...payload };
   }
   default: {

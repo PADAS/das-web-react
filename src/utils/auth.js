@@ -2,12 +2,16 @@ import axios from 'axios';
 import { store } from '../index';
 import { clearAuth } from '../ducks/auth';
 import { resetMasterCancelToken } from '../ducks/auth';
+import { handleServerRequestError } from './request';
 
 const goToLoginPageOnAuthFailure = (error) => {
   if (error && error.response && error.response.data && error.response.data.status && error.response.data.status.code === 401) {
     store.dispatch(clearAuth());
     store.dispatch(resetMasterCancelToken());
   }
+  /* if (error) {
+    handleServerRequestError(error);
+  } */
   return Promise.reject(error);
 };
 

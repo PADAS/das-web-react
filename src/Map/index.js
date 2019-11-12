@@ -140,8 +140,10 @@ class Map extends Component {
   }
 
   async fetchMapData() {
-    this.fetchMapEvents();
-    await this.fetchMapSubjects();
+    await Promise.all([
+      this.fetchMapEvents(),
+      this.fetchMapSubjects(),
+    ]);
     if (this.props.timeSliderState.active) {
       this.resetTrackRequestCancelToken();
       fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
@@ -150,10 +152,16 @@ class Map extends Component {
     }
   }
   fetchMapSubjects() {
-    return this.props.fetchMapSubjects(this.props.map);
+    return this.props.fetchMapSubjects(this.props.map)
+      .catch((e) => {
+        // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
+      });
   }
   fetchMapEvents() {
-    this.props.fetchMapEvents(this.props.map);
+    return this.props.fetchMapEvents(this.props.map)
+      .catch((e) => {
+        // console.log('error fetching map events', e.__CANCEL__); handle errors here if not a cancelation
+      });
   }
   onMapClick(map, event) {
     if (this.props.popup) {
