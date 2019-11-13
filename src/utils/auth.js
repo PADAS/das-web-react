@@ -2,6 +2,12 @@ import axios from 'axios';
 import { store } from '../index';
 import { clearAuth } from '../ducks/auth';
 
+export const getAuthTokenFromCookies = () => {
+  const token = document.cookie.split(' ').find(item => item.startsWith('token='));
+  return token ? token.replace('token=', '').replace(';', '') : null;
+};
+
+
 const goToLoginPageOnAuthFailure = (error) => {
   if (error && error.response && error.response.data && error.response.data.status && error.response.data.status.code === 401) {
     store.dispatch(clearAuth());

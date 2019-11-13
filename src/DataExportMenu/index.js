@@ -6,6 +6,7 @@ import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
+import AlertsModal from '../AlertsModal';
 import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 
@@ -41,6 +42,13 @@ const DataExportMenu = (props) => {
       title: 'Subject Reports',
       content: DataExportModal,
       url: 'trackingdata/export',
+    },
+    {
+      title: 'Alerts',
+      content: AlertsModal,
+      modalProps: {
+        className: 'alerts-modal',
+      },
     },
   ];
 
