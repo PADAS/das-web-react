@@ -34,7 +34,7 @@ const FeatureListItem = memo((props) => {
     trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
       `Feature Type:${properties.type_name}`);
   };
- 
+
   const onJumpButtonClick = () => {
     showFeatures(properties.id);
     fitMapBoundsToGeoJson(map, { geometry });
@@ -45,14 +45,14 @@ const FeatureListItem = memo((props) => {
       `Feature Type:${properties.type_name}`);
   };
 
-  const onMouseOverFeature = (enter) => { 
-    setFeatureActiveStateByID(map, properties.id, (enter)); 
+  const onMouseOverFeature = (enter) => {
+    setFeatureActiveStateByID(map, properties.id, (enter));
   };
 
   const onItemJumpButtonClick = () => properties.analyzer_type ? onAnalyzerJumpButtonClick() : onJumpButtonClick();
 
-  return <span className={listStyles.featureTitle} onMouseEnter={()=> onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton onClick={onItemJumpButtonClick} />
+  return <span className={listStyles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
+    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton isMulti={false} bypassLocationValidation={true} map={map} onClick={onItemJumpButtonClick} />
   </span>;
 
 });
