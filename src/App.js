@@ -101,25 +101,25 @@ const App = (props) => {
   }, 3000);
 
   useEffect(() => {
+    /* use these catch blocks to provide error toasts if/as desired */
     fetchEventTypes()
       .catch((e) => {
-        toast('')
       });
     fetchEventSchema()
       .catch((e) => {
-        
+        // 
       });
     fetchMaps()
       .catch((e) => {
-
+        // 
       });
     fetchSubjectGroups()
       .catch((e) => {
-
+        // 
       });
     fetchAnalyzers()
       .catch((e) => {
-
+        // 
       });
     fetchSystemStatus()
       .catch((e) => {
