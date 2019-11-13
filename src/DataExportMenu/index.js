@@ -43,23 +43,24 @@ const DataExportMenu = (props) => {
       content: DataExportModal,
       url: 'trackingdata/export',
     },
-    {
-      title: 'Alerts',
-      content: AlertsModal,
-      modalProps: {
-        className: 'alerts-modal',
-      },
-    },
   ];
+
+  const alertModal = {
+    title: 'Alerts',
+    content: AlertsModal,
+    modalProps: {
+      className: 'alerts-modal',
+    },
+  };
 
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
     trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
   };
 
-  const onModalClick = (modal) => {
+  const onModalClick = (modal, analyticsTitle = 'Report Export') => {
     addModal({...modal,});
-    trackEvent('Report Export', `Click '${modal.title}' menu item`);
+    trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   };
 
   const onContactSupportClick = () => {
@@ -73,6 +74,7 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
+      <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
