@@ -6,6 +6,7 @@ import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
+import AlertsModal from '../AlertsModal';
 import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 
@@ -44,14 +45,22 @@ const DataExportMenu = (props) => {
     },
   ];
 
+  const alertModal = {
+    title: 'Alerts',
+    content: AlertsModal,
+    modalProps: {
+      className: 'alerts-modal',
+    },
+  };
+
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
     trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
   };
 
-  const onModalClick = (modal) => {
+  const onModalClick = (modal, analyticsTitle = 'Report Export') => {
     addModal({...modal,});
-    trackEvent('Report Export', `Click '${modal.title}' menu item`);
+    trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   };
 
   const onContactSupportClick = () => {
@@ -65,6 +74,7 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
+      <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>

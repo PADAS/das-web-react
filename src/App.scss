@@ -461,3 +461,24 @@ div.mapboxgl-popup-tip {
   right: unset;
   top: 0.95rem;
 }
+
+.alerts-modal.show {
+  align-items: flex-start;
+  display: flex !important;
+  justify-content: center;
+  .modal-dialog {
+    margin: 0 0.5rem;
+    max-width: 56rem;
+    width: 100%;
+  }
+  .modal-content {
+    border-radius: 1rem;
+    height: 90vh;
+  }
+  iframe {
+    border: none;
+    outline: none;
+    height: 100%;
+    width: 100%;
+  }
+}
