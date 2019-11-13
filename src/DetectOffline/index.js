@@ -2,10 +2,6 @@ import React, { memo, useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { toast, Slide } from 'react-toastify';
 
-import { REACT_APP_DAS_HOST } from '../constants';
-
-const { get } = axios;
-
 const DetectOffline = () => {
   const [isOnline, setNetwork] = useState(window.navigator.onLine);
   const toastDelay = useRef(null);

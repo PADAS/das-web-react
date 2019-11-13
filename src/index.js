@@ -14,13 +14,15 @@ import { REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
 import reducers from './reducers';
 
 import registerServiceWorker from './registerServiceWorker';
+import 'react-toastify/dist/ReactToastify.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import './index.scss';
 
 import App from './App';
 import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
 
-import './index.scss';
 
 if (process.env.NODE_ENV !== 'production') {
   const whyDidYouRender = require('@welldone-software/why-did-you-render');

@@ -123,9 +123,9 @@ const App = (props) => {
       });
     fetchSystemStatus()
       .catch((e) => {
-        toast('Error fetching system status. Please refresh and try again.', {
+        /* toast('Error fetching system status. Please refresh and try again.', {
           type: toast.TYPE.ERROR,
-        });
+        }); */
       });
     loadProgressBar();
     window.addEventListener('online', () => {

@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button';
 
 import { uuid } from '../utils/string';
 
+import ErrorMessage from '../ErrorMessage';
+
 import styles from './styles.module.scss';
 
 const ErrorBoundaryComponent = (props) => {
@@ -13,12 +15,10 @@ const ErrorBoundaryComponent = (props) => {
   const reset = () => setId(uuid());
 
   const DefaultFallbackComponent = (props) => {
-    const { error } = props;
+    const { componentStack, error } = props;
     return <div className={styles.fallback}>
-      <h6>An error occured. Please reload and try again. If the error continues, contact your administrator.</h6>
+      <ErrorMessage message={error.toString()} details={componentStack} />
       <Button variant='info' type='button' onClick={reset}>Reload</Button>
-      <br />
-      <small>Error details: {error.toString()}</small>
     </div>
   };
 
