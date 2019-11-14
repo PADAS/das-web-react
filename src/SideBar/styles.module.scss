@@ -64,6 +64,8 @@
       cursor: pointer;
       padding-bottom: 1rem;
       padding-top: 1rem;
+      position: relative;
+      z-index: 1;
       &:hover {
         text-decoration: underline;
       }
