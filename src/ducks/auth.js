@@ -1,6 +1,7 @@
 import axios, { CancelToken } from 'axios';
 import { REACT_APP_DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
+import { getAuthTokenFromCookies } from '../utils/auth';
 
 const AUTH_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
@@ -34,10 +35,13 @@ export const postAuth = (userData) => {
   };
 };
 
-const postAuthSuccess = response => ({
-  type: POST_AUTH_SUCCESS,
-  payload: response,
-});
+const postAuthSuccess = response => (dispatch) => {
+  document.cookie = `token=${response.data.access_token}`;
+  dispatch({
+    type: POST_AUTH_SUCCESS,
+    payload: response,
+  });
+}
 
 const postAuthError = error => ({
   type: POST_AUTH_ERROR,
@@ -57,7 +61,9 @@ export const resetMasterCancelToken = () => ({
 });
 
 // reducer
-const INITIAL_STATE = {};
+const INITIAL_STATE = {
+  access_token: getAuthTokenFromCookies(),
+};
 export default function reducer(state = INITIAL_STATE, action = {}) {
   switch (action.type) {
   case POST_AUTH_SUCCESS: {
