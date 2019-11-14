@@ -52,7 +52,7 @@ const FeatureListItem = memo((props) => {
   const onItemJumpButtonClick = () => properties.analyzer_type ? onAnalyzerJumpButtonClick() : onJumpButtonClick();
 
   return <span className={listStyles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton isMulti={false} bypassLocationValidation={true} map={map} onClick={onItemJumpButtonClick} />
+    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} map={map} onClick={onItemJumpButtonClick} />
   </span>;
 
 });
