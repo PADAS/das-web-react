@@ -24,7 +24,7 @@ const DateRangeSelector = (props) => {
   return <div className={className || ''}>
     <div className={styles.dateSelectorWrapper}>
       <label className={styles.label}>
-        <span>{startDateLabel}</span>
+        {startDateLabel && <span>{startDateLabel}</span>}
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
           <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
@@ -33,7 +33,7 @@ const DateRangeSelector = (props) => {
       <span className={styles.dateRangeArrow}>⇨</span>
       {children}
       <label className={styles.label}>
-        <span>{endDateLabel}</span>
+        {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
           <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur} />

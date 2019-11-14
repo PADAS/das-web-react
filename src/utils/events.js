@@ -117,8 +117,6 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
 export const generateSaveActionsForReport = (formData, notesToAdd = [], filesToAdd = []) => {
   const report = { ...formData };
 
-
-
   const primarySaveOperation = report.id ? REPORT_SAVE_ACTIONS.updateEvent(report) : REPORT_SAVE_ACTIONS.createEvent(report);
   const fileOperations = [
     ...filesToAdd.map(REPORT_SAVE_ACTIONS.addFile),

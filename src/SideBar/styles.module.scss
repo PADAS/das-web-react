@@ -5,6 +5,9 @@
 .tab {
   height: 100%;
   overflow: hidden;
+  &:hover, &:focus {
+    border: none;
+  }
   .mapLayers {
     height: 100%;
     overflow: hidden;
@@ -186,5 +189,31 @@
   z-index: 3;
   a {
       margin-left: .5rem;
+  }
+}
+
+.feedError {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  justify-content: center;
+  padding: 1rem;
+  h6 {
+    align-items: center;
+    display: flex;
+    margin: 0 0 1rem;
+    min-height: 2.25rem;
+    + div {
+      font-size: 0.9rem;
+      font-style: italic;
+      margin: -1rem 0 1rem;
+      padding: 0 1rem;
+      width: 100%;
+    }
+  }
+  svg {
+    fill: white;
+    margin-right: 0.25rem;
   }
 }

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
 
 import { postAuth, clearAuth } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
@@ -42,14 +43,9 @@ class LoginPage extends Component {
         this.props.clearAuth();
 
         !this.isCancelled && this.setState({
+          ...this.state,
           hasError: true,
           error,
-        });
-      })
-      .finally(() => {
-        !this.isCancelled && this.setState({
-          username: '',
-          password: '',
         });
       });
   }
@@ -65,26 +61,24 @@ class LoginPage extends Component {
   }
   render() {
     const { access_token } = this.props.token;
-    return access_token ? (<Redirect
+    return access_token ? <Redirect
       to={{
         pathname: REACT_APP_ROUTE_PREFIX,
         state: { from: this.props.location, },
       }}
-    />) : (
-      <div className={styles.container}>
-        <EarthRangerLogo className={styles.logo} />
-        <Form className={styles.form} onSubmit={this.onFormSubmit}>
-          <Label htmlFor='username'>Username</Label>
-          <Control value={this.state.username} required={true} onChange={this.onInputChange} type='text' name='username' id='username' />
-          <Label htmlFor='password'>Password</Label>
-          <Control value={this.state.password} required={true} onChange={this.onInputChange} type='password' name='password' id='password' />
-          <Button variant='primary' type='submit'>Log in</Button>
-          {this.state.hasError && (
-            <p>An error has occured. Please try again.</p>
-          )}
-        </Form>
-      </div>
-    );
+    /> : <div className={styles.container}>
+      <EarthRangerLogo className={styles.logo} />
+      <Form className={styles.form} onSubmit={this.onFormSubmit}>
+        <Label htmlFor='username'>Username</Label>
+        <Control value={this.state.username} required={true} onChange={this.onInputChange} type='text' name='username' id='username' />
+        <Label htmlFor='password'>Password</Label>
+        <Control value={this.state.password} required={true} onChange={this.onInputChange} type='password' name='password' id='password' />
+        <Button variant='primary' type='submit'>Log in</Button>
+        {this.state.hasError && <Alert className={styles.error} variant='danger'>
+          An error has occured. Please try again.
+        </Alert>}
+      </Form>
+    </div>;
   }
 }
 

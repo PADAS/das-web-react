@@ -41,7 +41,10 @@ export const fetchSystemStatus = () => {
       params: {
         service_status: true,
       },
-    }).catch(error => dispatch(fetchSystemStatusError(error)));
+    }).catch(error => {
+      dispatch(fetchSystemStatusError(error))
+      throw error;
+    });
 
     dispatch(setZendeskConfigStatus(response));
     dispatch(setSystemConfig(response));

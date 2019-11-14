@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import tokenReducer from '../ducks/auth';
+import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
@@ -68,6 +68,7 @@ const rootReducer = combineReducers({
     showReportsOnMap: displayReportsOnMapReducer,
     maps: mapsReducer,
     mapSubjects: mapSubjectReducer,
+    masterRequestCancelToken: masterRequestTokenReducer,
     subjectGroups: subjectGroupsReducer,
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistanceConfig, tokenReducer),

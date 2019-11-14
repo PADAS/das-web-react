@@ -43,6 +43,9 @@ nav {
   }
 
   .menu {
+    max-height: 90vh;
+    max-width: 96vw;
+    overflow-y: scroll;
     padding-bottom: 0;
     padding-top: 0;
   }
