@@ -1,31 +1,32 @@
 import React, { memo, useEffect, useState } from 'react';
-import Map from './Map';
-import Nav from './Nav';
+
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
-import { fetchMaps } from './ducks/maps';
-import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
-import { fetchSystemStatus } from './ducks/system-status';
-import { fetchEventTypes } from './ducks/event-types';
-import { updateUserPreferences } from './ducks/user-preferences';
-import { updateNetworkStatus } from './ducks/system-status';
-import { fetchSubjectGroups } from './ducks/subjects';
-import { fetchFeaturesets } from './ducks/features';
-import { fetchAnalyzers } from './ducks/analyzers';
-import { fetchEventSchema } from './ducks/event-schemas';
+import { STATUSES } from '../../constants';
+import { fetchMaps } from '../../ducks/maps';
+import { setDirectMapBindingsForFeatureHighlightStates } from '../../utils/features';
+import { fetchSystemStatus } from '../../ducks/system-status';
+import { fetchEventTypes } from '../../ducks/event-types';
+import { updateUserPreferences } from '../../ducks/user-preferences';
+import { updateNetworkStatus } from '../../ducks/system-status';
+import { fetchSubjectGroups } from '../../ducks/subjects';
+import { fetchFeaturesets } from '../../ducks/features';
+import { fetchAnalyzers } from '../../ducks/analyzers';
+import { fetchEventSchema } from '../../ducks/event-schemas';
 
-import SideBar from './SideBar';
-import PrintTitle from './PrintTitle';
-import ModalRenderer from './ModalRenderer';
-import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
-import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
+import Map from '../../Map';
+import Nav from '../../Nav';
+import SideBar from '../../SideBar';
+import PrintTitle from '../../PrintTitle';
+import ModalRenderer from '../../ModalRenderer';
+import { ReactComponent as ReportTypeIconSprite } from '../../common/images/sprites/event-svg-sprite.svg';
+import { ReactComponent as EarthRangerLogoSprite } from '../../common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
-import { trackEvent } from './utils/analytics';
+import { trackEvent } from '../../utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 

@@ -6,7 +6,7 @@ import configureMockStore from 'redux-mock-store';
 import ReduxPromise from 'redux-promise';
 import ReduxThunk from 'redux-thunk';
 
-import App from './App';
+import App from 'App';
 
 const middlewares = [ReduxPromise, ReduxThunk];
 

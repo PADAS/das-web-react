@@ -15,8 +15,9 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 import withTracker from './WithTracker';
 import reducers from './reducers';
-import App from './App';
-import Login from './Login';
+import App from './views/App';
+import Login from './views/Login';
+import FileReport from './views/FileReport';
 import PrivateRoute from './PrivateRoute';
 import { REACT_APP_GA_TRACKING_ID } from './constants';
 
@@ -38,7 +39,9 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+          <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'report' : '/report'}`} component={withTracker(FileReport)} />
           <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={Login} />
+          <PrivateRoute path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'report' : '/report'}`} component={withTracker(App)} />
         </Switch>
       </BrowserRouter>
     </PersistGate>

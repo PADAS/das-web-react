@@ -4,10 +4,10 @@ import { Redirect } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import { postAuth, clearAuth } from '../ducks/auth';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { postAuth, clearAuth } from '../../ducks/auth';
+import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 
-import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
+import { ReactComponent as EarthRangerLogo } from '../../common/images/earth-ranger-logo-vertical.svg';
 
 import styles from './styles.module.scss';
 
