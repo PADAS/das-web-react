@@ -2,6 +2,7 @@
 
 .featureItemList li {
   &:hover {
-    background: lighten($light-gray-background, 10%);
+    background: lighten($light-gray-background, 7.5%);
+    cursor: pointer;
   }
 }
