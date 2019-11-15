@@ -29,7 +29,7 @@ const symbolLayout = {
 
 
 const UserCurrentLocationLayer = (props) => {
-  const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation, onlyShowInViewBounds } = props;
+  const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, onLocationPermissionDenied, userLocation, onlyShowInViewBounds } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
   const[userLocationIsInMapBounds, setUserLocationWithinMapBounds] = useState(false);
   const [initialized, setInitState] = useState(false);
@@ -73,7 +73,9 @@ const UserCurrentLocationLayer = (props) => {
   };
 
   const onLocationWatchError = (e) => {
-    console.log('error watching current location', e);
+    if (e.code === e.PERMISSION_DENIED) {
+      onLocationPermissionDenied && onLocationPermissionDenied(e);
+    }
   };
 
   const onCurrentLocationIconClick = () => {
@@ -154,4 +156,5 @@ UserCurrentLocationLayer.defaultProps = {
 UserCurrentLocationLayer.propTypes = {
   onIconClick: PropTypes.func,
   onlyShowInViewBounds: PropTypes.bool,
+  onLocationPermissionDenied: PropTypes.func,
 };

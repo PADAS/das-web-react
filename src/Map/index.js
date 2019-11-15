@@ -42,6 +42,7 @@ import TrackLegend from '../TrackLegend';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
+import MapSettingsControl from '../MapSettingsControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import IsochroneLayer from '../IsochroneLayer';
@@ -324,6 +325,7 @@ class Map extends Component {
           <MapRulerControl />
           <TimeSliderMapControl />
           <MapPrintControl />
+          <MapSettingsControl />
         </Fragment>}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}

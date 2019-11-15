@@ -52,16 +52,31 @@ const userProfilePersistanceConfig = {
   storage,
 };
 
+const eventSchemasPersistanceConfig = {
+  key: 'eventSchemas',
+  storage,
+};
+
+const eventTypesPersistanceConfig = {
+  key: 'eventTypes',
+  storage,
+};
+
+const baseLayerPersistanceConfig = {
+  key: 'baseLayers',
+  storage,
+};
+
 const rootReducer = combineReducers({
   data: combineReducers({
-    baseLayers: baseLayersReducer,
+    baseLayers: persistReducer(baseLayerPersistanceConfig, baseLayersReducer),
     eventStore: eventStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
     mapEvents: mapEventsReducer,
     eventFilter: eventFilterReducer,
-    eventSchemas: eventSchemaReducer,
-    eventTypes: eventTypesReducer,
+    eventSchemas: persistReducer(eventSchemasPersistanceConfig, eventSchemaReducer),
+    eventTypes: persistReducer(eventTypesPersistanceConfig, eventTypesReducer),
     featureSets: featuresReducer,
     mapLayerFilter: mapLayerFilterReducer,
     analyzerFeatures: analyzersReducer,

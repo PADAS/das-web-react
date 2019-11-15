@@ -1,11 +1,62 @@
-.mapboxgl-map {
+@import '../../common/styles/buttons';
+
+.fileReportWrapper {
+  display: flex;
+  flex-flow: column;
   height: 100vh;
   width: 100vw;
+  [role=tooltip][class*=add-report-popover] {
+    height: 100vh;
+    overflow: hidden;
+    width: 100vw;
+    [class*=popover-body] {
+      max-height: 100%;
+      padding-bottom: 3.5rem;
+    }
+    [class*=popover-header] {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+  .mapboxgl-map {
+    flex: 1;
+  }
+  .mapbox-scale-ctrl, .mapbox-zoom-ctrl {
+    bottom: -0.5rem !important;
+  }
+  .loading-overlay {
+    height: 100vh;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    z-index: 20;
+  }
+  
 }
 
+
 .add-report-container {
-  padding: 1rem;
-  position: relative;
-  background: white;
-  z-index: 10;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  left: calc(50% - 4rem);
+  position: absolute;
+  top: 1rem;
+  z-index: 11;
+  > button {
+    @include mapboxControlButton;
+    border-radius: 1rem;
+    &:hover {
+      background: #f9f9f9;
+      opacity: 0.85rem;
+    }
+    height: 8rem;
+    width: 8rem;
+    > span {
+      font-size: 1.25rem;
+    }
+  }
 }

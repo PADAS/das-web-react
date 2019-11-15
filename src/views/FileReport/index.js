@@ -13,7 +13,7 @@ import ModalRenderer from '../../ModalRenderer';
 import ErrorBoundary from '../../ErrorBoundary';
 import UserCurrentLocationLayer from '../../UserCurrentLocationLayer';
 import MapImagesLayer from '../../MapImagesLayer';
-
+import LoadingOverlay from '../../LoadingOverlay';
 
 import { ReactComponent as ReportTypeIconSprite } from '../../common/images/sprites/event-svg-sprite.svg';
 
@@ -22,10 +22,11 @@ import './styles.scss';
 
 const FileReportView = (props) => {
   const { eventTypes, fetchBaseLayers, fetchEventSchema, fetchEventTypes, userLocation } = props;
-  console.log('userLocation', userLocation);
   const containerRef = useRef(null);
   const [map, setMap] = useState(null);
+  const [loading, setLoadState] = useState(true);
   const [locationInitialized, setLocationInit] = useState(false);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   const onMapLoaded = (map) => {
     window.map = map;
@@ -38,19 +39,43 @@ const FileReportView = (props) => {
     fetchEventTypes();
     fetchBaseLayers();
     fetchEventSchema();
+    setTimeout(() => {
+      if (window.zE && window.zE.hide) {
+        window.zE(function () {
+          window.zE.hide();
+        });
+      }
+    }, 2000);
   }, []);
 
   useEffect(() => {
     if (!locationInitialized && !!userLocation) {
       setLocationInit(true);
-      jumpToLocation(map, [userLocation.coords.longitude, userLocation.coords.latitude], 18);
+      jumpToLocation(map, [userLocation.coords.longitude, userLocation.coords.latitude], 17);
     }
   }, [locationInitialized, userLocation]);
 
-  return !!eventTypes.length && <div className='wrapper'>
-    {map && <div className='add-report-container' ref={containerRef}>
+  useEffect(() => {
+    if (!!eventTypes.length && map && locationInitialized) {
+      setLoadState(false);
+    }
+  }, [map, eventTypes, locationInitialized])
+
+  if (locationDenied) return <div className='fileReportWrapper'>
+    <h3>Location access required.</h3>
+    <p>Please enable location access and try again.</p>
+  </div>;
+
+  return !!eventTypes.length && <div className='fileReportWrapper' ref={containerRef}>
+    {loading && <LoadingOverlay className='loading-overlay' />}
+    {map && userLocation && <div className='add-report-container'>
       <ErrorBoundary>
-        <AddReport container={containerRef} map={map} />
+        <AddReport reportData={{
+      location: {
+        latitude: userLocation.coords.latitude,
+        longitude: userLocation.coords.longitude,
+      }
+    }} showCancel={true} container={containerRef} map={map} />
       </ErrorBoundary>
       <ErrorBoundary>
         <ModalRenderer />
@@ -58,7 +83,7 @@ const FileReportView = (props) => {
     </div>}
     <EarthRangerMap onMapLoaded={onMapLoaded}>
       {map && <Fragment>
-        <UserCurrentLocationLayer onlyShowInViewBounds={false} onIconClick={onLocationClick} />}
+        <UserCurrentLocationLayer onLocationPermissionDenied={() => setLocationDenied(true)} onlyShowInViewBounds={false} onIconClick={onLocationClick} />}
         <MapImagesLayer />
       </Fragment>}
     </EarthRangerMap>

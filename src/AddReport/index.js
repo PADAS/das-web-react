@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
+import Button from 'react-bootstrap/Button';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
@@ -16,7 +17,7 @@ import styles from './styles.module.scss';
 
 const AddReport = (props) => {
   const { relationshipButtonDisabled, reportData, eventsByCategory, map, 
-    showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
+    showCancel, showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
@@ -65,8 +66,8 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement='auto'>
-    <Popover.Title>{title}</Popover.Title>
+  const AddReportPopover = <Popover className={`${styles.popover} add-report-popover`} placement='auto'>
+    <Popover.Title>{title} {showCancel && <Button type='button' variant='warning' onClick={() => setPopoverState(false)}>Cancel</Button>}</Popover.Title>
     <Popover.Content>
       {categoryList}
       {reportTypeList}
@@ -94,6 +95,7 @@ export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
   relationshipButtonDisabled: false,
+  showCancel: false,
   showIcon: true,
   showLabel: true,
   title: 'Add Report',
@@ -110,6 +112,7 @@ AddReport.propTypes = {
   relationshipButtonDisabled: PropTypes.bool,
   container: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
+  showCancel: PropTypes.bool,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
   title: PropTypes.string,

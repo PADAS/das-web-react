@@ -17,7 +17,7 @@ const ModalRenderer = (props) => {
   };
 
   return !!modals.length &&
-    <div className={styles.modalBackdrop}>
+    <div>
       {modals.map((item, index) => {
         const { content: ContentComponent, id, modalProps, ...rest } = item;
         return (!!ContentComponent &&
