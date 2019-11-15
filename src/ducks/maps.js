@@ -10,17 +10,10 @@ export const FETCH_MAPS_ERROR = 'FETCH_MAPS_ERROR';
 export const SET_HOME_MAP = 'SET_HOME_MAP';
 
 // action creators
-export const fetchMaps = () => {
-  return function(dispatch) {
-    return axios.get(MAPS_API_URL)
-      .then((response) => {
-        dispatch(fetchMapsSuccess(response));
-      })
-      .catch((error) => {
-        dispatch(fetchMapsError(error));
-      });
-  }
-};
+export const fetchMaps = () => dispatch => axios.get(MAPS_API_URL)
+  .then((response) => {
+    dispatch(fetchMapsSuccess(response));
+  });
 
 
 export const setHomeMap = (payload) => ({
@@ -32,7 +25,7 @@ const setHomeMapIfNoneSelected = map => (_dispatch, getState) => {
   const { view: { homeMap } } = getState();
   
   if (!homeMap.id) return setHomeMap(map);
-  };
+};
 
 const fetchMapsSuccess = (response) => dispatch => {
   const maps = response.data.data;
@@ -43,38 +36,31 @@ const fetchMapsSuccess = (response) => dispatch => {
     type: FETCH_MAPS_SUCCESS,
     payload: maps,
   });
-} 
+}; 
 
-const fetchMapsError = (error) => ({
-  type: FETCH_MAPS_ERROR,
-  payload: error,
-});
 
 
 // reducers
 const INITIAL_MAPS_STATE = [];
 export default function reducer(state = INITIAL_MAPS_STATE, action = {}) {
   switch (action.type) {
-    case FETCH_MAPS_SUCCESS: {
-      return action.payload;
-    }
-    case FETCH_MAPS_ERROR: {
-      return action.payload;
-    }
-    default: {
-      return state;
-    }
+  case FETCH_MAPS_SUCCESS: {
+    return action.payload;
+  }
+  default: {
+    return state;
+  }
   }
 };
 
 const INITIAL_HOME_MAP_STATE = null;
 export const homeMapReducer = function homeMapReducer(state = INITIAL_HOME_MAP_STATE, action = {}) {
   switch (action.type) {
-    case SET_HOME_MAP: {
-      return action.payload;
-    }
-    default: {
-      return state;
-    }
+  case SET_HOME_MAP: {
+    return action.payload;
+  }
+  default: {
+    return state;
+  }
   }
 };

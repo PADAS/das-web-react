@@ -5,7 +5,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from '../../constants';
+import { STATUSES, DEFAULT_TOAST_CONFIG } from '../../constants';
 import { fetchMaps } from '../../ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from '../../utils/features';
 import { fetchSystemStatus } from '../../ducks/system-status';
@@ -17,13 +17,15 @@ import { fetchFeaturesets } from '../../ducks/features';
 import { fetchAnalyzers } from '../../ducks/analyzers';
 import { fetchEventSchema } from '../../ducks/event-schemas';
 
-import Map from '../../Map';
+import DetectOffline from '../../DetectOffline';
 import Nav from '../../Nav';
+import Map from '../../Map';
 import SideBar from '../../SideBar';
 import PrintTitle from '../../PrintTitle';
 import ModalRenderer from '../../ModalRenderer';
 import { ReactComponent as ReportTypeIconSprite } from '../../common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from '../../common/images/sprites/logo-svg-sprite.svg';
+import ErrorBoundary from '../../ErrorBoundary';
 
 import './App.scss';
 import { trackEvent } from '../../utils/analytics';
@@ -99,12 +101,32 @@ const App = (props) => {
   }, 3000);
 
   useEffect(() => {
-    fetchEventTypes();
-    fetchEventSchema();
-    fetchMaps();
-    fetchSubjectGroups();
-    fetchAnalyzers();
-    fetchSystemStatus();
+    /* use these catch blocks to provide error toasts if/as desired */
+    fetchEventTypes()
+      .catch((e) => {
+      });
+    fetchEventSchema()
+      .catch((e) => {
+        // 
+      });
+    fetchMaps()
+      .catch((e) => {
+        // 
+      });
+    fetchSubjectGroups()
+      .catch((e) => {
+        // 
+      });
+    fetchAnalyzers()
+      .catch((e) => {
+        // 
+      });
+    fetchSystemStatus()
+      .catch((e) => {
+        /* toast('Error fetching system status. Please refresh and try again.', {
+          type: toast.TYPE.ERROR,
+        }); */
+      });
     loadProgressBar();
     window.addEventListener('online', () => {
       updateNetworkStatus(HEALTHY_STATUS);
@@ -130,13 +152,18 @@ const App = (props) => {
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  return (
+  return <ErrorBoundary>
     <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
       <PrintTitle />
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <Map map={map} onMapLoad={onMapHasLoaded} />
-        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        
+        <ErrorBoundary>
+          <Map map={map} onMapLoad={onMapHasLoaded} />
+        </ErrorBoundary>
+        <ErrorBoundary>
+          {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        </ErrorBoundary>
         <ModalRenderer />
       </div>
       <div style={{
@@ -145,8 +172,9 @@ const App = (props) => {
         <ReportTypeIconSprite id="reportTypeIconSprite" />
         <EarthRangerLogoSprite />
       </div>
+      <DetectOffline />
     </div>
-  );
+    </ErrorBoundary>;
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });

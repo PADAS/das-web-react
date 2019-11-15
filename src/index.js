@@ -8,18 +8,21 @@ import { persistStore } from 'redux-persist';
 import ReduxPromise from 'redux-promise';
 import { PersistGate } from 'redux-persist/integration/react';
 import ReduxThunk from 'redux-thunk';
-import { REACT_APP_ROUTE_PREFIX } from './constants';
+import { ToastContainer } from 'react-toastify';
+
+import { REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
+import reducers from './reducers';
 
 import registerServiceWorker from './registerServiceWorker';
+import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
-import withTracker from './WithTracker';
-import reducers from './reducers';
 import App from './views/App';
 import Login from './views/Login';
 import FileReport from './views/FileReport';
 import PrivateRoute from './PrivateRoute';
-import { REACT_APP_GA_TRACKING_ID } from './constants';
+import withTracker from './WithTracker';
+
 
 if (process.env.NODE_ENV !== 'production') {
   const whyDidYouRender = require('@welldone-software/why-did-you-render');
@@ -44,6 +47,7 @@ ReactDOM.render(
           <PrivateRoute path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'report' : '/report'}`} component={withTracker(App)} />
         </Switch>
       </BrowserRouter>
+      <ToastContainer />
     </PersistGate>
   </Provider>
   , document.getElementById('root'));

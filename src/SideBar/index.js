@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Button from 'react-bootstrap/Button';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
@@ -20,13 +21,24 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
+
+import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import ClearAllControl from '../ClearAllControl';
 import ReportMapControl from '../ReportMapControl';
+import ErrorBoundary from '../ErrorBoundary';
+import ErrorMessage from '../ErrorMessage';
+
+const TAB_KEYS = {
+  REPORTS: 'reports',
+  LAYERS: 'layers',
+}
 
 const SideBar = (props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+
   const addReportContainerRef = useRef(null);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
@@ -35,60 +47,85 @@ const SideBar = (props) => {
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
-    trackEvent('Feed', `Open ${event.is_collection?'Incident':'Event'} Report`, `Event Type:${event.event_type}`);
+    trackEvent('Feed', `Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
   };
 
   const onTabsSelect = (eventKey) => {
+    setActiveTab(eventKey);
     let tabTitles = {
-      'reports': 'Reports',
-      'layers': 'Map Layers',
+      [TAB_KEYS.REPORTS]: 'Reports',
+      [TAB_KEYS.LAYERS]: 'Map Layers',
     };
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
 
-  useEffect(() => {
+  const loadFeedEvents = () => {
     setEventLoadState(true);
     fetchEventFeed({}, calcEventFilterForRequest())
       .then(() => setEventLoadState(false));
+  };
+
+  useEffect(() => {
+    loadFeedEvents();
   }, [eventFilter, fetchEventFeed]);
+
+  useEffect(() => {
+    if (!sidebarOpen) {
+      setActiveTab(TAB_KEYS.REPORTS);
+    }
+  }, [sidebarOpen]);
+
+  const showEventFeedError = !loadingEvents && !!events.error;
 
   if (!map) return null;
 
-  return (
+  return <ErrorBoundary>
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-      <Tabs onSelect={onTabsSelect}>
-        <Tab className={styles.tab} eventKey="reports" title="Reports">
+      <Tabs activeKey={activeTab} onSelect={onTabsSelect}>
+        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
           <EventFilter>
-            <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible}  />
+            <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
           </EventFilter>
-          <EventFeed
-            hasMore={!!events.next}
-            map={map}
-            loading={loadingEvents}
-            events={events.results}
-            onScroll={onScroll}
-            onTitleClick={onEventTitleClick}
-          />
+          <ErrorBoundary>
+            {showEventFeedError && <div className={styles.feedError}>
+              <ErrorMessage message='Could not load events. Please try again.' details={events.error} />
+              <Button type='button' variant='primary' onClick={loadFeedEvents}>
+                <RefreshIcon />
+                Try again
+              </Button>
+            </div>}
+            {!showEventFeedError && <EventFeed
+              hasMore={!!events.next}
+              map={map}
+              loading={loadingEvents}
+              events={events.results}
+              onScroll={onScroll}
+              onTitleClick={onEventTitleClick}
+            />
+            }
+          </ErrorBoundary>
         </Tab>
-        <Tab className={styles.tab} eventKey="layers" title="Map Layers">
-          <MapLayerFilter />
-          <div className={styles.mapLayers}>
-            <ReportMapControl />
-            <SubjectGroupList map={map} />
-            <FeatureLayerList map={map} />
-            <div className={styles.noItems}>No items to display.</div>
-          </div>
-          <div className={styles.mapLayerFooter}>
-            <ClearAllControl map={map} />
-          </div>
+        <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
+          <ErrorBoundary>
+            <MapLayerFilter />
+            <div className={styles.mapLayers}>
+              <ReportMapControl />
+              <SubjectGroupList map={map} />
+              <FeatureLayerList map={map} />
+              <div className={styles.noItems}>No items to display.</div>
+            </div>
+            <div className={styles.mapLayerFooter}>
+              <ClearAllControl map={map} />
+            </div>
+          </ErrorBoundary>
         </Tab>
       </Tabs>
     </aside>
-  );
+  </ErrorBoundary>;
 };
 
 const mapStateToProps = (state) => ({

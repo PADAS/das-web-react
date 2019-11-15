@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import ReactGA from "react-ga";
+import React, { useEffect } from 'react';
+import ReactGA from 'react-ga';
 
 const withTracker = (WrappedComponent, options = {}) => {
   const trackPage = page => {

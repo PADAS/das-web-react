@@ -29,7 +29,7 @@ const symbolLayout = {
 
 
 const UserCurrentLocationLayer = (props) => {
-  const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
+  const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation, onlyShowInViewBounds } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
   const[userLocationIsInMapBounds, setUserLocationWithinMapBounds] = useState(false);
   const [initialized, setInitState] = useState(false);
@@ -98,13 +98,10 @@ const UserCurrentLocationLayer = (props) => {
 
 
   useEffect(() => {
+    animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
-  }, []);
-
-  useEffect(() => {
-    animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
   }, [animationState]);
 
   useEffect(() => {
@@ -113,7 +110,7 @@ const UserCurrentLocationLayer = (props) => {
     );
   }, [currentMapBbox, userLocation]);
 
-  const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
+  const showLayer = onlyShowInViewBounds ? (userLocationCanBeShown && userLocationIsInMapBounds) : userLocationCanBeShown;
 
   const sourceData = showLayer && {
     type: 'geojson',
@@ -151,8 +148,10 @@ UserCurrentLocationLayer.defaultProps = {
   onIconClick() {
 
   },
+  onlyShowInViewBounds: true,
 };
 
 UserCurrentLocationLayer.propTypes = {
   onIconClick: PropTypes.func,
+  onlyShowInViewBounds: PropTypes.bool,
 };

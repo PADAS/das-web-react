@@ -49,16 +49,18 @@ const cancelableMapSubjectsFetch = () => {
       }
     })
       .then(response => dispatch(fetchMapSubjectsSuccess(response)))
-      .catch(error => dispatch(fetchMapSubjectsError(error)));
+      .catch(error => {
+        dispatch(fetchMapSubjectsError(error))
+        return Promise.reject(error);
+      });
   };
   return [fetchFn, cancelToken];
 };
 
 export const [fetchMapSubjects] = cancelableMapSubjectsFetch();
 
-export const fetchSubjectGroups = () => (dispatch) =>
-  axios.get(SUBJECT_GROUPS_API_URL)
-    .then(response => dispatch(fetchSubjectGroupsSuccess(response)));
+export const fetchSubjectGroups = () => dispatch => axios.get(SUBJECT_GROUPS_API_URL)
+  .then(response => dispatch(fetchSubjectGroupsSuccess(response)));
 
 const fetchMapSubjectsSuccess = response => ({
   type: FETCH_MAP_SUBJECTS_SUCCESS,
