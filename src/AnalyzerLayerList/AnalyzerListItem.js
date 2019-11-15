@@ -35,7 +35,7 @@ const AnalyzerListItem = memo((props) => {
   };
 
   return <span className={listStyles.featureTitle}>
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton map={map} isMulti={false} isFeature={true} onClick={onJumpButtonClick} />
+    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton map={map} bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 });
 
