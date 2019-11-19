@@ -42,39 +42,8 @@
   }
 }
 
-.eventTypePopover {
-  [class*=popover-body] {
-    overflow-y: auto;
-    padding: 0;
-  }
-  [class*=popover-header] {
-    svg {
-      cursor: pointer;
-      // height: 1.5rem;
-      stroke: white;
-      // width: 1.5rem;
-      &[class*=checked] {
-        fill: white;
-        &:hover {
-          fill: rgba(255, 255, 255, 0.95);
-        }
-      }
-      &[class*=partial] {
-        fill: rgba(255, 255, 255, 0.3);
-        &:hover {
-          fill: rgba(255, 255, 255, 0.4);
-        }
-      }
-      &:hover {
-        fill: none;
-      }
-    }
-  }
-}
 
-
-
-.dateRangePopover, .eventTypePopover, .filterPopover {
+.filterPopover {
   max-width: unset;
   [class*=popover-body] {
     max-height: 20rem;
@@ -92,7 +61,7 @@
 
 div.filterPopover {
   max-height: unset;
-  max-width: 24rem;
+  max-width: 29rem;
   width: 90vw;
   [class*=popover-body] {
     max-height: unset;
@@ -103,7 +72,7 @@ div.filterPopover {
   }
 }
 
-.popoverTrigger, .dropdown {
+.popoverTrigger {
   align-items: center;
   cursor: pointer;
   display: flex;
@@ -133,30 +102,6 @@ div.filterPopover {
   }
 }
 
-.dateRangePopover {
-  max-width: unset;
-  width: 28rem;
-  label {
-    padding: 0 1rem;
-  }
-}
-
-.dropdown {
-  > [class*=btn-primary] {
-    @include unstyledDropdown;
-    background: none;
-    padding: none;
-    width: 100%;
-    &:active, &:hover, &:focus {
-      background: none;
-      color: $primary-font-color;
-    }
-    a {
-      padding: 0;
-    }
-  }
-}
-
 .modified {
   color: $highlight-color;
   svg, svg * {
@@ -180,7 +125,7 @@ div.filterPopover {
   }
 }
 
-.dropdown, .closedFilterDrawer, .openedFilterDrawer {
+.closedFilterDrawer, .openedFilterDrawer {
   border-bottom: 1px solid $gray-border;
 }
 
@@ -228,5 +173,45 @@ div.filterPopover {
         max-height: 24rem;
       }
     }
+  }
+}
+
+.filterRow, .stateList {
+  align-items: center;
+  display: flex;
+}
+
+.stateList {
+  margin-bottom: 0;
+}
+
+.activeState button {
+  font-weight: 600;
+}
+
+
+.filterRow {
+  border-bottom: 1px solid $gray-border;
+  justify-content: space-between;
+  padding: 0.5rem;
+  > svg {
+    --dimensions: 1.5rem;
+    height: var(--dimensions);
+    width: var(--dimensions);
+  }
+  label {
+    margin-bottom: 0;
+  }
+}
+
+.reportedBySelect, .stateList, .priorityPicker {
+  flex: 1;
+  margin-left: 0.5rem;
+}
+
+.priorityPicker li {
+  width: 25%;
+  button {
+    width: 100%;
   }
 }

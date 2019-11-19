@@ -60,7 +60,7 @@ const cleanedUpFilterObject = (filter) =>
 const objectToParamString = (obj) => {
   const props = Object.entries(obj);
 
-  return props.reduce((params, [key, value], index) => {
+  return props.reduce((params, [key, value], _index) => {
     if (Array.isArray(value)) {
       value.forEach((v, i) => {
         params.append(key, v);

@@ -47,6 +47,7 @@ export const INITIAL_FILTER_STATE = {
     text: '',
     duration: null,
     priority: [],
+    reported_by: [],
   },
 };
 

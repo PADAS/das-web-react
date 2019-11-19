@@ -12,12 +12,16 @@ import { allSubjects } from '../selectors/subjects';
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { reporters, subjects, onChange, numberOfRecentRadiosToShow, value } = props;
+  const { reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className } = props;
 
   const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
   const allRadios = reporters.filter(subjectIsARadio);
 
-  const selected = value && value.id && allRadios.find(({ id }) => id === value.id);
+  const selected = isMulti
+      ? !!value && !!value.length &&
+        value.map(item => allRadios.find(radio => radio.id === item.id))
+        .filter(item => !!item)
+      : !!value && !!value.id && allRadios.find(radio => radio.id === value.id);
 
   const options = [
     {
@@ -31,6 +35,7 @@ const ReportedBySelect = (props) => {
   ];
 
   const getOptionLabel = ({ name }) => name;
+  const getOptionValue = ({ id }) => id;
 
   const Option = (props) => {
     const { data } = props;
@@ -41,7 +46,7 @@ const ReportedBySelect = (props) => {
     return (
       <div className={styles.option} >
         <components.Option {...props}>
-          <span>{data.name}</span>
+          <span>{getOptionLabel(data)}</span>
           {isRecent &&
             <TimeAgo className={styles.timeAgo} date={new Date(data.last_voice_call_start_at || data.last_position_date)} />
           }
@@ -51,14 +56,17 @@ const ReportedBySelect = (props) => {
   };
 
   return <Select
+    className={className}
     components={{ Option }}
     value={selected}
     isClearable={true}
     isSearchable={true}
+    isMulti={isMulti}
     onChange={onChange}
     options={options}
     placeholder='Reported By...'
     styles={DEFAULT_SELECT_STYLES}
+    getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel} />;
 };
 
@@ -71,12 +79,17 @@ export default connect(mapStateToProps, null)(memo(ReportedBySelect));
 
 ReportedBySelect.defaultProps = {
   value: null,
+  isMulti: false,
   numberOfRecentRadiosToShow: 5,
 };
 
 
 ReportedBySelect.propTypes = {
-  value: PropTypes.object,
+  isMulti: PropTypes.bool,
+  value: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.array,
+  ]),
   onChange: PropTypes.func.isRequired,
   numberOfRecentRadiosToShow: PropTypes.number,
 };

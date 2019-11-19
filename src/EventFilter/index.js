@@ -3,34 +3,36 @@ import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
 import Collapsible from 'react-collapsible';
 
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
+import isNil from 'lodash/isNil';
 
-import { EVENT_STATE_CHOICES as states } from '../constants';
+import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { calcFriendlyDurationString } from '../utils/datetime';
 import { trackEvent } from '../utils/analytics';
 
+import { reportedBy } from '../selectors';
+
 import EventFilterDateRangeSelector from './DateRange';
 import FriendlyEventFilterString from './FriendlyEventFilterString';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
+import PriorityPicker from '../PriorityPicker';
+import ReportedBySelect from '../ReportedBySelect';
 // import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
+import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 
 import styles from './styles.module.scss';
 
-
-const { Toggle, Menu, Item } = Dropdown;
-
 const EventFilter = (props) => {
-  const { children, eventFilter, eventTypes, updateEventFilter, resetEventFilter } = props;
-  const { state, filter: { date_range, event_type: currentFilterReportTypes, text } } = eventFilter;
+  const { children, eventFilter, eventTypes, updateEventFilter, resetEventFilter, reporters, } = props;
+  const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
 
@@ -41,8 +43,18 @@ const EventFilter = (props) => {
 
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
+  const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
+  const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
   const filterModified = dateRangeModified || !allReportTypesChecked || stateFilterModified;
+
+  const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
+
+    eventFilter.filter.reported_by
+      .map(id =>
+        reporters.find(r => r.id === id)
+      ).filter(item => !!item)
+    : null;
 
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
@@ -66,6 +78,35 @@ const EventFilter = (props) => {
       updateEventFilter({ filter: { event_type: uniq([...currentFilterReportTypes, ...toToggle]) } });
     }
   };
+
+  const onReportedByChange = (values) => {
+    if (values && !!values.length) {
+      updateEventFilter({
+        filter: {
+          reported_by: uniq(values.map(({ id }) => id)),
+        }
+      });
+    } else {
+      updateEventFilter({
+        filter: {
+          reported_by: null,
+        }
+      });
+    }
+  };
+
+  const onPriorityChange = (value) => {
+    const removingValue = priority.includes(value);
+    const newVal = removingValue
+      ? priority.filter(item => item !== value)
+      : [...priority, value];
+
+    updateEventFilter({
+      filter: {
+        priority: newVal,
+      },
+    });
+  }
 
   const onReportTypeToggle = ({ id }) => {
     if (currentFilterReportTypes.includes(id)) {
@@ -113,17 +154,27 @@ const EventFilter = (props) => {
     trackEvent('Feed', 'Click Reset State Filter');
   };
 
-  const SelectedState = () => <Toggle>
-    <h5 className={styles.filterTitle}>
-      State
-      <small className={stateFilterModified ? styles.modified : ''}>{states.find(choice => isEqual(choice.value, state)).label}</small>
-      <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
-    </h5>
-  </Toggle>;
+  const resetPriorityFilter = (e) => {
+    e.stopPropagation();
+    updateEventFilter({ filter: { priority: INITIAL_FILTER_STATE.filter.priority } });
+    trackEvent('Feed', 'Click Reset Priority Filter');
+  };
 
-  const StateChoices = () => <Menu>
-    {states.map(choice => <Item key={choice.label} onClick={() => onStateSelect(choice)}>{choice.label}</Item>)}
-  </Menu>;
+  const resetReportedByFilter = (e) => {
+    e.stopPropagation();
+    updateEventFilter({ filter: { reported_by: INITIAL_FILTER_STATE.filter.reported_by } });
+    trackEvent('Feed', 'Click Reset Reported By Filter');
+  };
+
+  const StateSelector = () => <ul className={styles.stateList}>
+    {EVENT_STATE_CHOICES.map(choice =>
+      <li className={isEqual(choice.value, state) ? styles.activeState : ''}
+        key={choice.value} onClick={() => onStateSelect(choice)}>
+        <Button variant='link'>
+          {choice.label}
+        </Button>
+      </li>)}
+  </ul>;
 
   const onSearchChange = ({ target: { value } }) => {
     updateEventFilterDebounced({
@@ -168,18 +219,30 @@ const EventFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <Dropdown className={styles.dropdown}>
-        <SelectedState />
-        <StateChoices />
-      </Dropdown>
-      <Collapsible
+      <div className={styles.filterRow}>
+        {/* state here */}
+        <label>State</label>
+        <StateSelector />
+        <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
+      </div>
+      <div className={styles.filterRow}>
+        <label>Priority</label>
+        <PriorityPicker className={styles.priorityPicker} onSelect={onPriorityChange} selected={priority} isMulti={true} />
+        <Button type="button" variant='light' size='sm' disabled={!priorityFilterModified} onClick={resetPriorityFilter}>Reset</Button>
+      </div>
+      <div className={styles.filterRow}>
+        <UserIcon />
+        <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
+        <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
+      </div>
+     {/*  <Collapsible
         transitionTime={0.1}
         lazyRender={true}
         className={styles.closedFilterDrawer}
         openedClassName={styles.openedFilterDrawer}
         trigger={DateRangeTrigger}>
         <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
-      </Collapsible>
+      </Collapsible> */}
       <Collapsible
         transitionTime={0.1}
         lazyRender={true}
@@ -198,19 +261,26 @@ const EventFilter = (props) => {
   </Popover>;
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
-      <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
-        <FilterIcon />
-        <span>Filters</span>
-      </span>
-    </OverlayTrigger>
-    <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
-      onChange={onSearchChange} onClear={onSearchClear} />
-    {children}
+    <div className={styles.controls}>
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
+        <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
+          <FilterIcon />
+          <span>Filters</span>
+        </span>
+      </OverlayTrigger>
+      <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
+        onChange={onSearchChange} onClear={onSearchClear} />
+      {children}
+    </div>
     <FriendlyEventFilterString className={styles.filterDetails} />
   </form>;
 };
 
-const mapStateToProps = ({ data: { eventFilter, eventTypes } }) => ({ eventFilter, eventTypes });
+const mapStateToProps = (state) =>
+  ({
+    eventFilter: state.data.eventFilter,
+    eventTypes: state.data.eventTypes,
+    reporters: reportedBy(state),
+  });
 
 export default connect(mapStateToProps, { updateEventFilter, resetEventFilter })(memo(EventFilter));
