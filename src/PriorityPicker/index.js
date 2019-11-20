@@ -16,14 +16,9 @@ const calcClassNameForPriority = (priority) => {
 const PriorityPicker = (props) => {
   const { className, onSelect, selected, isMulti } = props;
 
-  const isSelected = (value) => {
-    const is = isMulti ?
+  const isSelected = (value) => isMulti ?
     selected.some(v => v === value)
     : selected === value;
-
-    console.log('isSelected', value, selected, is);
-    return is;
-  };
 
   return <ul className={`${styles.list} ${className}`}>
     {REPORT_PRIORITIES.map(({ display, value }) => <li key={value}>

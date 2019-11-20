@@ -26,6 +26,7 @@ import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-ic
 import ClearAllControl from '../ClearAllControl';
 import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
+import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import ErrorMessage from '../ErrorMessage';
 
 const TAB_KEYS = {
@@ -87,9 +88,12 @@ const SideBar = (props) => {
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
-          <EventFilter>
-            <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
-          </EventFilter>
+          <ErrorBoundary>
+            <EventFilter className={sidebarOpen ? 'sidebarOpen' : ''}>
+              <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
+            </EventFilter>
+          </ErrorBoundary>
+          <FriendlyEventFilterString className={styles.friendlyFilterString} />
           <ErrorBoundary>
             {showEventFeedError && <div className={styles.feedError}>
               <ErrorMessage message='Could not load events. Please try again.' details={events.error} />

@@ -9,11 +9,9 @@ import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
-import isNil from 'lodash/isNil';
 
 import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { calcFriendlyDurationString } from '../utils/datetime';
 import { trackEvent } from '../utils/analytics';
 
 import { reportedBy } from '../selectors';
@@ -27,11 +25,12 @@ import ReportedBySelect from '../ReportedBySelect';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
+import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
 
 const EventFilter = (props) => {
-  const { children, eventFilter, eventTypes, updateEventFilter, resetEventFilter, reporters, } = props;
+  const { children, className, eventFilter, eventTypes, reporters, resetEventFilter, updateEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -46,7 +45,7 @@ const EventFilter = (props) => {
   const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
   const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
-  const filterModified = dateRangeModified || !allReportTypesChecked || stateFilterModified;
+  const filterModified = priorityFilterModified || !allReportTypesChecked || stateFilterModified || reportedByFilterModified;
 
   const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
 
@@ -122,9 +121,6 @@ const EventFilter = (props) => {
     updateEventFilter({ filter: { event_type: types.map(({ id }) => id) } });
   };
 
-
-  const { lower, upper } = date_range;
-
   const updateEventFilterDebounced = debounce(function (update) {
     updateEventFilter(update);
   }, 200);
@@ -191,30 +187,24 @@ const EventFilter = (props) => {
     trackEvent('Feed', 'Clear Search Text Filter');
   };
 
-  const DateRangeTrigger = <h5 className={styles.filterTitle}>
-    Date Range
-    <small className={dateRangeModified ? styles.modified : ''}>
-      {!dateRangeModified && 'One month ago until now'}
-      {dateRangeModified && calcFriendlyDurationString(lower, upper)}
-    </small>
-    <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
-  </h5>;
+  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
+    <Popover.Title>
+      <div className={styles.popoverTitle}>
+        <ClockIcon /> Date Range
+        <Button type="button" variant='primary' size='sm'
+          onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
+      </div>
+    </Popover.Title>
+    <Popover.Content>
+      <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
+    </Popover.Content>
+  </Popover>;
 
-  const ReportTypeTrigger = <h5 className={styles.filterTitle}>
-    Report Types
-    <small className={!allReportTypesChecked ? styles.modified : ''}>
-      {allReportTypesChecked && 'All selected'}
-      {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
-      {noReportTypesChecked && 'None selected'}
-    </small>
-    <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
-  </h5>;
-
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${filterModified}`} id='filter-popover'>
+  const FilterPopover = <Popover className={styles.filterPopover} id='filter-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         Report Filters
-        <Button type="button" style={{ marginLeft: 'auto' }} variant='primary' size='sm'
+        <Button type="button" variant='primary' size='sm'
           onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
       </div>
     </Popover.Title>
@@ -225,7 +215,7 @@ const EventFilter = (props) => {
         <StateSelector />
         <Button type="button" variant='light' size='sm' disabled={!stateFilterModified} onClick={resetStateFilter}>Reset</Button>
       </div>
-      <div className={styles.filterRow}>
+      <div className={`${styles.filterRow} ${styles.priorityRow}`}>
         <label>Priority</label>
         <PriorityPicker className={styles.priorityPicker} onSelect={onPriorityChange} selected={priority} isMulti={true} />
         <Button type="button" variant='light' size='sm' disabled={!priorityFilterModified} onClick={resetPriorityFilter}>Reset</Button>
@@ -235,44 +225,40 @@ const EventFilter = (props) => {
         <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
         <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
       </div>
-     {/*  <Collapsible
-        transitionTime={0.1}
-        lazyRender={true}
-        className={styles.closedFilterDrawer}
-        openedClassName={styles.openedFilterDrawer}
-        trigger={DateRangeTrigger}>
-        <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
-      </Collapsible> */}
-      <Collapsible
-        transitionTime={0.1}
-        lazyRender={true}
-        className={styles.closedFilterDrawer}
-        openedClassName={`${styles.openedFilterDrawer} ${styles.reportTypeDrawer}`}
-        trigger={ReportTypeTrigger}>
-        {/* <span className={styles.toggleAllReportTypes}>
-          <CheckMark onClick={toggleAllReportTypes} fullyChecked={allReportTypesChecked} partiallyChecked={someReportTypesChecked} />
-          {allReportTypesChecked && 'All'}
-          {someReportTypesChecked && 'Some'}
-          {noReportTypesChecked && 'None'}
-        </span> */}
+      <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
+        <h5 className={styles.filterTitle}>
+          Report Types
+          <small className={!allReportTypesChecked ? styles.modified : ''}>
+            {allReportTypesChecked && 'All selected'}
+            {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
+            {noReportTypesChecked && 'None selected'}
+          </small>
+          <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
+        </h5>
         <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
-      </Collapsible>
+      </div>
     </Popover.Content>
   </Popover>;
 
-  return <form className={styles.form} onSubmit={e => e.preventDefault()}>
+  return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
     <div className={styles.controls}>
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
-          <FilterIcon />
+          <FilterIcon className={styles.filterIcon} />
           <span>Filters</span>
+        </span>
+      </OverlayTrigger>
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover}>
+        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
+          <ClockIcon className={styles.clockIcon} />
+          <span>Dates</span>
         </span>
       </OverlayTrigger>
       <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
         onChange={onSearchChange} onClear={onSearchClear} />
       {children}
     </div>
-    <FriendlyEventFilterString className={styles.filterDetails} />
+    {/* <FriendlyEventFilterString className={styles.filterDetails} /> */}
   </form>;
 };
 

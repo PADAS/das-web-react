@@ -164,8 +164,8 @@
 
 .addReportContainer {
   position: absolute;
-  top: 0.75rem;
-  left: 0.6rem;
+  top: 0.5rem;
+  left: 0.5rem;
   [role=tooltip] {
     left: -27rem;
   }
@@ -176,6 +176,10 @@
     [role=tooltip] {
       left: -1rem;
     }
+  }
+  .friendlyFilterString {
+    height: 3rem;
+    padding: 0.5rem;
   }
 }
 
@@ -216,4 +220,14 @@
     fill: white;
     margin-right: 0.25rem;
   }
+}
+
+.friendlyFilterString {
+  display: block;
+  font-size: 0.85rem;
+  height: 0;
+  overflow: hidden;
+  padding: 0;
+  padding-left: 4.25rem;
+  transition: 0.3s all linear;
 }

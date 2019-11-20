@@ -9,7 +9,7 @@
   flex-wrap: wrap;
   display: flex;
   justify-content: flex-end;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   position: relative;
   z-index: 2;
   .filterDetails { 
@@ -19,10 +19,19 @@
     margin-left: 4rem;
     width: 100%;
   }
+  @media (min-width: $md-layout-width-min) {
+    padding: 1rem 1rem 0.5rem;
+  }
 }
 
 .search {
   margin-bottom: 0;
+  margin-right: 0.5rem;
+  width: 50%;
+  @media (min-width: $md-layout-width-min) {
+    margin-right: unset;
+    width: unset;
+  }
 }
 
 .dateSelect {
@@ -44,10 +53,6 @@
 
 
 .filterPopover {
-  max-width: unset;
-  [class*=popover-body] {
-    max-height: 20rem;
-  }
   > [class*=arrow]::after {
     border-bottom-color: $popover-header-color;
   }
@@ -60,11 +65,13 @@
 }
 
 div.filterPopover {
-  max-height: unset;
+  --content-height: 32rem;
+  max-height: var(--content-height);
   max-width: 29rem;
+  overflow: hidden;
   width: 90vw;
   [class*=popover-body] {
-    max-height: unset;
+    overflow: hidden;
     padding: 0;
   }
   [class*=Collapsible__trigger] {
@@ -72,45 +79,74 @@ div.filterPopover {
   }
 }
 
-.popoverTrigger {
+.controls {
   align-items: center;
-  cursor: pointer;
   display: flex;
-  flex-flow: column;
-  position: relative;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .popoverTrigger {
-  left: 1rem;
-  position: absolute;
-  bottom: 0.4rem;
+  align-items: center;
+  color: lighten($primary-font-color, 15%);
+  cursor: pointer;
+  display: flex;
+  flex-flow: column;
   svg {
-    height: 1.5rem;
-    width: 1.5rem;
-    * {
-      fill: lighten($primary-font-color, 15%);
-    }
+    --dimensions: 1rem;
+    height: var(--dimensions);
+    width: var(--dimensions);
     + span {
       font-size: 0.75rem;
+      margin-left: 0.25rem;
+    }
+    @media (min-width: $md-layout-width-min) {
+      --dimensions: 1.5rem;
     }
   }
   &:hover {
-    color: darken($primary-font-color, 6%);
-    svg * {
-      fill: $primary-font-color;
+    color: $primary-font-color;
+  }
+}
+
+@media (min-width: $md-layout-width-min) {
+  form[class*=sidebarOpen] {
+    .popoverTrigger {
+      flex-flow: row;
+    }
+  }
+}
+
+.filterIcon {
+  * {
+    fill: lighten($primary-font-color, 15%);
+    &:hover {
+        fill: $primary-font-color;
+    }
+  }
+}
+
+.clockIcon {
+  * {
+    stroke: lighten($primary-font-color, 15%);
+    &:hover {
+      stroke: $primary-font-color;
     }
   }
 }
 
 .modified {
   color: $highlight-color;
-  svg, svg * {
+  .filterIcon * {
     fill: $highlight-color;
+    &:hover {
+      fill: darken($highlight-color, 6%);
+    }
   }
-  &:hover {
-    color: darken($highlight-color, 6%);
-    svg * {
-      fill:  darken($highlight-color, 6%);
+  .clockIcon * {
+    stroke: $highlight-color;
+    &:hover {
+      stroke: darken($highlight-color, 6%);
     }
   }
 }
@@ -125,6 +161,18 @@ div.filterPopover {
   }
 }
 
+.popoverTitle {
+  --dimensions: 1.5rem;
+  svg {
+    height: var(--dimensions);
+    margin-right: 0.5rem;
+    width: var(--dimensions);
+    * {
+      stroke: white;
+    }
+  }
+}
+
 .closedFilterDrawer, .openedFilterDrawer {
   border-bottom: 1px solid $gray-border;
 }
@@ -136,7 +184,6 @@ div.filterPopover {
 }
 
 .filterTitle {
-  padding: 0.5rem;
   small {
     font-size: 65%;
     font-style: italic;
@@ -202,16 +249,44 @@ div.filterPopover {
   label {
     margin-bottom: 0;
   }
+  &.priorityRow {
+    label {
+      display: none;
+      @media (min-width: $md-layout-width-min) {
+        display: initial;
+      }
+    }
+  }
+  &.reportTypeRow {
+    flex-flow: column;
+    height: 20rem;
+    overflow: hidden;
+    padding-bottom: 2rem;
+  }
 }
 
 .reportedBySelect, .stateList, .priorityPicker {
   flex: 1;
+  flex-flow: row;
   margin-left: 0.5rem;
 }
 
+.priorityPicker {
+  margin-left: 0;
+  @media (min-width: $md-layout-width-min) {
+    margin-left: 0.5rem;
+  }
+}
+
 .priorityPicker li {
+  font-size: 0.65rem;
+  white-space: nowrap;
   width: 25%;
   button {
     width: 100%;
+  }
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+    white-space: initial;
   }
 }
