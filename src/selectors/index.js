@@ -22,6 +22,7 @@ const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
+const hiddenAnalyzerIDs = ({ view: { hiddenAnalyzerIDs } }) => hiddenAnalyzerIDs;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
@@ -106,14 +107,17 @@ export const reportedBy = createSelector(
 );
 
 export const getAnalyzerFeatureCollectionsByType = createSelector(
-  [analyzerFeatures],
-  (analyzerFeatures) => {
-    const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
-      [...accumulator,
-        ...data.geojson.features.map(feature => {
-          feature.analyzer_type = data.type;
-          return feature;
-        })], []);
+  [analyzerFeatures, hiddenAnalyzerIDs],
+  (analyzerFeatures, hiddenAnalyzerIDs) => {
+    console.log('ANALYZER FEATURES', analyzerFeatures, 'hiddenAnalyzerIDs', hiddenAnalyzerIDs);
+    const allAnalyzers = analyzerFeatures
+      .filter(analyzer => !hiddenAnalyzerIDs.includes(analyzer.geojson.features[0].properties.id))
+      .reduce((accumulator, data) =>
+        [...accumulator,
+          ...data.geojson.features.map(feature => {
+            feature.analyzer_type = data.type;
+            return feature;
+          })], []);
     // simulate layergroups found in old codebase by passing the feature ids
     // of the analyzer feature collection so they can be looked up at runtime - 
     // ie when a rollover occurs with a mouse

@@ -39,7 +39,6 @@ const AnalyzerLayerList = memo((props) => {
   };
 
   const featureIsVisible = item => {
-    console.log('item.features', item.features[0]);
     const { properties: { id } } = item.features[0];
     return !hiddenAnalyzerIDs.includes(id);
   };
