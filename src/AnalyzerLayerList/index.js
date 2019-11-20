@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Checkmark from '../Checkmark';
 import Collapsible from 'react-collapsible';
-import debounceRender from 'react-debounce-render';
 import intersection from 'lodash/intersection';
 import isEqual from 'react-fast-compare';
 import { hideAnalyzers, showAnalyzers } from '../ducks/map-ui';
@@ -13,39 +12,47 @@ import { getAnalyzerListState } from './selectors';
 import AnalyzerListItem from './AnalyzerListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
-
+import styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const AnalyzerLayerList = memo((props) => {
-  const { analyzerList, hiddenAnalyzerIDs, map } = props;
+  const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map } = props;
 
   const analyzers = analyzerList[0].features;
+  const analyzerFeatureIds = analyzers.map((analyzer) => {
+    const { properties: { id } } = analyzer.features[0];
+    return id;
+  });
 
-  const someAnalyzersVisible = set => {
-    // const featureIDs = getFeatureSetFeatureIDs(set);
-    // return intersection(featureIDs, hiddenFeatureIDs).length !== featureIDs.length;
-    return true;
+  const hideAllAnalyzers = () => hideAnalyzers(...analyzerFeatureIds);
+  const showAllAnalyzers = () => showAnalyzers(...analyzerFeatureIds);
+
+  const onToggleAllFeatures = (e) => {
+    e.stopPropagation();
+
+    if (allVisible) {
+      trackEvent('Map Layers', 'Uncheck All Features checkbox');
+      return hideAllAnalyzers();
+    } else {
+      trackEvent('Map Layers', 'Check All Features checkbox');
+      return showAllAnalyzers();
+    }
   };
 
-  const allVisible = () => true;
-
-  const partiallyChecked = () => { //TODO
-    //const analyzerIDs = getUniqueAnalyzerIDs(group);
-    return true;
+  const featureIsVisible = item => {
+    console.log('item.features', item.features[0]);
+    const { properties: { id } } = item.features[0];
+    return !hiddenAnalyzerIDs.includes(id);
   };
 
-  const collapsibleShouldBeOpen = false; //!!analyzers.length;
+  const partiallyChecked = (hiddenAnalyzerIDs.length <= analyzerList.length);
+  const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerFeatureIds);
 
-  const onToggleAllFeatures = () => {
-    console.log('toggleAllFeatures clicked');
-  };
-
-  const featureIsVisible = item => !hiddenAnalyzerIDs.includes(item.properties.id);
+  const collapsibleShouldBeOpen = false;
 
   const onAnalyzerClick = (item) => {
-    console.log('analyzer', item)
     const { properties: { id } } = item.features[0];
-    if (featureIsVisible(item.features[0])) {
+    if (featureIsVisible(item)) {
       trackEvent('Map Layer', 'Uncheck Analyzer checkbox');
       return hideAnalyzers(id);
     } else {
@@ -66,22 +73,24 @@ const AnalyzerLayerList = memo((props) => {
     <h5 className={listStyles.trigger}>Analyzers</h5>
   </span>;
 
-  return /*!!filteredAnalyzerGroups.length &&*/ <Collapsible
-    className={listStyles.collapsed}
-    openedClassName={listStyles.opened}
-    {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-    trigger={trigger}
-    open={collapsibleShouldBeOpen}>
-    <CheckableList
-      className={listStyles.list}
-      id='analyzergroup'
-      onCheckClick={onAnalyzerClick}
-      itemComponent={AnalyzerListItem}
-      itemProps={itemProps}
-      items={analyzers}
-      itemFullyChecked={allVisible}
-      itemPartiallyChecked={someAnalyzersVisible} />
-  </Collapsible>
+  return <ul className={listStyles.list}>
+    <li><Collapsible
+      className={listStyles.collapsed}
+      openedClassName={listStyles.opened}
+      {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
+      trigger={trigger}
+      open={collapsibleShouldBeOpen}>
+      <CheckableList
+        className={`${listStyles.list} ${listStyles.itemList} ${styles.featureItemList} ${listStyles.compressed}`}
+        id='analyzergroup'
+        onCheckClick={onAnalyzerClick}
+        itemComponent={AnalyzerListItem}
+        itemProps={itemProps}
+        items={analyzers}
+        itemFullyChecked={featureIsVisible} />
+    </Collapsible>
+    </li>
+  </ul>;
 }, (prev, current) =>
   isEqual(prev.map && current.map) && isEqual(prev.analyzers, current.analyzers)
 );

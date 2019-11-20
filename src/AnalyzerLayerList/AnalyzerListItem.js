@@ -19,7 +19,7 @@ const AnalyzerListItem = memo((props) => {
 
   const iconForCategory = category => {
     if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' fill='transparent' style={{ height: '2rem', width: '2rem' }} />;
+    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
     return null;
   };
 
@@ -34,7 +34,7 @@ const AnalyzerListItem = memo((props) => {
       `Feature Type:${properties.type_name}`);
   };
 
-  return <span className={listStyles.featureTitle}>
+  return <span className={listStyles.analyzerTitle} >
     {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton map={map} bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 });

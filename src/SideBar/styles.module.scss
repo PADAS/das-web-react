@@ -159,10 +159,7 @@
 }
 
 .analyzerTitle {
-  display: block;
-  padding-left: 3.5rem;
-  padding-right: 2rem;
-  width: 100%;
+  @extend .featureTitle;
 }
 
 .addReportContainer {
