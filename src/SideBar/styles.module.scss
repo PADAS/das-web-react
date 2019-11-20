@@ -171,6 +171,15 @@
   }
 }
 
+.eventFilter {
+  height: 0;
+  overflow: hidden;
+  transition: 0.2s height linear;
+  @media (min-width: $md-layout-width-min) {
+    padding-left: 4rem;
+  }
+}
+
 .sidebarOpen {
   .addReportContainer {
     [role=tooltip] {
@@ -180,6 +189,9 @@
   .friendlyFilterString {
     height: 3rem;
     padding: 0.5rem;
+  }
+  .eventFilter {
+    height: 4rem;
   }
 }
 

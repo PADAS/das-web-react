@@ -190,7 +190,7 @@ const EventFilter = (props) => {
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
-        <ClockIcon /> Date Range
+        <ClockIcon />Reports Date Range
         <Button type="button" variant='primary' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>

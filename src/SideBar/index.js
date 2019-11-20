@@ -89,7 +89,7 @@ const SideBar = (props) => {
             <AddReport map={map} container={addReportContainerRef} showLabel={false} />
           </div>
           <ErrorBoundary>
-            <EventFilter className={sidebarOpen ? 'sidebarOpen' : ''}>
+            <EventFilter className={styles.eventFilter}>
               <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
             </EventFilter>
           </ErrorBoundary>

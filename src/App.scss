@@ -120,21 +120,24 @@ aside {
   }
 }
 
-.event-filter-details {
+.floating-event-details {
+  border: none;
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.75);
-  margin-left: 0.5rem;
-  padding: 0.25rem;
-  top: 0.5rem;
-  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  max-width: 17rem;
+  padding: 0.333rem;
+  top: 0;
+  right: 0;
   transition: all 0.3s linear;
+  width: 100vw;
 
   @media (min-width: $md-layout-width-min) {
+    max-width: 22rem;
     right: 4.5rem;
+    top: 0.5rem;
   }
-
 }
 
 .react-calendar {
@@ -210,7 +213,7 @@ aside {
   z-index: 1;
 
   &.sidebar-open {
-    .event-filter-details {
+    .floating-event-details {
       opacity: 0;
     }
 

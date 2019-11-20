@@ -39,7 +39,7 @@ import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import TrackLegend from '../TrackLegend';
-import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
+import EventFilter from '../EventFilter';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
@@ -342,7 +342,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <FriendlyEventFilterString className='event-filter-details' />
+            <EventFilter className='floating-event-details' />
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
