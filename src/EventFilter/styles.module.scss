@@ -19,9 +19,6 @@
     margin-left: 4rem;
     width: 100%;
   }
-  @media (min-width: $md-layout-width-min) {
-    padding: 1rem 1rem 0.5rem;
-  }
 }
 
 .search {
@@ -92,6 +89,7 @@ div.filterPopover {
   cursor: pointer;
   display: flex;
   flex-flow: column;
+  line-height: normal;
   svg {
     --dimensions: 1rem;
     height: var(--dimensions);

@@ -17,7 +17,7 @@ const TracksLayer = (props) => {
 
   const addImage = async () => {
     if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage(map, ARROW_IMG_ID, Arrow);
+      addMapImage(ARROW_IMG_ID, Arrow);
     }
   };
 

@@ -228,7 +228,7 @@ class Map extends Component {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
-
+    
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
       if (this.props.map.getZoom() >= zoom) {

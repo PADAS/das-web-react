@@ -125,7 +125,7 @@ aside {
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   max-width: 17rem;
   padding: 0.333rem;
   top: 0;
@@ -138,6 +138,11 @@ aside {
     right: 4.5rem;
     top: 0.5rem;
   }
+  [class*=search] {
+    input {
+      background: transparent;
+    }
+  } 
 }
 
 .react-calendar {
