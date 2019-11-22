@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
@@ -10,32 +10,38 @@ const SearchBar = (props) => {
 
   const [isActive, setIsActiveState] = useState(false);
   const [isFiltered, setIsFilteredState] = useState(false);
+  // we encapsulate the value in state here to support seemingly-immediate updates of potentially debounced form values.
+  const [stateValue, setStateValue] = useState(text); 
 
-  const searchBoxRef = useRef(null);
-  const clearButtonRef = useRef(null);
-  
   const onInputFocus = () => setIsActiveState(true);
   const onInputBlur = () => setIsActiveState(false);
 
   const onInputChange = (e) => {
-    if (e.target.value && !!e.target.value.length)
-      setIsFilteredState(true); 
-    else
-      setIsFilteredState(false); 
     onChange(e);
+    setStateValue(e.target.value);
+    if (e.target.value && !!e.target.value.length) {
+      setIsFilteredState(true); 
+
+    } else {
+      setIsFilteredState(false); 
+    }
   };
 
+  useEffect(() => {
+    setStateValue(text);
+  }, [text]);
+
   const onClearClick = (e) => {
-    searchBoxRef.current.value = '';
+    setStateValue('');
     setIsFilteredState(false); 
     onClear(e);
   };
 
   return <label className={`${styles.search} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
-    <input ref={searchBoxRef} placeholder={placeholder} defaultValue={text} type="text" 
+    <input placeholder={placeholder} value={stateValue} type="text" 
       onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur}/>
-    <button ref={clearButtonRef} className={styles.clearButton} onClick={onClearClick}>
+    <button className={styles.clearButton} onClick={onClearClick}>
       <ClearIcon className={styles.clearIcon} />
     </button>    
   </label>;
