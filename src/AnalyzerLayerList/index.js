@@ -12,7 +12,6 @@ import { getAnalyzerListState } from './selectors';
 import AnalyzerListItem from './AnalyzerListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
-import styles from './styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const AnalyzerLayerList = memo((props) => {
@@ -81,7 +80,7 @@ const AnalyzerLayerList = memo((props) => {
       trigger={trigger}
       open={collapsibleShouldBeOpen}>
       <CheckableList
-        className={`${listStyles.list} ${listStyles.itemList} ${styles.featureItemList} ${listStyles.compressed}`}
+        className={`${listStyles.list} ${listStyles.itemList} ${listStyles.compressed}`}
         id='analyzergroup'
         onCheckClick={onAnalyzerClick}
         itemComponent={AnalyzerListItem}
