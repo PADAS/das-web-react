@@ -1,10 +1,11 @@
 
 import { distanceInWords } from 'date-fns';
 
-import { subMonths, subWeeks, subDays, startOfDay } from 'date-fns';
+import { subMonths, subWeeks, subDays, startOfDay, format } from 'date-fns';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
+export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
@@ -13,7 +14,7 @@ export const calcFriendlyDurationString = (from, until) => {
 
   if (!until) return `${distanceInWords(startOfDay(from), new Date())} ago until now`;
 
-  if (!from) return `1 month ago until ${distanceInWords(startOfDay(until), new Date())} ago`
+  if (!from) return `1 month ago until ${distanceInWords(startOfDay(until), new Date())} ago`;
 
   return `${distanceInWords(startOfDay(from), new Date())} ago until ${distanceInWords(startOfDay(until), new Date())} ago`;
 };
@@ -38,3 +39,5 @@ export const generateMonthsAgoDate = (monthsAgo = 1) => new Date(
     subMonths(new Date(), monthsAgo)
   )
 );
+
+export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
