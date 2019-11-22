@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -15,8 +15,15 @@ const DateRangeSelector = (props) => {
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
     startDateNullMessage, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
 
-  const onStartDateBlur = () => trackEvent(gaEventSrc, 'Enter Start Date', null);
-  const onEndDateBlur = () => trackEvent(gaEventSrc, 'Enter End Date', null);
+  const processStartDateChange = (val) => {
+    trackEvent(gaEventSrc, 'Enter Start Date', null);
+    onStartDateChange(val);
+  };
+
+  const processEndDateChange = (val) => {
+    trackEvent(gaEventSrc, 'Enter End Date', null);
+    onEndDateChange(val);
+  };
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -27,7 +34,7 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={processStartDateChange} />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -36,7 +43,7 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur} />
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={processEndDateChange} />
         </span>
       </label>
     </div>
