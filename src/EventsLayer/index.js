@@ -12,22 +12,6 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../const
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
-const clusterPaint = {
-  'circle-color': [
-    'step',
-    ['get', 'point_count'],
-    '#51bbd6',
-    25,
-    '#f28cb1'
-  ],
-  'circle-radius': [
-    'case',
-    ['<', ['get', 'point_count'], 10], 15,
-    ['>', ['get', 'point_count'], 10], 25,
-    15,
-  ]
-};
-
 const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
   'icon-allow-overlap': true,

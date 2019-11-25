@@ -1,4 +1,3 @@
-import isEqual from 'react-fast-compare';
 import { generateMonthsAgoDate } from '../utils/datetime';
 
 // ACTIONS

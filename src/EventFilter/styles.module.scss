@@ -65,7 +65,6 @@ div.filterPopover {
   --content-height: 32rem;
   max-height: var(--content-height);
   max-width: 29rem;
-  overflow: hidden;
   width: 90vw;
   [class*=popover-body] {
     overflow: hidden;
@@ -73,6 +72,9 @@ div.filterPopover {
   }
   [class*=Collapsible__trigger] {
     cursor: pointer;
+  }
+  &.filters {
+    overflow: hidden;
   }
 }
 

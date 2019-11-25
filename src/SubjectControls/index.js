@@ -8,7 +8,6 @@ import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
 import { trackEvent } from '../utils/analytics';
-import { jumpToLocation } from '../utils/map';
 
 import { getSubjectControlState } from './selectors';
 

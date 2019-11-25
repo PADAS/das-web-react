@@ -121,17 +121,26 @@ aside {
 }
 
 .floating-event-details {
-  border: none;
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
+  line-height: normal;
   max-width: 17rem;
   padding: 0.333rem;
   top: 0;
   right: 0;
   transition: all 0.3s linear;
   width: 100vw;
+
+  form {
+    border: none;
+    padding: 0;
+    @media (min-width: $md-layout-width-min) {
+      border-bottom: 1px solid $gray-border;
+      padding-bottom: 0.5rem;
+    }
+  }
 
   @media (min-width: $md-layout-width-min) {
     max-width: 22rem;
@@ -143,6 +152,14 @@ aside {
       background: transparent;
     }
   } 
+  .map-report-filter-details {
+    display: none;
+    @media (min-width: $md-layout-width-min) {
+      display: block;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+  }
 }
 
 .react-calendar {
@@ -469,7 +486,7 @@ div.mapboxgl-popup-tip {
   .primary-nav {
     color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    // print-color-adjust: exact !important;
   }
 }
 
@@ -499,4 +516,9 @@ div.mapboxgl-popup-tip {
     height: 100%;
     width: 100%;
   }
+}
+
+
+.react-datetime-picker__calendar {
+  z-index: 10;
 }

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
-import Collapsible from 'react-collapsible';
 
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
@@ -17,7 +16,6 @@ import { trackEvent } from '../utils/analytics';
 import { reportedBy } from '../selectors';
 
 import EventFilterDateRangeSelector from './DateRange';
-import FriendlyEventFilterString from './FriendlyEventFilterString';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import PriorityPicker from '../PriorityPicker';
 import ReportedBySelect from '../ReportedBySelect';
@@ -105,7 +103,7 @@ const EventFilter = (props) => {
         priority: newVal,
       },
     });
-  }
+  };
 
   const onReportTypeToggle = ({ id }) => {
     if (currentFilterReportTypes.includes(id)) {
@@ -200,7 +198,7 @@ const EventFilter = (props) => {
     </Popover.Content>
   </Popover>;
 
-  const FilterPopover = <Popover className={styles.filterPopover} id='filter-popover'>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         Report Filters
@@ -254,7 +252,7 @@ const EventFilter = (props) => {
           <span>Dates</span>
         </span>
       </OverlayTrigger>
-      <SearchBar className={styles.search} placeholder='Search Reports...' text={text || ''}
+      <SearchBar className={styles.search} placeholder='Search Reports...' value={text || ''}
         onChange={onSearchChange} onClear={onSearchClear} />
       {children}
     </div>

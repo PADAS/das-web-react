@@ -7,7 +7,7 @@ import { trimmedTrack, trimmedTrackPoints } from '../selectors/tracks';
 
 import { LAYER_IDS } from '../constants';
 
-const { TRACKS_LINES, TRACK_TIMEPOINTS_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const trackLayerLinePaint = {
   'line-color': [

@@ -187,11 +187,12 @@
     }
   }
   .friendlyFilterString {
-    height: 3rem;
+    height: 2rem;
     padding: 0.5rem;
   }
   .eventFilter {
     height: 4rem;
+    padding-left: 0.75rem;
   }
 }
 
@@ -236,8 +237,9 @@
 
 .friendlyFilterString {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   height: 0;
+  line-height: normal;
   overflow: hidden;
   padding: 0;
   padding-left: 4.25rem;
