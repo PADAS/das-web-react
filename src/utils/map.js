@@ -6,6 +6,7 @@ import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
+import { formatEventSymbolDate } from '../utils/datetime';
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
 
@@ -77,9 +78,12 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   return emptyFeatureCollection;
 };
 
-const addTitleToGeoJson = (geojson, title) => (geojson.properties.display_title = title) && geojson;
+const addTitleWithDateToGeoJson = (geojson, title) => { 
+  const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
+  return (geojson.properties.display_title = displayTitle) && geojson;
+};
 
-const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleToGeoJson(addIconToGeoJson(geojson), title || event_type));
+const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleWithDateToGeoJson(addIconToGeoJson(geojson), title || event_type));
 const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
