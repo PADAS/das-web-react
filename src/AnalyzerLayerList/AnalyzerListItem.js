@@ -18,12 +18,13 @@ const AnalyzerListItem = memo((props) => {
   const { properties } = features[0];
 
   const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
+    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '1.5rem', width: '1.5rem' }} />;
+    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '1.5rem', width: '1.5rem' }} />;
     return null;
   };
 
   const onJumpButtonClick = () => {
+
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     setTimeout(() => {
       setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
