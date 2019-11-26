@@ -68,7 +68,7 @@ const SideBar = (props) => {
 
   useEffect(() => {
     loadFeedEvents();
-  }, [eventFilter, fetchEventFeed]);
+  }, [eventFilter]); // eslint-disable-line
 
   useEffect(() => {
     if (!sidebarOpen) {

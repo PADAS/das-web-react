@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -32,6 +32,8 @@ const EventFilter = (props) => {
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
+
+  const [filterText, setFilterText] = useState(eventFilter.filter.text);
 
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
   const allReportTypesChecked = reportTypesCheckedCount === eventTypeIDs.length;
@@ -119,9 +121,10 @@ const EventFilter = (props) => {
     updateEventFilter({ filter: { event_type: types.map(({ id }) => id) } });
   };
 
-  const updateEventFilterDebounced = debounce(function (update) {
+  const updateEventFilterDebounced = useRef(debounce(function (update) {
     updateEventFilter(update);
-  }, 200);
+  }, 200));
+  
 
   const onStateSelect = ({ value }) => {
     updateEventFilter({ state: value });
@@ -170,20 +173,36 @@ const EventFilter = (props) => {
       </li>)}
   </ul>;
 
+
+
   const onSearchChange = ({ target: { value } }) => {
-    updateEventFilterDebounced({
-      filter: { text: !!value ? value.toLowerCase() : null, }
-    });
+    setFilterText(value);
     trackEvent('Feed', 'Change Search Text Filter');
   };
 
   const onSearchClear = (e) => {
     e.stopPropagation();
-    updateEventFilter({
-      filter: { text: '', }
-    });
+    setFilterText('');
     trackEvent('Feed', 'Clear Search Text Filter');
   };
+
+  useEffect(() => {
+    if (!!filterText && !!filterText.length) {
+      updateEventFilterDebounced.current({
+        filter: { text: filterText.toLowerCase() },
+      });
+    } else {
+      updateEventFilter({
+        filter: { text: '', }
+      });
+    }
+  }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!!text && !!text.length && filterText !== text) {
+      setFilterText(text);
+    }
+  }, [text]);
 
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
@@ -252,7 +271,7 @@ const EventFilter = (props) => {
           <span>Dates</span>
         </span>
       </OverlayTrigger>
-      <SearchBar className={styles.search} placeholder='Search Reports...' value={text || ''}
+      <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
         onChange={onSearchChange} onClear={onSearchClear} />
       {children}
     </div>
