@@ -28,8 +28,9 @@ const ClearAllControl = (props) => {
 
   return <div className={styles.clearAllRow}>
     <div>
-      <CheckIcon className={styles.checkmark} onClick={() => onClearAllClick()} />
-      <button onClick={() => onClearAllClick()}>Clear All</button>
+      <button onClick={() => onClearAllClick()}>
+        <CheckIcon className={styles.checkmark} onClick={() => onClearAllClick()} />Clear All
+      </button>
     </div>
   </div>;
 };
