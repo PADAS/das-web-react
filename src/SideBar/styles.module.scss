@@ -30,6 +30,7 @@
   display: block;
   width: 100%;
   margin-bottom: 0;
+  cursor: pointer;
   li { 
     align-items: flex-start;
     border-top: 1px solid $light-gray-border;
@@ -50,7 +51,7 @@
       cursor: pointer;
       left: 1rem;
       position: absolute;
-      z-index: 1;
+      z-index: 3;
       top: 1.15rem;
     }
     [class*=Collapsible__trigger], .itemTitle {
@@ -66,6 +67,8 @@
       cursor: pointer;
       padding-bottom: 1rem;
       padding-top: 1rem;
+      position: relative;
+      z-index: 1;
       &:hover {
         text-decoration: underline;
       }

@@ -35,14 +35,20 @@ export const fetchCurrentUserProfiles = () => async (dispatch) => {
   }
 };
 
-export const setUserProfile = payload => ({
-  type: SET_USER_PROFILE,
-  payload,
-});
+export const setUserProfile = payload => (dispatch) => {
+  document.cookie = `userProfile=${payload.id}`; // set profile cookie
+  dispatch({
+    type: SET_USER_PROFILE,
+    payload,
+  });
+};
 
-export const clearUserProfile = () => ({
-  type: CLEAR_USER_PROFILE,
-});
+export const clearUserProfile = () => (dispatch) => {
+  document.cookie = 'userProfile=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'; // expire profile cookie
+  dispatch({
+    type: CLEAR_USER_PROFILE,
+  });
+}; 
  
 const fetchUserSuccess = payload => ({
   type: FETCH_CURRENT_USER_SUCCESS,
