@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Checkmark from '../Checkmark';
@@ -19,7 +19,7 @@ const AnalyzerLayerList = memo((props) => {
 
   const analyzers = analyzerList[0].features;
   const analyzerFeatureIds = analyzers.map((analyzer) => {
-    const { properties: { id } } = analyzer.features[0];
+    const { id } = analyzer;
     return id;
   });
 
