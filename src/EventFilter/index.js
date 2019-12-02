@@ -199,7 +199,7 @@ const EventFilter = (props) => {
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!!text && !!text.length && filterText !== text) {
+    if (filterText !== text) {
       setFilterText(text);
     }
   }, [text]);

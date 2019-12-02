@@ -120,7 +120,7 @@ aside {
   }
 }
 
-.floating-event-details {
+.floating-report-filter {
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;
@@ -235,7 +235,7 @@ aside {
   z-index: 1;
 
   &.sidebar-open {
-    .floating-event-details {
+    .floating-report-filter {
       opacity: 0;
     }
 

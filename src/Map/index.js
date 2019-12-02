@@ -343,7 +343,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <div className='floating-event-details'>
+            <div className='floating-report-filter'>
               <EventFilter  />
               <FriendlyEventFilterString className='map-report-filter-details' />
             </div>
