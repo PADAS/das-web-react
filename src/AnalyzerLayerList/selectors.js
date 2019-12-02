@@ -23,7 +23,7 @@ export const getAnalyzerListState = createSelector(
       feature.properties.feature_group = analyzerFeatures;
       feature.properties.feature_bounds = bounds;
 
-      return { name: analyzer.name, features: [feature] };
+      return { id: analyzer.id, name: analyzer.name, features: [feature] };
     });
     return ([{ name: 'Analyzers', id: 'analyzers', features }]);
   });

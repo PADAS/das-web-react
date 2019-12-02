@@ -42,7 +42,7 @@ export const fetchAnalyzers = () => async (dispatch) => {
       });
       return concatFeatures;
     }));
-      // flatten the feature array -
+    // flatten the feature array -
     const features = [].concat(...fetchedFeatures);
     return { id: analyzer.id, name: analyzer.name, type: analyzer.analyzer_category, geojson: featureCollection(features) };
   }));
