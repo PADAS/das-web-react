@@ -26,7 +26,7 @@ export const fetchBaseLayers = () => async (dispatch) => {
       type: FETCH_BASE_LAYERS_ERROR,
       payload: e,
     });
-    throw new Error(e);
+    return Promise.reject(e);
   }
 };
 
