@@ -39,8 +39,7 @@ const AnalyzerLayerList = memo((props) => {
   };
 
   const featureIsVisible = item => {
-    console.log('item.features', item.features[0]);
-    const { properties: { id } } = item.features[0];
+    const { id } = item;
     return !hiddenAnalyzerIDs.includes(id);
   };
 
@@ -50,7 +49,8 @@ const AnalyzerLayerList = memo((props) => {
   const collapsibleShouldBeOpen = false;
 
   const onAnalyzerClick = (item) => {
-    const { properties: { id } } = item.features[0];
+
+    const { id } = item;
     if (featureIsVisible(item)) {
       trackEvent('Map Layer', 'Uncheck Analyzer checkbox');
       return hideAnalyzers(id);

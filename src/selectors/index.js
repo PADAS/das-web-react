@@ -22,6 +22,7 @@ const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
+const hiddenAnalyzerIDs = ({ view: { hiddenAnalyzerIDs } }) => hiddenAnalyzerIDs;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
@@ -106,10 +107,11 @@ export const reportedBy = createSelector(
 );
 
 export const getAnalyzerFeatureCollectionsByType = createSelector(
-  [analyzerFeatures],
-  (analyzerFeatures) => {
-    const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
-      [...accumulator,
+  [analyzerFeatures, hiddenAnalyzerIDs],
+  (analyzerFeatures, hiddenAnalyzerIDs) => {
+    const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
+      .reduce((accumulator, data) =>
+        [...accumulator,
         ...data.geojson.features.map(feature => {
           feature.analyzer_type = data.type;
           return feature;
@@ -139,15 +141,15 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-        ...data.geojson.features
-          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-          .map(feature => {
-            if (feature.properties.image) {
-              feature = addIconToGeoJson(feature);
-              feature.properties.image = calcUrlForImage(feature.properties.image);
-            }
-            return feature;
-          })], []);
+      ...data.geojson.features
+        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+        .map(feature => {
+          if (feature.properties.image) {
+            feature = addIconToGeoJson(feature);
+            feature.properties.image = calcUrlForImage(feature.properties.image);
+          }
+          return feature;
+        })], []);
     return {
       symbolFeatures: featureCollection(
         allFeatures
