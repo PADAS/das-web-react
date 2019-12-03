@@ -42,27 +42,27 @@ const DateRangeSelector = (props) => {
     </div>
 
     {showPresets && <div className={styles.presets}>
-      <Button variant='info' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onDateRangeChange({
         lower: generateDaysAgoDate(0),
         upper: null,
       })}>Today</Button>
 
-      <Button variant='info' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onDateRangeChange({
         lower: generateDaysAgoDate(1),
         upper: null,
       })}>Yesterday</Button>
 
-      <Button variant='info' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onDateRangeChange({
         lower: generateWeeksAgoDate(1),
         upper: null,
       })}>Last week</Button>
 
-      <Button variant='info' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onDateRangeChange({
         lower: generateDaysAgoDate(30),
         upper: null,
       })}>Last 30 days</Button>
 
-      <Button variant='info' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onDateRangeChange({
         lower: generateMonthsAgoDate(3),
         upper: null,
       })}>Last three months</Button>

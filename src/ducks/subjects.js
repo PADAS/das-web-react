@@ -30,7 +30,7 @@ const cancelableMapSubjectsFetch = () => {
       lastKnownBbox = getState().data.mapSubjects.bbox;
     }
 
-    if (!map && !lastKnownBbox) return;
+    if (!map && !lastKnownBbox) return Promise.reject();
   
     const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
 

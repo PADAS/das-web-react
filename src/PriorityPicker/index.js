@@ -14,11 +14,15 @@ const calcClassNameForPriority = (priority) => {
 
 
 const PriorityPicker = (props) => {
-  const { className, onSelect, selected } = props;
+  const { className, onSelect, selected, isMulti } = props;
+
+  const isSelected = (value) => isMulti ?
+    selected.some(v => v === value)
+    : selected === value;
 
   return <ul className={`${styles.list} ${className}`}>
     {REPORT_PRIORITIES.map(({ display, value }) => <li key={value}>
-      <button title={display} type='button' className={`${styles[calcClassNameForPriority(value)]} ${selected === value ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
+      <button title={display} type='button' className={`${styles[calcClassNameForPriority(value)]} ${isSelected(value) ? styles.selected : ''}`} value={value} onClick={() => onSelect(value)}>
         {display}
       </button>
     </li>
@@ -33,11 +37,16 @@ PriorityPicker.defaultProps = {
   className: '',
   onSelect(value) {
   },
+  isMulti: false,
   selected: 0,
 };
 
 PriorityPicker.propTypes = {
   className: PropTypes.string,
   onSelect: PropTypes.func,
-  selected: PropTypes.number,
+  isMulti: PropTypes.bool,
+  selected: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.array
+  ]),
 };

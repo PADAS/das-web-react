@@ -1,5 +1,3 @@
-import { showErrorToast } from '../utils/toast';
-
 /* export const handleServerRequestError = (error) => {
   const isCancelation = !!error.__CANCEL__;
 

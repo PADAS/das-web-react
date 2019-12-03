@@ -15,15 +15,12 @@ const TracksLayer = (props) => {
   const { map, onPointClick, trackIds, showTimepoints } = props;
   const onSymbolClick = (e) => onPointClick(getPointLayer(e, map));
 
-  const addImage = async () => {
-    if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage(map, ARROW_IMG_ID, Arrow);
-    }
-  };
 
   useEffect(() => {
-    addImage();
-  }, [addImage]);
+    if (!map.hasImage(ARROW_IMG_ID)) {
+      addMapImage(ARROW_IMG_ID, Arrow);
+    }
+  }, []);
 
   return <Fragment>{trackIds.map(id => <TrackLayer key={`track-layer-${id}`} map={map} onPointClick={onSymbolClick} showTimepoints={showTimepoints} trackId={id} />)}</Fragment>;
 };

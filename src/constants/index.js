@@ -1,5 +1,7 @@
 import { toast } from 'react-toastify';
 
+import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+
 const { POSITION: TOAST_POSITIONS } = toast;
 
 export const {
@@ -112,7 +114,7 @@ export const DEFAULT_SYMBOL_PAINT = {
 export const EVENT_STATE_CHOICES = [
   {
     label: 'Active',
-    value: ['active', 'new'],
+    value: INITIAL_FILTER_STATE.state,
   },
   {
     label: 'Resolved',

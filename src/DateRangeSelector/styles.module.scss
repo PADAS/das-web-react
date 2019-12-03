@@ -52,10 +52,6 @@
     color: $medium-light-gray;
     margin-bottom: 1rem;
     text-decoration: none;
-    &:hover, &:active {
-      background: none !important;
-      text-decoration: underline;
-    }
   }
   &:hover {
     button {

@@ -13,10 +13,6 @@ const MapLayerFilter = (props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;
   const { filter: { text } } = mapLayerFilter;
 
-  const updateMapLayerFilterDebounced = debounce(function (update) {
-    updateMapLayerFilter(update);
-  }, 200);
-
   const onClearSearch = (e) => {
     e.stopPropagation();
     updateMapLayerFilter({
@@ -26,7 +22,7 @@ const MapLayerFilter = (props) => {
   };
 
   const onSearchChange = ({ target: { value } }) => {
-    updateMapLayerFilterDebounced({
+    updateMapLayerFilter({
       filter: {
         text: !!value ? value.toLowerCase() : null,
       }
@@ -36,7 +32,7 @@ const MapLayerFilter = (props) => {
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
     <span className={styles.searchLabel}>Display on map:</span>
-    <SearchBar className={styles.search} placeholder='Search Layers...' text={text || ''} 
+    <SearchBar className={styles.search} placeholder='Search Layers...' value={text || ''} 
       onChange={onSearchChange} onClear={onClearSearch}/>
   </form>;
 };

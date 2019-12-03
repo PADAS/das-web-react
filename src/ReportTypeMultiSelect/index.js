@@ -74,7 +74,7 @@ const ReportTypeMultiSelect = (props) => {
 
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
-      <SearchBar className={styles.search} placeholder='Search types' text={filterText}
+      <SearchBar className={styles.search} placeholder='Search types' value={filterText}
         onChange={onFilterChange} onClear={onFilterClear} />
       {!!filterText.length
         && <Button onClick={selectFilteredItems} type="button" variant='info' size='sm' disabled={!filteredEventTypes.length}>

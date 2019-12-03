@@ -68,7 +68,7 @@ const UserCurrentLocationLayer = (props) => {
 
   const addImageToMap = () => {
     if (!map.hasImage('current-location-icon')) {
-      addMapImage(map, 'current-location-icon', GpsLocationIcon);
+      addMapImage('current-location-icon', GpsLocationIcon);
     }
   };
 

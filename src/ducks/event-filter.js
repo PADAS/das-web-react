@@ -1,4 +1,3 @@
-import isEqual from 'react-fast-compare';
 import { generateMonthsAgoDate } from '../utils/datetime';
 
 // ACTIONS
@@ -47,6 +46,7 @@ export const INITIAL_FILTER_STATE = {
     text: '',
     duration: null,
     priority: [],
+    reported_by: [],
   },
 };
 

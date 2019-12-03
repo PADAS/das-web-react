@@ -130,19 +130,3 @@ const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properti
       'ui:field': customSchemaFields.externalUri,
     },
   }));
-
-const itemHasNameAndValue = item => item && item.name && item.value;
-
-export const unwrapEventDetailSelectValues = (data) => {
-  return data;
- /*  const updates = Object.entries(data).reduce((propsObject, [key, val]) => {
-    if (itemHasNameAndValue(val)) {
-      propsObject[key] = val.value;
-    } else if (Array.isArray(val) && itemHasNameAndValue(val[0])) {
-      propsObject[key] = val.map(({ value }) => value);
-    }
-    return propsObject;
-  }, {});
-
-  return { ...data, ...updates }; */
-};

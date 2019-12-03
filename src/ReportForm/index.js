@@ -9,7 +9,6 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import { downloadFileFromUrl, fetchImageAsBase64FromUrl } from '../utils/file';
 import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
-import { unwrapEventDetailSelectValues } from '../utils/event-schemas';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEvent } from '../utils/analytics';
 
@@ -417,7 +416,7 @@ const ReportForm = (props) => {
     </IncidentReportsList>}
     {!is_collection && <ReportFormBody
       ref={formRef}
-      formData={unwrapEventDetailSelectValues(report.event_details)}
+      formData={report.event_details}
       onChange={onDetailChange}
       onSubmit={startSave}
       schema={schema}

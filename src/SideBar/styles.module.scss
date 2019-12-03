@@ -167,10 +167,19 @@
 
 .addReportContainer {
   position: absolute;
-  top: 0.75rem;
-  left: 0.6rem;
+  top: 0.5rem;
+  left: 0.5rem;
   [role=tooltip] {
     left: -27rem;
+  }
+}
+
+.eventFilter {
+  height: 0;
+  overflow: hidden;
+  transition: 0.2s height linear;
+  @media (min-width: $md-layout-width-min) {
+    padding-left: 4rem;
   }
 }
 
@@ -179,6 +188,14 @@
     [role=tooltip] {
       left: -1rem;
     }
+  }
+  .friendlyFilterString {
+    height: 2rem;
+    padding: 0.5rem;
+  }
+  .eventFilter {
+    height: 4rem;
+    padding-left: 0.75rem;
   }
 }
 
@@ -219,4 +236,15 @@
     fill: white;
     margin-right: 0.25rem;
   }
+}
+
+.friendlyFilterString {
+  display: block;
+  font-size: 0.75rem;
+  height: 0;
+  line-height: normal;
+  overflow: hidden;
+  padding: 0;
+  padding-left: 4.25rem;
+  transition: 0.3s all linear;
 }

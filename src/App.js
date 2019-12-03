@@ -3,6 +3,7 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
+import authConfig from './utils/auth';
 import toast from './utils/toast';
 
 import 'axios-progress-bar/dist/nprogress.css';
@@ -31,6 +32,8 @@ import './App.scss';
 import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+authConfig();
 
 let interval, mapInterval, zendeskInterval;
 

@@ -25,7 +25,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
   
   const addImageToMap = async () => {
     if (!map.hasImage('marker-icon')) {
-      addMapImage(map, 'marker-icon', MarkerImage);
+      addMapImage('marker-icon', MarkerImage);
     }
   };
   
