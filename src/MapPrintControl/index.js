@@ -45,6 +45,7 @@ const MapPrintControl = (props) => {
       <Button size='sm' variant='dark' type='submit'>
           Print map
       </Button>
+      <small>Adjust the "scale" setting when printing for best results</small>
     </form>}
   </div>;
 };
