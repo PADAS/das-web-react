@@ -23,6 +23,7 @@ const MapboxMap = ReactMapboxGl({
   minZoom: MIN_ZOOM,
   maxZoom: MAX_ZOOM,
   logoPosition: 'top-left',
+  preserveDrawingBuffer: true,
 });
 
 export function withMap(Component) {

@@ -1,10 +1,12 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 
 import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
 
 import styles from './styles.module.scss';
+
+import isString from 'lodash/isString';
 
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 
@@ -18,10 +20,6 @@ const SelectField = (props) => {
     : null
   );
 
-  const handleChange = (update) => {
-    return onChange(update);
-  };
-
   return <Select
     id={id}
     required={required}
@@ -32,7 +30,7 @@ const SelectField = (props) => {
     isSearchable={true}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
-    onChange={handleChange}
+    onChange={onChange}
     styles={DEFAULT_SELECT_STYLES}
   />;
 };
@@ -53,10 +51,26 @@ const DateTimeField = (props) => {
 const CustomCheckboxes = (props) => {
   const { id, disabled, options, value, autofocus, readonly, onChange } = props;
   const { enumOptions, enumDisabled, inline } = options;
+
+  const inputValues = value.map(val => {
+    if (isString(val)) return val;
+    return val.value;
+  });
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (value.some(v => !isString(v))) {
+        onChange(inputValues);
+      }
+    });
+  }, [value]);
+
+  const enumOptionIsChecked = option => inputValues.findIndex(item => item === option.value) !== -1;
+  
   return (
     <div className='checkboxes' id={id}>
       {enumOptions.map((option, index) => {
-        const checked = value.findIndex(item => item.value === option.value) !== -1;
+      
         const itemDisabled =
           enumDisabled && enumDisabled.findIndex(item => item.value === option.value) !== -1;
         const disabledCls =
@@ -67,15 +81,14 @@ const CustomCheckboxes = (props) => {
             <input
               type='checkbox'
               id={inputId}
-              checked={checked}
+              checked={enumOptionIsChecked(option)}
               disabled={disabled || itemDisabled || readonly}
               autoFocus={autofocus && index === 0}
               onChange={event => {
-                const itemIsSelected = value.some(item => item.value === option.value);
-                if (itemIsSelected) {
-                  onChange(value.filter(item => item.value !== option.value));
+                if (enumOptionIsChecked(option)) {
+                  onChange(inputValues.filter(item => item !== option.value));
                 } else {
-                  onChange([...value, { name: option.label, value: option.value }]);
+                  onChange([...inputValues, option.value ]);
                 }
               }}
             />
