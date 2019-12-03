@@ -86,7 +86,7 @@ const SideBar = (props) => {
       <Tabs activeKey={activeTab} onSelect={onTabsSelect}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
           <div ref={addReportContainerRef} className={styles.addReportContainer}>
-            <AddReport map={map} container={addReportContainerRef} showLabel={false} />
+            <AddReport map={map} showLabel={false} />
           </div>
           <ErrorBoundary>
             <EventFilter className={styles.eventFilter}>

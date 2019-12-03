@@ -388,7 +388,7 @@
   display: flex;
   justify-content: space-evenly;
   padding: 0;
-  > button {
+  > button, > div {
     align-items: center;
     background: $background-color;
     border: none;
@@ -421,6 +421,13 @@
         background-color: rgba($bright-green, 0.5);
         border: .1rem dashed $light-gray-border;
         cursor: copy;
+      }
+    }
+    > div {
+      padding: 0;
+      > button {
+        height: 100%;
+        width: 100%;
       }
     }
     span, small {

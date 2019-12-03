@@ -363,7 +363,7 @@ class Map extends Component {
             )}
 
             {/* uncomment the below coordinates and go to easter island for a demo of the isochrone layer */}
-            <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} />
+            {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
 
             {showReportsOnMap && <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />}
 

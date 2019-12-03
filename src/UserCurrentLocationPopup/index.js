@@ -31,7 +31,7 @@ const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, ...rest }
     <p>Accurate to within {coords.accuracy} meters</p>
     <p>Last checked <TimeAgo date={lastRead} /></p>
     <hr />
-    <AddReport container={containerRef} reportData={{
+    <AddReport reportData={{
       location: {
         latitude: coords.latitude,
         longitude: coords.longitude,

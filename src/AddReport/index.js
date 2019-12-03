@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useEffect, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -15,13 +15,15 @@ import EventTypeListItem from '../EventTypeListItem';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, reportData, eventsByCategory, map, 
-    showLabel, showIcon, container, title, onSaveSuccess, onSaveError } = props;
+  const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
+    showLabel, showIcon, title, onSaveSuccess, onSaveError } = props;
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
   const overlayRef = useRef(null);
+  const containerRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
+  const placement = popoverPlacement || 'auto';
 
   useEffect(() => { 
     const handleOutsideClick = (e) => {
@@ -78,26 +80,25 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement='auto'>
-    <Popover.Title>{title}</Popover.Title>
-    <Popover.Content ref={overlayRef}>
-      {categoryList}
-      {reportTypeList}
-    </Popover.Content>
-  </Popover>;
+    const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}>
+      <Popover.Title>{title}</Popover.Title>
+      <Popover.Content ref={overlayRef}>
+        {categoryList}
+        {reportTypeList}
+      </Popover.Content>
+    </Popover>
+  );
 
-  return <Fragment>
+  return <div ref={containerRef}>
     <button title={title} className={styles.addReport} ref={targetRef} 
       type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>{title}</span>}
     </button>
-    {popoverOpen && <Overlay shouldUpdatePosition={true} show={true} rootClose 
-      placement='auto' onHide={() => setPopoverState(false)} 
-      container={container.current} target={targetRef.current}>
-      {() => AddReportPopover}
-    </Overlay>}
-  </Fragment>;
+    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current}  placement={placement}>
+      <AddReportPopover />
+    </Overlay>
+  </div>;
 };
 
 const mapStateToProps = (state) => ({
@@ -121,7 +122,6 @@ AddReport.defaultProps = {
 
 AddReport.propTypes = {
   relationshipButtonDisabled: PropTypes.bool,
-  container: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,

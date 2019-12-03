@@ -17,7 +17,7 @@
     "mb-isochrone": "^0.1.0",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
-    "react-bootstrap": "^1.0.0-beta.10",
+    "react-bootstrap": "^1.0.0-beta.16",
     "react-collapsible": "^2.6.0",
     "react-css-loaders": "^0.0.5",
     "react-datetime-picker": "^2.7.1",

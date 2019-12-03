@@ -169,9 +169,6 @@
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
-  [role=tooltip] {
-    left: -27rem;
-  }
 }
 
 .eventFilter {
@@ -184,11 +181,6 @@
 }
 
 .sidebarOpen {
-  .addReportContainer {
-    [role=tooltip] {
-      left: -1rem;
-    }
-  }
   .friendlyFilterString {
     height: 2rem;
     padding: 0.5rem;
