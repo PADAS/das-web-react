@@ -10,7 +10,7 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES } from '../constants';
-import { updateEventFilter, resetEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEvent } from '../utils/analytics';
 
 import { reportedBy } from '../selectors';
@@ -28,7 +28,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import styles from './styles.module.scss';
 
 const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, reporters, resetEventFilter, updateEventFilter } = props;
+  const { children, className, eventFilter, eventTypes, reporters, updateEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -132,7 +132,14 @@ const EventFilter = (props) => {
   };
 
   const resetPopoverFilters = () => {
-    resetEventFilter();
+    updateEventFilter({
+      state: INITIAL_FILTER_STATE.state,
+      filter: {
+        event_type: eventTypeIDs,
+        priority: INITIAL_FILTER_STATE.filter.priority,
+        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+      },
+    });
   };
 
   const clearDateRange = (e) => {
@@ -286,4 +293,4 @@ const mapStateToProps = (state) =>
     reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { updateEventFilter, resetEventFilter })(memo(EventFilter));
+export default connect(mapStateToProps, { updateEventFilter })(memo(EventFilter));
