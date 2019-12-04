@@ -139,6 +139,11 @@ class Map extends Component {
     this.trackRequestCancelToken = CancelToken.source();
   }
 
+  clearSelectedAnalyzerIds() {
+    setAnalyzerFeatureActiveStateForIDs(this.props.map, this.currentAnalyzerIds, false);
+    this.currentAnalyzerIds = [];
+  }
+
   async fetchMapData() {
     await Promise.all([
       this.fetchMapEvents(),
@@ -189,6 +194,7 @@ class Map extends Component {
   }
 
   onAnalyzerGroupEnter = (e, groupIds) => {
+    this.clearSelectedAnalyzerIds();
     this.currentAnalyzerIds = groupIds;
     const { map } = this.props;
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);

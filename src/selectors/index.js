@@ -27,8 +27,8 @@ const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchema
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
-export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 
+export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
@@ -184,6 +184,10 @@ export const getReportFormSchemaData = createSelector(
   [getReportSchemas],
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
 );
+
+const symbolFeatureTypes = ['Point', 'MultiPoint'];
+const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
+const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
 
 const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group', 'Point.containment_regions_group'];
 const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];

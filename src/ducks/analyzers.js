@@ -31,7 +31,6 @@ export const fetchAnalyzers = () => async (dispatch) => {
         if (analyzer.analyzer_category === 'proximity') {
           const proximityPoly = createGeoJSONCircle(feature.geometry, analyzer.threshold_dist_meters);
           feature.geometry = proximityPoly.geometry;
-          feature.properties.spatial_group = feature.geometry.type + '.' + 'warning_category';
         }
         feature.properties.admin_href = analyzer.admin_href;
         feature.properties.title = analyzer.name;
