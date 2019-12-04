@@ -15,12 +15,12 @@ const DateRangeSelector = (props) => {
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
     startDateNullMessage, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
 
-  const processStartDateChange = (val) => {
+  const handleStartDateChange = (val) => {
     trackEvent(gaEventSrc, 'Enter Start Date', null);
     onStartDateChange(val);
   };
 
-  const processEndDateChange = (val) => {
+  const handleEndDateChange = (val) => {
     trackEvent(gaEventSrc, 'Enter End Date', null);
     onEndDateChange(val);
   };
@@ -34,7 +34,7 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={processStartDateChange} />
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={handleStartDateChange} />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -43,7 +43,7 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={processEndDateChange} />
+          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} />
         </span>
       </label>
     </div>
