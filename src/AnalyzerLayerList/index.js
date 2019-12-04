@@ -18,13 +18,18 @@ const AnalyzerLayerList = memo((props) => {
   const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map } = props;
 
   const analyzers = analyzerList[0].features;
-  const analyzerFeatureIds = analyzers.map((analyzer) => {
+  const analyzerIds = analyzers.map((analyzer) => {
     const { id } = analyzer;
     return id;
   });
+  const analyzerFeatureIDs = analyzers.map((analyzer) => {
+    return analyzer.features.map((feature) => feature.properties.feature_group);
+  });
+  // XXX flatten the feature array - should be a cleaner way
+  const featureIds = analyzerFeatureIDs.flat(2);
 
-  const hideAllAnalyzers = () => hideAnalyzers(...analyzerFeatureIds);
-  const showAllAnalyzers = () => showAnalyzers(...analyzerFeatureIds);
+  const hideAllAnalyzers = () => hideAnalyzers(...analyzerIds);
+  const showAllAnalyzers = () => showAnalyzers(...analyzerIds);
 
   const onToggleAllFeatures = (e) => {
     e.stopPropagation();
@@ -44,7 +49,7 @@ const AnalyzerLayerList = memo((props) => {
   };
 
   const partiallyChecked = (hiddenAnalyzerIDs.length <= analyzerList.length);
-  const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerFeatureIds);
+  const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
 
   const collapsibleShouldBeOpen = false;
 
@@ -65,14 +70,14 @@ const AnalyzerLayerList = memo((props) => {
     transitionTime: 1,
   };
 
-  const itemProps = { map };
+  const itemProps = { map, analyzerIds, featureIds };
 
   const trigger = <span>
     <Checkmark onClick={onToggleAllFeatures} fullyChecked={allVisible} partiallyChecked={partiallyChecked} />
     <h5 className={listStyles.trigger}>Analyzers</h5>
   </span>;
 
-  return <ul className={listStyles.list}>
+  return !!analyzers.length && <ul className={listStyles.list}>
     <li><Collapsible
       className={listStyles.collapsed}
       openedClassName={listStyles.opened}
