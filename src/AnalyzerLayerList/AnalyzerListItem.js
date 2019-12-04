@@ -14,7 +14,7 @@ import listStyles from '../SideBar/styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const AnalyzerListItem = memo((props) => {
-  const { features, map } = props;
+  const { featureIds, features, map } = props;
   const { properties } = features[0];
 
   const iconForCategory = category => {
@@ -27,6 +27,7 @@ const AnalyzerListItem = memo((props) => {
 
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     setTimeout(() => {
+      setAnalyzerFeatureActiveStateForIDs(map, featureIds, false);
       setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
     }, 200);
     const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
