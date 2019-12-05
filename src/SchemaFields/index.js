@@ -20,6 +20,10 @@ const SelectField = (props) => {
     : null
   );
 
+  const handleChange = (update) => {
+    return onChange(update);
+  };
+
   return <Select
     id={id}
     required={required}
@@ -30,7 +34,7 @@ const SelectField = (props) => {
     isSearchable={true}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
-    onChange={onChange}
+    onChange={handleChange}
     styles={DEFAULT_SELECT_STYLES}
   />;
 };
