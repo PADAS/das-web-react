@@ -1,7 +1,7 @@
 @import '../common/styles/vars/colors';
 
 $checkmark-color: $medium-light-gray;
-$hover-color: darken($checkmark-color, 12.5%);
+$hover-color: darken($clear-all-link-color, 15.0%);
 
 .clearAllRow {
     height: 100%;
@@ -22,7 +22,10 @@ $hover-color: darken($checkmark-color, 12.5%);
           outline: 0;
         }
         &:hover {
-          text-decoration: underline;
+          color: $hover-color;
+          svg {
+            stroke: $hover-color;
+          }
         }
     }
 }
@@ -34,5 +37,8 @@ $hover-color: darken($checkmark-color, 12.5%);
   width: var(--dimensions);
   stroke: $clear-all-link-color;
   stroke-width: calc(var(--dimensions)/8);
-  margin-left: 1.0rem;
+  margin-right: 1.0rem;
+    &:hover {
+      stroke: $hover-color;
+    }
 }

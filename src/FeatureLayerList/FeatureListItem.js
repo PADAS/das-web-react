@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { showFeatures } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
 import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
-import { setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { trackEvent } from '../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
@@ -23,18 +22,6 @@ const FeatureListItem = memo((props) => {
     return null;
   };
 
-  const onAnalyzerJumpButtonClick = () => {
-    showFeatures(properties.id);
-    fitMapBoundsForAnalyzer(map, properties.feature_bounds);
-    setTimeout(() => {
-      const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
-      props.showPopup('analyzer-config', { geometry, properties });
-      setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
-    }, 200);
-    trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
-      `Feature Type:${properties.type_name}`);
-  };
-
   const onJumpButtonClick = () => {
     showFeatures(properties.id);
     fitMapBoundsToGeoJson(map, { geometry });
@@ -49,10 +36,8 @@ const FeatureListItem = memo((props) => {
     setFeatureActiveStateByID(map, properties.id, (enter));
   };
 
-  const onItemJumpButtonClick = () => properties.analyzer_type ? onAnalyzerJumpButtonClick() : onJumpButtonClick();
-
   return <span className={listStyles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
-    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} map={map} onClick={onItemJumpButtonClick} />
+    {iconForCategory(properties.analyzer_type)} {properties.title}<LocationJumpButton bypassLocationValidation={true} map={map} onClick={onJumpButtonClick} />
   </span>;
 
 });
