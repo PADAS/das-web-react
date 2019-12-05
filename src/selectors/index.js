@@ -22,12 +22,13 @@ const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
+const hiddenAnalyzerIDs = ({ view: { hiddenAnalyzerIDs } }) => hiddenAnalyzerIDs;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
-export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 
+export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
 export const featureSets = ({ data: { featureSets } }) => featureSets;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
@@ -106,10 +107,11 @@ export const reportedBy = createSelector(
 );
 
 export const getAnalyzerFeatureCollectionsByType = createSelector(
-  [analyzerFeatures],
-  (analyzerFeatures) => {
-    const allAnalyzers = analyzerFeatures.reduce((accumulator, data) =>
-      [...accumulator,
+  [analyzerFeatures, hiddenAnalyzerIDs],
+  (analyzerFeatures, hiddenAnalyzerIDs) => {
+    const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
+      .reduce((accumulator, data) =>
+        [...accumulator,
         ...data.geojson.features.map(feature => {
           feature.analyzer_type = data.type;
           return feature;
@@ -139,15 +141,15 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-        ...data.geojson.features
-          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-          .map(feature => {
-            if (feature.properties.image) {
-              feature = addIconToGeoJson(feature);
-              feature.properties.image = calcUrlForImage(feature.properties.image);
-            }
-            return feature;
-          })], []);
+      ...data.geojson.features
+        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+        .map(feature => {
+          if (feature.properties.image) {
+            feature = addIconToGeoJson(feature);
+            feature.properties.image = calcUrlForImage(feature.properties.image);
+          }
+          return feature;
+        })], []);
     return {
       symbolFeatures: featureCollection(
         allFeatures
@@ -189,5 +191,5 @@ const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
 
 const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group', 'Point.containment_regions_group'];
 const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
-const warningAnalyzerPolyTypes = ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group'];
+const warningAnalyzerPolyTypes = ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group', 'Polygon.proximity_group'];
 const criticalAnalyzerPolyTypes = ['Polygon.critical_group', 'MultiPolygon.critical_group'];

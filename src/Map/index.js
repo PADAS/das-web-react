@@ -142,6 +142,7 @@ class Map extends Component {
 
   clearSelectedAnalyzerIds() {
     setAnalyzerFeatureActiveStateForIDs(this.props.map, this.currentAnalyzerIds, false);
+    this.currentAnalyzerIds = [];
   }
 
   async fetchMapData() {

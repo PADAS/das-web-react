@@ -23,15 +23,10 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 // eslint-disable-next-line react/display-name
 const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
-  // necessary to concatentate, a push directly to the featureKist property will 
-  // cause the featureList to add a new analyzer list with each render, due to the 
-  // function holding state due to the memoization function
-  const allFeaturesList = featureList.concat(analyzerList[0]);
-
-  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...allFeaturesList
+  const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
-        ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
       ], [])
   );
 
@@ -90,7 +85,7 @@ const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeature
   }, [mapLayerFilter]);
 
   const filteredFeatureList = featureFilterEnabled ?
-    filterFeatures(allFeaturesList, featureFilterIsMatch) : allFeaturesList;
+    filterFeatures(featureList, featureFilterIsMatch) : featureList;
 
   const collapsibleShouldBeOpen = featureFilterEnabled && !!filteredFeatureList.length;
   if (featureFilterEnabled && !filteredFeatureList.length) return null;

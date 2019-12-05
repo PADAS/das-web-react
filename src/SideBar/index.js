@@ -13,6 +13,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { setReportHeatmapVisibility } from '../ducks/map-ui';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
+import AnalyzerLayerList from '../AnalyzerLayerList';
 import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
@@ -120,6 +121,7 @@ const SideBar = (props) => {
               <ReportMapControl />
               <SubjectGroupList map={map} />
               <FeatureLayerList map={map} />
+              <AnalyzerLayerList map={map} />
               <div className={styles.noItems}>No items to display.</div>
             </div>
             <div className={styles.mapLayerFooter}>
