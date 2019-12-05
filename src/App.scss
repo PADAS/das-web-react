@@ -287,6 +287,29 @@ aside {
   width: var(--sidebar-width);
   z-index: 10;
 
+  [class*=addReportContainer] {
+    .bs-popover-left {
+      margin-top: 3rem;
+      margin-left: -0.5rem;
+    }
+  }
+
+  .bs-popover-left {
+    .arrow::after {
+      border-left-color: $popover-header-color;
+    }
+  }
+
+  .bs-popover-bottom {
+    margin-top: 0;
+    .arrow::after {
+      border-bottom-color: $popover-header-color;
+    }
+  }
+  .bs-popover-bottom .popover-header::before, .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
+    display: none;
+  }
+
   .nav-tabs,
   .nav-item {
     border: none;

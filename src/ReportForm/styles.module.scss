@@ -24,7 +24,7 @@
   min-height: 16rem;
   overflow-y: auto;
   padding-bottom: 5rem;
-  @media #{$whenPageIsAtMediumHeightAndWidth} {
+  @media #{$whenPageIsMediumHeightAndWidth} {
     font-size: 1rem;
     max-height: calc(80vh - 10rem);
   }
@@ -81,7 +81,7 @@
   padding: 0 0 0.25rem !important;
   position: relative;
   z-index: 4;
-  @media #{$whenPageIsAtMediumHeightAndWidth} {
+  @media #{$whenPageIsMediumHeightAndWidth} {
     padding: 0.5rem !important;
   }
   > label {
@@ -93,7 +93,7 @@
     padding: 0.25rem 0.5rem;
     position: relative;
     width: 50%;
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       flex-wrap: wrap;
       font-size: 0.9rem;
       padding: 0.5rem;
@@ -103,12 +103,12 @@
     }
     > span {
       display: none;
-      @media #{$whenPageIsAtMediumHeightAndWidth} {
+      @media #{$whenPageIsMediumHeightAndWidth} {
         display: initial;
       }
       + * {
         width: 100%;
-        @media #{$whenPageIsAtMediumHeightAndWidth} {
+        @media #{$whenPageIsMediumHeightAndWidth} {
           margin-top: 0.25rem;
         }
       }
@@ -131,14 +131,14 @@
       &:hover {
         opacity: 1;
       }
-      @media #{$whenPageIsAtMediumHeightAndWidth} {
+      @media #{$whenPageIsMediumHeightAndWidth} {
         margin-top: 0;
       }
       svg {
         margin-right: 0.25rem;
       }
     }
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       flex-flow: row;
       justify-content: space-between;
     }
@@ -156,7 +156,7 @@
   .icon {
     --dimensions: 1rem;
     margin-right: 0.5rem;
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       --dimensions: 1.5rem;
     }
     height: var(--dimensions);
@@ -208,7 +208,7 @@
     > span, > form {
       margin-left: 0.5rem;
     }
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       //font-size: 1.5rem;
     }
   }
@@ -217,7 +217,7 @@
     --half-size: calc(var(--dimensions)/2);
     max-height: var(--dimensions);
     width: var(--dimensions);
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       --dimensions: 2.5rem;
     }
     &[class*=generic] {
@@ -256,12 +256,12 @@
     button {
       flex: 1;
       margin-left: 0;
-      @media #{$whenPageIsAtMediumHeightAndWidth} {
+      @media #{$whenPageIsMediumHeightAndWidth} {
         flex: initial;
         margin-left: auto;
       }
     }
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       flex-wrap: nowrap;
     }
   }
@@ -402,7 +402,7 @@
     margin: 0 0.25rem;
     padding: 0.5rem 0.25rem;
     transition: all .1s linear;
-    @media #{$whenPageIsAtMediumHeightAndWidth} {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       font-size: 0.75rem;
     }
     @media #{$whenPageIsTallAndMediumWidth} {
@@ -432,14 +432,14 @@
     }
     span, small {
       display: none;
-      @media #{$whenPageIsAtMediumHeightAndWidth} {
+      @media #{$whenPageIsMediumHeightAndWidth} {
         display: initial;
       }
     }
     svg {
       height: auto;
       width: 1.5rem;
-      @media #{$whenPageIsAtMediumHeightAndWidth} {
+      @media #{$whenPageIsMediumHeightAndWidth} {
         margin-bottom: 0.5rem;
       }
       @media #{$whenPageIsTallAndMediumWidth} {

@@ -2,6 +2,8 @@ import { toast } from 'react-toastify';
 
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
+import layoutVariables from '../common/styles/_layout.scss';
+
 const { POSITION: TOAST_POSITIONS } = toast;
 
 export const {
@@ -43,14 +45,16 @@ export const STATUSES = {
 export const MAP_ICON_SIZE = 30;
 
 // keep this in sync with `/common/styles/_layout.scss`
-const mdLayoutWidthMin = '(min-width: 31.75rem)';
-const lgLayoutWidthMin = '(min-width: 48rem)';
-const mdLayoutWidthMax = `(max-width: calc(${lgLayoutWidthMin} - 1px))`;
+const mdLayoutWidthMax = `(max-width: ${layoutVariables.mediumWidthMax}`;
+const mdLayoutWidthMin = `(min-width: ${layoutVariables.mediumWidthMin})`;
+const lgLayoutWidthMin = `(min-width: ${layoutVariables.largeWidthMin})`;
+const xlLayoutWidthMin = `(min-width: ${layoutVariables.extraLargeWidthMin})`;
 
 export const BREAKPOINTS = {
   screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
   screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
   screenIsLargeLayoutOrLarger: matchMedia(lgLayoutWidthMin),
+  screenIsExtraLargeWidth: matchMedia(xlLayoutWidthMin),
 };
 
 export const LAYER_IDS = {

@@ -334,12 +334,12 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
 
   const { type, payload } = action;
 
-  /* socket changes should affect all feeds */
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_id } = payload;
+  /* socket changes and event updates should affect all feeds */
+  if (SOCKET_EVENTS.includes(type) || type === UPDATE_EVENT_SUCCESS) {
+    const id = SOCKET_EVENTS.includes(type) ? payload.event_id : payload.id; 
     const stateUpdate = {
       ...state,
-      results: union([event_id], state.results),
+      results: union([id], state.results),
     };
 
     return reducer(stateUpdate, action);
@@ -440,8 +440,8 @@ export const incidentFeedReducer = namedFeedReducer('INCIDENT_FEED', (state, { t
         results: state.results.filter(id => id !== event_id),
       };
     }
-    return state;
   }
+  return state;
 });
 
 

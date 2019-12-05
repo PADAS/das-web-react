@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -20,22 +20,25 @@ const AddReport = (props) => {
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
-  const overlayRef = useRef(null);
   const containerRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
   const placement = popoverPlacement || 'auto';
 
   useEffect(() => { 
     const handleOutsideClick = (e) => {
-      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
         setPopoverState(false);
       }
     };
-    document.addEventListener('mousedown', handleOutsideClick);
+    if (popoverOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startEditNewReport = (reportType) => {
     trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
@@ -56,7 +59,7 @@ const AddReport = (props) => {
   };
 
   const onButtonClick = () => {
-    setPopoverState(true);
+    setPopoverState(!popoverOpen);
     trackEvent('Feed', 'Click \'Add Report\' button');
   };
 
@@ -82,7 +85,7 @@ const AddReport = (props) => {
 
     const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}>
       <Popover.Title>{title}</Popover.Title>
-      <Popover.Content ref={overlayRef}>
+      <Popover.Content>
         {categoryList}
         {reportTypeList}
       </Popover.Content>
@@ -104,7 +107,7 @@ const AddReport = (props) => {
 const mapStateToProps = (state) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state),
 });
-export default connect(mapStateToProps, null)(AddReport);
+export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
   relationshipButtonDisabled: false,

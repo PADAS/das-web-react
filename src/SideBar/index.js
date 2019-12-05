@@ -5,6 +5,9 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Button from 'react-bootstrap/Button';
 
+import { BREAKPOINTS } from '../constants';
+import { useMatchMedia } from '../hooks';
+
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
@@ -34,13 +37,13 @@ const TAB_KEYS = {
   LAYERS: 'layers',
 }
 
+const { screenIsExtraLargeWidth } = BREAKPOINTS;
+
 const SideBar = (props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
-
-  const addReportContainerRef = useRef(null);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
@@ -76,6 +79,9 @@ const SideBar = (props) => {
     }
   }, [sidebarOpen]);
 
+  const isExtraLarge = useMatchMedia(screenIsExtraLargeWidth);
+  const addReportPopoverPlacement = (isExtraLarge && sidebarOpen) ? 'left' : 'auto';
+
   const showEventFeedError = !loadingEvents && !!events.error;
 
   if (!map) return null;
@@ -85,8 +91,8 @@ const SideBar = (props) => {
       <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
       <Tabs activeKey={activeTab} onSelect={onTabsSelect}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
-          <div ref={addReportContainerRef} className={styles.addReportContainer}>
-            <AddReport map={map} showLabel={false} />
+          <div className={styles.addReportContainer}>
+            <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
           </div>
           <ErrorBoundary>
             <EventFilter className={styles.eventFilter}>
