@@ -63,9 +63,6 @@ div.popover {
   [class*=popover-header] {
     @include popoverTitle;
   }
-  > [class*=arrow]::after {
-    border-left-color: $popover-header-color;
-  }
 }
 
 .categoryMenu {

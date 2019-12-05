@@ -92,7 +92,7 @@ const AttachmentControls = (props) => {
       <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
 
       {!relationshipButtonDisabled && <Fragment>
-        {!isCollectionChild && <AddReport map={map} container={attachmentControlsRef} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
+        {!isCollectionChild && <AddReport map={map} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
         {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
 
       </Fragment>}
