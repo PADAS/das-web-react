@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
@@ -27,9 +27,11 @@ const ReportFormTopLevelControls = (props) => {
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
   const canShowReportedBy = report.provenance !== 'analyzer';
-
+  
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
+  const testRef = useRef(null);
+  
 
   const handleGpsInputKeydown = (event) => {
     const { key } = event;
@@ -37,6 +39,16 @@ const ReportFormTopLevelControls = (props) => {
       setGpsPopoverState(false);
     }
   };
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (testRef.current && !testRef.current.contains(e.target)) {
+        setGpsPopoverState(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []); 
 
   const onLocationSelectFromMapStart = () => {
     setModalVisibilityState(false);
@@ -83,10 +95,12 @@ const ReportFormTopLevelControls = (props) => {
       <span>Location:</span>
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
-          <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
-          <div className={styles.locationButtons}>
-            <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
-            <GeoLocator className={styles.geoLocator} onSuccess={onGeoLocationSuccess} />
+          <div ref={testRef}>
+            <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
+            <div className={styles.locationButtons}>
+              <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
+              <GeoLocator className={styles.geoLocator} onSuccess={onGeoLocationSuccess} />
+            </div>
           </div>
         </Popover>}
       </Overlay>

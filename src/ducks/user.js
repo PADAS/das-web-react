@@ -15,19 +15,24 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 // action creators
 
 export const fetchCurrentUser = () => async (dispatch) => {
-  const { data: { data } } = await axios.get(CURRENT_USER_API_URL)
-    .catch(error => console.log('error getting user', error));
-  if(!!data.role && data.role.length > 0) {
-    setUserRole(data.role);
+  try {
+    const { data: { data } } = await axios.get(CURRENT_USER_API_URL)
+    if (!!data.role && data.role.length > 0) {
+      setUserRole(data.role);
+    }
+    dispatch(fetchUserSuccess(data));
+  } catch (e) {
+    return Promise.reject(e);
   }
-  dispatch(fetchUserSuccess(data));
 };
 
 export const fetchCurrentUserProfiles = () => async (dispatch) => {
-  const { data: { data } } = await axios.get(USER_PROFILES_API_URL)
-    .catch(error => console.log('error getting user profiles', error));
-  
-  dispatch(fetchUserProfileSuccess(data));
+  try {
+    const { data: { data } } = await axios.get(USER_PROFILES_API_URL)
+    dispatch(fetchUserProfileSuccess(data));
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 export const setUserProfile = payload => (dispatch) => {

@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, Fragment } from 'react';
+import React, { memo, useEffect, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -20,7 +20,20 @@ const AddReport = (props) => {
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
+  const overlayRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
+
+  useEffect(() => { 
+    const handleOutsideClick = (e) => {
+      if (overlayRef.current && !overlayRef.current.contains(e.target)) {
+        setPopoverState(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startEditNewReport = (reportType) => {
     trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
@@ -67,7 +80,7 @@ const AddReport = (props) => {
 
   const AddReportPopover = <Popover className={styles.popover} placement='auto'>
     <Popover.Title>{title}</Popover.Title>
-    <Popover.Content>
+    <Popover.Content ref={overlayRef}>
       {categoryList}
       {reportTypeList}
     </Popover.Content>
@@ -79,18 +92,18 @@ const AddReport = (props) => {
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>{title}</span>}
     </button>
-    <Overlay shouldUpdatePosition={true} show={popoverOpen} rootClose 
+    {popoverOpen && <Overlay shouldUpdatePosition={true} show={true} rootClose 
       placement='auto' onHide={() => setPopoverState(false)} 
       container={container.current} target={targetRef.current}>
       {() => AddReportPopover}
-    </Overlay>
+    </Overlay>}
   </Fragment>;
 };
 
 const mapStateToProps = (state) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state),
 });
-export default connect(mapStateToProps, null)(memo(AddReport));
+export default connect(mapStateToProps, null)(AddReport);
 
 AddReport.defaultProps = {
   relationshipButtonDisabled: false,

@@ -39,6 +39,7 @@ import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import TrackLegend from '../TrackLegend';
+import EventFilter from '../EventFilter';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
@@ -210,6 +211,7 @@ class Map extends Component {
   onAnalyzerFeatureClick = (e) => {
     const { map } = this.props;
     const features = getAnalyzerFeaturesAtPoint(map, e.point);
+    setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
     const properties = features[0].properties;
     const geometry = e.lngLat;
     this.props.showPopup('analyzer-config', { geometry, properties });
@@ -234,7 +236,7 @@ class Map extends Component {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
-
+    
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
       if (this.props.map.getZoom() >= zoom) {
@@ -348,7 +350,11 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <FriendlyEventFilterString className='event-filter-details' />
+            <div className='floating-report-filter'>
+              <EventFilter  />
+              <FriendlyEventFilterString className='map-report-filter-details' />
+            </div>
+
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}

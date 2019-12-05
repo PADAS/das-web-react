@@ -242,6 +242,11 @@ $contrast: 25%;
   max-width: unset;
   padding: 0;
   width: 24rem;
+  [class*=dateSelectorWrapper] {
+    [class|=react-calendar] {
+      bottom: 0;
+    }
+  }
 }
 
 .popoverTitle {
@@ -276,11 +281,5 @@ $contrast: 25%;
 .warningIcon {
   circle, g, path {
     stroke: $bright-red;
-  }
-}
-
-[class*=dateSelectorWrapper] {
-  [class|=react-calendar] {
-    bottom: 0;
   }
 }

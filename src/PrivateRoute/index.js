@@ -1,15 +1,11 @@
 import axios from 'axios';
 
-import authConfig from '../utils/auth';
-
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { resetMasterCancelToken } from '../ducks/auth';
-
-authConfig();
 
 class PrivateRoute extends Component {
   loginPath = `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`;
