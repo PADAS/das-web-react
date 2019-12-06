@@ -436,7 +436,7 @@
         display: initial;
       }
     }
-    svg {
+    > svg {
       height: auto;
       width: 1.5rem;
       @media #{$whenPageIsMediumHeightAndWidth} {
