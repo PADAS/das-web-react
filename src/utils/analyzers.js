@@ -19,7 +19,6 @@ const getAnalyzerFeaturesForId = (map, id) => {
 export const setAnalyzerFeatureActiveStateByID = (map, id, state = true) => {
   const features = getAnalyzerFeaturesForId(map, id);
   features.forEach((feature) => {
-    console.log('seting feature ', feature, state);
     map.setFeatureState(feature, { 'active': state });
   });
 };
