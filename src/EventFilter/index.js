@@ -209,7 +209,7 @@ const EventFilter = (props) => {
     if (filterText !== text) {
       setFilterText(text);
     }
-  }, [text]);
+  }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>

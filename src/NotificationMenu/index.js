@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
+import { trackEvent } from '../utils/analytics';
+
 import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
 import BadgeIcon from '../Badge';
 
@@ -22,16 +24,23 @@ const NotificationItem = (item, index) => {
   </Item>;
 };
 
-const NotificationMenu = ({ notifications = [], ...rest }) => <Dropdown alignRight className={styles.dropdown} {...rest}>
-  <Toggle as="div">
-    <BellIcon className={styles.icon} />
-    {!!notifications.length && <BadgeIcon className={styles.badge} count={notifications.length} />}
-  </Toggle>
-  <Menu className={styles.menu}>
-    {!notifications.length && <h6 className={styles.noItems}>No new messages at this time.</h6>}
-    {!!notifications.length && notifications.map(NotificationItem)}
-  </Menu>
-</Dropdown>;
+const NotificationMenu = ({ notifications = [], ...rest }) => {
+  const onToggle = (isOpen) => {
+    trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} Notification Menu`);
+  };
+
+  return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
+    <Toggle as="div">
+      <BellIcon className={styles.icon} />
+      {!!notifications.length && <BadgeIcon className={styles.badge} count={notifications.length} />}
+    </Toggle>
+    <Menu className={styles.menu}>
+      {!notifications.length && <h6 className={styles.noItems}>No new messages at this time.</h6>}
+      {!!notifications.length && notifications.map(NotificationItem)}
+    </Menu>
+  </Dropdown>;
+
+};
 
 
 export default memo(NotificationMenu);
