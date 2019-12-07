@@ -24,7 +24,7 @@ const AddReport = (props) => {
   const [popoverOpen, setPopoverState] = useState(false);
   const placement = popoverPlacement || 'auto';
 
-  useEffect(() => { 
+  useEffect(() => {
     const handleOutsideClick = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setPopoverState(false);
@@ -71,7 +71,7 @@ const AddReport = (props) => {
   const categoryList = <ul className={styles.categoryMenu}>
     {eventsByCategory.map(({ value, display }) =>
       <li key={value}>
-        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''} 
+        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
           onClick={() => onCategoryClick(value)}>{display}</button>
       </li>
     )}
@@ -83,22 +83,22 @@ const AddReport = (props) => {
       .map(createListItem)}
   </ul>;
 
-    const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}>
-      <Popover.Title>{title}</Popover.Title>
-      <Popover.Content>
-        {categoryList}
-        {reportTypeList}
-      </Popover.Content>
-    </Popover>
+  const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}> {/* eslint-disable-line react/display-name */}
+    <Popover.Title>{title}</Popover.Title>
+    <Popover.Content>
+      {categoryList}
+      {reportTypeList}
+    </Popover.Content>
+  </Popover>
   );
 
   return <div ref={containerRef}>
-    <button title={title} className={styles.addReport} ref={targetRef} 
+    <button title={title} className={styles.addReport} ref={targetRef}
       type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>{title}</span>}
     </button>
-    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current}  placement={placement}>
+    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={placement}>
       <AddReportPopover />
     </Overlay>
   </div>;

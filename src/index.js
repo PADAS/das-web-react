@@ -42,7 +42,7 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
-          <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={Login} />
+          <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
         </Switch>
       </BrowserRouter>
       <ToastContainer />

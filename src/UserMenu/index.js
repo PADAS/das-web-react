@@ -12,16 +12,12 @@ const UserMenu = (props) => {
   const displayUser = selectedUserProfile.username ? selectedUserProfile : user;
 
   const onDropdownToggle = (isOpen) => {
-    trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} User Menu`);
-  };
-
-  const onProfileItemClick = (profile) => {
-    onProfileClick(profile);
+    trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} User Menu`);
   };
 
   const onLogOutItemClick = () => {
     onLogOutClick();
-    trackEvent('Main Toolbar', "Click 'Log Out'");
+    trackEvent('Main Toolbar', 'Click \'Log Out\'');
   };
 
   return <Dropdown alignRight className={styles.menu} {...rest} onToggle={onDropdownToggle}>
@@ -34,10 +30,10 @@ const UserMenu = (props) => {
           {[user, ...userProfiles]
             // .filter(({ username }) => username !== displayUser.username)
             .map((profile, index) =>
-            
-              <Item active={profile.username === displayUser.username ? 'active' : null} 
-                key={`${profile.id}-${index}`} 
-                onClick={() => onProfileItemClick(profile)}>
+
+              <Item active={profile.username === displayUser.username ? 'active' : null}
+                key={`${profile.id}-${index}`}
+                onClick={() => onProfileClick(profile)}>
                 {profile.username}
               </Item>
             )}
