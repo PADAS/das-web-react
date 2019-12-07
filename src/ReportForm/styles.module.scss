@@ -308,9 +308,9 @@
 }
 
 .headerPopover {
-  max-width: none;
-  min-width: 14rem;
-  padding: 0;
+  &[class*=bs-popover] {
+    max-width: unset;
+  }
   [class*=popover-header] {
     @include popoverTitle;
   }

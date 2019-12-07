@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import TimeAgo from 'react-timeago';
@@ -79,14 +79,14 @@ const ReportFormHeader = (props) => {
     </span>
   </Fragment>;
 
-  const ReportHeaderPopover = <Popover placement='auto' className={styles.headerPopover}>
+  const ReportHeaderPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} placement='auto' className={styles.headerPopover}> {/* eslint-disable-line react/display-name */}
     <Popover.Title>{eventOrIncidentReport}</Popover.Title>
     <Popover.Content>
       <h6>Priority:</h6>
       <PriorityPicker selected={report.priority} onSelect={onPrioritySelect} />
       {canAddToIncident && <Fragment>
         <hr />
-        <Button className={styles.addToIncidentBtn} variant='secondary' onClick={onStartAddToIncident}>
+        <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToIncident}>
           <AddToIncidentIcon style={{height: '2rem', width: '2rem'}} />Add to incident
         </Button>
       </Fragment>
@@ -100,7 +100,7 @@ const ReportFormHeader = (props) => {
       </Fragment>
       }
     </Popover.Content>
-  </Popover>;
+  </Popover>);
 
   const ReportHistoryPopover = <Popover placement='auto' className={styles.historyPopover}>
     <Popover.Title>History</Popover.Title>
@@ -130,7 +130,7 @@ const ReportFormHeader = (props) => {
         <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
         <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} 
           onHide={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click'>
-          {ReportHeaderPopover}
+          <ReportHeaderPopover />
         </Overlay>
         {ReportHistory}          
         <Overlay show={historyPopoverOpen} target={historyRef.current} shouldUpdatePosition={true} 

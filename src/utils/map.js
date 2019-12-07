@@ -41,7 +41,8 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   };
 };
 
-export const addMapImage = async (icon_id, src) => {
+export const addMapImage = async (src, id) => {
+  const icon_id = id || src;
   const img = await imgElFromSrc(src, MAP_ICON_SIZE);
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
   return {
@@ -56,9 +57,9 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
 
   const images = features
     .filter(({ properties: { image } }) => !!image)
-    .map(({ properties: { image, icon_id } }) => ({ icon_id, image }))
-    .filter(({ icon_id }, index, array) => !mapImageIDs.includes(icon_id) && (array.findIndex(item => item.icon_id === icon_id) === index))
-    .map(({ image, icon_id }) => addMapImage(icon_id, image));
+    .map(({ properties: { image } }) => image)
+    .filter((image, index, array) => !mapImageIDs.includes(image) && (array.findIndex(item => item === image) === index))
+    .map(image => addMapImage(image));
 
   const results = await Promise.all(images);
   return results;

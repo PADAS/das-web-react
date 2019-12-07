@@ -18,7 +18,7 @@ const TracksLayer = (props) => {
 
   useEffect(() => {
     if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage(ARROW_IMG_ID, Arrow);
+      addMapImage(Arrow, ARROW_IMG_ID);
     }
   }, []);
 
