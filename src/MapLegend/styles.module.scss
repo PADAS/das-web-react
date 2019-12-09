@@ -30,11 +30,10 @@
   }
   [class*=Collapsible__trigger] {
     cursor: pointer;
+    flex: 1;
     padding-left: 1rem;
-    margin-right: 4rem;
     overflow: hidden;
     position: relative;
-    width: 100%;
     &:hover {
       text-decoration: underline;
     }
@@ -49,6 +48,9 @@
     }
     &[class*=is-open]::before {
       transform: rotate(180deg);
+    }
+    + button {
+      flex: 1;
     }
   }
 }

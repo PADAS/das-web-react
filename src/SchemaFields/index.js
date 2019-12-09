@@ -1,14 +1,15 @@
 import React, { Fragment, useEffect } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
+import isString from 'lodash/isString';
 
 import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
+import { trackEvent } from '../utils/analytics';
+
+import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 
 import styles from './styles.module.scss';
 
-import isString from 'lodash/isString';
-
-import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
@@ -67,7 +68,7 @@ const CustomCheckboxes = (props) => {
         onChange(inputValues);
       }
     });
-  }, [value]);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const enumOptionIsChecked = option => inputValues.findIndex(item => item === option.value) !== -1;
   
@@ -113,16 +114,25 @@ const CustomCheckboxes = (props) => {
   );
 };
 
+
 const ExternalLink = (props) => {
   const { idSchema: { id }, schema: { title: label }, formData:value } = props;
 
+  const onLinkClick = () => {
+    trackEvent(
+      'Event Report',
+      'Click \'External Source\' link',
+      value.replace('http://','').replace('https://','').split(/[/?#:]/g)[0]
+    );
+  };
+
   return <div>
     <label className={styles.linkLabel} htmlFor={id}>{label} 
-      <a target='_blank' rel='noopener noreferrer' href={value}>
+      <a onClick={onLinkClick} target='_blank' rel='noopener noreferrer' href={value}>
         <ExternalLinkIcon />
       </a>
     </label>
-    <a target='_blank' rel='noopener noreferrer' href={value}>{value}</a>
+    <a onClick={onLinkClick} target='_blank' rel='noopener noreferrer' href={value}>{value}</a>
   </div>;
 };
 

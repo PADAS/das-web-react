@@ -18,7 +18,7 @@ import NotificationMenu from '../NotificationMenu';
 import './Nav.scss';
 
 const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
-  
+
   const onHomeMapSelect = (chosenMap) => {
     const { zoom, center } = chosenMap;
     setHomeMap(chosenMap);
@@ -28,17 +28,29 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
 
   const onCurrentLocationClick = (location) => {
     jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
-    trackEvent('Main Toolbar', "Click 'My Current Location'");
+    trackEvent('Main Toolbar', 'Click \'My Current Location\'');
+  };
+
+  const onProfileClick = (profile) => {
+    const isMainUser = profile.username === user.username;
+
+    if (isMainUser) {
+      trackEvent('Main Toolbar', 'Select to operate as the main user');
+    } else {
+      trackEvent('Main Toolbar', 'Select to operate as a user profile');
+    }
+
+    setUserProfile(profile);
   };
 
   useEffect(() => {
     map && maps.length && !homeMap.id && onHomeMapSelect(maps.find(m => m.default) || maps[0]);
-  }, [map, maps]);
+  }, [map, maps]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchCurrentUser();
     fetchCurrentUserProfiles();
-  }, []);
+  }, []); // eslint-disable-line
 
   return <nav className="primary-nav">
     <div className="left-controls">
@@ -49,7 +61,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
     {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
     <div className="rightMenus">
       <NotificationMenu />
-      <UserMenu user={user} onProfileClick={setUserProfile} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
+      <UserMenu user={user} onProfileClick={onProfileClick} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>
       <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
     </div>
