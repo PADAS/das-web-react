@@ -10,7 +10,7 @@ import isEqual from 'react-fast-compare';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { trackEvent } from '../utils/analytics';
+import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
@@ -23,6 +23,7 @@ const TimeSlider = (props) => {
   const { timeSliderState, since, until, clearVirtualDate, setVirtualDate, updateEventFilter } = props;
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
   const handleTextRef = useRef(null);
+  const debouncedRangeChangeAnalytics = useRef(debouncedTrackEvent(300));
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
   const endDate = until ? new Date(until) : new Date();
@@ -68,7 +69,7 @@ const TimeSlider = (props) => {
 
   const onSliderChange = (event) => {
     onRangeChange(event);
-    trackEvent('Map Interaction', 'Changed \'Time Slider\'');
+    debouncedRangeChangeAnalytics.current('Map Interaction', 'Changed \'Time Slider\'');
   };
 
   const onDateChange = () => trackEvent('Map Interaction', 'Update Time Slider Date Range');
@@ -89,8 +90,8 @@ const TimeSlider = (props) => {
   </Popover>;
 
   return <div className={styles.wrapper}>
-    <OverlayTrigger onClick={() => onHandleClick('Left')} shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
-      <div className={`${styles.handle} ${styles.left}`}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+      <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left}`}>
         <span className={styles.handleDate}>{format(startDate, STANDARD_DATE_FORMAT)}</span>
         <TimeAgo date={startDate}/>
       </div>
@@ -102,8 +103,8 @@ const TimeSlider = (props) => {
         {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> : 'Timeslider'}
       </span>
     </div>
-    <OverlayTrigger onClick={() => onHandleClick('Right')} shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
-      <div className={`${styles.handle} ${styles.right}`}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+      <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}`}>
         <span className={styles.handleDate}>{format(endDate, STANDARD_DATE_FORMAT)}</span>
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
       </div>

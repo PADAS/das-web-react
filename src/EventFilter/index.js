@@ -140,6 +140,7 @@ const EventFilter = (props) => {
         reported_by: INITIAL_FILTER_STATE.filter.reported_by,
       },
     });
+    trackEvent('Feed', 'Click Reset All Filters');
   };
 
   const clearDateRange = (e) => {

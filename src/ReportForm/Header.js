@@ -36,6 +36,10 @@ const ReportFormHeader = (props) => {
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
 
+  const onReportTitleChangeCancel = () => {
+    trackEvent('Event Report', 'Cancel Change Report Title');
+  };
+
   const reportTitle = displayTitleForEventByEventType(report);
   const eventOrIncidentReport = `${report.is_collection? 'Incident' : 'Event'} Report`;
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
@@ -125,7 +129,7 @@ const ReportFormHeader = (props) => {
     <h4>
       <EventIcon className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}
-      <InlineEditable value={reportTitle} onSave={onReportTitleChange} />
+      <InlineEditable onCancel={onReportTitleChangeCancel} value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
         <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
         <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} 

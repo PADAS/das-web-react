@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -6,17 +6,13 @@ import DateTimePicker from 'react-datetime-picker';
 
 import styles from './styles.module.scss';
 import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
-import { trackEvent } from '../utils/analytics';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
-  const { startDate, endDate, onStartDateChange, onEndDateChange, onDateRangeChange,
+  const { startDate, endDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
-    startDateNullMessage, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
-
-  const onStartDateBlur = () => trackEvent(gaEventSrc, 'Enter Start Date', null);
-  const onEndDateBlur = () => trackEvent(gaEventSrc, 'Enter End Date', null);
+    startDateNullMessage, onStartDateBlur, onEndDateBlur, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -42,30 +38,30 @@ const DateRangeSelector = (props) => {
     </div>
 
     {showPresets && <div className={styles.presets}>
-      <Button variant='link' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateDaysAgoDate(0),
         upper: null,
-      })}>Today</Button>
+      }, 'today')}>Today</Button>
 
-      <Button variant='link' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateDaysAgoDate(1),
         upper: null,
-      })}>Yesterday</Button>
+      }, 'yesterday')}>Yesterday</Button>
 
-      <Button variant='link' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateWeeksAgoDate(1),
         upper: null,
-      })}>Last week</Button>
+      }, 'last week')}>Last week</Button>
 
-      <Button variant='link' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateDaysAgoDate(30),
         upper: null,
-      })}>Last 30 days</Button>
+      }, 'last 30 days')}>Last 30 days</Button>
 
-      <Button variant='link' onClick={() => onDateRangeChange({
+      <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateMonthsAgoDate(3),
         upper: null,
-      })}>Last three months</Button>
+      }, 'last three months')}>Last three months</Button>
     </div>}
   </div>;
 };
@@ -77,7 +73,7 @@ DateRangeSelector.defaultProps = {
   requireEnd: false,
   startDateLabel: 'From:',
   format: 'yyyy-MM-dd HH:mm',
-  onDateRangeChange: ({ lower, upper }) => null,
+  onClickDateRangePreset: ({ lower, upper }) => null,
   showPresets: false,
 };
 
@@ -88,7 +84,7 @@ DateRangeSelector.propTypes = {
   maxDate: PropTypes.instanceOf(Date),
   onEndDateChange: PropTypes.func.isRequired,
   onStartDateChange: PropTypes.func.isRequired,
-  onDateRangeChange: PropTypes.func,
+  onClickDateRangePreset: PropTypes.func,
   requireStart: PropTypes.bool,
   requireEnd: PropTypes.bool,
   showPresets: PropTypes.bool,

@@ -33,8 +33,14 @@ const KMLExportModal = (props) => {
     trackEvent('KML Export', `${includeInactive}? 'Uncheck' : 'Check'} 'Show Inactive' checkbox`);
   };
 
-  const handleStartDateChange = value => handleInputChange('start', value);
-  const handleEndDateChange = value => handleInputChange('end', value);
+  const handleStartDateChange = value => {
+    trackEvent('Report Export', 'Set KML Start Date');
+    handleInputChange('start', value);
+  };
+  const handleEndDateChange = value => {
+    trackEvent('Report Export', 'Set KML End Date');
+    handleInputChange('end', value);
+  };
 
   const exportParams = { end: customEndDate, start: customStartDate, include_inactive: includeInactive };
 

@@ -1,10 +1,12 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import InlineEditable from '../InlineEditable';
 import LogarithmicSlider from '../LogarithmicSlider';
 
 import { updateHeatmapConfig } from '../ducks/map-ui';
+
+import { debouncedTrackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -20,15 +22,21 @@ const HeatmapStyleControls = (props) => {
 
   const { heatmapStyles: { radiusInMeters, intensity }, updateHeatmapConfig } = props;
 
+  const trackEventDebounced = useRef(debouncedTrackEvent());
+  
   const onRadiusChange = (value) => {
+    const updateValue = parseFloat(value) || MINIMUM_RADIUS;
+    trackEventDebounced.current('Map Interaction', 'Set Heatmap Radius', `${updateValue} meters`);
     updateHeatmapConfig({
-      radiusInMeters: parseFloat(value) || MINIMUM_RADIUS,
+      radiusInMeters: updateValue,
     });
   };
 
   const onSensitivityChange = ({ target: { value } }) => {
     const val = parseFloat(value) || MINIMUM_SENSITIVITY;
     const minimumSensitivityValue = MINIMUM_SENSITIVITY / MAXIUMUM_SENSITIVITY;
+
+    trackEventDebounced.current('Map Interaction', 'Set Heatmap Sensitivity', `${val} out ${MAXIUMUM_SENSITIVITY}`);
 
     const intensity = Math.max(
       parseFloat(((val - MINIMUM_SENSITIVITY) / (MAXIUMUM_SENSITIVITY - MINIMUM_SENSITIVITY)).toFixed(2)),
