@@ -31,7 +31,6 @@ export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => ne
 export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) => {
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
-  img.src = src;
   img.onload = () => {
     const { naturalHeight, naturalWidth } = img;
     const largest = Math.max(naturalHeight, naturalWidth);
@@ -51,6 +50,7 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
     console.log('image error', e);
     reject('could not load image');
   };
+  img.src = src;
 });
 
 export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`
