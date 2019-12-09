@@ -45,7 +45,7 @@ const EventsLayer = (props) => {
 
   const addClusterIconToMap = async () => {
     if (!map.hasImage('event-cluster-icon')) {
-      addMapImage('event-cluster-icon', ClusterIcon);
+      addMapImage(ClusterIcon, 'event-cluster-icon');
     }
   };
 

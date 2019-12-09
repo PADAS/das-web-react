@@ -89,7 +89,7 @@ const symbolIconSize = [
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
-  'icon-image': ['get', 'icon_id'],
+  'icon-image': ['get', 'image'],
   'icon-size': symbolIconSize,
   'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
@@ -105,7 +105,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
 };
 
 export const DEFAULT_SYMBOL_PAINT = {
-  'text-halo-color': 'rgba(255,255,255,0.7)',
+  'text-halo-color': 'rgba(255,255,255,0.95)',
   'text-halo-width': [
     'interpolate', ['exponential', 0.5], ['zoom'],
     6, 1,
