@@ -62,7 +62,9 @@ export const addFeatureCollectionImagesToMap = async (collection, map) => {
     .map(image => addMapImage(image));
 
   const results = await Promise.all(images);
-  return results;
+  setTimeout(() => {
+    return results;
+  });
 };
 
 const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
