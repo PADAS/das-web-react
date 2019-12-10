@@ -16,6 +16,15 @@ const getAnalyzerFeaturesForId = (map, id) => {
   return features;
 };
 
+// currently, we can't remove a specific state property, ie the 'active' state,
+// as it appears a feature id is required to remove it via this call
+export const clearActiveAnalyzerFeatures = (map) => {
+  map.removeFeatureState({ source: 'analyzer-polygon-critical-source' });
+  map.removeFeatureState({ source: 'analyzer-polygon-warning-source' });
+  map.removeFeatureState({ source: 'analyzer-line-warning-source' });
+  map.removeFeatureState({ source: 'analyzer-line-critical-source' });
+};
+
 export const setAnalyzerFeatureActiveStateByID = (map, id, state = true) => {
   const features = getAnalyzerFeaturesForId(map, id);
   features.forEach((feature) => {

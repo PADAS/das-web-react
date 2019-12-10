@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { showFeatures } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
-import { setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
+import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { trackEvent } from '../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
@@ -24,12 +24,11 @@ const AnalyzerListItem = memo((props) => {
   };
 
   const onJumpButtonClick = () => {
-
-    fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     setTimeout(() => {
-      setAnalyzerFeatureActiveStateForIDs(map, featureIds, false);
+      clearActiveAnalyzerFeatures(map);
       setAnalyzerFeatureActiveStateForIDs(map, properties.feature_group, true);
     }, 200);
+    fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
     props.showPopup('analyzer-config', { geometry, properties });
     trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
