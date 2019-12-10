@@ -171,11 +171,6 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
-      // XXX TD 
-      if (this.props.popup.type === 'analyzer-config') {
-        const { map } = this.props;
-        setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
-      }
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
