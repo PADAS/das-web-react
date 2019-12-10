@@ -1,0 +1,21 @@
+$background: rgba(0,0,0,0.65);
+
+.popup {
+  position: fixed;
+  top: 2.333rem;
+  p {
+    margin: 0 0 0.25rem;
+  }
+  &.notDone {
+    [class*=mapboxgl-popup-content] {
+      background: $background;
+      color: white;
+      max-width: 10rem;
+      padding: 0.25rem;
+    }
+    [class*=mapboxgl-popup-tip] {
+      border-left-color: $background;
+      border-top-color: rgba(0,0,0,0);
+    }
+  }
+}

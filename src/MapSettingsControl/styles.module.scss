@@ -1,0 +1,13 @@
+@import '../common/styles/buttons';
+
+.gearButton {
+  @include mapboxControlButton;
+}
+
+.mapSettings {
+
+  ul {
+    margin-bottom: 0rem;
+    padding: .25rem;
+  }
+}

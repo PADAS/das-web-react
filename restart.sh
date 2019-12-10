@@ -1,0 +1,1 @@
+yarn add eslint eslint-config-react-app --save-dev && docker-compose down && docker-compose up --build

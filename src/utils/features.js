@@ -2,9 +2,10 @@
 import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
-import { GENERATED_LAYER_IDS } from '../constants';
+import { LAYER_IDS } from '../constants';
+import { featureSets } from '../selectors';
 
-const { FEATURE_FILLS, FEATURE_LINES } = GENERATED_LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
 
 export const getUniqueIDsFromFeatures = (...features) => uniq(features.map(({ properties: { id } }) => id));
@@ -17,7 +18,6 @@ export const setDirectMapBindingsForFeatureHighlightStates = (map) => {
 const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bounds, coords) => {
   return bounds.extend(coords);
 }, new LngLatBounds(collection[0], collection[0]));
-
 
 const jumpAndFitBounds = (map, bounds) => map.fitBounds(bounds, { duration: 0, maxZoom: MAX_JUMP_ZOOM, padding: 30 });
 
@@ -63,4 +63,42 @@ export const setFeatureActiveStateByID = (map, id, state = true) => {
   features.forEach((feature) => {
     map.setFeatureState(feature, { 'active': state });
   });
+};
+
+/**
+ * filterFeatures is a recursive function to drill down a featureset 
+ * tree to filter for features matching the search filter as given by the 
+ * function isMatch.
+ * @param {Object} f either a featureset, featureType, or feature. 
+ * @param {function} isMatch function to check if feature matches the filter.
+ */
+export const filterFeatures = (f, isMatch) => {
+  let newF = [];
+  if (f.featuresByType) { // a featureset obj has featuresByType array
+    newF = { ...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch)) };
+    newF.featuresByType = newF.featuresByType.filter(fbt => !!fbt.features.length);
+  }
+  else if (f.features) { // a featuresByType obj has features array:
+    newF = { ...f, features: f.features.filter(isMatch) };
+  }
+  else { // top level featureset array:
+    newF = f.map(fs => filterFeatures(fs, isMatch));
+    newF = newF.filter(fs => !!fs.featuresByType.length);
+  }
+  return newF;
+};
+
+export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(...featureList
+  .reduce((accumulator, { featuresByType }) =>
+    [...accumulator,
+      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+    ], [])
+);
+
+export const getFeatureSymbolPropsAtPoint = (geo, map) => {
+  const features = map.queryRenderedFeatures(geo, {
+    layers: [FEATURE_SYMBOLS],
+  });
+  // assume fist feature returned is closest
+  return features[0].properties;
 };

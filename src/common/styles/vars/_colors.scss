@@ -11,8 +11,10 @@ $amber: #FFAB24;
 $bright-blue: #006cd9;
 $bright-green: #7fd320;
 $bright-red: #D0031B;
+$light-blue: #268cfb;
 $green: #4F8317;
 $mustard-yellow: #d1c22e;
+
 
 $off-black: #333333;
 $dark-gray: darken($secondary-medium-gray, 20%);
@@ -36,19 +38,24 @@ $high-priority: $bright-red;
 $gray-border: $medium-light-gray;
 $light-gray-border: darken($light-gray, 10%);
 
+$map-layers-footer: #e2e2e2;
 $title-bar-color: $off-black;
 $primary-font-color: $dark-gray;
-$primary-modal-header: $off-black;
-
+$clear-all-link-color: $light-blue;
 $light-font-color: lighten($primary-font-color, 25%);
+$medium-blue: 2e8ef7;
 
 $primary-button-color: $bright-blue;
-$filter-popover-header-color: $bright-blue;
+$popover-header-color: lighten($title-bar-color, 5%);
+$popover-header-font-color: white;
 
 $light-gray-background: darken($light-gray, 3%);
 
+$link-color: darken(#428bca, 6.5%);
+
 $alert-text: $bright-red;
 
+$highlight-color: $bright-blue;
 
 $priorities: (
   (0, (

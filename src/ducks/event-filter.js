@@ -1,4 +1,4 @@
-import isEqual from 'react-fast-compare';
+import { generateMonthsAgoDate } from '../utils/datetime';
 
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
@@ -38,7 +38,7 @@ export const INITIAL_FILTER_STATE = {
   state: ['active', 'new'],
   filter: {
     date_range: {
-      lower: null,
+      lower: generateMonthsAgoDate(1).toISOString(),
       upper: null,
     },
     event_type: [],
@@ -46,6 +46,7 @@ export const INITIAL_FILTER_STATE = {
     text: '',
     duration: null,
     priority: [],
+    reported_by: [],
   },
 };
 
@@ -53,22 +54,20 @@ export default (state = INITIAL_FILTER_STATE, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case (UPDATE_EVENT_FILTER): {
-      const updated = {
-        ...state, ...payload, filter: {
-          ...state.filter,
-          ...payload.filter,
-        }
-      };
-      if (isEqual(state, updated)) return state;
-      return updated;
-    }
-    case (RESET_EVENT_FILTER): {
-      return { ...payload };
-    }
-    default: {
-      return state;
-    }
+  case (UPDATE_EVENT_FILTER): {
+    return {
+      ...state, ...payload, filter: {
+        ...state.filter,
+        ...payload.filter,
+      }
+    };
+  }
+  case (RESET_EVENT_FILTER): {
+    return { ...payload };
+  }
+  default: {
+    return state;
+  }
   }
 };
 

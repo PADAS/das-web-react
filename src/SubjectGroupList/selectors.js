@@ -18,8 +18,8 @@ const groupIsPartiallyHeatmapped = createSelector(
 );
 
 const unloadedSubjectTrackIDs = createSelector(
-[heatmapEligibleSubjectIDsForGroup, tracks],
-(subjectIDs, tracks) => subjectIDs.filter(id => !tracks[id]),
+  [heatmapEligibleSubjectIDsForGroup, tracks],
+  (subjectIDs, tracks) => subjectIDs.filter(id => !tracks[id]),
 );
 
 export const subjectGroupHeatmapControlState = createSelector(

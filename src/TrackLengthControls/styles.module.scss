@@ -1,0 +1,36 @@
+.form {
+  padding: 0.5rem;
+}
+
+.label {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 0;
+}
+
+.radio {
+  margin-right: 0.5rem;
+  height: unset;
+  width: unset;
+}
+
+.rangeControls {
+  align-items: center;
+  display: flex;
+  width: 100%;
+}
+
+.rangeSlider {
+  margin-right: 0.5rem;
+  width: 75%;
+}
+
+.rangeFreeformInput {
+  width: 25%;
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

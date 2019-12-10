@@ -13,7 +13,7 @@ export default class TimepointPopup extends PureComponent {
       <Popup anchor='bottom' offset={[0, -4]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
         <h4>{properties.title || properties.name}</h4>
         {properties.time && <DateTime date={properties.time} />}
-        <GpsFormatToggle lat={geometry.coordinates[1]} lng={geometry.coordinates[0]} />
+        <GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} />
       </Popup>
     );
   }

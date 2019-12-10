@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const spriteMappings = {
   events: {
     id: 'reportTypeIconSprite',
-    prefix: 'das--das--activity--static--sprite-src--',
+    prefix: 'das--activity--static--sprite-src--',
   },
 };
 
@@ -22,24 +22,30 @@ const calcIconUrl = (type, iconId) => {
   } else {
     return `#${ICON_PREFIX}generic_rep`;
   }
-}
+};
 
-const Icon = memo((props) => {
-  const { type, iconId, color, ...rest } = props;
+const DasIcon = (props) => {
+  const { type, iconId, color, dispatch:_dispatch, className, ...rest } = props;
+
+  const svgHref = calcIconUrl(type, iconId);
+
+  const isGeneric = svgHref.includes('generic');
+
+
   return (
-    <svg {...rest} fill={color}>
-      <use href={calcIconUrl(type, iconId)} />
+    <svg className={`${className || ''} ${isGeneric ? 'generic' : ''}`} {...rest} fill={color}>
+      <use href={svgHref} />
     </svg>
   );
-});
+};
 
-export default Icon;
+export default memo(DasIcon);
 
-Icon.defaultProps = {
+DasIcon.defaultProps = {
   color: 'white',
 };
 
-Icon.propTypes = {
+DasIcon.propTypes = {
   type: PropTypes.string.isRequired,
   iconId: PropTypes.string.isRequired,
   color: PropTypes.string,

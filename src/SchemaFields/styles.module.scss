@@ -10,3 +10,12 @@
     width: 100%;
   }
 }
+
+.linkLabel {
+  align-items: flex-end;
+  display: flex;
+  margin-bottom: 0.25rem;
+  a {
+    margin-left: 0.25rem;
+  }
+}

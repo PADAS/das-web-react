@@ -1,28 +1,52 @@
-import React, { memo, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Popover, Overlay } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import Overlay from 'react-bootstrap/Overlay';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
-import { mapReportTypesToCategories } from '../utils/event-types';
+import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { trackEvent } from '../utils/analytics';
 
 import EventTypeListItem from '../EventTypeListItem';
 
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { eventTypes, map, placement, showLabel, showIcon, container } = props;
-  const itemsGroupedByCategory = mapReportTypesToCategories(eventTypes);
-  const [selectedCategory, selectCategory] = useState(itemsGroupedByCategory[0].category);
+  const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
+    showLabel, showIcon, title, onSaveSuccess, onSaveError } = props;
+  const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
+  const containerRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
+  const placement = popoverPlacement || 'auto';
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setPopoverState(false);
+      }
+    };
+    if (popoverOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startEditNewReport = (reportType) => {
-    const newReport = createNewReportForEventType(reportType);
-    openModalForReport(newReport, map);
+    trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
+    const newReport = {
+      ...createNewReportForEventType(reportType),
+      ...reportData,
+    };
+    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled });
     setPopoverState(false);
   };
 
@@ -34,47 +58,78 @@ const AddReport = (props) => {
     </li>;
   };
 
+  const onButtonClick = () => {
+    setPopoverState(!popoverOpen);
+    trackEvent('Feed', 'Click \'Add Report\' button');
+  };
+
+  const onCategoryClick = (category) => {
+    selectCategory(category);
+    trackEvent('Feed', `Click '${category}' Category option`);
+  };
+
   const categoryList = <ul className={styles.categoryMenu}>
-    {itemsGroupedByCategory.map(({ category, display }) =>
-      <li key={category}>
-        <button className={category === selectedCategory ? styles.activeCategory : ''} onClick={() => selectCategory(category)}>{display}</button>
+    {eventsByCategory.map(({ value, display }) =>
+      <li key={value}>
+        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
+          onClick={() => onCategoryClick(value)}>{display}</button>
       </li>
     )}
   </ul>;
 
   const reportTypeList = <ul className={styles.reportTypeMenu}>
-    {itemsGroupedByCategory
-      .find(({ category: c }) => c === selectedCategory).types
+    {eventsByCategory
+      .find(({ value: c }) => c === selectedCategory).types
       .map(createListItem)}
   </ul>;
 
-  const AddReportPopover = <Popover className={styles.popover} placement='auto' title={<h4>Add Report</h4>}>
-    {categoryList}
-    {reportTypeList}
-  </Popover>;
+  const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}> {/* eslint-disable-line react/display-name */}
+    <Popover.Title>{title}</Popover.Title>
+    <Popover.Content>
+      {categoryList}
+      {reportTypeList}
+    </Popover.Content>
+  </Popover>
+  );
 
-  return <Fragment>
-    <button className={styles.addReport} ref={targetRef} type='button' onClick={() => setPopoverState(true)}>
+  return <div ref={containerRef}>
+    <button title={title} className={styles.addReport} ref={targetRef}
+      type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
-      {showLabel && <span>Add Report</span>}
+      {showLabel && <span>{title}</span>}
     </button>
-    <Overlay shouldUpdatePosition={true} show={popoverOpen} rootClose onHide={() => setPopoverState(false)} container={container.current} target={targetRef.current}>
-      {() => AddReportPopover}
+    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={placement}>
+      <AddReportPopover />
     </Overlay>
-  </Fragment>;
+  </div>;
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+const mapStateToProps = (state) => ({
+  eventsByCategory: getUserCreatableEventTypesByCategory(state),
+});
 export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
+  relationshipButtonDisabled: false,
   showIcon: true,
   showLabel: true,
+  title: 'Add Report',
+  onSaveSuccess() {
+
+  },
+  onSaveError() {
+
+  },
+  reportData: {},
 };
 
 AddReport.propTypes = {
-  container: PropTypes.object.isRequired,
+  relationshipButtonDisabled: PropTypes.bool,
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
+  title: PropTypes.string,
+  reportData: PropTypes.object,
+  onSaveSuccess: PropTypes.func,
+  onSaveError: PropTypes.func,
 };

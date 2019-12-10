@@ -1,39 +1,85 @@
+@import '../common/styles/vars/colors';
+
+$unfiltered-color : $secondary-light-gray;
+$filtered-color : $highlight-color;
+
 .search {
   align-items: center;
   display: flex;
   input {
     border: none;
-    border-bottom: 1px solid gray;
+    border-bottom: 1px solid $unfiltered-color;
+    border-radius: 0px;
     padding: 0.25rem;
-    &:focus {
-      border-bottom: 1px solid gray;
-      outline: none;
+    &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: $unfiltered-color;
+      opacity: 1; /* Firefox */
+    }
+    &:-ms-input-placeholder { /* Internet Explorer 10-11 */
+      color: $unfiltered-color;
+    }
+    &::-ms-input-placeholder { /* Microsoft Edge */
+      color: $unfiltered-color;
     }
   }
-  svg {
+  .searchIcon {
     height: 1.5rem;
     width: 1.5rem;
     circle {
       fill: none;
-      stroke: gray;
+      stroke: $unfiltered-color;
       stroke-width: 1rem;
     }
     path {
-      fill: gray;
+      fill: $unfiltered-color;
     }
   }
-  &.active, &:hover {
-    border: darken(gray, 15%);
-    svg {
+  .clearButton {
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
+    position: relative;
+    outline: none;
+    border: none;
+    background: white;
+    visibility: hidden;
+    right: 1rem;
+    cursor: pointer; 
+    &:hover > svg {
+      fill: $filtered-color;
+    }
+    > svg {
+      position: relative;
+      top: -0.25rem;
+    }
+  }
+  &.isFiltered {
+    input {
+      border-bottom: 1px solid $filtered-color;
+    }
+    .searchIcon {
       circle {
-        stroke: darken(gray, 15%);
+        stroke: $filtered-color;
       }
       path {
-        fill: darken(gray, 15%);
+        fill: $filtered-color;
       }
     }
+    .clearButton {
+      visibility: visible;
+    }
+  }
+  &.isActive:not(.isFiltered), &:hover:not(.isFiltered) {
     input {
-      border-bottom: 1px solid darken(gray, 15%);
+      border-bottom: 1px solid darken($unfiltered-color, 30%);
+    }
+    .searchIcon {
+      circle {
+        stroke: darken($unfiltered-color, 30%);
+      }
+      path {
+        fill: darken($unfiltered-color, 30%);
+      }
     }
   }
 }

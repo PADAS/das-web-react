@@ -1,4 +1,5 @@
 import { SOCKET_SUBJECT_STATUS } from './subjects';
+import { USER_LOCATION_RETRIEVED } from './location';
 import { uuid } from '../utils/string';
 
 const SHOW_POPUP = 'SHOW_POPUP';
@@ -19,38 +20,46 @@ export const hidePopup = (id) => ({
 
 export default (state = null, action = {}) => {
   const { type, payload } = action;
-  switch (type) {
-    case SHOW_POPUP: {
-      const popup = { ...payload, id: uuid() };
-      return popup;
-    }
-    case HIDE_POPUP: {
-      return null;
-    }
-    case SOCKET_SUBJECT_STATUS: {
-      if (!state
-        || state.type !== 'subject'
-        || !state.data.properties
-        || state.data.properties.id !== payload.properties.id) {
-        return state;
-      }
-      const { geometry, properties } = payload;
+  if (type === SHOW_POPUP) {
+    const popup = { ...payload, id: uuid() };
+    return popup;
+  }
+  if (type === HIDE_POPUP) {
+    return null;
+  }
+
+  if (type === USER_LOCATION_RETRIEVED) {
+    if (state && state.type === 'current-user-location') {
       return {
-        ...state, data: {
-          ...state.data,
-          geometry: {
-            ...state.data.geometry,
-            ...geometry,
-          },
-          properties: {
-            ...state.data.properties,
-            ...properties,
-          },
-        }
+        ...state,
+        data: {
+          location: payload,
+        },
       };
     }
-    default: {
+  }
+
+  if (type === SOCKET_SUBJECT_STATUS) {
+    if (!state
+      || state.type !== 'subject'
+      || !state.data.properties
+      || state.data.properties.id !== payload.properties.id) {
       return state;
     }
+    const { geometry, properties } = payload;
+    return {
+      ...state, data: {
+        ...state.data,
+        geometry: {
+          ...state.data.geometry,
+          ...geometry,
+        },
+        properties: {
+          ...state.data.properties,
+          ...properties,
+        },
+      }
+    };
   }
-}
+  return state;
+};

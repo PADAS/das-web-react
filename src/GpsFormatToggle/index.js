@@ -4,26 +4,34 @@ import { connect } from 'react-redux';
 
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString, GPS_FORMATS } from '../utils/location';
+import { trackEvent } from '../utils/analytics';
+
 import styles from './styles.module.scss';
 
 const gpsFormats = Object.values(GPS_FORMATS);
 
-const GpsFormatToggle = memo((props) => {
+const GpsFormatToggle = (props) => {
   const { updateUserPreferences, lat, lng, currentFormat, className, ...rest } = props;
+
+  const onGpsFormatClick = (gpsFormat) => {
+    trackEvent('GPS Format', 'Change GPS Format', `GPS Format:${gpsFormat}`);
+    updateUserPreferences({
+      gpsFormat,
+    });
+  };
 
   return (
     <div className={`${styles.container} ${className}`} {...rest}>
       <ul className={styles.choices}>
         {gpsFormats.map(gpsFormat =>
-          <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''} onClick={() => updateUserPreferences({
-            gpsFormat,
-          })}>{gpsFormat}</li>
+          <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''} 
+            onClick={() => onGpsFormatClick(gpsFormat)}>{gpsFormat}</li>
         )}
       </ul>
-      <span className={styles.value}>{calcGpsDisplayString(lng, lat, currentFormat)}</span>
+      <span className={styles.value}>{calcGpsDisplayString(lat, lng, currentFormat)}</span>
     </div>
   );
-});
+};
 
 
 GpsFormatToggle.propTypes = {
@@ -32,6 +40,6 @@ GpsFormatToggle.propTypes = {
   currentFormat: PropTypes.string.isRequired,
 };
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ currentFormat: gpsFormat })
+const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ currentFormat: gpsFormat });
 
-export default connect(mapStateToProps, { updateUserPreferences })(GpsFormatToggle);
+export default connect(mapStateToProps, { updateUserPreferences })(memo(GpsFormatToggle));

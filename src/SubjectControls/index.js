@@ -4,17 +4,19 @@ import { connect } from 'react-redux';
 
 import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
-import { fetchTracks } from '../ducks/tracks';
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
+import { trackEvent } from '../utils/analytics';
 
 import { getSubjectControlState } from './selectors';
+
+import { fetchTracksIfNecessary } from '../utils/tracks';
 
 
 import styles from './styles.module.scss';
 
-const SubjectControls = memo((props) => {
+const SubjectControls = (props) => {
   const { subject,
     showHeatmapButton,
     showTrackButton,
@@ -28,7 +30,6 @@ const SubjectControls = memo((props) => {
     tracksLoaded,
     tracksVisible,
     tracksPinned,
-    fetchTracks,
     map,
     ...rest } = props;
 
@@ -37,40 +38,59 @@ const SubjectControls = memo((props) => {
 
   const { id } = subject;
 
-  const fetchTracksIfNecessary = () => {
+  const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
-    return fetchTracks(id);
+    return fetchTracksIfNecessary([id]);
   };
 
   const onTrackButtonClick = async () => {
     setTrackLoadingState(true);
-    await fetchTracksIfNecessary(id);
+    await fetchSubjectTracks(id);
     setTrackLoadingState(false);
-
     toggleTrackState(id);
+
+    if (tracksPinned) {
+      trackEvent('Map Layers', 'Uncheck Subject Show Tracks button', `Subject:${subject.subject_type}`);
+    } else if (tracksVisible) {
+      trackEvent('Map Layers', 'Pin Subject Show Tracks button', `Subject:${subject.subject_type}`);
+    } else {
+      trackEvent('Map Layers', 'Check Subject Show Tracks button', `Subject:${subject.subject_type}`);
+    }
   };
 
   const coordinates = getSubjectLastPositionCoordinates(subject);
 
   const toggleHeatmapState = async () => {
     setHeatmapLoadingState(true);
-    await fetchTracksIfNecessary(id);
+    await fetchTracksIfNecessary([id]);
     setHeatmapLoadingState(false);
 
-    if (subjectIsInHeatmap) return removeHeatmapSubjects(id);
-    return addHeatmapSubjects(id);
+    if (subjectIsInHeatmap) {
+      trackEvent('Map Layers', 'Uncheck Subject Heatmap button', 
+        `Subject Type:${subject.subject_type}`);
+      return removeHeatmapSubjects(id);
+    } else {
+      trackEvent('Map Layers', 'Check Subject Heatmap button', 
+        `Subject Type:${subject.subject_type}`);
+      return addHeatmapSubjects(id);
+    }
   };
 
   if (!canShowTrackForSubject(subject)) return null;
   if (!showHeatmapButton && !showTrackButton && !showJumpButton) return null;
 
-
-  return <div className={`${styles.controls} ${className || ''} ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {showTrackButton && <TrackToggleButton loading={loadingTracks} onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
-    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} map={map} />}
-  </div>
-});
+  return <div className={`${styles.controls} ${className || ''} 
+    ${showTitles ? '' : styles.noTitles}`} {...rest}>
+    {showTrackButton && <TrackToggleButton loading={loadingTracks} 
+      onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} 
+      trackPinned={tracksPinned} />}
+    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} 
+      onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
+    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
+      map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button', 
+        `Subject Type:${subject.subject_type}`]} />}
+  </div>;
+};
 
 
 SubjectControls.defaultProps = {
@@ -91,4 +111,4 @@ SubjectControls.propTypes = {
 
 const mapStateToProps = (state, props) => getSubjectControlState(state, props);
 
-export default connect(mapStateToProps, { fetchTracks, toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(SubjectControls);
+export default connect(mapStateToProps, { toggleTrackState, addHeatmapSubjects, removeHeatmapSubjects })(memo(SubjectControls));

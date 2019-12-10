@@ -10,8 +10,8 @@ import SubjectControls from '../SubjectControls';
 
 import styles from './styles.module.scss';
 
-const SubjectPopup = memo((props) => {
-  const { data: { geometry, properties }, onTrackToggle, onHeatmapToggle, trackState, heatmapState, map, ...rest } = props;
+const SubjectPopup = (props) => {
+  const { data: { geometry, properties }, map, ...rest } = props;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
@@ -19,38 +19,19 @@ const SubjectPopup = memo((props) => {
     <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
       <h4>{properties.name}</h4>
       {coordProps.time && <DateTime date={coordProps.time} />}
-      {<GpsFormatToggle lat={geometry.coordinates[1]} lng={geometry.coordinates[0]} />}
+      {<GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} />}
       {tracks_available && (
         <Fragment>
-          <TrackLength className={styles.trackLength} id={properties.id} />
+          <TrackLength className={styles.trackLength} trackId={properties.id} />
           <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
         </Fragment>
       )}
     </Popup>
   );
-}, (prev, current) => isEqual(prev.trackState, current.trackState)
-  && isEqual(prev.heatmapState, current.heatmapState)
-  && isEqual(prev.data, current.data)
-);
-
-export default SubjectPopup;
-
-SubjectPopup.defaultProps = {
-  onTrackToggle() {
-    console.log('track toggle');
-  },
-  onHeatmapToggle() {
-    console.log('heatmap toggle');
-  },
 };
+
+export default memo(SubjectPopup);
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,
-  onTrackToggle: PropTypes.func,
-  trackState: PropTypes.shape({
-    visible: PropTypes.array,
-    pinned: PropTypes.array,
-  }).isRequired,
-  heatmapState: PropTypes.array.isRequired,
-  onHeatmapToggle: PropTypes.func,
 };

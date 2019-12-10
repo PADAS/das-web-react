@@ -1,0 +1,54 @@
+@import '../common/styles/vars/colors';
+
+.dropdown {
+  margin-right: 1rem;
+  position: relative;
+}
+
+.menu {
+  min-width: 16rem;
+  padding: 0;
+}
+
+.badge {
+  bottom: 0;
+  font-size: 0.5rem;
+  height: 0.75rem;
+  position: absolute;
+  right: -0.25rem;
+  width: 0.75rem;
+}
+
+.icon {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+
+
+.item, .noItems {
+  margin: 0;
+  padding: 0.5rem 1rem;
+}
+
+.item {
+  display: flex;
+  flex-flow: column;
+  + .item {
+    border-top: 1px solid $light-gray-border;
+  }
+}
+
+.buttons {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.5rem 0;
+  width: 100%;
+}
+
+.button {
+  margin: 0;
+  + .button {
+    margin-left: 0.5rem;
+  }
+}

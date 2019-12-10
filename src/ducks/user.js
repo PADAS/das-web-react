@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
+import { setUserRole } from '../utils/analytics'
 
 export const CURRENT_USER_API_URL = `${API_URL}user/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
@@ -14,27 +15,40 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 // action creators
 
 export const fetchCurrentUser = () => async (dispatch) => {
-  const { data: { data } } = await axios.get(CURRENT_USER_API_URL)
-    .catch(error => console.log('error getting user', error));
-  
-  dispatch(fetchUserSuccess(data));
+  try {
+    const { data: { data } } = await axios.get(CURRENT_USER_API_URL)
+    if (!!data.role && data.role.length > 0) {
+      setUserRole(data.role);
+    }
+    dispatch(fetchUserSuccess(data));
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
 export const fetchCurrentUserProfiles = () => async (dispatch) => {
-  const { data: { data } } = await axios.get(USER_PROFILES_API_URL)
-    .catch(error => console.log('error getting user profiles', error));
-  
-  dispatch(fetchUserProfileSuccess(data));
+  try {
+    const { data: { data } } = await axios.get(USER_PROFILES_API_URL)
+    dispatch(fetchUserProfileSuccess(data));
+  } catch (e) {
+    return Promise.reject(e);
+  }
 };
 
-export const setUserProfile = payload => ({
-  type: SET_USER_PROFILE,
-  payload,
-});
+export const setUserProfile = payload => (dispatch) => {
+  document.cookie = `userProfile=${payload.id}`; // set profile cookie
+  dispatch({
+    type: SET_USER_PROFILE,
+    payload,
+  });
+};
 
-export const clearUserProfile = () => ({
-  type: CLEAR_USER_PROFILE,
-});
+export const clearUserProfile = () => (dispatch) => {
+  document.cookie = 'userProfile=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'; // expire profile cookie
+  dispatch({
+    type: CLEAR_USER_PROFILE,
+  });
+}; 
  
 const fetchUserSuccess = payload => ({
   type: FETCH_CURRENT_USER_SUCCESS,

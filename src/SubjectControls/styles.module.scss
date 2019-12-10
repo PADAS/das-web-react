@@ -1,3 +1,5 @@
+@import '../common/styles/layout';
+
 .controls {
   display: flex;
   justify-content: space-around;
@@ -5,5 +7,9 @@
     span {
       display: none;
     }
+  }
+  @media (min-width: $md-layout-width-min) {
+    margin: -0.5rem 0 !important;
+    top: 1rem !important;
   }
 }

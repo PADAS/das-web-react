@@ -1,7 +1,13 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useRef } from 'react';
+import { connect } from 'react-redux';
+import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
+import Button from 'react-bootstrap/Button';
+import { trackEvent } from '../utils/analytics';
 
-import styles from './styles.module.scss';
+import { withMap } from '../EarthRangerMap';
+
+import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 const bindExternal = function (map, eventType, toInvoke) {
   map.on(eventType, toInvoke);
@@ -12,78 +18,80 @@ const unbindExternal = (map, eventType, func) => {
   map.off(eventType, func);
 };
 
-const MapLocationPicker = memo((props) => {
-  const { label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart  } = props;
+const MapLocationPicker = (props) => {
+  const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState, showCancelButton, wrapperClassName } = props;
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
-    const { key } = event;
     event.preventDefault();
     event.stopPropagation();
-    unbindMapEvents();
-    onLocationSelectCancel();
+    onCancel();
   });
 
   const bindMapEvents = () => {
-    map.getCanvas().style.cursor = 'crosshair';
     clickFunc.current = bindExternal(map, 'click', onSelect);
     document.addEventListener('keydown', keydownFunc.current);
   };
 
 
   const unbindMapEvents = () => {
-    map.getCanvas().style.cursor = '';
     unbindExternal(map, 'click', clickFunc.current);
     document.removeEventListener('keydown', keydownFunc.current);
   };
 
-  useEffect(() => {
-    return unbindMapEvents;
-  }, []);
-
-  const onSelect = (e) => {
-    const { originalEvent } = e;
-
-    e.preventDefault();
-    originalEvent.stopPropagation();
-    originalEvent.preventDefault();
-
+  const onCancel = (e) => {
+    setPickingMapLocationState(false);
     unbindMapEvents();
-
-
-    onLocationSelect(e);
+    onLocationSelectCancel();
+    trackEvent('Map Interaction', "Dismiss 'Drop Marker'");
   };
 
-  const handleKeyDown = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const { key } = event;
-    if (key === 'Escape') {
-      unbindMapEvents();
-      onLocationSelectCancel();
-    }
+  const onSelect = (e) => {
+    setPickingMapLocationState(false);
+    unbindMapEvents();
+    onLocationSelect(e);
+    trackEvent('Map Interaction', "Place 'Drop Marker' to Create Report");
   };
 
   const onSelectStart = () => {
+    setPickingMapLocationState(true);
     bindMapEvents();
     onLocationSelectStart();
+    trackEvent('Map Interaction', "Click 'Drop Marker' button");
   };
 
-  return <a href="#" onClick={onSelectStart}><span className={styles.icon}></span>{label}</a>;
-});
+  return <div className={wrapperClassName}>
+    <button disabled={disabled} type='button' className={className} onClick={onSelectStart}>
+      <LocationIcon />
+      <span>{label}</span>
+    </button>
+    {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+  </div>;
+};
 
-export default MapLocationPicker;
+export default connect(null, { setPickingMapLocationState })(withMap(memo(MapLocationPicker)));
 
 MapLocationPicker.defaultProps = {
+  className: '',
   onLocationSelectStart() {
 
   },
+  onLocationSelectCancel() {
+
+  },
   label: 'Choose on map',
+  disabled: false,
+  showCancelButton: false,
+  wrapperClassName: '',
 };
 
 MapLocationPicker.propTypes = {
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
   onLocationSelectStart: PropTypes.func,
   onLocationSelect: PropTypes.func.isRequired,
   map: PropTypes.object.isRequired,
   label: PropTypes.string,
+  showCancelButton: PropTypes.bool,
+  wrapperClassName: PropTypes.string,
 };

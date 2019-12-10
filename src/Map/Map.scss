@@ -1,15 +1,54 @@
-.main-map .subject-marker-icon, .main-map .event-marker-icon {
-  height: 2rem;
-  width: 2rem;
+.main-map {
+  h5 {
+    line-height: normal;
+    margin: .1rem 0 0;
+  }
+  
+  .mapboxgl-popup {
+    z-index: 666 !important;
+  }
+
+  .mapboxgl-marker {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+  }
+  .subject-marker-icon, .event-marker-icon {
+    height: 2rem;
+    width: 2rem;
+  }
+  &.locked {
+    div.mapbox-zoom-ctrl {
+      pointer-events: none;
+    }
+  }
 }
 
-.main-map .mapboxgl-marker {
-  align-items: center;
+.map-controls-container {
+  bottom: 0;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  left: 0.5rem;
+  position: absolute;
+  width: 6rem;
+  z-index: 6;
+  > * {
+    margin: 0 0.25rem 0.5rem;
+  }
 }
 
-.main-map h5 {
-  line-height: normal;
-  margin: .1rem 0 0;
+.map-legends {
+  // background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 4px rgba(0, 0, 0, .5);
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 20rem;
+  z-index: 11;
+}
+
+.timeslider-active {
+  .mapbox-scale-ctrl {
+    display: none !important;
+  }
 }

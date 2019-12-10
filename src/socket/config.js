@@ -1,6 +1,6 @@
 import { SOCKET_HEALTHY_STATUS, SOCKET_UNHEALTHY_STATUS, SOCKET_WARNING_STATUS, SOCKET_SERVICE_STATUS } from '../ducks/system-status';
-import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
-import { SOCKET_UPDATE_EVENT, SOCKET_NEW_EVENT } from '../ducks/events';
+import { SOCKET_SUBJECT_STATUS, fetchMapSubjects } from '../ducks/subjects';
+import { SOCKET_UPDATE_EVENT, SOCKET_NEW_EVENT, fetchMapEvents } from '../ducks/events';
 
 const SOCKET_DISPATCHES = {
   resp_authorization: [/* 'SOCKET_AUTH_RESPONSE' ,*/ SOCKET_HEALTHY_STATUS],
@@ -16,6 +16,8 @@ const SOCKET_DISPATCHES = {
   socket_error: [/* 'SOCKET_WEBSOCKET_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
   subject_status: [SOCKET_SUBJECT_STATUS, SOCKET_HEALTHY_STATUS],
   update_event: [SOCKET_UPDATE_EVENT, SOCKET_HEALTHY_STATUS],
-}
+};
+
+export const SOCKET_RECOVERY_DISPATCHES = [fetchMapSubjects, fetchMapEvents];
 
 export { SOCKET_DISPATCHES as events };

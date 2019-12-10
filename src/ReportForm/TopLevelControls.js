@@ -1,28 +1,54 @@
-import React, { memo, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Popover, Overlay } from 'react-bootstrap';
+import Popover from 'react-bootstrap/Popover';
+import Overlay from 'react-bootstrap/Overlay';
 
 import DateTimePicker from 'react-datetime-picker';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import ReportedBySelect from '../ReportedBySelect';
+import GeoLocator from '../GeoLocator';
 
 import { setModalVisibilityState } from '../ducks/modals';
 import {  updateUserPreferences } from '../ducks/user-preferences';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import { calcGpsDisplayString } from '../utils/location';
 
+import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
+import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
+import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+
 import styles from './styles.module.scss';
 
-const ReportFormTopLevelControls = memo((props) => {
+const ReportFormTopLevelControls = (props) => {
   const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
-  
-  const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
 
+  const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
+  const canShowReportedBy = report.provenance !== 'analyzer';
+  
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
+  const testRef = useRef(null);
+  
+
+  const handleGpsInputKeydown = (event) => {
+    const { key } = event;
+    if (key === 'Enter') {
+      setGpsPopoverState(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (testRef.current && !testRef.current.contains(e.target)) {
+        setGpsPopoverState(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []); 
 
   const onLocationSelectFromMapStart = () => {
     setModalVisibilityState(false);
@@ -33,6 +59,12 @@ const ReportFormTopLevelControls = memo((props) => {
     setModalVisibilityState(true);
   };
 
+  const onGeoLocationSuccess = (coords) => {
+    onReportLocationChange([coords.longitude, coords.latitude]);
+    setModalVisibilityState(true);
+    setGpsPopoverState(false);
+  };
+
   const onLocationSelectFromMap = (event) => {
     const { lngLat: { lat, lng } } = event;
     onReportLocationChange([lng, lat]);
@@ -41,26 +73,35 @@ const ReportFormTopLevelControls = memo((props) => {
   };
 
   return <div className={styles.reportControls}>
-    <label>
-      Reported by:
+    {canShowReportedBy && <label>
+      <PersonIcon className={`${styles.icon} ${styles.iconFill}`} />
+      <span>Reported by:</span>
       <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
-    </label>
+    </label>}
     <label>
-      Report time:
+      <ClockIcon className={styles.icon} />
+      <span>Report time:</span>
       <DateTimePicker
         {...DATEPICKER_DEFAULT_CONFIG}
         clearIcon={null}
         required={true}
         value={report.time ? new Date(report.time) : null}
         maxDate={new Date()}
+        format='yyyy-MM-dd HH:mm'
         onChange={onReportDateChange} />
     </label>
     <label ref={gpsInputLabelRef}>
-      Location:
+      <LocationIcon className={styles.icon} />
+      <span>Location:</span>
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
         {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
-          <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} />
-          <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
+          <div ref={testRef}>
+            <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
+            <div className={styles.locationButtons}>
+              <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
+              <GeoLocator className={styles.geoLocator} onSuccess={onGeoLocationSuccess} />
+            </div>
+          </div>
         </Popover>}
       </Overlay>
       <a href="#" onClick={() => setGpsPopoverState(!gpsPopoverOpen)} className={styles.locationAnchor} ref={gpsInputAnchorRef}>
@@ -68,11 +109,11 @@ const ReportFormTopLevelControls = memo((props) => {
       </a>
     </label>
   </div>;
-});
+};
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }, props) => ({
+const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({
   gpsFormat
 });
 
 
-export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(ReportFormTopLevelControls);
+export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(ReportFormTopLevelControls));

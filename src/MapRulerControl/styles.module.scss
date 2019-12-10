@@ -1,0 +1,20 @@
+@import '../common/styles/buttons';
+
+.buttons {
+  align-items: center;
+  display: flex;
+  button + button {
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+    padding: 0.25 0.5rem;
+  }
+}
+
+.button {
+  @include mapboxControlButton;
+  svg path {
+    fill: #333;
+  }
+}
+
+

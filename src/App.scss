@@ -1,6 +1,7 @@
-@import './common/styles/bootstrap-3-legacy-components';
+// @import './common/styles/bootstrap-3-legacy-components';
 
 @import './common/styles/vars/colors';
+@import './common/styles/animations';
 @import './common/styles/buttons';
 @import './common/styles/layout';
 @import './common/styles/inputs';
@@ -10,6 +11,9 @@
 *::after {
   box-sizing: border-box;
 }
+
+$map-canvas: '.mapboxgl-canvas';
+$non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
 :root {
   --nav-height: 3rem;
@@ -41,9 +45,41 @@ body {
   position: fixed;
 }
 
-.App.dragging {
-  cursor: no-drop;
+.App, #root {
+  height: 100%;
 }
+
+.App {
+  display: flex;
+  flex-flow: column;
+  &.picking-location {
+    #{$non-map-top-level-components} {
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
+
+    #{$map-canvas} {
+      cursor: crosshair;
+    }
+
+    .mapboxgl-ctrl-bottom-right,
+    .mapbox-scale-ctrl,
+    .mapbox-zoom-ctrl {
+      display: none !important;
+    }
+  }
+
+  &.dragging {
+    cursor: no-drop;
+  }
+}
+
+aside {
+  .Collapsible {
+    width: 100%;
+  }
+}
+
 
 #reportTypeIconSprite {
   display: none;
@@ -69,11 +105,13 @@ body {
   .modal-content {
     max-height: 98vh;
     padding: 0;
+
     @media (min-height: $lg-height-min) {
       max-height: 80vh;
     }
+
     >div>*:not(form) {
-      padding: 1rem;
+      padding: 1rem 0.5rem;
     }
 
     >div>form {
@@ -82,35 +120,122 @@ body {
   }
 }
 
-.event-filter-details {
+.floating-report-filter {
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.75);
-  margin-left: 0.5rem;
-  padding: 0.25rem;
-  top: 0.5rem;
-  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  line-height: normal;
+  max-width: 17rem;
+  padding: 0.333rem;
+  top: 0;
+  right: 0;
   transition: all 0.3s linear;
+  width: 100vw;
 
-  @media (min-width: $md-layout-width-min) {
-    right: 4.5rem;
+  form {
+    border: none;
+    padding: 0;
+    @media (min-width: $md-layout-width-min) {
+      border-bottom: 1px solid $gray-border;
+      padding-bottom: 0.5rem;
+    }
   }
 
+  @media (min-width: $md-layout-width-min) {
+    max-width: 22rem;
+    right: 4.5rem;
+    top: 0.5rem;
+  }
+  [class*=search] {
+    input {
+      background: transparent;
+    }
+  } 
+  .map-report-filter-details {
+    display: none;
+    @media (min-width: $md-layout-width-min) {
+      display: block;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+  }
 }
+
+.react-calendar {
+  border: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 3px $light-gray-border;
+  padding: 0.5rem;
+  .react-calendar__month-view__days {
+    button {
+      border-radius: 100%;
+      height: 3rem;
+      width: 3rem;
+  
+      &:not(:disabled):hover,
+      &.react-calendar__tile--active {
+        border: 1px solid $light-gray-border;
+      }
+  
+      &.react-calendar__tile--active {
+        background: unset;
+        color: unset;
+      }
+    }
+  }
+  .react-calendar__navigation__label {
+    font-weight: bold;
+  }
+  .react-calendar__tile:disabled {
+    background: none;
+    opacity: 0.5;
+  }
+}
+
+.react-datetime-picker__inputGroup, .react-datetime-picker__inputGroup__input {
+  color: $bright-blue;
+}
+
+.react-datetime-picker__wrapper {
+  border: 1px solid $light-gray-border;
+  cursor: pointer;
+  > * {
+    cursor: pointer;
+  }
+}
+
+/* .react-datetime-picker__clear-button {
+  align-items: center;
+  border: 1px solid $bright-blue;
+  border-radius: 100%;
+  display: flex;
+  height: 1rem;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  top: -0.25rem;
+  width: 1rem;
+  svg {
+    height: 75%;
+    fill: $bright-blue;
+    stroke: $bright-blue;
+    width: 75%;
+  }
+} */
 
 .maplock {
   text-align: center;
 }
 
 .app-container {
+  flex: 1;
   position: relative;
-  height: calc(100vh - var(--nav-height));
   width: 100vw;
   z-index: 1;
 
   &.sidebar-open {
-    .event-filter-details {
+    .floating-report-filter {
       opacity: 0;
     }
 
@@ -137,7 +262,7 @@ body {
   }
 
   .mapboxgl-map {
-    height: calc(100vh - var(--nav-height));
+    height: 100%;
     transition: width .3s ease-in-out;
     width: 100vw;
   }
@@ -153,7 +278,7 @@ body {
   display: flex;
   flex-flow: column;
   flex-grow: 0;
-  height: calc(100vh - var(--nav-height));
+  height: 100%;
   position: absolute;
   right: 0;
   transition: transform .3s ease-in-out;
@@ -162,8 +287,37 @@ body {
   width: var(--sidebar-width);
   z-index: 10;
 
+  [class*=addReportContainer] {
+    .bs-popover-left {
+      margin-top: 3rem;
+      margin-left: -0.5rem;
+    }
+  }
+
+  .bs-popover-left {
+    .arrow::after {
+      border-left-color: $popover-header-color;
+    }
+  }
+
+  .bs-popover-bottom {
+    margin-top: 0;
+    .arrow::after {
+      border-bottom-color: $popover-header-color;
+    }
+  }
+  .bs-popover-bottom .popover-header::before, .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
+    display: none;
+  }
+
   .nav-tabs,
   .nav-item {
+    border: none;
+    border-radius: 0;
+  }
+
+
+  .nav-tabs .nav-link {
     border: none;
     border-radius: 0;
   }
@@ -173,6 +327,7 @@ body {
   }
 
   .nav-item {
+    border: none;
     flex-grow: 1;
     font-weight: bold;
     padding: 0.5rem;
@@ -185,33 +340,42 @@ body {
       &:hover {
         text-decoration: underline;
       }
+      &:hover, &:focus {
+        border: none;
+      }
     }
   }
 
   .handle {
     @include unstyledButton;
-    background: $dark-gray;
+    background: $off-black;
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
     font-size: .75rem;
-    height: 3rem;
+    height: 4rem;
+    width: 1.5rem;
     left: -1.5rem;
     top: 45%;
     position: absolute;
 
     &:hover {
-      background: darken($dark-gray, 10%);
+      background: darken($off-black, 10%);
     }
 
     &:active {
-      background: darken($dark-gray, 16%);
+      background: darken($off-black, 16%);
     }
 
     span {
       display: block;
-      font-weight: bold;
       transform: rotate(180deg);
       transition: transform .2s .3s ease-in-out;
+
+      svg {
+        width: 0.75rem;
+        height: 0.75rem;
+        fill: white;
+      }
     }
 
     @media (min-width: $md-layout-width-min) {
@@ -250,7 +414,7 @@ body {
 }
 
 .modal-header {
-  background: $primary-modal-header;
+  background: $popover-header-color;
   color: white;
 
   .close {
@@ -272,16 +436,16 @@ h4,
 h5,
 h6 {
   margin: 0;
+  margin-bottom: 0.25rem;
 }
 
 div.mapboxgl-popup-content {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 0.5rem;
   text-align: center;
-  width: 12rem;
+  width: 13rem;
 
-  h4 {
-    font-size: 1.1rem;
+  h5 {
     margin-bottom: 0.5rem;
   }
 }
@@ -296,7 +460,8 @@ div.mapboxgl-popup-tip {
 }
 
 .modal[role=dialog] {
-  background: rgba(0,0,0,0.5);
+  @include fade-in;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .modal-backdrop {
@@ -304,7 +469,7 @@ div.mapboxgl-popup-tip {
 }
 
 @media (min-width: $md-layout-width-min) {
-  .event-form-modal + .modal-backdrop + .event-form-modal .modal-dialog {
+  .event-form-modal+.modal-backdrop+.event-form-modal .modal-dialog {
     left: 1rem;
     top: 1rem;
   }
@@ -312,4 +477,71 @@ div.mapboxgl-popup-tip {
 
 .modal-open .modal {
   overflow: hidden;
+}
+
+.dropdown-item {
+  align-items: center;
+  display: flex;
+  padding: .5rem 1rem;
+  user-select: text;
+
+  &:active,
+  &:visited,
+  &:focus {
+    background-color: unset;
+    color: unset;
+    outline: none;
+  }
+}
+
+@media print {
+  @page {
+    size: landscape;
+  }
+  .primary-nav .rightMenus > div {
+    &:first-child, &:last-child {
+      display: none !important;
+    }
+  }
+  .side-menu, .map-controls-container, .mapbox-zoom-ctrl, .mapboxgl-ctrl-top-left {
+    display: none !important;
+  }
+  .primary-nav {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    // print-color-adjust: exact !important;
+  }
+}
+
+#nprogress .spinner {
+  left: 0.45rem;
+  pointer-events: none;
+  right: unset;
+  top: 0.95rem;
+}
+
+.alerts-modal.show {
+  align-items: flex-start;
+  display: flex !important;
+  justify-content: center;
+  .modal-dialog {
+    margin: 0 0.5rem;
+    max-width: 56rem;
+    width: 100%;
+  }
+  .modal-content {
+    border-radius: 1rem;
+    height: 90vh;
+  }
+  iframe {
+    border: none;
+    outline: none;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+
+.react-datetime-picker__calendar {
+  z-index: 10;
 }

@@ -1,0 +1,44 @@
+@import '../common/styles/vars/colors';
+
+$checkmark-color: $medium-light-gray;
+$hover-color: darken($clear-all-link-color, 15.0%);
+
+.clearAllRow {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: absolute;
+	bottom: 0;
+    z-index: 3;
+    button {
+        border: none;
+        text-align: center;
+        background: none;
+        color: $clear-all-link-color;
+        margin-left: 0.5rem;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        &:focus {
+          outline: 0;
+        }
+        &:hover {
+          color: $hover-color;
+          svg {
+            stroke: $hover-color;
+          }
+        }
+    }
+}
+
+.checkmark {
+  --dimensions: 1.5rem;
+  fill: white;
+  height: var(--dimensions);
+  width: var(--dimensions);
+  stroke: $clear-all-link-color;
+  stroke-width: calc(var(--dimensions)/8);
+  margin-right: 1.0rem;
+    &:hover {
+      stroke: $hover-color;
+    }
+}

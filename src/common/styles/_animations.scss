@@ -13,3 +13,15 @@
   }
   animation: slide-down $duration ease-in;
 }
+
+@mixin fade-in($duration: 0.2s) {
+  @keyframes fade-in {
+    0% {
+      opacity: 0
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  animation: fade-in $duration linear;
+}

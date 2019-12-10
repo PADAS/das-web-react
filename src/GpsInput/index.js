@@ -12,8 +12,8 @@ import styles from './styles.module.scss';
 
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
-const GpsInput = memo((props) => {
-  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle } = props;
+const GpsInput = (props) => {
+  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch:_dispatch, ...rest } = props;
 
   const lngLat = originalLngLat ? [...originalLngLat] : null;
   const hasLocation = !!lngLat && lngLat.length === 2;
@@ -50,7 +50,6 @@ const GpsInput = memo((props) => {
     if (!inputValue || !lastKnownValidValue) {
       validateNewInputValue();
     } else try {
-      const value = calcActualGpsPositionForRawText(inputValue, gpsFormat);
       validateNewInputValue();
     } catch (e) {
       handleValidationError(e);
@@ -86,10 +85,6 @@ const GpsInput = memo((props) => {
     onValidChange(lastKnownValidValue);
   };
 
-  const resetInput = () => {
-    setUpStateWithLocationProp();
-  };
-
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);
   useEffect(onValueUpdate, [inputValue]);
@@ -102,18 +97,19 @@ const GpsInput = memo((props) => {
         <small>Example: {GPS_FORMAT_EXAMPLES[gpsFormat]}</small>
       </Fragment>
     }
-    <input className={valid ? '' : styles.errorInput} {...inputProps} placeholder={placeholder} type="text" value={inputValue} onBlur={onInputBlur} onChange={onInputChange} />
+    <input className={valid ? '' : styles.errorInput} {...inputProps} placeholder={placeholder}
+      type='text' value={inputValue} onBlur={onInputBlur} onChange={onInputChange} {...rest} />
     {!valid && <Alert className={styles.errorMessage} variant='danger'>Invalid location</Alert>}
   </div>;
-}, (prev, next) => isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat));
+};
 
 const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ gpsFormat });
 
-export default connect(mapStateToProps, null)(GpsInput);
+export default connect(mapStateToProps, null)(memo(GpsInput, (prev, next) =>
+  isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat)));
 
 GpsInput.defaultProps = {
   onValidChange(value) {
-    console.log('a new valid value has been established', value);
   },
   inputProps: {},
   showFormatToggle: true,

@@ -1,12 +1,60 @@
 @import './common/styles/vars/colors';
+@import "./common/styles/vars/fonts";
+
+html, body {
+  height: 100%;
+}
 
 body {
   color: $primary-font-color;
-  font-family: 'Roboto', sans-serif;
+  font-family: $font-family-base;
   margin: 0;
   padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Roboto Slab', serif;
+  font-family: $headings-font-family;
+  font-weight: $headings-font-weight;
+  line-height: $headings-line-height;
+}
+
+h1 {
+  font-size: $font-size-h1;
+}
+h2 {
+  font-size: $font-size-h2;
+}
+h3 {
+  font-size: $font-size-h3;
+}
+h4 {
+  font-size: $font-size-h4;
+}
+h5 {
+  font-size: $font-size-h5;
+}
+h6 {
+  font-size: $font-size-h6;
+}
+
+
+$toastify-mq: only screen and (min-width: 481px); // using pixel values here, which is gross, but so we can have alignment with the media query boundaries from Toastify.
+
+@media #{$toastify-mq} {
+  .Toastify__toast-container {
+    --width: 28rem;
+    width: var(--width);
+    &[class*=center] {
+      margin-left: calc((var(--width)/2) * -1);
+    }
+  }
+}
+
+
+.Toastify__toast--default {
+  color: $primary-font-color;
+}
+
+.Toastify__toast-body {
+  padding: 0.25rem 0.5rem;
 }

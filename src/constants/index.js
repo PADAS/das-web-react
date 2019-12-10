@@ -1,4 +1,10 @@
-import { calcLayerName } from '../utils/map';
+import { toast } from 'react-toastify';
+
+import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+
+import layoutVariables from '../common/styles/_layout.scss';
+
+const { POSITION: TOAST_POSITIONS } = toast;
 
 export const {
   REACT_APP_DAS_HOST,
@@ -6,7 +12,24 @@ export const {
   REACT_APP_MAPBOX_TOKEN,
   REACT_APP_DAS_API_URL,
   REACT_APP_ROUTE_PREFIX,
+  REACT_APP_GA_TRACKING_ID,
+  REACT_APP_BASE_MAP_STYLES,
 } = process.env;
+
+export const GA_EVENT_CATEGORIES = {
+  EVENT_REPORTS: "Event Reports",
+  REPORT_EXPORT: "Report Export",
+  MAP_INTERATION: "Map Interaction",
+  MAP_LAYERS: "Map Layers",
+  FEED: "Feed",
+  TABS: "Tabs",
+  DRAWER: "Drawer",
+  GPS_FORMAT: "GPS Format",
+  SYSTEM_STATUS: "System Status",
+};
+
+export const MIN_ZOOM = 1;
+export const MAX_ZOOM = 18;
 
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
@@ -19,20 +42,19 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-export const MAP_ICON_SIZE = {
-  height: 30,
-  width: 30,
-};
+export const MAP_ICON_SIZE = 30;
 
 // keep this in sync with `/common/styles/_layout.scss`
-const mdLayoutWidthMin = '(min-width: 31.75rem)';
-const lgLayoutWidthMin = '(min-width: 48rem)';
-const mdLayoutWidthMax = `(max-width: calc(${lgLayoutWidthMin} - 1px))`;
+const mdLayoutWidthMax = `(max-width: ${layoutVariables.mediumWidthMax}`;
+const mdLayoutWidthMin = `(min-width: ${layoutVariables.mediumWidthMin})`;
+const lgLayoutWidthMin = `(min-width: ${layoutVariables.largeWidthMin})`;
+const xlLayoutWidthMin = `(min-width: ${layoutVariables.extraLargeWidthMin})`;
 
 export const BREAKPOINTS = {
   screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
   screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
   screenIsLargeLayoutOrLarger: matchMedia(lgLayoutWidthMin),
+  screenIsExtraLargeWidth: matchMedia(xlLayoutWidthMin),
 };
 
 export const LAYER_IDS = {
@@ -46,30 +68,57 @@ export const LAYER_IDS = {
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',
+  ANALYZER_POLYS_WARNING: 'analyzer-polys-warning',
+  ANALYZER_POLYS_CRITICAL: 'analyzer-polys-critical',
+  ANALYZER_LINES_WARNING: 'analyzer-lines-warning',
+  ANALYZER_LINES_CRITICAL: 'analyzer-lines-critical',
+  ISOCHRONE_LAYER: 'isochrone',
 };
 
-export const GENERATED_LAYER_IDS = Object.entries(LAYER_IDS).reduce((output, [key, value]) => {
-  output[key] = calcLayerName(key, value);
-  return output;
-}, {});
+/* "match" will be replaced with "in" once that expression is merged into master for the mapbox-gl style spec, at which point this expression will work for half-sised generic icons. */
+const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['match', ['get', 'image'], 'generic', ifGeneric, ifNonGeneric];
+
+const symbolIconSize = [
+  'interpolate', ['exponential', 0.5], ['zoom'],
+  7, 0,
+  12, IF_IS_GENERIC(0.5, 1),
+  MAX_ZOOM, IF_IS_GENERIC(0.75, 1.5),
+];
 
 
 export const DEFAULT_SYMBOL_LAYOUT = {
-  'icon-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
-  'icon-image': ["get", "icon_id"],
-  'text-allow-overlap': ["step", ["zoom"], false, 12, true],
+  'icon-image': ['get', 'icon_id'],
+  'icon-size': symbolIconSize,
+  'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
-  'text-offset': [0, .5],
+  'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
-  'text-size': 12,
+  'text-size': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    6, 0,
+    12, 14,
+    MAX_ZOOM, 16,
+  ],
+};
+
+export const DEFAULT_SYMBOL_PAINT = {
+  'text-halo-color': 'rgba(255,255,255,0.7)',
+  'text-halo-width': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    6, 1,
+    12, 3,
+  ],
+  'text-halo-blur': 3,
+  'text-translate-anchor': 'viewport'
 };
 
 export const EVENT_STATE_CHOICES = [
   {
     label: 'Active',
-    value: ['active', 'new'],
+    value: INITIAL_FILTER_STATE.state,
   },
   {
     label: 'Resolved',
@@ -100,7 +149,38 @@ export const REPORT_PRIORITIES = [
   },
 ];
 
+export const DEFAULT_SELECT_STYLES = {
+  option(styles, state) {
+    const { isDisabled, isFocused } = state;
+    return {
+      ...styles,
+      backgroundColor: isDisabled ? 'gray' : (isFocused ? '#006cd9' : 'white'),
+      color: isFocused ? 'white' : 'inherit',
+      cursor: isDisabled ? 'not-allowed' : 'default',
+    };
+  },
+};
+
 export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,
+  clearIcon: null,
+  calendarIcon: null,
   format: 'dd-MM-yyyy HH:mm',
 };
+
+export const GEOLOCATOR_OPTIONS = {
+  enableHighAccuracy: true,
+  maximumAge: 0,
+  timeout: 10000,
+};
+
+export const DEFAULT_TOAST_CONFIG = {
+  position: TOAST_POSITIONS.TOP_CENTER,
+};
+
+export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];
+export const GOOGLE_LAYER_SOURCE_TYPES = ['google_map'];
+export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles'];
+export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* ...GOOGLE_LAYER_SOURCE_TYPES, */ ...TILE_LAYER_SOURCE_TYPES];
+
+export const DEFAULT_SHOW_TRACK_DAYS = 7;

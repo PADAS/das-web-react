@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 import CheckMark from '../Checkmark';
@@ -15,20 +15,19 @@ const CheckableList = (props) => {
       return <li key={item.id || uuid()}>
         <CheckMark fullyChecked={fullyChecked} partiallyChecked={partiallyChecked} onClick={onClick} />
         <ItemComponent {...item} {...itemProps} />
-      </li>
+      </li>;
     })}
   </ul>;
 
 };
 
-export default CheckableList;
+export default memo(CheckableList);
 
 CheckableList.defaultProps = {
   itemPartiallyChecked() {
     return false;
   },
   onCheckClick(item) {
-    console.log('check clicked', item);
   },
   itemProps: {},
 };

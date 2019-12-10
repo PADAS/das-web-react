@@ -7,16 +7,16 @@ services:
     volumes:
       - /app/node_modules
       - .:/app
-  web_test:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - /app/node_modules
-      - .:/app
-    environment:
-      - CI=true
-    command: yarn test
+  # web_test:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - /app/node_modules
+  #     - .:/app
+  #   environment:
+  #     - CI=true
+  #   command: yarn test
   # web_old:
   #   build:
   #     context: $PWD/../das-web

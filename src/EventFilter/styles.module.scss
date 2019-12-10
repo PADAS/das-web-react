@@ -1,3 +1,4 @@
+@import '../common/styles/buttons';
 @import '../common/styles/vars/colors';
 @import '../common/styles/layout';
 @import '../common/styles/popovers';
@@ -8,7 +9,7 @@
   flex-wrap: wrap;
   display: flex;
   justify-content: flex-end;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   position: relative;
   z-index: 2;
   .filterDetails { 
@@ -22,6 +23,12 @@
 
 .search {
   margin-bottom: 0;
+  margin-right: 0.5rem;
+  width: 50%;
+  @media (min-width: $md-layout-width-min) {
+    margin-right: unset;
+    width: unset;
+  }
 }
 
 .dateSelect {
@@ -41,45 +48,10 @@
   }
 }
 
-.eventTypePopover {
-  [class*=popover-body] {
-    overflow-y: auto;
-    padding: 0;
-  }
-  [class*=popover-header] {
-    svg {
-      cursor: pointer;
-      // height: 1.5rem;
-      stroke: white;
-      // width: 1.5rem;
-      &[class*=checked] {
-        fill: white;
-        &:hover {
-          fill: rgba(255, 255, 255, 0.95);
-        }
-      }
-      &[class*=partial] {
-        fill: rgba(255, 255, 255, 0.3);
-        &:hover {
-          fill: rgba(255, 255, 255, 0.4);
-        }
-      }
-      &:hover {
-        fill: none;
-      }
-    }
-  }
-}
 
-
-
-.dateRangePopover, .eventTypePopover, .filterPopover {
-  max-width: unset;
-  [class*=popover-body] {
-    max-height: 20rem;
-  }
+.filterPopover {
   > [class*=arrow]::after {
-    border-bottom-color: $filter-popover-header-color;
+    border-bottom-color: $popover-header-color;
   }
   [class*=popover-header] {
     @include popoverTitle;
@@ -90,80 +62,83 @@
 }
 
 div.filterPopover {
-  max-height: unset;
-  max-width: 24rem;
+  --content-height: 32rem;
+  max-height: var(--content-height);
+  max-width: 29rem;
   width: 90vw;
   [class*=popover-body] {
-    max-height: unset;
-    padding-top: 0;
+    overflow: hidden;
+    padding: 0;
   }
   [class*=Collapsible__trigger] {
     cursor: pointer;
   }
+  &.filters {
+    overflow: hidden;
+  }
 }
 
-.popoverTrigger, .dropdown {
+.controls {
   align-items: center;
-  cursor: pointer;
   display: flex;
-  flex-flow: column;
-  position: relative;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .popoverTrigger {
-  left: 1rem;
-  position: absolute;
-  bottom: 0.4rem;
+  align-items: center;
+  color: lighten($primary-font-color, 15%);
+  cursor: pointer;
+  display: flex;
+  flex-flow: column;
+  line-height: normal;
   svg {
-    height: 1.5rem;
-    width: 1.5rem;
-    * {
-      fill: lighten($primary-font-color, 15%);
-    }
+    --dimensions: 1rem;
+    height: var(--dimensions);
+    width: var(--dimensions);
     + span {
       font-size: 0.75rem;
+      margin-left: 0.25rem;
+    }
+    @media (min-width: $md-layout-width-min) {
+      --dimensions: 1.5rem;
     }
   }
   &:hover {
-    color: darken($primary-font-color, 6%);
-    svg * {
-      fill: $primary-font-color;
+    color: $primary-font-color;
+  }
+}
+
+.filterIcon {
+  * {
+    fill: lighten($primary-font-color, 15%);
+    &:hover {
+        fill: $primary-font-color;
     }
   }
 }
 
-.dateRangePopover {
-  max-width: unset;
-  width: 28rem;
-  label {
-    padding: 0 1rem;
-  }
-}
-
-.dropdown {
-  > [class*=btn-primary] {
-    background: none;
-    padding: none;
-    width: 100%;
-    &:active, &:hover, &:focus {
-      background: none;
-      color: $primary-font-color;
-    }
-    a {
-      padding: 0;
+.clockIcon {
+  * {
+    stroke: lighten($primary-font-color, 15%);
+    &:hover {
+      stroke: $primary-font-color;
     }
   }
 }
 
 .modified {
-  color: $alert-text;
-  svg, svg * {
-    fill: $alert-text;
+  color: $highlight-color;
+  .filterIcon * {
+    fill: $highlight-color;
+    &:hover {
+      fill: darken($highlight-color, 6%);
+    }
   }
-  &:hover {
-    color: darken($alert-text, 6%);
-    svg * {
-      fill:  darken($alert-text, 6%);
+  .clockIcon * {
+    stroke: $highlight-color;
+    &:hover {
+      stroke: darken($highlight-color, 6%);
     }
   }
 }
@@ -172,14 +147,25 @@ div.filterPopover {
   align-items: center;
   display: flex;
   line-height: normal;
-  padding: 0.5rem;
   width: 100%;
   button {
     margin-left: auto;
   }
 }
 
-.dropdown, .closedFilterDrawer, .openedFilterDrawer {
+.popoverTitle {
+  --dimensions: 1.5rem;
+  svg {
+    height: var(--dimensions);
+    margin-right: 0.5rem;
+    width: var(--dimensions);
+    * {
+      stroke: white;
+    }
+  }
+}
+
+.closedFilterDrawer, .openedFilterDrawer {
   border-bottom: 1px solid $gray-border;
 }
 
@@ -190,7 +176,6 @@ div.filterPopover {
 }
 
 .filterTitle {
-  padding: 0.5rem;
   small {
     font-size: 65%;
     font-style: italic;
@@ -214,8 +199,86 @@ div.filterPopover {
 
 .openedFilterDrawer {
   [class*=Collapsible__contentOuter] {
-    min-height: 20rem;
+    // min-height: 20rem;
+    height: 70vh;
     max-height: 24rem;
     overflow-y: auto !important;
+  }
+  &.reportTypeDrawer {
+    [class*=Collapsible__contentOuter] {
+      overflow-y: hidden !important;
+      [class*=Collapsible__contentInner] {
+        height: 70vh;
+        max-height: 24rem;
+      }
+    }
+  }
+}
+
+.filterRow, .stateList {
+  align-items: center;
+  display: flex;
+}
+
+.stateList {
+  margin-bottom: 0;
+}
+
+.activeState button {
+  font-weight: 600;
+}
+
+
+.filterRow {
+  border-bottom: 1px solid $gray-border;
+  justify-content: space-between;
+  padding: 0.5rem;
+  > svg {
+    --dimensions: 1.5rem;
+    height: var(--dimensions);
+    width: var(--dimensions);
+  }
+  label {
+    margin-bottom: 0;
+  }
+  &.priorityRow {
+    label {
+      display: none;
+      @media (min-width: $md-layout-width-min) {
+        display: initial;
+      }
+    }
+  }
+  &.reportTypeRow {
+    flex-flow: column;
+    height: 20rem;
+    overflow: hidden;
+    padding-bottom: 2rem;
+  }
+}
+
+.reportedBySelect, .stateList, .priorityPicker {
+  flex: 1;
+  flex-flow: row;
+  margin-left: 0.5rem;
+}
+
+.priorityPicker {
+  margin-left: 0;
+  @media (min-width: $md-layout-width-min) {
+    margin-left: 0.5rem;
+  }
+}
+
+.priorityPicker li {
+  font-size: 0.65rem;
+  white-space: nowrap;
+  width: 25%;
+  button {
+    width: 100%;
+  }
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+    white-space: initial;
   }
 }

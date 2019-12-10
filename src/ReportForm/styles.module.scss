@@ -2,6 +2,9 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/inputs';
 @import '../common/styles/layout';
+@import '../common/styles/animations';
+@import '../common/styles/popovers';
+@import '../common/styles/vars/fonts';
 
 // $no-priority, $low-priority, $medium-priority, $high-priority;
 
@@ -9,26 +12,28 @@
   position: relative;
 }
 
+.loadingOverlay {
+  z-index: 5;
+}
+
 
 .form {
   background: white;
-  max-height: calc(70vh - 4rem);
-  min-height: 6rem;
+  font-size: 0.85rem;
+  max-height: calc(80vh - 4rem);
+  min-height: 16rem;
   overflow-y: auto;
   padding-bottom: 5rem;
-  @media (min-height: $lg-height-min) {
-    max-height: calc(70vh - 10rem);
+  @media #{$whenPageIsMediumHeightAndWidth} {
+    font-size: 1rem;
+    max-height: calc(80vh - 10rem);
   }
   legend {
     display: none;
   }
   label {
     font-weight: bold;
-    font-size: 0.85rem;
     margin-bottom: 0;
-    @media (min-width: $md-layout-width-min) {
-      font-size: 1rem;
-    }
   }
   [class$='checkbox '] {
     align-items: center;
@@ -40,12 +45,33 @@
   }
   [type=checkbox] {
     margin-right: 0.5rem;
+    + span {
+      cursor: pointer;
+      font-weight: normal;
+    }
   }
 }
 
 .reportControls, .formButtons {
   align-items: center;
   display: flex;
+}
+
+.saveErrorAlert {
+  @include fade-in;
+  border-radius: 0;
+  bottom: -1rem;
+  box-shadow: 0 0 .25rem rgb(38, 38, 38);
+  min-height: 10rem;
+  position: absolute;
+  width: 100%;
+  z-index: 5;
+  h5 {
+    margin-bottom: 1rem;
+  }
+  ul {
+    margin: 0;
+  }
 }
 
 .reportControls {
@@ -55,28 +81,91 @@
   padding: 0 0 0.25rem !important;
   position: relative;
   z-index: 4;
-  @media (min-width: $md-layout-width-min) {
+  @media #{$whenPageIsMediumHeightAndWidth} {
     padding: 0.5rem !important;
   }
-  > * {
+  > label {
+    align-items: center;
+    display: flex;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 0;
     padding: 0.25rem 0.5rem;
     position: relative;
     width: 50%;
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      flex-wrap: wrap;
+      font-size: 0.9rem;
       padding: 0.5rem;
     }
-  }
-  > label {
-    display: flex;
-    flex-flow: column;
-    font-weight: bold;
-    font-size: 0.85rem;
-    margin-bottom: 0;
     > * {
       font-weight: initial;
     }
-    @media (min-width: $md-layout-width-min) {
-      font-size: 1rem;
+    > span {
+      display: none;
+      @media #{$whenPageIsMediumHeightAndWidth} {
+        display: initial;
+      }
+      + * {
+        width: 100%;
+        @media #{$whenPageIsMediumHeightAndWidth} {
+          margin-top: 0.25rem;
+        }
+      }
+    }
+  }
+
+  .locationButtons {
+    display: flex;
+    flex-flow: column;
+    margin-top: 0.25rem;
+    button {
+      @include linkButton;
+      align-items: center;
+      display: flex;
+      font-size: 0.75rem;
+      font-style: italic;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+      text-align: left;
+      &:hover {
+        opacity: 1;
+      }
+      @media #{$whenPageIsMediumHeightAndWidth} {
+        margin-top: 0;
+      }
+      svg {
+        margin-right: 0.25rem;
+      }
+    }
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      flex-flow: row;
+      justify-content: space-between;
+    }
+  }
+
+  .geoLocator {
+    [class*=alert-danger] {
+      bottom: -35%;
+      left: 0;
+      position: absolute;
+      width: 100%;
+    }
+  }
+  
+  .icon {
+    --dimensions: 1rem;
+    margin-right: 0.5rem;
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      --dimensions: 1.5rem;
+    }
+    height: var(--dimensions);
+    width: var(--dimensions);
+    g {
+      stroke: $primary-font-color;
+    }
+    &.iconFill, &.iconFill * {
+      fill: $primary-font-color; 
     }
   }
   [class*=react-datetime-picker__wrapper] {
@@ -97,7 +186,7 @@
   left: 0;
   position: absolute;
   width: 100%;
-  z-index: 2;
+  z-index: 4;
 }
 
 .formButtons, .attachmentControls {
@@ -114,22 +203,25 @@
   h4 {
     align-items: center;
     display: flex;
-    font-size: 1rem;
+    //font-size: 1rem;
     width: 100%;
     > span, > form {
       margin-left: 0.5rem;
     }
-    @media (min-width: $md-layout-width-min) {
-      font-size: 1.5rem;
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      //font-size: 1.5rem;
     }
   }
   .icon {
     --dimensions: 1.5rem;
-    margin-right: 0.5rem;
+    --half-size: calc(var(--dimensions)/2);
     max-height: var(--dimensions);
     width: var(--dimensions);
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       --dimensions: 2.5rem;
+    }
+    &[class*=generic] {
+      max-height: var(--half-size);
     }
   }
   
@@ -146,7 +238,6 @@
     background-color: $no-priority;
   }
   button {
-    font-family: 'Roboto', sans-serif;
     margin-left: auto;
   }
   input {
@@ -165,31 +256,129 @@
     button {
       flex: 1;
       margin-left: 0;
-      @media (min-width: $md-layout-width-min) {
+      @media #{$whenPageIsMediumHeightAndWidth} {
         flex: initial;
         margin-left: auto;
       }
     }
-    @media (min-width: $md-layout-width-min) {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       flex-wrap: nowrap;
     }
   }
 }
 
+.addToIncidentBtn {
+  @include unstyledButton;
+  align-items: center;
+  border-radius: 0.5rem;
+  color: $link-color;
+  display: flex;
+  font-weight: normal;
+  justify-content: left;
+  padding: 0.5rem 0;
+  transition: background .2s linear;
+  width: 100%;
+  &:hover {
+    text-decoration: underline;
+    color: $link-color;
+  }
+  img, svg {
+    margin-left: 0.1rem;
+    margin-right: 0.5rem;
+  }
+}
 
-.popover {
+.headerDetails {
+  display: flex;
+  flex-flow: column;
+  text-align: right;
+  margin-left: auto;
+  small {
+    font-size: $font-size-smaller;
+    line-height: $line-height-small;
+  }
+}
+
+.reportHistory {
+  font-size: $font-size-smaller;
+  line-height: $line-height-small;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  cursor: pointer;
+}
+
+.headerPopover {
   max-width: none;
   min-width: 14rem;
-  padding: 0.5rem;
+  padding: 0;
+  [class*=popover-header] {
+    @include popoverTitle;
+  }
+  [class*=popover-header]::before {
+    border-bottom: 1px solid $popover-header-color;
+  }
+  > [class*=arrow]::after {
+    border-bottom-color: $popover-header-color;
+  }
+  [class*=popover-body] {
+    padding: 0;
+    margin: 0.75rem 0.75rem;
+    h6 {
+      margin-bottom: 0.5rem;
+    }
+    hr {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+.historyPopover {
+  max-width: none;
+  min-width: 14rem;
+  padding: 0;
+  [class*=popover-header] {
+    @include popoverTitle;
+  }
+  [class*=popover-body] {
+    padding: 0;
+    max-width: 25rem;
+    max-height: 30rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+.historyItem {
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  margin: 0.75rem 0.75rem;
+  .historyDetails {
+    width: 12rem;
+    .historyMessage {
+      font-size: 0.85rem;
+      line-height: 1rem;
+    }
+    .historyUser {
+      font-size: $font-size-tiny;
+      font-style: italic;
+    }
+  }
+  .historyDate {
+    align-items: flex-end;
+    margin-left: 0.4rem;
+    margin-right: 0.1rem;
+  }
 }
 
 .gpsPopover {
+  padding: 0.5rem;
   top: 85%;
 }
 
 .locationAnchor {
   @include defaultTextInput;
-
   color: $primary-font-color;
 }
 
@@ -199,7 +388,7 @@
   display: flex;
   justify-content: space-evenly;
   padding: 0;
-  > button {
+  > button, > div {
     align-items: center;
     background: $background-color;
     border: none;
@@ -210,12 +399,13 @@
     line-height: normal;
     flex: 1;
     flex-flow: column;
-    padding: 1rem 0.5rem;
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.25rem;
     transition: all .1s linear;
-    @media (min-height: $md-height-min) {
+    @media #{$whenPageIsMediumHeightAndWidth} {
       font-size: 0.75rem;
     }
-    @media (min-width: $md-layout-width-min) and (min-height: $lg-height-min) {
+    @media #{$whenPageIsTallAndMediumWidth} {
       font-size: 1rem;
     }
     &:hover {
@@ -233,30 +423,43 @@
         cursor: copy;
       }
     }
-    svg {
+    > div {
+      padding: 0;
+      > button {
+        height: 100%;
+        width: 100%;
+      }
+    }
+    span, small {
+      display: none;
+      @media #{$whenPageIsMediumHeightAndWidth} {
+        display: initial;
+      }
+    }
+    > svg {
       height: auto;
       width: 1.5rem;
-      margin-bottom: 0.5rem;
-      @media (min-width: $md-layout-width-min) and (min-height: $lg-height-min) {
+      @media #{$whenPageIsMediumHeightAndWidth} {
+        margin-bottom: 0.5rem;
+      }
+      @media #{$whenPageIsTallAndMediumWidth} {
         width: 2rem;
       }
     }
   }
-  [class*=popover] {
+/*   [class*=bs-popover] {
     bottom: 50%;
     left: 3vw;
     top: auto;
     @media (min-width: $md-layout-width-min) {
       left: 5vw;
     }
-    @media (min-width: $lg-layout-width-min) and (min-height: $lg-height-min) {
-      left: 20vw;
-    }
-    @media (min-height: $lg-height-min) {
+    @media #{$whenPageIsIsTallAndWide} {
       bottom: auto;
-      top: -50%;
+      left: 20vw;
+      top: -12rem;
     }
-  }
+  } */
 }
 
 .fileUpload {
@@ -267,6 +470,11 @@
   text-overflow: ellipsis;
 }
 
+[class$='-placeholder'] {
+  @extend .ellipseText;
+  white-space: nowrap;
+}
+
 
 .attachmentList {
   margin-left: -1rem;
@@ -275,21 +483,34 @@
   margin-bottom: 0;
   width: calc(100% + 2rem);
   li {
-    align-items: center;
     border-top: 1px solid $light-gray-border;
     border-bottom: 1px solid $light-gray-border;
+    padding: 0 1rem 0 0;
     display: flex;
-    padding: 0.5rem 1rem;
-    h6 {
-      align-items: center;
+    align-items: center;
+    flex-flow: row;
+    justify-content: flex-start;
+    .attachmentInfo {
+      flex: 1;
+      align-items: flex-start;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
+      flex-flow: column;
+      margin: 0.5rem;
     }
-    time {
-      color: $light-font-color;
-      margin-left: 0.5rem;
-      font-size: 0.8rem;
+    .attachmentUser {
+      font-size: $font-size-tiny;
+      font-style: italic;
+      line-height: $line-height-small;
+    }
+    .attachmentDate {
+      align-items: flex-end;
+    }
+    .attachmentIcon {
+      padding: 1rem;
+      svg {
+        height: 2rem;
+        width: 2rem;
+      }
     }
     button {
       @include unstyledButton;
@@ -299,14 +520,48 @@
       }
     }
     .x {
-      margin-left: auto;
+      width: 1rem;
+      height: 1rem;
+      align-items: flex-end;
+      margin-right: 0.5rem;
+      fill: black;
+      cursor: pointer; 
+      :hover {
+        fill: $bright-red;
+      }
     }
     + li {
       border-top: none;
     }
-    svg {
-      margin-right: 1rem;
-      max-width: 1rem;
-    }
+  }
+}
+
+.incidentList {
+  border-bottom: 0.1875rem solid $light-gray-border;
+  border-top: 0.1875rem solid $light-gray-border;
+  margin: -1rem -1rem 0;
+  width: calc(100% + 2rem);
+  [class*=listItem] {
+    background: none;
+  }
+  [class*=listItem] > * {
+    padding: 1.25rem 0.5rem;
+  }
+}
+
+.incidentScrollList {
+  height: 100%;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+
+.saveButton {
+  > :first-child {
+    padding: 0.375rem 1rem;
+  }
+  [class*=dropdown-toggle-split] {
+    background: darken($primary-button-color, 10%);
+    padding: 0 0.5rem;
   }
 }

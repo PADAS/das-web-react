@@ -1,21 +1,28 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useRef, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
+import { trackEvent } from '../utils/analytics';
 
 import NoteModal from '../NoteModal';
 import AddReport from '../AddReport';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
-import { ReactComponent as FieldReportIcon } from '../common/images/icons/field_report.svg';
+import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 
 import styles from './styles.module.scss';
 
+const AttachmentButton = ({ title, icon: Icon, ...rest }) => <button title={title} type='button' {...rest}>
+  <Icon />
+  <span>{title}</span>
+</button>;
+
 const AttachmentControls = (props) => {
-  const { addModal, allowMultipleFiles, map, onAddFiles, onClickAddReport, onSaveNote  } = props;
+  const { addModal, relationshipButtonDisabled, allowMultipleFiles, map, onAddFiles,
+    onSaveNote, onNewReportSaved, isCollection, isCollectionChild, onGoToCollection } = props;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
@@ -36,9 +43,12 @@ const AttachmentControls = (props) => {
   const openFileDialog = (e) => {
     e.preventDefault();
     fileInputRef.current.click();
+    trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Click 'Add Attachment' button");
   };
 
   const onFileDrop = (event) => {
+    trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Drag'n'Drop Attachment");
+
     event.preventDefault();
     const { dataTransfer: { files } } = event;
 
@@ -55,6 +65,7 @@ const AttachmentControls = (props) => {
   };
 
   const startAddNote = () => {
+    trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Click 'Add Note' button");
     addModal({
       content: NoteModal,
       note: {
@@ -74,18 +85,17 @@ const AttachmentControls = (props) => {
         onChange={onFileAddFromDialog}>
       </input>
 
-      <button type="button" onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}>
-        <AttachmentIcon />
-        <span>Add Attachment</span>
-        <small>(click or drag here)</small>
-      </button>
+      <AttachmentButton title='Add Attachment' icon={AttachmentIcon}
+        onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}
+      />
 
-      <button type="button" className={styles.addNoteBtn} onClick={startAddNote}>
-        <NoteIcon />
-        <span>Add Note</span>
-      </button>
+      <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
 
-      <AddReport map={map} container={attachmentControlsRef} />
+      {!relationshipButtonDisabled && <Fragment>
+        {!isCollectionChild && <AddReport map={map} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
+        {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
+
+      </Fragment>}
 
     </div>
   );
@@ -94,13 +104,21 @@ const AttachmentControls = (props) => {
 export default connect(null, { addModal })(memo(AttachmentControls));
 
 AttachmentControls.defaultProps = {
+  relationshipButtonDisabled: false,
   allowMultipleFiles: true,
+  isCollectionChild: false,
+  onGoToCollection() {
+
+  },
 };
 
 AttachmentControls.propTypes = {
+  isCollection: PropTypes.bool,
+  onGoToCollection: PropTypes.func,
+  relationshipButtonDisabled: PropTypes.bool,
   allowMultipleFiles: PropTypes.bool,
   map: PropTypes.object.isRequired,
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
-  onClickAddReport: PropTypes.func.isRequired,
+  onNewReportSaved: PropTypes.func.isRequired,
 };

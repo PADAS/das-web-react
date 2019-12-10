@@ -1,10 +1,8 @@
-import { post } from 'axios';
+import { post, get } from 'axios';
 
-export const uploadFiles = (url, files, progressHandler = () => null) => {
+export const uploadFile = (url, file, progressHandler = () => null) => {
   const formData = new FormData();
-  files.forEach((file) => {
-    formData.append('file', file, file.name);
-  });
+  formData.append('file', file, file.name);
   return post(url, formData, {
     onUploadProgress(event) {
       progressHandler(event);
@@ -25,4 +23,12 @@ export const downloadFileFromUrl = (url, filename) => {
   anchor.href = url;
   anchor.download = filename;
   anchor.click();
+};
+
+export const fetchImageAsBase64FromUrl = async (url) => {
+  const response = await get(url, {
+    responseType: 'arraybuffer',
+  });
+
+  return `data:image/png;base64, ${new Buffer(response.data, 'binary').toString('base64')}`;
 };

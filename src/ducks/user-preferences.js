@@ -7,7 +7,7 @@ const UPDATE_USER_PREFERENCES = 'UPDATE_USER_PREFERENCES';
 export const updateUserPreferences = (preference) => ({
   type: UPDATE_USER_PREFERENCES,
   payload: preference,
-})
+});
 
 //REDUCER
 const INITIAL_STATE = {
@@ -19,11 +19,11 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, action = {}) => {
   const { type, payload } = action;
   switch (type) {
-    case (UPDATE_USER_PREFERENCES): {
-      return { ...state, ...payload };
-    }
-    default: {
-      return state;
-    }
+  case (UPDATE_USER_PREFERENCES): {
+    return { ...state, ...payload };
+  }
+  default: {
+    return state;
+  }
   }
 };

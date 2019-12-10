@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Dropdown } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
 
-import TimeAgo from 'react-timeago'
+import TimeAgo from 'react-timeago';
 import Badge from '../Badge';
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
 import styles from './styles.module.scss';
+import { trackEvent } from '../utils/analytics';
 
 const { Toggle, Menu, Item } = Dropdown;
 
 class SystemStatusComponent extends Component {
+
+  onDropdownToggle(isOpen) {
+    trackEvent('Main Toolbar', `${isOpen ? 'Open':'Close'} Status Summary Display`);
+  }
 
   renderStatusList() {
     return Object.entries(this.props.systemStatus).map(([key, value], index) => {
@@ -45,13 +50,14 @@ class SystemStatusComponent extends Component {
             {!!value.timestamp && <span className={styles.timestamp}><TimeAgo date={value.timestamp} /></span>}
           </span>
         </div>
-      </Item>
+      </Item>;
     });
   }
+
   render() {
     const statusSummary = calcPrimaryStatusIndicator(this.props.systemStatus);
     return (
-      <Dropdown alignRight>
+      <Dropdown alignRight onToggle={this.onDropdownToggle}>
         <Toggle id="system-status" className={styles.toggle}>
           <Badge status={statusSummary} />
         </Toggle>

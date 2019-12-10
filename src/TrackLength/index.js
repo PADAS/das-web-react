@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import length from '@turf/length';
 
+import { trimmedTrack } from '../selectors/tracks';
+
 function TrackLength(props) {
   const { tracks, className } = props;
 
@@ -11,12 +13,14 @@ function TrackLength(props) {
 
 }
 
-const mapStateToProps = ({ data: { tracks } }, ownProps) => ({ tracks: tracks[ownProps.id] });
+const mapStateToProps = (state, props) => ({
+  tracks: trimmedTrack(state, props),
+});
 
 export default connect(mapStateToProps, null)(TrackLength);
 
 TrackLength.propTypes = {
-  id: PropTypes.string.isRequired,
+  trackId: PropTypes.string.isRequired,
   tracks: PropTypes.object,
   className: PropTypes.string,
 }; 

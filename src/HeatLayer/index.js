@@ -1,23 +1,51 @@
-import React, { memo } from 'react';
+import React, { memo, Fragment, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getHeatmapTrackPoints/* , removePersistKey */ } from '../selectors';
-import { Feature, Layer } from 'react-mapbox-gl';
-import isEqual from 'react-fast-compare';
-import debounceRender from 'react-debounce-render';
-import { GENERATED_LAYER_IDS, LAYER_IDS } from '../constants';
+import { Layer, Source } from 'react-mapbox-gl';
+import centroid from '@turf/centroid';
 
-const { HEATMAP_LAYER } = LAYER_IDS;
-const { SUBJECT_SYMBOLS } = GENERATED_LAYER_IDS;
+import { LAYER_IDS, MAX_ZOOM } from '../constants';
 
-const HeatLayer = memo(({ heatmapStyles, tracksAsPoints }) => {
-  // const styles = removePersistKey(heatmapStyles);
-  return <Layer before={SUBJECT_SYMBOLS} id={HEATMAP_LAYER} type="heatmap">
-    {tracksAsPoints.features.map((point, index) => {
-      return <Feature key={index} coordinates={point.geometry.coordinates} properties={point.properties} />
-    })}
-  </Layer>
-}, (prev, current) => isEqual(prev.tracksAsPoints, current.tracksAsPoints));
+import { metersToPixelsAtMaxZoom } from '../utils/map';
+import { uuid } from '../utils/string';
 
-const mapStateToProps = (state) => ({ heatmapStyles: state.view.heatmapStyles, tracksAsPoints: getHeatmapTrackPoints(state) });
+const { HEATMAP_LAYER, SUBJECT_SYMBOLS } = LAYER_IDS;
 
-export default connect(mapStateToProps, null)(debounceRender(HeatLayer, 100));
+const HeatLayer = ({ heatmapStyles, points }) => {
+  const idRef = useRef(uuid());
+
+  if (!points.features.length) return null;
+
+  const { geometry: { coordinates: [, latitude] } } = centroid(points);
+
+  const sourceData = {
+    type: 'geojson',
+    data: points,
+  };
+
+  const paint = {
+    'heatmap-radius': {
+      'stops': [
+        [0, 1],
+        [MAX_ZOOM, metersToPixelsAtMaxZoom(heatmapStyles.radiusInMeters, latitude)],
+      ],
+      'base': 2,
+    },
+    'heatmap-weight': heatmapStyles.intensity,
+  };
+
+  return <Fragment>
+    <Source id={`heatmap-source-${idRef.current}`} geoJsonSource={sourceData} />;
+    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={SUBJECT_SYMBOLS} id={`${HEATMAP_LAYER}-${idRef.current}`} type="heatmap" />
+  </Fragment>;
+};
+
+const mapStateToProps = (state) => ({ heatmapStyles: state.view.heatmapStyles });
+
+export default connect(mapStateToProps, null)(memo(HeatLayer), 100);
+
+HeatLayer.propTypes = {
+  points: PropTypes.shape({
+    features: PropTypes.array.isRequired,
+  }).isRequired,
+};

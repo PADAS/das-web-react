@@ -7,7 +7,7 @@ const SOURCES = {
   vertical: '#earth-ranger-logo-vertical',
 };
 
-const EarthRangerLogo = memo((props) => {
+const EarthRangerLogo = (props) => {
 
   const { type, ...rest } = props;
 
@@ -17,9 +17,9 @@ const EarthRangerLogo = memo((props) => {
       <use href={SOURCES[type] || SOURCES.horizontalWhite} />
     </svg>
   );
-});
+};
 
-export default EarthRangerLogo;
+export default memo(EarthRangerLogo);
 
 
 EarthRangerLogo.defaultProps = {

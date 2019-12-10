@@ -1,85 +1,138 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
-import { createSelectorCreator, defaultMemoize } from 'reselect'
+import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
-import uniq from 'lodash/uniq';
+import bboxPolygon from '@turf/bbox-polygon';
+
 import isEqual from 'react-fast-compare';
 
-import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson } from '../utils/map';
-import { convertTrackLineStringToPoints } from '../utils/tracks';
+import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
-import { calcRecentRadiosFromSubjects, getUniqueSubjectGroupSubjects } from '../utils/subjects';
+import { mapReportTypesToCategories } from '../utils/event-types';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
   isEqual,
 );
 
-const mapEvents = ({ data: { mapEvents } }) => mapEvents;
+const mapEvents = ({ data: { mapEvents: { events } } }) => events;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
+const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
-const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
+const feedEvents = ({ data: { feedEvents } }) => feedEvents;
+const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
+const eventStore = ({ data: { eventStore } }) => eventStore;
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
-const trackCollection = trackCollection => trackCollection;
-const tracks = ({ data: { tracks } }) => tracks;
-export const featureSets = ({ data: { featureSets } }) => featureSets;
-const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
+const hiddenAnalyzerIDs = ({ view: { hiddenAnalyzerIDs } }) => hiddenAnalyzerIDs;
 const getReportSchemas = ({ data: { eventSchemas } }, { report }) => eventSchemas[report.event_type];
-const getSubjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
+const userLocation = ({ view: { userLocation } }) => userLocation;
+const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
+const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
+
+export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
+export const featureSets = ({ data: { featureSets } }) => featureSets;
+export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
+export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
 const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
   : [];
 
-export const getMapEventFeatureCollection = createSelector(
-  [mapEvents],
-  mapEvents => createFeatureCollectionFromEvents(mapEvents)
+export const userLocationCanBeShown = createSelector(
+  [userLocation, showUserLocation],
+  (userLocation, showUserLocation) => userLocation && showUserLocation,
 );
+
+export const bboxBoundsPolygon = createSelector(
+  [getLastKnownMapBbox],
+  (bbox) => bbox && bboxPolygon(bbox.split(',').map(coord => parseFloat(coord))),
+);
+
+const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
+  mapReportTypesToCategories(eventTypes)
+    .filter((category) => {
+      if (category.flag && category.flag === 'user') {
+        return category.permissions.includes('create');
+      }
+      if (!category.flag) return true;
+      return false;
+    });
 
 export const getMapSubjectFeatureCollection = createSelector(
-  [mapSubjects, hiddenSubjectIDs],
-  (mapSubjects, hiddenSubjectIDs) => createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)))
+  [mapSubjects, hiddenSubjectIDs, showInactiveRadios],
+  (mapSubjects, hiddenSubjectIDs, showInactiveRadios) => {
+    const mapSubjectFeatureCollection = createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)));
+    if (showInactiveRadios) return mapSubjectFeatureCollection;
+    return filterInactiveRadiosFromCollection(mapSubjectFeatureCollection);
+  });
+
+export const getMapEventFeatureCollection = createSelector(
+  [mapEvents, eventStore],
+  (mapEvents, eventStore) => createFeatureCollectionFromEvents(mapEvents
+    .map(id => eventStore[id])
+    .filter(item => !!item))
 );
 
-export const getTrackPointsFromTrackFeatureArray = createSelector(
-  [trackCollection],
-  trackCollection => trackCollection
-    .map(tracks => convertTrackLineStringToPoints(tracks))
-    .reduce((accumulator, featureCollection) => {
-      return {
-        ...accumulator,
-        features: [...accumulator.features, ...featureCollection.features],
-      };
-    }, featureCollection([])),
+export const getFeedEvents = createSelector(
+  [feedEvents, eventStore],
+  (feedEvents, eventStore) => ({
+    ...feedEvents,
+    results: feedEvents.results
+      .map(id => eventStore[id])
+      .filter(item => !!item),
+  }),
 );
 
-export const removePersistKey = createSelector(
-  [data => data],
-  data => {
-    const clone = { ...data };
-    delete clone._persist;
-    return clone;
-  },
+export const getFeedIncidents = createSelector(
+  [feedIncidents, eventStore],
+  (feedIncidents, eventStore) => ({
+    ...feedIncidents,
+    results: feedIncidents.results
+      .map(id => eventStore[id])
+      .filter(item => !!item),
+  }),
 );
 
-export const allSubjects = createSelector(
-  [getSubjectGroups],
-  subjectGroups => getUniqueSubjectGroupSubjects(...subjectGroups),
+export const getUserCreatableEventTypesByCategory = createSelector(
+  [userCreatableEventTypesByCategory],
+  categories => categories.map(cat => ({
+    ...cat,
+    types: cat.types.filter(t => !t.is_collection),
+  })),
 );
+
 
 export const reportedBy = createSelector(
   [getEventReporters],
   reporters => reporters,
 );
 
-export const getArrayOfVisibleTracks = createSelector(
-  [tracks, subjectTrackState],
-  (tracks, subjectTrackState) => {
-    const { visible, pinned } = subjectTrackState;
-    const trackLayerIDs = uniq([...visible, ...pinned]);
+export const getAnalyzerFeatureCollectionsByType = createSelector(
+  [analyzerFeatures, hiddenAnalyzerIDs],
+  (analyzerFeatures, hiddenAnalyzerIDs) => {
+    const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
+      .reduce((accumulator, data) =>
+        [...accumulator,
+        ...data.geojson.features.map(feature => {
+          feature.analyzer_type = data.type;
+          return feature;
+        })], []);
+    // simulate layergroups found in old codebase by passing the feature ids
+    // of the analyzer feature collection so they can be looked up at runtime - 
+    // ie when a rollover occurs with a mouse
+    const layerGroups = analyzerFeatures.map((analyzer) => {
+      const featureIds = analyzer.geojson.features.map(feature => feature.properties.id);
+      return { id: analyzer.id, feature_ids: featureIds };
+    });
 
-    return trackLayerIDs
-      .filter(id => !!tracks[id])
-      .map(id => (tracks[id]));
+    const analyzerPayload = {
+      analyzerWarningLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerLineTypes.includes(spatial_group))),
+      analyzerCriticalLines: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerLineTypes.includes(spatial_group))),
+      analyzerWarningPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => warningAnalyzerPolyTypes.includes(spatial_group))),
+      analyzerCriticalPolys: featureCollection(allAnalyzers.filter(({ properties: { spatial_group } }) => criticalAnalyzerPolyTypes.includes(spatial_group))),
+      layerGroups: layerGroups,
+    };
+
+    return analyzerPayload;
   },
 );
 
@@ -98,9 +151,31 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
           return feature;
         })], []);
     return {
-      symbolFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))),
-      lineFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => lineFeatureTypes.includes(type))),
-      fillFeatures: featureCollection(allFeatures.filter(({ geometry: { type } }) => fillFeatureTypes.includes(type))),
+      symbolFeatures: featureCollection(
+        allFeatures
+          .filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))
+          .map(feature => !!feature.properties.icon_id
+            ? feature
+            : {
+              ...feature,
+              properties: {
+                ...feature.properties,
+                icon_id: 'marker-icon',
+              }
+            })
+      ),
+      lineFeatures: featureCollection(
+        allFeatures
+          .filter(({ geometry: { type } }) =>
+            lineFeatureTypes.includes(type)
+          )
+      ),
+      fillFeatures: featureCollection(
+        allFeatures
+          .filter(({ geometry: { type } }) =>
+            fillFeatureTypes.includes(type)
+          )
+      ),
     };
   },
 );
@@ -110,16 +185,11 @@ export const getReportFormSchemaData = createSelector(
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
 );
 
-export const getArrayOfVisibleHeatmapTracks = createSelector(
-  [tracks, heatmapSubjectIDs],
-  (tracks, heatmapSubjectIDs) => heatmapSubjectIDs.filter(id => !!tracks[id]).map(id => tracks[id]),
-);
-
-export const getHeatmapTrackPoints = createSelector(
-  [getArrayOfVisibleHeatmapTracks],
-  tracks => getTrackPointsFromTrackFeatureArray(tracks),
-);
-
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
 const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
+
+const warningAnalyzerLineTypes = ['LineString.warning_group', 'MultiLineString.warning_group', 'Point.containment_regions_group'];
+const criticalAnalyzerLineTypes = ['LineString.critical_group', 'MultiLineString.critical_group'];
+const warningAnalyzerPolyTypes = ['Polygon.warning_group', 'MultiPolygon.warning_group', 'Polygon.containment_regions_group', 'Polygon.proximity_group'];
+const criticalAnalyzerPolyTypes = ['Polygon.critical_group', 'MultiPolygon.critical_group'];

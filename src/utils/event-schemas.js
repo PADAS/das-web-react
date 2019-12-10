@@ -6,7 +6,7 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
   },
 };
 
-export const generateFormSchemasFromEventTypeSchema = ({ definition:definitions, schema }) => {
+export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema }) => {
   const newSchema = { ...schema };
   const uiSchema = { ...GLOBAL_UI_SCHEMA_CONFIG };
 
@@ -14,8 +14,9 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition:definitions,
 
   const schemasFromDefinitions = convertDefinitionsToSchemas(definitions, schema);
   const schemasForSelectFields = addCustomSelectFieldForEnums(schema);
+  const schemasForExternalURIs = addCustomLinksForExternalURIs(schema);
 
-  const toUpdate = [...schemasFromDefinitions, ...schemasForSelectFields];
+  const toUpdate = [...schemasFromDefinitions, ...schemasForSelectFields, ...schemasForExternalURIs];
 
   toUpdate.forEach(({ schemaEntry, uiSchemaEntry }) => {
     withEnums.properties[schemaEntry.key] = { ...withEnums.properties[schemaEntry.key], ...schemaEntry };
@@ -29,7 +30,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition:definitions,
   };
 };
 
-const convertDefinitionsToSchemas = (definitions, schema) => {
+const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
 
   return definitionsToConvert.reduce((accumulator, definition) => {
@@ -84,25 +85,25 @@ const generateSchemaAndUiSchemaForCheckbox = (definition) => {
       uniqueItems: true,
     },
     uiSchemaEntry: {
-      'ui:widget': 'checkboxes',
+      'ui:widget': customSchemaFields.checkboxes,
     },
   };
 };
 
 const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
-    schemaEntry: {
-      key,
-    },
-    uiSchemaEntry: {
-      'ui:field': customSchemaFields.datetime,
-    },
-})
+  schemaEntry: {
+    key,
+  },
+  uiSchemaEntry: {
+    'ui:field': customSchemaFields.datetime,
+  },
+});
 
 
 const addCustomSelectFieldForEnums = (schema) => {
   return Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
     if (value.hasOwnProperty('enum')) {
-      return [...accumulator, generateSchemaAndUiSchemaForSelect(key)]
+      return [...accumulator, generateSchemaAndUiSchemaForSelect(key)];
     }
     return accumulator;
   }, []);
@@ -116,20 +117,16 @@ const generateSchemaAndUiSchemaForSelect = (key) => {
     uiSchemaEntry: {
       'ui:widget': customSchemaFields.select,
     },
-  }
+  };
 };
 
-export const unwrapEventDetailSelectValues = (data) => {
-  const itemHasNameAndValue = item => item && item.name && item.value;
-
-  const updates = Object.entries(data).reduce((propsObject, [key, val]) => {
-    if (itemHasNameAndValue(val)) {
-      propsObject[key] = val.value;
-    } else if (Array.isArray(val) && itemHasNameAndValue(val[0])) {
-      propsObject[key] = val.map(({ value }) => value);
-    }
-    return propsObject;
-  }, {});
-
-  return { ...data, ...updates };
-};
+const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properties)
+  .filter(([key, value]) => value.format && value.format === 'uri')
+  .map(([key]) => ({
+    schemaEntry: {
+      key,
+    },
+    uiSchemaEntry: {
+      'ui:field': customSchemaFields.externalUri,
+    },
+  }));

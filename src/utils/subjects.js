@@ -1,6 +1,8 @@
 import uniqBy from 'lodash/uniqBy';
 import { differenceInSeconds } from 'date-fns';
 
+import { findTimeEnvelopeIndices } from './tracks';
+
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
@@ -93,4 +95,91 @@ export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroup
       }),
     };
   });
-}
+};
+
+export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {
+  return {
+    ...mapSubjectFeatureCollection,
+    features: mapSubjectFeatureCollection.features
+      .map((feature) => {
+        const trackMatch = tracks[feature.properties.id];
+
+        if (!trackMatch) return feature;
+
+        const [trackFeature] = trackMatch.features;
+
+        // this guard clause is a bit overboard because we're potentially querying very old/quirky track data.
+        if (!trackFeature || !trackFeature.geometry || !trackFeature.geometry.coordinates || !trackFeature.geometry.coordinates.length) {
+          return feature;
+        }
+
+        const { properties: { coordinateProperties: { times } } } = trackFeature;
+        const { until } = findTimeEnvelopeIndices(times, null, virtualDate);
+
+        const hasUntil = until > -1;
+
+        let index = 0;
+
+        if (hasUntil) {
+          if (until === times.length) {
+            index = until - 1;
+          } else {
+            index = until;
+          }
+        }
+
+        return {
+          ...feature,
+          geometry: {
+            ...feature.geometry,
+            coordinates: trackFeature.geometry.coordinates[index] || feature.geometry.coordinates,
+          },
+          properties: {
+            ...feature.properties,
+            coordinateProperties: {
+              ...feature.properties.coordinateProperties,
+              time: trackFeature.properties.coordinateProperties.times[index] || feature.properties.coordinateProperties.time,
+            }
+          }
+        };
+      }),
+  };
+};
+
+/**
+ * filterSubjects is a function to drill down a given subject group array tree 
+ * to filter for subjects matching the search filter as given by the function 
+ * isMatch. 
+ * @param {Object} s a subject groups array. 
+ * @param {function} isMatch function to check if subject matches the filter.
+ */
+export const filterSubjects = (s, isMatch) => {
+  // call recursive helper function and then filter out empty subject groups.
+  return s
+    .map(sg => filterSubjectsHelper(sg, isMatch))
+    .filter(sg => !!sg.subgroups.length || !!sg.subjects.length);
+};
+
+/**
+ * filterSubjectsHelper is a recursive function to drill down a given subject group 
+ * array tree to filter for subjects matching the search filter as given by the 
+ * function isMatch. 
+ * NOTE that subject groups have both a subgroups and subjects array.
+ * @param {Object} s either a subject group or subgroup. 
+ * @param {function} isMatch function to check if subject matches the filter.
+ */
+const filterSubjectsHelper = (s, isMatch) => {
+  let newS = [];
+  if (s.subjects) { // filter the subjects array:
+    newS = {...s, subjects: s.subjects.filter(isMatch)};
+  }
+  if (s.subgroups) { // filter subgroups array:
+    newS = {
+      ...newS, 
+      subgroups: newS.subgroups
+        .map(sg => filterSubjectsHelper(sg, isMatch))
+        .filter(sg=> !!sg.subjects.length || !!sg.subgroups.length)
+    };
+  } 
+  return newS;
+};

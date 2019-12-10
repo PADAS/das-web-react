@@ -2,12 +2,12 @@ import React, { memo } from 'react';
 
 import { calcIconColorByPriority } from '../utils/event-types';
 
-import EventIcon from '../EventIcon';
+import DasIcon from '../DasIcon';
 
 const EventTypeListItem = (props) => {
   const { display, default_priority, value } = props;
   return <span>
-    <EventIcon color={calcIconColorByPriority(default_priority)} iconId={value} />
+    <DasIcon type='events' color={calcIconColorByPriority(default_priority)} iconId={value} />
     {display}
   </span>;
 };

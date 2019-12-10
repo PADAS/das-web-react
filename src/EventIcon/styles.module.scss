@@ -1,0 +1,18 @@
+.icon {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.wrapper {
+  position: relative;
+}
+
+.content {
+  left: 25%;
+  top: 30%;
+  max-height: 50%;
+  position: absolute;
+  max-width: 50%;
+}

@@ -1,0 +1,86 @@
+@import '../common/styles/buttons';
+@import '../common//styles//vars/colors';
+
+.legend {
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+  position: relative;
+  + .legend {
+    border-top: 0.15rem solid $light-gray-border;
+  }
+  span {
+    display: block;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  h6 {
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+  }
+  button:not(.gearButton) {
+    @include unstyledButton;
+  }
+  [class*=__contentOuter] {
+    width: 100%;
+  }
+  [class*=Collapsible__trigger] {
+    cursor: pointer;
+    padding-left: 1rem;
+    margin-right: 4rem;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    &:hover {
+      text-decoration: underline;
+    }
+    &::before {
+      content: '▲';
+      display: block;
+      left: 0;
+      position: absolute;
+      top: 0;
+      transition: transform .2s linear;
+      transform: rotate(90deg);
+    }
+    &[class*=is-open]::before {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.closedLegend {
+  .gearButton {
+    bottom: auto;
+    top: 0.5rem;
+    right: 2.75rem;
+  }
+}
+
+.controlPopover {
+  width: 20rem;
+}
+
+.close {
+  right: 0;
+  position: absolute;
+  top: 0.333rem;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.gearButton {
+  --dimensions: 1rem;
+  @include gearButton;
+  bottom: 0.5rem;
+  height: var(--dimensions);
+  position: absolute;
+  right: 0.5rem;
+  width: var(--dimensions);
+}
+
