@@ -205,6 +205,10 @@ aside {
   }
 }
 
+.react-datetime-picker__calendar--open {
+  z-index: 5;
+}
+
 /* .react-datetime-picker__clear-button {
   align-items: center;
   border: 1px solid $bright-blue;
