@@ -171,7 +171,6 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
-      // XXX TD 
       if (this.props.popup.type === 'analyzer-config') {
         const { map } = this.props;
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
@@ -236,7 +235,7 @@ class Map extends Component {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
-    
+
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
       if (this.props.map.getZoom() >= zoom) {
@@ -351,7 +350,7 @@ class Map extends Component {
             />
 
             <div className='floating-report-filter'>
-              <EventFilter  />
+              <EventFilter />
               <FriendlyEventFilterString className='map-report-filter-details' />
             </div>
 
