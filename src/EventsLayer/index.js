@@ -60,13 +60,13 @@ const EventsLayer = (props) => {
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
   const timeoutRef = useRef(null);
 
-  const clusterGeometrySet = !!clusterBufferPolygon
+  const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
     && !!clusterBufferPolygon.geometry.coordinates
     && !!clusterBufferPolygon.geometry.coordinates.length;
 
   const onClusterMouseEnter = (e) => {
-    if (!clusterGeometrySet) {
+    if (!clusterGeometryIsSet) {
       const clusterID = map.queryRenderedFeatures(e.point, { layers: [EVENT_CLUSTERS_CIRCLES] })[0].id;
       if (clusterID) {
         const clusterSource = map.getSource('events-data-clustered');
