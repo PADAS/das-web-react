@@ -42,7 +42,7 @@ export const fetchSystemStatus = () => {
         service_status: true,
       },
     }).catch(error => {
-      dispatch(fetchSystemStatusError(error))
+      dispatch(fetchSystemStatusError(error));
       throw error;
     });
 
@@ -70,7 +70,7 @@ const setZendeskConfigStatus = (response) => (dispatch) => {
     type: SET_ZENDESK_ENABLED,
     payload: enabled,
   });
-}; 
+};
 
 const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
@@ -171,7 +171,7 @@ const genericStatusReducer = (reducer, onApiResponse = (update, state) => state)
 const INITIAL_NETWORK_STATUS_STATE = genericStatusModel({
   title: 'Network',
   details: window.navigator.onLine ? 'online' : 'offline',
-  status: window.navigator.onLine ? HEALTHY_STATUS: UNHEALTHY_STATUS,
+  status: window.navigator.onLine ? HEALTHY_STATUS : UNHEALTHY_STATUS,
 });
 const networkStatusReducer = function (state = INITIAL_NETWORK_STATUS_STATE, { payload, type }) {
   switch (type) {
@@ -197,7 +197,7 @@ const serverStatusReducer = genericStatusReducer((state = INITIAL_SERVER_STATUS_
   switch (type) {
   case (SERVER_VERSION_CHANGE): {
     const { version } = payload;
-    
+
     setServerVersionAnalyticsDimension(version);
     return {
       ...state,
@@ -252,7 +252,7 @@ const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STA
       timestamp,
     };
   }
-  case(SERVER_STATUS_CHANGE): {
+  case (SERVER_STATUS_CHANGE): {
     if (payload === UNKNOWN_STATUS) {
       return {
         ...state,
@@ -286,7 +286,7 @@ const serviceStatusReducer = genericStatusReducer((state = INITIAL_SERVICES_STAT
     const { services } = payload;
     return createServiceModelsFromApiResponse(services);
   }
-  case(SERVER_STATUS_CHANGE): {
+  case (SERVER_STATUS_CHANGE): {
     if (payload === UNKNOWN_STATUS) {
       return state.map(service => ({ ...service, status: UNKNOWN_STATUS }));
     }
@@ -314,30 +314,32 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   eventSearchEnabled: false,
   alertsEnabled: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
-}
+};
 export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
   switch (type) {
-    case (SET_ZENDESK_ENABLED): {
-      return {...state, zendeskEnabled: payload,};
-    }
-    case (SET_DAILY_REPORT_ENABLED): {
-      return {...state, dailyReportEnabled: payload,};
-    }
-    case (SET_EXPORT_KML_ENABLED): {
-      return {...state, exportKmlEnabled: payload,};
-    }
-    case (SET_EVENT_MATRIX_ENABLED): {
-      return {...state, eventMatrixEnabled: payload,};
-    }      
-    case (SET_EVENT_SEARCH_ENABLED): {
-      return {...state, eventSearchEnabled: payload,};
-    }
-    case (SET_ALERTS_ENABLED): {
-      return {...state, alertsEnabled: payload,};
-    }
-    case (SET_SHOW_TRACK_DAYS): {
-      return {...state, showTrackDays: payload,};
-    }
+  case (SET_ZENDESK_ENABLED): {
+    return { ...state, zendeskEnabled: payload, };
   }
-  return state;
+  case (SET_DAILY_REPORT_ENABLED): {
+    return { ...state, dailyReportEnabled: payload, };
+  }
+  case (SET_EXPORT_KML_ENABLED): {
+    return { ...state, exportKmlEnabled: payload, };
+  }
+  case (SET_EVENT_MATRIX_ENABLED): {
+    return { ...state, eventMatrixEnabled: payload, };
+  }
+  case (SET_EVENT_SEARCH_ENABLED): {
+    return { ...state, eventSearchEnabled: payload, };
+  }
+  case (SET_ALERTS_ENABLED): {
+    return { ...state, alertsEnabled: payload, };
+  }
+  case (SET_SHOW_TRACK_DAYS): {
+    return { ...state, showTrackDays: payload, };
+  }
+  default: {
+    return state;
+  }
+  }
 };
