@@ -2,6 +2,8 @@ import { REACT_APP_DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
 
+const imgIsDataUrl = url => url.includes('data:image');
+
 export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => new Promise((resolve, reject) => {
   const { width, height } = config;
 
@@ -53,5 +55,6 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
   img.src = src;
 });
 
-export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) ? imagePath : `${REACT_APP_DAS_HOST}/${imagePath}`
-  .replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+export const calcUrlForImage = imagePath => urlContainsOwnHost(imagePath) || imgIsDataUrl(imagePath)
+  ? imagePath 
+  : `${REACT_APP_DAS_HOST}/${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');

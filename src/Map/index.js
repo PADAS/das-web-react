@@ -171,6 +171,8 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
+      // be sure to also deactivate the analyzer features
+      // when dismissing an analyzer popup
       if (this.props.popup.type === 'analyzer-config') {
         const { map } = this.props;
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
