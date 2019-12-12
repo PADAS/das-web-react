@@ -68,11 +68,18 @@ export const LAYER_IDS = {
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',
-  ANALYZER_POLYS_WARNING: 'analyzer-polys-warning',
-  ANALYZER_POLYS_CRITICAL: 'analyzer-polys-critical',
-  ANALYZER_LINES_WARNING: 'analyzer-lines-warning',
-  ANALYZER_LINES_CRITICAL: 'analyzer-lines-critical',
+  ANALYZER_POLYS_WARNING: 'analyzer-polygon-warning',
+  ANALYZER_POLYS_CRITICAL: 'analyzer-polygon-critical',
+  ANALYZER_LINES_WARNING: 'analyzer-line-warning',
+  ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ISOCHRONE_LAYER: 'isochrone',
+};
+
+export const SOURCE_IDS = {
+  ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
+  ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
+  ANALYZER_LINES_WARNING_SOURCE: 'analyzer-line-warning-source',
+  ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
 };
 
 /* "match" will be replaced with "in" once that expression is merged into master for the mapbox-gl style spec, at which point this expression will work for half-sised generic icons. */
@@ -84,7 +91,6 @@ const symbolIconSize = [
   12, IF_IS_GENERIC(0.5, 1),
   MAX_ZOOM, IF_IS_GENERIC(0.75, 1.5),
 ];
-
 
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
