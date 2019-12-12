@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import uniq from 'lodash/uniq';
+import xor from 'lodash/xor';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -196,6 +197,13 @@ class Map extends Component {
   }
 
   onAnalyzerGroupEnter = (e, groupIds) => {
+    // if an analyzer popup is open, and the user selects a new 
+    // analyzer, dismiss the current pop. 
+    if (xor(groupIds, this.currentAnalyzerIds).length !== 0) {
+      if (this.props.popup && this.props.popup.type === 'analyzer-config') {
+        this.props.hidePopup(this.props.popup.id);
+      }
+    }
     this.clearSelectedAnalyzerIds();
     this.currentAnalyzerIds = groupIds;
     const { map } = this.props;
