@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { updateEventFilter } from '../ducks/event-filter';
 import isNil from 'lodash/isNil';
-import { dateIsValid, calcFriendlyDurationString } from '../utils/datetime';
+import { dateIsValid } from '../utils/datetime';
 import { trackEvent } from '../utils/analytics';
 
 import DateRangeSelector from '../DateRangeSelector';
@@ -21,7 +21,8 @@ const EventFilterDateRangeSelector = (props) => {
   const hasLower = !isNil(lower);
   const hasUpper = !isNil(upper);
 
-  const onDateRangeChange = ({ lower, upper }) => {
+  const onClickDateRangePreset = ({ lower, upper }, label) => {
+    trackEvent('Event Filter', 'Select Date Range Preset', `Date Range: ${label}`);
     updateEventFilter({
       filter: {
         date_range: {
@@ -30,7 +31,6 @@ const EventFilterDateRangeSelector = (props) => {
         },
       },
     });
-    trackEvent('Feed', 'Click Reset All Filters');
   };
 
   const onEndDateChange = (val) => {
@@ -43,7 +43,7 @@ const EventFilterDateRangeSelector = (props) => {
         date_range: dateRangeUpdate,
       },
     });
-    trackEvent('Feed', 'Change Filter End Date Filter');
+    trackEvent('Event Filter', 'Change End Date Filter');
     onEndChange && onEndChange(dateRangeUpdate);
   };
 
@@ -58,7 +58,7 @@ const EventFilterDateRangeSelector = (props) => {
         date_range: dateRangeUpdate,
       },
     });
-    trackEvent('Feed', 'Change Start Date Filter');
+    trackEvent('Event Filter', 'Change Start Date Filter');
     onStartChange && onStartChange(dateRangeUpdate);
   };
 
@@ -66,13 +66,12 @@ const EventFilterDateRangeSelector = (props) => {
     className={styles.dateSelect}
     endDate={hasUpper ? new Date(upper) : upper}
     endDateNullMessage='Now'
-    onDateRangeChange={onDateRangeChange}
+    onClickDateRangePreset={onClickDateRangePreset}
     onEndDateChange={onEndDateChange}
     onStartDateChange={onStartDateChange}
     showPresets={true}
     startDate={hasLower ? new Date(lower) : lower}
     startDateNullMessage='One month ago'
-    gaEventSrc='Event Filter'
     {...rest}
   >
     {children}

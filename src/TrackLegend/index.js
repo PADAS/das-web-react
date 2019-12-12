@@ -14,6 +14,7 @@ import { updateTrackState } from '../ducks/map-ui';
 import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCollection } from '../selectors/tracks';
 
 import styles from './styles.module.scss';
+import { trackEvent } from '../utils/analytics';
 
 const TrackLegend = (props) => {
   const { tracks, tracksAsPoints, onClose, subjectTrackState, updateTrackState, onTrackLengthChange } = props;
@@ -22,11 +23,13 @@ const TrackLegend = (props) => {
   const trackPointCount = tracksAsPoints.features.length;
   let displayTitle, iconSrc;
 
-  const onRemoveTrackClick = ({ target: { value: id } }) =>
+  const onRemoveTrackClick = ({ target: { value: id } }) => {
+    trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
     updateTrackState({
       pinned: subjectTrackState.pinned.filter(item => item !== id),
       visible: subjectTrackState.visible.filter(item => item !== id),
     });
+  };
 
   const convertTrackToSubjectDetailListItem = (track) => {
     const { properties: { title, image, id } } = track;
@@ -54,17 +57,21 @@ const TrackLegend = (props) => {
     {displayTitle}
   </h6>;
 
-  const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
-    <Popover className={styles.popover} id="track-details">
-      <ul>
-        {tracks.features.map(convertTrackToSubjectDetailListItem)}
-      </ul>
-    </Popover>
-  }>
-    <button type="button">
-      <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' / >
-    </button>
-  </OverlayTrigger>;
+  const triggerSibling = () => subjectCount > 1 &&
+    <OverlayTrigger trigger="click" rootClose
+      onExited={() => trackEvent('Map Interaction', 'Close Tracks Legend Subject List')}
+      onEntered={() => trackEvent('Map Interaction', 'Show Tracks Legend Subject List')}
+      placement="right" overlay={
+        <Popover className={styles.popover} id="track-details">
+          <ul>
+            {tracks.features.map(convertTrackToSubjectDetailListItem)}
+          </ul>
+        </Popover>
+      }>
+      <button type="button">
+        <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' / >
+      </button>
+    </OverlayTrigger>;
 
   return subjectCount && <MapLegend
     titleElement={titleElement}

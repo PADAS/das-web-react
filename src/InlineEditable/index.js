@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 import Checkmark from '../Checkmark';
 
 const InlineEditable = (props) => {
-  const { validationFunc, value:originalValue, onSave, onChange, showCancel,showEditButton, ...rest } = props;
+  const { validationFunc, value:originalValue, onCancel, onSave, onChange, showCancel, showEditButton, ...rest } = props;
   const inputRef = useRef(null);
 
   const [editing, setEditState] = useState(false);
@@ -36,7 +36,8 @@ const InlineEditable = (props) => {
     });
   };
 
-  const onCancel = () => {
+  const onChangeCancel = () => {
+    onCancel && onCancel();
     setEditState(false);
   };
 
@@ -68,7 +69,7 @@ const InlineEditable = (props) => {
           onChange={onInputChange}
           {...rest}
         />
-        {showCancel && <button className={styles.button} type="button" onClick={onCancel}>
+        {showCancel && <button className={styles.button} type="button" onClick={onChangeCancel}>
           <span className={styles.x}>X</span>
         </button>}
         <button className={styles.button} type="submit">

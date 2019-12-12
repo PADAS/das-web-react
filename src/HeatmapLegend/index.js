@@ -5,14 +5,21 @@ import styles from './styles.module.scss';
 import MapLegend from '../MapLegend';
 import HeatmapStyleControls from '../HeatmapStyleControls';
 
+import { trackEvent } from '../utils/analytics';
+
 const HeatmapLegend = ({ title, pointCount, onClose, ...rest }) => {
 
+  const onLegendClose = (e) => {
+    trackEvent('Map Interaction', 'Close Heatmap');
+    onClose(e);
+  };
+  
   const titleElement = isValidElement(title) ? title : <h6>{title}</h6>;
   const settingsComponent = <HeatmapStyleControls showCancel={false} />;
 
   return <MapLegend
     titleElement={titleElement}
-    onClose={onClose}
+    onClose={onLegendClose}
     settingsComponent={settingsComponent}
     {...rest} >
     <div className={styles.gradient}></div>
