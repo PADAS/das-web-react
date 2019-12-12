@@ -316,7 +316,7 @@ class Map extends Component {
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
-    const enableEventClustering = timeSliderActive ? false : true;
+    const enableEventClustering = !timeSliderActive;
 
     return (
       <EarthRangerMap

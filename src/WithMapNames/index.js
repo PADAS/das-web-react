@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 const withMapNames = Component => connect(mapStatetoProps, null)(({ showMapNames, ...rest }) => {
   const mapNameLayout = showMapNames ? {} : {
-    'text-size': 0
+    'visibility': 'none',
   };
   return <Component mapNameLayout={mapNameLayout} {...rest} />;
 });
