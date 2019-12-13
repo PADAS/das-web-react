@@ -9,6 +9,10 @@ export const getAuthTokenFromCookies = () => {
   return token ? token.replace('token=', '').replace(';', '') : null;
 };
 
+export const deleteAuthTokenCookie = () => {
+  document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+};
+
 
 const goToLoginPageOnAuthFailure = (error) => {
   if (error && error.response && error.response.data && error.response.data.status && error.response.data.status.code === 401) {
