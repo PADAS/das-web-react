@@ -17,12 +17,14 @@ const SelectField = (props) => {
   const getOptionLabel = ({ label, name }) => label || name;
   const getOptionValue = ({ value }) => value;
   const selected = enumOptions.find((item) => value ?
-    item.value === value.value
+    item.value ===
+    (isString(value) ?
+      value : value.value)
     : null
   );
 
-  const handleChange = (update) => {
-    return onChange(update);
+  const handleChange = ({ label: name, value }) => {
+    return onChange({ name, value });
   };
 
   return <Select
@@ -71,11 +73,11 @@ const CustomCheckboxes = (props) => {
   }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const enumOptionIsChecked = option => inputValues.findIndex(item => item === option.value) !== -1;
-  
+
   return (
     <div className='checkboxes' id={id}>
       {enumOptions.map((option, index) => {
-      
+
         const itemDisabled =
           enumDisabled && enumDisabled.findIndex(item => item.value === option.value) !== -1;
         const disabledCls =
@@ -93,7 +95,7 @@ const CustomCheckboxes = (props) => {
                 if (enumOptionIsChecked(option)) {
                   onChange(inputValues.filter(item => item !== option.value));
                 } else {
-                  onChange([...inputValues, option.value ]);
+                  onChange([...inputValues, option.value]);
                 }
               }}
             />
@@ -105,10 +107,10 @@ const CustomCheckboxes = (props) => {
             {checkbox}
           </label>
         ) : (
-          <div key={index} className={`checkbox ${disabledCls}`}>
-            <label htmlFor={inputId}>{checkbox}</label>
-          </div>
-        );
+            <div key={index} className={`checkbox ${disabledCls}`}>
+              <label htmlFor={inputId}>{checkbox}</label>
+            </div>
+          );
       })}
     </div>
   );
@@ -116,18 +118,18 @@ const CustomCheckboxes = (props) => {
 
 
 const ExternalLink = (props) => {
-  const { idSchema: { id }, schema: { title: label }, formData:value } = props;
+  const { idSchema: { id }, schema: { title: label }, formData: value } = props;
 
   const onLinkClick = () => {
     trackEvent(
       'Event Report',
       'Click \'External Source\' link',
-      value.replace('http://','').replace('https://','').split(/[/?#:]/g)[0]
+      value.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0]
     );
   };
 
   return <div>
-    <label className={styles.linkLabel} htmlFor={id}>{label} 
+    <label className={styles.linkLabel} htmlFor={id}>{label}
       <a onClick={onLinkClick} target='_blank' rel='noopener noreferrer' href={value}>
         <ExternalLinkIcon />
       </a>
