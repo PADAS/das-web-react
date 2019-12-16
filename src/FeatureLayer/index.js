@@ -1,13 +1,14 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
-import withMapNames from '../WithMapNames';
 
 import { getFeatureSymbolPropsAtPoint } from '../utils/features';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS } from '../constants';
+
+import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -57,30 +58,17 @@ const lineLayout = {
 };
 
 
-const symbolLayout = {
-  ...DEFAULT_SYMBOL_LAYOUT,
-  //'text-size': 0
-};
 
-const symbolPaint = {
-  ...DEFAULT_SYMBOL_PAINT,
-};
+const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, map }) => {
 
-const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameLayout, map }) => {
-  const layout = {
-    ...symbolLayout,
-    ...mapNameLayout,
-  };
+  const [symbolLayerIds, setSymbolLayerIds] = useState([]);
 
   addFeatureCollectionImagesToMap(symbols, map);
-
-  const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
-  const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
   // find the symbol in the feature layer before propogating to callback
   const onSymbolClick = (e) => {
     const geometry = e.lngLat;
-    const properties = getFeatureSymbolPropsAtPoint(e.point, map);
+    const properties = getFeatureSymbolPropsAtPoint(e.point, map, symbolLayerIds);
     onFeatureSymbolClick(geometry, properties);
   };
 
@@ -112,11 +100,9 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
       id={FEATURE_LINES} before={SUBJECT_SYMBOLS}
       paint={linePaint} layout={lineLayout} />
 
-    <Layer sourceId='feature-symbol-source' type='symbol'
+    <LabeledSymbolLayer sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
-      paint={symbolPaint} layout={layout}
-      onMouseEnter={onSymbolMouseEnter}
-      onMouseLeave={onSymbolMouseLeave}
+      onInit={setSymbolLayerIds}
       onClick={onSymbolClick} />
   </Fragment>;
 };
@@ -127,4 +113,4 @@ FeatureLayer.propTypes = {
   polygons: PropTypes.object.isRequired,
 };
 
-export default memo(withMap(withMapNames(FeatureLayer)));
+export default memo(withMap(FeatureLayer));

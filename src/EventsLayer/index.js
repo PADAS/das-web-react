@@ -5,7 +5,8 @@ import concave from '@turf/concave';
 import buffer from '@turf/buffer';
 import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
-import debounce from 'lodash/debounce';
+
+import uniq from 'lodash/uniq';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 
@@ -49,11 +50,15 @@ const EventsLayer = (props) => {
   };
 
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
-  const [layerIds, setEventLayerIds] = useState([]);
 
-  const getEventLayer = (e) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
+  const getEventLayer = (e) => map.queryRenderedFeatures(e.point, { layers: layerIdRef.current })[0];
+
+  const addIdsToEventLayerIds = (ids) => {
+    layerIdRef.current = uniq([...layerIdRef.current, ...ids]);
+  };
 
   const timeoutRef = useRef(null);
+  const layerIdRef = useRef([]);
 
   const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
@@ -97,13 +102,13 @@ const EventsLayer = (props) => {
     setClusterBufferPolygon(featureCollection([]));
   };
 
-  const handleEventClick = debounce((e) => {
+  const handleEventClick = (e) => {
     e.preventDefault();
 
-    const clickedLayer = getEventLayer(e, layerIds);
+    const clickedLayer = getEventLayer(e, layerIdRef.current);
 
     onEventClick(clickedLayer);
-  });
+  };
 
   useEffect(() => {
     const addClusterIconToMap = async () => {
@@ -169,7 +174,7 @@ const EventsLayer = (props) => {
     before: SUBJECT_SYMBOLS,
     id: EVENT_SYMBOLS,
     onClick: handleEventClick,
-    onInit: setEventLayerIds,
+    onInit: addIdsToEventLayerIds,
     filter: ['!has', 'point_count'],
   };
 
@@ -189,8 +194,8 @@ const EventsLayer = (props) => {
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
 
 
-    {<LabeledSymbolLayer sourceId='events-data-unclustered' {...finalUnclusteredProps} />}
-    {<LabeledSymbolLayer sourceId='events-data-clustered' {...finalClusteredProps} />}
+    {<LabeledSymbolLayer sourceId='events-data-unclustered' {...finalUnclusteredProps} id='whatever-layer-1' />}
+    {<LabeledSymbolLayer sourceId='events-data-clustered' {...finalClusteredProps} id='whatever-layer-2' />}
 
     {enableClustering && <Fragment>
       {/* <LabeledSymbolLayer {...layerProps} /> */}

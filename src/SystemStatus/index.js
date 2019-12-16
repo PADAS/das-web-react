@@ -19,7 +19,7 @@ class SystemStatusComponent extends Component {
 
   renderStatusList() {
     return Object.entries(this.props.systemStatus).map(([key, value], index) => {
-      if (key === 'services') {
+      if (Array.isArray(value)) {
         return value.map((item) =>
           <Item className={styles.listItem} key={item.provider_key}>
             <div className={styles.summary}>

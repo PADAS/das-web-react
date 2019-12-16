@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect } from 'react';
+import React, { Fragment, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -7,7 +7,7 @@ import withMapNames from '../WithMapNames';
 
 import { Layer } from 'react-mapbox-gl';
 
-const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, mapNameLayout, onInit, onUnmount, onMouseEnter, onMouseLeave, ...rest }) => {
+const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, mapNameLayout, onClick, onInit, onUnmount, onMouseEnter, onMouseLeave, ...rest }) => {
   
 
   const textLayerId = `${id}-labels`;
@@ -19,6 +19,20 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
   const handleMouseLeave = (e) => {
     map.getCanvas().style.cursor = '';
     onMouseLeave && onMouseLeave(e);
+  };
+  
+  const clicking = useRef(false);
+
+  const handleClick = (e) => {
+    /* slight event loop manipulation to prevent stacked "onclick" events (in case of icon+label overlap) while still sharing onClick with all layers */
+    if (!clicking.current) {
+      onClick(e);
+      clicking.current = true;
+      setTimeout(() => {
+        clicking.current = false;   
+      });
+      
+    }
   };
 
   useEffect(() => {
@@ -38,8 +52,6 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
     'text-offset': [0, 1.1],
   };
 
-  console.log('computed label layout', labelLayout);
-
   const labelPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     ...textPaint,
@@ -56,19 +68,16 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
     'text-field': '',
   };
 
-  console.log('computed symbol layout', symbolLayout);
-
-
   const symbolPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     ...paint,
   };
 
   return <Fragment>
-    <Layer id={textLayerId} layout={labelLayout} type='symbol' 
+    <Layer onClick={handleClick} id={textLayerId} layout={labelLayout} type='symbol' 
       onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} 
       paint={labelPaint} {...rest} />
-    <Layer id={id} layout={symbolLayout} type='symbol' 
+    <Layer onClick={handleClick} id={id} layout={symbolLayout} type='symbol' 
       paint={symbolPaint} onMouseEnter={handleMouseEnter} 
       before={textLayerId} onMouseLeave={handleMouseLeave} {...rest} />
   </Fragment>;
