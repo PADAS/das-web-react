@@ -87,13 +87,12 @@ const symbolIconSize = [
 
 
 export const DEFAULT_SYMBOL_LAYOUT = {
-  'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
+  'icon-allow-overlap': ['step', ['zoom'], false, 9, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'image'],
   'icon-size': symbolIconSize,
-  'text-allow-overlap': ['step', ['zoom'], false, 10, true],
+  'text-allow-overlap': ['step', ['zoom'], false, 9, true],
   'text-anchor': 'top',
-  'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
   'text-size': [
