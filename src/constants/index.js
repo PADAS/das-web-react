@@ -159,6 +159,12 @@ export const DEFAULT_SELECT_STYLES = {
       cursor: isDisabled ? 'not-allowed' : 'default',
     };
   },
+  menu(styles, state) {
+    return {
+      ...styles,
+      zIndex: 5,
+    };
+  }
 };
 
 export const DATEPICKER_DEFAULT_CONFIG = {
