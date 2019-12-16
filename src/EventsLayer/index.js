@@ -41,6 +41,12 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
+const layoutProps = {
+  textLayout: {
+    'text-field': '{display_title}',
+  },
+};
+
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, ...rest } = props;
 
@@ -141,13 +147,6 @@ const EventsLayer = (props) => {
     data: clusterBufferPolygon,
   };
 
-
-  const layoutProps = {
-    textLayout: {
-      'text-field': '{display_title}',
-    },
-  };
-
   const unclusteredLayoutProps = {
     layout: {
       'icon-allow-overlap': true,
@@ -199,7 +198,6 @@ const EventsLayer = (props) => {
     <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
-
 
     {<LabeledSymbolLayer sourceId='events-data-unclustered' {...finalUnclusteredProps} id='whatever-layer-1' />}
     {<LabeledSymbolLayer sourceId='events-data-clustered' {...finalClusteredProps} id='whatever-layer-2' />}
