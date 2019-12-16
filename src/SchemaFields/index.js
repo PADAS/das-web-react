@@ -23,7 +23,10 @@ const SelectField = (props) => {
     : null
   );
 
-  const handleChange = ({ label: name, value }) => {
+  const handleChange = (update) => {
+    if (!update) return onChange(update);
+
+    const { label: name, value } = update;
     return onChange({ name, value });
   };
 
