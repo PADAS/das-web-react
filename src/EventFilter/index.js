@@ -58,10 +58,10 @@ const EventFilter = (props) => {
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
     if (allReportTypesChecked) {
-      trackEvent('Feed', 'Uncheck All Event Types Filter');
+      trackEvent('Event Filter', 'Uncheck All Event Types Filter');
       updateEventFilter({ filter: { event_type: [null] } });
     } else {
-      trackEvent('Feed', 'Check All Event Types Filter');
+      trackEvent('Event Filter', 'Check All Event Types Filter');
       updateEventFilter({ filter: { event_type: eventTypeIDs } });
     }
   };
@@ -70,16 +70,18 @@ const EventFilter = (props) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
     const allShown = intersection(currentFilterReportTypes, toToggle).length === toToggle.length;
     if (allShown) {
-      trackEvent('Feed', 'Uncheck Event Type Category Filter');
+      trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
       updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(id => !toToggle.includes(id)) } });
     } else {
-      trackEvent('Feed', 'Uncheck Event Type Category Filter');
+      trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
       updateEventFilter({ filter: { event_type: uniq([...currentFilterReportTypes, ...toToggle]) } });
     }
   };
 
   const onReportedByChange = (values) => {
-    if (values && !!values.length) {
+    const hasValue = values && !!values.length;
+    
+    if (hasValue) {
       updateEventFilter({
         filter: {
           reported_by: uniq(values.map(({ id }) => id)),
@@ -92,13 +94,16 @@ const EventFilter = (props) => {
         }
       });
     }
+    trackEvent('Event Filter', `${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
   };
 
   const onPriorityChange = (value) => {
-    const removingValue = priority.includes(value);
-    const newVal = removingValue
+    const newVal = priority.includes(value)
       ? priority.filter(item => item !== value)
       : [...priority, value];
+
+
+    trackEvent('Event Filter', 'Set Priority Filter', newVal.toString());
 
     updateEventFilter({
       filter: {
@@ -109,10 +114,10 @@ const EventFilter = (props) => {
 
   const onReportTypeToggle = ({ id }) => {
     if (currentFilterReportTypes.includes(id)) {
-      trackEvent('Feed', 'Uncheck Event Type Filter');
+      trackEvent('Event Filter', 'Uncheck Event Type Filter');
       updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(item => item !== id) } });
     } else {
-      trackEvent('Feed', 'Check Event Type Filter');
+      trackEvent('Event Filter', 'Check Event Type Filter');
       updateEventFilter({ filter: { event_type: [...currentFilterReportTypes, id] } });
     }
   };
@@ -128,7 +133,7 @@ const EventFilter = (props) => {
 
   const onStateSelect = ({ value }) => {
     updateEventFilter({ state: value });
-    trackEvent('Feed', `Select '${value}' State Filter`);
+    trackEvent('Event Filter', `Select '${value}' State Filter`);
   };
 
   const resetPopoverFilters = () => {
@@ -140,6 +145,7 @@ const EventFilter = (props) => {
         reported_by: INITIAL_FILTER_STATE.filter.reported_by,
       },
     });
+    trackEvent('Event Filter', 'Click Reset All Filters');
   };
 
   const clearDateRange = (e) => {
@@ -149,25 +155,25 @@ const EventFilter = (props) => {
         date_range: INITIAL_FILTER_STATE.filter.date_range,
       },
     });
-    trackEvent('Feed', 'Click Reset Date Range Filter');
+    trackEvent('Event Filter', 'Click Reset Date Range Filter');
   };
 
   const resetStateFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ state: INITIAL_FILTER_STATE.state });
-    trackEvent('Feed', 'Click Reset State Filter');
+    trackEvent('Event Filter', 'Click Reset State Filter');
   };
 
   const resetPriorityFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ filter: { priority: INITIAL_FILTER_STATE.filter.priority } });
-    trackEvent('Feed', 'Click Reset Priority Filter');
+    trackEvent('Event Filter', 'Click Reset Priority Filter');
   };
 
   const resetReportedByFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ filter: { reported_by: INITIAL_FILTER_STATE.filter.reported_by } });
-    trackEvent('Feed', 'Click Reset Reported By Filter');
+    trackEvent('Event Filter', 'Click Reset Reported By Filter');
   };
 
   const StateSelector = () => <ul className={styles.stateList}>
@@ -184,13 +190,13 @@ const EventFilter = (props) => {
 
   const onSearchChange = ({ target: { value } }) => {
     setFilterText(value);
-    trackEvent('Feed', 'Change Search Text Filter');
+    trackEvent('Event Filter', 'Change Search Text Filter');
   };
 
   const onSearchClear = (e) => {
     e.stopPropagation();
     setFilterText('');
-    trackEvent('Feed', 'Clear Search Text Filter');
+    trackEvent('Event Filter', 'Clear Search Text Filter');
   };
 
   useEffect(() => {

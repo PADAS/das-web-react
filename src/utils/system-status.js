@@ -6,11 +6,11 @@ const worstToBest = [UNKNOWN_STATUS, UNHEALTHY_STATUS, WARNING_STATUS, HEALTHY_S
 
 const calcWorstCaseStatus = (systemStatus) => {
   const statusArray = Object.entries(systemStatus)
-    .reduce((accumulator, [key, value]) => {
-    if (key === 'services') return [...accumulator, ...value];
-    return [...accumulator, value];
-  }, [])
-  .map(({ status }) => status);
+    .reduce((accumulator, [_key, value]) => {
+      if (Array.isArray(value)) return [...accumulator, ...value];
+      return [...accumulator, value];
+    }, [])
+    .map(({ status }) => status);
 
   return worstToBest.find(item => statusArray.includes(item));
 };

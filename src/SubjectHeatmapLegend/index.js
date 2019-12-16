@@ -5,6 +5,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
+import { trackEvent } from '../utils/analytics';
 import { trimmedVisibleHeatmapTrackFeatureCollection, trimmedHeatmapPointFeatureCollection } from '../selectors/tracks';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
@@ -19,8 +20,10 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
   const trackPointCount = tracksAsPoints.features.length;
   let displayTitle, iconSrc;
 
-  const onRemoveTrackClick = ({ target: { value: id } }) =>
+  const onRemoveTrackClick = ({ target: { value: id } }) => {
+    trackEvent('Map Interaction', 'Remove Subject Tracks Via Heatmap Legend Popover');
     updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
+  };
 
   const convertTrackToSubjectDetailListItem = (feature) => {
     const { properties: { title, image, id } } = feature;
@@ -29,7 +32,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        <small>{feature.geometry? feature.geometry.coordinates.length : 0} points</small>
+        <small>{feature.geometry ? feature.geometry.coordinates.length : 0} points</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
@@ -48,13 +51,15 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
     {displayTitle}
   </h6>;
 
-  const triggerSibling = () => subjectCount > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
-    <Popover className={styles.popover} id="track-details">
-      <ul>
-        {tracks.features.map(convertTrackToSubjectDetailListItem)}
-      </ul>
-    </Popover>
-  }>
+  const triggerSibling = () => subjectCount > 1 && <OverlayTrigger
+    onExited={() => trackEvent('Map Interaction', 'Close Heatmap Legend Subject List')}
+    onEntered={() => trackEvent('Map Interaction', 'Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
+      <Popover className={styles.popover} id="track-details">
+        <ul>
+          {tracks.features.map(convertTrackToSubjectDetailListItem)}
+        </ul>
+      </Popover>
+    }>
     <button type="button">
       <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' />
     </button>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { trackEvent } from '../utils/analytics';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import { subDays, startOfDay, setHours } from 'date-fns';
 
+import { trackEvent } from '../utils/analytics';
 import { removeModal } from '../ducks/modals';
 import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
@@ -31,12 +31,12 @@ const DailyReportModal = (props) => {
 
   const setParamsForYesterday = () => { 
     setParamsFor('yesterday');
-    trackEvent('Report Export', "Click 'Yesterday\'s Report' button", null);
+    trackEvent('Report Export', 'Click \'Yesterday\'s Report\' button', null);
   };
 
   const setParamsForToday = () => { 
     setParamsFor('today');
-    trackEvent('Report Export', "Click 'Today\'s Report' button", null);
+    trackEvent('Report Export', 'Click \'Today\'s Report\' button', null);
   };
 
   const handleInputChange = (type, value) => {
@@ -48,15 +48,21 @@ const DailyReportModal = (props) => {
     }
   };
 
-  const handleStartDateChange = value => handleInputChange('start', value);
-  const handleEndDateChange = value => handleInputChange('end', value);
+  const handleStartDateChange = value => {
+    trackEvent('Report Export', 'Set Report Start Date');
+    handleInputChange('start', value);
+  };
+  const handleEndDateChange = value => {
+    trackEvent('Report Export', 'Set Report End Date');
+    handleInputChange('end', value);
+  };
 
   const exportParams = {before: customEndDate, since: customStartDate};
 
   return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={exportParams}>
     <div className={styles.controls}>
-      <Button type="button" onClick={setParamsForYesterday}>Yesterday's Report</Button>
-      <Button type="button" onClick={setParamsForToday}>Today's Report</Button>
+      <Button type="button" onClick={setParamsForYesterday}>Yesterday&apos;s Report</Button>
+      <Button type="button" onClick={setParamsForToday}>Today&apos;s Report</Button>
     </div>
     <DateRangeSelector
       className={styles.controls} 
@@ -68,7 +74,7 @@ const DailyReportModal = (props) => {
       onStartDateChange={handleStartDateChange}
       onEndDateChange={handleEndDateChange}
       gaEventSrc='Report Export'
-      />
+    />
   </DataExportModal >;
 };
 

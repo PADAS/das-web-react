@@ -1,3 +1,5 @@
+import debounce from 'lodash/debounce';
+
 /**
  * ReactGA convenience functions.
  * 
@@ -19,7 +21,9 @@ export function trackEvent(category, action, label=null) {
     action: action,
     label: label
   });
-}
+};
+
+export const debouncedTrackEvent = (delay = 300) => debounce(trackEvent, delay);
 
 /** 
  * Function to set the user role as a GA custom dimension.

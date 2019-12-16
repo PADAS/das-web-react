@@ -20,6 +20,7 @@ import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
+import { trackEvent } from '../utils/analytics';
 
 const ReportFormTopLevelControls = (props) => {
   const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
@@ -57,6 +58,10 @@ const ReportFormTopLevelControls = (props) => {
   
   const onLocationSelectFromMapCancel = () => {
     setModalVisibilityState(true);
+  };
+
+  const onGeoLocationStart = () => {
+    trackEvent('Event Report', 'Click \'Use My Location\'');
   };
 
   const onGeoLocationSuccess = (coords) => {
@@ -99,7 +104,7 @@ const ReportFormTopLevelControls = (props) => {
             <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
             <div className={styles.locationButtons}>
               <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
-              <GeoLocator className={styles.geoLocator} onSuccess={onGeoLocationSuccess} />
+              <GeoLocator className={styles.geoLocator} onStart={onGeoLocationStart} onSuccess={onGeoLocationSuccess} />
             </div>
           </div>
         </Popover>}

@@ -2,6 +2,7 @@ import io from 'socket.io-client';
 import { store } from '../index';
 import { REACT_APP_DAS_HOST } from '../constants';
 import { events, SOCKET_RECOVERY_DISPATCHES } from './config';
+import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
 
@@ -54,6 +55,7 @@ export const pingSocket = (socket) => {
 const bindSocketEvents = (socket, store) => {
   socket.on('connect', () => {
     console.log('realtime: connected');
+    store.dispatch({ type: SOCKET_HEALTHY_STATUS });
     socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
   });
   socket.on('disconnect', (msg) => {

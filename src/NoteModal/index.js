@@ -7,6 +7,8 @@ import Form from 'react-bootstrap/Form';
 
 import { removeModal } from '../ducks/modals';
 
+import { trackEvent } from '../utils/analytics';
+
 
 const { Header, Title, Body, Footer } = Modal;
 
@@ -22,8 +24,14 @@ const NoteModal = (props) => {
 
   const [editedText, setEditedNoteText] = useState(note.text);
 
+  const onCancel = () => {
+    trackEvent('Report Note', 'Click \'Cancel\' Button');
+    removeModal(id);
+  };
+  
   const onNoteFormSubmit = (e) => {
     e.preventDefault();
+    trackEvent('Report Note', 'Click \'Save\' Button');
     onSubmit({
       ...note,
       text: editedText,
@@ -43,7 +51,7 @@ const NoteModal = (props) => {
 
       </Body>
       <Footer>
-        <Button tabIndex={3} variant="secondary" onClick={() => removeModal(id)}>Cancel</Button>
+        <Button tabIndex={3} variant="secondary" onClick={onCancel}>Cancel</Button>
         <Button tabIndex={2} type="submit" variant="primary">Save</Button>
       </Footer>
     </Form>
