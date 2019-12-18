@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import uniq from 'lodash/uniq';
+import xor from 'lodash/xor';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -171,6 +172,12 @@ class Map extends Component {
   }
   onMapClick(map, event) {
     if (this.props.popup) {
+      // be sure to also deactivate the analyzer features
+      // when dismissing an analyzer popup
+      if (this.props.popup.type === 'analyzer-config') {
+        const { map } = this.props;
+        setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
+      }
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
@@ -190,6 +197,13 @@ class Map extends Component {
   }
 
   onAnalyzerGroupEnter = (e, groupIds) => {
+    // if an analyzer popup is open, and the user selects a new 
+    // analyzer, dismiss the current pop. 
+    if (xor(groupIds, this.currentAnalyzerIds).length !== 0) {
+      if (this.props.popup && this.props.popup.type === 'analyzer-config') {
+        this.props.hidePopup(this.props.popup.id);
+      }
+    }
     this.clearSelectedAnalyzerIds();
     this.currentAnalyzerIds = groupIds;
     const { map } = this.props;
@@ -231,7 +245,7 @@ class Map extends Component {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
-    
+
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
       if (this.props.map.getZoom() >= zoom) {
@@ -346,7 +360,7 @@ class Map extends Component {
             />
 
             <div className='floating-report-filter'>
-              <EventFilter  />
+              <EventFilter />
               <FriendlyEventFilterString className='map-report-filter-details' />
             </div>
 
