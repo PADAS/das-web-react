@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 
-const FEATURESET_API_URL = `${API_URL}featureset/`
+const FEATURESET_API_URL = `${API_URL}featureset/`;
 
 // actions
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';

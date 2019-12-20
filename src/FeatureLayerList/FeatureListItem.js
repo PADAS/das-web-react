@@ -12,9 +12,13 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import listStyles from '../SideBar/styles.module.scss';
 
+const geometryIsPoint = ({ type, coordinates }) => {
+  return (type === 'Point' || (type === 'MultiPoint' && coordinates.length === 1));
+};
+
 // eslint-disable-next-line react/display-name
 const FeatureListItem = memo((props) => {
-  const { properties, map, geometry, showFeatures } = props;
+  const { properties, map, geometry, showFeatures, showPopup } = props;
 
   const iconForCategory = category => {
     if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
@@ -28,6 +32,9 @@ const FeatureListItem = memo((props) => {
     setTimeout(() => {
       setFeatureActiveStateByID(map, properties.id, true);
     }, 200);
+    if (geometryIsPoint(geometry)) {
+      showPopup('feature-symbol', { geometry, properties });
+    }
     trackEvent('Map Layers', 'Click Jump To Feature Location button',
       `Feature Type:${properties.type_name}`);
   };

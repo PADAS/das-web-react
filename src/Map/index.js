@@ -198,7 +198,7 @@ class Map extends Component {
     openModalForReport(event, map);
   }
 
-  onFeatureSymbolClick(geometry, properties) {
+  onFeatureSymbolClick({ geometry, properties }) {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   }
