@@ -90,6 +90,10 @@ export const calcEventFilterForRequest = (params) => {
     },
   };
 
+  if (cleaned.filter.text) {
+    cleaned.filter.text = cleaned.filter.text.toLowerCase();
+  }
+
   /* "show all event types" doesn't require an event_type param. 
       delete it for that case, to not overburden the query. */
   if (eventTypes 
@@ -206,7 +210,7 @@ export const generateErrorListForApiResponseDetails = (response) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-        []);
+      []);
   } catch (e) {
     return [{ label: 'Unkown error' }];
   }

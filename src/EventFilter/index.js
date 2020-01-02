@@ -12,6 +12,7 @@ import uniq from 'lodash/uniq';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEvent } from '../utils/analytics';
+import { caseInsensitiveCompare } from '../utils/string';
 
 import { reportedBy } from '../selectors';
 
@@ -200,19 +201,21 @@ const EventFilter = (props) => {
   };
 
   useEffect(() => {
-    if (!!filterText && !!filterText.length) {
-      updateEventFilterDebounced.current({
-        filter: { text: filterText.toLowerCase() },
-      });
-    } else {
-      updateEventFilter({
-        filter: { text: '', }
-      });
+    if (!caseInsensitiveCompare(filterText, text)) {
+      if (!!filterText.length) {
+        updateEventFilterDebounced.current({
+          filter: { text: filterText },
+        });
+      } else {
+        updateEventFilter({
+          filter: { text: '', }
+        });
+      }
     }
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (filterText !== text) {
+    if (!caseInsensitiveCompare(filterText, text)) {
       setFilterText(text);
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps

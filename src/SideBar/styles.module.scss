@@ -168,13 +168,26 @@
   left: 0.5rem;
 }
 
+@keyframes slideFilterHeight {
+  from {
+    height: 0;
+  }
+  to {
+    height: 4rem;
+  }
+}
+
 .eventFilter {
   height: 0;
   overflow: hidden;
-  transition: 0.2s height linear;
+  transition: 0.4s height linear;
   @media (min-width: $md-layout-width-min) {
     padding-left: 4rem;
   }
+}
+
+.sidebarEventFeed {
+  margin-top: 0.5rem;
 }
 
 .sidebarOpen {
@@ -183,8 +196,13 @@
     padding: 0.5rem;
   }
   .eventFilter {
+    animation-name: slideFilterHeight;
+    animation-duration: 0.4s;
     height: 4rem;
     padding-left: 0.75rem;
+  }
+  .sidebarEventFeed {
+    margin-top: 0;
   }
 }
 

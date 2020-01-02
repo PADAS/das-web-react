@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, memo } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
@@ -22,6 +22,7 @@ import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import HeatmapToggleButton from '../HeatmapToggleButton';
+import DelayedUnmount from '../DelayedUnmount';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -36,7 +37,7 @@ import ErrorMessage from '../ErrorMessage';
 const TAB_KEYS = {
   REPORTS: 'reports',
   LAYERS: 'layers',
-}
+};
 
 const { screenIsExtraLargeWidth } = BREAKPOINTS;
 
@@ -96,9 +97,11 @@ const SideBar = (props) => {
             <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
           </div>
           <ErrorBoundary>
-            <EventFilter className={styles.eventFilter}>
-              <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
-            </EventFilter>
+            <DelayedUnmount isMounted={sidebarOpen}>
+              <EventFilter className={styles.eventFilter}>
+                <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
+              </EventFilter>
+            </DelayedUnmount>
           </ErrorBoundary>
           <FriendlyEventFilterString className={styles.friendlyFilterString} />
           <ErrorBoundary>
@@ -110,6 +113,7 @@ const SideBar = (props) => {
               </Button>
             </div>}
             {!showEventFeedError && <EventFeed
+              className={styles.sidebarEventFeed}
               hasMore={!!events.next}
               map={map}
               loading={loadingEvents}
