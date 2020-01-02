@@ -3,7 +3,6 @@ import uniq from 'lodash/uniq';
 import { LngLatBounds } from 'mapbox-gl';
 
 import { LAYER_IDS } from '../constants';
-import { featureSets } from '../selectors';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS } = LAYER_IDS;
 const MAX_JUMP_ZOOM = 17;
@@ -95,10 +94,10 @@ export const getAllFeatureIDsInList = (featureList) => getUniqueIDsFromFeatures(
     ], [])
 );
 
-export const getFeatureSymbolPropsAtPoint = (geo, map) => {
+export const getFeatureSymbolGeoJsonAtPoint = (geo, map) => {
   const features = map.queryRenderedFeatures(geo, {
     layers: [FEATURE_SYMBOLS],
   });
   // assume fist feature returned is closest
-  return features[0].properties;
+  return features[0];
 };

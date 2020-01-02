@@ -198,7 +198,7 @@ export const generateErrorListForApiResponseDetails = (response) => {
     return Object.entries(JSON.parse(details.replace(/'/g, '"')))
       .reduce((accumulator, [key, value]) =>
         [{ label: key, message: value }, ...accumulator],
-        []);
+      []);
   } catch (e) {
     return [{ label: 'Unkown error' }];
   }
