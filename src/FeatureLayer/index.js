@@ -79,7 +79,6 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
 
   // find the symbol in the feature layer before propogating to callback
   const onSymbolClick = (e) => {
-    const geometry = e.lngLat;
     const geojson = getFeatureSymbolGeoJsonAtPoint(e.point, map);
     onFeatureSymbolClick(geojson);
   };

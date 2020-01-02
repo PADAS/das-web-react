@@ -19,7 +19,7 @@ export const fetchFeaturesets = () => async (dispatch) => {
     const allFeatures = await Promise.all(
       features.map(async (fs) => {
         const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`).catch((error) => {
-          console.warn(`error fetching ${fs.name} featureset, excluding from results`, error);
+          console.warn(`error fetching ${fs.name} featureset, excluding from feature data`, error);
           return Promise.resolve({
             data: {
               features: [],
