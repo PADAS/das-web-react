@@ -96,14 +96,16 @@ const SideBar = (props) => {
           <div className={styles.addReportContainer}>
             <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
           </div>
-          <ErrorBoundary>
-            <DelayedUnmount isMounted={sidebarOpen}>
-              <EventFilter className={styles.eventFilter}>
-                <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
-              </EventFilter>
-            </DelayedUnmount>
-          </ErrorBoundary>
-          <FriendlyEventFilterString className={styles.friendlyFilterString} />
+          <DelayedUnmount isMounted={sidebarOpen}>
+            <ErrorBoundary>
+              <div className={styles.filterWrapper}>
+                <EventFilter className={styles.eventFilter}>
+                  <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
+                </EventFilter>
+                <FriendlyEventFilterString className={styles.friendlyFilterString} />
+              </div>
+            </ErrorBoundary>
+          </DelayedUnmount>
           <ErrorBoundary>
             {showEventFeedError && <div className={styles.feedError}>
               <ErrorMessage message='Could not load events. Please try again.' details={events.error} />
