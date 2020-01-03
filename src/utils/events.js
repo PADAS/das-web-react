@@ -75,7 +75,7 @@ const objectToParamString = (obj) => {
 };
 
 export const calcEventFilterForRequest = (params) => {
-  const { data: { eventFilter } } = store.getState();
+  const { data: { eventFilter, eventTypes } } = store.getState();
 
   const toClean = { ...eventFilter, ...params };
 
@@ -89,6 +89,18 @@ export const calcEventFilterForRequest = (params) => {
       },
     },
   };
+
+  if (cleaned.filter.text) {
+    cleaned.filter.text = cleaned.filter.text.toLowerCase();
+  }
+
+  /* "show all event types" doesn't require an event_type param. 
+      delete it for that case, to not overburden the query. */
+  if (eventTypes 
+    && cleaned.filter.event_type
+    && eventTypes.length === cleaned.filter.event_type.length) {
+    delete cleaned.filter.event_type;
+  }
 
   return objectToParamString(cleaned);
 };

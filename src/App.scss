@@ -121,6 +121,7 @@ aside {
 }
 
 .floating-report-filter {
+  @include fade-in;
   border-radius: 0.25rem;
   position: absolute;
   z-index: 5;

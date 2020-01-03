@@ -9,14 +9,14 @@ import ReportListItem from '../ReportListItem';
 import styles from './styles.module.scss';
 
 const EventFeed = (props) => {
-  const { events, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
+  const { className = '', events, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
 
   const scrollRef = useRef(null);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return (
-    <div ref={scrollRef} className={styles.scrollContainer}>
+    <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
       <InfiniteScroll
         element='ul'
         hasMore={hasMore}

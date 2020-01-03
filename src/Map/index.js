@@ -29,6 +29,7 @@ import { addModal } from '../ducks/modals';
 import { LAYER_IDS } from '../constants';
 
 import withSocketConnection from '../withSocketConnection';
+import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
@@ -46,7 +47,7 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
-import IsochroneLayer from '../IsochroneLayer';
+// import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 
 import MapRulerControl from '../MapRulerControl';
@@ -366,11 +367,13 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <div className='floating-report-filter'>
-              <EventFilter />
-              <FriendlyEventFilterString className='map-report-filter-details' />
-            </div>
-
+            <DelayedUnmount isMounted={!this.props.sidebarOpen}>
+              <div className='floating-report-filter'>
+                <EventFilter />
+                <FriendlyEventFilterString className='map-report-filter-details' />
+              </div>
+            </DelayedUnmount>
+                
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
@@ -415,7 +418,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences: { sidebarOpen }, showReportsOnMap } = view;
 
   return ({
     maps,
@@ -439,6 +442,7 @@ const mapStatetoProps = (state, props) => {
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
+    sidebarOpen,
     showReportHeatmap: state.view.showReportHeatmap,
   });
 };

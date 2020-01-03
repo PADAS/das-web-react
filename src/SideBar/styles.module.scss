@@ -168,23 +168,49 @@
   left: 0.5rem;
 }
 
-.eventFilter {
+@mixin slideIn($height, $duration: 0.4s) {
+  @keyframes slideFilterHeight {
+    from {
+      height: 0;
+    }
+    to {
+      height: $height;
+    }
+  }
+  animation: slideFilterHeight $duration linear;
+}
+
+.filterWrapper {
+  --height: 5rem;
+  --animation-duration: 0.2s;
+  @include slideIn(var(--height),  var(--animation-duration));
   height: 0;
   overflow: hidden;
-  transition: 0.2s height linear;
+  transition: var(--animation-duration) height linear;
+}
+
+.eventFilter {
+  padding-left: 0.75rem;
   @media (min-width: $md-layout-width-min) {
     padding-left: 4rem;
   }
 }
 
+.friendlyFilterString {
+  display: block;
+  font-size: 0.75rem;
+  line-height: normal;
+  padding: 0.5rem 0.5rem 0;
+  transition: 0.3s all linear;
+}
+
+.sidebarEventFeed {
+  margin-top: 0.5rem;
+}
+
 .sidebarOpen {
-  .friendlyFilterString {
-    height: 2rem;
-    padding: 0.5rem;
-  }
-  .eventFilter {
-    height: 4rem;
-    padding-left: 0.75rem;
+  .filterWrapper {
+    height: var(--height);
   }
 }
 
@@ -227,13 +253,3 @@
   }
 }
 
-.friendlyFilterString {
-  display: block;
-  font-size: 0.75rem;
-  height: 0;
-  line-height: normal;
-  overflow: hidden;
-  padding: 0;
-  padding-left: 4.25rem;
-  transition: 0.3s all linear;
-}
