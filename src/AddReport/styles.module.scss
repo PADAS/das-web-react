@@ -54,7 +54,7 @@ div.popover {
     display: flex;
     flex-flow: column;
     max-height: 18rem;
-    padding: 2rem 0 0;
+    padding: 0;
     position: relative;
     @media (min-height: $lg-height-min) {
       max-height: 26rem;
@@ -69,7 +69,6 @@ div.popover {
   background: $light-gray-background;
   font-size: 0.75rem;
   padding: 0.5rem;
-  position: absolute;
   top: 0;
   z-index: 1;
   @media (min-width: $md-layout-width-min) {
