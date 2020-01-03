@@ -117,6 +117,13 @@ class Map extends Component {
         });
       }
     }
+    if (
+      this.props.popup 
+      && this.props.popup.type === 'feature-symbol'
+      && this.props.hiddenFeatureIDs.includes(this.props.popup.data.properties.id)
+    ) {
+      this.props.hidePopup(this.props.popup.id);
+    }
   }
   setTrackLengthToEventFilterRange() {
     this.props.setTrackLength(differenceInCalendarDays(
@@ -192,7 +199,7 @@ class Map extends Component {
     openModalForReport(event, map);
   }
 
-  onFeatureSymbolClick(geometry, properties) {
+  onFeatureSymbolClick({ geometry, properties }) {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   }
@@ -410,13 +417,14 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
+  const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences: { sidebarOpen }, showReportsOnMap } = view;
 
   return ({
     maps,
     heatmapSubjectIDs,
     tracks,
+    hiddenFeatureIDs,
     homeMap,
     mapIsLocked,
     popup,

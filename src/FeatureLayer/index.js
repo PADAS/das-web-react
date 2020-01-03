@@ -5,7 +5,7 @@ import { Source, Layer } from 'react-mapbox-gl';
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 
-import { getFeatureSymbolPropsAtPoint } from '../utils/features';
+import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -79,9 +79,8 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
 
   // find the symbol in the feature layer before propogating to callback
   const onSymbolClick = (e) => {
-    const geometry = e.lngLat;
-    const properties = getFeatureSymbolPropsAtPoint(e.point, map);
-    onFeatureSymbolClick(geometry, properties);
+    const geojson = getFeatureSymbolGeoJsonAtPoint(e.point, map);
+    onFeatureSymbolClick(geojson);
   };
 
   const lineData = {

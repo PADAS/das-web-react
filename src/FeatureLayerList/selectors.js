@@ -3,11 +3,9 @@ import uniq from 'lodash/uniq';
 import { featureSets, analyzerFeatures, createSelector } from '../selectors';
 import { getBoundsForAnalyzerFeatures } from '../utils/analyzers';
 
-const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
-
 export const getFeatureLayerListState = createSelector(
-  [featureSets, hiddenFeatureIDs],
-  (featureSets, hiddenFeatureIDs) => featureSets.map((set) => {
+  [featureSets],
+  (featureSets) => featureSets.map((set) => {
     const typeNames = uniq(set.geojson.features.map(f => f.properties.type_name));
     const featuresByType = typeNames.map((name) => ({
       name,

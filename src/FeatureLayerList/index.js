@@ -26,12 +26,20 @@ const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeature
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
       [...accumulator,
-      ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
+        ...featuresByType.reduce((result, { features }) => [...result, ...features], [])
       ], [])
   );
 
   const [searchText, setSearchTextState] = useState('');
   const [featureFilterEnabled, setFeatureFilterEnabledState] = useState(false);
+
+  useEffect(() => {
+    const filterText = mapLayerFilter.filter.text || '';
+    setSearchTextState(filterText);
+    setFeatureFilterEnabledState(filterText.length > 0);
+  }, [mapLayerFilter]);
+
+  if (!featureList.length) return null;
 
   const allFeatureIDs = getAllFeatureIDsInList();
 
@@ -77,12 +85,6 @@ const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeature
     if (searchText.length === 0) return true;
     return (feature.properties.title.toLowerCase().includes(searchText));
   };
-
-  useEffect(() => {
-    const filterText = mapLayerFilter.filter.text || '';
-    setSearchTextState(filterText);
-    setFeatureFilterEnabledState(filterText.length > 0);
-  }, [mapLayerFilter]);
 
   const filteredFeatureList = featureFilterEnabled ?
     filterFeatures(featureList, featureFilterIsMatch) : featureList;

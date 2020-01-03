@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 
-const FEATURESET_API_URL = `${API_URL}featureset/`
+const FEATURESET_API_URL = `${API_URL}featureset/`;
 
 // actions
 const FETCH_FEATURESETS_SUCCESS = 'FETCH_FEATURESETS_SUCCESS';
@@ -18,7 +18,14 @@ export const fetchFeaturesets = () => async (dispatch) => {
 
     const allFeatures = await Promise.all(
       features.map(async (fs) => {
-        const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`);
+        const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`).catch((error) => {
+          console.warn(`error fetching ${fs.name} featureset, excluding from feature data`, error);
+          return Promise.resolve({
+            data: {
+              features: [],
+            },
+          });
+        });
         const featuresWithID = {
           ...data, features: data.features.map((f) => {
             featureLayerIdentifier++;
