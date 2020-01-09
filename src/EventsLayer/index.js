@@ -47,10 +47,33 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
+// todo - grab this from defaults
+const initialIconSize = 12;
+const framesPerSecond = 20;
+const maxSize = 24;
+const animationLength = framesPerSecond * 2;
+// oscillate using a sin function
+const animationInterval = Math.PI / animationLength;
+
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
+
+  // bounce animation
+  const animationFrameID = useRef(null);
+  const [animationState, setAnimationState] = useState({
+    currentFrame: 0,
+  });
+
+  const updateBounceAnimation = (animationState) => {
+    let currFrame = animationState.currentFrame;
+    if(animationLength >= currFrame) {
+      setAnimationState({currentFrame: ++currFrame});
+      const sizeDelta = Math.sin(animationInterval * currFrame);
+      console.log('icon size', sizeDelta);
+    }
+  };
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
@@ -104,6 +127,7 @@ const EventsLayer = (props) => {
     e.preventDefault();
     e.originalEvent.stopPropagation();
     const clickedLayer = getEventLayer(e, map);
+    const eventSymbol = map.queryRenderedFeatures({ layers: [EVENT_SYMBOLS] })[0];
     onEventClick(clickedLayer);
   });
 
