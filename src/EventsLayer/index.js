@@ -12,7 +12,7 @@ import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_SYMBOL_ICON_IS_GENERIC, MAX_ZOOM } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -48,32 +48,14 @@ const clusterPolyPaint = {
 };
 
 // todo - grab this from defaults
-const initialIconSize = 12;
-const framesPerSecond = 20;
-const maxSize = 24;
-const animationLength = framesPerSecond * 2;
-// oscillate using a sin function
-const animationInterval = Math.PI / animationLength;
+const framesPerSecond = 60;
+const MAX_BOUNCE_SIZE = 2;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
 
-  // bounce animation
-  const animationFrameID = useRef(null);
-  const [animationState, setAnimationState] = useState({
-    currentFrame: 0,
-  });
-
-  const updateBounceAnimation = (animationState) => {
-    let currFrame = animationState.currentFrame;
-    if(animationLength >= currFrame) {
-      setAnimationState({currentFrame: ++currFrame});
-      const sizeDelta = Math.sin(animationInterval * currFrame);
-      console.log('icon size', sizeDelta);
-    }
-  };
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
@@ -150,11 +132,46 @@ const EventsLayer = (props) => {
     'text-allow-overlap': true,
   };
 
+  const [currentBounceScalingValue, setcurrentBounceScalingValue] = useState(1);
+  const animationFrameID = useRef(null);
+
+  const updateBounce = (currentVal) => {
+    setTimeout(() => {
+      const updatedValue = currentVal+0.1;
+      if (updatedValue > MAX_BOUNCE_SIZE) {
+        setcurrentBounceScalingValue(1);
+      } else {
+        setcurrentBounceScalingValue(updatedValue);
+      }
+    }, 1000 / framesPerSecond);
+  };
+
+  const bounceAnimation = useRef(updateBounce);
+
+  useEffect(() => {
+    animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(currentBounceScalingValue));
+    return () => {
+      !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
+    };
+  }, [currentBounceScalingValue]);
+
+
   const eventSymbolLayerLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-field': '{display_title}',
     ...mapNameLayout,
     ...eventClusterDisabledLayout,
+    'icon-size': [
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      7, 0,
+      12, IF_SYMBOL_ICON_IS_GENERIC(0.5  * currentBounceScalingValue, 1  * currentBounceScalingValue),
+      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75 * currentBounceScalingValue, 1.5 * currentBounceScalingValue),
+    ],
+    
+    /* ['case', 
+      ['feature-state', 'bouncing'], currentBounceAnimationSize,
+      DEFAULT_SYMBOL_LAYOUT['icon-size'],
+    ], */
   };
 
   const clusterConfig = {

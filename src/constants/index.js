@@ -83,13 +83,13 @@ export const SOURCE_IDS = {
 };
 
 /* "match" will be replaced with "in" once that expression is merged into master for the mapbox-gl style spec, at which point this expression will work for half-sised generic icons. */
-const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['match', ['get', 'image'], 'generic', ifGeneric, ifNonGeneric];
+export const IF_SYMBOL_ICON_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['match', ['get', 'image'], 'generic', ifGeneric, ifNonGeneric];
 
 const symbolIconSize = [
   'interpolate', ['exponential', 0.5], ['zoom'],
   7, 0,
-  12, IF_IS_GENERIC(0.5, 1),
-  MAX_ZOOM, IF_IS_GENERIC(0.75, 1.5),
+  12, IF_SYMBOL_ICON_IS_GENERIC(0.5, 1),
+  MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75, 1.5),
 ];
 
 export const DEFAULT_SYMBOL_LAYOUT = {
