@@ -110,10 +110,10 @@ const CustomCheckboxes = (props) => {
             {checkbox}
           </label>
         ) : (
-            <div key={index} className={`checkbox ${disabledCls}`}>
-              <label htmlFor={inputId}>{checkbox}</label>
-            </div>
-          );
+          <div key={index} className={`checkbox ${disabledCls}`}>
+            <label htmlFor={inputId}>{checkbox}</label>
+          </div>
+        );
       })}
     </div>
   );
@@ -146,4 +146,76 @@ export default {
   checkboxes: CustomCheckboxes,
   datetime: DateTimeField,
   externalUri: ExternalLink,
+};
+
+
+export const ObjectFieldTemplate = (props) => {
+  const { TitleField, DescriptionField } = props;
+
+  return (
+    <fieldset>
+      {(props.title || props.uiSchema['ui:title']) && (
+        <TitleField
+          id={`${props.idSchema.$id}__title`}
+          title={props.title || props.uiSchema['ui:title']}
+          required={props.required}
+          formContext={props.formContext}
+        />
+      )}
+      {props.description && (
+        <DescriptionField
+          id={`${props.idSchema.$id}__description`}
+          description={props.description}
+          formContext={props.formContext}
+        />
+      )}
+      {doGrouping({
+        props,
+        properties: props.properties,
+        groups: props.uiSchema['ui:groups'],
+      })}
+    </fieldset>
+  );
+};
+
+const doGrouping = ({ properties, groups, props }) => {
+  if (!Array.isArray(groups)) {
+    return properties.map(p => p.content);
+  }
+  const mapped = groups.map((g, index) => {
+    if (typeof g === 'string') {
+      const found = properties.filter(p => p.name === g);
+      if (found.length === 1) {
+        const el = found[0];
+        return el.content;
+      }
+      return null;
+    } else if (typeof g === 'object') {
+      const GroupComponent = props => props.properties.map(p => p.children);
+      
+      const _properties = Object.keys(g).reduce((acc, key) => {
+        const field = g[key];
+        if (key.startsWith('ui:') 
+        || !Array.isArray(field)) {
+          return acc;
+        }
+        return [
+          ...acc,
+          {
+            name: key,
+            children: doGrouping({
+              properties,
+              props,
+              groups: field
+            })
+          }
+        ];
+      }, []);
+      return <div key={`group-${index}`} className={`fieldset ${g.htmlClass}`}>
+        <GroupComponent properties={_properties} />
+      </div>;
+    }
+    throw new Error('Invalid grouping' + typeof g + ' ' + g);
+  });
+  return mapped;
 };
