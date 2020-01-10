@@ -108,7 +108,7 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
     if (type === 'checkboxes') {
       return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition)];
     }
-    if (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker')) {
+    if (type === 'datetime' || (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker'))) {
       return [...accumulator, generateSchemaAndUiSchemaForDateField(definition)];
     }
     if (type === 'textarea') {
