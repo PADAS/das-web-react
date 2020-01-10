@@ -47,9 +47,10 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
-// todo - grab this from defaults
-const framesPerSecond = 60;
+// 'bounce animation'
+const framesPerSecond = 20;
 const MAX_BOUNCE_SIZE = 2;
+const fontScaleCompensation = 1.6;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
@@ -109,7 +110,6 @@ const EventsLayer = (props) => {
     e.preventDefault();
     e.originalEvent.stopPropagation();
     const clickedLayer = getEventLayer(e, map);
-    const eventSymbol = map.queryRenderedFeatures({ layers: [EVENT_SYMBOLS] })[0];
     onEventClick(clickedLayer);
   });
 
@@ -135,10 +135,21 @@ const EventsLayer = (props) => {
   const [currentBounceScalingValue, setcurrentBounceScalingValue] = useState(1);
   const animationFrameID = useRef(null);
 
+  // const updateBounce = (currentVal) => {
+  //   setTimeout(() => {
+  //     const updatedValue = currentVal+0.1;
+  //     if (updatedValue > MAX_BOUNCE_SIZE) {
+  //       setcurrentBounceScalingValue(1);
+  //     } else {
+  //       setcurrentBounceScalingValue(updatedValue);
+  //     }
+  //   }, 1000 / framesPerSecond);
+  // };
+
   const updateBounce = (currentVal) => {
     setTimeout(() => {
       const updatedValue = currentVal+0.1;
-      if (updatedValue > MAX_BOUNCE_SIZE) {
+      if (updatedValue <= MAX_BOUNCE_SIZE) {
         setcurrentBounceScalingValue(1);
       } else {
         setcurrentBounceScalingValue(updatedValue);
@@ -161,11 +172,19 @@ const EventsLayer = (props) => {
     'text-field': '{display_title}',
     ...mapNameLayout,
     ...eventClusterDisabledLayout,
+    // text-size and icon-size are grouped as layout properties 
+    // but in fact interpolate between integer zoom levels
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       7, 0,
       12, IF_SYMBOL_ICON_IS_GENERIC(0.5  * currentBounceScalingValue, 1  * currentBounceScalingValue),
       MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75 * currentBounceScalingValue, 1.5 * currentBounceScalingValue),
+    ],
+    'text-size': [
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      6, 0,
+      12, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.5  * currentBounceScalingValue, 12 + 1  * currentBounceScalingValue),
+      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.75 * currentBounceScalingValue * fontScaleCompensation, 12 + 1.5 * currentBounceScalingValue * fontScaleCompensation),
     ],
     
     /* ['case', 

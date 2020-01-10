@@ -31,6 +31,7 @@ const SET_PICKING_MAP_LOCATION_STATE = 'SET_PICKING_MAP_LOCATION_STATE';
 
 const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 
+const SET_BOUNCE_EVENT_ID = 'SET_BOUNCE_EVENT_ID';
 
 
 // action creators
@@ -162,6 +163,11 @@ export const setPrintTitle = (title) => ({
   payload: title,
 });
 
+export const setBounceEventId = (eventId) => ({
+  type: SET_BOUNCE_EVENT_ID,
+  payload: eventId,
+});
+
 // reducers
 
 const INITIAL_PRINT_TITLE_STATE = '';
@@ -171,6 +177,11 @@ export const printTitleReducer = (state = INITIAL_PRINT_TITLE_STATE, action) => 
   return state;
 };
 
+export const bounceEventReducer = (state = '', action) => {
+  const { type, payload } = action;
+  if (type === SET_BOUNCE_EVENT_ID) return payload;
+  return state;
+};
 
 const INITIAL_REPORT_HEATMAP_STATE = false;
 export const reportHeatmapStateReducer = (state = INITIAL_REPORT_HEATMAP_STATE, action) => {
@@ -179,12 +190,11 @@ export const reportHeatmapStateReducer = (state = INITIAL_REPORT_HEATMAP_STATE, 
   return state;
 };
 
-
-
 const INITIAL_HEATMAP_STYLE_STATE = {
   radiusInMeters: 500,
   intensity: 0.2,
 };
+
 export const heatmapStyleConfigReducer = (state = INITIAL_HEATMAP_STYLE_STATE, action) => {
   const { type, payload } = action;
   if (type === UPDATE_HEATMAP_CONFIG) return { ...state, ...payload };
