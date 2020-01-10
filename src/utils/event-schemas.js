@@ -103,7 +103,7 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
 
   return definitionsToConvert.reduce((accumulator, definition) => {
-    const { type, fieldHtmlClass } = definition;
+    const { type, fieldHtmlClass, htmlClass } = definition;
 
     if (type === 'checkboxes') {
       return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition)];
@@ -111,8 +111,27 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
     if (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker')) {
       return [...accumulator, generateSchemaAndUiSchemaForDateField(definition)];
     }
+    if (type === 'textarea') {
+      return [...accumulator, generateSchemaAndUiSchemaForTextarea(definition)];
+    }
+    if (fieldHtmlClass || htmlClass) {
+      return [...accumulator, addCssClassesToDefinition(definition)];
+    }
     return accumulator;
   }, []);
+};
+
+const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass }) => {
+  const entry = {
+    schemaEntry: {
+      key,
+    },
+    uiSchemaEntry: {
+    }
+  };
+  if (fieldHtmlClass) entry.uiSchemaEntry['ui:fieldClassNames'] = fieldHtmlClass;
+  if (htmlClass) entry.uiSchemaEntry.classNames = htmlClass;
+  return entry;
 };
 
 export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
@@ -167,6 +186,16 @@ const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
     'ui:field': customSchemaFields.datetime,
   },
 });
+
+const generateSchemaAndUiSchemaForTextarea = ({ key }) => ({
+  schemaEntry: {
+    key,
+  },
+  uiSchemaEntry: {
+    'ui:widget': 'textarea',
+  },
+});
+
 
 
 const addCustomSelectFieldForEnums = (schema) => {
