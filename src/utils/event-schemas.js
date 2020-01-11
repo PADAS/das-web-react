@@ -1,6 +1,8 @@
 import customSchemaFields from '../SchemaFields';
 import isUndefined from 'lodash/isUndefined';
 
+import { COLUMN_CLASS_PREFIXES } from '../constants';
+
 const GLOBAL_UI_SCHEMA_CONFIG = {
   details: {
     'ui:widget': 'textarea',
@@ -103,7 +105,7 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
 
   return definitionsToConvert.reduce((accumulator, definition) => {
-    const { type, fieldHtmlClass, htmlClass } = definition;
+    const { layout, type, fieldHtmlClass, htmlClass } = definition;
 
     if (type === 'checkboxes') {
       return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition)];
@@ -114,14 +116,22 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
     if (type === 'textarea') {
       return [...accumulator, generateSchemaAndUiSchemaForTextarea(definition)];
     }
-    if (fieldHtmlClass || htmlClass) {
+    if (fieldHtmlClass || htmlClass || layout) {
       return [...accumulator, addCssClassesToDefinition(definition)];
     }
     return accumulator;
   }, []);
 };
 
-const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass }) => {
+const convertSchemaLayoutToColumnClassString = ({ sm, md, lg }) => {
+  let val = '';
+  if (sm) val += ` ${COLUMN_CLASS_PREFIXES.sm}${sm}`;
+  if (md) val += ` ${COLUMN_CLASS_PREFIXES.md}${md}`;
+  if (lg) val += ` ${COLUMN_CLASS_PREFIXES.lg}${lg}`;
+  return val;
+};
+
+const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass, layout }) => {
   const entry = {
     schemaEntry: {
       key,
@@ -130,7 +140,11 @@ const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass }) => {
     }
   };
   if (fieldHtmlClass) entry.uiSchemaEntry['ui:fieldClassNames'] = fieldHtmlClass;
-  if (htmlClass) entry.uiSchemaEntry.classNames = htmlClass;
+  if (layout) {
+    const columnClasses = convertSchemaLayoutToColumnClassString(layout);
+    entry.uiSchemaEntry.classNames = columnClasses;
+  }
+  if (htmlClass) entry.uiSchemaEntry.classNames = `${entry.uiSchemaEntry.classNames || ''} ${htmlClass}`;
   return entry;
 };
 

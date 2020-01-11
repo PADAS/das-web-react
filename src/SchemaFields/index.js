@@ -78,7 +78,7 @@ const CustomCheckboxes = (props) => {
   const enumOptionIsChecked = option => inputValues.findIndex(item => item === option.value) !== -1;
 
   return (
-    <div className='checkboxes' id={id}>
+    <div className='json-schema-checkbox-wrapper checkboxes' id={id}>
       {enumOptions.map((option, index) => {
 
         const itemDisabled =
