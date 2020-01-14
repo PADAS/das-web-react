@@ -169,7 +169,7 @@ export const ObjectFieldTemplate = (props) => {
           formContext={props.formContext}
         />
       )}
-      {doGrouping({
+      {createGroupedFields({
         props,
         properties: props.properties,
         groups: props.uiSchema['ui:groups'],
@@ -178,7 +178,7 @@ export const ObjectFieldTemplate = (props) => {
   );
 };
 
-const doGrouping = ({ properties, groups, props }) => {
+const createGroupedFields = ({ properties, groups, props }) => {
   if (!Array.isArray(groups)) {
     return properties.map(p => p.content);
   }
@@ -203,7 +203,7 @@ const doGrouping = ({ properties, groups, props }) => {
           ...acc,
           {
             name: key,
-            children: doGrouping({
+            children: createGroupedFields({
               properties,
               props,
               groups: field
