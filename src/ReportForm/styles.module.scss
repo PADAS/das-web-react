@@ -170,6 +170,7 @@
   }
   [class*=react-datetime-picker__wrapper] {
     @include defaultTextInput;
+    padding: 0.5rem 0.25rem;
     width: 100%;
   }
   
