@@ -13,6 +13,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     className={styles.form}
     disabled={schema.readonly}
     formData={formData}
+    liveValidate={true}
     onChange={onChange}
     onSubmit={onSubmit}
     ref={ref}
