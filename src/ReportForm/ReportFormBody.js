@@ -2,8 +2,6 @@ import React, { memo, forwardRef } from 'react';
 import Form from 'react-jsonschema-form';
 import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
 
-import { ObjectFieldTemplate } from '../SchemaFields';
-
 import styles from './styles.module.scss';
 
 const additionalMetaSchemas = [draft4JsonSchema];
@@ -18,9 +16,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     onChange={onChange}
     onSubmit={onSubmit}
     ref={ref}
-    safeRenderCompletion={true}
     schema={schema}
-    ObjectFieldTemplate={ObjectFieldTemplate}
     uiSchema={uiSchema}
     {...rest}
   >

@@ -1,9 +1,12 @@
 import customSchemaFields from '../SchemaFields';
 import isUndefined from 'lodash/isUndefined';
 
+import { ObjectFieldTemplate } from '../SchemaFields';
+
 import { COLUMN_CLASS_PREFIXES } from '../constants';
 
 const GLOBAL_UI_SCHEMA_CONFIG = {
+  'ui:ObjectFieldTemplate': ObjectFieldTemplate,
   details: {
     'ui:widget': 'textarea',
   },
