@@ -7,10 +7,11 @@ import isEqual from 'react-fast-compare';
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
-import { EVENT_STATE_CHOICES } from '../constants';
+import { EVENT_STATE_CHOICES, LAYER_IDS } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
-
 import ReportFormModal from '../ReportFormModal';
+
+const { EVENT_SYMBOLS } = LAYER_IDS;
 
 export const displayTitleForEventByEventType = (event) => {
   const { data: { eventTypes } } = store.getState();
@@ -235,3 +236,28 @@ export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (feat
     })),
   };
 };
+
+export const addBounceToEventMapFeatures = (features, bounceId) => {
+  const featuresWithIds = features.map((item) => {
+    item.id = item.properties.id;
+    // enable bounce using layer rendering conditionals
+    item.properties.bounce = (item.id === bounceId) ? 'true' : 'false';
+    return item;
+  });
+  return featuresWithIds;
+};
+
+const getEventSymbolFeaturesForId = (map, id) => {
+  const features = map.queryRenderedFeatures({
+    layers: [EVENT_SYMBOLS],
+  }).filter(feature => feature.properties.id === id);
+  return features;
+};
+
+export const setEventFeatureBounceState = (map, id, state = true) => {
+  const features = getEventSymbolFeaturesForId(map, id);
+  features.forEach((feature) => {
+    map.setFeatureState(feature, {'bounce': state});
+  });
+};
+

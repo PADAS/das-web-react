@@ -7,6 +7,7 @@ import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage, metersPerPixel } from '../utils/map';
+import { addBounceToEventMapFeatures } from '../utils/events';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -50,13 +51,20 @@ const clusterPolyPaint = {
 // 'bounce animation'
 const framesPerSecond = 20;
 const MAX_BOUNCE_SIZE = 2;
-const fontScaleCompensation = 1.6;
+const fontScaleCompensation = 2;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, bounceEventID, ...rest } = props;
 
+  // assign IDs and 'bounce' property to the current event feature collection,
+  // so that we can disable feature state after it is animated. 
+  // XXX Need to do this in a selector, and also see why there are so many frame refreshes
+  if (events && events.features && bounceEventID) {
+    const featuresWithIds = addBounceToEventMapFeatures(events.features, bounceEventID);
+    events.features = featuresWithIds;
+  }
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
@@ -135,21 +143,10 @@ const EventsLayer = (props) => {
   const [currentBounceScalingValue, setcurrentBounceScalingValue] = useState(1);
   const animationFrameID = useRef(null);
 
-  // const updateBounce = (currentVal) => {
-  //   setTimeout(() => {
-  //     const updatedValue = currentVal+0.1;
-  //     if (updatedValue > MAX_BOUNCE_SIZE) {
-  //       setcurrentBounceScalingValue(1);
-  //     } else {
-  //       setcurrentBounceScalingValue(updatedValue);
-  //     }
-  //   }, 1000 / framesPerSecond);
-  // };
-
   const updateBounce = (currentVal) => {
     setTimeout(() => {
       const updatedValue = currentVal+0.1;
-      if (updatedValue <= MAX_BOUNCE_SIZE) {
+      if (updatedValue > MAX_BOUNCE_SIZE) {
         setcurrentBounceScalingValue(1);
       } else {
         setcurrentBounceScalingValue(updatedValue);
@@ -173,7 +170,7 @@ const EventsLayer = (props) => {
     ...mapNameLayout,
     ...eventClusterDisabledLayout,
     // text-size and icon-size are grouped as layout properties 
-    // but in fact interpolate between integer zoom levels
+    // but in fact interpolated between integer zoom levels
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       7, 0,
@@ -186,11 +183,6 @@ const EventsLayer = (props) => {
       12, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.5  * currentBounceScalingValue, 12 + 1  * currentBounceScalingValue),
       MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.75 * currentBounceScalingValue * fontScaleCompensation, 12 + 1.5 * currentBounceScalingValue * fontScaleCompensation),
     ],
-    
-    /* ['case', 
-      ['feature-state', 'bouncing'], currentBounceAnimationSize,
-      DEFAULT_SYMBOL_LAYOUT['icon-size'],
-    ], */
   };
 
   const clusterConfig = {

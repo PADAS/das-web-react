@@ -92,6 +92,13 @@ const symbolIconSize = [
   MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75, 1.5),
 ];
 
+const symbolTextSize = [
+  'interpolate', ['exponential', 0.5], ['zoom'],
+  6, 0,
+  12, 14,
+  MAX_ZOOM, 16,
+];
+
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
@@ -102,12 +109,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
-  'text-size': [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    6, 0,
-    12, 14,
-    MAX_ZOOM, 16,
-  ],
+  'text-size': symbolTextSize,
 };
 
 export const DEFAULT_SYMBOL_PAINT = {
