@@ -61,7 +61,7 @@ const EventsLayer = (props) => {
   // assign IDs and 'bounce' property to the current event feature collection,
   // so that we can disable feature state after it is animated. 
   // XXX Need to do this in a selector, and also see why there are so many frame refreshes
-  if (events && events.features && bounceEventID) {
+  if (events && events.features) {
     const featuresWithIds = addBounceToEventMapFeatures(events.features, bounceEventID);
     events.features = featuresWithIds;
   }
@@ -163,26 +163,38 @@ const EventsLayer = (props) => {
     };
   }, [currentBounceScalingValue]);
 
+  // text-size and icon-size are grouped as layout properties 
+  // but in fact are interpolated between integer zoom levels
+  const defaultEventSymbolIconSize = DEFAULT_SYMBOL_LAYOUT['icon-size'];
+  const defaultEventSymbolTextSize = DEFAULT_SYMBOL_LAYOUT['text-size'];
+  const bounceEventSymbolIconSize = [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    7, 0,
+    12, IF_SYMBOL_ICON_IS_GENERIC(0.5  * currentBounceScalingValue, 1  * currentBounceScalingValue),
+    MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75 * currentBounceScalingValue, 1.5 * currentBounceScalingValue),
+  ];
+  const bounceEventSymbolTextSize = [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    6, 0,
+    12, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.5  * currentBounceScalingValue, 12 + 1  * currentBounceScalingValue),
+    MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.75 * currentBounceScalingValue * fontScaleCompensation, 12 + 1.5 * currentBounceScalingValue * fontScaleCompensation),
+  ];
 
   const eventSymbolLayerLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-field': '{display_title}',
     ...mapNameLayout,
     ...eventClusterDisabledLayout,
-    // text-size and icon-size are grouped as layout properties 
-    // but in fact interpolated between integer zoom levels
     'icon-size': [
-      'interpolate', ['exponential', 0.5], ['zoom'],
-      7, 0,
-      12, IF_SYMBOL_ICON_IS_GENERIC(0.5  * currentBounceScalingValue, 1  * currentBounceScalingValue),
-      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75 * currentBounceScalingValue, 1.5 * currentBounceScalingValue),
+      'match',
+      ['get', 'bounce'],
+      'true',
+      bounceEventSymbolIconSize,
+      'false',
+      defaultEventSymbolIconSize,
+      defaultEventSymbolIconSize // when its neither true nor false
     ],
-    'text-size': [
-      'interpolate', ['exponential', 0.5], ['zoom'],
-      6, 0,
-      12, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.5  * currentBounceScalingValue, 12 + 1  * currentBounceScalingValue),
-      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.75 * currentBounceScalingValue * fontScaleCompensation, 12 + 1.5 * currentBounceScalingValue * fontScaleCompensation),
-    ],
+    'text-size': defaultEventSymbolTextSize,
   };
 
   const clusterConfig = {
@@ -226,8 +238,6 @@ const EventsLayer = (props) => {
         filter={['has', 'point_count']} onClick={handleClusterClick} layout={clusterSymbolLayout} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
       />
-
-    
 
       <Layer before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
