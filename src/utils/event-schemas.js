@@ -1,9 +1,79 @@
 import customSchemaFields from '../SchemaFields';
+import isUndefined from 'lodash/isUndefined';
+
+import { ObjectFieldTemplate } from '../SchemaFields';
+
+import { COLUMN_CLASS_PREFIXES } from '../constants';
 
 const GLOBAL_UI_SCHEMA_CONFIG = {
+  'ui:ObjectFieldTemplate': ObjectFieldTemplate,
   details: {
     'ui:widget': 'textarea',
   },
+};
+
+const createSchemaGroups = (schema, definitions) => {
+  const INFERRED_ORIGIN = 'inferred';
+  const DEFINED_ORIGIN = 'fieldset';
+
+  if (!definitions.length) return Object.keys(schema.properties);
+
+  return definitions.reduce((accumulator, value, index, src) => {
+    const isFirst = isUndefined(src[index - 1]);
+
+    /* const item = {
+      title: <String> || null,
+      items: [<String>],
+      origin:  'inferred' || 'fieldset'
+    } */
+
+    if (typeof value === 'string') {
+      if (isFirst || accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
+        return [
+          ...accumulator,
+          {
+            origin: INFERRED_ORIGIN,
+            title: null,
+            items: [value],
+          }
+        ];
+      } else {
+        const copy = [...accumulator];
+        copy[copy.length - 1] = {
+          ...copy[copy.length - 1],
+          items: [...copy[copy.length - 1].items, value],
+        };
+        return copy;
+      }
+    } else if (typeof value === 'object') {
+      if (value.type === 'fieldset') {
+        return [
+          ...accumulator,
+          {
+            origin: DEFINED_ORIGIN,
+            ...value,
+          }
+        ];
+      } else if (isFirst || accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
+        return [
+          ...accumulator,
+          {
+            origin: INFERRED_ORIGIN,
+            title: null,
+            items: [value.key],
+          }
+        ];
+      } else {
+        const copy = [...accumulator];
+        copy[copy.length - 1] = {
+          ...copy[copy.length - 1],
+          items: [...copy[copy.length - 1].items, value.key],
+        };
+        return copy;
+      }
+    }
+    return null;
+  }, []);
 };
 
 export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema }) => {
@@ -15,6 +85,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
   const schemasFromDefinitions = convertDefinitionsToSchemas(definitions, schema);
   const schemasForSelectFields = addCustomSelectFieldForEnums(schema);
   const schemasForExternalURIs = addCustomLinksForExternalURIs(schema);
+  const groupsForSchema = createSchemaGroups(schema, definitions);
 
   const toUpdate = [...schemasFromDefinitions, ...schemasForSelectFields, ...schemasForExternalURIs];
 
@@ -24,6 +95,9 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
       uiSchema[schemaEntry.key] = uiSchemaEntry;
     }
   });
+
+  uiSchema['ui:groups'] = groupsForSchema;
+
   return {
     schema: withEnums,
     uiSchema,
@@ -34,16 +108,47 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
 
   return definitionsToConvert.reduce((accumulator, definition) => {
-    const { type, fieldHtmlClass } = definition;
+    const { layout, type, fieldHtmlClass, htmlClass } = definition;
 
     if (type === 'checkboxes') {
       return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition)];
     }
-    if (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker')) {
+    if (type === 'datetime' || (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker'))) {
       return [...accumulator, generateSchemaAndUiSchemaForDateField(definition)];
+    }
+    if (type === 'textarea') {
+      return [...accumulator, generateSchemaAndUiSchemaForTextarea(definition)];
+    }
+    if (fieldHtmlClass || htmlClass || layout) {
+      return [...accumulator, addCssClassesToDefinition(definition)];
     }
     return accumulator;
   }, []);
+};
+
+const convertSchemaLayoutToColumnClassString = ({ sm, md, lg }) => {
+  let val = '';
+  if (sm) val += ` ${COLUMN_CLASS_PREFIXES.sm}${sm}`;
+  if (md) val += ` ${COLUMN_CLASS_PREFIXES.md}${md}`;
+  if (lg) val += ` ${COLUMN_CLASS_PREFIXES.lg}${lg}`;
+  return val;
+};
+
+const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass, layout }) => {
+  const entry = {
+    schemaEntry: {
+      key,
+    },
+    uiSchemaEntry: {
+    }
+  };
+  if (fieldHtmlClass) entry.uiSchemaEntry['ui:fieldClassNames'] = fieldHtmlClass;
+  if (layout) {
+    const columnClasses = convertSchemaLayoutToColumnClassString(layout);
+    entry.uiSchemaEntry.classNames = columnClasses;
+  }
+  if (htmlClass) entry.uiSchemaEntry.classNames = `${entry.uiSchemaEntry.classNames || ''} ${htmlClass}`;
+  return entry;
 };
 
 export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
@@ -98,6 +203,16 @@ const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
     'ui:field': customSchemaFields.datetime,
   },
 });
+
+const generateSchemaAndUiSchemaForTextarea = ({ key }) => ({
+  schemaEntry: {
+    key,
+  },
+  uiSchemaEntry: {
+    'ui:widget': 'textarea',
+  },
+});
+
 
 
 const addCustomSelectFieldForEnums = (schema) => {
