@@ -153,10 +153,6 @@ export default {
 export const ObjectFieldTemplate = (props) => {
   const { TitleField, DescriptionField } = props;
 
-  useEffect(() => {
-    console.log('init OFT');
-  }, []);
-
   return <fieldset>
     {(props.title || props.uiSchema['ui:title']) && (
       <TitleField
