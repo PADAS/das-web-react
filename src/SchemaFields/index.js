@@ -180,7 +180,6 @@ export const ObjectFieldTemplate = (props) => {
 const GroupComponent = props => props.properties.map(p => p.children);
 
 const createGroupedFields = ({ properties, groups, props }) => {
-  const instanceId = uuid();
   if (!Array.isArray(groups)) {
     return properties.map(p => p.content);
   }
@@ -211,7 +210,7 @@ const createGroupedFields = ({ properties, groups, props }) => {
           }
         ];
       }, []);
-      return <div key={instanceId} className={`fieldset ${g.htmlClass}`}>
+      return <div className={`fieldset ${g.htmlClass}`}>
         <GroupComponent properties={_properties} />
       </div>;
     }
