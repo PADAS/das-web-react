@@ -30,12 +30,18 @@ export const getCoordinatesForEvent = evt => evt.geojson
   && evt.geojson.geometry
   && evt.geojson.geometry.coordinates;
 
+export const getIdForEvent = evt => evt.id;
 
 export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
 
 export const getCoordinatesForCollection = collection => collection.contains &&
   collection.contains
     .map(contained => getCoordinatesForEvent(contained.related_event))
+    .filter(item => !!item);
+
+export const getEventIdsForCollection = collection => collection.contains &&
+  collection.contains
+    .map(contained => getIdForEvent(contained.related_event))
     .filter(item => !!item);
 
 export const eventHasLocation = (evt) => {
@@ -240,8 +246,8 @@ export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (feat
 export const addBounceToEventMapFeatures = (features, bounceId) => {
   const featuresWithIds = features.map((item) => {
     item.id = item.properties.id;
-    // enable bounce using layer rendering conditionals
-    item.properties.bounce = (item.id === bounceId) ? 'true' : 'false';
+    // enable bounce using Mapbox's style conditionals
+    item.properties.bounce = (bounceId.includes(item.id) ) ? 'true' : 'false';
     return item;
   });
   return featuresWithIds;

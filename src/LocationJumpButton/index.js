@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 
 import { BREAKPOINTS } from '../constants';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -12,12 +13,15 @@ import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed
 
 import styles from './styles.module.scss';
 
-
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
   const { clickAnalytics, bounceId, onClick, map, coordinates, isMulti, bypassLocationValidation, 
     zoom, updateUserPreferences, onButtonClick, setBounceEventId, ...rest } = props;
+
+  // only fire bounce on the second click of a jump. Currently this
+  // is only used for event features
+  const [lastItem, setLastItem] = useState([]);
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
@@ -34,7 +38,11 @@ const LocationJumpButton = (props) => {
   const onJumpButtonClick = (e) => {
     const clickHandler = onClick ? e => onClick(e) : () => jumpToLocation(map, coordinates, zoom);
     if (bounceId) {
-      setBounceEventId(bounceId);
+      if (isEqual(lastItem, bounceId)) {
+        setBounceEventId(bounceId);
+      } else {
+        setLastItem(bounceId);
+      }
     }
     if (clickAnalytics) {
       trackEvent(...clickAnalytics);

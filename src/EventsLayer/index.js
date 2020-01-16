@@ -166,7 +166,7 @@ const EventsLayer = (props) => {
 
   useEffect(() => {
     animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(animationState));
-    console.log('animation state', animationState);
+    //console.log('animation state', animationState);
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };

@@ -7,7 +7,8 @@ import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 import { jumpToLocation } from '../utils/map';
 
-import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, displayTitleForEventByEventType } from '../utils/events';
+import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, 
+  displayTitleForEventByEventType, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { trackEvent } from '../utils/analytics';
 
@@ -38,7 +39,7 @@ const ReportListItem = (props) => {
     displayPriority = report.priority;
   }
 
-
+  const bounceId = hasMultipleLocations ? getEventIdsForCollection(report) : [report.id];
 
   return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
@@ -51,7 +52,7 @@ const ReportListItem = (props) => {
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
     {coordinates && !!coordinates.length && showJumpButton &&
-      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} bounceId={report.id}
+      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} bounceId={bounceId}
         clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
     }
   </li>;
