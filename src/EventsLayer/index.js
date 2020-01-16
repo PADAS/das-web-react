@@ -48,19 +48,22 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
-// 'bounce animation'
-const framesPerSecond = 20;
-const MAX_BOUNCE_SIZE = 2;
-const fontScaleCompensation = 2;
+// bounce animation constants
+const FRAMES_PER_SECOND = 20;
+const ANIMATION_LENGTH_SECONDS = .5; //seconds
+const TOTAL_ANIMATION_FRAMES = FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS;
+const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
+// text-size interpolates at a different rate than icon-size for bounce animation
+const ICON_SCALE_RATE = .5;
+const FONT_SCALE_RATE = 2;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, bounceEventID, ...rest } = props;
 
-  // assign IDs and 'bounce' property to the current event feature collection,
-  // so that we can disable feature state after it is animated. 
-  // XXX Need to do this in a selector, and also see why there are so many frame refreshes
+  // assign 'bounce' property to the current event feature collection,
+  // so that we can render bounce and disable feature state after it is animated. 
   if (events && events.features) {
     const featuresWithIds = addBounceToEventMapFeatures(events.features, bounceEventID);
     events.features = featuresWithIds;
@@ -140,61 +143,56 @@ const EventsLayer = (props) => {
     'text-allow-overlap': true,
   };
 
-  const [currentBounceScalingValue, setcurrentBounceScalingValue] = useState(1);
   const animationFrameID = useRef(null);
 
-  const updateBounce = (currentVal) => {
+  const [animationState, setAnimationState] = useState({
+    frame: 0,
+    scale: 1
+  });
+
+  const updateBounceSineAnimation = (animationState) => {
     setTimeout(() => {
-      const updatedValue = currentVal+0.1;
-      if (updatedValue > MAX_BOUNCE_SIZE) {
-        setcurrentBounceScalingValue(1);
+      let currFrame = animationState.frame;
+      if(TOTAL_ANIMATION_FRAMES >= currFrame) {
+        const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
+        setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale});
       } else {
-        setcurrentBounceScalingValue(updatedValue);
+        setAnimationState({frame: 0, size: 1});
       }
-    }, 1000 / framesPerSecond);
+    }, 1000 / FRAMES_PER_SECOND);
   };
 
-  const bounceAnimation = useRef(updateBounce);
+  const bounceAnimation = useRef(updateBounceSineAnimation);
 
   useEffect(() => {
-    animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(currentBounceScalingValue));
+    animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(animationState));
+    console.log('animation state', animationState);
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
-  }, [currentBounceScalingValue]);
+  }, [animationState]);
 
-  // text-size and icon-size are grouped as layout properties 
-  // but in fact are interpolated between integer zoom levels
-  const defaultEventSymbolIconSize = DEFAULT_SYMBOL_LAYOUT['icon-size'];
-  const defaultEventSymbolTextSize = DEFAULT_SYMBOL_LAYOUT['text-size'];
-  const bounceEventSymbolIconSize = [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    7, 0,
-    12, IF_SYMBOL_ICON_IS_GENERIC(0.5  * currentBounceScalingValue, 1  * currentBounceScalingValue),
-    MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75 * currentBounceScalingValue, 1.5 * currentBounceScalingValue),
-  ];
-  const bounceEventSymbolTextSize = [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    6, 0,
-    12, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.5  * currentBounceScalingValue, 12 + 1  * currentBounceScalingValue),
-    MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(12 + 0.75 * currentBounceScalingValue * fontScaleCompensation, 12 + 1.5 * currentBounceScalingValue * fontScaleCompensation),
-  ];
+  const ICON_BOUNCE_SCALE = (iconSize) => ['match', ['get', 'bounce'], 'true', iconSize * animationState.scale * ICON_SCALE_RATE, iconSize];
 
+  // the mapbox DSL doesn't allow interpolations or steps 
+  // to be nested in their DSL, which results in this crazy layout
   const eventSymbolLayerLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-field': '{display_title}',
     ...mapNameLayout,
     ...eventClusterDisabledLayout,
     'icon-size': [
-      'match',
-      ['get', 'bounce'],
-      'true',
-      bounceEventSymbolIconSize,
-      'false',
-      defaultEventSymbolIconSize,
-      defaultEventSymbolIconSize // when its neither true nor false
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      7, 0,
+      12, IF_SYMBOL_ICON_IS_GENERIC(ICON_BOUNCE_SCALE(0.5), ICON_BOUNCE_SCALE(1)),
+      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(ICON_BOUNCE_SCALE(0.75), ICON_BOUNCE_SCALE(1.5)),
     ],
-    'text-size': defaultEventSymbolTextSize,
+    'text-size': [
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      6, 0,
+      12, 14,
+      MAX_ZOOM, 16,
+    ]
   };
 
   const clusterConfig = {
