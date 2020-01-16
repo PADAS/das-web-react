@@ -53,5 +53,5 @@ export const mapReportTypesToCategories = eventTypes => eventTypes
     }
     return accumulator;
   }, [])
-  .sort((item1, item2) => item1.orderNum - item2.orderNum)
+  .sort((item1, item2) => item1.ordernum - item2.ordernum)
   .filter(item => !!item.types.length);
