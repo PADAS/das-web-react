@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { API_URL } from '../constants';
-import { generateFormSchemasFromEventTypeSchema, convertSchemaEnumNameObjectsIntoArray } from '../utils/event-schemas';
+import { generateFormSchemasFromEventTypeSchema } from '../utils/event-schemas';
 
 const { get } = axios;
 
@@ -44,6 +44,7 @@ export default (state = {}, action) => {
     const { uiSchema, schema:newSchema } = generateFormSchemasFromEventTypeSchema(schema);
 
     return { ...state, [name]: {
+      definition: schema.definition,
       schema: newSchema,
       uiSchema,
     } };
