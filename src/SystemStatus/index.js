@@ -18,8 +18,8 @@ class SystemStatusComponent extends Component {
   }
 
   renderStatusList() {
-    return Object.entries(this.props.systemStatus).map(([_key, value], index) => {
-      if (Array.isArray(value)) {
+    return Object.entries(this.props.systemStatus).map(([key, value], index) => {
+      if (key === 'services') {
         return value.map((item) =>
           <Item className={styles.listItem} key={item.provider_key}>
             <div className={styles.summary}>

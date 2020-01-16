@@ -168,9 +168,8 @@
       fill: $primary-font-color; 
     }
   }
-  [class*=react-datetime-picker__wrapper], .locationAnchor {
+  [class*=react-datetime-picker__wrapper] {
     @include defaultTextInput;
-    padding: 0.5rem 0.25rem;
     width: 100%;
   }
   
@@ -379,6 +378,7 @@
 }
 
 .locationAnchor {
+  @include defaultTextInput;
   color: $primary-font-color;
 }
 

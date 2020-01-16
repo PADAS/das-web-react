@@ -54,7 +54,7 @@ div.popover {
     display: flex;
     flex-flow: column;
     max-height: 18rem;
-    padding: 0;
+    padding: 2rem 0 0;
     position: relative;
     @media (min-height: $lg-height-min) {
       max-height: 26rem;
@@ -69,6 +69,7 @@ div.popover {
   background: $light-gray-background;
   font-size: 0.75rem;
   padding: 0.5rem;
+  position: absolute;
   top: 0;
   z-index: 1;
   @media (min-width: $md-layout-width-min) {
@@ -89,7 +90,7 @@ div.popover {
   overflow-y: auto;
   li {
     font-size: 0.8rem;
-    height: 6rem;
+    height: 7rem;
     margin-bottom: auto;
     width: 25%;
   }
@@ -108,9 +109,8 @@ div.popover {
     }
   }
   svg {
-    --dimensions: 1.666rem;
-    height: var(--dimensions);
+    height: 1.25rem;
     margin-bottom: .25rem;
-    width: var(--dimensions);
+    width: 1.25rem;
   }
 }

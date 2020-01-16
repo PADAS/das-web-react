@@ -1,12 +1,12 @@
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
+import { Source, Layer, GeoJSONLayer } from 'react-mapbox-gl';
 import concave from '@turf/concave';
 import buffer from '@turf/buffer';
 import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
-import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
+import { addFeatureCollectionImagesToMap, addMapImage, metersPerPixel } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
