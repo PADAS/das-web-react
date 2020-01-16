@@ -4,10 +4,11 @@ import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 import authConfig from './utils/auth';
+import toast from './utils/toast';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
+import { STATUSES, DEFAULT_TOAST_CONFIG } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -176,7 +177,7 @@ const App = (props) => {
       </div>
       <DetectOffline />
     </div>
-  </ErrorBoundary>;
+    </ErrorBoundary>;
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });

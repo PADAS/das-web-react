@@ -30,24 +30,13 @@ const AddReport = (props) => {
         setPopoverState(false);
       }
     };
-    const handleKeyDown = (event) => {
-      const { key } = event;
-      if (key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        setPopoverState(false);
-      }
-    };
     if (popoverOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
-      document.addEventListener('keydown', handleKeyDown);
     } else {
       document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -68,7 +57,6 @@ const AddReport = (props) => {
       </button>
     </li>;
   };
-
 
   const onButtonClick = () => {
     setPopoverState(!popoverOpen);

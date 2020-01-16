@@ -1,11 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 import isString from 'lodash/isString';
 
 import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
 import { trackEvent } from '../utils/analytics';
-import { uuid } from '../utils/string';
 
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 
@@ -62,7 +61,6 @@ const DateTimeField = (props) => {
 const CustomCheckboxes = (props) => {
   const { id, disabled, options, value, autofocus, readonly, onChange } = props;
   const { enumOptions, enumDisabled, inline } = options;
-  const instanceId = useState(uuid());
 
   const inputValues = value.map(val => {
     if (isString(val)) return val;
@@ -80,14 +78,14 @@ const CustomCheckboxes = (props) => {
   const enumOptionIsChecked = option => inputValues.findIndex(item => item === option.value) !== -1;
 
   return (
-    <div className='json-schema-checkbox-wrapper checkboxes' id={id}>
+    <div className='checkboxes' id={id}>
       {enumOptions.map((option, index) => {
 
         const itemDisabled =
           enumDisabled && enumDisabled.findIndex(item => item.value === option.value) !== -1;
         const disabledCls =
           disabled || itemDisabled || readonly ? 'disabled' : '';
-        const inputId = `${id}_${instanceId}_${index}`;
+        const inputId = `${id}_${index}`;
         const checkbox = (
           <span>
             <input
@@ -112,10 +110,10 @@ const CustomCheckboxes = (props) => {
             {checkbox}
           </label>
         ) : (
-          <div key={index} className={`checkbox ${disabledCls}`}>
-            <label htmlFor={inputId}>{checkbox}</label>
-          </div>
-        );
+            <div key={index} className={`checkbox ${disabledCls}`}>
+              <label htmlFor={inputId}>{checkbox}</label>
+            </div>
+          );
       })}
     </div>
   );
@@ -148,77 +146,4 @@ export default {
   checkboxes: CustomCheckboxes,
   datetime: DateTimeField,
   externalUri: ExternalLink,
-};
-
-export const ObjectFieldTemplate = (props) => {
-  const { TitleField, DescriptionField } = props;
-
-  useEffect(() => {
-    console.log('init OFT');
-  }, []);
-
-  return <fieldset>
-    {(props.title || props.uiSchema['ui:title']) && (
-      <TitleField
-        id={`${props.idSchema.$id}__title`}
-        title={props.title || props.uiSchema['ui:title']}
-        required={props.required}
-        formContext={props.formContext}
-      />
-    )}
-    {props.description && (
-      <DescriptionField
-        id={`${props.idSchema.$id}__description`}
-        description={props.description}
-        formContext={props.formContext}
-      />
-    )}
-    {createGroupedFields({
-      props,
-      properties: props.properties,
-      groups: props.uiSchema['ui:groups'],
-    })}
-  </fieldset>;
-};
-
-const GroupComponent = props => props.properties.map(p => p.children);
-
-const createGroupedFields = ({ properties, groups, props }) => {
-  if (!Array.isArray(groups)) {
-    return properties.map(p => p.content);
-  }
-  const mapped = groups.map((g) => {
-    if (typeof g === 'string') {
-      const found = properties.filter(p => p.name === g);
-      if (found.length === 1) {
-        const el = found[0];
-        return el.content;
-      }
-      return null;
-    } else if (typeof g === 'object') {
-      
-      const _properties = Object.entries(g).reduce((acc, [key, field]) => {
-        if (key.startsWith('ui:') 
-        || !Array.isArray(field)) {
-          return acc;
-        }
-        return [
-          ...acc,
-          {
-            name: key,
-            children: createGroupedFields({
-              properties,
-              props,
-              groups: field
-            })
-          }
-        ];
-      }, []);
-      return <div className={`fieldset ${g.htmlClass}`}>
-        <GroupComponent properties={_properties} />
-      </div>;
-    }
-    throw new Error('Invalid grouping' + typeof g + ' ' + g);
-  });
-  return mapped;
 };
