@@ -212,7 +212,7 @@ const createGroupedFields = ({ properties, groups, props }) => {
           }
         ];
       }, []);
-      return <div className={`fieldset ${g.htmlClass}`}>
+      return <div className={`fieldset ${g.htmlClass || 'col-sm-12'}`}>
         {g.title && <legend>{g.title}</legend>}
         <GroupComponent properties={_properties} />
       </div>;

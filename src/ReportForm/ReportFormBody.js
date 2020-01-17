@@ -7,13 +7,18 @@ import styles from './styles.module.scss';
 const additionalMetaSchemas = [draft4JsonSchema];
 
 const filterOutTypeRelatedEnumErrors = (errors, schema) => errors // filter out enum-based errors, as it's a type conflict between the property having type='string' when our API returns strings but expecting objects in the POSTs.
-  .filter((error) =>
-    !error.property.includes('.enum') ||
-    !error.property
-      .replace(/\.|'|properties|\[|\]|enumNames|enum/g, '.')
+  .filter((error) => {
+    const linearErrorPropTree = error.property
+      .replace(/'|\.properties|\[|\]|\.enumNames|\.enum/g, '.')
       .split('.')
-      .filter(p => !!p)
-      .reduce((accumulator, p) => accumulator.properties[p], schema).enum);
+      .filter(p => !!p);
+
+    if (linearErrorPropTree.length === 1) {
+      return !schema.properties[linearErrorPropTree[0]].enum;
+    }
+    return !linearErrorPropTree
+      .reduce((accumulator, p) => accumulator.properties[p], schema).enum;
+  });
 
 const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react/display-name
   const { formData, children, schema, uiSchema, onChange, onSubmit, ...rest } = props;
