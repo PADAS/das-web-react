@@ -35,16 +35,24 @@ export const fetchCurrentUserProfiles = () => async (dispatch) => {
   }
 };
 
-export const setUserProfile = payload => (dispatch) => {
-  document.cookie = `userProfile=${payload.id}`; // set profile cookie
+export const setUserProfile = (profile, setCookie) => (dispatch) => {
+  if (setCookie) {
+    document.cookie = `userProfile=${profile.id}`; // set profile cookie
+  } else {
+    clearProfileCookie();
+  }
   dispatch({
     type: SET_USER_PROFILE,
-    payload,
+    payload: profile,
   });
 };
 
-export const clearUserProfile = () => (dispatch) => {
+const clearProfileCookie = () => {
   document.cookie = 'userProfile=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'; // expire profile cookie
+};
+
+export const clearUserProfile = () => (dispatch) => {
+  clearProfileCookie(); // expire profile cookie
   dispatch({
     type: CLEAR_USER_PROFILE,
   });
