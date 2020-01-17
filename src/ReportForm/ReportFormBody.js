@@ -10,11 +10,7 @@ const filterOutTypeRelatedEnumErrors = (errors, schema) => errors // filter out 
   .filter((error) =>
     !error.property.includes('.enum') ||
     !error.property
-      .replace('.properties', '.')
-      .replace('[\'', '.')
-      .replace('\']', '.')
-      .replace('.enumNames', '.')
-      .replace('.enum', '.')
+      .replace(/\.|'|properties|\[|\]|enumNames|enum/g, '.')
       .split('.')
       .filter(p => !!p)
       .reduce((accumulator, p) => accumulator.properties[p], schema).enum);
