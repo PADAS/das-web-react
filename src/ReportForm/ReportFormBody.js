@@ -17,7 +17,7 @@ const filterOutTypeRelatedEnumErrors = (errors, schema) => errors // filter out 
       return !schema.properties[linearErrorPropTree[0]].enum;
     }
     return !linearErrorPropTree
-      .reduce((accumulator, p) => accumulator.properties[p], schema).enum;
+      .reduce((accumulator, p) => (accumulator.properties || accumulator)[p], schema).enum;
   });
 
 const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react/display-name
