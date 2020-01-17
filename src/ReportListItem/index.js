@@ -37,11 +37,10 @@ const ReportListItem = (props) => {
   } else {
     displayPriority = report.priority;
   }
+  
+  const displayTitle = displayTitleForEventByEventType(report);
 
-
-
-
-  return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
+  return <li title={displayTitle} className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
       <EventIcon report={report} />
     </button>
