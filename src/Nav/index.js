@@ -40,7 +40,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
       trackEvent('Main Toolbar', 'Select to operate as a user profile');
     }
 
-    setUserProfile(profile);
+    setUserProfile(profile, isMainUser ? false : true);
   };
 
   useEffect(() => {
