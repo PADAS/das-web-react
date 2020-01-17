@@ -8,7 +8,13 @@ const additionalMetaSchemas = [draft4JsonSchema];
 
 const filterOutTypeRelatedEnumErrors = (errors, schema) => errors // filter out enum-based errors, as it's a type conflict between the property having type='string' when our API returns strings but expecting objects in the POSTs.
   .filter((error) =>
+    !error.property.includes('.enum') ||
     !error.property
+      .replace('.properties', '.')
+      .replace('[\'', '.')
+      .replace('\']', '.')
+      .replace('.enumNames', '.')
+      .replace('.enum', '.')
       .split('.')
       .filter(p => !!p)
       .reduce((accumulator, p) => accumulator.properties[p], schema).enum);

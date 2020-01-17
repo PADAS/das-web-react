@@ -153,28 +153,30 @@ export default {
 export const ObjectFieldTemplate = (props) => {
   const { TitleField, DescriptionField } = props;
 
-  return <fieldset>
-    {(props.title || props.uiSchema['ui:title']) && (
-      <TitleField
-        id={`${props.idSchema.$id}__title`}
-        title={props.title || props.uiSchema['ui:title']}
-        required={props.required}
-        formContext={props.formContext}
-      />
-    )}
-    {props.description && (
-      <DescriptionField
-        id={`${props.idSchema.$id}__description`}
-        description={props.description}
-        formContext={props.formContext}
-      />
-    )}
-    {createGroupedFields({
-      props,
-      properties: props.properties,
-      groups: props.uiSchema['ui:groups'],
-    })}
-  </fieldset>;
+  return <div className='container' style={{padding: 0}}>
+    <div className='row'>
+      {(props.title || props.uiSchema['ui:title']) && (
+        <TitleField
+          id={`${props.idSchema.$id}__title`}
+          title={props.title || props.uiSchema['ui:title']}
+          required={props.required}
+          formContext={props.formContext}
+        />
+      )}
+      {props.description && (
+        <DescriptionField
+          id={`${props.idSchema.$id}__description`}
+          description={props.description}
+          formContext={props.formContext}
+        />
+      )}
+      {createGroupedFields({
+        props,
+        properties: props.properties,
+        groups: props.uiSchema['ui:groups'],
+      })}
+    </div>
+  </div>;
 };
 
 const GroupComponent = props => props.properties.map(p => p.children);
@@ -211,6 +213,7 @@ const createGroupedFields = ({ properties, groups, props }) => {
         ];
       }, []);
       return <div className={`fieldset ${g.htmlClass}`}>
+        {g.title && <legend>{g.title}</legend>}
         <GroupComponent properties={_properties} />
       </div>;
     }

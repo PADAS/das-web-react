@@ -16,63 +16,56 @@ const createSchemaGroups = (schema, definitions) => {
   const INFERRED_ORIGIN = 'inferred';
   const DEFINED_ORIGIN = 'fieldset';
 
-  if (!definitions.length) return Object.keys(schema.properties);
+  if (!definitions.length) return [{
+    origin: INFERRED_ORIGIN,
+    items: Object.keys(schema.properties),
+  }];
 
   return definitions.reduce((accumulator, value, index, src) => {
     const isFirst = isUndefined(src[index - 1]);
+    const isObject = typeof value === 'object';
+    const val = isObject ? value.key : value;
 
-    /* const item = {
-      title: <String> || null,
-      items: [<String>],
-      origin:  'inferred' || 'fieldset'
-    } */
 
-    if (typeof value === 'string') {
-      if (isFirst || accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
+    if (isObject && value.type === 'fieldset') {
+      return [
+        ...accumulator,
+        {
+          origin: DEFINED_ORIGIN,
+          ...value,
+        }
+      ];
+    }
+    
+    if (isFirst) {
+      return [
+        ...accumulator,
+        {
+          origin: INFERRED_ORIGIN,
+          items: [val],
+        }
+      ];
+    }
+
+    if (!isObject) {
+      if (accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
         return [
           ...accumulator,
           {
             origin: INFERRED_ORIGIN,
-            title: null,
-            items: [value],
+            items: [val],
           }
         ];
       } else {
         const copy = [...accumulator];
         copy[copy.length - 1] = {
           ...copy[copy.length - 1],
-          items: [...copy[copy.length - 1].items, value],
-        };
-        return copy;
-      }
-    } else if (typeof value === 'object') {
-      if (value.type === 'fieldset') {
-        return [
-          ...accumulator,
-          {
-            origin: DEFINED_ORIGIN,
-            ...value,
-          }
-        ];
-      } else if (isFirst || accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
-        return [
-          ...accumulator,
-          {
-            origin: INFERRED_ORIGIN,
-            title: null,
-            items: [value.key],
-          }
-        ];
-      } else {
-        const copy = [...accumulator];
-        copy[copy.length - 1] = {
-          ...copy[copy.length - 1],
-          items: [...copy[copy.length - 1].items, value.key],
+          items: [...copy[copy.length - 1].items, val],
         };
         return copy;
       }
     }
-    return null;
+    return accumulator;
   }, []);
 };
 
@@ -111,7 +104,7 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
     const { layout, type, fieldHtmlClass, htmlClass } = definition;
 
     if (type === 'checkboxes') {
-      return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition)];
+      return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition, schema)];
     }
     if (type === 'datetime' || (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker'))) {
       return [...accumulator, generateSchemaAndUiSchemaForDateField(definition)];
@@ -142,7 +135,7 @@ const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass, layout }) =
     uiSchemaEntry: {
     }
   };
-  if (fieldHtmlClass) entry.uiSchemaEntry['ui:fieldClassNames'] = fieldHtmlClass;
+  // if (fieldHtmlClass) entry.uiSchemaEntry['ui:fieldClassNames'] = fieldHtmlClass; this doesn't do anything, currently
   if (layout) {
     const columnClasses = convertSchemaLayoutToColumnClassString(layout);
     entry.uiSchemaEntry.classNames = columnClasses;
@@ -175,8 +168,12 @@ export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
   };
 };
 
-const generateSchemaAndUiSchemaForCheckbox = (definition) => {
-  const { key, title, titleMap } = definition;
+const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
+  const { key, title:definitionTitle, titleMap:definitionTitleMap } = definition;
+  const { titleMap:schemaTitleMap, title:schemaTitle } = schema.properties[key];
+
+  const title = schemaTitle || definitionTitle;
+  const titleMap = schemaTitleMap || definitionTitleMap;
 
   return {
     schemaEntry: {

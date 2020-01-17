@@ -31,6 +31,9 @@
   legend {
     display: none;
   }
+  [class*=fieldset] legend {
+    display: block;
+  }
   label {
     font-weight: bold;
     margin-bottom: 0;
