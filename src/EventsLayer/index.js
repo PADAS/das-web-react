@@ -1,13 +1,13 @@
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer, GeoJSONLayer } from 'react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 import concave from '@turf/concave';
 import buffer from '@turf/buffer';
 import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
-import { addFeatureCollectionImagesToMap, addMapImage, metersPerPixel } from '../utils/map';
-import { addBounceToEventMapFeatures } from '../utils/events';
+import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
+import { addBounceToEventMapFeatures, clearActiveBounceProperties } from '../utils/events';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -49,7 +49,7 @@ const clusterPolyPaint = {
 };
 
 // bounce animation constants
-const FRAMES_PER_SECOND = 20;
+const FRAMES_PER_SECOND = 24;
 const ANIMATION_LENGTH_SECONDS = .5; //seconds
 const TOTAL_ANIMATION_FRAMES = FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS;
 const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
@@ -64,10 +64,15 @@ const EventsLayer = (props) => {
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
-  if (events && events.features) {
-    const featuresWithIds = addBounceToEventMapFeatures(events.features, bounceEventID);
-    events.features = featuresWithIds;
-  }
+
+  const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
+
+  useEffect(() => {
+    setEventsWithBounce({
+      ...events,
+      features: addBounceToEventMapFeatures(events.features, bounceEventID),
+    });
+  }, [bounceEventID, events]);
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
@@ -151,28 +156,42 @@ const EventsLayer = (props) => {
   });
 
   const updateBounceSineAnimation = (animationState) => {
-    setTimeout(() => {
-      let currFrame = animationState.frame;
-      if(TOTAL_ANIMATION_FRAMES >= currFrame) {
+    let currFrame = animationState.frame;
+    console.log(TOTAL_ANIMATION_FRAMES, currFrame);
+    if(TOTAL_ANIMATION_FRAMES > currFrame)
+    {
+      setTimeout(() => {
         const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
         setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale});
-      } else {
-        setAnimationState({frame: 0, size: 1});
+      } , 1000 / FRAMES_PER_SECOND);
+    } else {
+      console.log('terminating ids', bounceEventID);
+      if (bounceEventID.length) {
+        //defensive driving, make a clone of the active ids
+        const ids = bounceEventID.slice(0);
+        console.log('terminating ids', ids);
+        clearActiveBounceProperties(map, ids);
+        bounceEventID.clear();
+        setAnimationState({frame: 0, size: 1.0});
       }
-    }, 1000 / FRAMES_PER_SECOND);
+    }
   };
 
   const bounceAnimation = useRef(updateBounceSineAnimation);
 
   useEffect(() => {
-    animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(animationState));
-    //console.log('animation state', animationState);
+    if (bounceEventID) {
+      animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(animationState));
+    } else if (animationFrameID.current) {
+      window.cancelAnimationFrame(animationFrameID.current);
+    }
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
-  }, [animationState]);
+  }, [bounceEventID, animationState]);
 
-  const ICON_BOUNCE_SCALE = (iconSize) => ['match', ['get', 'bounce'], 'true', iconSize * animationState.scale * ICON_SCALE_RATE, iconSize];
+
+  const IF_SCALE_FOR_BOUNCE = (iconSize, iconScale) => ['match', ['get', 'bounce'], 'true', iconSize + animationState.scale * iconScale, iconSize];
 
   // the mapbox DSL doesn't allow interpolations or steps 
   // to be nested in their DSL, which results in this crazy layout
@@ -184,8 +203,8 @@ const EventsLayer = (props) => {
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       7, 0,
-      12, IF_SYMBOL_ICON_IS_GENERIC(ICON_BOUNCE_SCALE(0.5), ICON_BOUNCE_SCALE(1)),
-      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(ICON_BOUNCE_SCALE(0.75), ICON_BOUNCE_SCALE(1.5)),
+      12, IF_SYMBOL_ICON_IS_GENERIC(IF_SCALE_FOR_BOUNCE(0.5, ICON_SCALE_RATE), IF_SCALE_FOR_BOUNCE(1, ICON_SCALE_RATE)),
+      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(IF_SCALE_FOR_BOUNCE(0.75, ICON_SCALE_RATE), IF_SCALE_FOR_BOUNCE(1.5, ICON_SCALE_RATE)),
     ],
     'text-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
@@ -203,7 +222,7 @@ const EventsLayer = (props) => {
 
   const sourceData = {
     type: 'geojson',
-    data: events,
+    data: eventsWithBounce,
   };
 
   const clusteredSourceData = {
