@@ -28,7 +28,7 @@
     font-size: 1rem;
     max-height: calc(80vh - 10rem);
   }
-  legend {
+  legend, [class*=panel-danger][class*=errors] {
     display: none;
   }
   [class*=fieldset] legend {
