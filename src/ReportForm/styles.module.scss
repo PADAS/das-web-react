@@ -31,8 +31,47 @@
   legend, [class*=panel-danger][class*=errors] {
     display: none;
   }
+  /* [class*=array-item-list] [class*=btn-group] {
+    justify-content: flex-start !important;
+  } */
+/*   [class*=fieldset] {
+    [class*=btn-add] {
+      @include imageButton('plus', white, #17a2b8);
+    }
+    [class*=array-item-remove] {
+      @include imageButton('minus', white, red);
+    }
+    [class*=array-item-move-] {
+      display: none;
+    }
+
+    [class*=btn-add], [class*=array-item-remove] {
+      background-size: 30%;
+      background-position: center center;
+    }
+
+    [class*=btn-add], [class*=array-item-remove] {
+      height: 1.75rem;
+      max-width: 4rem;
+      width: 4rem;
+    }
+  } */
   [class*=fieldset] legend {
     display: block;
+  }
+  [class*=fieldset]:not([class*=col-]) {
+    width: 100%;
+    [class*=form-group] {
+      width: 100%;
+    }
+  }
+  [class*=field-array-of-object] {
+    [class$=array-item] {
+      border: 1px solid $light-gray-border;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+    }
   }
   label {
     font-weight: bold;

@@ -462,8 +462,6 @@ export default connect(mapStatetoProps, {
 }
 )(withSocketConnection(Map));
 
-// Map.whyDidYouRender = true;
-
 // secret code burial ground
 // for future reference and potential experiments
 //  {/* <Source

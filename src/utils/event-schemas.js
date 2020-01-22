@@ -1,12 +1,11 @@
 import customSchemaFields from '../SchemaFields';
 import isUndefined from 'lodash/isUndefined';
-
-import { ObjectFieldTemplate } from '../SchemaFields';
+import merge from 'lodash/merge';
+import uniq from 'lodash/uniq';
 
 import { COLUMN_CLASS_PREFIXES } from '../constants';
 
 const GLOBAL_UI_SCHEMA_CONFIG = {
-  'ui:ObjectFieldTemplate': ObjectFieldTemplate,
   details: {
     'ui:widget': 'textarea',
   },
@@ -47,20 +46,20 @@ const createSchemaGroups = (schema, definitions) => {
       ];
     }
 
-    if (!isObject) {
+    if (!isObject || val) {
       if (accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
         return [
           ...accumulator,
           {
             origin: INFERRED_ORIGIN,
-            items: [val],
+            items: uniq([val]),
           }
         ];
       } else {
         const copy = [...accumulator];
         copy[copy.length - 1] = {
           ...copy[copy.length - 1],
-          items: [...copy[copy.length - 1].items, val],
+          items: uniq([...copy[copy.length - 1].items, val]),
         };
         return copy;
       }
@@ -90,7 +89,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
   });
 
   uiSchema['ui:groups'] = groupsForSchema;
-
+  
   return {
     schema: withEnums,
     uiSchema,
@@ -98,24 +97,36 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
 };
 
 const convertDefinitionsToSchemas = (definitions = [], schema) => {
-  const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
+  const definitionsToConvert = definitions.filter(d => (typeof d !== 'string'));
 
   return definitionsToConvert.reduce((accumulator, definition) => {
-    const { layout, type, fieldHtmlClass, htmlClass } = definition;
+    const { key, layout, type, fieldHtmlClass, htmlClass } = definition;
+
+    let result = {};
 
     if (type === 'checkboxes') {
-      return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition, schema)];
+      result = merge(result, generateSchemaAndUiSchemaForCheckbox(definition, schema));
     }
     if (type === 'datetime' || (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker'))) {
-      return [...accumulator, generateSchemaAndUiSchemaForDateField(definition)];
+      result = merge(result, generateSchemaAndUiSchemaForDateField(definition));
     }
     if (type === 'textarea') {
-      return [...accumulator, generateSchemaAndUiSchemaForTextarea(definition)];
+      result = merge(result, generateSchemaAndUiSchemaForTextarea(definition));
     }
-    if (fieldHtmlClass || htmlClass || layout) {
-      return [...accumulator, addCssClassesToDefinition(definition)];
+    if (type === 'fieldset' && definition.items.some(i => typeof i === 'object')) {
+      result = merge(result, convertDefinitionsToSchemas(definition.items.filter(i => typeof i === 'object'), schema));
     }
-    return accumulator;
+    if (key && (fieldHtmlClass || htmlClass || layout)) {
+      result = merge(result, addCssClassesToDefinition(definition));
+    }
+    if (key && !result.schemaEntry) {
+      result = merge(result, {
+        schemaEntry: {
+          key,
+        },
+      });
+    }
+    return Object.keys(result).length ? [...accumulator, result] : accumulator;
   }, []);
 };
 

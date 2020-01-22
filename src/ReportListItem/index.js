@@ -5,11 +5,9 @@ import PropTypes from 'prop-types';
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
-import { jumpToLocation } from '../utils/map';
 
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, displayTitleForEventByEventType } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
-import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 

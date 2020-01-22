@@ -1,12 +1,14 @@
-import React, { memo, forwardRef, useCallback, useState } from 'react';
-import Form from 'react-jsonschema-form';
+import React, { memo, forwardRef, useCallback } from 'react';
+import Form from 'react-jsonschema-form-bs4';
 import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
+
+import { ObjectFieldTemplate } from '../SchemaFields';
 
 import styles from './styles.module.scss';
 
 const additionalMetaSchemas = [draft4JsonSchema];
 
-const filterOutTypeRelatedEnumErrors = (errors, schema) => errors // filter out enum-based errors, as it's a type conflict between the property having type='string' when our API returns strings but expecting objects in the POSTs.
+const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based errors, as it's a type conflict between the property having type='string' when our API returns strings but expecting objects in the POSTs.
   .filter((error) => {
     const linearErrorPropTree = error.property
       .replace(/'|\.properties|\[|\]|\.enumNames|\.enum/g, '.')
@@ -29,7 +31,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
   const { formData, children, schema, uiSchema, onChange, onSubmit, ...rest } = props;
 
   const transformErrors = useCallback((errors) =>
-    filterOutTypeRelatedEnumErrors(errors, schema), [schema]
+    filterOutEnumErrors(errors, schema), [schema]
   );
 
 
@@ -43,6 +45,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     onSubmit={onSubmit}
     ref={ref}
     schema={schema}
+    ObjectFieldTemplate={ObjectFieldTemplate}
     transformErrors={transformErrors}
     uiSchema={uiSchema}
     {...rest}
