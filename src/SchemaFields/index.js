@@ -15,7 +15,7 @@ const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
 
   const getOptionLabel = ({ label, name }) => label || name;
-  const getOptionValue = ({ value }) => value;
+  const getOptionValue = (val) => isString(val) ? val : val.value;
   const selected = enumOptions.find((item) => value ?
     item.value ===
     (isString(value) ?
@@ -26,8 +26,8 @@ const SelectField = (props) => {
   const handleChange = (update) => {
     if (!update) return onChange(update);
 
-    const { label: name, value } = update;
-    return onChange({ name, value });
+    const { value } = update;
+    return onChange(value);
   };
 
   return <Select
@@ -155,29 +155,27 @@ export const ObjectFieldTemplate = (props) => {
   const instanceId = useState(uuid());
 
   return <div className='container' style={{padding: 0}}>
-    <div className='row'>
-      {(props.title || props.uiSchema['ui:title']) && (
-        <TitleField
-          id={`${props.idSchema.$id}__title`}
-          title={props.title || props.uiSchema['ui:title']}
-          required={props.required}
-          formContext={props.formContext}
-        />
-      )}
-      {props.description && (
-        <DescriptionField
-          id={`${props.idSchema.$id}__description`}
-          description={props.description}
-          formContext={props.formContext}
-        />
-      )}
-      {createGroupedFields({
-        instanceId,
-        props,
-        properties: props.properties,
-        groups: props.uiSchema['ui:groups'],
-      })}
-    </div>
+    {(props.title || props.uiSchema['ui:title']) && (
+      <TitleField
+        id={`${props.idSchema.$id}__title`}
+        title={props.title || props.uiSchema['ui:title']}
+        required={props.required}
+        formContext={props.formContext}
+      />
+    )}
+    {props.description && (
+      <DescriptionField
+        id={`${props.idSchema.$id}__description`}
+        description={props.description}
+        formContext={props.formContext}
+      />
+    )}
+    {createGroupedFields({
+      instanceId,
+      props,
+      properties: props.properties,
+      groups: props.uiSchema['ui:groups'],
+    })}
   </div>;
 };
 
@@ -185,7 +183,9 @@ const GroupComponent = props => props.properties.map((p) => p.children);
 
 const createGroupedFields = ({ instanceId, properties, groups, props }) => {
   if (!Array.isArray(groups)) {
-    return properties.map(p => p.content);
+    return <div className='row'>
+      {properties.map(p => p.content)}
+    </div>;
   }
   const mapped = groups.map((g, index) => {
     if (typeof g === 'string') {
@@ -215,7 +215,7 @@ const createGroupedFields = ({ instanceId, properties, groups, props }) => {
           }
         ];
       }, []);
-      return <div key={`${instanceId}-${index}`} className={`fieldset ${g.htmlClass}`}>
+      return <div key={`${instanceId}-${index}`} className={`fieldset row ${g.htmlClass}`}>
         {g.title && <legend>{g.title}</legend>}
         <GroupComponent properties={_properties} />
       </div>;

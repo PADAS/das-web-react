@@ -68,25 +68,27 @@ const createSchemaGroups = (schema, definitions) => {
   }, []);
 };
 
-export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema }) => {
-  const newSchema = { ...schema };
+export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema: originalSchema }) => {
+  const newSchema = { ...originalSchema };
   const withEnums = convertSchemaEnumNameObjectsIntoArray(newSchema);
 
-  const schemasFromDefinitions = convertDefinitionsToSchemas(definitions, schema);
-  const schemasForSelectFields = addCustomSelectFieldForEnums(schema);
-  const schemasForExternalURIs = addCustomLinksForExternalURIs(schema);
-  const groupsForSchema = createSchemaGroups(schema, definitions);
-  
-  const updates = merge(withEnums.properties, schemasFromDefinitions.schema, schemasForSelectFields.schema, schemasForExternalURIs.schema);
-  const uiSchema = merge(GLOBAL_UI_SCHEMA_CONFIG, schemasFromDefinitions.uiSchema, schemasForSelectFields.uiSchema, schemasForExternalURIs.uiSchema);
+  const { 
+    schema:schemaFromDefinitions,
+    uiSchema:uiSchemaFromDefinitions 
+  } = convertDefinitionsToSchemas(definitions, withEnums);
+
+  const uiSchemasForSelectFields = addCustomSelectFieldForEnums(withEnums);
+  const uiSchemasForExternalURIs = addCustomLinksForExternalURIs(withEnums);
+
+  const groupsForSchema = createSchemaGroups(withEnums, definitions);
+
+  const schema = merge(withEnums, { properties: schemaFromDefinitions });
+  const uiSchema = merge(GLOBAL_UI_SCHEMA_CONFIG, uiSchemaFromDefinitions, uiSchemasForSelectFields, uiSchemasForExternalURIs);
 
   uiSchema['ui:groups'] = groupsForSchema;
   
   return {
-    schema: {
-      ...withEnums,
-      properties: merge(withEnums.properties, updates),
-    },
+    schema,
     uiSchema,
   };
 };
@@ -235,26 +237,36 @@ const addCustomSelectFieldForEnums = (schema) => {
     if (value.hasOwnProperty('enum')) {
       return merge(accumulator, generateUiSchemaForSelectFields(key));
     }
+    if (value.type === 'object') {
+      return merge(accumulator, {
+        [key]: addCustomSelectFieldForEnums(value),
+      });
+    }
     return accumulator;
   }, {});
 };
 
 const generateUiSchemaForSelectFields = (key) => {
   return {
-    uiSchema: {
-      [key]: {
-        'ui:widget': customSchemaFields.select,
-      }
-    },
+    [key]: {
+      'ui:widget': customSchemaFields.select,
+    }
   };
 };
 
 const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properties)
-  .filter(([_key, value]) => value.format && value.format === 'uri')
-  .map(([key]) => ({
-    uiSchema: {
-      [key]: {
-        'ui:field': customSchemaFields.externalUri,
-      },
-    },
-  }));
+  .reduce((accumulator, [key, value]) => {
+    if (value.format && value.format === 'uri') {
+      return merge(accumulator, {
+        [key]: {
+          'ui:field': customSchemaFields.externalUri,
+        }, 
+      });
+    }
+    if (value.type === 'object') {
+      return merge(accumulator, {
+        [key]: addCustomLinksForExternalURIs(value),
+      });
+    }
+    return accumulator;
+  }, {});
