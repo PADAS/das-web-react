@@ -31,31 +31,6 @@
   legend, [class*=panel-danger][class*=errors] {
     display: none;
   }
-  /* [class*=array-item-list] [class*=btn-group] {
-    justify-content: flex-start !important;
-  } */
-/*   [class*=fieldset] {
-    [class*=btn-add] {
-      @include imageButton('plus', white, #17a2b8);
-    }
-    [class*=array-item-remove] {
-      @include imageButton('minus', white, red);
-    }
-    [class*=array-item-move-] {
-      display: none;
-    }
-
-    [class*=btn-add], [class*=array-item-remove] {
-      background-size: 30%;
-      background-position: center center;
-    }
-
-    [class*=btn-add], [class*=array-item-remove] {
-      height: 1.75rem;
-      max-width: 4rem;
-      width: 4rem;
-    }
-  } */
   [class*=fieldset] legend {
     display: block;
   }
@@ -489,19 +464,6 @@
       }
     }
   }
-/*   [class*=bs-popover] {
-    bottom: 50%;
-    left: 3vw;
-    top: auto;
-    @media (min-width: $md-layout-width-min) {
-      left: 5vw;
-    }
-    @media #{$whenPageIsIsTallAndWide} {
-      bottom: auto;
-      left: 20vw;
-      top: -12rem;
-    }
-  } */
 }
 
 .fileUpload {
