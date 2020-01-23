@@ -96,7 +96,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
 const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string'));
 
-  const final = definitionsToConvert.reduce((accumulator, definition) => {
+  return definitionsToConvert.reduce((accumulator, definition) => {
     const { items, key, layout, type, fieldHtmlClass, htmlClass } = definition;
 
     let result = {};
@@ -136,7 +136,6 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
       }
     });
   }, {});
-  return final;
 };
 
 const convertSchemaLayoutToColumnClassString = ({ sm, md, lg }) => {
