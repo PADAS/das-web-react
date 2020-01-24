@@ -170,12 +170,15 @@ export const ObjectFieldTemplate = (props) => {
         formContext={props.formContext}
       />
     )}
-    {createGroupedFields({
-      instanceId,
-      props,
-      properties: props.properties,
-      groups: props.uiSchema['ui:groups'],
-    })}
+    <div className='row'>
+
+      {createGroupedFields({
+        instanceId,
+        props,
+        properties: props.properties,
+        groups: props.uiSchema['ui:groups'],
+      })}
+    </div>
   </div>;
 };
 
@@ -183,9 +186,7 @@ const GroupComponent = props => props.properties.map((p) => p.children);
 
 const createGroupedFields = ({ instanceId, properties, groups, props }) => {
   if (!Array.isArray(groups)) {
-    return <div className='row'>
-      {properties.map(p => p.content)}
-    </div>;
+    return properties.map(p => p.content);
   }
   const mapped = groups.map((g, index) => {
     if (typeof g === 'string') {
@@ -215,7 +216,7 @@ const createGroupedFields = ({ instanceId, properties, groups, props }) => {
           }
         ];
       }, []);
-      return <div key={`${instanceId}-${index}`} className={`fieldset row ${g.htmlClass}`}>
+      return <div key={`${instanceId}-${index}`} className={`fieldset ${g.htmlClass ? g.htmlClass : 'row'}`}>
         {g.title && <legend>{g.title}</legend>}
         <GroupComponent properties={_properties} />
       </div>;

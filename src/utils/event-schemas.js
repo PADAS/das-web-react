@@ -15,7 +15,7 @@ const createSchemaGroups = (schema, definitions) => {
   const INFERRED_ORIGIN = 'inferred';
   const DEFINED_ORIGIN = 'fieldset';
 
-  if (!definitions.length) return [{
+  if (!definitions || definitions.length) return [{
     origin: INFERRED_ORIGIN,
     items: Object.keys(schema.properties),
   }];
@@ -69,8 +69,7 @@ const createSchemaGroups = (schema, definitions) => {
 };
 
 export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema: originalSchema }) => {
-  const newSchema = { ...originalSchema };
-  const withEnums = convertSchemaEnumNameObjectsIntoArray(newSchema);
+  const withEnums = convertSchemaEnumNameObjectsIntoArray({ ...originalSchema });
 
   const { 
     schema:schemaFromDefinitions,
@@ -83,7 +82,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
   const groupsForSchema = createSchemaGroups(withEnums, definitions);
 
   const schema = merge(withEnums, { properties: schemaFromDefinitions });
-  const uiSchema = merge(GLOBAL_UI_SCHEMA_CONFIG, uiSchemaFromDefinitions, uiSchemasForSelectFields, uiSchemasForExternalURIs);
+  const uiSchema = merge({ ...GLOBAL_UI_SCHEMA_CONFIG }, uiSchemaFromDefinitions, uiSchemasForSelectFields, uiSchemasForExternalURIs);
 
   uiSchema['ui:groups'] = groupsForSchema;
   

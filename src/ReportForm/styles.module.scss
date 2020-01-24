@@ -28,15 +28,14 @@
     font-size: 1rem;
     max-height: calc(80vh - 10rem);
   }
-  legend, [class*=panel-danger][class*=errors] {
+  legend, [class*=card][class*=errors] {
     display: none;
   }
   [class*=fieldset] legend {
     display: block;
   }
-  [class*=fieldset]:not([class*=col-]) {
-    width: 100%;
-    [class*=form-group] {
+  [class*=fieldset], [class*=form-group] {
+    &:not([class*=col-]) {
       width: 100%;
     }
   }
