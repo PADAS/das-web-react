@@ -14,7 +14,7 @@ $map-canvas: '.mapboxgl-canvas';
 $non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
 :root {
-  --nav-height: 3rem;
+  --nav-height: 2.75rem;
   --sidebar-width: calc(100vw - 2rem);
 
   @media (min-width: $md-layout-width-min) {
@@ -101,6 +101,7 @@ aside {
   }
 
   .modal-content {
+    border: none;
     max-height: 98vh;
     padding: 0;
 
@@ -114,6 +115,9 @@ aside {
 
     >div>form {
       padding: 1rem 1rem 11.5rem;
+    }
+    [class*=loadingOverlay] [class*=spinner] {
+      top: 0;
     }
   }
 }
