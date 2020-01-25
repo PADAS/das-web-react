@@ -2,10 +2,6 @@
 
 .datepicker {
   width: 100%;
-  @media (min-width: $md-layout-width-min) {
-    float: right;
-    width: 50%;
-  }
   [class*=react-datetime-picker__wrapper] {
     width: 100%;
   }
