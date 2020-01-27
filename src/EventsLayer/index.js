@@ -7,7 +7,7 @@ import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
-import { addBounceToEventMapFeatures, clearActiveBounceProperties } from '../utils/events';
+import { addBounceToEventMapFeatures, setEventFeatureBounceState } from '../utils/events';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -49,9 +49,8 @@ const clusterPolyPaint = {
 };
 
 // bounce animation constants
-const FRAMES_PER_SECOND = 24;
+const FRAMES_PER_SECOND = 48;
 const ANIMATION_LENGTH_SECONDS = .5; //seconds
-const TOTAL_ANIMATION_FRAMES = FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS;
 const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
 // text-size interpolates at a different rate than icon-size for bounce animation
 const ICON_SCALE_RATE = .5;
@@ -64,14 +63,17 @@ const EventsLayer = (props) => {
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
-
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
 
+  const animationIsRendering = useRef(true);
+
   useEffect(() => {
+    console.log('num events ', events.features.length, 'bounceIDs ', bounceEventID);
     setEventsWithBounce({
       ...events,
       features: addBounceToEventMapFeatures(events.features, bounceEventID),
     });
+    animationIsRendering.current = true;
   }, [bounceEventID, events]);
 
   const handleClusterClick = (e) => {
@@ -151,44 +153,36 @@ const EventsLayer = (props) => {
   const animationFrameID = useRef(null);
 
   const [animationState, setAnimationState] = useState({
-    frame: 0,
-    scale: 1
+    frame: 1,
+    scale: 0.0
   });
 
-  const updateBounceSineAnimation = (animationState) => {
+  const updateBounceSineAnimation = (map, animationState, bounceEventID) => {
     let currFrame = animationState.frame;
-    console.log(TOTAL_ANIMATION_FRAMES, currFrame);
-    if(TOTAL_ANIMATION_FRAMES > currFrame)
+    const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
+    if(Math.abs(updatedScale) > 1e-8 && animationIsRendering.current)
     {
       setTimeout(() => {
-        const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
         setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale});
       } , 1000 / FRAMES_PER_SECOND);
     } else {
-      console.log('terminating ids', bounceEventID);
-      if (bounceEventID.length) {
-        //defensive driving, make a clone of the active ids
-        const ids = bounceEventID.slice(0);
-        console.log('terminating ids', ids);
-        clearActiveBounceProperties(map, ids);
-        bounceEventID.clear();
-        setAnimationState({frame: 0, size: 1.0});
-      }
+      setAnimationState({frame: 1, scale: 0.0});
+      animationIsRendering.current = false;
     }
   };
 
   const bounceAnimation = useRef(updateBounceSineAnimation);
 
   useEffect(() => {
-    if (bounceEventID) {
-      animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(animationState));
+    if (bounceEventID.length) {
+      animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(map, animationState, bounceEventID, animationIsRendering));
     } else if (animationFrameID.current) {
       window.cancelAnimationFrame(animationFrameID.current);
     }
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
-  }, [bounceEventID, animationState]);
+  }, [map, bounceEventID, animationState]);
 
 
   const IF_SCALE_FOR_BOUNCE = (iconSize, iconScale) => ['match', ['get', 'bounce'], 'true', iconSize + animationState.scale * iconScale, iconSize];
