@@ -23,12 +23,6 @@ import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
 
-
-if (process.env.NODE_ENV !== 'production') {
-  const whyDidYouRender = require('@welldone-software/why-did-you-render');
-  whyDidYouRender(React);
-}
-
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
 

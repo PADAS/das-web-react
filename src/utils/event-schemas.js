@@ -1,13 +1,15 @@
 import customSchemaFields from '../SchemaFields';
 import isUndefined from 'lodash/isUndefined';
-
-import { ObjectFieldTemplate } from '../SchemaFields';
+import merge from 'lodash/merge';
+import uniq from 'lodash/uniq';
 
 import { COLUMN_CLASS_PREFIXES } from '../constants';
 
 const GLOBAL_UI_SCHEMA_CONFIG = {
-  'ui:ObjectFieldTemplate': ObjectFieldTemplate,
   details: {
+    'ui:widget': 'textarea',
+  },
+  Details: {
     'ui:widget': 'textarea',
   },
 };
@@ -16,7 +18,7 @@ const createSchemaGroups = (schema, definitions) => {
   const INFERRED_ORIGIN = 'inferred';
   const DEFINED_ORIGIN = 'fieldset';
 
-  if (!definitions.length) return [{
+  if (!definitions || definitions.length) return [{
     origin: INFERRED_ORIGIN,
     items: Object.keys(schema.properties),
   }];
@@ -47,20 +49,20 @@ const createSchemaGroups = (schema, definitions) => {
       ];
     }
 
-    if (!isObject) {
+    if (!isObject || val) {
       if (accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
         return [
           ...accumulator,
           {
             origin: INFERRED_ORIGIN,
-            items: [val],
+            items: uniq([val]),
           }
         ];
       } else {
         const copy = [...accumulator];
         copy[copy.length - 1] = {
           ...copy[copy.length - 1],
-          items: [...copy[copy.length - 1].items, val],
+          items: uniq([...copy[copy.length - 1].items, val]),
         };
         return copy;
       }
@@ -69,54 +71,73 @@ const createSchemaGroups = (schema, definitions) => {
   }, []);
 };
 
-export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema }) => {
-  const newSchema = { ...schema };
-  const uiSchema = { ...GLOBAL_UI_SCHEMA_CONFIG };
+export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema: originalSchema }) => {
+  const withEnums = convertSchemaEnumNameObjectsIntoArray({ ...originalSchema });
 
-  const withEnums = convertSchemaEnumNameObjectsIntoArray(newSchema);
+  const { 
+    schema:schemaFromDefinitions,
+    uiSchema:uiSchemaFromDefinitions 
+  } = convertDefinitionsToSchemas(definitions, withEnums);
 
-  const schemasFromDefinitions = convertDefinitionsToSchemas(definitions, schema);
-  const schemasForSelectFields = addCustomSelectFieldForEnums(schema);
-  const schemasForExternalURIs = addCustomLinksForExternalURIs(schema);
-  const groupsForSchema = createSchemaGroups(schema, definitions);
+  const uiSchemasForSelectFields = addCustomSelectFieldForEnums(withEnums);
+  const uiSchemasForExternalURIs = addCustomLinksForExternalURIs(withEnums);
 
-  const toUpdate = [...schemasFromDefinitions, ...schemasForSelectFields, ...schemasForExternalURIs];
+  const groupsForSchema = createSchemaGroups(withEnums, definitions);
 
-  toUpdate.forEach(({ schemaEntry, uiSchemaEntry }) => {
-    withEnums.properties[schemaEntry.key] = { ...withEnums.properties[schemaEntry.key], ...schemaEntry };
-    if (uiSchemaEntry) {
-      uiSchema[schemaEntry.key] = uiSchemaEntry;
-    }
-  });
+  const schema = merge(withEnums, { properties: schemaFromDefinitions });
+  const uiSchema = merge({ ...GLOBAL_UI_SCHEMA_CONFIG }, uiSchemaFromDefinitions, uiSchemasForSelectFields, uiSchemasForExternalURIs);
 
   uiSchema['ui:groups'] = groupsForSchema;
-
+  
   return {
-    schema: withEnums,
+    schema,
     uiSchema,
   };
 };
 
 const convertDefinitionsToSchemas = (definitions = [], schema) => {
-  const definitionsToConvert = definitions.filter(d => (typeof d !== 'string') && !!schema.properties[d.key]);
+  const definitionsToConvert = definitions.filter(d => (typeof d !== 'string'));
 
   return definitionsToConvert.reduce((accumulator, definition) => {
-    const { layout, type, fieldHtmlClass, htmlClass } = definition;
+    const { items, key, layout, type, fieldHtmlClass, htmlClass } = definition;
+
+    let result = {};
 
     if (type === 'checkboxes') {
-      return [...accumulator, generateSchemaAndUiSchemaForCheckbox(definition, schema)];
+      result = merge(result, generateSchemaAndUiSchemaForCheckbox(definition, schema));
     }
     if (type === 'datetime' || (fieldHtmlClass && fieldHtmlClass.includes('date-time-picker'))) {
-      return [...accumulator, generateSchemaAndUiSchemaForDateField(definition)];
+      result = merge(result, generateSchemaAndUiSchemaForDateField(definition));
     }
     if (type === 'textarea') {
-      return [...accumulator, generateSchemaAndUiSchemaForTextarea(definition)];
+      result = merge(result, generateSchemaAndUiSchemaForTextarea(definition));
     }
-    if (fieldHtmlClass || htmlClass || layout) {
-      return [...accumulator, addCssClassesToDefinition(definition)];
+    if (type === 'fieldset' && !!items && items.some(i => typeof i === 'object')) {
+      result = merge(result, convertDefinitionsToSchemas(items.filter(i => typeof i === 'object'), schema));
     }
-    return accumulator;
-  }, []);
+    if (key && (fieldHtmlClass || htmlClass || layout)) {
+      result = merge(result, addCssClassesToDefinition(definition));
+    }
+
+    if (key && !result.schemaEntry) {
+      result = merge(result, {
+        schemaEntry: {
+          key,
+        },
+      });
+    }
+
+    if (!result.schemaEntry || !result.schemaEntry.key) return accumulator;
+
+    return merge(accumulator, {
+      schema: {
+        [result.schemaEntry.key]: result.schemaEntry,
+      },
+      uiSchema: {
+        [result.schemaEntry.key]: result.uiSchemaEntry,
+      }
+    });
+  }, {});
 };
 
 const convertSchemaLayoutToColumnClassString = ({ sm, md, lg }) => {
@@ -215,30 +236,38 @@ const generateSchemaAndUiSchemaForTextarea = ({ key }) => ({
 const addCustomSelectFieldForEnums = (schema) => {
   return Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
     if (value.hasOwnProperty('enum')) {
-      return [...accumulator, generateSchemaAndUiSchemaForSelect(key)];
+      return merge(accumulator, generateUiSchemaForSelectFields(key));
+    }
+    if (value.type === 'object') {
+      return merge(accumulator, {
+        [key]: addCustomSelectFieldForEnums(value),
+      });
     }
     return accumulator;
-  }, []);
+  }, {});
 };
 
-const generateSchemaAndUiSchemaForSelect = (key) => {
+const generateUiSchemaForSelectFields = (key) => {
   return {
-    schemaEntry: {
-      key,
-    },
-    uiSchemaEntry: {
+    [key]: {
       'ui:widget': customSchemaFields.select,
-    },
+    }
   };
 };
 
 const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properties)
-  .filter(([key, value]) => value.format && value.format === 'uri')
-  .map(([key]) => ({
-    schemaEntry: {
-      key,
-    },
-    uiSchemaEntry: {
-      'ui:field': customSchemaFields.externalUri,
-    },
-  }));
+  .reduce((accumulator, [key, value]) => {
+    if (value.format && value.format === 'uri') {
+      return merge(accumulator, {
+        [key]: {
+          'ui:field': customSchemaFields.externalUri,
+        }, 
+      });
+    }
+    if (value.type === 'object') {
+      return merge(accumulator, {
+        [key]: addCustomLinksForExternalURIs(value),
+      });
+    }
+    return accumulator;
+  }, {});

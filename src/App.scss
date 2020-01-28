@@ -1,5 +1,3 @@
-// @import './common/styles/bootstrap-3-legacy-components';
-
 @import './common/styles/vars/colors';
 @import './common/styles/animations';
 @import './common/styles/buttons';
@@ -16,7 +14,7 @@ $map-canvas: '.mapboxgl-canvas';
 $non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
 :root {
-  --nav-height: 3rem;
+  --nav-height: 2.75rem;
   --sidebar-width: calc(100vw - 2rem);
 
   @media (min-width: $md-layout-width-min) {
@@ -94,15 +92,23 @@ aside {
   min-height: 100%;
 }
 
+.modal-content {
+  justify-content: center;
+}
+
+.modal-dialog {
+  max-width: 38rem;
+  width: 96vw;
+}
+
 .event-form-modal {
   .modal-dialog {
-    align-items: flex-start;
+    align-items: center;
     max-height: 90vh;
-    max-width: 38rem;
-    width: 96vw;
   }
 
   .modal-content {
+    border: none;
     max-height: 98vh;
     padding: 0;
 
@@ -116,6 +122,9 @@ aside {
 
     >div>form {
       padding: 1rem 1rem 11.5rem;
+    }
+    [class*=loadingOverlay] [class*=spinner] {
+      top: 0;
     }
   }
 }
@@ -472,12 +481,32 @@ div.mapboxgl-popup-tip {
   top: 0;
 }
 
+
 .modal[role=dialog] {
   @include fade-in;
+  align-items: center;
   background: rgba(0, 0, 0, 0.5);
+  display: flex !important;
+  justify-content: center;
+  &[style*='display: none'], &[style*='display:none'] {
+    z-index: -1;
+  }
 }
 
 .modal-backdrop {
+  display: none;
+  &.show {
+    .modal[role=dialog] {
+      @include fade-in;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex !important;
+      justify-content: center;
+    }
+  }
+}
+
+.modal-dialog-centered::before {
   display: none;
 }
 

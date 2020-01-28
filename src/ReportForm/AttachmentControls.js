@@ -85,11 +85,11 @@ const AttachmentControls = (props) => {
         onChange={onFileAddFromDialog}>
       </input>
 
+      <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
+
       <AttachmentButton title='Add Attachment' icon={AttachmentIcon}
         onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}
       />
-
-      <AttachmentButton title='Add Note' icon={NoteIcon} className={styles.addNoteBtn} onClick={startAddNote} />
 
       {!relationshipButtonDisabled && <Fragment>
         {!isCollectionChild && <AddReport map={map} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}

@@ -11,12 +11,11 @@ import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/exter
 
 import styles from './styles.module.scss';
 
-
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
 
   const getOptionLabel = ({ label, name }) => label || name;
-  const getOptionValue = ({ value }) => value;
+  const getOptionValue = (val) => isString(val) ? val : val.value;
   const selected = enumOptions.find((item) => value ?
     item.value ===
     (isString(value) ?
@@ -27,8 +26,8 @@ const SelectField = (props) => {
   const handleChange = (update) => {
     if (!update) return onChange(update);
 
-    const { label: name, value } = update;
-    return onChange({ name, value });
+    const { value } = update;
+    return onChange(value);
   };
 
   return <Select
@@ -153,24 +152,28 @@ export default {
 export const ObjectFieldTemplate = (props) => {
   const { TitleField, DescriptionField } = props;
 
+  const instanceId = useState(uuid());
+
   return <div className='container' style={{padding: 0}}>
+    {(props.title || props.uiSchema['ui:title']) && (
+      <TitleField
+        id={`${props.idSchema.$id}__title`}
+        title={props.title || props.uiSchema['ui:title']}
+        required={props.required}
+        formContext={props.formContext}
+      />
+    )}
+    {props.description && (
+      <DescriptionField
+        id={`${props.idSchema.$id}__description`}
+        description={props.description}
+        formContext={props.formContext}
+      />
+    )}
     <div className='row'>
-      {(props.title || props.uiSchema['ui:title']) && (
-        <TitleField
-          id={`${props.idSchema.$id}__title`}
-          title={props.title || props.uiSchema['ui:title']}
-          required={props.required}
-          formContext={props.formContext}
-        />
-      )}
-      {props.description && (
-        <DescriptionField
-          id={`${props.idSchema.$id}__description`}
-          description={props.description}
-          formContext={props.formContext}
-        />
-      )}
+
       {createGroupedFields({
+        instanceId,
         props,
         properties: props.properties,
         groups: props.uiSchema['ui:groups'],
@@ -179,13 +182,13 @@ export const ObjectFieldTemplate = (props) => {
   </div>;
 };
 
-const GroupComponent = props => props.properties.map(p => p.children);
+const GroupComponent = props => props.properties.map((p) => p.children);
 
-const createGroupedFields = ({ properties, groups, props }) => {
+const createGroupedFields = ({ instanceId, properties, groups, props }) => {
   if (!Array.isArray(groups)) {
     return properties.map(p => p.content);
   }
-  const mapped = groups.map((g) => {
+  const mapped = groups.map((g, index) => {
     if (typeof g === 'string') {
       const found = properties.filter(p => p.name === g);
       if (found.length === 1) {
@@ -205,6 +208,7 @@ const createGroupedFields = ({ properties, groups, props }) => {
           {
             name: key,
             children: createGroupedFields({
+              instanceId: `${instanceId}-child-${index}`,
               properties,
               props,
               groups: field
@@ -212,7 +216,7 @@ const createGroupedFields = ({ properties, groups, props }) => {
           }
         ];
       }, []);
-      return <div className={`fieldset ${g.htmlClass || 'col-sm-12'}`}>
+      return <div key={`${instanceId}-${index}`} className={`fieldset ${g.htmlClass ? g.htmlClass : 'row'}`}>
         {g.title && <legend>{g.title}</legend>}
         <GroupComponent properties={_properties} />
       </div>;
