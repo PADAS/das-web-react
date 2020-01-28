@@ -9,6 +9,9 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
   details: {
     'ui:widget': 'textarea',
   },
+  Details: {
+    'ui:widget': 'textarea',
+  },
 };
 
 const createSchemaGroups = (schema, definitions) => {
