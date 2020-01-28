@@ -39,6 +39,16 @@
       width: 100%;
     }
   }
+  [class*=btn-add] {
+    &::after {
+      content: 'New';
+    }
+  }
+  [class*=array-item-remove] {
+    &::after {
+      content: 'Remove';
+    }
+  }
   [class*=field-array-of-object] {
     [class$=array-item] {
       border: 1px solid $light-gray-border;
