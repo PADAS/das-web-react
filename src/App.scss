@@ -92,12 +92,19 @@ aside {
   min-height: 100%;
 }
 
+.modal-content {
+  justify-content: center;
+}
+
+.modal-dialog {
+  max-width: 38rem;
+  width: 96vw;
+}
+
 .event-form-modal {
   .modal-dialog {
     align-items: center;
     max-height: 90vh;
-    max-width: 38rem;
-    width: 96vw;
   }
 
   .modal-content {
@@ -474,12 +481,32 @@ div.mapboxgl-popup-tip {
   top: 0;
 }
 
+
 .modal[role=dialog] {
   @include fade-in;
+  align-items: center;
   background: rgba(0, 0, 0, 0.5);
+  display: flex !important;
+  justify-content: center;
+  &[style*='display: none'], &[style*='display:none'] {
+    z-index: -1;
+  }
 }
 
 .modal-backdrop {
+  display: none;
+  &.show {
+    .modal[role=dialog] {
+      @include fade-in;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex !important;
+      justify-content: center;
+    }
+  }
+}
+
+.modal-dialog-centered::before {
   display: none;
 }
 

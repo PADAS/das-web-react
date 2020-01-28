@@ -32,12 +32,15 @@ const DataExportModal = ({ id, title, removeModal, params = {}, url, children })
   const triggerDownload = () => {
     setDownloadState(true);
     downloadFileFromUrl(DOWNLOAD_URL, params, downloadCancelToken)
+      .catch((e) => {
+        console.warn('error downloading file', e);
+      }) 
+      .then(() => {
+        removeModal(id);
+      })
       .finally(() => {
         setCancelToken(CancelToken.source());
         setDownloadState(false);
-      })
-      .then(() => {
-        removeModal(id);
       });
   };
 
