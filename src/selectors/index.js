@@ -72,12 +72,9 @@ export const getMapSubjectFeatureCollection = createSelector(
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents, eventStore, getEventTypes],
-  (mapEvents, eventStore, eventTypes) => {
-    console.log('eventTypes', eventTypes);
-    return createFeatureCollectionFromEvents(mapEvents
-      .map(id => eventStore[id])
-      .filter(item => !!item), eventTypes);
-  }
+  (mapEvents, eventStore, eventTypes) => createFeatureCollectionFromEvents(mapEvents
+    .map(id => eventStore[id])
+    .filter(item => !!item), eventTypes)
 );
 
 export const getFeedEvents = createSelector(

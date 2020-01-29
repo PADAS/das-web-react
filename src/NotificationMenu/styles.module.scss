@@ -21,7 +21,18 @@
 
 .icon {
   height: 1.25rem;
+  opacity: 0.5;
+  &:hover {
+    opacity: 0.7;
+  }
   width: 1.25rem;
+}
+
+.activeIcon {
+  opacity: 0.9;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 

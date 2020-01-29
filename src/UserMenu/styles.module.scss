@@ -11,6 +11,11 @@
 
 .username {
   display: none;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
   @media (min-width: $md-layout-width-min) {
     display: initial;
   }
@@ -22,9 +27,5 @@
  }
   button, a {
     text-align: right;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }
