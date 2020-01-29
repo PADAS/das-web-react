@@ -5,12 +5,10 @@ import PropTypes from 'prop-types';
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
-import { jumpToLocation } from '../utils/map';
 
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, 
   displayTitleForEventByEventType, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
-import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -38,10 +36,12 @@ const ReportListItem = (props) => {
   } else {
     displayPriority = report.priority;
   }
+  
+  const displayTitle = displayTitleForEventByEventType(report);
 
   const bounceId = hasMultipleLocations ? getEventIdsForCollection(report) : [report.id];
 
-  return <li className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
+  return <li title={displayTitle} className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
       <EventIcon report={report} />
     </button>

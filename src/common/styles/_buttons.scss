@@ -14,8 +14,8 @@ $square-button-border-radius: .25rem;
   }
 }
 
-@mixin imageButton($icon_name: 'gear', $color: darken(gray, 15%)) {
-  background: url('../images/icons/#{$icon_name}.svg') no-repeat;
+@mixin imageButton($icon_name: 'gear', $color: darken(gray, 15%), $bgcolor: transparent) {
+  background: $bgcolor url('../images/icons/#{$icon_name}.svg') no-repeat;
   background-size: contain;
   border: none;
 }

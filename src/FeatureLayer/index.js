@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
@@ -6,8 +6,10 @@ import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 
 import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
-import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+
+import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -59,7 +61,9 @@ const lineLayout = {
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
-  //'text-size': 0
+  'icon-image': ['get', 'icon_id'],
+  'text-size': 0,
+  'icon-anchor': 'bottom',
 };
 
 const symbolPaint = {
@@ -72,7 +76,16 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
     ...mapNameLayout,
   };
 
-  addFeatureCollectionImagesToMap(symbols, map);
+  useEffect(() => {
+    addFeatureCollectionImagesToMap(symbols, map);
+  }, [map, symbols]);
+
+  useEffect(() => {
+    if (!!map && !map.hasImage('marker-icon')) {
+      addMapImage(MarkerImage, 'marker-icon');
+    }
+  }, [map]);
+
 
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';

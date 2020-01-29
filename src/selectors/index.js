@@ -47,15 +47,20 @@ export const bboxBoundsPolygon = createSelector(
   (bbox) => bbox && bboxPolygon(bbox.split(',').map(coord => parseFloat(coord))),
 );
 
-const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
-  mapReportTypesToCategories(eventTypes)
+const getEventTypes = ({ data: { eventTypes } }) => eventTypes;
+
+const userCreatableEventTypesByCategory = createSelector(
+  [getEventTypes],
+  (eventTypes) => mapReportTypesToCategories(eventTypes)
     .filter((category) => {
       if (category.flag && category.flag === 'user') {
         return category.permissions.includes('create');
       }
       if (!category.flag) return true;
       return false;
-    });
+    })
+);
+
 
 export const getMapSubjectFeatureCollection = createSelector(
   [mapSubjects, hiddenSubjectIDs, showInactiveRadios],
@@ -66,10 +71,10 @@ export const getMapSubjectFeatureCollection = createSelector(
   });
 
 export const getMapEventFeatureCollection = createSelector(
-  [mapEvents, eventStore],
-  (mapEvents, eventStore) => createFeatureCollectionFromEvents(mapEvents
+  [mapEvents, eventStore, getEventTypes],
+  (mapEvents, eventStore, eventTypes) => createFeatureCollectionFromEvents(mapEvents
     .map(id => eventStore[id])
-    .filter(item => !!item))
+    .filter(item => !!item), eventTypes)
 );
 
 export const getFeedEvents = createSelector(
@@ -112,10 +117,10 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
     const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
       .reduce((accumulator, data) =>
         [...accumulator,
-        ...data.geojson.features.map(feature => {
-          feature.analyzer_type = data.type;
-          return feature;
-        })], []);
+          ...data.geojson.features.map(feature => {
+            feature.analyzer_type = data.type;
+            return feature;
+          })], []);
     // simulate layergroups found in old codebase by passing the feature ids
     // of the analyzer feature collection so they can be looked up at runtime - 
     // ie when a rollover occurs with a mouse
@@ -141,15 +146,15 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-      ...data.geojson.features
-        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-        .map(feature => {
-          if (feature.properties.image) {
-            feature = addIconToGeoJson(feature);
-            feature.properties.image = calcUrlForImage(feature.properties.image);
-          }
-          return feature;
-        })], []);
+        ...data.geojson.features
+          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+          .map(feature => {
+            if (feature.properties.image) {
+              feature = addIconToGeoJson(feature);
+              feature.properties.image = calcUrlForImage(feature.properties.image);
+            }
+            return feature;
+          })], []);
     return {
       symbolFeatures: featureCollection(
         allFeatures

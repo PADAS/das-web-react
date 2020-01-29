@@ -31,7 +31,7 @@ const NotificationMenu = ({ notifications = [], ...rest }) => {
 
   return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
     <Toggle as="div">
-      <BellIcon className={styles.icon} />
+      <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
       {!!notifications.length && <BadgeIcon className={styles.badge} count={notifications.length} />}
     </Toggle>
     <Menu className={styles.menu}>

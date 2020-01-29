@@ -1,7 +1,7 @@
 @import '../common/styles/vars/colors';
 
 @mixin badge-box-shadow ($color: $unknown-border) {
-  box-shadow: 0 0 .333rem $color;
+  box-shadow: 0 0 .1rem $color;
 }
 
 .badge {

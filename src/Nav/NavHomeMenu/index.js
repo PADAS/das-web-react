@@ -21,9 +21,9 @@ const NavHomeMenu = function NavHomeMenu(props) {
   };
 
   return (
-    <Dropdown className="home-select" alignRight onToggle={onDropdownToggle}>
+    <Dropdown className="home-select" onToggle={onDropdownToggle}>
       <Toggle className={styles.toggle}>
-        <NavHomeItem {...selectedMap} />
+        <NavHomeItem {...selectedMap} showIcon={true} /> <span className={styles.dropdownArrow}>&or;</span>
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>

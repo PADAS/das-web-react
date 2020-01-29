@@ -55,6 +55,16 @@ const userProfilePersistanceConfig = {
   storage,
 };
 
+const mapsPersistanceConfig = {
+  key: 'maps',
+  storage,
+};
+
+const baseLayerPersistanceConfig = {
+  key: 'baseLayer',
+  storage,
+};
+
 const rootReducer = combineReducers({
   data: combineReducers({
     baseLayers: baseLayersReducer,
@@ -69,7 +79,7 @@ const rootReducer = combineReducers({
     mapLayerFilter: mapLayerFilterReducer,
     analyzerFeatures: analyzersReducer,
     showReportsOnMap: displayReportsOnMapReducer,
-    maps: mapsReducer,
+    maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,
     subjectGroups: subjectGroupsReducer,
@@ -82,7 +92,7 @@ const rootReducer = combineReducers({
     socketUpdates: socketActivityReducer,
   }),
   view: combineReducers({
-    currentBaseLayer: currentBaseLayerReducer,
+    currentBaseLayer: persistReducer(baseLayerPersistanceConfig, currentBaseLayerReducer),
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-import TimeAgo from 'react-timeago';
+import { default as TA } from 'react-timeago';
 import Badge from '../Badge';
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
@@ -11,6 +11,10 @@ import { trackEvent } from '../utils/analytics';
 
 const { Toggle, Menu, Item } = Dropdown;
 
+const formatter = (val, unit, suffix) => `${val}${unit.charAt(0)} ${suffix}`;
+
+const TimeAgo = (props) => <TA {...props} formatter={formatter} />;
+
 class SystemStatusComponent extends Component {
 
   onDropdownToggle(isOpen) {
@@ -18,8 +22,8 @@ class SystemStatusComponent extends Component {
   }
 
   renderStatusList() {
-    return Object.entries(this.props.systemStatus).map(([key, value], index) => {
-      if (key === 'services') {
+    return Object.entries(this.props.systemStatus).map(([_key, value], index) => {
+      if (Array.isArray(value)) {
         return value.map((item) =>
           <Item className={styles.listItem} key={item.provider_key}>
             <div className={styles.summary}>
@@ -46,7 +50,7 @@ class SystemStatusComponent extends Component {
         </div>
         <div className={styles.details}>
           <span>
-            {value.details}{!!value.timestamp && ':'}
+            {!!value.details && value.details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
             {!!value.timestamp && <span className={styles.timestamp}><TimeAgo date={value.timestamp} /></span>}
           </span>
         </div>

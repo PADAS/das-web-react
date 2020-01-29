@@ -13,6 +13,10 @@
   position: relative;
   width: 100vw;
   z-index: 2;
+  .dropdown-menu {
+    background: $off-white;
+    box-shadow: 3px 3px 0.5rem rgba($dark-gray, 0.25);
+  }
   .btn-primary {
     background: none;
     border: none;
@@ -25,6 +29,12 @@
     display: flex;
     justify-content: flex-start;
     max-width: 9rem;
+    .dropdown-menu {
+      margin-top: 0.65rem;
+    }
+    .dropdown-item {
+      padding: 1rem;
+    }
   }
   .logo {
     margin-left: 0.25rem;
@@ -38,6 +48,9 @@
     align-items: center;
     display: flex;
     justify-content: flex-end;
+    .dropdown-menu {
+      margin-top: 0.333rem;
+    }
   }
   .data-export-menu {
     margin-left: 1rem;
@@ -48,6 +61,7 @@
   
   .dropdown-toggle {
     @include unstyledDropdown;
+    align-items: flex-end;
   }
 
   .dropdown-item {

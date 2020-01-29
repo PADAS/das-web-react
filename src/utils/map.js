@@ -86,12 +86,21 @@ const addTitleWithDateToGeoJson = (geojson, title) => {
   return (geojson.properties.display_title = displayTitle) && geojson;
 };
 
-const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleWithDateToGeoJson(addIconToGeoJson(geojson), title || event_type));
+const setUpEventGeoJson = (events, eventTypes) => 
+  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => 
+    copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => {
+    const displayTitle = title ||
+      eventTypes.findIndex(item => item.value === event_type) > -1
+      ? eventTypes.find(item => item.value === event_type).display
+      : event_type;
+    return addTitleWithDateToGeoJson(addIconToGeoJson(geojson), displayTitle);
+  }
+  );
 const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
-export const createFeatureCollectionFromEvents = events => featureCollectionFromGeoJson(setUpEventGeoJson(events));
+export const createFeatureCollectionFromEvents = (events, eventTypes) => featureCollectionFromGeoJson(setUpEventGeoJson(events, eventTypes));
 
 export const pointIsInMapBounds = (coords, map) => {
   const bounds = map.getBounds();
@@ -112,7 +121,9 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 17) => {
-  map.setZoom(map.getZoom() + 0.01);
+
+  
+  map.setZoom(zoom);
 
   if (Array.isArray(coords[0])) {
     if (coords.length > 1) {
@@ -120,20 +131,20 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
       const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
       map.fitBounds(boundaries, {
         linear: true,
-        speed: 50,
+        speed: 200,
       });
     } else {
-      map.flyTo({
+      map.easeTo({
         center: coords[0],
         zoom,
-        speed: 50,
+        speed: 200,
       });
     }
   } else {
-    map.flyTo({
+    map.easeTo({
       center: coords,
       zoom,
-      speed: 50,
+      speed: 200,
     });
   };
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
