@@ -1,5 +1,5 @@
 import uniqBy from 'lodash/uniqBy';
-import { differenceInSeconds } from 'date-fns';
+import differenceInSeconds from 'date-fns/difference_in_seconds';
 
 import { findTimeEnvelopeIndices } from './tracks';
 

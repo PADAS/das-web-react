@@ -1,7 +1,10 @@
 
-import { distanceInWords } from 'date-fns';
-
-import { subMonths, subWeeks, subDays, startOfDay, format } from 'date-fns';
+import distanceInWords from 'date-fns/distance_in_words';
+import subMonths from 'date-fns/sub_months';
+import subWeeks from 'date-fns/sub_weeks';
+import subDays from 'date-fns/sub_days';
+import startOfDay from 'date-fns/start_of_day';
+import format from 'date-fns/format';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 

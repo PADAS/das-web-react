@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { format } from 'date-fns';
+import format from 'date-fns/format';
 import TimeAgo from 'react-timeago';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 

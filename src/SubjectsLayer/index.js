@@ -47,7 +47,9 @@ const SubjectsLayer = (props) => {
       features: subjects.features.filter((feature) => {
         return !!mapImages[
           calcUrlForImage(
-            feature.properties.last_position ? feature.properties.last_position.image : feature.properties.image_url
+            feature.properties.last_position 
+              ? feature.properties.last_position.image 
+              : (feature.properties.image || feature.properties.image_url)
           )
         ];
       }),

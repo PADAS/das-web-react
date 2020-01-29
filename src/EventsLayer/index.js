@@ -69,7 +69,7 @@ const EventsLayer = (props) => {
       features: events.features.filter((feature) => {
         return !!mapImages[
           calcUrlForImage(
-            feature.properties.image|| feature.properties.image_url
+            feature.properties.image || feature.properties.image_url
           )
         ];
       }),
