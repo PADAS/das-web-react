@@ -23,6 +23,7 @@ class LoginPage extends Component {
       password: '',
       hasError: false,
       error: {},
+      errorMessage: '',
     };
 
     this.onFormSubmit = this.onFormSubmit.bind(this);
@@ -40,12 +41,22 @@ class LoginPage extends Component {
         this.props.history.push(REACT_APP_ROUTE_PREFIX);
       })
       .catch((error) => {
+        let errorObject = JSON.parse(JSON.stringify(error));
+        console.log('errorObject', errorObject);
         this.props.clearAuth();
+
+        const errorMessage = errorObject
+          && errorObject.response
+          && errorObject.response.data 
+          && errorObject.response.data.error === 'invalid_grant' 
+          ? 'Invalid credentials given. Please try again.' 
+          : 'An error has occured. Please try again.';
 
         !this.isCancelled && this.setState({
           ...this.state,
           hasError: true,
-          error,
+          error: errorObject,
+          errorMessage,
         });
       });
   }
@@ -75,7 +86,7 @@ class LoginPage extends Component {
         <Control value={this.state.password} required={true} onChange={this.onInputChange} type='password' name='password' id='password' />
         <Button variant='primary' type='submit'>Log in</Button>
         {this.state.hasError && <Alert className={styles.error} variant='danger'>
-          An error has occured. Please try again.
+          {this.state.errorMessage}
         </Alert>}
       </Form>
     </div>;

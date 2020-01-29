@@ -17,6 +17,9 @@
 }
 
 .menu {
+ button[class*=dropdown-toggle] {
+   align-items: center;
+ }
   button, a {
     text-align: right;
 

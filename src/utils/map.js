@@ -112,7 +112,9 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 17) => {
-  map.setZoom(map.getZoom() + 0.01);
+
+  
+  map.setZoom(zoom);
 
   if (Array.isArray(coords[0])) {
     if (coords.length > 1) {
@@ -120,20 +122,20 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
       const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
       map.fitBounds(boundaries, {
         linear: true,
-        speed: 50,
+        speed: 200,
       });
     } else {
-      map.flyTo({
+      map.easeTo({
         center: coords[0],
         zoom,
-        speed: 50,
+        speed: 200,
       });
     }
   } else {
-    map.flyTo({
+    map.easeTo({
       center: coords,
       zoom,
-      speed: 50,
+      speed: 200,
     });
   };
   setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
