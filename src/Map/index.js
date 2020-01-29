@@ -320,7 +320,7 @@ class Map extends Component {
   }
 
   render() {
-    const { children, maps, map, popup, mapSubjectFeatureCollection,
+    const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap,
       timeSliderState: { active: timeSliderActive } } = this.props;
@@ -354,15 +354,18 @@ class Map extends Component {
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
 
-        {children}
 
         {map && (
           <Fragment>
+            {children}
+
+            <MapImagesLayer />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
               allowOverlap={timeSliderActive}
+              mapImages={mapImages}
               subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />
@@ -391,7 +394,12 @@ class Map extends Component {
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
 
-            {showReportsOnMap && <EventsLayer enableClustering={enableEventClustering} events={mapEventFeatureCollection} onEventClick={this.onEventSymbolClick} onClusterClick={this.onClusterClick} />}
+            {showReportsOnMap && <EventsLayer
+              enableClustering={enableEventClustering} 
+              events={mapEventFeatureCollection} 
+              mapImages={mapImages}
+              onEventClick={this.onEventSymbolClick}
+              onClusterClick={this.onClusterClick} />}
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
@@ -407,7 +415,6 @@ class Map extends Component {
         )}
 
         {timeSliderActive && <TimeSlider />}
-        <MapImagesLayer />
 
       </EarthRangerMap>
     );

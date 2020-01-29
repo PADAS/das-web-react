@@ -23,12 +23,6 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
   const isValidLocation = location.lng && location.lat && validateLngLat(location.lng, location.lat);
   const shouldShowMarkerLayer = moving || isValidLocation;
   
-  const addImageToMap = async () => {
-    if (!map.hasImage('marker-icon')) {
-      addMapImage(MarkerImage, 'marker-icon');
-    }
-  };
-  
   const cleanupMarkerStateFromMap = () => {
     hideMarker();
     setCleanupState(false);
@@ -52,17 +46,19 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
     } else {
       map.off('click', cleanupFunc.current);
     }
-  }, [shouldCleanUpOnNextMapClick]);
+  }, [map, shouldCleanUpOnNextMapClick]);
 
   useEffect(() => {
-    addImageToMap();
-  }, []);
+    if (!!map && !map.hasImage('marker-icon')) {
+      addMapImage(MarkerImage, 'marker-icon');
+    }
+  }, [map]);
 
   useEffect(() => {
     if (!moving && isValidLocation) {
       onMarkerDropped(location);
     }
-  }, [moving]);
+  }, [isValidLocation, location, moving, onMarkerDropped]);
 
   const stopMovingReportMarker = () => {
     setMovingState(false);
