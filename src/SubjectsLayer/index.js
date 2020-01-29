@@ -1,6 +1,9 @@
-import React, { memo, Fragment, useEffect } from 'react';
+import React, { memo, Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+import { featureCollection } from '@turf/helpers';
+
+import { calcUrlForImage } from '../utils/img';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 
@@ -20,11 +23,13 @@ const symbolPaint = {
 const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [SUBJECT_SYMBOLS] })[0];
 
 const SubjectsLayer = (props) => {
-  const { allowOverlap, onSubjectIconClick, subjects, map, mapNameLayout, ...rest } = props;
+  const { allowOverlap, onSubjectIconClick, subjects, map, mapImages = {}, mapNameLayout, ...rest } = props;
+
+  const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
 
   const sourceData = {
     type: 'geojson',
-    data: subjects,
+    data: mapSubjectFeatures,
   };
 
   const layoutConfig = allowOverlap ? {
@@ -35,6 +40,19 @@ const SubjectsLayer = (props) => {
   useEffect(() => {
     subjects && addFeatureCollectionImagesToMap(subjects, map);
   }, [map, subjects]);
+
+  useEffect(() => {
+    setMapSubjectFeatures({
+      ...subjects,
+      features: subjects.features.filter((feature) => {
+        return !!mapImages[
+          calcUrlForImage(
+            feature.properties.last_position ? feature.properties.last_position.image : feature.properties.image_url
+          )
+        ];
+      }),
+    });
+  }, [subjects, mapImages]);
 
   const onSymbolClick = (e) => onSubjectIconClick(getSubjectLayer(e, map));
 
@@ -55,6 +73,7 @@ const SubjectsLayer = (props) => {
 
 SubjectsLayer.propTypes = {
   subjects: PropTypes.object.isRequired,
+  mapImages: PropTypes.object,
   onSubjectIconClick: PropTypes.func,
 };
 

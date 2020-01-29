@@ -7,6 +7,7 @@ import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
+import { calcUrlForImage } from '../utils/img';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -50,15 +51,30 @@ const clusterPolyPaint = {
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapNameLayout, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, ...rest } = props;
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
     onClusterClick(e);
   };
 
+  const [mapEventFeatureCollection, setMapEventFeatureCollection] = useState(featureCollection([]));
+
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
   const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    setMapEventFeatureCollection({
+      ...events,
+      features: events.features.filter((feature) => {
+        return !!mapImages[
+          calcUrlForImage(
+            feature.properties.image|| feature.properties.image_url
+          )
+        ];
+      }),
+    });
+  }, [events, mapImages]);
 
   const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
@@ -141,7 +157,7 @@ const EventsLayer = (props) => {
 
   const sourceData = {
     type: 'geojson',
-    data: events,
+    data: mapEventFeatureCollection,
   };
 
   const clusteredSourceData = {
@@ -195,6 +211,7 @@ EventsLayer.defaultProps = {
 EventsLayer.propTypes = {
   events: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
+  mapImages: PropTypes.object,
   onEventClick: PropTypes.func,
   onClusterClick: PropTypes.func,
   enableClustering: PropTypes.bool,

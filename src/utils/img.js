@@ -4,32 +4,6 @@ const urlContainsOwnHost = url => url.includes('http');
 
 const imgIsDataUrl = url => url.includes('data:image');
 
-export const svgSrcToPngImg = (svgSrc, config = { width: 36, height: 36 }) => new Promise((resolve, reject) => {
-  const { width, height } = config;
-
-  let img = new Image();
-  img.setAttribute('crossorigin', 'anonymous');
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  canvas.width = width;
-  canvas.height = height;
-
-  img.onload = () => {
-    context.drawImage(img, 0, 0);
-    const pngImg = new Image();
-    const imgSrc = canvas.toDataURL('image/png');
-    pngImg.src = imgSrc;
-    pngImg.onload = () => {
-      resolve(pngImg);
-    };
-    pngImg.onerror = () => {
-      reject('could not convert SVG image to PNG');
-    };
-  };
-  img.src = svgSrc;
-
-});
-
 export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) => {
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');

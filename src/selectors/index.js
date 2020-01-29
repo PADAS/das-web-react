@@ -112,10 +112,10 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
     const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
       .reduce((accumulator, data) =>
         [...accumulator,
-        ...data.geojson.features.map(feature => {
-          feature.analyzer_type = data.type;
-          return feature;
-        })], []);
+          ...data.geojson.features.map(feature => {
+            feature.analyzer_type = data.type;
+            return feature;
+          })], []);
     // simulate layergroups found in old codebase by passing the feature ids
     // of the analyzer feature collection so they can be looked up at runtime - 
     // ie when a rollover occurs with a mouse
@@ -141,15 +141,15 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   (featureSets, hiddenFeatureIDs) => {
     const allFeatures = featureSets.reduce((accumulator, data) =>
       [...accumulator,
-      ...data.geojson.features
-        .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
-        .map(feature => {
-          if (feature.properties.image) {
-            feature = addIconToGeoJson(feature);
-            feature.properties.image = calcUrlForImage(feature.properties.image);
-          }
-          return feature;
-        })], []);
+        ...data.geojson.features
+          .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
+          .map(feature => {
+            if (feature.properties.image) {
+              feature = addIconToGeoJson(feature);
+              feature.properties.image = calcUrlForImage(feature.properties.image);
+            }
+            return feature;
+          })], []);
     return {
       symbolFeatures: featureCollection(
         allFeatures
