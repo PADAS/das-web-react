@@ -220,7 +220,7 @@
       fill: $primary-font-color; 
     }
   }
-  .locationAnchor {
+  [class*=react-datetime-picker__wrapper], .locationAnchor {
     @include defaultTextInput;
     padding: 0.5rem 0.25rem;
     width: 100%;
