@@ -1,4 +1,5 @@
 @import '../../common/styles/layout';
+@import '../../common/styles/vars/colors';
 
 nav {
   .toggle {
@@ -43,12 +44,20 @@ nav {
   }
 
   .menu {
-    max-height: 90vh;
+    max-height: 75vh;
     max-width: 96vw;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-bottom: 0;
     padding-top: 0;
   }
+}
+
+.dropdownArrow {
+  color: lighten($light-font-color, 10%);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  margin-left: 0.666rem;
+  transform: scale(1.8, 1);
 }
 
 a.currentLocationJump {

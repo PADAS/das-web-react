@@ -15,24 +15,18 @@ export const CLEAR_AUTH = 'CLEAR_AUTH';
 const RESET_MASTER_CANCEL_TOKEN = 'RESET_MASTER_CANCEL_TOKEN';
 
 // action creators
-export const postAuth = (userData) => {
-  return function (dispatch) {
-    const formData = new FormData();
-    formData.set('grant_type', 'password');
-    formData.set('client_id', 'das_web_client');
-    Object.keys(userData).forEach(item => {
-      formData.set(item, userData[item]);
-    });
+export const postAuth = (userData) => (dispatch) => {
+  const formData = new FormData();
+  formData.set('grant_type', 'password');
+  formData.set('client_id', 'das_web_client');
+  Object.keys(userData).forEach(item => {
+    formData.set(item, userData[item]);
+  });
 
-    return axios.post(AUTH_URL, formData)
-      .then(response => {
-        dispatch(postAuthSuccess(response));
-      });
-    /* .catch((error) => {
-        dispatch(postAuthError(error));
-        throw new Error(error);
-      }); */
-  };
+  return axios.post(AUTH_URL, formData)
+    .then(response => {
+      dispatch(postAuthSuccess(response));
+    });
 };
 
 const postAuthSuccess = response => (dispatch) => {
@@ -41,12 +35,7 @@ const postAuthSuccess = response => (dispatch) => {
     type: POST_AUTH_SUCCESS,
     payload: response,
   });
-}
-
-const postAuthError = error => ({
-  type: POST_AUTH_ERROR,
-  payload: error,
-});
+};
 
 export const clearAuth = () => dispatch => {
   deleteAuthTokenCookie();

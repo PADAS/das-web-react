@@ -10,7 +10,7 @@ const FeatureSymbolPopup = (props) => {
   const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
 
   return (
-    <Popup anchor='bottom' offset={[0, -4]} coordinates={coordinates} id='feature-symbol-popup'>
+    <Popup anchor='bottom' offset={[0, -26]} coordinates={coordinates} id='feature-symbol-popup'>
       <h4>{properties.title || properties.name}</h4>
       <GpsFormatToggle lng={coordinates[0]} lat={coordinates[1]} />
     </Popup>

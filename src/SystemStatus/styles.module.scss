@@ -30,6 +30,7 @@
 .listItem, .summary, .details {
   align-items: center;
   display: flex;
+  font-size: 0.85rem;
 }
 
 .itemTitle {
@@ -40,23 +41,24 @@
 }
 
 .badge {
-  --badge-dimensions: .75rem;
+  --badge-dimensions: 0.666rem;
   height: var(--badge-dimensions);
   width: var(--badge-dimensions);
   @media (min-width:  $md-layout-width-min) {
-    --badge-dimensions: 1.25rem;
+    --badge-dimensions: 0.95rem;
   }
 }
 
 .badge {
-  margin-right: 1rem;
+  margin-right: 0.666rem;
 }
 
 .details {
   align-items: flex-end;
-  color: $dark-gray;
+  color: $light-font-color;
   flex-flow: column;
   font-size: .8rem;
+  margin-left: 0.5rem;
   text-align: right;
 }
 

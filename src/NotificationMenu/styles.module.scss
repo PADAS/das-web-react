@@ -21,13 +21,28 @@
 
 .icon {
   height: 1.25rem;
+  opacity: 0.5;
+  &:hover {
+    opacity: 0.7;
+  }
   width: 1.25rem;
+}
+
+.activeIcon {
+  opacity: 0.9;
+  &:hover {
+    opacity: 1;
+  }
 }
 
 
 .item, .noItems {
   margin: 0;
   padding: 0.5rem 1rem;
+}
+
+.noItems {
+  font-size: 0.9rem;
 }
 
 .item {

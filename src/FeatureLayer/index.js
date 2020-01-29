@@ -62,7 +62,8 @@ const lineLayout = {
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
   'icon-image': ['get', 'icon_id'],
-  'text-size': 0
+  'text-size': 0,
+  'icon-anchor': 'bottom',
 };
 
 const symbolPaint = {
