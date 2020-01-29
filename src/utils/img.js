@@ -36,7 +36,7 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
     console.log('image error', src, e);
     reject('could not load image');
   };
-  img.src = src;
+  img.src = calcUrlForImage(src);
 });
 
 export const calcUrlForImage = imagePath => !imgNeedsHostAppended(imagePath)
