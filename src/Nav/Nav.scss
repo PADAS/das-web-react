@@ -48,6 +48,9 @@
     align-items: center;
     display: flex;
     justify-content: flex-end;
+    .dropdown-menu {
+      margin-top: 0.333rem;
+    }
   }
   .data-export-menu {
     margin-left: 1rem;

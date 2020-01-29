@@ -86,12 +86,21 @@ const addTitleWithDateToGeoJson = (geojson, title) => {
   return (geojson.properties.display_title = displayTitle) && geojson;
 };
 
-const setUpEventGeoJson = events => addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => addTitleWithDateToGeoJson(addIconToGeoJson(geojson), title || event_type));
+const setUpEventGeoJson = (events, eventTypes) => 
+  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => 
+    copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => {
+    const displayTitle = title ||
+      eventTypes.findIndex(item => item.value === event_type) > -1
+      ? eventTypes.find(item => item.value === event_type).display
+      : event_type;
+    return addTitleWithDateToGeoJson(addIconToGeoJson(geojson), displayTitle);
+  }
+  );
 const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
-export const createFeatureCollectionFromEvents = events => featureCollectionFromGeoJson(setUpEventGeoJson(events));
+export const createFeatureCollectionFromEvents = (events, eventTypes) => featureCollectionFromGeoJson(setUpEventGeoJson(events, eventTypes));
 
 export const pointIsInMapBounds = (coords, map) => {
   const bounds = map.getBounds();

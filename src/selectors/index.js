@@ -47,15 +47,20 @@ export const bboxBoundsPolygon = createSelector(
   (bbox) => bbox && bboxPolygon(bbox.split(',').map(coord => parseFloat(coord))),
 );
 
-const userCreatableEventTypesByCategory = ({ data: { eventTypes } }) =>
-  mapReportTypesToCategories(eventTypes)
+const getEventTypes = ({ data: { eventTypes } }) => eventTypes;
+
+const userCreatableEventTypesByCategory = createSelector(
+  [getEventTypes],
+  (eventTypes) => mapReportTypesToCategories(eventTypes)
     .filter((category) => {
       if (category.flag && category.flag === 'user') {
         return category.permissions.includes('create');
       }
       if (!category.flag) return true;
       return false;
-    });
+    })
+);
+
 
 export const getMapSubjectFeatureCollection = createSelector(
   [mapSubjects, hiddenSubjectIDs, showInactiveRadios],
@@ -66,10 +71,13 @@ export const getMapSubjectFeatureCollection = createSelector(
   });
 
 export const getMapEventFeatureCollection = createSelector(
-  [mapEvents, eventStore],
-  (mapEvents, eventStore) => createFeatureCollectionFromEvents(mapEvents
-    .map(id => eventStore[id])
-    .filter(item => !!item))
+  [mapEvents, eventStore, getEventTypes],
+  (mapEvents, eventStore, eventTypes) => {
+    console.log('eventTypes', eventTypes);
+    return createFeatureCollectionFromEvents(mapEvents
+      .map(id => eventStore[id])
+      .filter(item => !!item), eventTypes);
+  }
 );
 
 export const getFeedEvents = createSelector(
