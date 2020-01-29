@@ -49,11 +49,11 @@ const clusterPolyPaint = {
 };
 
 // bounce animation constants
-const FRAMES_PER_SECOND = 48;
-const ANIMATION_LENGTH_SECONDS = .5; //seconds
+const FRAMES_PER_SECOND = 24;
+const ANIMATION_LENGTH_SECONDS = .25; //seconds
 const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
 // text-size interpolates at a different rate than icon-size for bounce animation
-const ICON_SCALE_RATE = .5;
+const ICON_SCALE_RATE = .25;
 const FONT_SCALE_RATE = 2;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
@@ -64,16 +64,15 @@ const EventsLayer = (props) => {
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
-
-  const animationIsRendering = useRef(true);
+  const [bounceIDs, setBounceIDs] = useState([]);
 
   useEffect(() => {
-    console.log('num events ', events.features.length, 'bounceIDs ', bounceEventID);
     setEventsWithBounce({
       ...events,
       features: addBounceToEventMapFeatures(events.features, bounceEventID),
     });
-    animationIsRendering.current = true;
+    setBounceIDs(bounceEventID ? bounceEventID : []);
+    setAnimationState({frame: 1, scale: 0.0, isRendering: bounceIDs.length > 0});
   }, [bounceEventID, events]);
 
   const handleClusterClick = (e) => {
@@ -154,35 +153,42 @@ const EventsLayer = (props) => {
 
   const [animationState, setAnimationState] = useState({
     frame: 1,
-    scale: 0.0
+    scale: 0.0,
+    isRendering: true,
   });
 
-  const updateBounceSineAnimation = (map, animationState, bounceEventID) => {
+  const updateBounceSineAnimation = (map, animationState, bounceIDs) => {
     let currFrame = animationState.frame;
     const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
-    if(Math.abs(updatedScale) > 1e-8 && animationIsRendering.current)
-    {
-      setTimeout(() => {
-        setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale});
-      } , 1000 / FRAMES_PER_SECOND);
-    } else {
-      setAnimationState({frame: 1, scale: 0.0});
-      animationIsRendering.current = false;
+    if (bounceIDs.length) {
+      // assumes first increment of animation curve val> 0
+      if(Math.abs(updatedScale) > 1e-8)
+      {
+        setTimeout(() => {
+          setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true});
+          console.log('animation updatedScale', animationState);
+        } , 1000 / FRAMES_PER_SECOND);
+      } else {
+        setBounceIDs([]);
+        setAnimationState({frame: 1, scale: 0.0, isRendering: false});
+        console.log('animation stop rendering', animationState);
+      }
     }
   };
 
   const bounceAnimation = useRef(updateBounceSineAnimation);
 
   useEffect(() => {
-    if (bounceEventID.length) {
-      animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(map, animationState, bounceEventID, animationIsRendering));
+    if (bounceIDs.length && animationState.isRendering) {
+      animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(map, animationState, bounceIDs));
     } else if (animationFrameID.current) {
       window.cancelAnimationFrame(animationFrameID.current);
     }
     return () => {
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
-  }, [map, bounceEventID, animationState]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bounceIDs, animationState]);
 
 
   const IF_SCALE_FOR_BOUNCE = (iconSize, iconScale) => ['match', ['get', 'bounce'], 'true', iconSize + animationState.scale * iconScale, iconSize];
