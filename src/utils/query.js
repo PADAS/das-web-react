@@ -4,15 +4,27 @@ import toString from 'lodash/toString';
 import bbox from '@turf/bbox';
 import buffer from '@turf/buffer';
 import bboxPolygon from '@turf/bbox-polygon';
+import distance from '@turf/distance';
+import { point } from '@turf/helpers';
 
-export const getBboxParamsFromMap = (map, padding = 5, asString = true) => {
-  const bounds = Object.entries(map.getBounds()).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []);
+export const getBboxParamsFromMap = (map, asString = true) => {
 
-  const asPolygon = bboxPolygon(bounds);
-  const withBuffer = buffer(asPolygon, padding);
-  const asBounds = bbox(withBuffer);
+  const mapBounds = map.getBounds();
+  
+  const asArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []);
+  const asPointArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, point([lng, lat])], []);
 
-  return asString ? toString(asBounds) : asBounds;
+  const asPolygon = bboxPolygon(asArray);
+  const bufferPadding = Math.max( // pad the bbox by 10% of the distance between the SW and NE points, with a 0.333km min and a 10km max
+    Math.min(
+      (distance(asPointArray[0], asPointArray[1]) / 10), 10
+    ), 0.333,
+  ); 
+  const withBuffer = buffer(asPolygon, bufferPadding);
+
+  const finalBounds = bbox(withBuffer);
+
+  return asString ? toString(finalBounds) : finalBounds;
 };
 
 export const recursivePaginatedQuery = (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) => {
