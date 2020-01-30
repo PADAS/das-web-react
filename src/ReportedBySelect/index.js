@@ -24,7 +24,7 @@ const ReportedBySelect = (props) => {
 
   if (menuRef) {
     optionalProps.menuPortalTarget = menuRef;
-    selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', marginTop: '-1.333rem', zIndex: 9999 });
+    selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '6rem', zIndex: 9999 });
   };
 
   const selected = isMulti
