@@ -1,7 +1,19 @@
 import { get } from 'axios';
 import toString from 'lodash/toString';
 
-export const getBboxParamsFromMap = map => toString(Object.entries(map.getBounds()).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []));
+import bbox from '@turf/bbox';
+import buffer from '@turf/buffer';
+import bboxPolygon from '@turf/bbox-polygon';
+
+export const getBboxParamsFromMap = (map, padding = 5, asString = true) => {
+  const bounds = Object.entries(map.getBounds()).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []);
+
+  const asPolygon = bboxPolygon(bounds);
+  const withBuffer = buffer(asPolygon, padding);
+  const asBounds = bbox(withBuffer);
+
+  return asString ? toString(asBounds) : asBounds;
+};
 
 export const recursivePaginatedQuery = (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) => {
   return new Promise(async (resolve, reject) => {

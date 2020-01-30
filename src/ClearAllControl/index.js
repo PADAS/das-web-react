@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { hideFeatures, hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import { hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
