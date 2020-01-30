@@ -9,6 +9,12 @@ import ReduxPromise from 'redux-promise';
 import { PersistGate } from 'redux-persist/integration/react';
 import ReduxThunk from 'redux-thunk';
 import { ToastContainer } from 'react-toastify';
+import { library, dom } from '@fortawesome/fontawesome-svg-core';
+
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 
 import { REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
 import reducers from './reducers';
@@ -22,6 +28,11 @@ import App from './App';
 import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
+
+
+// registering icons from fontawesome as needed
+library.add(faPlus, faTimes, faArrowUp, faArrowDown);
+dom.watch();
 
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
