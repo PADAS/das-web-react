@@ -50,7 +50,7 @@ const cancelableMapSubjectsFetch = () => {
     })
       .then(response => dispatch(fetchMapSubjectsSuccess(response)))
       .catch(error => {
-        dispatch(fetchMapSubjectsError(error))
+        dispatch(fetchMapSubjectsError(error));
         return Promise.reject(error);
       });
   };
