@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
@@ -19,6 +19,14 @@ const SearchBar = (props) => {
   const onInputChange = (e) => {
     onChange(e);
   };
+
+  const onKeyDown = (event) => {
+    const { key } = event;
+    if (key === 'Enter') {
+      event.preventDefault();
+      // event.originalEvent.stopPropagation();
+    }
+  };
   
   const onClearClick = (e) => {
     onClear(e);
@@ -26,10 +34,11 @@ const SearchBar = (props) => {
 
   return <label className={`${styles.search} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
-    <input placeholder={placeholder} value={value} type="text" 
+    <input placeholder={placeholder} value={value} type="text"
+      onKeyDown={onKeyDown} 
       onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur}/>
     <button className={styles.clearButton} onClick={onClearClick}>
-      <ClearIcon className={styles.clearIcon} />
+      <ClearIcon title='Clear search bar' className={styles.clearIcon} />
     </button>    
   </label>;
 };
