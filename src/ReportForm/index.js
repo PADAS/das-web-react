@@ -46,7 +46,6 @@ const ReportForm = (props) => {
 
 
   useEffect(() => {
-    console.log('report update effect');
     updateStateReport({
       ...originalReport,
       ...report,
