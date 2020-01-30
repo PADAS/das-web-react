@@ -34,6 +34,7 @@ const ReportForm = (props) => {
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
+  const menuContainerRef = useRef(null);
 
   const [report, updateStateReport] = useState({ ...originalReport });
   const [initialized, setInitState] = useState(false);
@@ -378,9 +379,10 @@ const ReportForm = (props) => {
       onAddToNewIncident={onAddToNewIncident}
       onAddToExistingIncident={onAddToExistingIncident} />
 
-    <div className={styles.formScrollContainer}>
+    <div className={styles.formScrollContainer} ref={menuContainerRef}>
       {!is_collection && <ReportFormTopLevelControls
         map={map}
+        menuContainerRef={menuContainerRef.current}
         onReportDateChange={onReportDateChange}
         onReportedByChange={onReportedByChange}
         onReportLocationChange={onReportLocationChange}
@@ -413,23 +415,21 @@ const ReportForm = (props) => {
       </ReportFormBody>}
     </div>
     {/* bottom controls */}
-    <div className={styles.bottomControls}>
-      <ReportFormAttachmentControls
-        isCollection={is_collection}
-        isCollectionChild={eventBelongsToCollection(report)}
-        onGoToCollection={goToParentCollection}
-        relationshipButtonDisabled={disableAddReport}
-        map={map} onAddFiles={onAddFiles}
-        onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
-      <div className={styles.formButtons}>
-        <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-        {/* <Button type="submit" variant="primary">Save</Button> */}
-        <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={startSave}>
-          <Dropdown.Item>
-            <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => onUpdateStateReportToggle(state)} />
-          </Dropdown.Item>
-        </SplitButton>
-      </div>
+    <ReportFormAttachmentControls
+      isCollection={is_collection}
+      isCollectionChild={eventBelongsToCollection(report)}
+      onGoToCollection={goToParentCollection}
+      relationshipButtonDisabled={disableAddReport}
+      map={map} onAddFiles={onAddFiles}
+      onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
+    <div className={styles.formButtons}>
+      <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
+      {/* <Button type="submit" variant="primary">Save</Button> */}
+      <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={startSave}>
+        <Dropdown.Item>
+          <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => onUpdateStateReportToggle(state)} />
+        </Dropdown.Item>
+      </SplitButton>
     </div>
   </div>;
 };
