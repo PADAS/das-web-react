@@ -31,7 +31,7 @@ const AddToIncidentModal = (props) => {
   };
 
   const fetchFeed = async () => {
-    await fetchIncidentFeed({}, 'is_collection=true&state=active&state=new');
+    await fetchIncidentFeed({}, 'is_collection=true');
     setLoadedState(true);
   };
 
