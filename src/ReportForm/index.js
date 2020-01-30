@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef, Fragment } from 'react';
+import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
@@ -30,19 +30,23 @@ import ImageModal from '../ImageModal';
 import styles from './styles.module.scss';
 
 const ReportForm = (props) => {
-  const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, updateModal, relationshipButtonDisabled,
+  const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
 
-  const [report, updateStateReport] = useState(originalReport);
+  const [report, updateStateReport] = useState({ ...originalReport });
   const [initialized, setInitState] = useState(false);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
   const [saveError, setSaveErrorState] = useState(null);
   const [saving, setSavingState] = useState(false);
 
+  const { is_collection } = report;
+
+
   useEffect(() => {
+    console.log('report update effect');
     updateStateReport({
       ...originalReport,
       ...report,
@@ -53,177 +57,16 @@ const ReportForm = (props) => {
     });
     updateFilesToUpload([]);
     updateNotesToAdd([]);
-  }, [originalReport]);
+  }, [originalReport]); // eslint-disable-line
 
-  useEffect(() => {
-    if (!initialized) {
-      setInitState(true);
-    } else {
-      startSave();
-    }
-  }, [report.state]);
+  const handleSaveError = useCallback((e) => {
+    setSavingState(false);
+    setSaveErrorState(e);
+    onSaveError && onSaveError(e);
+    setTimeout(clearErrors, 7000);
+  }, [onSaveError]);
 
-  useEffect(() => {
-    if (saving) {
-      onSubmit();
-    }
-  }, [saving]);
-
-  const reportFiles = Array.isArray(report.files) ? report.files : [];
-  const reportNotes = Array.isArray(report.notes) ? report.notes : [];
-
-  const { is_collection } = report;
-  const disableAddReport = relationshipButtonDisabled;
-
-  const onCancel = () => {
-    removeModal();
-    trackEvent(`${is_collection? 'Incident': 'Event'} Report`, "Click 'Cancel' button");
-  };
-
-  const goToBottomOfForm = () => {
-    if (formRef.current && formRef.current.formElement) {
-      formRef.current.formElement.scrollTop = formRef.current.formElement.scrollHeight;
-    }
-  };
-
-  const onAddFiles = files => {
-    const uploadableFiles = files.filter((file) => {
-      const { name } = file;
-      const filenameExists =
-        filesToUpload.some(({ name: n }) => n === name)
-        || reportFiles.some(({ filename: n }) => n === name);
-
-      if (filenameExists) {
-        window.alert(`Can not add ${name}: 
-        file already exists`);
-      }
-      return !filenameExists;
-    });
-    updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
-    goToBottomOfForm();
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Added Attachment");
-  };
-
-  const onDeleteFile = (file) => {
-    const { name } = file;
-    updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Delete Attachment' button");
-  };
-
-  const startEditNote = (note) => {
-    addModal({
-      content: NoteModal,
-      note,
-      onSubmit: onSaveNote,
-    });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Open Report Note");
-  };
-
-  const onSaveNote = (noteToSave) => {
-    const note = { ...noteToSave };
-    const noteIsNew = !note.id;
-
-    if (noteIsNew) {
-      const { originalText } = note;
-
-      if (originalText) {
-        updateNotesToAdd(
-          notesToAdd.map(n => n.text === originalText ? note : n)
-        );
-      } else {
-        updateNotesToAdd([...notesToAdd, note]);
-      }
-      delete note.originalText;
-    } else {
-      updateStateReport({
-        ...report,
-        notes: report.notes.map(n => n.id === note.id ? note : n),
-      });
-    }
-    goToBottomOfForm();
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Save Note' button");
-  };
-
-  const onDeleteNote = (note) => {
-    const { text } = note;
-    updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Delete Note' button");
-  };
-
-  const onReportedByChange = selection => {
-    updateStateReport({
-      ...report,
-      reported_by: selection ? selection : null,
-    });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Report By");
-  };
-
-  const onReportDateChange = date => {
-    updateStateReport({
-      ...report,
-      time: date.toISOString(),
-    });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Date");
-  };
-
-  const onReportTitleChange = title => {
-    updateStateReport({
-      ...report,
-      title,
-    });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Title");
-  };
-
-  const onDetailChange = ({ formData }) => updateStateReport({
-    ...report,
-    event_details: {
-      ...report.event_details,
-      ...formData,
-    },
-  });
-
-  const onPrioritySelect = priority => {
-    updateStateReport({
-      ...report,
-      priority,
-    });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Priority' option", `Priority:${priority}`);
-  };
-
-  const onReportLocationChange = location => {
-    const updatedLocation = !!location
-      ? {
-        latitude: location[1],
-        longitude: location[0],
-      } : location;
-
-    updateStateReport({
-      ...report,
-      location: updatedLocation,
-    });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Change Report Location");
-  };
-
-  const goToParentCollection = () => {
-    const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Go to Incident' button");
-    return fetchEvent(incidentID).then(({ data: { data } }) => {
-      removeModal();
-      openModalForReport(data, map);
-      // removeModal();
-    });
-  };
-
-  const onIncidentReportClick = (report) => {
-    trackEvent('Incident Report', 
-      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
-      `Event Type:${report.event_type}`);
-    return fetchEvent(report.id).then(({ data: { data } }) => {
-      openModalForReport(data, map, { relationshipButtonDisabled: true });
-    });
-  };
-
-  const saveChanges = () => {
+  const saveChanges = useCallback(() => {
     const reportIsNew = !report.id;
     let toSubmit;
 
@@ -265,14 +108,181 @@ const ReportForm = (props) => {
         return results;
       })
       .catch(handleSaveError);
+  }, [filesToUpload, handleSaveError, is_collection, notesToAdd, onSaveSuccess, originalReport, report]);
+
+  useEffect(() => {
+    if (!initialized) {
+      setInitState(true);
+    } else {
+      startSave();
+    }
+  }, [report.state]); // eslint-disable-line
+
+  useEffect(() => {
+    const onSubmit = () => {
+      return saveChanges()
+        .then((results) => {
+          removeModal();
+          return results;
+        });
+    };
+    if (saving) {
+      
+      onSubmit();
+    }
+  }, [saving]); // eslint-disable-line
+
+  const reportFiles = Array.isArray(report.files) ? report.files : [];
+  const reportNotes = Array.isArray(report.notes) ? report.notes : [];
+
+  const disableAddReport = relationshipButtonDisabled;
+
+  const onCancel = () => {
+    removeModal();
+    trackEvent(`${is_collection? 'Incident': 'Event'} Report`, 'Click \'Cancel\' button');
   };
 
-  const onSubmit = () => {
-    return saveChanges()
-      .then((results) => {
-        removeModal();
-        return results;
+  const goToBottomOfForm = () => {
+    if (formRef.current && formRef.current.formElement) {
+      formRef.current.formElement.scrollTop = formRef.current.formElement.scrollHeight;
+    }
+  };
+
+  const onAddFiles = files => {
+    const uploadableFiles = files.filter((file) => {
+      const { name } = file;
+      const filenameExists =
+        filesToUpload.some(({ name: n }) => n === name)
+        || reportFiles.some(({ filename: n }) => n === name);
+
+      if (filenameExists) {
+        window.alert(`Can not add ${name}: 
+        file already exists`);
+      }
+      return !filenameExists;
+    });
+    updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
+    goToBottomOfForm();
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Added Attachment');
+  };
+
+  const onDeleteFile = (file) => {
+    const { name } = file;
+    updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Delete Attachment\' button');
+  };
+
+  const startEditNote = (note) => {
+    addModal({
+      content: NoteModal,
+      note,
+      onSubmit: onSaveNote,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
+  };
+
+  const onSaveNote = (noteToSave) => {
+    const note = { ...noteToSave };
+    const noteIsNew = !note.id;
+
+    if (noteIsNew) {
+      const { originalText } = note;
+
+      if (originalText) {
+        updateNotesToAdd(
+          notesToAdd.map(n => n.text === originalText ? note : n)
+        );
+      } else {
+        updateNotesToAdd([...notesToAdd, note]);
+      }
+      delete note.originalText;
+    } else {
+      updateStateReport({
+        ...report,
+        notes: report.notes.map(n => n.id === note.id ? note : n),
       });
+    }
+    goToBottomOfForm();
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Save Note\' button');
+  };
+
+  const onDeleteNote = (note) => {
+    const { text } = note;
+    updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Delete Note\' button');
+  };
+
+  const onReportedByChange = selection => {
+    updateStateReport({
+      ...report,
+      reported_by: selection ? selection : null,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Report By');
+  };
+
+  const onReportDateChange = date => {
+    updateStateReport({
+      ...report,
+      time: date.toISOString(),
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Date');
+  };
+
+  const onReportTitleChange = title => {
+    updateStateReport({
+      ...report,
+      title,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Title');
+  };
+
+  const onDetailChange = ({ formData }) => updateStateReport({
+    ...report,
+    event_details: {
+      ...report.event_details,
+      ...formData,
+    },
+  });
+
+  const onPrioritySelect = priority => {
+    updateStateReport({
+      ...report,
+      priority,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Priority\' option', `Priority:${priority}`);
+  };
+
+  const onReportLocationChange = location => {
+    const updatedLocation = !!location
+      ? {
+        latitude: location[1],
+        longitude: location[0],
+      } : location;
+
+    updateStateReport({
+      ...report,
+      location: updatedLocation,
+    });
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Location');
+  };
+
+  const goToParentCollection = () => {
+    const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Go to Incident\' button');
+    return fetchEvent(incidentID).then(({ data: { data } }) => {
+      removeModal();
+      openModalForReport(data, map);
+      // removeModal();
+    });
+  };
+
+  const onIncidentReportClick = (report) => {
+    trackEvent('Incident Report', 
+      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
+      `Event Type:${report.event_type}`);
+    return fetchEvent(report.id).then(({ data: { data } }) => {
+      openModalForReport(data, map, { relationshipButtonDisabled: true });
+    });
   };
 
   const startSave = () => {
@@ -280,13 +290,6 @@ const ReportForm = (props) => {
   };
 
   const clearErrors = () => setSaveErrorState(null);
-
-  const handleSaveError = (e) => {
-    setSavingState(false);
-    setSaveErrorState(e);
-    onSaveError && onSaveError(e);
-    setTimeout(clearErrors, 7000);
-  };
 
   const onClickFile = async (file) => {
     if (file.file_type === 'image') {
@@ -300,7 +303,7 @@ const ReportForm = (props) => {
     } else {
       await downloadFileFromUrl(file.url, file.filename);
     }
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Open Report Attachment");
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Attachment');
   };
 
   const onAddToNewIncident = async () => {
@@ -310,7 +313,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, newIncident.id);
 
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Add To Incident' button");
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
@@ -322,7 +325,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, incident.id);
 
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, "Click 'Add To Incident' button");
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
@@ -358,20 +361,59 @@ const ReportForm = (props) => {
 
   const onUpdateStateReportToggle = (state) => {
     updateStateReport({ ...report, state });
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state=='resolved'?'Resolve':'Reopen'}' button`);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
   };
 
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
-  const Controls = <Fragment>
-    <ReportFormAttachmentList
-      files={filesToList}
-      notes={notesToList}
-      onClickFile={onClickFile}
-      onClickNote={startEditNote}
-      onDeleteNote={onDeleteNote}
-      onDeleteFile={onDeleteFile} />
+
+  return <div className={styles.wrapper}>
+    {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
+    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
+
+    <ReportFormHeader
+      report={report}
+      onReportTitleChange={onReportTitleChange}
+      onPrioritySelect={onPrioritySelect}
+      onAddToNewIncident={onAddToNewIncident}
+      onAddToExistingIncident={onAddToExistingIncident} />
+
+    <div className={styles.formScrollContainer}>
+      {!is_collection && <ReportFormTopLevelControls
+        map={map}
+        onReportDateChange={onReportDateChange}
+        onReportedByChange={onReportedByChange}
+        onReportLocationChange={onReportLocationChange}
+        report={report} />}
+  
+      {is_collection && <IncidentReportsList reports={report.contains} 
+        onReportClick={onIncidentReportClick}>
+        <ReportFormAttachmentList
+          files={filesToList}
+          notes={notesToList}
+          onClickFile={onClickFile}
+          onClickNote={startEditNote}
+          onDeleteNote={onDeleteNote}
+          onDeleteFile={onDeleteFile} />
+      </IncidentReportsList>}
+      {!is_collection && <ReportFormBody
+        ref={formRef}
+        formData={report.event_details}
+        onChange={onDetailChange}
+        onSubmit={startSave}
+        schema={schema}
+        uiSchema={uiSchema}>
+        <ReportFormAttachmentList
+          files={filesToList}
+          notes={notesToList}
+          onClickFile={onClickFile}
+          onClickNote={startEditNote}
+          onDeleteNote={onDeleteNote}
+          onDeleteFile={onDeleteFile} />
+      </ReportFormBody>}
+    </div>
+    {/* bottom controls */}
     <div className={styles.bottomControls}>
       <ReportFormAttachmentControls
         isCollection={is_collection}
@@ -390,39 +432,6 @@ const ReportForm = (props) => {
         </SplitButton>
       </div>
     </div>
-  </Fragment>;
-
-  return <div className={styles.wrapper}>
-    {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
-    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
-
-    <ReportFormHeader
-      report={report}
-      onReportTitleChange={onReportTitleChange}
-      onPrioritySelect={onPrioritySelect}
-      onAddToNewIncident={onAddToNewIncident}
-      onAddToExistingIncident={onAddToExistingIncident} />
-
-    {!is_collection && <ReportFormTopLevelControls
-      map={map}
-      onReportDateChange={onReportDateChange}
-      onReportedByChange={onReportedByChange}
-      onReportLocationChange={onReportLocationChange}
-      report={report} />}
-
-    {is_collection && <IncidentReportsList reports={report.contains} 
-      onReportClick={onIncidentReportClick}>
-      {Controls}
-    </IncidentReportsList>}
-    {!is_collection && <ReportFormBody
-      ref={formRef}
-      formData={report.event_details}
-      onChange={onDetailChange}
-      onSubmit={startSave}
-      schema={schema}
-      uiSchema={uiSchema}>
-      {Controls}
-    </ReportFormBody>}
   </div>;
 };
 
