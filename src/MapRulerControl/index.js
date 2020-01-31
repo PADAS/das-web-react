@@ -1,4 +1,5 @@
 import React, { memo, useState, useEffect, useRef, Fragment } from 'react';
+import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
 import { withMap } from '../EarthRangerMap';
@@ -6,10 +7,12 @@ import MapRulerLayer from '../MapRulerLayer';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
 import { trackEvent } from '../utils/analytics';
 
+import { setPickingMapLocationState } from '../ducks/map-ui';
+
 import styles from './styles.module.scss';
 
 const MapRulerControl = (props) => {
-  const { map } = props;
+  const { map, setPickingMapLocationState } = props;
   const [active, setActiveState] = useState(false);
   const [points, setPointState] = useState([]);
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -29,11 +32,6 @@ const MapRulerControl = (props) => {
   const onMapClickToReset = () => {
     setActiveState(false);
     map.off('click', nextClickResetsState.current);
-  };
-
-  const onComponentUnmount = () => {
-    setActiveState(false);
-    unbindRulerMapEvents();
   };
 
   const resetState = () => {
@@ -58,35 +56,64 @@ const MapRulerControl = (props) => {
 
   const toggleActiveState = () => {
     setActiveState(active => !active);
-    active?
-      trackEvent('Map Interaction', "Dismiss 'Measurement Tool'") :
-      trackEvent('Map Interaction', "Click 'Measurement Tool' button");
-  }
+    active ?
+      trackEvent('Map Interaction', 'Dismiss \'Measurement Tool\'') :
+      trackEvent('Map Interaction', 'Click \'Measurement Tool\' button');
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { key } = event;
+      if (key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleActiveState();
+      }
+    };
+    if (active) {
+      document.addEventListener('keydown', handleKeyDown);
+      setPickingMapLocationState(true);
+    } else {
+      document.removeEventListener('keydown', handleKeyDown);
+      setPickingMapLocationState(false);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      setPickingMapLocationState(false);
+    };
+  
+  }, [active]); // eslint-disable-line
 
   useEffect(() => {
     if (completed) {
       unbindRulerMapEvents();
+      setPickingMapLocationState(false);
       map.on('click', nextClickResetsState.current);
     } else {
       bindRulerMapEvents();
     }
-  }, [completed]);
+  }, [completed]); // eslint-disable-line
 
   useEffect(resetState, [active]);
 
   useEffect(() => {
     if (active) {
       if (points.length === 1) {
-        trackEvent('Map Interaction', "Place Start of 'Measurement Tool'");
+        trackEvent('Map Interaction', 'Place Start of \'Measurement Tool\'');
       } else if (points.length === 2) {
-        trackEvent('Map Interaction', "Place End of 'Measurement Tool'");
+        trackEvent('Map Interaction', 'Place End of \'Measurement Tool\'');
       }
     }
-  }, [points]);
+  }, [points]); // eslint-disable-line
 
   useEffect(() => {
+    const onComponentUnmount = () => {
+      setActiveState(false);
+      unbindRulerMapEvents();
+    };
+  
     return () => onComponentUnmount();
-  }, []);
+  }, []); // eslint-disable-line
 
 
   return <Fragment>
@@ -105,4 +132,4 @@ const MapRulerControl = (props) => {
   </Fragment>;
 };
 
-export default memo(withMap(MapRulerControl));
+export default connect(null, { setPickingMapLocationState })(memo(withMap(MapRulerControl)));

@@ -53,6 +53,8 @@ import MapImagesLayer from '../MapImagesLayer';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
+import MapBaseLayerControl from '../MapBaseLayerControl';
+import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
 class Map extends Component {
@@ -345,10 +347,12 @@ class Map extends Component {
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
+          <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
-          <TimeSliderMapControl />
           <MapPrintControl />
+          <MapSettingsControl />
+          <TimeSliderMapControl />
         </Fragment>}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}

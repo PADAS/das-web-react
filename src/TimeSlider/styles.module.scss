@@ -59,15 +59,15 @@ $contrast: 25%;
 .wrapper {
   bottom: 0.5rem;
   display: flex;
-  left: 4.5rem;
+  left: 2.5rem;
   position: absolute;
-  width: 72%;
+  width: 75%;
   z-index: 10;
   @media (min-width: $md-layout-width-min) {
-    width: 84%;
+    width: 87.5%;
   }
   @media (min-width: $lg-layout-width-min) {
-    left: 6.5rem;
+    left:3rem;
   }
   @media print {
     display: none;

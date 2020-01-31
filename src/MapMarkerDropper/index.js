@@ -73,6 +73,25 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
     stopMovingReportMarker();
     setCleanupState(true);
   };
+  
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { key } = event;
+      if (key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        stopMovingReportMarker();
+      }
+    };
+    if (moving) {
+      document.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  
+  }, [moving]); // eslint-disable-line
 
 
 
