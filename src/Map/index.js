@@ -322,7 +322,7 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventID,
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
@@ -400,7 +400,7 @@ class Map extends Component {
               mapImages={mapImages}
               onEventClick={this.onEventSymbolClick}
               onClusterClick={this.onClusterClick}
-              bounceEventID={bounceEventID} />}
+              bounceEventIDs={bounceEventIDs} />}
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
@@ -425,7 +425,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventID,
+  const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences: { sidebarOpen }, showReportsOnMap } = view;
 
   return ({
@@ -441,7 +441,7 @@ const mapStatetoProps = (state, props) => {
     showTrackTimepoints,
     showReportsOnMap,
     timeSliderState,
-    bounceEventID,
+    bounceEventIDs,
     trackIds: displayedSubjectTrackIDs(state),
     trackLength,
     trackLengthOrigin,

@@ -60,21 +60,30 @@ const FONT_SCALE_RATE = 2;
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventID, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventIDs, ...rest } = props;
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
   const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
   const [bounceIDs, setBounceIDs] = useState([]);
 
+  const [animationState, setAnimationState] = useState({
+    frame: 1,
+    scale: 0.0,
+    isRendering: false,
+  });
+
   useEffect(() => {
     setEventsWithBounce({
       ...events,
-      features: addBounceToEventMapFeatures(events.features, bounceEventID),
+      features: addBounceToEventMapFeatures(events.features, bounceEventIDs),
     });
-    setBounceIDs(bounceEventID ? bounceEventID : []);
-    setAnimationState({frame: 1, scale: 0.0, isRendering: bounceIDs.length > 0});
-  }, [bounceEventID, events]);
+  }, [bounceEventIDs, events]);
+
+  useEffect(() => {
+    setBounceIDs(bounceEventIDs ? bounceEventIDs : []);
+    setAnimationState({frame: 1, scale: 0.0, isRendering: (bounceEventIDs.length > 0)});
+  }, [bounceEventIDs]);
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
@@ -167,13 +176,7 @@ const EventsLayer = (props) => {
 
   const animationFrameID = useRef(null);
 
-  const [animationState, setAnimationState] = useState({
-    frame: 1,
-    scale: 0.0,
-    isRendering: true,
-  });
-
-  const updateBounceSineAnimation = (map, animationState, bounceIDs) => {
+  const updateBounceSineAnimation = () => {
     let currFrame = animationState.frame;
     const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
     if (bounceIDs.length) {
@@ -182,21 +185,17 @@ const EventsLayer = (props) => {
       {
         setTimeout(() => {
           setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true});
-          console.log('animation updatedScale', animationState);
         } , 1000 / FRAMES_PER_SECOND);
       } else {
         setBounceIDs([]);
         setAnimationState({frame: 1, scale: 0.0, isRendering: false});
-        console.log('animation stop rendering', animationState);
       }
     }
   };
 
-  const bounceAnimation = useRef(updateBounceSineAnimation);
-
   useEffect(() => {
     if (bounceIDs.length && animationState.isRendering) {
-      animationFrameID.current = window.requestAnimationFrame(() => bounceAnimation.current(map, animationState, bounceIDs));
+      animationFrameID.current = window.requestAnimationFrame(() => updateBounceSineAnimation());
     } else if (animationFrameID.current) {
       window.cancelAnimationFrame(animationFrameID.current);
     }
@@ -219,8 +218,12 @@ const EventsLayer = (props) => {
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       7, 0,
-      12, IF_SYMBOL_ICON_IS_GENERIC(IF_SCALE_FOR_BOUNCE(0.5, ICON_SCALE_RATE), IF_SCALE_FOR_BOUNCE(1, ICON_SCALE_RATE)),
-      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(IF_SCALE_FOR_BOUNCE(0.75, ICON_SCALE_RATE), IF_SCALE_FOR_BOUNCE(1.5, ICON_SCALE_RATE)),
+      12, IF_SYMBOL_ICON_IS_GENERIC(
+        IF_SCALE_FOR_BOUNCE(0.5, ICON_SCALE_RATE), 
+        IF_SCALE_FOR_BOUNCE(1, ICON_SCALE_RATE)),
+      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(
+        IF_SCALE_FOR_BOUNCE(0.75, ICON_SCALE_RATE), 
+        IF_SCALE_FOR_BOUNCE(1.5, ICON_SCALE_RATE)),
     ],
     'text-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
@@ -238,7 +241,7 @@ const EventsLayer = (props) => {
 
   const sourceData = {
     type: 'geojson',
-    data: mapEventFeatureCollection,
+    data: eventsWithBounce,
   };
 
   const clusteredSourceData = {

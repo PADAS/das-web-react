@@ -117,7 +117,7 @@ const rootReducer = combineReducers({
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,
     printTitle: printTitleReducer,
-    bounceEventID: bounceEventReducer,
+    bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
   }),

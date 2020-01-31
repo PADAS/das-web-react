@@ -5,7 +5,6 @@ import isEqual from 'lodash/isEqual';
 
 import { BREAKPOINTS } from '../constants';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { setBounceEventId } from '../ducks/map-ui';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
@@ -16,12 +15,8 @@ import styles from './styles.module.scss';
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
-  const { clickAnalytics, bounceId, onClick, map, coordinates, isMulti, bypassLocationValidation, 
+  const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
     zoom, updateUserPreferences, onButtonClick, setBounceEventId, ...rest } = props;
-
-  // only fire bounce on the second click of a jump. Currently this
-  // is only used for event features
-  const [lastItem, setLastItem] = useState([]);
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
@@ -37,16 +32,10 @@ const LocationJumpButton = (props) => {
 
   const onJumpButtonClick = (e) => {
     const clickHandler = onClick ? e => onClick(e) : () => jumpToLocation(map, coordinates, zoom);
-    if (bounceId) {
-      if (isEqual(lastItem, bounceId)) {
-        setBounceEventId(bounceId);
-      } else {
-        setLastItem(bounceId);
-      }
-    }
     if (clickAnalytics) {
       trackEvent(...clickAnalytics);
     }
+    onBounceClick(e);
     clickHandler(e);
     closeSidebarForSmallViewports();
   };
@@ -58,7 +47,7 @@ const LocationJumpButton = (props) => {
   </button>;
 };
 
-export default connect(null, { updateUserPreferences, setBounceEventId })(memo(LocationJumpButton));
+export default memo(LocationJumpButton);
 
 LocationJumpButton.propTypes = {
   coordinates: PropTypes.array,
