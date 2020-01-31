@@ -7,7 +7,7 @@ import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
-import { addBounceToEventMapFeatures, setEventFeatureBounceState } from '../utils/events';
+import { addBounceToEventMapFeatures } from '../utils/events';
 import { calcUrlForImage } from '../utils/img';
 
 import { withMap } from '../EarthRangerMap';
@@ -55,7 +55,7 @@ const ANIMATION_LENGTH_SECONDS = .25; //seconds
 const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
 // text-size interpolates at a different rate than icon-size for bounce animation
 const ICON_SCALE_RATE = .25;
-const FONT_SCALE_RATE = 2;
+const FONT_SCALE_RATE = 1.75;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
@@ -206,8 +206,8 @@ const EventsLayer = (props) => {
   }, [bounceIDs, animationState]);
 
 
-  const IF_SCALE_FOR_BOUNCE = (iconSize, iconScale) => ['match', ['get', 'bounce'], 'true', iconSize + animationState.scale * iconScale, iconSize];
-
+  const SCALE_ICON_IF_BOUNCED = (iconSize, iconScale) => ['match', ['get', 'bounce'], 'true', iconSize + animationState.scale * iconScale, iconSize];
+  const SCALE_FONT_IF_BOUNCED = (fontSize, fontScale) => ['match', ['get', 'bounce'], 'true', fontSize + animationState.scale * fontScale, fontSize];
   // the mapbox DSL doesn't allow interpolations or steps 
   // to be nested in their DSL, which results in this crazy layout
   const eventSymbolLayerLayout = {
@@ -219,17 +219,17 @@ const EventsLayer = (props) => {
       'interpolate', ['exponential', 0.5], ['zoom'],
       7, 0,
       12, IF_SYMBOL_ICON_IS_GENERIC(
-        IF_SCALE_FOR_BOUNCE(0.5, ICON_SCALE_RATE), 
-        IF_SCALE_FOR_BOUNCE(1, ICON_SCALE_RATE)),
+        SCALE_ICON_IF_BOUNCED(0.5, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(1, ICON_SCALE_RATE)),
       MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(
-        IF_SCALE_FOR_BOUNCE(0.75, ICON_SCALE_RATE), 
-        IF_SCALE_FOR_BOUNCE(1.5, ICON_SCALE_RATE)),
+        SCALE_ICON_IF_BOUNCED(0.75, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(1.5, ICON_SCALE_RATE)),
     ],
     'text-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       6, 0,
-      12, 14,
-      MAX_ZOOM, 16,
+      12, SCALE_FONT_IF_BOUNCED(14, FONT_SCALE_RATE),
+      MAX_ZOOM, SCALE_FONT_IF_BOUNCED(16, FONT_SCALE_RATE),
     ]
   };
 
