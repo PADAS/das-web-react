@@ -106,7 +106,7 @@ const EventsLayer = (props) => {
         ];
       }),
     });
-  }, [events, mapImages]);
+  }, [eventsWithBounce, mapImages]);
 
   const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
@@ -241,7 +241,7 @@ const EventsLayer = (props) => {
 
   const sourceData = {
     type: 'geojson',
-    data: eventsWithBounce,
+    data: mapEventFeatureCollection,
   };
 
   const clusteredSourceData = {
