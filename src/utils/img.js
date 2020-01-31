@@ -4,7 +4,10 @@ const urlContainsOwnHost = url => url.includes('http');
 
 const imgIsDataUrl = url => url.includes('data:image');
 
-const imgIsFromStaticResources = url => url.startsWith('/static') || url.startsWith('static');
+const exp = /^(\/beta|beta|\/static|static)/;
+
+
+const imgIsFromStaticResources = url => /^(\/beta|beta|\/static|static)/.test(url);
 
 
 const imgNeedsHostAppended = url => {
