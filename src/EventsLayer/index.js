@@ -97,8 +97,8 @@ const EventsLayer = (props) => {
 
   useEffect(() => {
     setMapEventFeatureCollection({
-      ...events,
-      features: events.features.filter((feature) => {
+      ...eventsWithBounce,
+      features: eventsWithBounce.features.filter((feature) => {
         return !!mapImages[
           calcUrlForImage(
             feature.properties.image|| feature.properties.image_url

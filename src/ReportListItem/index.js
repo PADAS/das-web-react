@@ -48,7 +48,12 @@ const ReportListItem = (props) => {
 
   const onBounceClick = () => {
     if (locationClicked.current) {
-      setBounceEventId(bounceId);
+      // clear the current prop, in the case where its the same ids
+      setBounceEventId([]);
+      setTimeout(() => {
+        setBounceEventId(bounceId);   
+      }, 100);
+      
     }
     locationClicked.current = true;
   };
