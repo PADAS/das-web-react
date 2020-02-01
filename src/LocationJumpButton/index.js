@@ -35,7 +35,9 @@ const LocationJumpButton = (props) => {
     if (clickAnalytics) {
       trackEvent(...clickAnalytics);
     }
-    onBounceClick(e);
+    if (onBounceClick) {
+      onBounceClick(e);
+    }
     clickHandler(e);
     closeSidebarForSmallViewports();
   };
