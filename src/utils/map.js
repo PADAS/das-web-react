@@ -123,7 +123,9 @@ export const generateBoundsForLineString = ({ geometry }) => {
 export const jumpToLocation = (map, coords, zoom = 17) => {
 
   
-  map.setZoom(zoom);
+  if (!Array.isArray(coords[0])) {
+    map.setZoom(zoom);
+  }
 
   if (Array.isArray(coords[0])) {
     if (coords.length > 1) {

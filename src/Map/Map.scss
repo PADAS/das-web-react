@@ -8,19 +8,6 @@
     z-index: 4 !important;
   }
 
-  .map-controls-container {
-    .mapboxgl-popup {
-      z-index: -1 !important;
-    }
-    [type=button]:first-child {
-      background: rgba(white, 0.8);
-      // border-radius: 0.333rem;
-      &:hover, &:active {
-        background: white;
-      }
-    }
-  }
-
   .mapboxgl-marker {
     align-items: center;
     display: flex;
@@ -43,10 +30,19 @@
   flex-flow: column;
   left: 0.5rem;
   position: absolute;
-  width: 6rem;
   z-index: 6;
   > * {
     margin-bottom: 0.5rem;
+  }
+  .mapboxgl-popup {
+    z-index: -1 !important;
+  }
+  [type=button]:first-child {
+    background: rgba(white, 0.8);
+    // border-radius: 0.333rem;
+    &:hover, &:active {
+      background: white;
+    }
   }
 }
 

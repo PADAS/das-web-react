@@ -41,7 +41,6 @@ const MapPrintControl = (props) => {
     const handleKeyDown = (event) => {
       const { key } = event;
       if (key === 'Escape') {
-        console.log('time to escape');
         event.preventDefault();
         event.stopPropagation();
         toggleActiveState();

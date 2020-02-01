@@ -82,8 +82,10 @@ export const SOURCE_IDS = {
   ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
 };
 
-/* "match" will be replaced with "in" once that expression is merged into master for the mapbox-gl style spec, at which point this expression will work for half-sised generic icons. */
-const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['match', ['get', 'image'], 'generic', ifGeneric, ifNonGeneric];
+const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
+  ['in', 'generic', ['get', 'image']], ifGeneric,
+  ifNonGeneric,
+];
 
 const symbolIconSize = [
   'interpolate', ['exponential', 0.5], ['zoom'],

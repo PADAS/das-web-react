@@ -18,13 +18,15 @@ const MapSettingsControl = (props) => {
 
   const popover = (
     <Popover id="settings-popover" className={styles.mapSettings} title="Map Settings">
-      <ul>
-        <li><MapLockControl /></li>
-        <li><MapNamesControl /></li>
-        <li><MapTrackTimepointsControl /></li>
-        <li><InactiveRadioControl /></li>
-        {hasUserLocation && <li><UserLocationMapControl /></li>}
-      </ul>
+      <Popover.Content>
+        <ul>
+          <li><MapLockControl /></li>
+          <li><MapNamesControl /></li>
+          <li><MapTrackTimepointsControl /></li>
+          <li><InactiveRadioControl /></li>
+          {hasUserLocation && <li><UserLocationMapControl /></li>}
+        </ul>
+      </Popover.Content>
     </Popover>
   );
 
@@ -32,7 +34,7 @@ const MapSettingsControl = (props) => {
     trackEvent('Map Interaction', 'Clicked Map Settings button');
   };
 
-  return <OverlayTrigger trigger="click" placement="top" rootClose={true} overlay={popover}>
+  return <OverlayTrigger trigger="click" placement="right" rootClose={true} overlay={popover}>
     <button type='button' className={styles.gearButton} ref={formRef}
       onClick={onButtonClick}>
       <GearIcon />

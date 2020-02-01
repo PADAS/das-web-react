@@ -1,4 +1,4 @@
-import React, { useState, useRef, memo } from 'react';
+import React, { useEffect, useState, useRef, memo } from 'react';
 import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -26,6 +26,7 @@ const BaseLayerControl = (props) => {
   const { baseLayers, currentBaseLayer, setBaseLayer } = props;
   const [popoverOpen, setPopoverOpenState] = useState(false);
   const wrapperRef = useRef(null);
+  const buttonRef = useRef(null);
 
   const togglePopoverState = () => {
     setPopoverOpenState(!popoverOpen);
@@ -33,17 +34,44 @@ const BaseLayerControl = (props) => {
   };
 
   const onItemClick = (layer) => {
-    setPopoverOpenState(false);
     setBaseLayer(layer);
     trackEvent('Base Layer', `Select '${layer.name}' Base Layer`);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { key } = event;
+      if (key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        togglePopoverState();
+      }
+    };
+    const handleOutsideClick = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        togglePopoverState();
+      }
+    };
+    if (popoverOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  
+  }, [popoverOpen]); // eslint-disable-line
   
 
-  return <div ref={wrapperRef} className={styles.wrapper}>
-    <button title='Set Map Base Layer' type='button' className={styles.button} onClick={togglePopoverState}>
+  return <div className={styles.wrapper} ref={wrapperRef}>
+    <button title='Set Map Base Layer' type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
       <BaseMapIcon />
     </button>
-    <Overlay placement='auto-end' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
+    <Overlay placement='right' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title='Base Layers'>
         <ul className={styles.layerList}>
           {baseLayers.map(layer => {
