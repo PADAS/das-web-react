@@ -16,11 +16,11 @@ import LoadingOverlay from '../LoadingOverlay';
 const { Header, Title, Body, Footer } = Modal;
 
 
-const DataExportModal = ({ id, title, removeModal, params = {}, url, children }) => {
+const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url, children }) => {
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
   
-  const DOWNLOAD_URL = `${API_URL}${url}`;
+  const DOWNLOAD_URL = `${API_URL}${url}${paramString.length ? `?${paramString}` : ''}`;
 
   useEffect(() => {
     return () => {
@@ -76,6 +76,7 @@ const DataExportModal = ({ id, title, removeModal, params = {}, url, children })
 
 DataExportModal.defaultProps = {
   params: {},
+  paramString: '',
 };
 
 DataExportModal.propTypes = {
@@ -84,6 +85,7 @@ DataExportModal.propTypes = {
   url: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   params: PropTypes.object,
+  paramString: PropTypes.string,
 };
 
 

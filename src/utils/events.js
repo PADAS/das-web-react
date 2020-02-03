@@ -74,7 +74,7 @@ const objectToParamString = (obj) => {
   }, new URLSearchParams()).toString();
 };
 
-export const calcEventFilterForRequest = (params) => {
+export const calcEventFilterForRequest = (params = {}) => {
   const { data: { eventFilter, eventTypes } } = store.getState();
 
   const toClean = { ...eventFilter, ...params };
