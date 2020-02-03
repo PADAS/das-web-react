@@ -2,7 +2,6 @@ import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
-import debounceRender from 'react-debounce-render';
 import intersection from 'lodash/intersection';
 
 import CheckableList from '../CheckableList';
@@ -24,7 +23,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
-const ContentComponent = debounceRender((props) => {
+const ContentComponent = (props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
     hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter, 
     addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, listLevel,
@@ -121,7 +120,7 @@ const ContentComponent = debounceRender((props) => {
         itemComponent={SubjectListItem} />
     }
   </Collapsible>;
-});
+};
 
 const mapStateToProps = (state, ownProps) => subjectGroupHeatmapControlState(state, ownProps);
 

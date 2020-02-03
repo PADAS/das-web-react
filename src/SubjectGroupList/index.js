@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -18,6 +18,20 @@ const SubjectGroupList = (props) => {
 
   const [searchText, setSearchTextState] = useState('');
   const [subjectFilterEnabled, setSubjectFilterEnabledState] = useState(false);
+  const [groupsInList, setGroupsInList] = useState(subjectGroups);
+
+  const subjectFilterIsMatch = useCallback((subject) => {
+    if (searchText.length === 0) return true;
+    return (subject.name.toLowerCase().includes(searchText));
+  }, [searchText]);
+
+  useEffect(() => {
+    const filteredSubjectGroups = subjectFilterEnabled ?
+      filterSubjects(subjectGroups, subjectFilterIsMatch) :
+      subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
+    
+    setGroupsInList(filteredSubjectGroups);
+  }, [subjectFilterEnabled, subjectFilterIsMatch, subjectGroups]);
 
   const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
   const groupIsPartiallyVisible = (group) => {
@@ -49,18 +63,7 @@ const SubjectGroupList = (props) => {
     setSubjectFilterEnabledState(filterText.length > 0);
   }, [mapLayerFilter]);
 
-  const subjectFilterIsMatch = (subject) => {
-    if (searchText.length === 0) return true;
-    return (subject.name.toLowerCase().includes(searchText));
-  };
-
   const listLevel = 0;
-
-  // if search filter is enabled, filter the subjectGroups array otherwise
-  // just make sure to filter out any empty subject groups.
-  const filteredSubjectGroups = subjectFilterEnabled ?
-    filterSubjects(subjectGroups, subjectFilterIsMatch) :
-    subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
   const itemProps = {
     map,
@@ -73,13 +76,13 @@ const SubjectGroupList = (props) => {
     listLevel,
   };
 
-  return !!filteredSubjectGroups.length && <CheckableList
+  return !!groupsInList.length && <CheckableList
     className={listStyles.list}
     id='subjectgroups'
     onCheckClick={onGroupCheckClick}
     itemComponent={Content}
     itemProps={itemProps}
-    items={filteredSubjectGroups}
+    items={groupsInList}
     itemFullyChecked={groupIsFullyVisible}
     itemPartiallyChecked={groupIsPartiallyVisible} />;
 };

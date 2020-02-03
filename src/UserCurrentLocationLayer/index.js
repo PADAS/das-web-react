@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
-import bboxPolygon from '@turf/bbox-polygon';
 import booleanContains from '@turf/boolean-contains';
 
 import { setCurrentUserLocation } from '../ducks/location';
@@ -90,11 +89,11 @@ const UserCurrentLocationLayer = (props) => {
         window.cancelAnimationFrame(animationFrameID.current);
       };
     }
-  }, []);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     userLocation && blipAnimation.current(animationState);
-  }, [userLocation]);
+  }, [userLocation]); // eslint-disable-line
 
 
   useEffect(() => {
