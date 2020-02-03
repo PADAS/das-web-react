@@ -10,7 +10,7 @@ import { setCurrentUserLocation } from '../ducks/location';
 import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
 
 import { addMapImage } from '../utils/map';
-import { GEOLOCATOR_OPTIONS } from '../constants';
+import { GEOLOCATOR_OPTIONS, MAP_ICON_SCALE } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
 
@@ -24,7 +24,7 @@ const symbolLayout = {
   'icon-image': 'current-location-icon',
   'icon-allow-overlap': true,
   'icon-anchor': 'center',
-  'icon-size': 0.6,
+  'icon-size': 0.6 / MAP_ICON_SCALE,
 };
 
 

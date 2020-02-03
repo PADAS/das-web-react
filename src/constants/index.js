@@ -43,6 +43,7 @@ export const STATUSES = {
 };
 
 export const MAP_ICON_SIZE = 30;
+export const MAP_ICON_SCALE = 3;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMax = `(max-width: ${layoutVariables.mediumWidthMax}`;
@@ -87,18 +88,18 @@ const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
   ifNonGeneric,
 ];
 
-const symbolIconSize = [
+export const SYMBOL_ICON_SIZE_EXPRESSION = [
   'interpolate', ['exponential', 0.5], ['zoom'],
   7, 0,
-  12, IF_IS_GENERIC(0.5, 1),
-  MAX_ZOOM, IF_IS_GENERIC(0.75, 1.5),
+  12, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
+  MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.5/MAP_ICON_SCALE),
 ];
 
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'image'],
-  'icon-size': symbolIconSize,
+  'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
   'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
   'text-offset': [0, .75],

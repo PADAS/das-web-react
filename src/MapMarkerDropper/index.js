@@ -8,6 +8,7 @@ import { addMapImage } from '../utils/map';
 
 import MapLocationPicker from '../MapLocationPicker';
 import MouseMarkerLayer from '../MouseMarkerLayer';
+import MouseMarkerPopup from '../MouseMarkerPopup';
 
 import MarkerImage from '../common/images/icons/marker-feed.svg';
 
@@ -15,7 +16,7 @@ import styles from './styles.module.scss';
 
 
 
-const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
+const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...rest }) => {
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
@@ -106,6 +107,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, doIt, ...rest }) => {
       onLocationSelect={onLocationSelect} />
 
     {shouldShowMarkerLayer && <MouseMarkerLayer location={location} {...rest} />}
+    {shouldShowMarkerLayer && showMarkerPopup && <MouseMarkerPopup location={location} />}
   </Fragment>;
 };
 

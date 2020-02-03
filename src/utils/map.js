@@ -5,7 +5,7 @@ import { addImageToMapIfNecessary } from '../ducks/map-images';
 import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE/* , MAX_ZOOM */ } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
@@ -43,7 +43,7 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 
 export const addMapImage = async (src, id) => {
   const icon_id = id || src;
-  const img = await imgElFromSrc(src, MAP_ICON_SIZE);
+  const img = await imgElFromSrc(src, (MAP_ICON_SIZE * MAP_ICON_SCALE));
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
   return {
     icon_id,
