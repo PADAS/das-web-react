@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import TimeAgo from 'react-timeago';
+import TimeAgo from '../TimeAgo';
 import Popover from 'react-bootstrap/Popover';
 import Button from 'react-bootstrap/Button';
 import Overlay from 'react-bootstrap/Overlay';

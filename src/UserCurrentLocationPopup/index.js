@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import TimeAgo from 'react-timeago';
+import TimeAgo from '../TimeAgo';
 import { Popup } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
