@@ -43,7 +43,7 @@ export const STATUSES = {
 };
 
 export const MAP_ICON_SIZE = 30;
-export const MAP_ICON_SCALE = 3;
+export const MAP_ICON_SCALE = 2;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMax = `(max-width: ${layoutVariables.mediumWidthMax}`;
