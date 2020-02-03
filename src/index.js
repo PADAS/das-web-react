@@ -27,7 +27,7 @@ import './index.scss';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
 
-import LoadingOverlay from './LoadingOverlay';
+import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 
 const App = lazy(() => import('./App'));
 const Login = lazy(() => import('./Login'));

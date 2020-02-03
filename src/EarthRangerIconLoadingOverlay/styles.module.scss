@@ -1,0 +1,38 @@
+@import '../common/styles/animations';
+@import '../common/styles/vars/colors';
+
+.wrapper {
+  @include fade-in(1s, 1s);
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  opacity: 0;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  z-index: 100000;
+}
+
+.logo {
+  height: 100vh;
+  margin: 0 1rem;
+  max-height: 36rem;
+  max-width: 36rem;
+  width: 100vw;
+  [id*=badge-group] {
+    animation: spin 4s 1s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+}
+
+
+@keyframes spin {
+  0%, 20% {
+    transform: rotate(0);
+  }
+  80%, 100% {
+    transform: rotate(360deg);
+  }
+}
