@@ -16,7 +16,7 @@ const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
   const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
-    zoom, updateUserPreferences, onButtonClick, setBounceEventId, ...rest } = props;
+    zoom, updateUserPreferences, onButtonClick, setBounceEventIDs, ...rest } = props;
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?

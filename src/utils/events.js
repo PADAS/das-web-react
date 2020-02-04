@@ -243,28 +243,14 @@ export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (feat
   };
 };
 
-export const addBounceToEventMapFeatures = (features, bounceId) => {
+export const addBounceToEventMapFeatures = (features, bounceIDs) => {
   let featurePropId = 0;
   const featuresWithIds = features.map((item) => {
     item.id = ++featurePropId;
     // enable bounce using Mapbox's style conditionals
-    item.properties.bounce = (bounceId.includes(item.properties.id) ) ? 'true' : 'false';
+    item.properties.bounce = (bounceIDs.includes(item.properties.id) ) ? 'true' : 'false';
     return item;
   });
   return featuresWithIds;
-};
-
-const getEventSymbolFeaturesForId = (map, id) => {
-  const features = map.queryRenderedFeatures({
-    layers: [EVENT_SYMBOLS],
-  }).filter(feature => id.includes(feature.properties.id));
-  return features;
-};
-
-export const setEventFeatureBounceState = (map, id, state = true) => {
-  const features = getEventSymbolFeaturesForId(map, id);
-  features.forEach((feature) => {
-    map.setFeatureState(feature, {'bounce': state});
-  });
 };
 

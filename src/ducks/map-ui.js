@@ -163,7 +163,7 @@ export const setPrintTitle = (title) => ({
   payload: title,
 });
 
-export const setBounceEventId = (eventId) => ({
+export const setBounceEventIDs = (eventId) => ({
   type: SET_BOUNCE_EVENT_ID,
   payload: eventId,
 });
