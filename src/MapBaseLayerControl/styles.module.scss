@@ -39,7 +39,7 @@
     width: calc(100%/3);
     button {
       $hover: white;
-      background: rgba(white, 0.9) !important;
+      background: rgba($hover, 0.8) !important;
       @include unstyledButton;
       align-items: center;
       display: flex;
@@ -67,6 +67,6 @@
   img {
     margin-bottom: 0.25rem;
     max-height: 2.5rem;
-    max-width: 2.5rem;
+    max-width: 6rem;
   }
 }
