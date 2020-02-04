@@ -97,7 +97,7 @@ aside {
 }
 
 .modal-dialog {
-  max-width: 38rem;
+  max-width: 40rem;
   width: 96vw;
 }
 
@@ -116,7 +116,7 @@ aside {
       max-height: 80vh;
     }
 
-    >div>*:not(form) {
+    >div>*:not(form):not([class*=formScrollContainer]) {
       padding: 1rem 0.5rem;
     }
 

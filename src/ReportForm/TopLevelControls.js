@@ -1,8 +1,7 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
+import Popover from 'react-bootstrap/Popover';
 
 import DateTimePicker from 'react-datetime-picker';
 import GpsInput from '../GpsInput';
@@ -23,7 +22,7 @@ import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
 const ReportFormTopLevelControls = (props) => {
-  const { gpsFormat, map, onReportDateChange, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
+  const { gpsFormat, map, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
@@ -46,7 +45,7 @@ const ReportFormTopLevelControls = (props) => {
       if (testRef.current && !testRef.current.contains(e.target)) {
         setGpsPopoverState(false);
       }
-    }
+    };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []); 
@@ -81,7 +80,7 @@ const ReportFormTopLevelControls = (props) => {
     {canShowReportedBy && <label>
       <PersonIcon className={`${styles.icon} ${styles.iconFill}`} />
       <span>Reported by:</span>
-      <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} />
+      <ReportedBySelect value={report.reported_by} onChange={onReportedByChange} menuRef={menuContainerRef} />
     </label>}
     <label>
       <ClockIcon className={styles.icon} />

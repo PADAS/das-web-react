@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -9,41 +9,47 @@ import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
 import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
+import { calcEventFilterForRequest } from '../utils/events';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, systemConfig: {dailyReportEnabled, exportKmlEnabled, zendeskEnabled}, ...rest } = props;
+  const { addModal, systemConfig: {dailyReportEnabled, exportKmlEnabled, zendeskEnabled}, eventTypes, eventFilter, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
-  const modals = [
-    ...(dailyReportEnabled? [{
-      title: 'Daily Report',
-      content: DailyReportModal,
-    }] : []),
-    {
-      title: 'Field Reports',
-      content: DataExportModal,
-      url: 'activity/events/export',
-    },
-    ...(exportKmlEnabled? [{
-      title: 'Master KML',
-      content: KMLExportModal,
-      url: 'subjects/kml/root',
-    }] : []),
-    {
-      title: 'Subject Information',
-      content: DataExportModal,
-      url: 'trackingmetadata/export',
-    },
-    {
-      title: 'Subject Reports',
-      content: DataExportModal,
-      url: 'trackingdata/export',
-    },
-  ];
+  const [modals, setModals] = useState([]);
+
+  useEffect(() => {
+    setModals([
+      ...(dailyReportEnabled? [{
+        title: 'Daily Report',
+        content: DailyReportModal,
+      }] : []),
+      {
+        title: 'Field Reports',
+        content: DataExportModal,
+        url: 'activity/events/export',
+        paramString: calcEventFilterForRequest({ exclude_contained: false }),
+      },
+      ...(exportKmlEnabled? [{
+        title: 'Master KML',
+        content: KMLExportModal,
+        url: 'subjects/kml/root',
+      }] : []),
+      {
+        title: 'Subject Information',
+        content: DataExportModal,
+        url: 'trackingmetadata/export',
+      },
+      {
+        title: 'Subject Reports',
+        content: DataExportModal,
+        url: 'trackingdata/export',
+      },
+    ]);
+  }, [eventTypes, eventFilter, dailyReportEnabled, exportKmlEnabled]);
 
   const alertModal = {
     title: 'Alerts',
@@ -64,7 +70,7 @@ const DataExportMenu = (props) => {
   };
 
   const onContactSupportClick = () => {
-    trackEvent('Main Toolbar', "Click 'Contact Support'");
+    trackEvent('Main Toolbar', 'Click \'Contact Support\'');
     if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
@@ -88,6 +94,6 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig } }) => ({ systemConfig });
+const mapStateToProps = ({ view: { systemConfig }, data: { eventFilter, eventTypes } }) => ({ systemConfig, eventFilter, eventTypes });
 
 export default connect(mapStateToProps, { addModal })(DataExportMenu);
