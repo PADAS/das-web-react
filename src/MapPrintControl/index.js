@@ -1,4 +1,4 @@
-import React, { memo, useState, useRef, useEffect } from 'react';
+import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
@@ -13,12 +13,11 @@ import styles from './styles.module.scss';
 
 const MapPrintControl = (props) => {
   const { printTitle, setPrintTitle } = props;
-  const closeFormAfterPrint = () => setActiveState(false);
 
   const [active, setActiveState] = useState(false);
   const buttonRef = useRef(null);
   const wrapperRef = useRef(null);
-  const onAfterPrint = useRef(closeFormAfterPrint);
+  const onAfterPrint = useCallback(() => setActiveState(false), []);
 
   const toggleActiveState = () => setActiveState(!active);
   const onInputChange = ({ target: { value } }) => setPrintTitle(value);
@@ -30,11 +29,12 @@ const MapPrintControl = (props) => {
   };
 
   useEffect(() => {
-    window.addEventListener('afterprint', onAfterPrint.current);
+    window.removeEventListener('afterprint', onAfterPrint);
+    window.addEventListener('afterprint', onAfterPrint);
     return () => {
-      window.removeEventListener('afterprint', onAfterPrint.current);
+      window.removeEventListener('afterprint', onAfterPrint);
     };
-  }, []);
+  }, [onAfterPrint]);
 
 
   useEffect(() => {

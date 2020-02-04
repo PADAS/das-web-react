@@ -2,8 +2,6 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 
-import styles from './styles.module.scss';
-
 const ACTIVE_STATES = ['active', 'new'];
 
 

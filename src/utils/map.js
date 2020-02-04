@@ -205,7 +205,6 @@ const baseLayerIsGoogleMap = ({ attributes: { url } }) => url.includes('mt.googl
 
 const fetchAttributionForArcGisServer = ({ attributes: { url } } ) => {
   const attributionUrl = `${url.substring(0, url.lastIndexOf('MapServer') + 9)}?f=pjson`;
-  console.log('attributionUrl to fetch', attributionUrl);
   return window.fetch(attributionUrl)
     .then((response) => response.json())
     .then((json) => json.copyrightText)

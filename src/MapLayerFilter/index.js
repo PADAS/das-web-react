@@ -1,8 +1,6 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import debounce from 'lodash/debounce';
-
 import { updateMapLayerFilter } from '../ducks/map-layer-filter';
 import { trackEvent } from '../utils/analytics';
 import SearchBar from '../SearchBar';

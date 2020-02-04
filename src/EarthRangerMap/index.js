@@ -2,7 +2,6 @@ import React, { createContext, Fragment, memo, useRef, useState, useEffect } fro
 import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
-import { getAttributionStringForBaseLayer } from '../utils/map';
 
 import { trackEvent } from '../utils/analytics';
 
