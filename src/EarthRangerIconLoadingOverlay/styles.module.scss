@@ -2,7 +2,7 @@
 @import '../common/styles/vars/colors';
 
 .wrapper {
-  @include fade-in(1s, 1s);
+  @include fade-in(1s, 0.75s);
   align-items: center;
   display: flex;
   flex-flow: column;

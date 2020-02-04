@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, memo } from 'react';
+import React, { Fragment, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
@@ -19,7 +19,7 @@ const AlertsModal = ({ id, title, removeModal, params = {} }) => {
       <Title>{title}</Title>
     </Header>
     <Body>
-      <iframe src={`${REACT_APP_DAS_HOST}/alerts`} onLoad={() => setLoadState(false)} />
+      <iframe title='Configure your EarthRanger alerts' src={`${REACT_APP_DAS_HOST}/alerts`} onLoad={() => setLoadState(false)} />
     </Body>
   </Fragment>;
 };

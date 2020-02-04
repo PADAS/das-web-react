@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
@@ -23,6 +23,18 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   transitionTime: 1,
 };
 
+const TriggerComponent = (props) => {
+  const { listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle } = props;
+  return <div className={listStyles.trigger}>
+    {listLevel === 0 && <h5>{name}</h5>}
+    {listLevel > 0 && <h6>{name}</h6>}
+    {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks} 
+      heatmapVisible={groupIsFullyHeatmapped} 
+      heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
+      onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
+  </div>;
+};
+
 const ContentComponent = (props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
     hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter, 
@@ -30,6 +42,22 @@ const ContentComponent = (props) => {
     groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
 
   const [loadingTracks, setTrackLoadingState] = useState(false);
+  const [collapsibleShouldBeOpen, setCollapsibleOpenState] = useState(false);
+
+  const groupItemProps = {
+    map,
+    onGroupCheckClick,
+    onSubjectCheckClick,
+    hiddenSubjectIDs,
+    subjectIsVisible,
+    subjectFilterEnabled,
+    subjectMatchesFilter,
+    listLevel: listLevel+1,
+  };
+
+  useEffect(() => {
+    setCollapsibleOpenState(subjectFilterEnabled && (!!subgroups.length || !!subjects.length));
+  }, [subgroups.length, subjectFilterEnabled, subjects.length]);
 
   const groupIsFullyVisible = (group) => {
     const groupSubjectIDs = getUniqueSubjectGroupSubjectIDs(group);
@@ -66,39 +94,22 @@ const ContentComponent = (props) => {
   if (!name) return null;
   if (!subgroups.length && !subjects.length) return null;
 
-  const groupItemProps = {
-    map,
-    onGroupCheckClick,
-    onSubjectCheckClick,
-    hiddenSubjectIDs,
-    subjectIsVisible,
-    subjectFilterEnabled,
-    subjectMatchesFilter,
-    listLevel: listLevel+1,
-  };
-
   const subjectItemProps = {
     map,
   };
 
   // const nonEmptySubgroups = subgroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
 
-  const collapsibleShouldBeOpen = subjectFilterEnabled && (!!subgroups.length || !!subjects.length);
 
-  const trigger = <div className={listStyles.trigger}>
-    {listLevel === 0 && <h5>{name}</h5>}
-    {listLevel > 0 && <h6>{name}</h6>}
-    {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks} 
-      heatmapVisible={groupIsFullyHeatmapped} 
-      heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
-      onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
-  </div>;
+  const triggerProps = {
+    listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle,
+  };
 
   return <Collapsible
     className={listStyles.collapsed}
     openedClassName={listStyles.opened}
     {...COLLAPSIBLE_LIST_DEFAULT_PROPS}
-    trigger={trigger}
+    trigger={<TriggerComponent {...triggerProps} />}
     open={collapsibleShouldBeOpen}>
     {!!subgroups.length &&
       <CheckableList

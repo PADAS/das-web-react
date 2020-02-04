@@ -15,7 +15,10 @@
 
 
 .popup {
+  background: none;
+  border: none;
   max-width: 26rem;
+  // overflow: hidden;
   width: 90vw;
   [class*=popover-body] {
     padding: 0;
@@ -26,14 +29,17 @@
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   margin: 0;
   li {
     align-self: stretch;
+    border: thin solid $light-gray-border;;
+    margin: -1px -1px;
     text-align: center;
     width: calc(100%/3);
     button {
-      $hover: lighten($secondary-light-gray, 25%);
+      $hover: white;
+      background: rgba(white, 0.9) !important;
       @include unstyledButton;
       align-items: center;
       display: flex;
@@ -49,11 +55,11 @@
       width: 100%;
       &[type=button]:first-child { /* the first-child selector is a selector specificity */
         &:hover, &:active {
-          background: $hover;
+          background: rgba(darken($hover, 2%), 0.925) !important;
           text-decoration: underline;
         }
         &.active {
-          background: darken($hover, 3%);
+          background: $hover !important;
         }
       }
     }

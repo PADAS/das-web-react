@@ -1,5 +1,3 @@
-import uniq from 'lodash/uniq';
-
 import { analyzerFeatures, createSelector } from '../selectors';
 import { getBoundsForAnalyzerFeatures } from '../utils/analyzers';
 

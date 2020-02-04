@@ -156,17 +156,19 @@ class Map extends Component {
     this.currentAnalyzerIds = [];
   }
 
-  async fetchMapData() {
-    await Promise.all([
+  fetchMapData() {
+    Promise.all([
       this.fetchMapEvents(),
       this.fetchMapSubjects(),
-    ]);
-    if (this.props.timeSliderState.active) {
-      this.resetTrackRequestCancelToken();
-      fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
-        .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-        .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
-    }
+    ])
+      .then(() => {
+        if (this.props.timeSliderState.active) {
+          this.resetTrackRequestCancelToken();
+          fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
+            .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
+            .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
+        }
+      });
   }
   fetchMapSubjects() {
     return this.props.fetchMapSubjects(this.props.map)

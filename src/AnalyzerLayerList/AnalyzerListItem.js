@@ -14,7 +14,7 @@ import listStyles from '../SideBar/styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const AnalyzerListItem = memo((props) => {
-  const { featureIds, features, map } = props;
+  const { features, map } = props;
   const { properties } = features[0];
 
   const iconForCategory = category => {
