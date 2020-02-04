@@ -2,6 +2,7 @@ import React, { createContext, Fragment, memo, useRef, useState, useEffect } fro
 import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, RotationControl, ScaleControl } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
+import { getAttributionStringForBaseLayer } from '../utils/map';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -11,6 +12,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import '../Map/Map.scss';
 import BaseLayerRenderer from '../BaseLayerRenderer';
+import Attribution from './Attribution';
 
 
 const EarthRangerMapContext = createContext(null);
@@ -52,6 +54,9 @@ const EarthRangerMap = (props) => {
       if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
         setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
       }
+      getAttributionStringForBaseLayer(currentBaseLayer).then((results) => {
+        console.log('getAttributionStringForBaseLayer', results);
+      });
     }
   }, [currentBaseLayer]);
 
@@ -70,6 +75,7 @@ const EarthRangerMap = (props) => {
           {controls}
         </div>
         {children}
+        <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
         <BaseLayerRenderer />
       </Fragment>}
     </EarthRangerMapContext.Provider>

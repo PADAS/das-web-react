@@ -271,7 +271,7 @@ aside {
 
     .mapbox-scale-ctrl,
     .mapbox-zoom-ctrl {
-      transform: translate(0rem, -1rem);
+      transform: translate(0rem, -1.5rem);
     }
 
     .mapboxgl-ctrl-bottom-right {
@@ -418,16 +418,36 @@ aside {
 
 }
 
+.mapboxgl-ctrl-attrib:not(.er-map) {
+  display: none;
+}
+
+.mapboxgl-ctrl-attrib.er-map {
+  font-size: 0.7rem;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  text-align: right;
+  z-index: 2;
+  p {
+    margin: 0;
+  }
+  @media (min-width: $md-layout-width-min) {
+    right: 4rem;
+  }
+}
+
 .mapboxgl-ctrl-bottom-right {
+  margin-bottom: 2rem;
   transform: translateX(-4.5rem);
 }
 
 .mapbox-scale-ctrl,
 .mapbox-zoom-ctrl {
-  transform: translate(0rem, -1rem);
+  transform: translate(0rem, -1.5rem);
 
   @media (min-width: $md-layout-width-min) {
-    transform: translate(-4rem, -1rem);
+    transform: translate(-4rem, -1.5rem);
   }
 }
 

@@ -13,13 +13,18 @@ import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
 const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
-  'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
+  'icon-size': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    7, 0.666,
+    12, 1/MAP_ICON_SCALE,
+    MAX_ZOOM, 1.25/MAP_ICON_SCALE,
+  ],
   'icon-allow-overlap': true,
   'icon-pitch-alignment': 'map',
   'text-allow-overlap': true,

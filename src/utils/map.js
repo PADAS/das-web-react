@@ -1,3 +1,5 @@
+import format from 'date-fns/format';
+
 import { store } from '../';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
@@ -9,11 +11,6 @@ import { MAP_ICON_SIZE, MAP_ICON_SCALE/* , MAX_ZOOM */ } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
-
-const emptyFeatureCollection = {
-  'type': 'FeatureCollection',
-  'features': []
-};
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
@@ -78,7 +75,7 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   if (subjects && subjects.features.length) {
     return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
   }
-  return emptyFeatureCollection;
+  return featureCollection([]);
 };
 
 const addTitleWithDateToGeoJson = (geojson, title) => { 
@@ -205,6 +202,26 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
+};
+
+const baseLayerIsArcGisServer = ({ attributes: { url } }) => url.includes('arcgisonline.com/ArcGIS/rest/services');
+const baseLayerIsGoogleMap = ({ attributes: { url } }) => url.includes('mt.google.com');
+
+const fetchAttributionForArcGisServer = ({ attributes: { url } } ) => {
+  const attributionUrl = `${url.substring(0, url.lastIndexOf('MapServer') + 9)}?f=pjson`;
+  console.log('attributionUrl to fetch', attributionUrl);
+  return window.fetch(attributionUrl)
+    .then((response) => response.json())
+    .then((json) => json.copyrightText)
+    .catch((error) => 'Error fetching map attribution');
+};
+
+export const getAttributionStringForBaseLayer = (baseLayer) => {
+  const currentDate = format(new Date(), 'YYYY');
+  if (baseLayer.attributes.attribution) return Promise.resolve(baseLayer.attributes.attribution);
+  if (baseLayerIsArcGisServer(baseLayer)) return fetchAttributionForArcGisServer(baseLayer);
+  if (baseLayerIsGoogleMap(baseLayer)) return Promise.resolve(`©${currentDate} Google`);
+  return Promise.resolve(`©${currentDate} Mapbox ©${currentDate} OpenStreetMap`);
 };
 
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>

@@ -287,7 +287,7 @@ class Map extends Component {
 
     this.props.showPopup('subject', { geometry, properties });
 
-    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise((resolve, reject) => resolve());
+    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
     if (tracks_available) {
       updateTrackState({
