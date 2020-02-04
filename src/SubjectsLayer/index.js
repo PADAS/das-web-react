@@ -66,7 +66,7 @@ const SubjectsLayer = (props) => {
 
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <Layer sourceId='subject-symbol-source' type='symbol'
+    <Layer minZoom={7} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} {...rest} onClick={onSymbolClick}
       paint={symbolPaint} layout={layout} />
 

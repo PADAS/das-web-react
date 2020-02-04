@@ -7,8 +7,8 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-import { fetchMapSubjects } from '../ducks/subjects';
-import { fetchMapEvents } from '../ducks/events';
+import { fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
+import { fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
@@ -61,6 +61,7 @@ class Map extends Component {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
+    this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
@@ -138,9 +139,14 @@ class Map extends Component {
     this.props.showPopup('timepoint', { geometry, properties });
   }
 
+  onMapMoveStart() {
+    mapSubjectsFetchCancelToken.cancel();
+    mapEventsFetchCancelToken.cancel();
+  }
+
   onMapMoveEnd = debounce((e) => {
     this.fetchMapData();
-  }, 400);
+  });
 
   toggleMapLockState(e) {
     return toggleMapLockState();
@@ -356,6 +362,7 @@ class Map extends Component {
           <MapSettingsControl />
           <TimeSliderMapControl />
         </Fragment>}
+        onMoveStart={this.onMapMoveStart}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >

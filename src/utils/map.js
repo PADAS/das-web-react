@@ -48,20 +48,16 @@ export const addMapImage = async (src, id) => {
   };
 };
 
-export const addFeatureCollectionImagesToMap = async (collection, map) => {
+export const addFeatureCollectionImagesToMap = (collection, map) => {
   const { features } = collection;
-  const mapImageIDs = map.listImages();
 
   const images = features
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties: { image } }) => image)
-    .filter((image, index, array) => !mapImageIDs.includes(image) && (array.findIndex(item => item === image) === index))
+    .filter((image, index, array) => !map.hasImage(image) && (array.findIndex(item => item === image) === index))
     .map(image => addMapImage(image));
 
-  const results = await Promise.all(images);
-  setTimeout(() => {
-    return results;
-  });
+  return Promise.all(images).then(results => results);
 };
 
 const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {

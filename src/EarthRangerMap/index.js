@@ -50,13 +50,8 @@ const EarthRangerMap = (props) => {
   };
 
   useEffect(() => {
-    if (currentBaseLayer) {
-      if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
-        setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
-      }
-      getAttributionStringForBaseLayer(currentBaseLayer).then((results) => {
-        console.log('getAttributionStringForBaseLayer', results);
-      });
+    if (currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
+      setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
     }
   }, [currentBaseLayer]);
 
