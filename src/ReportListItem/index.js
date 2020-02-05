@@ -10,11 +10,12 @@ import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMulti
   displayTitleForEventByEventType, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
+import { jumpToLocation } from '../utils/map';
 
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { eventTypes, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -46,7 +47,9 @@ const ReportListItem = (props) => {
 
   // Only fire bounce on the second and subsequent click of a jump. First
   // remove the existing ids so that redux can 'clear' the existing state.
-  const onBounceClick = () => {
+  const onClick = () => {
+    const zoom = map.getZoom();
+    jumpToLocation(map, coordinates, zoom);
     if (locationClicked.current) {
       // clear the current prop, in the case where its the same ids
       setBounceEventIDs([]);
@@ -69,7 +72,7 @@ const ReportListItem = (props) => {
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
     {coordinates && !!coordinates.length && showJumpButton &&
-      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} onBounceClick = {onBounceClick}
+      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} onClick = {onClick}
         clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
     }
   </li>;
