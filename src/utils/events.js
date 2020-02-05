@@ -223,7 +223,7 @@ export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualD
   }),
 });
 
-export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (featureCollection, virtualDate, totalRangeDistance) => {
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance) => {
   return {
     ...featureCollection,
     features: featureCollection.features.map((feature) => ({

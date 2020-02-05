@@ -30,7 +30,11 @@ const TimeSlider = (props) => {
   
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
-  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, { lower: since, upper: until });
+  const startDateModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range.lower, since);
+  const endDateModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range.upper, until);
+
+  const dateRangeModified = startDateModified || endDateModified;
+
   const clearDateRange = (e) => {
     e.stopPropagation();
     updateEventFilter({
@@ -91,7 +95,7 @@ const TimeSlider = (props) => {
 
   return <div className={styles.wrapper}>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
-      <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left}`}>
+      <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
         <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{format(startDate, STANDARD_DATE_FORMAT)}</span>
         <TimeAgo date={startDate}/>
       </div>
@@ -104,8 +108,8 @@ const TimeSlider = (props) => {
       </span>
     </div>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
-      <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}`}>
-        <span className={styles.handleDate}  title={generateCurrentTimeZoneTitle()}>{format(endDate, STANDARD_DATE_FORMAT)}</span>
+      <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
+        {until && <span className={styles.handleDate}  title={generateCurrentTimeZoneTitle()}>{format(endDate, STANDARD_DATE_FORMAT)}</span>}
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
       </div>
     </OverlayTrigger>
