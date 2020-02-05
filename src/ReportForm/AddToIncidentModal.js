@@ -30,14 +30,15 @@ const AddToIncidentModal = (props) => {
     removeModal(id);
   };
 
-  const fetchFeed = async () => {
-    await fetchIncidentFeed({}, 'is_collection=true');
-    setLoadedState(true);
-  };
+ 
 
   useEffect(() => {
+    const fetchFeed = async () => {
+      await fetchIncidentFeed({}, 'is_collection=true');
+      setLoadedState(true);
+    };
     fetchFeed();
-  }, []);
+  }, []); // eslint-disable-line
 
   const onExistingIncidentClick = (report) => {
     onAddToExistingIncident(report);
@@ -54,11 +55,6 @@ const AddToIncidentModal = (props) => {
   const onScroll = () => {
     if (!incidents.next) return null;
     return fetchNextIncidentFeedPage(incidents.next);
-  };
-
-  const onCancelClick = () => {
-    hideModal();
-    trackEvent('Add To Incident', "Click 'Cancel' button");
   };
 
   const hasMore = !loaded || !!incidents.next;

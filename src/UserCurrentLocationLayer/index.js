@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
-import bboxPolygon from '@turf/bbox-polygon';
 import booleanContains from '@turf/boolean-contains';
 
 import { setCurrentUserLocation } from '../ducks/location';
 import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
 
 import { addMapImage } from '../utils/map';
-import { GEOLOCATOR_OPTIONS } from '../constants';
+import { GEOLOCATOR_OPTIONS, MAP_ICON_SCALE } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
 
@@ -24,7 +23,7 @@ const symbolLayout = {
   'icon-image': 'current-location-icon',
   'icon-allow-overlap': true,
   'icon-anchor': 'center',
-  'icon-size': 0.6,
+  'icon-size': 0.6 / MAP_ICON_SCALE,
 };
 
 
@@ -90,11 +89,11 @@ const UserCurrentLocationLayer = (props) => {
         window.cancelAnimationFrame(animationFrameID.current);
       };
     }
-  }, []);
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     userLocation && blipAnimation.current(animationState);
-  }, [userLocation]);
+  }, [userLocation]); // eslint-disable-line
 
 
   useEffect(() => {
@@ -105,10 +104,11 @@ const UserCurrentLocationLayer = (props) => {
   }, [animationState]);
 
   useEffect(() => {
-    setUserLocationWithinMapBounds(
-      !!currentMapBbox && !!userLocation && !!userLocation.coords && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude])),
-    );
-  }, [currentMapBbox, userLocation]);
+    const isInView = !!currentMapBbox && !!userLocation && !!userLocation.coords && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude]));
+    if (isInView !== userLocationIsInMapBounds) {
+      setUserLocationWithinMapBounds(isInView);
+    }
+  }, [currentMapBbox, userLocation]); // eslint-disable-line
 
   const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
 
@@ -119,13 +119,11 @@ const UserCurrentLocationLayer = (props) => {
       userLocation.coords.latitude,
     ]),
   };
-  
-
 
   return showLayer && <Fragment>
     <Source id='current-user-location' geoJsonSource={sourceData} />
-    <Layer sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
-    <Layer sourceId='current-user-location' paint={{
+    <Layer minZoom={7} sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
+    <Layer minZoom={8} sourceId='current-user-location' paint={{
       'circle-radius': animationState.radius,
       'circle-radius-transition': { duration: 0 },
       'circle-opacity-transition': { duration: 0 },

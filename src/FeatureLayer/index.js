@@ -116,15 +116,15 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
     <Source id='feature-polygon-source' geoJsonSource={polygonData} />
     <Source id='feature-symbol-source' geoJsonSource={symbolData} />
 
-    <Layer sourceId='feature-polygon-source' type='fill'
+    <Layer minZoom={4} sourceId='feature-polygon-source' type='fill'
       id={FEATURE_FILLS} before={SUBJECT_SYMBOLS}
       paint={fillPaint} layout={fillLayout} />
 
-    <Layer sourceId='feature-line-source' type='line'
+    <Layer minZoom={4} sourceId='feature-line-source' type='line'
       id={FEATURE_LINES} before={SUBJECT_SYMBOLS}
       paint={linePaint} layout={lineLayout} />
 
-    <Layer sourceId='feature-symbol-source' type='symbol'
+    <Layer minZoom={7} sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
       paint={symbolPaint} layout={layout}
       onMouseEnter={onSymbolMouseEnter}

@@ -2,8 +2,11 @@ import React, { Fragment, memo } from 'react';
 import { point } from '@turf/helpers';
 import { Source, Layer } from 'react-mapbox-gl';
 
+import { SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
+
 const layout = {
   'icon-image': 'marker-icon',
+  'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
   'icon-allow-overlap': true,
   'icon-anchor': 'bottom',
 };

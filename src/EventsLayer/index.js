@@ -13,12 +13,18 @@ import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
 const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
+  'icon-size': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    7, 0.666,
+    12, 1/MAP_ICON_SCALE,
+    MAX_ZOOM, 1.25/MAP_ICON_SCALE,
+  ],
   'icon-allow-overlap': true,
   'icon-pitch-alignment': 'map',
   'text-allow-overlap': true,
@@ -176,24 +182,24 @@ const EventsLayer = (props) => {
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
     
 
-    {!enableClustering && <Layer sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
+    {!enableClustering && <Layer minZoom={7} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
       paint={eventSymbolLayerPaint}
       layout={eventSymbolLayerLayout} {...rest} />}
 
     {enableClustering && <Fragment>
-      <Layer after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
+      <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
         filter={['!has', 'point_count']}
         paint={eventSymbolLayerPaint}
         layout={eventSymbolLayerLayout} {...rest} />
 
-      <Layer after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
+      <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
         filter={['has', 'point_count']} onClick={handleClusterClick} layout={clusterSymbolLayout} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
       />
 
     
 
-      <Layer before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
+      <Layer minZoom={7} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
   </Fragment>;
 };

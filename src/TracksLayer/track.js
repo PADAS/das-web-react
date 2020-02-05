@@ -5,7 +5,7 @@ import { Source, Layer } from 'react-mapbox-gl';
 
 import { trimmedTrack, trimmedTrackPoints } from '../selectors/tracks';
 
-import { LAYER_IDS } from '../constants';
+import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -30,7 +30,7 @@ const timepointLayerLayout = {
     'interpolate', ['linear'], ['zoom'],
     0, 0,
     10, 0,
-    18, 0.75,
+    18, 0.75 / MAP_ICON_SCALE,
   ],
   'icon-rotate': ['get', 'bearing'],
   'icon-image': 'track_arrow',

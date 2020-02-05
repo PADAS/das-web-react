@@ -7,13 +7,11 @@ import { trackEvent } from '../utils/analytics';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
-import MapBaseLayerControl from '../MapBaseLayerControl';
-import MapSettingsControl from '../MapSettingsControl';
-
 import 'mapbox-gl/dist/mapbox-gl.css';
 // import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import '../Map/Map.scss';
 import BaseLayerRenderer from '../BaseLayerRenderer';
+import Attribution from './Attribution';
 
 
 const EarthRangerMapContext = createContext(null);
@@ -23,7 +21,6 @@ const MapboxMap = ReactMapboxGl({
   minZoom: MIN_ZOOM,
   maxZoom: MAX_ZOOM,
   logoPosition: 'top-left',
-  preserveDrawingBuffer: true,
 });
 
 export function withMap(Component) {
@@ -52,10 +49,8 @@ const EarthRangerMap = (props) => {
   };
 
   useEffect(() => {
-    if (currentBaseLayer) {
-      if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
-        setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
-      }
+    if (currentBaseLayer && MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(currentBaseLayer.attributes.type)) {
+      setMapStyle(currentBaseLayer.attributes.styleUrl || currentBaseLayer.attributes.url);
     }
   }, [currentBaseLayer]);
 
@@ -72,10 +67,9 @@ const EarthRangerMap = (props) => {
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>
           {controls}
-          <MapBaseLayerControl />
-          <MapSettingsControl />
         </div>
         {children}
+        <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
         <BaseLayerRenderer />
       </Fragment>}
     </EarthRangerMapContext.Provider>

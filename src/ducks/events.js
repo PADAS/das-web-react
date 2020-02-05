@@ -262,7 +262,7 @@ export { fetchEventFeed, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextInc
 
 const cancelableMapEventsFetch = () => {
   let cancelToken = CancelToken.source();
-  const fetchFn = (map) => async (dispatch, getState) => {
+  const fetchFn = (map) => (dispatch, getState) => {
     let lastKnownBbox;
     if (!map) {
       lastKnownBbox = getState().data.mapEvents.bbox;
@@ -299,7 +299,7 @@ const cancelableMapEventsFetch = () => {
   return [fetchFn, cancelToken];
 };
 
-export const [fetchMapEvents] = cancelableMapEventsFetch();
+export const [fetchMapEvents, mapEventsFetchCancelToken] = cancelableMapEventsFetch();
 
 const fetchMapEventsSucess = results => (dispatch) => {
   dispatch({

@@ -44,3 +44,5 @@ export const generateMonthsAgoDate = (monthsAgo = 1) => new Date(
 );
 
 export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
+
+export const generateCurrentTimeZoneTitle = () => `Date displayed in the ${window.Intl.DateTimeFormat().resolvedOptions().timeZone} time zone`;

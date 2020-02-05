@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
@@ -24,10 +24,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 
-import App from './App';
-import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
+
+import LoadingOverlay from './EarthRangerIconLoadingOverlay';
+
+const App = lazy(() => import('./App'));
+const Login = lazy(() => import('./Login'));
 
 
 // registering icons from fontawesome as needed
@@ -45,10 +48,12 @@ ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
-        <Switch>
-          <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
-          <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
-        </Switch>
+        <Suspense fallback={<LoadingOverlay message='Loading...' />}>
+          <Switch>
+            <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+            <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
+          </Switch>
+        </Suspense>
       </BrowserRouter>
       <ToastContainer />
     </PersistGate>

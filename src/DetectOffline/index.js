@@ -1,5 +1,4 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import { toast, Slide } from 'react-toastify';
 
 const DetectOffline = () => {
@@ -25,30 +24,13 @@ const DetectOffline = () => {
     };
   });
 
-  const showOfflineToast = () => {
-    toastDelay.current = setTimeout(
-      () => {
-        toastId.current = toast(<div>
-          <p>You are currently offline.
-          EarthRanger may not function as expected.
-      Please check your network connection.</p>
-        </div>, {
-          autoClose: false,
-          closeOnClick: false,
-          onClose: onToastClose,
-          position: toast.POSITION.TOP_CENTER,
-          transition: Slide,
-        });
-      }, 2000);
-  };
-
   const handleReconnect = () => {
     if (toastId.current) {
       toast.update(
         toastId.current, {
-        render: 'Back online!',
-        type: toast.TYPE.SUCCESS,
-      }
+          render: 'Back online!',
+          type: toast.TYPE.SUCCESS,
+        }
       );
       setTimeout(() => {
         toastId.current && toast.dismiss(toastId.current);
@@ -58,6 +40,22 @@ const DetectOffline = () => {
   };
 
   useEffect(() => {
+    const showOfflineToast = () => {
+      toastDelay.current = setTimeout(
+        () => {
+          toastId.current = toast(<div>
+            <p>You are currently offline.
+          EarthRanger may not function as expected.
+      Please check your network connection.</p>
+          </div>, {
+            autoClose: false,
+            closeOnClick: false,
+            onClose: onToastClose,
+            position: toast.POSITION.TOP_CENTER,
+            transition: Slide,
+          });
+        }, 2000);
+    };
     clearTimeout(toastDelay.current);
 
     if (!isOnline) {
@@ -67,7 +65,7 @@ const DetectOffline = () => {
     }
     return () => {
       clearTimeout(toastDelay.current);
-    }
+    };
   }, [isOnline]);
 };
 

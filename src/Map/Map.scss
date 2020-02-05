@@ -27,13 +27,22 @@
 .map-controls-container {
   bottom: 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-flow: column;
   left: 0.5rem;
   position: absolute;
-  width: 6rem;
   z-index: 6;
   > * {
-    margin: 0 0.25rem 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .mapboxgl-popup {
+    z-index: -1 !important;
+  }
+  [type=button]:first-child {
+    background: rgba(white, 0.8);
+    // border-radius: 0.333rem;
+    &:hover, &:active {
+      background: white;
+    }
   }
 }
 

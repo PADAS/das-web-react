@@ -3,15 +3,13 @@ import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 
-import isEqual from 'react-fast-compare';
-
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
-  isEqual,
+  // isEqual,
 );
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;

@@ -43,21 +43,21 @@ const MapLocationPicker = (props) => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelectCancel();
-    trackEvent('Map Interaction', "Dismiss 'Drop Marker'");
+    trackEvent('Map Interaction', 'Dismiss \'Drop Marker\'');
   };
 
   const onSelect = (e) => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelect(e);
-    trackEvent('Map Interaction', "Place 'Drop Marker' to Create Report");
+    trackEvent('Map Interaction', 'Place \'Drop Marker\' to Create Report');
   };
 
   const onSelectStart = () => {
     setPickingMapLocationState(true);
     bindMapEvents();
     onLocationSelectStart();
-    trackEvent('Map Interaction', "Click 'Drop Marker' button");
+    trackEvent('Map Interaction', 'Click \'Drop Marker\' button');
   };
 
   return <div className={wrapperClassName}>

@@ -1,12 +1,7 @@
 import { REACT_APP_DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
-
 const imgIsDataUrl = url => url.includes('data:image');
-
-const exp = /^(\/beta|beta|\/static|static)/;
-
-
 const imgIsFromStaticResources = url => /^(\/beta|beta|\/static|static)/.test(url);
 
 

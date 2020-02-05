@@ -20,7 +20,7 @@ const TracksLayer = (props) => {
     if (!map.hasImage(ARROW_IMG_ID)) {
       addMapImage(Arrow, ARROW_IMG_ID);
     }
-  }, []);
+  }, []); // eslint-disable-line
 
   return <Fragment>{trackIds.map(id => <TrackLayer key={`track-layer-${id}`} map={map} onPointClick={onSymbolClick} showTimepoints={showTimepoints} trackId={id} />)}</Fragment>;
 };

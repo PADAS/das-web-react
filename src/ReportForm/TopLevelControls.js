@@ -108,7 +108,7 @@ const ReportFormTopLevelControls = (props) => {
           </div>
         </Popover>}
       </Overlay>
-      <a href="#" onClick={() => setGpsPopoverState(!gpsPopoverOpen)} className={styles.locationAnchor} ref={gpsInputAnchorRef}>
+      <a href="#" onClick={() => setGpsPopoverState(!gpsPopoverOpen)} className={styles.locationAnchor} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
         {reportLocation ? calcGpsDisplayString(reportLocation[1], reportLocation[0], gpsFormat) : 'Click here to set location'}
       </a>
     </label>

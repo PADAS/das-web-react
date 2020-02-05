@@ -57,7 +57,7 @@ const cancelableMapSubjectsFetch = () => {
   return [fetchFn, cancelToken];
 };
 
-export const [fetchMapSubjects] = cancelableMapSubjectsFetch();
+export const [fetchMapSubjects, mapSubjectsFetchCancelToken] = cancelableMapSubjectsFetch();
 
 export const fetchSubjectGroups = () => dispatch => axios.get(SUBJECT_GROUPS_API_URL)
   .then(response => dispatch(fetchSubjectGroupsSuccess(response)));

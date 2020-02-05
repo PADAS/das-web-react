@@ -14,7 +14,7 @@
   animation: slide-down $duration ease-in;
 }
 
-@mixin fade-in($duration: 0.2s) {
+@mixin fade-in($duration: 0.2s, $delay: 0) {
   @keyframes fade-in {
     0% {
       opacity: 0
@@ -23,5 +23,5 @@
       opacity: 1;
     }
   }
-  animation: fade-in $duration linear;
+  animation: fade-in $duration $delay linear;
 }
