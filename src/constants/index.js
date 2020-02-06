@@ -83,7 +83,7 @@ export const SOURCE_IDS = {
   ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
 };
 
-const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
+export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
   ['in', 'generic', ['get', 'image']], ifGeneric,
   ifNonGeneric,
 ];
@@ -93,6 +93,13 @@ export const SYMBOL_ICON_SIZE_EXPRESSION = [
   6, 0,
   12, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
   MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.5/MAP_ICON_SCALE),
+];
+
+export const symbolTextSize = [
+  'interpolate', ['exponential', 0.5], ['zoom'],
+  6, 0,
+  12, 14,
+  MAX_ZOOM, 16,
 ];
 
 export const DEFAULT_SYMBOL_LAYOUT = {
@@ -105,12 +112,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
-  'text-size': [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    6, 0,
-    12, 14,
-    MAX_ZOOM, 16,
-  ],
+  'text-size': symbolTextSize,
 };
 
 export const DEFAULT_SYMBOL_PAINT = {

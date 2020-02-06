@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -6,16 +6,21 @@ import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 
-import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, displayTitleForEventByEventType } from '../utils/events';
+import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, 
+  displayTitleForEventByEventType, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
+import { setBounceEventIDs } from '../ducks/map-ui';
+import { jumpToLocation } from '../utils/map';
 
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { eventTypes, map, report, onTitleClick, onIconClick, showDate, showJumpButton, className, key, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
+
+  const locationClicked = useRef(false);
 
   const iconClickHandler = onIconClick || onTitleClick;
 
@@ -38,6 +43,24 @@ const ReportListItem = (props) => {
   
   const displayTitle = displayTitleForEventByEventType(report);
 
+  const bounceIDs = hasMultipleLocations ? getEventIdsForCollection(report) : [report.id];
+
+  // Only fire bounce on the second and subsequent click of a jump. First
+  // remove the existing ids so that redux can 'clear' the existing state.
+  const onClick = () => {
+    const zoom = map.getZoom();
+    jumpToLocation(map, coordinates, zoom);
+    if (locationClicked.current) {
+      // clear the current prop, in the case where its the same ids
+      setBounceEventIDs([]);
+      setTimeout(() => {
+        setBounceEventIDs(bounceIDs);   
+      }, 100);
+      
+    }
+    locationClicked.current = true;
+  };
+
   return <li title={displayTitle} className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
       <EventIcon report={report} />
@@ -49,14 +72,14 @@ const ReportListItem = (props) => {
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
     {coordinates && !!coordinates.length && showJumpButton &&
-      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates}
+      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} onClick = {onClick}
         clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
     }
   </li>;
 };
 
 const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
-export default connect(mapStateToProps, null)(memo(ReportListItem));
+export default connect(mapStateToProps, { setBounceEventIDs })(memo(ReportListItem));
 
 ReportListItem.defaultProps = {
   showJumpButton: true,

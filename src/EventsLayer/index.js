@@ -7,13 +7,14 @@ import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
+import { addBounceToEventMapFeatures } from '../utils/events';
 import { calcUrlForImage } from '../utils/img';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -54,10 +55,41 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
+// bounce animation constants
+const FRAMES_PER_SECOND = 6;
+const ANIMATION_LENGTH_SECONDS = .25; //seconds
+const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
+// text-size interpolates at a different rate than icon-size for bounce animation
+const ICON_SCALE_RATE = .15;
+const FONT_SCALE_RATE = 1.75;
+
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventIDs, ...rest } = props;
+
+  // assign 'bounce' property to the current event feature collection,
+  // so that we can render bounce and disable feature state after it is animated. 
+  const [eventsWithBounce, setEventsWithBounce] = useState(featureCollection([]));
+  const [bounceIDs, setBounceIDs] = useState([]);
+
+  const [animationState, setAnimationState] = useState({
+    frame: 1,
+    scale: 0.0,
+    isRendering: false,
+  });
+
+  useEffect(() => {
+    setEventsWithBounce({
+      ...events,
+      features: addBounceToEventMapFeatures(events.features, bounceEventIDs),
+    });
+  }, [bounceEventIDs, events]);
+
+  useEffect(() => {
+    setBounceIDs(bounceEventIDs ? bounceEventIDs : []);
+    setAnimationState({frame: 1, scale: 0.0, isRendering: (bounceEventIDs.length > 0)});
+  }, [bounceEventIDs]);
 
   const handleClusterClick = (e) => {
     setClusterBufferPolygon(featureCollection([]));
@@ -71,8 +103,8 @@ const EventsLayer = (props) => {
 
   useEffect(() => {
     setMapEventFeatureCollection({
-      ...events,
-      features: events.features.filter((feature) => {
+      ...eventsWithBounce,
+      features: eventsWithBounce.features.filter((feature) => {
         return !!mapImages[
           calcUrlForImage(
             feature.properties.image || feature.properties.image_url
@@ -80,7 +112,7 @@ const EventsLayer = (props) => {
         ];
       }),
     });
-  }, [events, mapImages]);
+  }, [eventsWithBounce, mapImages]);
 
   const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
@@ -148,11 +180,64 @@ const EventsLayer = (props) => {
     'text-allow-overlap': true,
   };
 
+  const animationFrameID = useRef(null);
+
+  const updateBounceSineAnimation = () => {
+    let currFrame = animationState.frame;
+    const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
+    if (bounceIDs.length) {
+      // assumes first increment of animation curve val> 0
+      if(Math.abs(updatedScale) > 1e-8)
+      {
+        setTimeout(() => {
+          setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true});
+        } , 1000 / FRAMES_PER_SECOND);
+      } else {
+        setBounceIDs([]);
+      setAnimationState({frame: 1, scale: 0.0, isRendering: false});
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (bounceIDs.length && animationState.isRendering) {
+      animationFrameID.current = window.requestAnimationFrame(() => updateBounceSineAnimation());
+    } else if (animationFrameID.current) {
+      window.cancelAnimationFrame(animationFrameID.current);
+    }
+    return () => {
+      !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bounceIDs, animationState]);
+
+
+  const SCALE_ICON_IF_BOUNCED = (iconSize, iconScale) => ['match', ['get', 'bounce'], 'true', iconSize + animationState.scale * iconScale, iconSize];
+  const SCALE_FONT_IF_BOUNCED = (fontSize, fontScale) => ['match', ['get', 'bounce'], 'true', fontSize + animationState.scale * fontScale, fontSize];
+  // the mapbox DSL doesn't allow interpolations or steps 
+  // to be nested in their DSL, which results in this crazy layout
+
   const eventSymbolLayerLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-field': '{display_title}',
     ...mapNameLayout,
     ...eventClusterDisabledLayout,
+    'icon-size': [
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      6, 0,
+      12, IF_IS_GENERIC(
+        SCALE_ICON_IF_BOUNCED(0.5/MAP_ICON_SCALE, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(1/MAP_ICON_SCALE, ICON_SCALE_RATE)),
+      MAX_ZOOM, IF_IS_GENERIC(
+        SCALE_ICON_IF_BOUNCED(0.75/MAP_ICON_SCALE, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(1.5/MAP_ICON_SCALE, ICON_SCALE_RATE)),
+    ],
+    'text-size': [
+      'interpolate', ['exponential', 0.5], ['zoom'],
+      6, 0,
+      12, SCALE_FONT_IF_BOUNCED(14, FONT_SCALE_RATE),
+      MAX_ZOOM, SCALE_FONT_IF_BOUNCED(16, FONT_SCALE_RATE),
+    ]
   };
 
   const clusterConfig = {
@@ -196,9 +281,7 @@ const EventsLayer = (props) => {
         filter={['has', 'point_count']} onClick={handleClusterClick} layout={clusterSymbolLayout} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
       />
-
-    
-
+      
       <Layer minZoom={7} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
   </Fragment>;

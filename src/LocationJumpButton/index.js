@@ -1,9 +1,7 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { BREAKPOINTS } from '../constants';
-import { updateUserPreferences } from '../ducks/user-preferences';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
@@ -11,11 +9,11 @@ import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed
 
 import styles from './styles.module.scss';
 
-
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
-  const { clickAnalytics, onClick, map, coordinates, isMulti, bypassLocationValidation, zoom, updateUserPreferences, onButtonClick, ...rest } = props;
+  const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
+    zoom, updateUserPreferences, onButtonClick, setBounceEventIDs, ...rest } = props;
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
@@ -45,7 +43,7 @@ const LocationJumpButton = (props) => {
   </button>;
 };
 
-export default connect(null, { updateUserPreferences })(memo(LocationJumpButton));
+export default memo(LocationJumpButton);
 
 LocationJumpButton.propTypes = {
   coordinates: PropTypes.array,
