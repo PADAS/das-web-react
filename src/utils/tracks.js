@@ -1,7 +1,8 @@
 import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
-import { subDays, startOfDay } from 'date-fns';
+import subDays from 'date-fns/sub_days';
+import startOfDay from 'date-fns/start_of_day';
 
 import cloneDeep from 'lodash/cloneDeep';
 import { store } from '../index';

@@ -4,6 +4,7 @@
 
 .listItem {
   align-content: center;
+  align-items: stretch;
   color: $primary-font-color;
   display: flex;
   line-height: normal;
@@ -93,6 +94,7 @@ $colors in $priorities {
 
 .date {
   align-items: flex-end;
+  cursor: default;
   flex-flow: column;
   margin-left: auto;
   padding-right: 0;

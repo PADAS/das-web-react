@@ -1,9 +1,9 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import DasIcon from '../DasIcon';
 import PropTypes from 'prop-types';
 
-import { calcTopRatedReportAndTypeForCollection, calcIconColorByPriority } from '../utils/event-types';
+import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 
 import styles from './styles.module.scss';
 

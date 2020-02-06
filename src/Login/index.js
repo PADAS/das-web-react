@@ -42,13 +42,12 @@ class LoginPage extends Component {
       })
       .catch((error) => {
         let errorObject = JSON.parse(JSON.stringify(error));
-        console.log('errorObject', errorObject);
         this.props.clearAuth();
 
         const errorMessage = errorObject
           && errorObject.response
           && errorObject.response.data 
-          && errorObject.response.data.error === 'invalid_grant' 
+          && (errorObject.response.status === 401 || errorObject.response.data.error) === 'invalid_grant' 
           ? 'Invalid credentials given. Please try again.' 
           : 'An error has occured. Please try again.';
 

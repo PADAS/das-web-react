@@ -1,7 +1,8 @@
 import uniq from 'lodash/uniq';
 import { featureCollection } from '@turf/helpers';
 import booleanDisjoint from '@turf/boolean-disjoint';
-import { startOfDay ,subDays } from 'date-fns';
+import startOfDay from 'date-fns/start_of_day';
+import subDays from 'date-fns/sub_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange, bboxBoundsPolygon } from './';
 import { trimTrackFeatureCollectionToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';

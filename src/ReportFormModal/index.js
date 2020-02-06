@@ -30,7 +30,7 @@ const ReportFormModal = (props) => {
     } else {
       setSchemas(schemasFromStore);
     }
-  }, [schemasFromStore]);
+  }, [event_type, fetchEventTypeSchema, schemasFromStore]);
 
   useEffect(() => {
     if (!report_id) { // must be new, use what's been generated
@@ -42,7 +42,7 @@ const ReportFormModal = (props) => {
         fetchEvent(report_id);
       }
     }
-  }, [report_id, eventFromStore]);
+  }, [report_id, eventFromStore, report, fetchEvent]);
 
   useEffect(() => {
     if (stateReport && schemas) {

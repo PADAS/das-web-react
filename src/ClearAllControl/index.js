@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { hideFeatures, hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
+import { hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
@@ -36,15 +36,14 @@ const ClearAllControl = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { data: { subjectGroups, mapEvents } } = state;
+  const { data: { subjectGroups } } = state;
 
   return ({
     subjectGroups,
-    mapEvents
   });
 };
 
 export default connect(mapStateToProps, {
   displayReportsOnMapState, hideSubjects,
   updateTrackState, updateHeatmapSubjects
-})(ClearAllControl);
+})(memo(ClearAllControl));

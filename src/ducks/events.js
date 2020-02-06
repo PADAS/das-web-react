@@ -262,7 +262,7 @@ export { fetchEventFeed, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextInc
 
 const cancelableMapEventsFetch = () => {
   let cancelToken = CancelToken.source();
-  const fetchFn = (map) => async (dispatch, getState) => {
+  const fetchFn = (map) => (dispatch, getState) => {
     let lastKnownBbox;
     if (!map) {
       lastKnownBbox = getState().data.mapEvents.bbox;
@@ -271,7 +271,7 @@ const cancelableMapEventsFetch = () => {
     if (!map && !lastKnownBbox) return;
     
     const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
-    const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false });
+    const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false, page_size: 40 });
     
     dispatch({
       type: FETCH_MAP_EVENTS_START,
@@ -299,7 +299,7 @@ const cancelableMapEventsFetch = () => {
   return [fetchFn, cancelToken];
 };
 
-export const [fetchMapEvents] = cancelableMapEventsFetch();
+export const [fetchMapEvents, mapEventsFetchCancelToken] = cancelableMapEventsFetch();
 
 const fetchMapEventsSucess = results => (dispatch) => {
   dispatch({

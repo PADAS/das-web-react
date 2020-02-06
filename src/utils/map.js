@@ -1,3 +1,5 @@
+import format from 'date-fns/format';
+
 import { store } from '../';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
@@ -5,15 +7,10 @@ import { addImageToMapIfNecessary } from '../ducks/map-images';
 import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { MAP_ICON_SIZE/* , MAX_ZOOM */ } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE/* , MAX_ZOOM */ } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
-
-const emptyFeatureCollection = {
-  'type': 'FeatureCollection',
-  'features': []
-};
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
@@ -43,7 +40,7 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 
 export const addMapImage = async (src, id) => {
   const icon_id = id || src;
-  const img = await imgElFromSrc(src, MAP_ICON_SIZE);
+  const img = await imgElFromSrc(src, (MAP_ICON_SIZE * MAP_ICON_SCALE));
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
   return {
     icon_id,
@@ -51,20 +48,16 @@ export const addMapImage = async (src, id) => {
   };
 };
 
-export const addFeatureCollectionImagesToMap = async (collection, map) => {
+export const addFeatureCollectionImagesToMap = (collection, map) => {
   const { features } = collection;
-  const mapImageIDs = map.listImages();
 
   const images = features
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties: { image } }) => image)
-    .filter((image, index, array) => !mapImageIDs.includes(image) && (array.findIndex(item => item === image) === index))
+    .filter((image, index, array) => !map.hasImage(image) && (array.findIndex(item => item === image) === index))
     .map(image => addMapImage(image));
 
-  const results = await Promise.all(images);
-  setTimeout(() => {
-    return results;
-  });
+  return Promise.all(images).then(results => results);
 };
 
 const addIdToCollectionItemsGeoJsonByKey = (collection, key) => collection.map((item) => {
@@ -78,7 +71,7 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   if (subjects && subjects.features.length) {
     return featureCollection(subjects.features.filter( (subject) => subject.properties.radio_state !== 'offline'));
   }
-  return emptyFeatureCollection;
+  return featureCollection([]);
 };
 
 const addTitleWithDateToGeoJson = (geojson, title) => { 
@@ -123,7 +116,9 @@ export const generateBoundsForLineString = ({ geometry }) => {
 export const jumpToLocation = (map, coords, zoom = 17) => {
 
   
-  map.setZoom(zoom);
+  if (!Array.isArray(coords[0])) {
+    map.setZoom(zoom);
+  }
 
   if (Array.isArray(coords[0])) {
     if (coords.length > 1) {
@@ -203,6 +198,25 @@ export const lockMap = (map, isLocked) => {
       map[control].enable();
     });
   }
+};
+
+const baseLayerIsArcGisServer = ({ attributes: { url } }) => url.includes('arcgisonline.com/ArcGIS/rest/services');
+const baseLayerIsGoogleMap = ({ attributes: { url } }) => url.includes('mt.google.com');
+
+const fetchAttributionForArcGisServer = ({ attributes: { url } } ) => {
+  const attributionUrl = `${url.substring(0, url.lastIndexOf('MapServer') + 9)}?f=pjson`;
+  return window.fetch(attributionUrl)
+    .then((response) => response.json())
+    .then((json) => json.copyrightText)
+    .catch((error) => 'Error fetching map attribution');
+};
+
+export const getAttributionStringForBaseLayer = (baseLayer) => {
+  const currentDate = format(new Date(), 'YYYY');
+  if (baseLayer.attributes.attribution) return Promise.resolve(baseLayer.attributes.attribution);
+  if (baseLayerIsArcGisServer(baseLayer)) return fetchAttributionForArcGisServer(baseLayer);
+  if (baseLayerIsGoogleMap(baseLayer)) return Promise.resolve(`©${currentDate} Google`);
+  return Promise.resolve(`©${currentDate} Mapbox ©${currentDate} OpenStreetMap`);
 };
 
 export const metersToPixelsAtMaxZoom = (meters, latitude) =>

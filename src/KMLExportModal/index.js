@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { trackEvent } from '../utils/analytics';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { subDays, startOfDay, setHours } from 'date-fns';
+import subDays from 'date-fns/sub_days';
+import startOfDay from 'date-fns/start_of_day';
+import setHours from 'date-fns/set_hours';
 
 import { removeModal } from '../ducks/modals';
 import DataExportModal from '../DataExportModal';

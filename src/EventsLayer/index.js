@@ -14,12 +14,18 @@ import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_SYMBOL_ICON_IS_GENERIC, MAX_ZOOM } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
 const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
+  'icon-size': [
+    'interpolate', ['exponential', 0.5], ['zoom'],
+    7, 0.666,
+    12, 1/MAP_ICON_SCALE,
+    MAX_ZOOM, 1.25/MAP_ICON_SCALE,
+  ],
   'icon-allow-overlap': true,
   'icon-pitch-alignment': 'map',
   'text-allow-overlap': true,
@@ -54,7 +60,7 @@ const FRAMES_PER_SECOND = 24;
 const ANIMATION_LENGTH_SECONDS = .25; //seconds
 const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
 // text-size interpolates at a different rate than icon-size for bounce animation
-const ICON_SCALE_RATE = .25;
+const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
@@ -101,7 +107,7 @@ const EventsLayer = (props) => {
       features: eventsWithBounce.features.filter((feature) => {
         return !!mapImages[
           calcUrlForImage(
-            feature.properties.image|| feature.properties.image_url
+            feature.properties.image || feature.properties.image_url
           )
         ];
       }),
@@ -188,7 +194,7 @@ const EventsLayer = (props) => {
         } , 1000 / FRAMES_PER_SECOND);
       } else {
         setBounceIDs([]);
-        setAnimationState({frame: 1, scale: 0.0, isRendering: false});
+      setAnimationState({frame: 1, scale: 0.0, isRendering: false});
       }
     }
   };
@@ -210,6 +216,7 @@ const EventsLayer = (props) => {
   const SCALE_FONT_IF_BOUNCED = (fontSize, fontScale) => ['match', ['get', 'bounce'], 'true', fontSize + animationState.scale * fontScale, fontSize];
   // the mapbox DSL doesn't allow interpolations or steps 
   // to be nested in their DSL, which results in this crazy layout
+
   const eventSymbolLayerLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-field': '{display_title}',
@@ -217,13 +224,13 @@ const EventsLayer = (props) => {
     ...eventClusterDisabledLayout,
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
-      7, 0,
-      12, IF_SYMBOL_ICON_IS_GENERIC(
-        SCALE_ICON_IF_BOUNCED(0.5, ICON_SCALE_RATE), 
-        SCALE_ICON_IF_BOUNCED(1, ICON_SCALE_RATE)),
-      MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(
-        SCALE_ICON_IF_BOUNCED(0.75, ICON_SCALE_RATE), 
-        SCALE_ICON_IF_BOUNCED(1.5, ICON_SCALE_RATE)),
+      6, 0,
+      12, IF_IS_GENERIC(
+        SCALE_ICON_IF_BOUNCED(0.5/MAP_ICON_SCALE, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(1/MAP_ICON_SCALE, ICON_SCALE_RATE)),
+      MAX_ZOOM, IF_IS_GENERIC(
+        SCALE_ICON_IF_BOUNCED(0.75/MAP_ICON_SCALE, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(1.5/MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
     'text-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
@@ -260,22 +267,22 @@ const EventsLayer = (props) => {
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
     
 
-    {!enableClustering && <Layer sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
+    {!enableClustering && <Layer minZoom={7} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
       paint={eventSymbolLayerPaint}
       layout={eventSymbolLayerLayout} {...rest} />}
 
     {enableClustering && <Fragment>
-      <Layer after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
+      <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
         filter={['!has', 'point_count']}
         paint={eventSymbolLayerPaint}
         layout={eventSymbolLayerLayout} {...rest} />
 
-      <Layer after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
+      <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
         filter={['has', 'point_count']} onClick={handleClusterClick} layout={clusterSymbolLayout} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
       />
-
-      <Layer before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
+      
+      <Layer minZoom={7} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
   </Fragment>;
 };

@@ -3,6 +3,9 @@
 .buttons {
   align-items: center;
   display: flex;
+  button {
+    flex-shrink: 0;
+  }
   button + button {
     font-size: 0.75rem;
     margin-left: 0.25rem;

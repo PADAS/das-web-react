@@ -89,14 +89,14 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
     {/* due to a bug in mapboxgl, we need to treat polys as lines, to 
      get a dotted border line to appear*/}
 
-    <Layer sourceId={ANALYZER_POLYS_WARNING_SOURCE} type='line'
+    <Layer minZoom={4} sourceId={ANALYZER_POLYS_WARNING_SOURCE} type='line'
       id={ANALYZER_POLYS_WARNING}
       paint={linePaint}
       onMouseEnter={onAnalyzerFeatureEnter}
       onMouseLeave={onAnalyzerFeatureExit}
       onClick={onAnalyzerFeatureClick} />
 
-    <Layer sourceId={ANALYZER_POLYS_CRITICAL_SOURCE} type='line'
+    <Layer minZoom={4} sourceId={ANALYZER_POLYS_CRITICAL_SOURCE} type='line'
       before={SUBJECT_SYMBOLS}
       id={ANALYZER_POLYS_CRITICAL}
       paint={criticalLinePaint} layout={lineLayout}
@@ -104,7 +104,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       onMouseLeave={onAnalyzerFeatureExit}
       onClick={onAnalyzerFeatureClick} />
 
-    <Layer sourceId={ANALYZER_LINES_CRITICAL_SOURCE} type='line'
+    <Layer minZoom={4} sourceId={ANALYZER_LINES_CRITICAL_SOURCE} type='line'
       before={SUBJECT_SYMBOLS}
       id={ANALYZER_LINES_WARNING}
       paint={linePaint} layout={lineLayout}
@@ -112,7 +112,7 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       onMouseLeave={onAnalyzerFeatureExit}
       onClick={onAnalyzerFeatureClick} />
 
-    <Layer sourceId={ANALYZER_LINES_WARNING_SOURCE} type='line'
+    <Layer minZoom={4} sourceId={ANALYZER_LINES_WARNING_SOURCE} type='line'
       before={SUBJECT_SYMBOLS}
       id={ANALYZER_LINES_CRITICAL}
       paint={criticalLinePaint} layout={lineLayout}

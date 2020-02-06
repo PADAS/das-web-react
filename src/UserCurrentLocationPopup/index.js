@@ -1,7 +1,7 @@
-import React, { memo, useRef } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import TimeAgo from 'react-timeago';
+import TimeAgo from '../TimeAgo';
 import { Popup } from 'react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
@@ -16,7 +16,6 @@ import styles from './styles.module.scss';
 const AddReport = withMap(AR);
 
 const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, ...rest }) => {
-  const containerRef = useRef(null);
   const { coords, timestamp } = location;
   const coordinates = [coords.longitude, coords.latitude];
   const lastRead = new Date(timestamp);

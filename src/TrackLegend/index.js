@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';

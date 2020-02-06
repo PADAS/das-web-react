@@ -1,14 +1,13 @@
-import React, { Component, Fragment } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
-import debounce from 'lodash/debounce';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-import { fetchMapSubjects } from '../ducks/subjects';
-import { fetchMapEvents } from '../ducks/events';
+import { fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
+import { fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
@@ -53,12 +52,15 @@ import MapImagesLayer from '../MapImagesLayer';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
+import MapBaseLayerControl from '../MapBaseLayerControl';
+import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
-class Map extends Component {
+class Map extends PureComponent {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
+    this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
@@ -136,9 +138,14 @@ class Map extends Component {
     this.props.showPopup('timepoint', { geometry, properties });
   }
 
-  onMapMoveEnd = debounce((e) => {
+  onMapMoveStart() {
+    mapSubjectsFetchCancelToken.cancel();
+    mapEventsFetchCancelToken.cancel();
+  }
+
+  onMapMoveEnd() {
     this.fetchMapData();
-  }, 400);
+  };
 
   toggleMapLockState(e) {
     return toggleMapLockState();
@@ -154,17 +161,19 @@ class Map extends Component {
     this.currentAnalyzerIds = [];
   }
 
-  async fetchMapData() {
-    await Promise.all([
+  fetchMapData() {
+    Promise.all([
       this.fetchMapEvents(),
       this.fetchMapSubjects(),
-    ]);
-    if (this.props.timeSliderState.active) {
-      this.resetTrackRequestCancelToken();
-      fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
-        .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-        .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
-    }
+    ])
+      .then(() => {
+        if (this.props.timeSliderState.active) {
+          this.resetTrackRequestCancelToken();
+          fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
+            .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
+            .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
+        }
+      });
   }
   fetchMapSubjects() {
     return this.props.fetchMapSubjects(this.props.map)
@@ -283,7 +292,7 @@ class Map extends Component {
 
     this.props.showPopup('subject', { geometry, properties });
 
-    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise((resolve, reject) => resolve());
+    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
     if (tracks_available) {
       updateTrackState({
@@ -345,11 +354,14 @@ class Map extends Component {
         center={homeMap.center}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
+          <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
-          <TimeSliderMapControl />
           <MapPrintControl />
+          <MapSettingsControl />
+          <TimeSliderMapControl />
         </Fragment>}
+        onMoveStart={this.onMapMoveStart}
         onMoveEnd={this.onMapMoveEnd}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { store } from '../index';
 import { clearAuth } from '../ducks/auth';
 import { resetMasterCancelToken } from '../ducks/auth';
-import { handleServerRequestError } from './request';
+// import { handleServerRequestError } from './request';
 
 export const getAuthTokenFromCookies = () => {
   const token = document.cookie.split(' ').find(item => item.startsWith('token='));

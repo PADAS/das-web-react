@@ -1,6 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
 import Alert from 'react-bootstrap/Alert';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';

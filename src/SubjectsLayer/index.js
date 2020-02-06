@@ -47,7 +47,9 @@ const SubjectsLayer = (props) => {
       features: subjects.features.filter((feature) => {
         return !!mapImages[
           calcUrlForImage(
-            feature.properties.last_position ? feature.properties.last_position.image : feature.properties.image_url
+            feature.properties.last_position 
+              ? feature.properties.last_position.image 
+              : (feature.properties.image || feature.properties.image_url)
           )
         ];
       }),
@@ -64,7 +66,7 @@ const SubjectsLayer = (props) => {
 
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <Layer sourceId='subject-symbol-source' type='symbol'
+    <Layer minZoom={7} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} {...rest} onClick={onSymbolClick}
       paint={symbolPaint} layout={layout} />
 

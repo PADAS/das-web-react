@@ -1,7 +1,10 @@
 
-import { distanceInWords } from 'date-fns';
-
-import { subMonths, subWeeks, subDays, startOfDay, format } from 'date-fns';
+import distanceInWords from 'date-fns/distance_in_words';
+import subMonths from 'date-fns/sub_months';
+import subWeeks from 'date-fns/sub_weeks';
+import subDays from 'date-fns/sub_days';
+import startOfDay from 'date-fns/start_of_day';
+import format from 'date-fns/format';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
@@ -41,3 +44,5 @@ export const generateMonthsAgoDate = (monthsAgo = 1) => new Date(
 );
 
 export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
+
+export const generateCurrentTimeZoneTitle = () => `Date displayed in the ${window.Intl.DateTimeFormat().resolvedOptions().timeZone} time zone`;

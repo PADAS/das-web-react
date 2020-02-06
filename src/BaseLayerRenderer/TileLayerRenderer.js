@@ -11,31 +11,40 @@ const RASTER_SOURCE_OPTIONS = {
   'tileSize': 256,
 };
 
+const TileSources = memo((props) => { // eslint-disable-line
+  const { layers } = props;
+  return <Fragment>
+    {layers
+      .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
+      .map(layer => <Source key={layer.id} id={`layer-source-${layer.id}`} tileJsonSource={{
+        ...RASTER_SOURCE_OPTIONS,
+        tiles: [
+          layer.attributes.url,
+        ],
+      }} >
+      </Source>)}
+  </Fragment>;
+});
+
+const TileLayers = memo((props) => { // eslint-disable-line
+  const { layers, currentBaseLayer } = props;
+  return <Fragment>
+    {layers
+      .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
+      .map(layer => {
+        const layout = {
+          'visibility': layer.id === currentBaseLayer.id ? 'visible' : 'none',
+        };
+        return <Layer before={FEATURE_FILLS} id={`tile-layer-${layer.id}`} key={layer.id} layout={layout} sourceId={`layer-source-${layer.id}`} type="raster" />;
+      })}
+  </Fragment>;
+});
+
 const TileLayerRenderer = (props) => {
   const { layers, currentBaseLayer } = props;
-
-  const tileSources = layers
-    .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
-    .map(layer => <Source key={layer.id} id={`layer-source-${layer.id}`} tileJsonSource={{
-      ...RASTER_SOURCE_OPTIONS,
-      tiles: [
-        layer.attributes.url,
-      ],
-    }} >
-    </Source>);
-
-  const tileLayers = layers
-    .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
-    .map(layer => {
-      const layout = {
-        'visibility': layer.id === currentBaseLayer.id ? 'visible' : 'none',
-      };
-      return <Layer before={FEATURE_FILLS} id={`tile-layer-${layer.id}`} key={layer.id} layout={layout} sourceId={`layer-source-${layer.id}`} type="raster" />;
-    });
-
   return <Fragment>
-    {tileSources}
-    {tileLayers}
+    <TileSources layers={layers} />
+    <TileLayers layers={layers} currentBaseLayer={currentBaseLayer} />
   </Fragment>;
 
 };

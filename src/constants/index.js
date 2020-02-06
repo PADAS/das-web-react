@@ -43,6 +43,7 @@ export const STATUSES = {
 };
 
 export const MAP_ICON_SIZE = 30;
+export const MAP_ICON_SCALE = 2;
 
 // keep this in sync with `/common/styles/_layout.scss`
 const mdLayoutWidthMax = `(max-width: ${layoutVariables.mediumWidthMax}`;
@@ -82,17 +83,19 @@ export const SOURCE_IDS = {
   ANALYZER_LINES_CRITICAL_SOURCE: 'analyzer-line-critical-source',
 };
 
-/* "match" will be replaced with "in" once that expression is merged into master for the mapbox-gl style spec, at which point this expression will work for half-sised generic icons. */
-export const IF_SYMBOL_ICON_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['match', ['get', 'image'], 'generic', ifGeneric, ifNonGeneric];
-
-const symbolIconSize = [
-  'interpolate', ['exponential', 0.5], ['zoom'],
-  7, 0,
-  12, IF_SYMBOL_ICON_IS_GENERIC(0.5, 1),
-  MAX_ZOOM, IF_SYMBOL_ICON_IS_GENERIC(0.75, 1.5),
+export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
+  ['in', 'generic', ['get', 'image']], ifGeneric,
+  ifNonGeneric,
 ];
 
-const symbolTextSize = [
+export const SYMBOL_ICON_SIZE_EXPRESSION = [
+  'interpolate', ['exponential', 0.5], ['zoom'],
+  6, 0,
+  12, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
+  MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.5/MAP_ICON_SCALE),
+];
+
+export const symbolTextSize = [
   'interpolate', ['exponential', 0.5], ['zoom'],
   6, 0,
   12, 14,
@@ -103,7 +106,7 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
   'icon-image': ['get', 'image'],
-  'icon-size': symbolIconSize,
+  'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
   'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',
   'text-offset': [0, .75],

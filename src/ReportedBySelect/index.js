@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
-import TimeAgo from 'react-timeago';
+import TimeAgo from '../TimeAgo';
 
 import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
 import { DEFAULT_SELECT_STYLES } from '../constants';
@@ -12,16 +12,26 @@ import { allSubjects } from '../selectors/subjects';
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className } = props;
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className } = props;
 
   const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
   const allRadios = reporters.filter(subjectIsARadio);
 
+  const optionalProps = {};
+  const selectStyles = {
+    ...DEFAULT_SELECT_STYLES,
+  };
+
+  if (menuRef) {
+    optionalProps.menuPortalTarget = menuRef;
+    selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '6rem', zIndex: 9999 });
+  };
+
   const selected = isMulti
-      ? !!value && !!value.length &&
+    ? !!value && !!value.length &&
         value.map(item => allRadios.find(radio => radio.id === item.id))
-        .filter(item => !!item)
-      : !!value && !!value.id && allRadios.find(radio => radio.id === value.id);
+          .filter(item => !!item)
+    : !!value && !!value.id && allRadios.find(radio => radio.id === value.id);
 
   const options = [
     {
@@ -65,9 +75,11 @@ const ReportedBySelect = (props) => {
     onChange={onChange}
     options={options}
     placeholder='Reported By...'
-    styles={DEFAULT_SELECT_STYLES}
+    styles={selectStyles}
     getOptionValue={getOptionValue}
-    getOptionLabel={getOptionLabel} />;
+    getOptionLabel={getOptionLabel}
+    {...optionalProps}
+  />;
 };
 
 const mapStateToProps = (state) => ({

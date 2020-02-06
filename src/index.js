@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
@@ -9,6 +9,12 @@ import ReduxPromise from 'redux-promise';
 import { PersistGate } from 'redux-persist/integration/react';
 import ReduxThunk from 'redux-thunk';
 import { ToastContainer } from 'react-toastify';
+import { library, dom } from '@fortawesome/fontawesome-svg-core';
+
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 
 import { REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
 import reducers from './reducers';
@@ -18,10 +24,18 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 
-import App from './App';
-import Login from './Login';
 import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
+
+import LoadingOverlay from './EarthRangerIconLoadingOverlay';
+
+const App = lazy(() => import('./App'));
+const Login = lazy(() => import('./Login'));
+
+
+// registering icons from fontawesome as needed
+library.add(faPlus, faTimes, faArrowUp, faArrowDown);
+dom.watch();
 
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
@@ -34,10 +48,12 @@ ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
-        <Switch>
-          <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
-          <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
-        </Switch>
+        <Suspense fallback={<LoadingOverlay message='Loading...' />}>
+          <Switch>
+            <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+            <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
+          </Switch>
+        </Suspense>
       </BrowserRouter>
       <ToastContainer />
     </PersistGate>
