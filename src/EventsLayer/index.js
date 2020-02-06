@@ -56,7 +56,7 @@ const clusterPolyPaint = {
 };
 
 // bounce animation constants
-const FRAMES_PER_SECOND = 24;
+const FRAMES_PER_SECOND = 6;
 const ANIMATION_LENGTH_SECONDS = .25; //seconds
 const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS);
 // text-size interpolates at a different rate than icon-size for bounce animation
