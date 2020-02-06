@@ -17,6 +17,8 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, MAP_ICON_SCALE,
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
+const UNCLUSTERED_EVENT_SYMBOLS = `${EVENT_SYMBOLS}_UNCLUSTERED`;
+
 const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
   'icon-size': [
@@ -54,7 +56,7 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
-const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
+const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [EVENT_SYMBOLS, UNCLUSTERED_EVENT_SYMBOLS] })[0];
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, ...rest } = props;
@@ -138,8 +140,10 @@ const EventsLayer = (props) => {
     !!events && addFeatureCollectionImagesToMap(events, map);
     addClusterIconToMap();
     map.on('click', EVENT_SYMBOLS, handleEventClick.current);
+    map.on('click', UNCLUSTERED_EVENT_SYMBOLS, handleEventClick.current);
     return () => {
       map.off('click', EVENT_SYMBOLS, handleEventClick.current); // eslint-disable-line
+      map.off('click', UNCLUSTERED_EVENT_SYMBOLS, handleEventClick.current); // eslint-disable-line
     };
   }, [events, map]);
 
@@ -182,25 +186,25 @@ const EventsLayer = (props) => {
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
     
 
-    {!enableClustering && <Layer minZoom={7} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
+    <Layer minZoom={7} sourceId='events-data-unclustered' id={UNCLUSTERED_EVENT_SYMBOLS} type='symbol'
       paint={eventSymbolLayerPaint}
-      layout={eventSymbolLayerLayout} {...rest} />}
+      layout={{...eventSymbolLayerLayout, 'visibility': enableClustering ? 'none' : 'visible'}} {...rest} />
 
-    {enableClustering && <Fragment>
+    <Fragment>
       <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
         filter={['!has', 'point_count']}
         paint={eventSymbolLayerPaint}
-        layout={eventSymbolLayerLayout} {...rest} />
+        layout={{...eventSymbolLayerLayout, 'visibility': enableClustering ? 'visible' : 'none'}} {...rest} />
 
       <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
-        filter={['has', 'point_count']} onClick={handleClusterClick} layout={clusterSymbolLayout} paint={clusterSymbolPaint}
+        filter={['has', 'point_count']} onClick={handleClusterClick} layout={{...clusterSymbolLayout, 'visibility': enableClustering ? 'visible' : 'none'}} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
       />
 
     
 
       <Layer minZoom={7} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
-    </Fragment>}
+    </Fragment>
   </Fragment>;
 };
 

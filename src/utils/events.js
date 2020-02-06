@@ -228,21 +228,23 @@ export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featu
   return {
     ...featureCollection,
     features: featureCollection.features
-      .filter(item => !filterNegative ? true : (new Date(virtualDate || new Date())  - new Date(item.properties.time)) > 0)
-      .map((feature) => ({
-        ...feature,
-        properties: {
-          ...feature.properties,
-          distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
-        },
-      })),
+      .reduce((accumulator, item) => {
+        const diff = (new Date(virtualDate || new Date())  - new Date(item.properties.time));
+        if (filterNegative && diff < 0) return accumulator;
+        return [...accumulator, {
+          ...item,
+          properties: {
+            ...item.properties,
+            distanceFromVirtualDate: diff / totalRangeDistance,
+          },
+        }];
+      }, []),
   };
 };
 
 export const addNormalizingPropertiesToEventDataFromAPI = (event) => {
   if (event.geojson) {
     event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
-    event.geojson.properties.timeInMs = new Date(event.geojson.properties.datetime || event.geojson.properties.time).getTime();
   }
 };
 
