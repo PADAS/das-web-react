@@ -22,7 +22,7 @@ import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events
 import { trackEvent } from '../utils/analytics';
 import { getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility} from '../ducks/map-ui';
+import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
 import { LAYER_IDS } from '../constants';
