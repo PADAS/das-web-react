@@ -127,7 +127,7 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
       map.fitBounds(boundaries, {
         linear: true,
         speed: 200,
-	      padding: FIT_TO_BOUNDS_PADDING,
+        padding: FIT_TO_BOUNDS_PADDING,
       });
     } else {
       map.easeTo({
