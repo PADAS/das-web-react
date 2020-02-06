@@ -7,7 +7,7 @@ import { addImageToMapIfNecessary } from '../ducks/map-images';
 import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import { MAP_ICON_SIZE, MAP_ICON_SCALE/* , MAX_ZOOM */ } from '../constants';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { fileNameFromPath } from './string';
 import { imgElFromSrc } from './img';
@@ -127,6 +127,7 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
       map.fitBounds(boundaries, {
         linear: true,
         speed: 200,
+	padding: FIT_TO_BOUNDS_PADDING,
       });
     } else {
       map.easeTo({
@@ -142,8 +143,6 @@ export const jumpToLocation = (map, coords, zoom = 17) => {
       speed: 200,
     });
   };
-  setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
-  setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
 };
 
 /* react-mapbox-gl generates layer names for the GeoJsonLayer component by appending them with `-<layertype>`, such as `-fill` or `-circle`. 
