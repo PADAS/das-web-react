@@ -1,10 +1,7 @@
-import React, { memo, useState } from 'react';
-import { connect } from 'react-redux';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
 
 import { BREAKPOINTS } from '../constants';
-import { updateUserPreferences } from '../ducks/user-preferences';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';

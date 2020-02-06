@@ -7,11 +7,9 @@ import isEqual from 'react-fast-compare';
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
-import { EVENT_STATE_CHOICES, LAYER_IDS } from '../constants';
+import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 import ReportFormModal from '../ReportFormModal';
-
-const { EVENT_SYMBOLS } = LAYER_IDS;
 
 export const displayTitleForEventByEventType = (event) => {
   const { data: { eventTypes } } = store.getState();
