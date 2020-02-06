@@ -7,6 +7,7 @@ import isEqual from 'react-fast-compare';
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
+import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 
@@ -223,15 +224,33 @@ export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualD
   }),
 });
 
-export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance) => {
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance, filterNegative = true) => {
   return {
     ...featureCollection,
-    features: featureCollection.features.map((feature) => ({
-      ...feature,
-      properties: {
-        ...feature.properties,
-        distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
-      },
-    })),
+    features: featureCollection.features
+      .filter(item => !filterNegative ? true : (new Date(virtualDate || new Date())  - new Date(item.properties.time)) > 0)
+      .map((feature) => ({
+        ...feature,
+        properties: {
+          ...feature.properties,
+          distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
+        },
+      })),
   };
+};
+
+export const addNormalizingPropertiesToEventDataFromAPI = (event) => {
+  if (event.geojson) {
+    event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
+    event.geojson.properties.timeInMs = new Date(event.geojson.properties.datetime || event.geojson.properties.time).getTime();
+  }
+};
+
+export const calcEventFilterTimeRangeDistance = (eventFilterDateRange, virtualDate) => {
+  const { lower, upper } = eventFilterDateRange;
+  const upperValue = virtualDate ? new Date(virtualDate) :
+    (upper ? new Date(upper) : upper);
+
+  const eventFilterDateRangeLength = upperValue - new Date(lower);
+  return eventFilterDateRangeLength;
 };

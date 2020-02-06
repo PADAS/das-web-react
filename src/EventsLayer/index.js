@@ -182,7 +182,7 @@ const EventsLayer = (props) => {
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
     
 
-    {!enableClustering && <Layer filter={['>=', ['get', 'distanceFromVirtualDate'], 0]} minZoom={7} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
+    {!enableClustering && <Layer minZoom={7} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
       paint={eventSymbolLayerPaint}
       layout={eventSymbolLayerLayout} {...rest} />}
 
