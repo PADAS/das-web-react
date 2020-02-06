@@ -33,7 +33,6 @@ export const MAX_ZOOM = 18;
 
 export const FIT_TO_BOUNDS_PADDING = 50;
 
-
 export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
