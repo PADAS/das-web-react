@@ -2,6 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
+import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -74,6 +75,7 @@ class Map extends PureComponent {
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
+    this.fetchMapData = this.fetchMapData.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
   }
@@ -87,7 +89,7 @@ class Map extends PureComponent {
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.props.socket.emit('event_filter', this.props.eventFilter);
-      this.fetchMapData();
+      this.debouncedFetchMapData();
       if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
         && !isEqual(prev.eventFilter.filter.date_range, this.props.eventFilter.filter.date_range)) {
         this.setTrackLengthToEventFilterRange();
@@ -100,7 +102,7 @@ class Map extends PureComponent {
       this.onTrackLengthChange();
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
-      this.fetchMapData();
+      this.debouncedFetchMapData();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -144,7 +146,7 @@ class Map extends PureComponent {
   }
 
   onMapMoveEnd() {
-    this.fetchMapData();
+    this.debouncedFetchMapData();
   };
 
   toggleMapLockState(e) {
@@ -175,6 +177,7 @@ class Map extends PureComponent {
         }
       });
   }
+  debouncedFetchMapData = debounce(this.fetchMapData, 200)
   fetchMapSubjects() {
     return this.props.fetchMapSubjects(this.props.map)
       .catch((e) => {

@@ -1,10 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import TimeAgo from '../TimeAgo';
 
-import { subjectIsARadio, calcRecentRadiosFromSubjects } from '../utils/subjects';
+import { calcRecentRadiosFromSubjects } from '../utils/subjects';
 import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
@@ -14,8 +14,20 @@ import styles from './styles.module.scss';
 const ReportedBySelect = (props) => {
   const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className } = props;
 
-  const recentRadios = calcRecentRadiosFromSubjects(...subjects).splice(0, numberOfRecentRadiosToShow);
-  const allRadios = reporters.filter(subjectIsARadio);
+  const [recentRadios, setRecentRadios] = useState([]);
+  const [allReporters, setAllReporters] = useState([]);
+
+  useEffect(() => {
+    setRecentRadios(
+      calcRecentRadiosFromSubjects(...subjects)
+        .splice(0, numberOfRecentRadiosToShow)
+    );
+  }, [numberOfRecentRadiosToShow, subjects]);
+
+  useEffect(() => {
+    setAllReporters([...reporters]);
+  }, [reporters]);
+
 
   const optionalProps = {};
   const selectStyles = {
@@ -24,14 +36,14 @@ const ReportedBySelect = (props) => {
 
   if (menuRef) {
     optionalProps.menuPortalTarget = menuRef;
-    selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '6rem', zIndex: 9999 });
+    selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
   };
 
   const selected = isMulti
     ? !!value && !!value.length &&
-        value.map(item => allRadios.find(radio => radio.id === item.id))
+        value.map(item => reporters.find(reporter => reporter.id === item.id))
           .filter(item => !!item)
-    : !!value && !!value.id && allRadios.find(radio => radio.id === value.id);
+    : !!value && !!value.id && reporters.find(reporter => reporter.id === value.id);
 
   const options = [
     {
@@ -39,12 +51,16 @@ const ReportedBySelect = (props) => {
       options: recentRadios,
     },
     {
-      label: 'All radios',
-      options: allRadios,
+      label: 'All',
+      options: allReporters,
     },
   ];
 
-  const getOptionLabel = ({ name }) => name;
+  const getOptionLabel = ({ name, content_type, first_name, last_name }) =>
+    content_type === 'accounts.user' 
+      ? `${first_name} ${last_name}` 
+      : name;
+
   const getOptionValue = ({ id }) => id;
 
   const Option = (props) => {
