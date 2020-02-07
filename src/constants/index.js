@@ -117,10 +117,10 @@ export const DEFAULT_SYMBOL_PAINT = {
   'text-halo-color': 'rgba(255,255,255,0.95)',
   'text-halo-width': [
     'interpolate', ['exponential', 0.5], ['zoom'],
-    6, 1,
-    12, 3,
+    6, 6,
+    12, 6,
   ],
-  'text-halo-blur': 3,
+  'text-halo-blur': 6,
   'text-translate-anchor': 'viewport'
 };
 

@@ -1,6 +1,7 @@
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+import debounceRender from 'react-debounce-render';
 import concave from '@turf/concave';
 import buffer from '@turf/buffer';
 import simplify from '@turf/simplify';
@@ -57,6 +58,7 @@ const clusterPolyPaint = {
 };
 
 const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [EVENT_SYMBOLS, UNCLUSTERED_EVENT_SYMBOLS] })[0];
+
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, ...rest } = props;
@@ -201,14 +203,12 @@ const EventsLayer = (props) => {
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
       />
 
-    
-
       <Layer minZoom={7} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>
   </Fragment>;
 };
 
-export default withMapNames(withMap(memo(EventsLayer)));
+export default debounceRender(memo(withMapNames(withMap(EventsLayer))), 0);
 
 EventsLayer.defaultProps = {
   onClusterClick() {
