@@ -163,7 +163,7 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
               ...feature,
               properties: {
                 ...feature.properties,
-                icon_id: 'marker-icon',
+                icon_id: feature.properties.image || 'marker-icon',
               }
             })
       ),
