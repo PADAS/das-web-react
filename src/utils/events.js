@@ -10,7 +10,6 @@ import { generateMonthsAgoDate } from './datetime';
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
-
 import ReportFormModal from '../ReportFormModal';
 
 export const displayTitleForEventByEventType = (event) => {
@@ -30,12 +29,18 @@ export const getCoordinatesForEvent = evt => evt.geojson
   && evt.geojson.geometry
   && evt.geojson.geometry.coordinates;
 
+export const getIdForEvent = evt => evt.id;
 
 export const collectionHasMultipleValidLocations = collection => getCoordinatesForCollection(collection) && getCoordinatesForCollection(collection).length > 1;
 
 export const getCoordinatesForCollection = collection => collection.contains &&
   collection.contains
     .map(contained => getCoordinatesForEvent(contained.related_event))
+    .filter(item => !!item);
+
+export const getEventIdsForCollection = collection => collection.contains &&
+  collection.contains
+    .map(contained => getIdForEvent(contained.related_event))
     .filter(item => !!item);
 
 export const eventHasLocation = (evt) => {
@@ -256,3 +261,14 @@ export const calcEventFilterTimeRangeDistance = (eventFilterDateRange, virtualDa
   const eventFilterDateRangeLength = upperValue - new Date(lower);
   return eventFilterDateRangeLength;
 };
+export const addBounceToEventMapFeatures = (features, bounceIDs) => {
+  let featurePropId = 0;
+  const featuresWithIds = features.map((item) => {
+    item.id = ++featurePropId;
+    // enable bounce using Mapbox's style conditionals
+    item.properties.bounce = (bounceIDs.includes(item.properties.id) ) ? 'true' : 'false';
+    return item;
+  });
+  return featuresWithIds;
+};
+

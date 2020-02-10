@@ -75,6 +75,7 @@ class Map extends Component {
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
+    this.fetchMapData = this.fetchMapData.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
   }
@@ -333,7 +334,7 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap,
+      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
@@ -413,7 +414,8 @@ class Map extends Component {
               events={mapEventFeatureCollection} 
               mapImages={mapImages}
               onEventClick={this.onEventSymbolClick}
-              onClusterClick={this.onClusterClick} />}
+              onClusterClick={this.onClusterClick}
+              bounceEventIDs={bounceEventIDs} />}
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
@@ -438,7 +440,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState,
+  const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences: { sidebarOpen }, showReportsOnMap } = view;
 
   return ({
@@ -454,6 +456,7 @@ const mapStatetoProps = (state, props) => {
     showTrackTimepoints,
     showReportsOnMap,
     timeSliderState,
+    bounceEventIDs,
     trackIds: displayedSubjectTrackIDs(state),
     trackLength,
     trackLengthOrigin,
