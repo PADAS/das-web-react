@@ -90,8 +90,9 @@ const SubjectGroupList = (props) => {
 const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) =>
   ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList, (prev, current) =>
-  isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs) && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
-   && isEqual(prev.mapLayerFilter, current.mapLayerFilter)
+  isEqual(prev.mapLayerFilter, current.mapLayerFilter)
+   && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
+   && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs)
 ));
 
 SubjectGroupList.defaultProps = {
