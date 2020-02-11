@@ -25,6 +25,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 
 import PrivateRoute from './PrivateRoute';
+import EulaProtectedRoute from './EulaProtectedRoute';
 import withTracker from './WithTracker';
 
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
@@ -50,9 +51,9 @@ ReactDOM.render(
       <BrowserRouter>
         <Suspense fallback={<LoadingOverlay message='Loading...' />}>
           <Switch>
-            <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
             <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
-            <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} component={withTracker(EulaPage)} />
+            <PrivateRoute path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} component={withTracker(EulaPage)} />
           </Switch>
         </Suspense>
       </BrowserRouter>

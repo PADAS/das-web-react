@@ -1,5 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -8,16 +9,22 @@ import { ReactComponent as EarthRangerLogo } from '../../common/images/earth-ran
 
 import styles from './styles.module.scss';
 
+const DEFAULT_POST_EULA_URL = '/beta';
+
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = (props) => {
   const [eulaAccepted, setEulaAcceptance] = useState(false);
+  const [submitted, setSubmitState] = useState(false);
+  const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('returnRoute='));
+
+  const destinationOnAccept = rerouteCookieValue ? rerouteCookieValue.replace('token=', '').replace(';', '') : DEFAULT_POST_EULA_URL;
 
   const onSubmit = (event, ...rest) => {
     event.preventDefault();
     if (!eulaAccepted) return;
 
-    console.log('submit', event, rest);
+    setSubmitState(true);
   };
 
   const onAcceptToggle = () => {
@@ -31,7 +38,7 @@ const EulaPage = (props) => {
       </Header>
       <Form onSubmit={onSubmit}>
         <Body className={styles.modalBody}>
-          <p>Please take a moment to <a href="#/link/to/whatever">click here and read our EULA before using EarthRanger</a>.</p>
+          <p>Please <a href="#/link/to/whatever">click here and read our EULA</a> before using EarthRanger.</p>
           <label>
             <input checked={eulaAccepted} type='checkbox' onChange={onAcceptToggle} />
             I agree to the terms and conditions of the EarthRanger EULA.
@@ -43,7 +50,9 @@ const EulaPage = (props) => {
         </Footer>
       </Form>
     </Dialog>;
+    {submitted && <Redirect to={destinationOnAccept} />}
   </div>;
 };
 
+/* NEEDS FROM REDUX: `accepted_eula` to know if the user is up-to-date, `current_eula` to get version info and a document link to the most recent EULA */
 export default connect(null, null)(memo(EulaPage));
