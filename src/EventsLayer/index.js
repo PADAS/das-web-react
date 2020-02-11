@@ -64,10 +64,8 @@ const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS
 const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
-const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
-
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventIDs, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventIDs } = props;
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 

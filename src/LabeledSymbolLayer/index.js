@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useCallback, useEffect, useRef } from 'react';
+import React, { Fragment, memo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
@@ -57,7 +57,7 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
     'icon-text-fit-padding': [2,6,2,6],
     'text-anchor': 'top',
     ...mapNameLayout,
-    // 'text-offset': [0, 1.1],
+    'text-offset': [0, 1.1],
   };
 
   const labelPaint = {
