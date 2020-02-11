@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect, lazy, memo } from 'react';
+import React, { Suspense, lazy, memo } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
@@ -21,4 +21,9 @@ EulaProtectedRoute.defaultProps = {
   eulaAccepted: false,
 };
 
-export default connect(null, null)(memo(EulaProtectedRoute));
+const mapStateToProps = ({ data: { user, eula } }) => ({
+  eulaAccepted: !!user.accepted_eula
+    && user.accepted_eula === eula.version,
+});
+
+export default connect(mapStateToProps, null)(memo(EulaProtectedRoute));
