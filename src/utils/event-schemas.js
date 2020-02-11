@@ -18,7 +18,7 @@ const createSchemaGroups = (schema, definitions) => {
   const INFERRED_ORIGIN = 'inferred';
   const DEFINED_ORIGIN = 'fieldset';
 
-  if (!definitions || definitions.length) return [{
+  if (!definitions || !definitions.length) return [{
     origin: INFERRED_ORIGIN,
     items: Object.keys(schema.properties),
   }];
