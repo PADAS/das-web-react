@@ -124,7 +124,7 @@ export const DEFAULT_SYMBOL_PAINT = {
     6, 1,
     12, 3,
   ],
-  'text-halo-blur': 3,
+  'text-halo-blur': 6,
   'text-translate-anchor': 'viewport'
 };
 

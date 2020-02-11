@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
@@ -57,7 +57,7 @@ import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
-class Map extends PureComponent {
+class Map extends Component {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
@@ -145,9 +145,9 @@ class Map extends PureComponent {
     mapEventsFetchCancelToken.cancel();
   }
 
-  onMapMoveEnd() {
+  onMapMoveEnd = debounce(() => {
     this.debouncedFetchMapData();
-  };
+  });
 
   toggleMapLockState(e) {
     return toggleMapLockState();
@@ -177,7 +177,7 @@ class Map extends PureComponent {
         }
       });
   }
-  debouncedFetchMapData = debounce(this.fetchMapData, 200)
+  debouncedFetchMapData = debounce(this.fetchMapData, 100)
   fetchMapSubjects() {
     return this.props.fetchMapSubjects(this.props.map)
       .catch((e) => {
