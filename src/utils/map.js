@@ -113,7 +113,7 @@ export const generateBoundsForLineString = ({ geometry }) => {
   return geometry.coordinates.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
 };
 
-export const jumpToLocation = (map, coords, zoom = 17) => {
+export const jumpToLocation = (map, coords, zoom = 15) => {
 
   
   if (!Array.isArray(coords[0])) {

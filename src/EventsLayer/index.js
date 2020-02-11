@@ -251,7 +251,7 @@ const EventsLayer = (props) => {
 
   const clusterConfig = {
     cluster: true,
-    clusterMaxZoom: 17, // Max zoom to cluster points on
+    clusterMaxZoom: 15, // Max zoom to cluster points on
     clusterRadius: 35,
   };
 
