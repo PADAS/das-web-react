@@ -31,7 +31,7 @@ import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 
 const App = lazy(() => import('./App'));
 const Login = lazy(() => import('./Login'));
-
+const EulaPage = lazy(() => import('./views/EULA'));
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
@@ -52,6 +52,7 @@ ReactDOM.render(
           <Switch>
             <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
             <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
+            <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} component={withTracker(EulaPage)} />
           </Switch>
         </Suspense>
       </BrowserRouter>
