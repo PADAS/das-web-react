@@ -48,8 +48,7 @@ const ReportListItem = (props) => {
   // Only fire bounce on the second and subsequent click of a jump. First
   // remove the existing ids so that redux can 'clear' the existing state.
   const onClick = () => {
-    const zoom = map.getZoom();
-    jumpToLocation(map, coordinates, zoom);
+    jumpToLocation(map, coordinates);
     if (locationClicked.current) {
       // clear the current prop, in the case where its the same ids
       setBounceEventIDs([]);
