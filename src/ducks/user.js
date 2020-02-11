@@ -14,9 +14,9 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 
 // action creators
 
-export const fetchCurrentUser = () => async (dispatch) => {
+export const fetchCurrentUser = (config = {}) => async (dispatch) => {
   try {
-    const { data: { data } } = await axios.get(CURRENT_USER_API_URL);
+    const { data: { data } } = await axios.get(CURRENT_USER_API_URL, config);
     if (!!data.role && data.role.length > 0) {
       setUserRole(data.role);
     }

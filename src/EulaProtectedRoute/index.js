@@ -9,7 +9,9 @@ import LoadingOverlay from '../EarthRangerIconLoadingOverlay';
 const PrivateRoute = lazy(() => import('../PrivateRoute'));
 
 const EulaProtectedRoute = (props) => {
-  const { dispatch:_dispatch, eulaAccepted, ...rest } = props;
+  const { dispatch:_dispatch, eula, user, ...rest } = props;
+
+  const eulaAccepted = true; // !!user.accepted_eula && user.accepted_eula === eula.version
 
   return <Suspense fallback={<LoadingOverlay message='Loading...' />}>
     {!eulaAccepted && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} />}
@@ -17,13 +19,10 @@ const EulaProtectedRoute = (props) => {
   </Suspense>;
 };
 
-EulaProtectedRoute.defaultProps = {
-  eulaAccepted: false,
-};
 
 const mapStateToProps = ({ data: { user, eula } }) => ({
-  eulaAccepted: !!user.accepted_eula
-    && user.accepted_eula === eula.version,
+  eula,
+  user,
 });
 
 export default connect(mapStateToProps, null)(memo(EulaProtectedRoute));

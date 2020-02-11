@@ -1,4 +1,4 @@
-import React, { useCallback, useState, memo } from 'react';
+import React, { useCallback, useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
@@ -6,6 +6,8 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
 import { clearAuth } from '../../ducks/auth';
+import { fetchCurrentUser } from '../../ducks/user';
+// import { fetchEula, acceptEulaForUser } from '../../ducks/eula';
 
 import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 
@@ -16,10 +18,26 @@ const DEFAULT_POST_EULA_URL = '/beta';
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = (props) => {
-  const { clearAuth } = props;
+  const { clearAuth, eula, fetchCurrentUser, user, temporaryAccessToken } = props;
+
   const [eulaAccepted, setEulaAcceptance] = useState(false);
   const [submitted, setSubmitState] = useState(false);
   const [canceled, setCancelState] = useState(false);
+
+  const generateTempAuthHeaderIfNecessary = useCallback(() => {
+    return temporaryAccessToken ? {
+      headers: {
+        'Authorization': `Bearer ${temporaryAccessToken}`,
+      },
+    } : null;
+  }, [temporaryAccessToken]);
+
+  useEffect(() => {
+    const tempAuthHeader = generateTempAuthHeaderIfNecessary();
+    fetchCurrentUser(tempAuthHeader);
+    // fetchCurrentEula(tempAuthHeader);
+  }, [fetchCurrentUser, generateTempAuthHeaderIfNecessary, temporaryAccessToken]);
+
   const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='));
 
   const destinationOnAccept = rerouteCookieValue ? rerouteCookieValue.replace('token=', '').replace(';', '') : DEFAULT_POST_EULA_URL;
@@ -29,6 +47,23 @@ const EulaPage = (props) => {
     if (!eulaAccepted) return;
 
     setSubmitState(true);
+
+    /*   const tempAuthHeader = generateTempAuthHeaderIfNecessary();
+
+    const payload = {
+      user: user.id,
+      eula: eula.id,
+      accept: true,
+    };
+
+    acceptEulaForUser(payload, tempAuthHeader)
+      .then(() => {
+        setSubmitState(true);
+      })
+      .catch((error) => {
+        console.log('error accepting eula', error);
+      });  */
+
   }, [eulaAccepted]);
 
   const onCancel = useCallback(() => {
@@ -63,5 +98,9 @@ const EulaPage = (props) => {
   </div>;
 };
 
+const mapStateToProps = ({ data: { eula, user } }) => ({
+  eula, user,
+});
+
 /* NEEDS FROM REDUX: `accepted_eula` to know if the user is up-to-date, `current_eula` to get version info and a document link to the most recent EULA */
-export default connect(null, { clearAuth })(memo(EulaPage));
+export default connect(mapStateToProps, { clearAuth, fetchCurrentUser })(memo(EulaPage));

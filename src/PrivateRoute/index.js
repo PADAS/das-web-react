@@ -4,6 +4,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 
+import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
+
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 class PrivateRoute extends Component {
@@ -27,13 +29,16 @@ class PrivateRoute extends Component {
 
   render() {
     const { component: Component, dispatch: _dispatch, token, ...rest } = this.props;
+    const temporaryAccessToken = getTemporaryAccessTokenFromCookies();
+
+    const optionalProps = temporaryAccessToken ? { temporaryAccessToken } : {};
 
     return (
       <Route
         {...rest}
         render={_props =>
-          token.access_token ? (
-            <Component {...this.props} />
+          (temporaryAccessToken || token.access_token) ? (
+            <Component {...optionalProps} {...this.props} />
           ) : (
             <Redirect
               to={{

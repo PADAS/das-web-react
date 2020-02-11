@@ -268,7 +268,7 @@ const cancelableMapEventsFetch = () => {
       lastKnownBbox = getState().data.mapEvents.bbox;
     }
 
-    if (!map && !lastKnownBbox) return;
+    if (!map && !lastKnownBbox) return Promise.reject();
     
     const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
     const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false, page_size: 40 });
