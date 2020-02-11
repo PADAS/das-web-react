@@ -49,7 +49,6 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    ...mapNameLayout,
     ...textLayout,
     'icon-anchor': 'bottom',
     'icon-image': 'name-label-78',
@@ -57,6 +56,7 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
     'icon-text-fit': 'both',
     'icon-text-fit-padding': [2,6,2,6],
     'text-anchor': 'top',
+    ...mapNameLayout,
     // 'text-offset': [0, 1.1],
   };
 
