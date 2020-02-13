@@ -7,7 +7,7 @@ import withMapNames from '../WithMapNames';
 
 import { Layer } from 'react-mapbox-gl';
 
-const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, mapNameLayout, onClick, onInit, onUnmount, onMouseEnter, onMouseLeave, ...rest }) => {
+const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, map, mapNameLayout, onClick, onInit, onUnmount, onMouseEnter, onMouseLeave, ...rest }) => {
   
   const textLayerId = `${id}-labels`;
 
@@ -78,10 +78,10 @@ const LabeledSymbolLayer = ({ paint, layout, textPaint, textLayout, id, map, map
   };
 
   return id && <Fragment>
-    <Layer id={textLayerId} before={id} layout={labelLayout} type='symbol' 
+    <Layer before={before} id={textLayerId} layout={labelLayout} type='symbol' 
       onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} 
       paint={labelPaint} {...rest} />
-    <Layer id={id} layout={symbolLayout} type='symbol' 
+    <Layer id={id} before={textLayerId} layout={symbolLayout} type='symbol' 
       paint={symbolPaint} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} {...rest} />
   </Fragment>;
 };
