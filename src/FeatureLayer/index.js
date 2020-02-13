@@ -61,7 +61,10 @@ const lineLayout = {
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
-  'icon-image': ['get', 'icon_id'],
+  'icon-image': ['case',
+    ['has', 'icon_id'], ['get', 'icon_id'],
+    'marker-icon',
+  ],
   'text-size': 0,
   'icon-anchor': 'bottom',
 };

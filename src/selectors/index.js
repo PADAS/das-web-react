@@ -157,15 +157,6 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
       symbolFeatures: featureCollection(
         allFeatures
           .filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))
-          .map(feature => !!feature.properties.icon_id
-            ? feature
-            : {
-              ...feature,
-              properties: {
-                ...feature.properties,
-                icon_id: feature.properties.image || 'marker-icon',
-              }
-            })
       ),
       lineFeatures: featureCollection(
         allFeatures
