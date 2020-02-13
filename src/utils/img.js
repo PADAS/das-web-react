@@ -36,6 +36,10 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
   img.src = src;
 });
 
-export const calcUrlForImage = imagePath => !imgNeedsHostAppended(imagePath)
-  ? imagePath 
-  : `${REACT_APP_DAS_HOST}/${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+export const calcUrlForImage = imagePath => {
+  if (!imgNeedsHostAppended(imagePath)) {
+    return imagePath;
+  }
+  const appendString = !!REACT_APP_DAS_HOST ? `${REACT_APP_DAS_HOST}/` : '';
+  return `${appendString}${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+};
