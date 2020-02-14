@@ -28,14 +28,25 @@ const createSchemaGroups = (schema, definitions) => {
     const isObject = typeof value === 'object';
     const val = isObject ? value.key : value;
 
-
     if (isObject && value.type === 'fieldset') {
       return [
         ...accumulator,
         {
           origin: DEFINED_ORIGIN,
-          ...value,
+          ...val,
         }
+      ];
+    }
+
+    if (isObject && value.type === 'help') {
+      return [
+        ...accumulator,
+        {
+          origin: DEFINED_ORIGIN,
+          type: 'fieldset',
+          title: value.helpvalue.replace(/(<([^>]+)>)/ig, ''),
+          items: [],
+        },
       ];
     }
     
@@ -50,7 +61,10 @@ const createSchemaGroups = (schema, definitions) => {
     }
 
     if (!isObject || val) {
-      if (accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN) {
+      if (
+        !accumulator.length
+        || accumulator[accumulator.length - 1].origin !== INFERRED_ORIGIN
+      ) {
         return [
           ...accumulator,
           {
