@@ -23,7 +23,7 @@ const createSchemaGroups = (schema, definitions) => {
     items: Object.keys(schema.properties),
   }];
 
-  return definitions.reduce((accumulator, value, index, src) => {
+  const result = definitions.reduce((accumulator, value, index, src) => {
     const isFirst = isUndefined(src[index - 1]);
     const isObject = typeof value === 'object';
     const val = isObject ? value.key : value;
@@ -33,7 +33,7 @@ const createSchemaGroups = (schema, definitions) => {
         ...accumulator,
         {
           origin: DEFINED_ORIGIN,
-          ...val,
+          ...value,
         }
       ];
     }
@@ -83,6 +83,9 @@ const createSchemaGroups = (schema, definitions) => {
     }
     return accumulator;
   }, []);
+
+  console.log('generated groups', result);
+  return result;
 };
 
 export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema: originalSchema }) => {
