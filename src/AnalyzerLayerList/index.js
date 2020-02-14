@@ -9,6 +9,7 @@ import { hideAnalyzers, showAnalyzers } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
 import CheckableList from '../CheckableList';
 import { getAnalyzerListState } from './selectors';
+import { analyzerFeatures } from '../selectors';
 import AnalyzerListItem from './AnalyzerListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
@@ -100,10 +101,10 @@ const AnalyzerLayerList = memo((props) => {
 );
 
 const mapStateToProps = (state) => ({
-  analyzerFeatures: state.data.analyzerFeatures,
+  analyzerFeatures: analyzerFeatures(state),
   hiddenAnalyzerIDs: state.view.hiddenAnalyzerIDs,
   analyzerList: getAnalyzerListState(state),
-  mapLayerFilter: state.data.mapLayerFilter
+  mapLayerFilter: state.data.mapLayerFilter,
 });
 
 export default connect(mapStateToProps, { hideAnalyzers, showAnalyzers })(AnalyzerLayerList);

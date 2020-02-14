@@ -54,12 +54,14 @@ export const fetchAnalyzers = () => async (dispatch) => {
   });
 };
 
-const INITIAL_ANALYZER_FEATURE_STATE = [];
+const INITIAL_ANALYZER_FEATURE_STATE = {data: []};
 // reducer
 const analyzersReducer = (state = INITIAL_ANALYZER_FEATURE_STATE, action) => {
   const { payload, type } = action;
   if (type === FETCH_ANALYZERS_SUCCESS) {
-    return payload;
+    return {
+      data: payload
+    };
   }
   return state;
 };

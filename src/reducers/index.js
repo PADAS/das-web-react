@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
@@ -30,40 +31,20 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 
-const tokenPersistanceConfig = {
-  key: 'token',
-  storage,
-};
+const generateStorageConfig = (key, storageMethod = storage) => ({
+  key,
+  storage: storageMethod,
+});
 
-const homeMapPersistanceConfig = {
-  key: 'homeMap',
-  storage,
-};
-
-const userPrefPersistanceConfig = {
-  key: 'userPreferences',
-  storage,
-};
-
-const heatmapConfigPersistanceConfig = {
-  key: 'heatmapConfig',
-  storage,
-};
-
-const userProfilePersistanceConfig = {
-  key: 'userProfile',
-  storage,
-};
-
-const mapsPersistanceConfig = {
-  key: 'maps',
-  storage,
-};
-
-const baseLayerPersistanceConfig = {
-  key: 'baseLayer',
-  storage,
-};
+const tokenPersistanceConfig = generateStorageConfig('token');
+const homeMapPersistanceConfig = generateStorageConfig('homeMap');
+const userPrefPersistanceConfig = generateStorageConfig('userPreferences');
+const heatmapConfigPersistanceConfig = generateStorageConfig('heatmapConfig');
+const userProfilePersistanceConfig = generateStorageConfig('userProfile');
+const mapsPersistanceConfig = generateStorageConfig('maps');
+const baseLayerPersistanceConfig = generateStorageConfig('baseLayer');
+const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localForage);
+const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -75,9 +56,9 @@ const rootReducer = combineReducers({
     eventFilter: eventFilterReducer,
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
-    featureSets: featuresReducer,
+    featureSets: persistReducer(featureSetsPersistanceConfig, featuresReducer),
     mapLayerFilter: mapLayerFilterReducer,
-    analyzerFeatures: analyzersReducer,
+    analyzerFeatures: persistReducer(analyzersPersistanceConfig, analyzersReducer),
     showReportsOnMap: displayReportsOnMapReducer,
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
