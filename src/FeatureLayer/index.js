@@ -10,6 +10,7 @@ import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
+import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
 const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
@@ -62,6 +63,7 @@ const lineLayout = {
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
   'icon-image': ['case',
+    ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
     ['has', 'icon_id'], ['get', 'icon_id'],
     'marker-icon',
   ],
@@ -86,6 +88,9 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
   useEffect(() => {
     if (!!map && !map.hasImage('marker-icon')) {
       addMapImage(MarkerImage, 'marker-icon');
+    }
+    if (!!map && !map.hasImage('ranger-stations')) {
+      addMapImage(RangerStationsImage, 'ranger-stations');
     }
   }, [map]);
 
