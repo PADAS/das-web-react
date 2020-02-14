@@ -557,6 +557,7 @@
     button {
       @include unstyledButton;
       padding: 0;
+      text-align: left;
       &:hover {
         text-decoration: underline;
       }

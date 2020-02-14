@@ -55,12 +55,14 @@ export const fetchFeaturesets = () => async (dispatch) => {
   }
 };
 
-const INITIAL_FEATURESET_STATE = [];
+const INITIAL_FEATURESET_STATE = {data: []};
 // reducer
 export default (state = INITIAL_FEATURESET_STATE, action) => {
   const { payload, type } = action;
   if (type === FETCH_FEATURESETS_SUCCESS) {
-    return payload;
+    return {
+      data: payload,
+    };
   }
   return state;
 };
