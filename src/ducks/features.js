@@ -16,7 +16,7 @@ export const fetchFeaturesets = () => async (dispatch) => {
   try {
     const { data: { features } } = await axios.get(FEATURESET_API_URL);
 
-    const allFeatures = await Promise.all(
+    const allFeatures = Promise.all(
       features.map(async (fs) => {
         const { data } = await axios.get(`${FEATURESET_API_URL}${fs.id}`).catch((error) => {
           console.warn(`error fetching ${fs.name} featureset, excluding from feature data`, error);
@@ -43,10 +43,12 @@ export const fetchFeaturesets = () => async (dispatch) => {
       })
     );
 
-    const results = allFeatures.filter(item => !!item.geojson.features.length);
-    dispatch({
-      type: FETCH_FEATURESETS_SUCCESS,
-      payload: results,
+    allFeatures.then((results) => {
+      const nonEmptySets = results.filter(item => !!item.geojson.features.length);
+      dispatch({
+        type: FETCH_FEATURESETS_SUCCESS,
+        payload: nonEmptySets,
+      });
     });
   } catch (e) {
     dispatch({

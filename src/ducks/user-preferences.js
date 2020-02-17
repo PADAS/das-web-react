@@ -14,6 +14,7 @@ const INITIAL_STATE = {
   gpsFormat: Object.values(GPS_FORMATS)[0],
   sidebarOpen: false,
   hideModals: false,
+  seenBeta: false,
 };
 
 export default (state = INITIAL_STATE, action = {}) => {

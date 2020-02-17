@@ -47,6 +47,7 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
+import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 
@@ -78,6 +79,15 @@ class Map extends Component {
     this.fetchMapData = this.fetchMapData.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
+
+    if (!this.props.userPreferences.seenBeta) {
+      this.props.addModal({
+        content: BetaWelcomeModal,
+        modalProps: {
+          keyboard: false,
+        },
+      });
+    }
   }
 
   componentDidMount() {
@@ -385,7 +395,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <DelayedUnmount isMounted={!this.props.sidebarOpen}>
+            <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
                 <EventFilter />
                 <FriendlyEventFilterString className='map-report-filter-details' />
@@ -441,7 +451,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences: { sidebarOpen }, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
     maps,
@@ -466,7 +476,7 @@ const mapStatetoProps = (state, props) => {
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
-    sidebarOpen,
+    userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
   });
 };

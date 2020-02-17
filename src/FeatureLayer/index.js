@@ -12,7 +12,7 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../const
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
 const ACTIVE_FEATURE_STATE = 'active';
 const IF_ACTIVE = (activeProp) => [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
@@ -125,16 +125,16 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
     <Source id='feature-symbol-source' geoJsonSource={symbolData} />
 
     <Layer minZoom={4} sourceId='feature-polygon-source' type='fill'
-      id={FEATURE_FILLS} before={EVENT_SYMBOLS}
+      id={FEATURE_FILLS} before={TOPMOST_STYLE_LAYER}
       paint={fillPaint} layout={fillLayout} />
 
     <Layer minZoom={4} sourceId='feature-line-source' type='line'
-      id={FEATURE_LINES} before={EVENT_SYMBOLS}
+      id={FEATURE_LINES} before={TOPMOST_STYLE_LAYER}
       paint={linePaint} layout={lineLayout} />
 
     <Layer minZoom={7} sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
-      before={EVENT_SYMBOLS}
+      before={TOPMOST_STYLE_LAYER}
       paint={symbolPaint} layout={layout}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
