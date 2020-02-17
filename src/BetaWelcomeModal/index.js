@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 
 const { Header, Title, Body, Footer } = Modal;
 
-const NoteModal = (props) => {
+const BetaWelcomeModal = (props) => {
   const { id, removeModal, updateUserPreferences, userPreferences } = props;
 
   const onClose = () => {
@@ -52,4 +52,4 @@ const NoteModal = (props) => {
 
 const mapStateToProps = ({ view: { userPreferences }  }) => ({ userPreferences });
 
-export default connect(mapStateToProps, { removeModal, updateUserPreferences })(memo(NoteModal));
+export default connect(mapStateToProps, { removeModal, updateUserPreferences })(memo(BetaWelcomeModal));
