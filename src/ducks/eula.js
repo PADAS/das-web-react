@@ -22,8 +22,8 @@ export const fetchEula = (config = {}) => (dispatch) => {
     });
 };
 
-export const acceptEula = (body) => (dispatch) => { // body = { user, eula, accept }
-  return axios.post(ACCEPT_EULA_API_URL, body)
+export const acceptEula = (body, config = {}) => (dispatch) => { // body = { user, eula, accept }
+  return axios.post(ACCEPT_EULA_API_URL, body, config)
     .then(({ data: { data } }) => {
       dispatch(acceptEulaSuccess(data));
     });

@@ -19,14 +19,17 @@ const EulaProtectedRoute = (props) => {
   }, [fetchCurrentUser]);
 
   useEffect(() => {
-    const accepted = user.hasOwnProperty('accepted_eula') ? user.accepted_eula : true;
+    const accepted = user.hasOwnProperty('accepted_eula') 
+      ? user.accepted_eula 
+      : user.id 
+        ? true 
+        : false;
     setEulaAccepted(accepted);
   }, [user]);
 
   return <Suspense fallback={<LoadingOverlay message='Loading...' />}>
-    {eulaAccepted === 'unknown' && null}
     {!eulaAccepted && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} />}
-    {eulaAccepted && <PrivateRoute {...rest} />}
+    {eulaAccepted === 'unknown' ? null : <PrivateRoute {...rest} />}
   </Suspense>;
 };
 

@@ -15,8 +15,6 @@ import Alert from 'react-bootstrap/Alert';
 
 import styles from './styles.module.scss';
 
-const DEFAULT_POST_EULA_URL = '/beta';
-
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = (props) => {
@@ -27,9 +25,10 @@ const EulaPage = (props) => {
   const [formAccepted, setFormAccepted] = useState(false);
   const [submitted, setSubmitState] = useState(false);
   const [canceled, setCancelState] = useState(false);
-  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(DEFAULT_POST_EULA_URL);
+  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(REACT_APP_ROUTE_PREFIX);
   const [formError, setFormError] = useState(false);
 
+  const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='));
 
   const generateTempAuthHeaderIfNecessary = useCallback(() => {
     return temporaryAccessToken ? {
@@ -45,11 +44,16 @@ const EulaPage = (props) => {
   }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary]);
 
   useEffect(() => {
-    const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='));
     if (rerouteCookieValue) {
       setRerouteOnSuccess(rerouteCookieValue);
     }
-  }, []);
+  }, [rerouteCookieValue]);
+
+  useEffect(() => {
+    if (submitted && rerouteCookieValue) {
+      window.location = rerouteCookieValue;
+    }
+  }, [rerouteCookieValue, submitted]);
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
@@ -64,6 +68,9 @@ const EulaPage = (props) => {
 
     acceptEula(payload, generateTempAuthHeaderIfNecessary())
       .then(() => {
+        return fetchCurrentUser(generateTempAuthHeaderIfNecessary());
+      })
+      .then(() => {
         setSubmitState(true);
       })
       .catch((error) => {
@@ -72,7 +79,7 @@ const EulaPage = (props) => {
         setFormError(true);
       });  
 
-  }, [acceptEula, eula_id, formAccepted, generateTempAuthHeaderIfNecessary, user.id]);
+  }, [acceptEula, eula_id, fetchCurrentUser, formAccepted, generateTempAuthHeaderIfNecessary, user.id]);
 
   const onCancel = useCallback(() => {
     clearAuth();
@@ -103,7 +110,7 @@ const EulaPage = (props) => {
         </Footer>
       </Form>
     </Dialog>;
-    {submitted && <Redirect to={rerouteOnSuccess} />}
+    {submitted && !rerouteCookieValue && <Redirect to={rerouteOnSuccess} />}
     {canceled && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} />}
   </div>;
 };
