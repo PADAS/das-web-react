@@ -92,15 +92,6 @@ aside {
   min-height: 100%;
 }
 
-.modal-content {
-  justify-content: center;
-}
-
-.modal-dialog {
-  max-width: 40rem;
-  width: 96vw;
-}
-
 .event-form-modal {
   .modal-dialog {
     align-items: center;
@@ -459,15 +450,6 @@ aside {
   margin-right: 2rem;
 }
 
-.modal-header {
-  background: $popover-header-color;
-  color: white;
-
-  .close {
-    color: white;
-    opacity: 1;
-  }
-}
 
 .btn-primary {
   background-color: $primary-button-color;
@@ -521,22 +503,7 @@ div.mapboxgl-popup-tip {
   }
 }
 
-.modal-backdrop {
-  display: none;
-  &.show {
-    .modal[role=dialog] {
-      @include fade-in;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex !important;
-      justify-content: center;
-    }
-  }
-}
 
-.modal-dialog-centered::before {
-  display: none;
-}
 
 @media (min-width: $md-layout-width-min) {
   .event-form-modal+.modal-backdrop+.event-form-modal .modal-dialog {

@@ -24,14 +24,15 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 
-import PrivateRoute from './PrivateRoute';
 import withTracker from './WithTracker';
 
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 
 const App = lazy(() => import('./App'));
 const Login = lazy(() => import('./Login'));
-
+const EulaPage = lazy(() => import('./views/EULA'));
+const PrivateRoute = lazy(() => import('./PrivateRoute'));
+const EulaProtectedRoute = lazy(() => import('./EulaProtectedRoute'));
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
@@ -50,8 +51,9 @@ ReactDOM.render(
       <BrowserRouter>
         <Suspense fallback={<LoadingOverlay message='Loading...' />}>
           <Switch>
-            <PrivateRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
             <Route path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} component={withTracker(Login)} />
+            <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} component={withTracker(EulaPage)} />
+            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
           </Switch>
         </Suspense>
       </BrowserRouter>

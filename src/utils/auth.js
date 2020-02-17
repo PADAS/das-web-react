@@ -2,11 +2,20 @@ import axios from 'axios';
 import { store } from '../index';
 import { clearAuth } from '../ducks/auth';
 import { resetMasterCancelToken } from '../ducks/auth';
+
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
+
+
 // import { handleServerRequestError } from './request';
 
 export const getAuthTokenFromCookies = () => {
   const token = document.cookie.split(' ').find(item => item.startsWith('token='));
   return token ? token.replace('token=', '').replace(';', '') : null;
+};
+
+export const getTemporaryAccessTokenFromCookies = () => {
+  const token = document.cookie.split(' ').find(item => item.startsWith('temporaryAccessToken='));
+  return token ? token.replace('temporaryAccessToken=', '').replace(';', '') : null;
 };
 
 export const deleteAuthTokenCookie = () => {
@@ -15,9 +24,10 @@ export const deleteAuthTokenCookie = () => {
 
 
 const goToLoginPageOnAuthFailure = (error) => {
-  if (error && error.response && error.response.data && error.response.data.status && error.response.data.status.code === 401) {
+  if (error && error.toString().includes('401')) {
     store.dispatch(clearAuth());
     store.dispatch(resetMasterCancelToken());
+    window.location = REACT_APP_ROUTE_PREFIX === '/' ? `${REACT_APP_ROUTE_PREFIX}login` : `${REACT_APP_ROUTE_PREFIX}/login`;
   }
   /* if (error) {
     handleServerRequestError(error);
