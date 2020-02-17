@@ -22,6 +22,7 @@ import eventFilterReducer from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
+import eulaReducer from '../ducks/eula';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
 import userLocationReducer from '../ducks/location';
@@ -53,6 +54,7 @@ const rootReducer = combineReducers({
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
     mapEvents: mapEventsReducer,
+    eula: eulaReducer,
     eventFilter: eventFilterReducer,
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,

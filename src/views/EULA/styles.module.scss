@@ -2,7 +2,14 @@
   width: 6rem;
 }
 
+.error {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
 .wrapper {
+  display: flex;
+  width: 100vw;
   [class*=modal-content] {
     background: rgba(255,255,255,0.8);
   }
