@@ -7,6 +7,7 @@ import isEqual from 'react-fast-compare';
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
+import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 import ReportFormModal from '../ReportFormModal';
@@ -228,19 +229,38 @@ export const filterMapEventsByVirtualDate = (mapEventFeatureCollection, virtualD
   }),
 });
 
-export const addDistanceFromVirtualDatePropertyToEventFeatureCollection  = (featureCollection, virtualDate, totalRangeDistance) => {
+export const addDistanceFromVirtualDatePropertyToEventFeatureCollection = (featureCollection, virtualDate, totalRangeDistance, filterNegative = false) => {
   return {
     ...featureCollection,
-    features: featureCollection.features.map((feature) => ({
-      ...feature,
-      properties: {
-        ...feature.properties,
-        distanceFromVirtualDate: (new Date(virtualDate || new Date())  - new Date(feature.properties.time)) / totalRangeDistance,
-      },
-    })),
+    features: featureCollection.features
+      .reduce((accumulator, item) => {
+        const diff = (new Date(virtualDate || new Date())  - new Date(item.properties.time));
+        if (filterNegative && diff < 0) return accumulator;
+        return [...accumulator, {
+          ...item,
+          properties: {
+            ...item.properties,
+            distanceFromVirtualDate: diff / totalRangeDistance,
+          },
+        }];
+      }, []),
   };
 };
 
+export const addNormalizingPropertiesToEventDataFromAPI = (event) => {
+  if (event.geojson) {
+    event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
+  }
+};
+
+export const calcEventFilterTimeRangeDistance = (eventFilterDateRange, virtualDate) => {
+  const { lower, upper } = eventFilterDateRange;
+  const upperValue = virtualDate ? new Date(virtualDate) :
+    (upper ? new Date(upper) : upper);
+
+  const eventFilterDateRangeLength = upperValue - new Date(lower);
+  return eventFilterDateRangeLength;
+};
 export const addBounceToEventMapFeatures = (features, bounceIDs) => {
   let featurePropId = 0;
   const featuresWithIds = features.map((item) => {

@@ -26,8 +26,8 @@ const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
 
-export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures;
-export const featureSets = ({ data: { featureSets } }) => featureSets;
+export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
+export const featureSets = ({ data: { featureSets } }) => featureSets.data;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
 const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
@@ -112,6 +112,7 @@ export const reportedBy = createSelector(
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures, hiddenAnalyzerIDs],
   (analyzerFeatures, hiddenAnalyzerIDs) => {
+    console.log('analyzerFeatures', analyzerFeatures);
     const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
       .reduce((accumulator, data) =>
         [...accumulator,
@@ -157,15 +158,6 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
       symbolFeatures: featureCollection(
         allFeatures
           .filter(({ geometry: { type } }) => symbolFeatureTypes.includes(type))
-          .map(feature => !!feature.properties.icon_id
-            ? feature
-            : {
-              ...feature,
-              properties: {
-                ...feature.properties,
-                icon_id: 'marker-icon',
-              }
-            })
       ),
       lineFeatures: featureCollection(
         allFeatures

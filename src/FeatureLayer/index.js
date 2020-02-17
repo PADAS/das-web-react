@@ -10,8 +10,9 @@ import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
+import RangerStationsImage from '../common/images/icons/ranger-stations.png';
 
-const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { FEATURE_FILLS, FEATURE_LINES, FEATURE_SYMBOLS, TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
 const ACTIVE_FEATURE_STATE = 'active';
 const IF_ACTIVE = (activeProp) => [['boolean', ['feature-state', ACTIVE_FEATURE_STATE], false], activeProp];
@@ -61,7 +62,11 @@ const lineLayout = {
 
 const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
-  'icon-image': ['get', 'icon_id'],
+  'icon-image': ['case',
+    ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
+    ['has', 'icon_id'], ['get', 'icon_id'],
+    'marker-icon',
+  ],
   'text-size': 0,
   'icon-anchor': 'bottom',
 };
@@ -83,6 +88,9 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
   useEffect(() => {
     if (!!map && !map.hasImage('marker-icon')) {
       addMapImage(MarkerImage, 'marker-icon');
+    }
+    if (!!map && !map.hasImage('ranger-stations')) {
+      addMapImage(RangerStationsImage, 'ranger-stations');
     }
   }, [map]);
 
@@ -117,15 +125,16 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
     <Source id='feature-symbol-source' geoJsonSource={symbolData} />
 
     <Layer minZoom={4} sourceId='feature-polygon-source' type='fill'
-      id={FEATURE_FILLS} before={SUBJECT_SYMBOLS}
+      id={FEATURE_FILLS} before={TOPMOST_STYLE_LAYER}
       paint={fillPaint} layout={fillLayout} />
 
     <Layer minZoom={4} sourceId='feature-line-source' type='line'
-      id={FEATURE_LINES} before={SUBJECT_SYMBOLS}
+      id={FEATURE_LINES} before={TOPMOST_STYLE_LAYER}
       paint={linePaint} layout={lineLayout} />
 
     <Layer minZoom={7} sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
+      before={TOPMOST_STYLE_LAYER}
       paint={symbolPaint} layout={layout}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}

@@ -21,6 +21,7 @@
     align-items: center;
     display: flex;
     justify-content: flex-start;
+    padding-right: 4.25rem;
   }
   button:not(.gearButton) {
     @include unstyledButton;

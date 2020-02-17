@@ -20,12 +20,12 @@ const getBoundsForArrayOfCoordinatePairs = (collection) => collection.reduce((bo
 
 const jumpAndFitBounds = (map, bounds) => map.fitBounds(bounds, { duration: 0, maxZoom: MAX_JUMP_ZOOM, padding: 30 });
 
-const fitMapBoundsToPoint = (map, geojson) => jumpAndFitBounds(map, new LngLatBounds(geojson.geometry.coordinates));
+const fitMapBoundsToPoint = (map, geojson) => jumpAndFitBounds(map, new LngLatBounds(geojson.geometry.coordinates, geojson.geometry.coordinates));
 const fitMapBoundsToLineString = (map, geojson) => jumpAndFitBounds(map,
   getBoundsForArrayOfCoordinatePairs(geojson.geometry.coordinates)
 );
 const fitMapBoundsToMultiPoint = (map, geojson) => fitMapBoundsToLineString(map, geojson);
-const fitMapBoundsToPolygon = (map, geojson) => fitMapBoundsToLineString(map, geojson);
+const fitMapBoundsToPolygon = (map, geojson) => fitMapBoundsToMultiLineString(map, geojson);
 const fitMapBoundsToMultiLineString = (map, geojson) => jumpAndFitBounds(map,
   geojson.geometry.coordinates.reduce((bounds, lineCoordinates) => {
     return bounds.extend(getBoundsForArrayOfCoordinatePairs(lineCoordinates));

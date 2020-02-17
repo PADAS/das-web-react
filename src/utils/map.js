@@ -9,15 +9,14 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
-import { fileNameFromPath } from './string';
-import { imgElFromSrc } from './img';
+import { imgElFromSrc, calcUrlForImage } from './img';
 
 export const addIconToGeoJson = (geojson) => {
   const { properties: { image } } = geojson;
   if (geojson.properties.icon_id) return geojson;
 
   if (image) {
-    geojson.properties.icon_id = fileNameFromPath(image);
+    geojson.properties.icon_id = calcUrlForImage(image);
   }
   return geojson;
 };
@@ -39,8 +38,9 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 };
 
 export const addMapImage = async (src, id) => {
-  const icon_id = id || src;
-  const img = await imgElFromSrc(src, (MAP_ICON_SIZE * MAP_ICON_SCALE));
+  const iconSrc = calcUrlForImage(src);
+  const icon_id = id || iconSrc;
+  const img = await imgElFromSrc(iconSrc, (MAP_ICON_SIZE * MAP_ICON_SCALE));
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
   return {
     icon_id,
@@ -113,7 +113,7 @@ export const generateBoundsForLineString = ({ geometry }) => {
   return geometry.coordinates.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
 };
 
-export const jumpToLocation = (map, coords, zoom = 17) => {
+export const jumpToLocation = (map, coords, zoom = 15) => {
 
   
   if (!Array.isArray(coords[0])) {

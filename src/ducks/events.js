@@ -3,9 +3,8 @@ import union from 'lodash/union';
 
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
-import { calcUrlForImage } from '../utils/img';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { eventBelongsToCollection, calcEventFilterForRequest } from '../utils/events';
+import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection } from '../utils/events';
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
 const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -271,7 +270,7 @@ const cancelableMapEventsFetch = () => {
     if (!map && !lastKnownBbox) return Promise.reject();
     
     const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
-    const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false, page_size: 40 });
+    const eventFilterParamString = calcEventFilterForRequest({ bbox, exclude_contained: false, page_size: 25 });
     
     dispatch({
       type: FETCH_MAP_EVENTS_START,
@@ -383,9 +382,7 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
 
   if (type === UPDATE_EVENT_STORE) {
     const toAdd = payload.reduce((accumulator, event) => {
-      if (event.geojson) {
-        event.geojson.properties.image = calcUrlForImage(event.geojson.properties.image);
-      }
+      addNormalizingPropertiesToEventDataFromAPI(event);
 
       accumulator[event.id] = { ...state[event.id], ...event };
 

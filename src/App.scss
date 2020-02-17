@@ -281,6 +281,9 @@ aside {
     .mapboxgl-map {
       width: calc(100vw - var(--sidebar-width));
     }
+    .mapboxgl-ctrl-attrib.er-map {
+      right: 0;
+    }
   }
 
   .mapboxgl-map {
@@ -423,6 +426,7 @@ aside {
 }
 
 .mapboxgl-ctrl-attrib.er-map {
+  background: rgba(white, 0.8);
   font-size: 0.7rem;
   right: 0;
   bottom: 0;

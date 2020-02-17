@@ -61,6 +61,7 @@ export const BREAKPOINTS = {
 };
 
 export const LAYER_IDS = {
+  TOPMOST_STYLE_LAYER: 'feature-separation-layer',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',
@@ -118,13 +119,9 @@ export const DEFAULT_SYMBOL_LAYOUT = {
 };
 
 export const DEFAULT_SYMBOL_PAINT = {
-  'text-halo-color': 'rgba(255,255,255,0.95)',
-  'text-halo-width': [
-    'interpolate', ['exponential', 0.5], ['zoom'],
-    6, 1,
-    12, 3,
-  ],
-  'text-halo-blur': 3,
+  'text-halo-color': 'rgba(255,255,255,0.7)',
+  'text-halo-width': 1,
+  'text-halo-blur': 1,
   'text-translate-anchor': 'viewport'
 };
 

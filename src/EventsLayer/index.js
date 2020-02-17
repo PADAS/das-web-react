@@ -1,6 +1,7 @@
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+import debounceRender from 'react-debounce-render';
 import concave from '@turf/concave';
 import buffer from '@turf/buffer';
 import simplify from '@turf/simplify';
@@ -14,6 +15,7 @@ import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
+import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
@@ -22,9 +24,9 @@ const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
   'icon-size': [
     'interpolate', ['exponential', 0.5], ['zoom'],
-    7, 0.666,
-    12, 1/MAP_ICON_SCALE,
-    MAX_ZOOM, 1.25/MAP_ICON_SCALE,
+    7, 0.5,
+    12, 0.85/MAP_ICON_SCALE,
+    MAX_ZOOM, 1.1/MAP_ICON_SCALE,
   ],
   'icon-allow-overlap': true,
   'icon-pitch-alignment': 'map',
@@ -41,12 +43,16 @@ const clusterSymbolPaint = {
   'text-halo-width': 3,
 };
 
-const eventSymbolLayerPaint = {
-  ...DEFAULT_SYMBOL_PAINT,
+const eventLabelPaint = {
   'text-halo-color': ['case',
     ['has', 'distanceFromVirtualDate'],
     ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .225, 'rgba(255,255,255,0.7)'],
     'rgba(255,255,255,0.7)',
+  ],
+  'text-halo-width': ['case',
+    ['has', 'distanceFromVirtualDate'],
+    ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 3, .225, 1],
+    1,
   ],
 };
 
@@ -63,10 +69,8 @@ const ANIMATION_INTERVAL = Math.PI/(FRAMES_PER_SECOND * ANIMATION_LENGTH_SECONDS
 const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
-const getEventLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_SYMBOLS] })[0];
-
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventIDs, ...rest } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapNameLayout, bounceEventIDs } = props;
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
@@ -97,9 +101,10 @@ const EventsLayer = (props) => {
   };
 
   const [mapEventFeatureCollection, setMapEventFeatureCollection] = useState(featureCollection([]));
-
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
-  const timeoutRef = useRef(null);
+  const [eventSymbolLayerIDs, setEventSymbolLayerIDs] = useState([]);
+  const clicking = useRef(false);
+
 
   useEffect(() => {
     setMapEventFeatureCollection({
@@ -113,6 +118,29 @@ const EventsLayer = (props) => {
       }),
     });
   }, [eventsWithBounce, mapImages]);
+
+  const getEventLayer = useCallback((e, map) => map.queryRenderedFeatures(e.point, { layers: eventSymbolLayerIDs })[0], [eventSymbolLayerIDs]);
+
+  const handleEventClick = useCallback((e) => {
+    if (!clicking.current) {
+      clicking.current = true;
+      const clickedLayer = getEventLayer(e, map);
+      onEventClick(clickedLayer);
+      setTimeout(() => {
+        clicking.current = false;
+      });
+    }
+  }, [getEventLayer, map, onEventClick]);
+
+  useEffect(() => {
+    const addClusterIconToMap = async () => {
+      if (!map.hasImage('event-cluster-icon')) {
+        addMapImage(ClusterIcon, 'event-cluster-icon');
+      }
+    };
+    !!events && addFeatureCollectionImagesToMap(events, map);
+    addClusterIconToMap();
+  }, [eventSymbolLayerIDs, events, handleEventClick, map]);
 
   const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
@@ -149,31 +177,9 @@ const EventsLayer = (props) => {
   };
   
   const onClusterMouseLeave = () => {
-    window.clearTimeout(timeoutRef.current);
     // console.log('mouse leave, should be clearing the polygon');
     setClusterBufferPolygon(featureCollection([]));
   };
-
-  const handleEventClick = useRef((e) => {
-    e.preventDefault();
-    e.originalEvent.stopPropagation();
-    const clickedLayer = getEventLayer(e, map);
-    onEventClick(clickedLayer);
-  });
-
-  useEffect(() => {
-    const addClusterIconToMap = async () => {
-      if (!map.hasImage('event-cluster-icon')) {
-        addMapImage(ClusterIcon, 'event-cluster-icon');
-      }
-    };
-    !!events && addFeatureCollectionImagesToMap(events, map);
-    addClusterIconToMap();
-    map.on('click', EVENT_SYMBOLS, handleEventClick.current);
-    return () => {
-      map.off('click', EVENT_SYMBOLS, handleEventClick.current); // eslint-disable-line
-    };
-  }, [events, map]);
 
   const eventClusterDisabledLayout = enableClustering ? {} : {
     'icon-allow-overlap': true,
@@ -194,7 +200,7 @@ const EventsLayer = (props) => {
         } , 1000 / FRAMES_PER_SECOND);
       } else {
         setBounceIDs([]);
-      setAnimationState({frame: 1, scale: 0.0, isRendering: false});
+        setAnimationState({frame: 1, scale: 0.0, isRendering: false});
       }
     }
   };
@@ -217,10 +223,8 @@ const EventsLayer = (props) => {
   // the mapbox DSL doesn't allow interpolations or steps 
   // to be nested in their DSL, which results in this crazy layout
 
-  const eventSymbolLayerLayout = {
+  const eventIconLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    'text-field': '{display_title}',
-    ...mapNameLayout,
     ...eventClusterDisabledLayout,
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
@@ -232,17 +236,25 @@ const EventsLayer = (props) => {
         SCALE_ICON_IF_BOUNCED(0.75/MAP_ICON_SCALE, ICON_SCALE_RATE), 
         SCALE_ICON_IF_BOUNCED(1.5/MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
+    'text-size': 0,
+  };
+
+  const eventLabelLayout = {
+    ...DEFAULT_SYMBOL_LAYOUT,
+    ...eventClusterDisabledLayout,
+    'text-field': '{display_title}',
+    ...mapNameLayout,
     'text-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       6, 0,
       12, SCALE_FONT_IF_BOUNCED(14, FONT_SCALE_RATE),
       MAX_ZOOM, SCALE_FONT_IF_BOUNCED(16, FONT_SCALE_RATE),
-    ]
+    ],
   };
 
   const clusterConfig = {
     cluster: true,
-    clusterMaxZoom: 17, // Max zoom to cluster points on
+    clusterMaxZoom: 15, // Max zoom to cluster points on
     clusterRadius: 40,
   };
 
@@ -265,29 +277,28 @@ const EventsLayer = (props) => {
     <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
     <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
-    
 
-    {!enableClustering && <Layer minZoom={7} sourceId='events-data-unclustered' id={EVENT_SYMBOLS} type='symbol'
-      paint={eventSymbolLayerPaint}
-      layout={eventSymbolLayerLayout} {...rest} />}
+    {!enableClustering && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={7} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
+      id={EVENT_SYMBOLS} onClick={handleEventClick}
+      onInit={setEventSymbolLayerIDs}
+    />}
 
     {enableClustering && <Fragment>
-      <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_SYMBOLS} type='symbol'
-        filter={['!has', 'point_count']}
-        paint={eventSymbolLayerPaint}
-        layout={eventSymbolLayerLayout} {...rest} />
+      <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={7} before={SUBJECT_SYMBOLS} sourceId='events-data-clustered' type='symbol'
+        id={EVENT_SYMBOLS} filter={['!has', 'point_count']} onClick={handleEventClick}
+        onInit={setEventSymbolLayerIDs}
+      />
 
       <Layer minZoom={7} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
-        filter={['has', 'point_count']} onClick={handleClusterClick} layout={clusterSymbolLayout} paint={clusterSymbolPaint}
-        onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave}
-      />
-      
+        filter={['has', 'point_count']} onClick={handleClusterClick} layout={{...clusterSymbolLayout, 'visibility': enableClustering ? 'visible' : 'none'}} paint={clusterSymbolPaint}
+        onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave} />
+
       <Layer minZoom={7} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
   </Fragment>;
 };
 
-export default withMapNames(withMap(memo(EventsLayer)));
+export default debounceRender(memo(withMapNames(withMap(EventsLayer))), 16.6666); /* debounce updates a bit without throttlling below 60fps */
 
 EventsLayer.defaultProps = {
   onClusterClick() {

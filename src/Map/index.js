@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
@@ -47,6 +47,7 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
+import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 
@@ -57,7 +58,7 @@ import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
-class Map extends PureComponent {
+class Map extends Component {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
@@ -78,6 +79,15 @@ class Map extends PureComponent {
     this.fetchMapData = this.fetchMapData.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
+
+    if (!this.props.userPreferences.seenBeta) {
+      this.props.addModal({
+        content: BetaWelcomeModal,
+        modalProps: {
+          keyboard: false,
+        },
+      });
+    }
   }
 
   componentDidMount() {
@@ -145,9 +155,9 @@ class Map extends PureComponent {
     mapEventsFetchCancelToken.cancel();
   }
 
-  onMapMoveEnd() {
+  onMapMoveEnd = debounce(() => {
     this.debouncedFetchMapData();
-  };
+  });
 
   toggleMapLockState(e) {
     return toggleMapLockState();
@@ -177,7 +187,7 @@ class Map extends PureComponent {
         }
       });
   }
-  debouncedFetchMapData = debounce(this.fetchMapData, 200)
+  debouncedFetchMapData = debounce(this.fetchMapData, 100)
   fetchMapSubjects() {
     return this.props.fetchMapSubjects(this.props.map)
       .catch((e) => {
@@ -385,7 +395,7 @@ class Map extends PureComponent {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <DelayedUnmount isMounted={!this.props.sidebarOpen}>
+            <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
                 <EventFilter />
                 <FriendlyEventFilterString className='map-report-filter-details' />
@@ -441,7 +451,7 @@ const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
   const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences: { sidebarOpen }, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
     maps,
@@ -466,7 +476,7 @@ const mapStatetoProps = (state, props) => {
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
-    sidebarOpen,
+    userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
   });
 };

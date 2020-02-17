@@ -2,13 +2,12 @@ import { REACT_APP_DAS_HOST } from '../constants';
 
 const urlContainsOwnHost = url => url.includes('http');
 const imgIsDataUrl = url => url.includes('data:image');
-const imgIsFromStaticResources = url => /^(\/beta|beta|\/static|static)/.test(url);
-
+const imgIsFromStaticMedia = url => /^(\/static\/media)/.test(url);
 
 const imgNeedsHostAppended = url => {
   if (urlContainsOwnHost(url)) return false;
   if (imgIsDataUrl(url)) return false;
-  if (imgIsFromStaticResources(url)) return false;
+  if (imgIsFromStaticMedia(url)) return false;
   return true;
 };
 
@@ -34,9 +33,13 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
     console.log('image error', src, e);
     reject('could not load image');
   };
-  img.src = calcUrlForImage(src);
+  img.src = src;
 });
 
-export const calcUrlForImage = imagePath => !imgNeedsHostAppended(imagePath)
-  ? imagePath 
-  : `${REACT_APP_DAS_HOST}/${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+export const calcUrlForImage = imagePath => {
+  if (!imgNeedsHostAppended(imagePath)) {
+    return imagePath;
+  }
+  const appendString = !!REACT_APP_DAS_HOST ? `${REACT_APP_DAS_HOST}/` : '';
+  return `${appendString}${imagePath}`.replace(/^http:\/\//i, 'https://').replace('.org//', '.org/');
+};
