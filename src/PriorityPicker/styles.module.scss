@@ -15,9 +15,29 @@
     border: none;
     outline: none;
     padding: 0.5rem 1rem;
+
+    &:hover {
+      $background-opacity: 0.5;
+      &.highPriority {
+       color: $high-priority;
+      }
   
-    &.selected, &:hover {
-      color: white;
+      &.mediumPriority {
+       color: $medium-priority;
+      }
+  
+      &.lowPriority {
+       color: $low-priority;
+      }
+  
+      &.noPriority {
+       color: $no-priority;
+      }
+    }
+
+    &.selected {
+      color: white !important;
+
       &.highPriority {
         background: $high-priority;
       }
