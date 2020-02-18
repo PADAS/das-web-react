@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Button from 'react-bootstrap/Button';
+import isEqual from 'react-fast-compare';
 
 import { BREAKPOINTS } from '../constants';
 import { useMatchMedia } from '../hooks';
@@ -13,6 +14,7 @@ import { getFeedEvents } from '../selectors';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
+import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { setReportHeatmapVisibility } from '../ducks/map-ui';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
@@ -65,9 +67,14 @@ const SideBar = (props) => {
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
 
+  const optionalFeedProps = {};
+  if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+    optionalFeedProps.exclude_contained = true;
+  }
+
   const loadFeedEvents = () => {
     setEventLoadState(true);
-    fetchEventFeed({}, calcEventFilterForRequest())
+    fetchEventFeed({}, calcEventFilterForRequest(optionalFeedProps))
       .then(() => setEventLoadState(false));
   };
 
