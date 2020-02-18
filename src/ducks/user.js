@@ -14,17 +14,14 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 
 // action creators
 
-export const fetchCurrentUser = (config = {}) => async (dispatch) => {
-  try {
-    const { data: { data } } = await axios.get(CURRENT_USER_API_URL, config);
+export const fetchCurrentUser = (config = {}) => (dispatch) => axios.get(CURRENT_USER_API_URL, config)
+  .then(( { data: { data } }) => {
     if (!!data.role && data.role.length > 0) {
       setUserRole(data.role);
     }
     dispatch(fetchUserSuccess(data));
-  } catch (e) {
-    return Promise.reject(e);
-  }
-};
+  });
+
 
 export const fetchCurrentUserProfiles = () => async (dispatch) => {
   try {

@@ -32,8 +32,6 @@ import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-authConfig();
-
 let interval, mapInterval, zendeskInterval;
 
 

@@ -19,12 +19,12 @@ const EulaProtectedRoute = (props) => {
   }, [fetchCurrentUser]);
 
   useEffect(() => {
-    const accepted = user.hasOwnProperty('accepted_eula') 
-      ? user.accepted_eula 
-      : user.id 
-        ? true 
-        : false;
-    setEulaAccepted(accepted);
+    if (user.id) {
+      const accepted = user.hasOwnProperty('accepted_eula') 
+        ? user.accepted_eula
+        : true;
+      setEulaAccepted(accepted);
+    }
   }, [user]);
 
   return <Suspense fallback={<LoadingOverlay message='Loading...' />}>

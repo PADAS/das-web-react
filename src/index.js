@@ -26,6 +26,7 @@ import './index.scss';
 
 import withTracker from './WithTracker';
 
+import RequestConfigManager from './RequestConfigManager';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 
 const App = lazy(() => import('./App'));
@@ -56,6 +57,7 @@ ReactDOM.render(
             <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
           </Switch>
         </Suspense>
+        <RequestConfigManager />
       </BrowserRouter>
       <ToastContainer />
     </PersistGate>
