@@ -12,14 +12,6 @@ export const updateMapLayerFilter = (update) => (dispatch) => {
   });
 };
 
-export const resetEventFilter = () => (dispatch) => {
-  const freshFilter = INITIAL_FILTER_STATE;
-  dispatch({
-    type: RESET_MAP_LAYER_FILTER,
-    payload: freshFilter,
-  });
-};
-
 // REDUCER
 export const INITIAL_FILTER_STATE = {
   filter: {

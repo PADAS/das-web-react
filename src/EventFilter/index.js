@@ -34,19 +34,20 @@ const EventFilter = (props) => {
 
   const eventTypeIDs = eventTypes.map(type => type.id);
 
+  const eventTypeFilterEmpty = !currentFilterReportTypes.length;
+
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
 
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
-  const allReportTypesChecked = reportTypesCheckedCount === eventTypeIDs.length;
-  const someReportTypesChecked = !allReportTypesChecked && !!reportTypesCheckedCount;
-  const noReportTypesChecked = !allReportTypesChecked && !someReportTypesChecked;
+  const someReportTypesChecked = !eventTypeFilterEmpty && !!reportTypesCheckedCount;
+  const noReportTypesChecked = !eventTypeFilterEmpty && !someReportTypesChecked;
 
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
   const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
   const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
-  const filterModified = priorityFilterModified || !allReportTypesChecked || stateFilterModified || reportedByFilterModified;
+  const filterModified = priorityFilterModified || !eventTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
 
   const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
 
@@ -54,28 +55,32 @@ const EventFilter = (props) => {
       .map(id =>
         reporters.find(r => r.id === id)
       ).filter(item => !!item)
-    : null;
+    : [];
 
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
-    if (allReportTypesChecked) {
+    if (eventTypeFilterEmpty) {
       trackEvent('Event Filter', 'Uncheck All Event Types Filter');
       updateEventFilter({ filter: { event_type: [null] } });
     } else {
       trackEvent('Event Filter', 'Check All Event Types Filter');
-      updateEventFilter({ filter: { event_type: eventTypeIDs } });
+      updateEventFilter({ filter: { event_type: [] } });
     }
   };
 
   const onReportCategoryToggle = ({ value }) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
-    const allShown = intersection(currentFilterReportTypes, toToggle).length === toToggle.length;
+    const allShown = eventTypeFilterEmpty 
+      ? true 
+      : (intersection(currentFilterReportTypes, toToggle).length === toToggle.length);
     if (allShown) {
       trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
-      updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(id => !toToggle.includes(id)) } });
+      updateEventFilter({ filter: { event_type: (eventTypeFilterEmpty ? eventTypeIDs : currentFilterReportTypes).filter(id => !toToggle.includes(id)) } });
     } else {
       trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
-      updateEventFilter({ filter: { event_type: uniq([...currentFilterReportTypes, ...toToggle]) } });
+      const updatedValue = uniq([...currentFilterReportTypes, ...toToggle]);
+      
+      updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
   };
 
@@ -91,7 +96,7 @@ const EventFilter = (props) => {
     } else {
       updateEventFilter({
         filter: {
-          reported_by: null,
+          reported_by: [],
         }
       });
     }
@@ -114,12 +119,14 @@ const EventFilter = (props) => {
   };
 
   const onReportTypeToggle = ({ id }) => {
-    if (currentFilterReportTypes.includes(id)) {
+    const visible = eventTypeFilterEmpty ? true : currentFilterReportTypes.includes(id);
+    if (visible) {
       trackEvent('Event Filter', 'Uncheck Event Type Filter');
-      updateEventFilter({ filter: { event_type: currentFilterReportTypes.filter(item => item !== id) } });
+      updateEventFilter({ filter: { event_type: (eventTypeFilterEmpty ? eventTypeIDs : currentFilterReportTypes).filter(item => item !== id) } });
     } else {
       trackEvent('Event Filter', 'Check Event Type Filter');
-      updateEventFilter({ filter: { event_type: [...currentFilterReportTypes, id] } });
+      const updatedValue = [...currentFilterReportTypes, id];
+      updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
   };
 
@@ -208,7 +215,7 @@ const EventFilter = (props) => {
         });
       } else {
         updateEventFilter({
-          filter: { text: '', }
+          filter: { text: '', },
         });
       }
     }
@@ -261,12 +268,12 @@ const EventFilter = (props) => {
       <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
         <h5 className={styles.filterTitle}>
           Report Types
-          <small className={!allReportTypesChecked ? styles.modified : ''}>
-            {allReportTypesChecked && 'All selected'}
+          <small className={!eventTypeFilterEmpty ? styles.modified : ''}>
+            {eventTypeFilterEmpty && 'All selected'}
             {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
             {noReportTypesChecked && 'None selected'}
           </small>
-          <Button type="button" variant='light' size='sm' disabled={allReportTypesChecked} onClick={toggleAllReportTypes}>Reset</Button>
+          <Button type="button" variant='light' size='sm' disabled={eventTypeFilterEmpty} onClick={toggleAllReportTypes}>Reset</Button>
         </h5>
         <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
       </div>
