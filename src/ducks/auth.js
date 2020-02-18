@@ -39,10 +39,12 @@ const postAuthSuccess = response => (dispatch) => {
 
 export const clearAuth = () => dispatch => {
   deleteAuthTokenCookie();
-  dispatch(clearUserProfile());
-  dispatch({
-    type: CLEAR_AUTH,
-    payload: {},
+  setTimeout(() => {
+    dispatch(clearUserProfile());
+    dispatch({
+      type: CLEAR_AUTH,
+      payload: {},
+    });
   });
 };
 

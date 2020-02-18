@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = (props) => {
-  const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, user, temporaryAccessToken } = props;
+  const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, history, user, temporaryAccessToken } = props;
 
   const { eula_url, version:eula_version, id:eula_id } = eula;
 
@@ -91,6 +91,8 @@ const EulaPage = (props) => {
     setFormAccepted(!formAccepted);
   };
 
+  if (user.accepted_eula) return history.goBack();
+
   return <div className={styles.wrapper}>
     <Dialog>
       <Header>
@@ -120,4 +122,4 @@ const mapStateToProps = ({ data: { eula, user } }) => ({
 });
 
 /* NEEDS FROM REDUX: `accepted_eula` to know if the   is up-to-date, `current_eula` to get version info and a document link to the most recent EULA */
-export default connect(mapStateToProps, { acceptEula, clearAuth, fetchCurrentUser, fetchEula })(memo(EulaPage));
+export default connect(mapStateToProps, { acceptEula, clearAuth, fetchCurrentUser, fetchEula })(withRouter(memo(EulaPage)));

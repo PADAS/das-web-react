@@ -11,21 +11,7 @@ import { REACT_APP_ROUTE_PREFIX } from '../constants';
 class PrivateRoute extends Component {
   loginPath = `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`;
   eulaPath = `${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`;
-  
-  setToken({ access_token }) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-  }
 
-  componentDidMount() {
-    const { token } = this.props;
-    
-    const hasToken = !!token;
-  
-    if (hasToken) {
-      this.setToken(token);
-    }
-    
-  }
 
   render() {
     const { component: Component, dispatch: _dispatch, token, ...rest } = this.props;
