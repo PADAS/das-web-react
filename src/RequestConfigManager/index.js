@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect } from 'react';
+import { memo, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 
