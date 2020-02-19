@@ -19,7 +19,6 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchEventSchema } from './ducks/event-schemas';
 
-import DetectOffline from './DetectOffline';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
@@ -172,7 +171,6 @@ const App = (props) => {
         <ReportTypeIconSprite id="reportTypeIconSprite" />
         <EarthRangerLogoSprite />
       </div>
-      <DetectOffline />
     </div>
   </ErrorBoundary>;
 };

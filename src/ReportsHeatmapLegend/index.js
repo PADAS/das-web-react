@@ -9,7 +9,7 @@ import HeatmapLegend from '../HeatmapLegend';
 const ReportsHeatmapLegend = ({ reports, onClose }) => {
   const reportCount = reports.features.length;
 
-  const titleElement = <h6>{`Heatmap: Visible Reports (${reportCount})`}</h6>;
+  const titleElement = <h6>{`Visible Reports (${reportCount})`}</h6>;
 
   return <HeatmapLegend
     title={titleElement}

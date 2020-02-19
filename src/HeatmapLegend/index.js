@@ -4,6 +4,7 @@ import styles from './styles.module.scss';
 
 import MapLegend from '../MapLegend';
 import HeatmapStyleControls from '../HeatmapStyleControls';
+import HeatmapToggleButton from '../HeatmapToggleButton';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -18,12 +19,19 @@ const HeatmapLegend = ({ title, pointCount, onClose, ...rest }) => {
   const settingsComponent = <HeatmapStyleControls showCancel={false} />;
 
   return <MapLegend
-    titleElement={titleElement}
+    titleElement={
+      <div className={styles.titleWrapper}>
+        <HeatmapToggleButton heatmapVisible={true} showLabel={false} className={styles.heatIcon} />
+        <div className={styles.innerTitleWrapper}>
+          {titleElement}
+          <span>{pointCount} total points</span>
+        </div>
+      </div>
+    }
     onClose={onLegendClose}
     settingsComponent={settingsComponent}
     {...rest} >
-    <div className={styles.gradient}></div>
-    <span>{pointCount} total points</span>
+    
   </MapLegend>;
 };
 

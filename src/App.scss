@@ -551,11 +551,18 @@ div.mapboxgl-popup-tip {
   }
 }
 
-#nprogress .spinner {
-  left: 0.45rem;
-  pointer-events: none;
-  right: unset;
-  top: 0.95rem;
+#ngprogress {
+  .spinner {
+    left: 0.42rem;
+    pointer-events: none;
+    right: unset;
+    top: 0.785rem;
+  }
+  .spinner-icon {
+    animation: nprogress-spinner 800ms linear infinite;
+    height: 1rem;
+    width: 1rem;
+  }
 }
 
 .alerts-modal.show {

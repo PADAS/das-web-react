@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useState, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -16,13 +16,21 @@ import styles from './styles.module.scss';
 
 const AddReport = (props) => {
   const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onSaveError } = props;
+    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
   const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
   const placement = popoverPlacement || 'auto';
+
+  const onButtonClick = useCallback((e) => {
+    if (clickSideEffect) {
+      clickSideEffect(e);
+    }
+    setPopoverState(!popoverOpen);
+    trackEvent('Feed', 'Click \'Add Report\' button');
+  }, [clickSideEffect, popoverOpen]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -67,12 +75,6 @@ const AddReport = (props) => {
         <EventTypeListItem {...reportType} />
       </button>
     </li>;
-  };
-
-
-  const onButtonClick = () => {
-    setPopoverState(!popoverOpen);
-    trackEvent('Feed', 'Click \'Add Report\' button');
   };
 
   const onCategoryClick = (category) => {

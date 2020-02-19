@@ -9,7 +9,7 @@ import { LAYER_IDS, MAX_ZOOM } from '../constants';
 import { metersToPixelsAtMaxZoom } from '../utils/map';
 import { uuid } from '../utils/string';
 
-const { HEATMAP_LAYER, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { HEATMAP_LAYER, TOPMOST_STYLE_LAYER } = LAYER_IDS;
 
 const HeatLayer = ({ heatmapStyles, points }) => {
   const idRef = useRef(uuid());
@@ -36,7 +36,7 @@ const HeatLayer = ({ heatmapStyles, points }) => {
 
   return <Fragment>
     <Source id={`heatmap-source-${idRef.current}`} geoJsonSource={sourceData} />;
-    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={SUBJECT_SYMBOLS} id={`${HEATMAP_LAYER}-${idRef.current}`} type="heatmap" />
+    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={TOPMOST_STYLE_LAYER} id={`${HEATMAP_LAYER}-${idRef.current}`} type="heatmap" />
   </Fragment>;
 };
 

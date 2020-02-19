@@ -1,12 +1,33 @@
+@import '../common/styles/buttons';
+
 .icon {
   max-height: 1.25rem;
-  margin-right: .5rem;
+  margin-left: .25rem;
   max-width: 1.25rem;
+}
+
+.titleWrapper {
+  align-items: flex-start;
+  display: flex;
+}
+
+.innerTitleWrapper {
+  display: flex;
+  flex-flow: column;
+}
+
+.infoButton {
+  @include unstyledButton;
 }
 
 .infoIcon {
   height: 1rem;
   width: 1rem;
+}
+
+.trackIcon {
+  margin-right: 0.5rem;
+  pointer-events: none;
 }
 
 .popover {
@@ -34,7 +55,7 @@
   }
   img {
     max-height: 1.5rem;
-    margin-right: .25rem;
+    margin-left: .25rem;
     max-width: 1.5rem;
   }
   button {

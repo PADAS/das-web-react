@@ -1,7 +1,13 @@
+@import '../common/styles/buttons';
+
 .icon {
+  margin-left: 0.25rem;
   max-height: 1.25rem;
-  margin-right: .5rem;
   max-width: 1.25rem;
+}
+
+.infoButton {
+  @include unstyledButton;
 }
 
 .infoIcon {

@@ -1,10 +1,17 @@
 @import '../common/styles/buttons';
 @import '../common//styles//vars/colors';
 
+
 .legend {
+  --close-button-size: 1.75rem;
+  --legend-height: 3rem;
   background: rgba(255, 255, 255, 0.9);
+  border-radius: 0 var(--close-button-size) var(--close-button-size) 0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, .5);
   display: flex;
   flex-wrap: wrap;
+  height: var(--legend-height);
+  line-height: normal;
   padding: 0.5rem;
   position: relative;
   + .legend {
@@ -19,48 +26,21 @@
   }
   h6 {
     align-items: center;
-    display: flex;
+    display: block;
     justify-content: flex-start;
-    padding-right: 4.25rem;
-  }
-  button:not(.gearButton) {
-    @include unstyledButton;
-  }
-  [class*=__contentOuter] {
-    width: 100%;
-  }
-  [class*=Collapsible__trigger] {
-    cursor: pointer;
-    flex: 1;
-    padding-left: 1rem;
+    margin: 0;
     overflow: hidden;
-    position: relative;
-    &:hover {
-      text-decoration: underline;
-    }
-    &::before {
-      content: '▲';
-      display: block;
-      left: 0;
-      position: absolute;
-      top: 0;
-      transition: transform .2s linear;
-      transform: rotate(90deg);
-    }
-    &[class*=is-open]::before {
-      transform: rotate(180deg);
-    }
-    + button {
-      flex: 1;
-    }
+    padding-right: 4.25rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 17rem;
   }
 }
 
-.closedLegend {
-  .gearButton {
-    bottom: auto;
-    top: 0.5rem;
-    right: 2.75rem;
+@mixin buttonOpacity {
+  opacity: 0.75;
+  &:hover {
+    opacity: 1;
   }
 }
 
@@ -69,21 +49,27 @@
 }
 
 .close {
-  right: 0;
+  @include unstyledButton;
+  @include buttonOpacity;
+  right: 0.25rem;
+  padding: 0;
   position: absolute;
-  top: 0.333rem;
-  &:hover {
-    text-decoration: underline;
+  top: calc((var(--legend-height) - var(--close-button-size)) / 2);
+  vertical-align: top;
+  svg {
+    height: var(--close-button-size);
+    width: var(--close-button-size);
   }
 }
 
 .gearButton {
   --dimensions: 1rem;
+  @include buttonOpacity;
   @include gearButton;
-  bottom: 0.5rem;
   height: var(--dimensions);
   position: absolute;
-  right: 0.5rem;
+  top: calc((var(--legend-height) - var(--dimensions)) / 2);
+  right: 2.75rem;
   width: var(--dimensions);
 }
 
