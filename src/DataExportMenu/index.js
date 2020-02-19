@@ -31,7 +31,7 @@ const DataExportMenu = (props) => {
         title: 'Field Reports',
         content: DataExportModal,
         url: 'activity/events/export',
-        paramString: calcEventFilterForRequest({ exclude_contained: false }),
+        paramString: calcEventFilterForRequest(),
       },
       ...(exportKmlEnabled? [{
         title: 'Master KML',

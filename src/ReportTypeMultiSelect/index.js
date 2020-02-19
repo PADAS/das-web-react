@@ -33,6 +33,8 @@ const filterEventTypes = (eventTypes, filterText) =>
 const ReportTypeMultiSelect = (props) => {
   const { eventTypes, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
 
+  const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
+
   const [filterText, setFilterText] = useState('');
   const onFilterChange = ({ target: { value } }) => setFilterText(value);
   const onFilterClear = () => setFilterText('');
@@ -42,6 +44,8 @@ const ReportTypeMultiSelect = (props) => {
   const itemsGroupedByCategory = mapReportTypesToCategories(filteredEventTypes);
 
   const categoryFullyChecked = (category) => {
+    if (noEventTypeSetInFilter) return true;
+
     const categoryTypeIDs = category.types.map(t => t.id);
     return intersection(categoryTypeIDs, selectedReportTypeIDs).length === categoryTypeIDs.length;
   };
@@ -55,7 +59,7 @@ const ReportTypeMultiSelect = (props) => {
     onFilteredItemsSelect(filteredEventTypes);
   };
 
-  const reportTypeChecked = (type) => selectedReportTypeIDs.includes(type.id);
+  const reportTypeChecked = (type) => noEventTypeSetInFilter ? true : selectedReportTypeIDs.includes(type.id);
 
   const ListItem = (props) => { // eslint-disable-line react/display-name
     const { display, types } = props;

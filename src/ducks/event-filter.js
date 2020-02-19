@@ -1,9 +1,8 @@
+import isEqual from 'react-fast-compare';
 import { generateMonthsAgoDate } from '../utils/datetime';
 
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
-
-const RESET_EVENT_FILTER = 'RESET_EVENT_FILTER';
 
 // ACTION CREATORS
 export const updateEventFilter = update => (dispatch) => {
@@ -13,26 +12,8 @@ export const updateEventFilter = update => (dispatch) => {
   });
 };
 
-export const resetEventFilter = () => (dispatch, getState) => {
-  const eventTypeIDs = getState().data.eventTypes.map(type => type.id);
-
-  const freshFilter = {
-    ...INITIAL_FILTER_STATE,
-    filter: {
-      ...INITIAL_FILTER_STATE.filter,
-      event_type: eventTypeIDs,
-    },
-  };
-
-  dispatch({
-    type: RESET_EVENT_FILTER,
-    payload: freshFilter,
-  });
-};
-
 // REDUCER
 export const INITIAL_FILTER_STATE = {
-  exclude_contained: true,
   include_notes: true,
   include_related_events: true,
   state: ['active', 'new'],
@@ -61,9 +42,6 @@ export default (state = INITIAL_FILTER_STATE, action) => {
         ...payload.filter,
       }
     };
-  }
-  case (RESET_EVENT_FILTER): {
-    return { ...payload };
   }
   default: {
     return state;
