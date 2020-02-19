@@ -30,7 +30,7 @@ export const postAuth = (userData) => (dispatch) => {
 };
 
 const postAuthSuccess = response => (dispatch) => {
-  document.cookie = `token=${response.data.access_token}`;
+  document.cookie = `token=${response.data.access_token};path=/`;
   dispatch({
     type: POST_AUTH_SUCCESS,
     payload: response,
