@@ -45,7 +45,7 @@ export const clearAuth = () => dispatch => {
       type: CLEAR_AUTH,
       payload: {},
     });
-  });
+  }, 100);
 };
 
 export const resetMasterCancelToken = () => ({
