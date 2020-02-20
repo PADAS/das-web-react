@@ -13,7 +13,7 @@ const MapLegend = (props) => {
     <button className={styles.close} onClick={onClose}>
       <CloseIcon />
     </button>
-    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='auto' overlay={
+    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' overlay={
       <Popover className={styles.controlPopover}>
         {settingsComponent}
       </Popover>

@@ -3,7 +3,6 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-import authConfig from './utils/auth';
 
 import 'axios-progress-bar/dist/nprogress.css';
 

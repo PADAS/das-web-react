@@ -15,7 +15,7 @@ import { ReactComponent as InfoIcon } from '../common/images/icons/information.s
 
 import styles from './styles.module.scss';
 
-const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
+const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, trackLength: { length:track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
   const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
   let displayTitle, iconSrc;
@@ -67,12 +67,14 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
   return <HeatmapLegend
     title={titleElement}
     pointCount={trackPointCount}
+    dayCount={track_days}
     onClose={onClose} />;
 };
 
 const mapStateToProps = (state) => ({
   tracks: trimmedVisibleHeatmapTrackFeatureCollection(state),
   tracksAsPoints: trimmedHeatmapPointFeatureCollection(state),
+  trackLength: state.view.trackLength,
   heatmapSubjectIDs: state.view.heatmapSubjectIDs,
 });
 

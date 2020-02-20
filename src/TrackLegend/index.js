@@ -17,7 +17,7 @@ import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
 const TrackLegend = (props) => {
-  const { tracks, tracksAsPoints, onClose, subjectTrackState, updateTrackState, onTrackLengthChange } = props;
+  const { tracks, tracksAsPoints, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
 
   const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
@@ -74,7 +74,7 @@ const TrackLegend = (props) => {
       </button>
     </OverlayTrigger>}
       </h6>
-      <span>{trackPointCount} total points</span>
+      <span>{trackPointCount} points over {track_days} day{track_days > 1 ? 's' :''}</span>
     </div>
   </div>;
 
@@ -82,7 +82,7 @@ const TrackLegend = (props) => {
   return subjectCount && <MapLegend
     titleElement={titleElement}
     onClose={onClose}
-    settingsComponent={<TrackLengthControls onTrackLengthChange={onTrackLengthChange} />} 
+    settingsComponent={<TrackLengthControls />} 
   >
   </MapLegend>;
 };
@@ -91,6 +91,7 @@ const mapStatetoProps = (state) => ({
   tracks: trimmedVisibleTrackFeatureCollection(state),
   tracksAsPoints: trimmedVisibleTrackPointFeatureCollection(state),
   subjectTrackState: state.view.subjectTrackState,
+  trackLength: state.view.trackLength,
 });
 
 export default connect(mapStatetoProps, { updateTrackState })(memo(TrackLegend));

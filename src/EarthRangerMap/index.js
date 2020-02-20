@@ -62,7 +62,7 @@ const EarthRangerMap = (props) => {
     onStyleLoad={onLoad}>
     <EarthRangerMapContext.Provider value={map}>
       {map && <Fragment>
-        <RotationControl position='top-left'/>
+        <RotationControl position='top-left' style={{top: '2.5rem'}}/>
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>
