@@ -16,8 +16,8 @@ export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) =>
   img.setAttribute('crossorigin', 'anonymous');
   img.onload = () => {
     const { naturalHeight, naturalWidth } = img;
-    const largest = Math.max(naturalHeight, naturalWidth);
-    const smallest = Math.min(naturalHeight, naturalWidth);
+    const largest = Math.max(naturalHeight, naturalWidth, size);
+    const smallest = Math.min(naturalHeight, naturalWidth) || size;
     const widthIsLarger = largest === naturalWidth;
     const aspectRatio = smallest / largest;
     if (widthIsLarger) {
