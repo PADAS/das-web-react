@@ -26,9 +26,9 @@ import './index.scss';
 
 import withTracker from './WithTracker';
 
-import RequestConfigManager from './RequestConfigManager';
-import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import DetectOffline from './DetectOffline';
+import LoadingOverlay from './EarthRangerIconLoadingOverlay';
+import RequestConfigManager from './RequestConfigManager';
 
 const App = lazy(() => import('./App'));
 const Login = lazy(() => import('./Login'));
