@@ -61,7 +61,7 @@ const DateTimeField = (props) => {
 const CustomCheckboxes = (props) => {
   const { id, disabled, options, value, autofocus, readonly, onChange } = props;
   const { enumOptions, enumDisabled, inline } = options;
-  const instanceId = useState(uuid());
+  const [instanceId] = useState(uuid());
 
   const inputValues = value.map(val => {
     if (isString(val)) return val;
@@ -152,7 +152,7 @@ export default {
 export const ObjectFieldTemplate = (props) => {
   const { TitleField, DescriptionField } = props;
 
-  const instanceId = useState(uuid());
+  const [instanceId] = useState(uuid());
 
   return <div className='container' style={{padding: 0}}>
     {(props.title || props.uiSchema['ui:title']) && (
