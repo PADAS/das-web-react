@@ -1,5 +1,6 @@
 import customSchemaFields from '../SchemaFields';
 import isUndefined from 'lodash/isUndefined';
+import isString from 'lodash/isString';
 import merge from 'lodash/merge';
 import uniq from 'lodash/uniq';
 
@@ -34,6 +35,7 @@ const createSchemaGroups = (schema, definitions) => {
         {
           origin: DEFINED_ORIGIN,
           ...value,
+          items: value.items.map(item => isString(item) ? item : item.key),
         }
       ];
     }
@@ -112,10 +114,11 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
 const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string'));
 
-  return definitionsToConvert.reduce((accumulator, definition) => {
+  return definitionsToConvert.reduce((accumulator, definition, index) => {
     const { items, key, layout, type, fieldHtmlClass, htmlClass } = definition;
 
     let result = {};
+    let recursedValues = {};
 
     if (type === 'checkboxes') {
       result = merge(result, generateSchemaAndUiSchemaForCheckbox(definition, schema));
@@ -127,7 +130,7 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
       result = merge(result, generateSchemaAndUiSchemaForTextarea(definition));
     }
     if (type === 'fieldset' && !!items && items.some(i => typeof i === 'object')) {
-      result = merge(result, convertDefinitionsToSchemas(items.filter(i => typeof i === 'object'), schema));
+      recursedValues = merge(result, convertDefinitionsToSchemas(items.filter(i => typeof i === 'object'), schema));
     }
     if (key && (fieldHtmlClass || htmlClass || layout)) {
       result = merge(result, addCssClassesToDefinition(definition));
@@ -141,9 +144,9 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
       });
     }
 
-    if (!result.schemaEntry || !result.schemaEntry.key) return accumulator;
+    if (!result.schemaEntry || !result.schemaEntry.key) return merge(accumulator, recursedValues);
 
-    return merge(accumulator, {
+    return merge(accumulator, recursedValues, {
       schema: {
         [result.schemaEntry.key]: result.schemaEntry,
       },

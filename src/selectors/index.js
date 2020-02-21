@@ -112,7 +112,6 @@ export const reportedBy = createSelector(
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures, hiddenAnalyzerIDs],
   (analyzerFeatures, hiddenAnalyzerIDs) => {
-    console.log('analyzerFeatures', analyzerFeatures);
     const allAnalyzers = analyzerFeatures.filter((analyzer) => !hiddenAnalyzerIDs.includes(analyzer.id))
       .reduce((accumulator, data) =>
         [...accumulator,
