@@ -28,7 +28,9 @@ const EulaPage = (props) => {
   const [rerouteOnSuccess, setRerouteOnSuccess] = useState(REACT_APP_ROUTE_PREFIX);
   const [formError, setFormError] = useState(false);
 
-  const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='));
+  const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted=')) ? 
+    document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='))
+      .replace('routeAfterEulaAccepted=', '').replace('"', '').replace(';', '').replace('/"', '/') : null;
 
   const generateTempAuthHeaderIfNecessary = useCallback(() => {
     return temporaryAccessToken ? {
