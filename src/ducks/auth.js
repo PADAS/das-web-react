@@ -38,14 +38,18 @@ const postAuthSuccess = response => (dispatch) => {
 };
 
 export const clearAuth = () => dispatch => {
-  deleteAuthTokenCookie();
-  setTimeout(() => {
-    dispatch(clearUserProfile());
-    dispatch({
-      type: CLEAR_AUTH,
-      payload: {},
-    });
-  }, 100);
+  return new Promise((resolve, reject) => {
+
+    deleteAuthTokenCookie();
+    setTimeout(() => {
+      dispatch(clearUserProfile());
+      dispatch({
+        type: CLEAR_AUTH,
+        payload: {},
+      });
+      resolve();
+    }, 100);
+  });
 };
 
 export const resetMasterCancelToken = () => ({

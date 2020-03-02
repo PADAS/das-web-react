@@ -55,11 +55,12 @@ const RequestConfigManager = (props) => {
   useEffect(() => {
     const responseHandlerWithFailureCase = [response => response, (error) => {
       if (error && error.toString().includes('401')) {
-        clearAuth();
         resetMasterCancelToken();
-        window.location = REACT_APP_ROUTE_PREFIX === '/' ? `${REACT_APP_ROUTE_PREFIX}login` : `${REACT_APP_ROUTE_PREFIX}/login`;
+        clearAuth().then(() => {
+          window.location = REACT_APP_ROUTE_PREFIX === '/' ? `${REACT_APP_ROUTE_PREFIX}login` : `${REACT_APP_ROUTE_PREFIX}/login`;
+          return Promise.reject(error);
+        });
       }
-      return Promise.reject(error);
     }];
 
     if (onAuthFailure.current) {
