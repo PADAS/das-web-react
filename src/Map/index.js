@@ -185,6 +185,9 @@ class Map extends Component {
             .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
             .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
         }
+      })
+      .catch((e) => {
+        console.log('error loading map data', e);
       });
   }
   debouncedFetchMapData = debounce(this.fetchMapData, 100)
@@ -197,7 +200,7 @@ class Map extends Component {
   fetchMapEvents() {
     return this.props.fetchMapEvents(this.props.map)
       .catch((e) => {
-        // console.log('error fetching map events', e.__CANCEL__); handle errors here if not a cancelation
+        // console.warn('error fetching map events', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
   onMapClick(map, event) {

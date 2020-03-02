@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import Select from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 import isString from 'lodash/isString';
+import isPlainObject from 'lodash/isPlainObject';
 
 import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
 import { trackEvent } from '../utils/analytics';
@@ -15,11 +16,11 @@ const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
 
   const getOptionLabel = ({ label, name }) => label || name;
-  const getOptionValue = (val) => isString(val) ? val : val.value;
+  const getOptionValue = (val) => isPlainObject(val) ? val.value : val;
   const selected = enumOptions.find((item) => value ?
     item.value ===
-    (isString(value) ?
-      value : value.value)
+    (isPlainObject(value) ?
+      value.value : value)
     : null
   );
 
@@ -64,8 +65,8 @@ const CustomCheckboxes = (props) => {
   const [instanceId] = useState(uuid());
 
   const inputValues = value.map(val => {
-    if (isString(val)) return val;
-    return val.value;
+    if (isPlainObject(val)) return val.value;
+    return val;
   });
 
   useEffect(() => {
