@@ -187,7 +187,7 @@ class Map extends Component {
         }
       })
       .catch((e) => {
-        console.log('error loading map data', e);
+        console.warn('error loading map data', e);
       });
   }
   debouncedFetchMapData = debounce(this.fetchMapData, 100)
@@ -200,7 +200,7 @@ class Map extends Component {
   fetchMapEvents() {
     return this.props.fetchMapEvents(this.props.map)
       .catch((e) => {
-        // console.warn('error fetching map events', e.__CANCEL__); handle errors here if not a cancelation
+        console.warn('error fetching map events', e.__CANCEL__);
       });
   }
   onMapClick(map, event) {

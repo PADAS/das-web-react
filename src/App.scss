@@ -266,7 +266,7 @@ aside {
     }
 
     .mapboxgl-ctrl-bottom-right {
-      transform: translateX(-0.5rem);
+      transform: translate(-2rem, -3.666rem) scale(0.7);
     }
 
     .mapboxgl-map {
@@ -433,8 +433,7 @@ aside {
 }
 
 .mapboxgl-ctrl-bottom-right {
-  margin-bottom: 2rem;
-  transform: translateX(-4.5rem);
+  transform: translate(-5.75rem, -3.666rem) scale(0.7);
 }
 
 .mapbox-scale-ctrl,

@@ -5,6 +5,8 @@ import { uuid } from '../utils/string';
 
 import { trackEvent } from '../utils/analytics';
 
+import mapLabel from '../common/images/icons/label-export-rounded.png';
+
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -20,7 +22,7 @@ const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
   minZoom: MIN_ZOOM,
   maxZoom: MAX_ZOOM,
-  logoPosition: 'top-left',
+  logoPosition: 'bottom-right',
 });
 
 export function withMap(Component) {
@@ -35,6 +37,12 @@ const EarthRangerMap = (props) => {
   const [mapStyle, setMapStyle] = useState(REACT_APP_BASE_MAP_STYLES);
 
   const onLoad = (map) => {
+    map.loadImage(mapLabel, (_err, img) => {
+      map.addImage('name-label-78-sdf', img, {
+        sdf: true,
+      });
+
+    });
     onMapLoaded && onMapLoaded(map);
     setMap(map);
   };
