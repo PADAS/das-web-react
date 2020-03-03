@@ -48,11 +48,11 @@ const cancelableMapSubjectsFetch = () => {
         bbox,
       }
     })
-      .then(response => dispatch(fetchMapSubjectsSuccess(response)))
-      .catch(error => {
+      .then(response => !!response && dispatch(fetchMapSubjectsSuccess(response)));
+    /* .catch(error => {
         dispatch(fetchMapSubjectsError(error));
         return Promise.reject(error);
-      });
+      }); */
   };
   return [fetchFn, cancelToken];
 };
@@ -66,12 +66,12 @@ const fetchMapSubjectsSuccess = response => ({
   type: FETCH_MAP_SUBJECTS_SUCCESS,
   payload: response.data,
 });
-
+/* 
 const fetchMapSubjectsError = error => ({
   type: FETCH_MAP_SUBJECTS_ERROR,
   payload: error,
 });
-
+ */
 const fetchSubjectGroupsSuccess = response => ({
   type: FETCH_SUBJECT_GROUPS_SUCCESS,
   payload: response.data.data,

@@ -46,7 +46,7 @@ const clusterSymbolPaint = {
 const eventLabelPaint = {
   'icon-color': ['case',
     ['has', 'distanceFromVirtualDate'],
-    ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .225, 'rgba(255,255,255,0.7)'],
+    ['interpolate', ['linear'], ['abs', ['get', 'distanceFromVirtualDate']], 0, 'rgba(255, 255, 126, 1)', .3, 'rgba(255,255,255,0.7)'],
     'rgba(255,255,255,0.7)',
   ],
 };

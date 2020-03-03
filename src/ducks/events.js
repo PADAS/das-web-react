@@ -287,9 +287,9 @@ const cancelableMapEventsFetch = () => {
     });
   
     return recursivePaginatedQuery(request, cancelToken.token, onEachRequest)
-      .then((finalResults) => {
-        dispatch(fetchMapEventsSucess(finalResults));
-      })
+      .then((finalResults) =>
+        finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
+      )
       .catch((error) => {
         dispatch(fetchMapEventsError(error));
         return Promise.reject(error);
@@ -468,7 +468,7 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
   if (type === FETCH_MAP_EVENTS_SUCCESS) {
     return {
       ...state,
-      events: extractEventIDs(payload)
+      events: extractEventIDs(payload),
     };
   }
   if (SOCKET_EVENTS.includes(type)) {

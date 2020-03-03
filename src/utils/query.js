@@ -27,23 +27,28 @@ export const getBboxParamsFromMap = (map, asString = true) => {
   return asString ? toString(finalBounds) : finalBounds;
 };
 
-export const recursivePaginatedQuery = (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const { data: { data: res } } = await initialQuery;
-      const { results, next } = res;
-      onEach && onEach(results);
-      const config = {};
+export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) => 
+  initialQuery
+    .then((response) => {
+      if (response) {
 
-      if (cancelToken) config.cancelToken = cancelToken;
-      if (next) {
-        const finalValues = await recursivePaginatedQuery(get(next, config), cancelToken, onEach, [...resultsToDate, ...results]);
-        resolve(finalValues);
-      } else {
-        resolve([...resultsToDate, ...results]);
+        console.log('initialQuery canceled', initialQuery.__CANCEL__, response.__CANCEL__);
+
+        const { data: { data: res } } = response;
+        const { results, next } = res;
+        
+        onEach && onEach(results);
+
+        const config = {};
+        if (cancelToken) config.cancelToken = cancelToken;
+
+        if (next) {
+          return recursivePaginatedQuery(get(next, config), cancelToken, onEach, [...resultsToDate, ...results]);
+        }
+        
+        return [...resultsToDate, ...results];
       }
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
+    })
+    .catch((e) => {
+      console.log('recursive query failure', e);
+    });
