@@ -26,24 +26,40 @@ nav {
     }
   }
 
-  .listItem {
+  .listItem, .currentLocationJump {
     display: flex;
     height: 3rem;
     justify-content: space-between;
+    padding: 0.25rem 1rem;
 
     img {
       height: 2.5rem;
       margin-right: 1rem;
-
     }
 
     h6 {
       flex-grow: 1;
-      text-align: right;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    &[class*=active] {
+      background: $light-gray !important;
+      color: unset !important;
+      font-weight: bold;
+      &::after {
+        content: "\2713";
+        display: block;
+        float: right;
+      }
+    }
+    svg {
+      height: 1rem;
+      width: 1.25rem;
     }
   }
 
   .menu {
+    margin: 0;
     max-height: 75vh;
     max-width: 96vw;
     overflow-y: auto;
@@ -58,18 +74,4 @@ nav {
   margin-bottom: 0.25rem;
   margin-left: 0.666rem;
   transform: scale(1.8, 1);
-}
-
-a.currentLocationJump {
-  padding-bottom: 1rem;
-  h6 {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    svg {
-      height: 1.25rem;
-      width: 2.5rem;
-    }
-  }
 }

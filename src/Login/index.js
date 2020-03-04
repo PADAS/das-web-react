@@ -47,7 +47,7 @@ class LoginPage extends Component {
         const errorMessage = errorObject
           && errorObject.response
           && errorObject.response.data 
-          && (errorObject.response.status === 401 || errorObject.response.data.error) === 'invalid_grant' 
+          && ((errorObject.response.status >= 400 && errorObject.response.status <= 499) || errorObject.response.data.error) === 'invalid_grant' 
           ? 'Invalid credentials given. Please try again.' 
           : 'An error has occured. Please try again.';
 
