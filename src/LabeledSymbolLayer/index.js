@@ -51,7 +51,7 @@ const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, 
     ...DEFAULT_SYMBOL_LAYOUT,
     ...textLayout,
     'icon-anchor': 'bottom',
-    'icon-image': 'name-label-78',
+    'icon-image': 'name-label-78-sdf',
     'icon-size': 1,
     'icon-text-fit': 'both',
     'icon-text-fit-padding': [2,6,2,6],
@@ -62,7 +62,8 @@ const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, 
 
   const labelPaint = {
     ...DEFAULT_SYMBOL_PAINT,
-    'icon-opacity': 0.5,
+    'icon-opacity': 1,
+    'icon-color': '#ffffff',
     ...textPaint,
   };
 

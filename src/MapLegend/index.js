@@ -2,23 +2,35 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Collapsible from 'react-collapsible';
+import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 
 import styles from './styles.module.scss';
 
 const MapLegend = (props) => {
-  const { onClose, settingsComponent, titleElement, children, ...rest } = props;
-  return <Collapsible
-    className={`${styles.legend} ${styles.closedLegend}`}
-    openedClassName={styles.legend}
-    transitionTime={0.1}
-    open={true}
-    lazyRender={true}
-    trigger={titleElement}
-    {...rest}
-  >
-    <button className={styles.close} onClick={onClose}>close</button>
-    {children}
+  const { onClose, settingsComponent, titleElement:Title, children, ...rest } = props;
+  return <div className={`${styles.legend} ${styles.closedLegend}`} {...rest}>
+    {Title}
+    <button className={styles.close} onClick={onClose}>
+      <CloseIcon />
+    </button>
+    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' overlay={
+      <Popover className={styles.controlPopover}>
+        {settingsComponent}
+      </Popover>
+    }>
+      <button type="button" className={styles.gearButton}></button>
+    </OverlayTrigger>}
+  </div>;
+
+};
+
+/* 
+<div className={`${styles.legend} ${styles.closedLegend}`} {...rest}>
+  <Title />
+  {children}
+  <button className={styles.close} onClick={onClose}>
+      <CloseIcon />
+    </button>
     {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='auto' overlay={
       <Popover className={styles.controlPopover}>
         {settingsComponent}
@@ -26,9 +38,9 @@ const MapLegend = (props) => {
     }>
       <button type="button" className={styles.gearButton}></button>
     </OverlayTrigger>}
-  </Collapsible>;
+</div>
 
-};
+ */
 
 export default memo(MapLegend);
 

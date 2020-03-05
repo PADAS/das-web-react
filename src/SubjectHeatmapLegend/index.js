@@ -11,11 +11,11 @@ import { updateHeatmapSubjects } from '../ducks/map-ui';
 
 import HeatmapLegend from '../HeatmapLegend';
 
-import InfoIcon from '../common/images/icons/information.svg';
+import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
 import styles from './styles.module.scss';
 
-const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
+const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, trackLength: { length:track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
   const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
   let displayTitle, iconSrc;
@@ -40,41 +40,41 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, onClose, heatmapSubjectI
 
   if (subjectCount === 1) {
     const { title, image } = tracks.features[0].properties;
-    displayTitle = `Heatmap: ${title}`;
+    displayTitle = `${title}`;
     iconSrc = image;
   } else {
-    displayTitle = `Heatmap: ${tracks.features.length} subjects`;
+    displayTitle = `${tracks.features.length} subjects`;
   }
 
   const titleElement = <h6>
-    {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {displayTitle}
+    {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
+    {subjectCount > 1 && <OverlayTrigger
+      onExited={() => trackEvent('Map Interaction', 'Close Heatmap Legend Subject List')}
+      onEntered={() => trackEvent('Map Interaction', 'Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
+        <Popover className={styles.popover} id="track-details">
+          <ul>
+            {tracks.features.map(convertTrackToSubjectDetailListItem)}
+          </ul>
+        </Popover>
+      }>
+      <button type="button" className={styles.infoButton}>
+        <InfoIcon className={styles.infoIcon} />
+      </button>
+    </OverlayTrigger>}
   </h6>;
-
-  const triggerSibling = () => subjectCount > 1 && <OverlayTrigger
-    onExited={() => trackEvent('Map Interaction', 'Close Heatmap Legend Subject List')}
-    onEntered={() => trackEvent('Map Interaction', 'Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
-      <Popover className={styles.popover} id="track-details">
-        <ul>
-          {tracks.features.map(convertTrackToSubjectDetailListItem)}
-        </ul>
-      </Popover>
-    }>
-    <button type="button">
-      <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' />
-    </button>
-  </OverlayTrigger>;
 
   return <HeatmapLegend
     title={titleElement}
-    triggerSibling={triggerSibling}
     pointCount={trackPointCount}
+    dayCount={track_days}
     onClose={onClose} />;
 };
 
 const mapStateToProps = (state) => ({
   tracks: trimmedVisibleHeatmapTrackFeatureCollection(state),
   tracksAsPoints: trimmedHeatmapPointFeatureCollection(state),
+  trackLength: state.view.trackLength,
   heatmapSubjectIDs: state.view.heatmapSubjectIDs,
 });
 

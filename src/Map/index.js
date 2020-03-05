@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
@@ -185,6 +186,9 @@ class Map extends Component {
             .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
             .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
         }
+      })
+      .catch((e) => {
+        console.warn('error loading map data', e);
       });
   }
   debouncedFetchMapData = debounce(this.fetchMapData, 100)
@@ -197,7 +201,7 @@ class Map extends Component {
   fetchMapEvents() {
     return this.props.fetchMapEvents(this.props.map)
       .catch((e) => {
-        // console.log('error fetching map events', e.__CANCEL__); handle errors here if not a cancelation
+        console.warn('error fetching map events', e);
       });
   }
   onMapClick(map, event) {
@@ -407,6 +411,7 @@ class Map extends Component {
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+              <RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} />
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}

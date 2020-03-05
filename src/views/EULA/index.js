@@ -57,6 +57,12 @@ const EulaPage = (props) => {
     }
   }, [rerouteCookieValue, submitted]);
 
+  useEffect(() => {
+    if (user.accepted_eula) return history.goBack();
+  }, []);
+
+
+
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
     setFormError(false);
@@ -92,8 +98,6 @@ const EulaPage = (props) => {
     setFormError(false);
     setFormAccepted(!formAccepted);
   };
-
-  if (user.accepted_eula) return history.goBack();
 
   return <div className={styles.wrapper}>
     <Dialog>

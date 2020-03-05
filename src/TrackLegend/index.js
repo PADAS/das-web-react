@@ -6,7 +6,8 @@ import Button from 'react-bootstrap/Button';
 
 import MapLegend from '../MapLegend';
 import TrackLengthControls from '../TrackLengthControls';
-import InfoIcon from '../common/images/icons/information.svg';
+import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
+import TrackToggleButton from '../TrackToggleButton';
 
 import { updateTrackState } from '../ducks/map-ui';
 
@@ -16,7 +17,7 @@ import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
 const TrackLegend = (props) => {
-  const { tracks, tracksAsPoints, onClose, subjectTrackState, updateTrackState, onTrackLengthChange } = props;
+  const { tracks, tracksAsPoints, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
 
   const subjectCount = tracks.features.length;
   const trackPointCount = tracksAsPoints.features.length;
@@ -45,18 +46,19 @@ const TrackLegend = (props) => {
 
   if (subjectCount === 1) {
     const { title, image } = tracks.features[0].properties;
-    displayTitle = `Tracks: ${title}`;
+    displayTitle = `${title}`;
     iconSrc = image;
   } else {
-    displayTitle = `Tracks: ${subjectCount} subjects`;
+    displayTitle = `${subjectCount} subjects`;
   }
 
-  const titleElement = <h6>
-    {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
-    {displayTitle}
-  </h6>;
-
-  const triggerSibling = () => subjectCount > 1 &&
+  const titleElement = <div className={styles.titleWrapper}>
+    <TrackToggleButton trackPinned={false} trackVisible={false} className={styles.trackIcon} showLabel={false} />
+    <div className={styles.innerTitleWrapper}>
+      <h6>
+        {displayTitle}
+        {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
+        {subjectCount > 1 &&
     <OverlayTrigger trigger="click" rootClose
       onExited={() => trackEvent('Map Interaction', 'Close Tracks Legend Subject List')}
       onEntered={() => trackEvent('Map Interaction', 'Show Tracks Legend Subject List')}
@@ -67,19 +69,21 @@ const TrackLegend = (props) => {
           </ul>
         </Popover>
       }>
-      <button type="button">
-        <img className={styles.infoIcon} src={InfoIcon} alt='Info icon' / >
+      <button type="button" className={styles.infoButton}>
+        <InfoIcon className={styles.infoIcon} />
       </button>
-    </OverlayTrigger>;
+    </OverlayTrigger>}
+      </h6>
+      <span>{trackPointCount} points over {track_days} day{track_days > 1 ? 's' :''}</span>
+    </div>
+  </div>;
+
 
   return subjectCount && <MapLegend
     titleElement={titleElement}
     onClose={onClose}
-    triggerSibling={triggerSibling}
-    settingsComponent={<TrackLengthControls onTrackLengthChange={onTrackLengthChange} />} 
+    settingsComponent={<TrackLengthControls />} 
   >
-    <div className={styles.gradient}></div>
-    <span>{trackPointCount} total points</span>
   </MapLegend>;
 };
 
@@ -87,6 +91,7 @@ const mapStatetoProps = (state) => ({
   tracks: trimmedVisibleTrackFeatureCollection(state),
   tracksAsPoints: trimmedVisibleTrackPointFeatureCollection(state),
   subjectTrackState: state.view.subjectTrackState,
+  trackLength: state.view.trackLength,
 });
 
 export default connect(mapStatetoProps, { updateTrackState })(memo(TrackLegend));

@@ -4,10 +4,11 @@ import styles from './styles.module.scss';
 
 import MapLegend from '../MapLegend';
 import HeatmapStyleControls from '../HeatmapStyleControls';
+import HeatmapToggleButton from '../HeatmapToggleButton';
 
 import { trackEvent } from '../utils/analytics';
 
-const HeatmapLegend = ({ title, pointCount, onClose, ...rest }) => {
+const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
 
   const onLegendClose = (e) => {
     trackEvent('Map Interaction', 'Close Heatmap');
@@ -18,12 +19,19 @@ const HeatmapLegend = ({ title, pointCount, onClose, ...rest }) => {
   const settingsComponent = <HeatmapStyleControls showCancel={false} />;
 
   return <MapLegend
-    titleElement={titleElement}
+    titleElement={
+      <div className={styles.titleWrapper}>
+        <HeatmapToggleButton heatmapVisible={true} showLabel={false} className={styles.heatIcon} />
+        <div className={styles.innerTitleWrapper}>
+          {titleElement}
+          <span>{pointCount} points over {dayCount} day{dayCount > 1 ? 's' : ''}</span>
+        </div>
+      </div>
+    }
     onClose={onLegendClose}
     settingsComponent={settingsComponent}
     {...rest} >
-    <div className={styles.gradient}></div>
-    <span>{pointCount} total points</span>
+    
   </MapLegend>;
 };
 
@@ -31,6 +39,8 @@ HeatmapLegend.propTypes = {
   title: PropTypes.oneOfType([
     PropTypes.element, PropTypes.node,
   ]).isRequired,
+  pointCount: PropTypes.number.isRequired,
+  dayCount: PropTypes.number.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 

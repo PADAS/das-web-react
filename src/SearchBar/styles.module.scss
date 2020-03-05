@@ -45,12 +45,14 @@ $filtered-color : $highlight-color;
     visibility: hidden;
     right: 1rem;
     cursor: pointer; 
-    &:hover > svg {
-      fill: $filtered-color;
+    &:hover > svg * {
+      stroke: $filtered-color;
     }
     > svg {
+      height: 100%;
       position: relative;
       top: -0.25rem;
+      width: 100%;
     }
   }
   &.isFiltered {

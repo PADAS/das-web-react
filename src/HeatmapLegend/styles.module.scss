@@ -1,6 +1,18 @@
-.gradient {
-  background: linear-gradient(to right, rgba(127, 104, 255, .5)0, #0ff 15%, #ff0 35%, orange 70%, red 95%);
-  height: 1.5rem;
-  margin: .25rem 0;
-  width: 100%;
+.titleWrapper {
+  align-items: flex-start;
+  display: flex;
+}
+
+.innerTitleWrapper {
+  display: flex;
+  flex-flow: column;
+}
+
+.heatIcon {
+  outline: none;
+  margin-right: 0.25rem;
+  pointer-events: none;
+  &:focus, &:hover, &:active {
+    outline: none;
+  }
 }
