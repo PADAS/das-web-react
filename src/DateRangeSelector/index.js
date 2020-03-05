@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import endOfDay from 'date-fns/end_of_day';
 
 import DateTimePicker from 'react-datetime-picker';
 
@@ -17,6 +18,22 @@ const DateRangeSelector = (props) => {
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
 
+  const endDateDayClicked = useRef(false);
+
+  const handleEndDateChange = (val) => {
+    if (endDateDayClicked.current) {
+      endDateDayClicked.current = false;
+      console.log('end of day dude');
+      return onEndDateChange(endOfDay(val));
+    }
+    console.log('not end of day dude');
+    return onEndDateChange(val);
+  };
+
+  const handleEndDateDayClick = () => {
+    endDateDayClicked.current = true;
+  };
+
   return <div className={className || ''}>
     <div className={styles.dateSelectorWrapper}>
       <label className={styles.label}>
@@ -32,7 +49,7 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={onEndDateChange} onBlur={onEndDateBlur} />
+          <DateTimePicker onClickDay={handleEndDateDayClick} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} onBlur={onEndDateBlur} />
         </span>
       </label>
     </div>
