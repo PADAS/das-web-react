@@ -10,6 +10,8 @@ const EVENTS_API_URL = `${API_URL}activity/events/`;
 const EVENT_API_URL = `${API_URL}activity/event/`;
 
 // actions
+const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';
+
 const CREATE_EVENT_START = 'CREATE_EVENT_START';
 const CREATE_EVENT_SUCCESS = 'CREATE_EVENT_SUCCESS';
 const CREATE_EVENT_ERROR = 'CREATE_EVENT_ERROR';
@@ -111,6 +113,10 @@ const fetchNamedFeedActionCreator = (name) => {
 
 
 // action creators
+export const clearEventData = () => ({
+  type: CLEAR_EVENT_DATA,
+});
+
 export const createEvent = event => (dispatch) => {
   dispatch({
     type: CREATE_EVENT_START,
@@ -333,6 +339,10 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
 
   const { type, payload } = action;
 
+  if (type === CLEAR_EVENT_DATA) {
+    return { ...INITIAL_EVENT_FEED_STATE };
+  }
+
   /* socket changes and event updates should affect all feeds */
   if (SOCKET_EVENTS.includes(type) || type === UPDATE_EVENT_SUCCESS) {
     const id = SOCKET_EVENTS.includes(type) ? payload.event_id : payload.id; 
@@ -379,6 +389,10 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
 const INITIAL_STORE_STATE = {};
 export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
   const SOCKET_EVENTS = [SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT];
+
+  if (type === CLEAR_EVENT_DATA) {
+    return { ...INITIAL_STORE_STATE };
+  }
 
   if (type === UPDATE_EVENT_STORE) {
     const toAdd = payload.reduce((accumulator, event) => {
@@ -452,6 +466,10 @@ const INITIAL_MAP_EVENTS_STATE = {
 export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, { type, payload }) {
   const extractEventIDs = events => events.map(e => e.id);
 
+  if (type === CLEAR_EVENT_DATA) {
+    return { ...INITIAL_MAP_EVENTS_STATE };
+  }
+  
   if (type === FETCH_MAP_EVENTS_START) {
     const { bbox } = payload;
     return {
