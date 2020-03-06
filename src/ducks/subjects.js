@@ -17,6 +17,7 @@ const FETCH_SUBJECT_GROUPS_SUCCESS = 'FETCH_SUBJECT_GROUPS_SUCCESS';
 const FETCH_MAP_SUBJECTS_START = 'FETCH_MAP_SUBJECTS_START';
 const FETCH_MAP_SUBJECTS_SUCCESS = 'FETCH_MAP_SUBJECTS_SUCCESS';
 const FETCH_MAP_SUBJECTS_ERROR = 'FETCH_MAP_SUBJECTS_ERROR';
+const CLEAR_SUBJECT_DATA = 'CLEAR_SUBJECT_DATA';
 export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
 
 // action creators
@@ -59,6 +60,10 @@ const cancelableMapSubjectsFetch = () => {
 
 export const [fetchMapSubjects, mapSubjectsFetchCancelToken] = cancelableMapSubjectsFetch();
 
+export const clearSubjectData = () => ({
+  type: CLEAR_SUBJECT_DATA,
+});
+
 export const fetchSubjectGroups = () => dispatch => axios.get(SUBJECT_GROUPS_API_URL)
   .then(response => dispatch(fetchSubjectGroupsSuccess(response)));
 
@@ -86,6 +91,9 @@ const INITIAL_MAP_SUBJECT_STATE = {
 
 export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, action = {}) {
   switch (action.type) {
+  case CLEAR_SUBJECT_DATA: {
+    return { ...INITIAL_MAP_SUBJECT_STATE };
+  }
   case FETCH_MAP_SUBJECTS_START: {
     const { bbox } = action.payload;
     return {
@@ -126,6 +134,9 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
 
 export const subjectGroupsReducer = (state = [], action = {}) => {
   const { type, payload } = action;
+  if (type === CLEAR_SUBJECT_DATA) {
+    return [];
+  }
   if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
     return payload;
   }

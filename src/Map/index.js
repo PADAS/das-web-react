@@ -8,8 +8,8 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-import { fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
-import { fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
+import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
+import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
@@ -95,6 +95,11 @@ class Map extends Component {
     this.props.fetchBaseLayers();
   }
 
+  componentWillUnmount() {
+    this.props.clearEventData();
+    this.props.clearSubjectData(); // map data cleanup
+  }
+
   componentDidUpdate(prev) {
     if (!this.props.map) return;
 
@@ -112,8 +117,8 @@ class Map extends Component {
     if (!isEqual(prev.trackLength, this.props.trackLength)) {
       this.onTrackLengthChange();
     }
-    if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active) && this.props.timeSliderState.active) {
-      this.debouncedFetchMapData();
+    if (!prev.timeSliderState.active && !!this.props.timeSliderState.active) {
+      this.fetchMapSubjectTracksForTimeslider();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -181,10 +186,7 @@ class Map extends Component {
     ])
       .then(() => {
         if (this.props.timeSliderState.active) {
-          this.resetTrackRequestCancelToken();
-          fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
-            .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-            .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
+          this.fetchMapSubjectTracksForTimeslider();
         }
       })
       .catch((e) => {
@@ -197,6 +199,12 @@ class Map extends Component {
       .catch((e) => {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
+  }
+  fetchMapSubjectTracksForTimeslider() {
+    this.resetTrackRequestCancelToken();
+    fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
+      .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
+      .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
   }
   fetchMapEvents() {
     return this.props.fetchMapEvents(this.props.map)
@@ -487,6 +495,8 @@ const mapStatetoProps = (state, props) => {
 };
 
 export default connect(mapStatetoProps, {
+  clearEventData,
+  clearSubjectData,
   fetchBaseLayers,
   fetchMapSubjects,
   fetchMapEvents,
