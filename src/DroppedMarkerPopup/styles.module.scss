@@ -1,4 +1,7 @@
 .popup {
+  [class*=mapboxgl-popup-content] {
+    padding-bottom: 0.333rem;
+  }
   button {
     margin: auto;
   }
