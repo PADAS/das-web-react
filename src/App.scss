@@ -261,11 +261,11 @@ aside {
     }
 
     .mapbox-scale-ctrl {
-      transform: translate(0rem, -1.5rem);
+      transform: translate(0rem, -0.9rem);
     }
 
     .mapbox-zoom-ctrl {
-      transform: scale(1.25) translate(-3.25rem, -1rem);
+      transform: scale(1.25) translate(0, -1rem);
     }
 
     .mapboxgl-map {
@@ -442,10 +442,10 @@ aside {
 
 .mapbox-scale-ctrl {
   opacity: 0.6;
-  transform: translate(0rem, -1.5rem);
+  transform: translate(-0.55rem, -0.9rem);
 
   @media (min-width: $md-layout-width-min) {
-    transform: translate(-4rem, -1.5rem);
+    transform: translate(-5.05rem, -0.9rem);
   }
 }
 
@@ -453,7 +453,7 @@ aside {
   transform: scale(1.25) translate(0rem, -1rem);
 
   @media (min-width: $md-layout-width-min) {
-    transform: scale(1.25) translate(-4rem, -1rem);
+    transform: scale(1.25) translate(-3.5rem, -1rem);
   }
 }
 
