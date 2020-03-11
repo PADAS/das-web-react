@@ -89,7 +89,7 @@ $contrast: 25%;
   padding: 0.5rem;
   position: relative;
   top: 0.15rem;
-  width: 10rem;
+  width: 7.9rem;
   &::before {
     background: url('../common/images/timeslider-bumper.png') bottom right/var(--thumb-width) $thumb-height no-repeat;
     background-size: 100% 100%;
@@ -100,11 +100,12 @@ $contrast: 25%;
     opacity: 0.75;
     position: absolute;
     top: 0;
-    transition: .2s opacity ease-in-out;
-    width: 100%;
+    transition: .1s opacity ease-in-out;
+    width: var(--thumb-width);
   }
   time {
-    color: $light-font-color;
+    color: lighten($light-font-color, 25%);
+    font-size: 0.6875rem;
   }
   &.left {
     left: 1.15rem;
@@ -145,8 +146,10 @@ $contrast: 25%;
 }
 
 .handleDate {
+  color: $light-font-color;
   display: none;
-  font-size: 0.633rem;
+  font-size: 0.6875rem;
+  margin-bottom: 0.1rem;
   @media (min-width: $lg-layout-width-min) {
     display: initial;
   }

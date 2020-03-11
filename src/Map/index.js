@@ -117,8 +117,8 @@ class Map extends Component {
     if (!isEqual(prev.trackLength, this.props.trackLength)) {
       this.onTrackLengthChange();
     }
-    if (!prev.timeSliderState.active && !!this.props.timeSliderState.active) {
-      this.fetchMapSubjectTracksForTimeslider();
+    if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
+      this.fetchMapData();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -126,6 +126,7 @@ class Map extends Component {
     if (!isEqual(this.props.heatmapTracks, prev.heatmapTracks) && !!this.props.heatmapTracks.length && this.props.showReportHeatmap) {
       this.onCloseReportHeatmap();
     }
+    
     if (!!this.props.timeSliderState.active && !!this.props.popup
       && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
       && this.props.popup.type === 'subject') {
@@ -180,32 +181,43 @@ class Map extends Component {
   }
 
   fetchMapData() {
-    Promise.all([
+    return Promise.all([
       this.fetchMapEvents(),
       this.fetchMapSubjects(),
     ])
-      .then(() => {
-        if (this.props.timeSliderState.active) {
-          this.fetchMapSubjectTracksForTimeslider();
-        }
-      })
       .catch((e) => {
         console.warn('error loading map data', e);
       });
   }
+
   debouncedFetchMapData = debounce(this.fetchMapData, 100)
+
   fetchMapSubjects() {
-    return this.props.fetchMapSubjects(this.props.map)
+    const args = [this.props.map];
+    const timeSliderActive =  this.props.timeSliderState.active;
+
+    if (timeSliderActive) {
+      const { lower:updated_since, upper:updated_until } = this.props.eventFilter.filter.date_range;
+
+      args.push({
+        updated_since, updated_until,
+      });
+    }
+
+    return this.props.fetchMapSubjects(...args)
+      .then((latestMapSubjects) => this.fetchMapSubjectTracksForTimeslider(latestMapSubjects))
       .catch((e) => {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
-  fetchMapSubjectTracksForTimeslider() {
+  
+  fetchMapSubjectTracksForTimeslider(subjects) {
     this.resetTrackRequestCancelToken();
-    fetchTracksIfNecessary(this.props.mapSubjectFeatureCollection.features
-      .filter(({ properties: { last_position_date } }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-      .map(({ properties: { id } }) => id), this.trackRequestCancelToken);
+    return fetchTracksIfNecessary(subjects
+      .filter(({ last_position_date }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
+      .map(({ id }) => id), this.trackRequestCancelToken);
   }
+
   fetchMapEvents() {
     return this.props.fetchMapEvents(this.props.map)
       .catch((e) => {
