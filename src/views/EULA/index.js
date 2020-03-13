@@ -33,7 +33,7 @@ const EulaPage = (props) => {
       .replace('routeAfterEulaAccepted=', '').replace('"', '').replace(';', '').replace('/"', '/') : null;
 
   // inspect the redirect cookie set and see if it is an admin endpoint
-  const loginUrl = /admin/.test(rerouteCookieValue) ? '/admin/login' : 'login';
+  const loginUrl = /admin/.test(rerouteCookieValue) ? '/admin/login/' : 'login';
 
   const generateTempAuthHeaderIfNecessary = useCallback(() => {
     return temporaryAccessToken ? {
