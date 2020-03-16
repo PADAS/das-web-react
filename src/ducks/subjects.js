@@ -24,7 +24,7 @@ export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
 
 const cancelableMapSubjectsFetch = () => {
   let cancelToken = CancelToken.source();
-  const fetchFn = map => (dispatch, getState) => {
+  const fetchFn = (map, params) => (dispatch, getState) => {
     let lastKnownBbox;
 
     if (!map) {
@@ -47,9 +47,16 @@ const cancelableMapSubjectsFetch = () => {
       cancelToken: cancelToken.token,
       params: {
         bbox,
+        ...params,
       }
     })
-      .then(response => !!response && dispatch(fetchMapSubjectsSuccess(response)));
+      .then((response) => {
+        if (response) {
+          dispatch(fetchMapSubjectsSuccess(response));
+          return response.data.data;
+        }
+        return [];
+      });
     /* .catch(error => {
         dispatch(fetchMapSubjectsError(error));
         return Promise.reject(error);

@@ -22,7 +22,7 @@ const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
   minZoom: MIN_ZOOM,
   maxZoom: MAX_ZOOM,
-  logoPosition: 'bottom-right',
+  logoPosition: 'bottom-left',
 });
 
 export function withMap(Component) {

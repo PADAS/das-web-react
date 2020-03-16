@@ -145,7 +145,7 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
     if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
       return store.dispatch(fetchTracks(dateRange, cancelToken, id));
     }
-    return Promise.resolve();
+    return Promise.resolve(track);
   });
 
   return Promise.all(results);

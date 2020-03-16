@@ -260,13 +260,12 @@ aside {
       }
     }
 
-    .mapbox-scale-ctrl,
-    .mapbox-zoom-ctrl {
-      transform: translate(0rem, -1.5rem);
+    .mapbox-scale-ctrl {
+      transform: translate(0rem, -0.9rem);
     }
 
-    .mapboxgl-ctrl-bottom-right {
-      transform: translate(-2rem, -3.666rem) scale(0.7);
+    .mapbox-zoom-ctrl {
+      transform: scale(1.25) translate(0, -1rem);
     }
 
     .mapboxgl-map {
@@ -421,6 +420,7 @@ aside {
   font-size: 0.7rem;
   right: 0;
   bottom: 0;
+  opacity: 0.6;
   position: absolute;
   text-align: right;
   z-index: 2;
@@ -432,16 +432,28 @@ aside {
   }
 }
 
-.mapboxgl-ctrl-bottom-right {
-  transform: translate(-5.75rem, -3.666rem) scale(0.7);
+.mapboxgl-ctrl-bottom-left {
+  pointer-events: none;
+  transform: translate(-0.25rem, -0.25rem) scale(0.7);
+  .mapboxgl-ctrl {
+    margin: 0;
+  }
 }
 
-.mapbox-scale-ctrl,
-.mapbox-zoom-ctrl {
-  transform: translate(0rem, -1.5rem);
+.mapbox-scale-ctrl {
+  opacity: 0.6;
+  transform: translate(-0.55rem, -0.9rem);
 
   @media (min-width: $md-layout-width-min) {
-    transform: translate(-4rem, -1.5rem);
+    transform: translate(-5.05rem, -0.9rem);
+  }
+}
+
+.mapbox-zoom-ctrl {
+  transform: scale(1.25) translate(0rem, -1rem);
+
+  @media (min-width: $md-layout-width-min) {
+    transform: scale(1.25) translate(-3.5rem, -1rem);
   }
 }
 
