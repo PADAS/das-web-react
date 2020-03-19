@@ -40,7 +40,7 @@ $contrast: 25%;
 @mixin thumbWidth {
   --thumb-width: 5rem;
   @media (min-width: $lg-layout-width-min) {
-    --thumb-width: 8rem;
+    --thumb-width: 9rem;
   }
 }
 
@@ -72,7 +72,7 @@ $contrast: 25%;
     width: 87.5%;
   }
   @media (min-width: $lg-layout-width-min) {
-    left:3rem;
+    left:4rem;
   }
   @media print {
     display: none;
@@ -182,13 +182,13 @@ $contrast: 25%;
     border-radius: $track-radius;
     border: $track-border-width solid $track-border-color;
   }
-  
+
   &::-webkit-slider-thumb {
     @include thumb;
     -webkit-appearance: none;
     margin-top: ((-$track-border-width * 2 + $track-height) / 2) - ($thumb-height / 2);
   }
-  
+
 
   &:focus::-webkit-slider-runnable-track {
     background: $track-color__active;
@@ -206,7 +206,7 @@ $contrast: 25%;
   }
 
   &::-ms-track {
-    @include track; 
+    @include track;
     @include thumbWidth;
     background: transparent;
     border-color: transparent;
@@ -260,7 +260,7 @@ $contrast: 25%;
     stroke: $primary-font-color;
   }
   &.iconFill, &.iconFill * {
-    fill: $primary-font-color; 
+    fill: $primary-font-color;
   }
   circle, g, path {
     transition: stroke 0.1s linear;

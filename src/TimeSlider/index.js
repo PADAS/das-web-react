@@ -27,7 +27,7 @@ const TimeSlider = (props) => {
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
   const endDate = until ? new Date(until) : new Date();
-  
+
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
   const startDateModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range.lower, since);
@@ -44,7 +44,7 @@ const TimeSlider = (props) => {
     });
     onDateChange();
   };
-  
+
   const value = (currentDate - startDate) / (endDate - startDate);
   const handleOffset = ((handleTextRef && handleTextRef.current && handleTextRef.current.offsetWidth) || 0) * value;
 
@@ -57,14 +57,14 @@ const TimeSlider = (props) => {
     if (value >= .99999) {
       until ? setVirtualDate(until) : clearVirtualDate();
       setSliderPositionValue(100);
-    } 
+    }
     else {
-      
+
       setSliderPositionValue(value * 100);
-      
+
       const dateValue = new Date(startDate);
       dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * value));
-      
+
       setVirtualDate(dateValue.toISOString());
     }
 
@@ -100,11 +100,12 @@ const TimeSlider = (props) => {
         <TimeAgo date={startDate}/>
       </div>
     </OverlayTrigger>
-    <div style={{position: 'relative', width: '100%'}}>
+    <div style={{position: 'relative', width: '100%', zIndex: '-1'}}>
       <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onSliderChange} value={value} />
       <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
         <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
-        {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> : 'Timeslider'}
+        {(until || virtualDate) ? <span style={{ marginLeft: '0.5rem', color: '#6d6d6d' }}>{format(currentDate, STANDARD_DATE_FORMAT)}</span> :
+        <span style={{color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
