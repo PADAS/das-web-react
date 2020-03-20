@@ -7,7 +7,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
 
-import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle } from '../utils/datetime';
+import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
@@ -78,6 +78,12 @@ const TimeSlider = (props) => {
 
   const onDateChange = () => trackEvent('Map Interaction', 'Update Time Slider Date Range');
 
+  const checkTwoWeeks = (dateTime) => {
+    let twoWeekAgo = new Date(generateWeeksAgoDate(2));
+    let DateTime = new Date(dateTime);
+    return (DateTime >= twoWeekAgo) ? true : false
+  }
+
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -96,7 +102,8 @@ const TimeSlider = (props) => {
   return <div className={styles.wrapper}>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
       <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
-        <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{format(startDate, STANDARD_DATE_FORMAT)}</span>
+        <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>
+          {checkTwoWeeks(format(startDate, STANDARD_DATE_FORMAT)) ? format(startDate, STANDARD_DATE_FORMAT) : format(startDate, DATE_FORMAT)}</span>
         <TimeAgo date={startDate}/>
       </div>
     </OverlayTrigger>
@@ -110,7 +117,8 @@ const TimeSlider = (props) => {
     </div>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
       <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
-        {until && <span className={styles.handleDate}  title={generateCurrentTimeZoneTitle()}>{format(endDate, STANDARD_DATE_FORMAT)}</span>}
+        {until && <span className={styles.handleDate}  title={generateCurrentTimeZoneTitle()}>
+           {checkTwoWeeks(format(endDate, STANDARD_DATE_FORMAT)) ? format(endDate, STANDARD_DATE_FORMAT) : format(endDate, DATE_FORMAT)}</span>}
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
       </div>
     </OverlayTrigger>
