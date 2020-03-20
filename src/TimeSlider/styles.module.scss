@@ -252,6 +252,18 @@ $contrast: 25%;
   width: var(--thumb-width);
 }
 
+.handleText span {
+  margin-left: 0.5rem;
+  color: #6d6d6d;
+
+}
+
+.wrapper_slider {
+  position: relative;
+  width: 100%;
+  z-index: -1;
+}
+
 .icon {
   --dimensions: 1rem;
   height: var(--dimensions);

@@ -24,7 +24,7 @@ export const calcFriendlyDurationString = (from, until) => {
 
 
 export const STANDARD_DATE_FORMAT = 'D MMM YYYY HH:mm';
-export const DATE_FORMAT = 'D MMM YYYY';
+export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '')
 
 
 export const generateDaysAgoDate = (daysAgo = 1) => new Date(
