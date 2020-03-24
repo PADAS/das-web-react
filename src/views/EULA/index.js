@@ -32,8 +32,8 @@ const EulaPage = (props) => {
     document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='))
       .replace('routeAfterEulaAccepted=', '').replace('"', '').replace(';', '').replace('/"', '/') : null;
 
-  // inspect the redirect cookie set and see if it is an admin endpoint
-  const adminUrl = true; ///admin/.test(rerouteCookieValue);
+  const loginUrl = REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login';
+  const cancelUrl = /admin/.test(rerouteCookieValue) ? '/cancel-admin-eula' : REACT_APP_ROUTE_PREFIX.concat(loginUrl);
 
   const generateTempAuthHeaderIfNecessary = useCallback(() => {
     return temporaryAccessToken ? {
@@ -122,8 +122,7 @@ const EulaPage = (props) => {
       </Form>
     </Dialog>;
     {submitted && !rerouteCookieValue && <Redirect to={rerouteOnSuccess} />}
-    {canceled && adminUrl && <Redirect to='cancel-admin-eula' /> } 
-    {canceled && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} />}
+    {canceled && <Redirect to={cancelUrl} />}
   </div>;
 };
 
