@@ -20,7 +20,7 @@ const stateManagedSocketEventHandler = (socket, type, callback) => {
   return socket.on(type, (payload) => {
     const { mid } = payload;
     if (!validateSocketIncrement(type, mid)) {
-      resetSocket(socket);
+      resetSocketStateTracking(socket);
     } else {
       updateSocketStateTrackerForEventType({ type, mid });
     }
@@ -46,7 +46,7 @@ export const pingSocket = (socket) => {
       socket.emit('echo', { data: 'ping' });
     } else {
       window.clearInterval(interval);
-      resetSocket(socket);
+      resetSocketStateTracking(socket);
     }
   }, 30000);
   return interval;
@@ -60,11 +60,11 @@ const bindSocketEvents = (socket, store) => {
   });
   socket.on('disconnect', (msg) => {
     console.log('realtime: disconnected', msg);
-    resetSocket(socket);
+    resetSocketStateTracking(socket);
   });
   socket.on('connect_error', () => {
     console.log('realtime: connection error');
-    resetSocket(socket);
+    resetSocketStateTracking(socket);
   });
   socket.on('resp_authorization', ({ status }) => {
     if (status.code === 401) {
@@ -81,10 +81,8 @@ const bindSocketEvents = (socket, store) => {
   });
 };
 
-const resetSocket = (socket) => {
-  unbindSocketEvents(socket);
+const resetSocketStateTracking = (socket) => {
   store.dispatch(resetSocketActivityState());
-  bindSocketEvents(socket, store);
   SOCKET_RECOVERY_DISPATCHES.forEach(actionCreator => store.dispatch(actionCreator()));
   return socket;
 };

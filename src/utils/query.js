@@ -31,9 +31,6 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
   initialQuery
     .then((response) => {
       if (response) {
-
-        console.log('initialQuery canceled', initialQuery.__CANCEL__, response.__CANCEL__);
-
         const { data: { data: res } } = response;
         const { results, next } = res;
         
@@ -50,5 +47,5 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
       }
     })
     .catch((e) => {
-      console.log('recursive query failure', e);
+      console.warn('recursive query failure', e);
     });

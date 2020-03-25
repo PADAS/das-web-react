@@ -7,6 +7,7 @@ const withSocketConnection = (Component) => (props) => { // eslint-disable-line 
     socket.current = createSocket();
     return () => {
       unbindSocketEvents(socket.current);
+      socket.current.disconnect();
     };
   }, []);
 
