@@ -5,7 +5,7 @@
 
 $track-color: rgba(white, 0.35);
 $thumb-color: lighten(#CCC, 15%);
-$track-color__active: rgba(white, 0.7);
+$track-color__active: #3eb2f0;
 
 $thumb-radius: 2.25rem;
 $thumb-height: 2.75rem;
@@ -38,7 +38,7 @@ $contrast: 25%;
 }
 
 @mixin thumbWidth {
-  --thumb-width: 5rem;
+  --thumb-width: 6rem;
   @media (min-width: $lg-layout-width-min) {
     --thumb-width: 9rem;
   }
@@ -89,7 +89,10 @@ $contrast: 25%;
   padding: 0.5rem;
   position: relative;
   top: 0.15rem;
-  width: 7.9rem;
+  width: 10.5rem;
+  @media (min-width: 2560px) {
+     width: 9.8rem;
+   }
   &::before {
     background: url('../common/images/timeslider-bumper.png') bottom right/var(--thumb-width) $thumb-height no-repeat;
     background-size: 100% 100%;
@@ -165,6 +168,7 @@ $contrast: 25%;
   background: none;
   margin: $thumb-height/2 0;
   width: $track-width;
+  outline: none;
 
   &:focus {
     &::-webkit-slider-runnable-track {
