@@ -130,7 +130,7 @@ const EventsLayer = (props) => {
   useEffect(() => {
     const addClusterIconToMap = async () => {
       if (!map.hasImage('event-cluster-icon')) {
-        addMapImage(ClusterIcon, 'event-cluster-icon');
+        addMapImage({ src: ClusterIcon, id: 'event-cluster-icon' });
       }
     };
     !!events && addFeatureCollectionImagesToMap(events, map);

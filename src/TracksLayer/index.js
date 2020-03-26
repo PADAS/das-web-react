@@ -18,7 +18,7 @@ const TracksLayer = (props) => {
 
   useEffect(() => {
     if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage(Arrow, ARROW_IMG_ID);
+      addMapImage({ src: Arrow, id: ARROW_IMG_ID });
     }
   }, []); // eslint-disable-line
 

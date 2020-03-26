@@ -11,21 +11,27 @@ const imgNeedsHostAppended = url => {
   return true;
 };
 
-export const imgElFromSrc = (src, size = 30) => new Promise((resolve, reject) => {
+export const imgElFromSrc = (src, width = 30, height = null) => new Promise((resolve, reject) => {
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
   img.onload = () => {
-    const { naturalHeight, naturalWidth } = img;
-    const largest = Math.max(naturalHeight, naturalWidth) || size;
-    const smallest = Math.min(naturalHeight, naturalWidth) || size;
-    const widthIsLarger = largest === naturalWidth;
-    const aspectRatio = smallest / largest;
-    if (widthIsLarger) {
-      img.width = size;
-      img.height = size * aspectRatio;
+    if (width && height) {
+      img.width = width;
+      img.height = height;
     } else {
-      img.height = size;
-      img.width = size * aspectRatio;
+      const baseUnit = width || height;
+      const { naturalHeight, naturalWidth } = img;
+      const largest = Math.max(naturalHeight, naturalWidth) || baseUnit;
+      const smallest = Math.min(naturalHeight, naturalWidth) || baseUnit;
+      const widthIsLarger = largest === naturalWidth;
+      const aspectRatio = smallest / largest;
+      if (widthIsLarger) {
+        img.width = baseUnit;
+        img.height = baseUnit * aspectRatio;
+      } else {
+        img.height = baseUnit;
+        img.width = baseUnit * aspectRatio;
+      }
     }
     resolve(img);
   };
