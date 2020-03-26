@@ -4,7 +4,6 @@ import { SOCKET_UPDATE_EVENT, SOCKET_NEW_EVENT, fetchMapEvents } from '../ducks/
 
 const SOCKET_DISPATCHES = {
   resp_authorization: [/* 'SOCKET_AUTH_RESPONSE' ,*/ SOCKET_HEALTHY_STATUS],
-  connect: [/* 'SOCKET_CONNECT' ,*/ SOCKET_HEALTHY_STATUS],
   connect_error: [/* 'SOCKET_CONNECT_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
   disconnect: [/* 'SOCKET_DISCONNECT' ,*/ SOCKET_UNHEALTHY_STATUS],
   error: [/* 'SOCKET_ERROR' ,*/ SOCKET_UNHEALTHY_STATUS],
