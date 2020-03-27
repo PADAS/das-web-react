@@ -4,28 +4,34 @@ import { Redirect } from 'react-router-dom';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
+import { fetchSystemStatus } from '../ducks/system-status';
 
 import LoadingOverlay from '../EarthRangerIconLoadingOverlay';
 
 const PrivateRoute = lazy(() => import('../PrivateRoute'));
 
 const EulaProtectedRoute = (props) => {
-  const { dispatch:_dispatch, fetchCurrentUser, user, ...rest } = props;
+  const { dispatch:_dispatch, fetchCurrentUser, fetchSystemStatus, user, eulaEnabled, ...rest } = props;
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
+
+  useEffect(() => {
+    fetchSystemStatus();
+  }, [fetchSystemStatus]);
 
   useEffect(() => {
     fetchCurrentUser();
   }, [fetchCurrentUser]);
 
   useEffect(() => {
-    if (user.id) {
+    if (user.id && eulaEnabled) {
       const accepted = user.hasOwnProperty('accepted_eula') 
         ? user.accepted_eula
         : true;
-      setEulaAccepted(accepted);
+      const ignoreEula = (eulaEnabled === false);
+      setEulaAccepted(accepted || ignoreEula);
     }
-  }, [user]);
+  }, [user, eulaEnabled]);
 
   return <Suspense fallback={<LoadingOverlay message='Loading...' />}>
     {!eulaAccepted && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} />}
@@ -34,8 +40,8 @@ const EulaProtectedRoute = (props) => {
 };
 
 
-const mapStateToProps = ({ data: { user } }) => ({
-  user,
+const mapStateToProps = ({ data: { user }, view: { systemConfig: { eulaEnabled } } }) => ({
+  user, eulaEnabled
 });
 
-export default connect(mapStateToProps, { fetchCurrentUser })(memo(EulaProtectedRoute));
+export default connect(mapStateToProps, { fetchCurrentUser, fetchSystemStatus })(memo(EulaProtectedRoute));
