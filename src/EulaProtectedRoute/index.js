@@ -24,7 +24,8 @@ const EulaProtectedRoute = (props) => {
   }, [fetchCurrentUser]);
 
   useEffect(() => {
-    if (user.id && eulaEnabled) {
+    // null check to distinguish from eulaEnabled = false
+    if (user.id && !(eulaEnabled == null)) {
       const accepted = user.hasOwnProperty('accepted_eula') 
         ? user.accepted_eula
         : true;
