@@ -7,7 +7,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
 
-import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle } from '../utils/datetime';
+import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
@@ -27,7 +27,7 @@ const TimeSlider = (props) => {
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
   const endDate = until ? new Date(until) : new Date();
-  
+
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
   const startDateModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range.lower, since);
@@ -44,7 +44,7 @@ const TimeSlider = (props) => {
     });
     onDateChange();
   };
-  
+
   const value = (currentDate - startDate) / (endDate - startDate);
   const handleOffset = ((handleTextRef && handleTextRef.current && handleTextRef.current.offsetWidth) || 0) * value;
 
@@ -57,14 +57,14 @@ const TimeSlider = (props) => {
     if (value >= .99999) {
       until ? setVirtualDate(until) : clearVirtualDate();
       setSliderPositionValue(100);
-    } 
+    }
     else {
-      
+
       setSliderPositionValue(value * 100);
-      
+
       const dateValue = new Date(startDate);
       dateValue.setMilliseconds(dateValue.getMilliseconds() + ((endDate - startDate) * value));
-      
+
       setVirtualDate(dateValue.toISOString());
     }
 
@@ -77,6 +77,16 @@ const TimeSlider = (props) => {
   };
 
   const onDateChange = () => trackEvent('Map Interaction', 'Update Time Slider Date Range');
+
+  const SetDateFormat = (dateTime) => {
+    let twoWeekAgo = new Date(generateWeeksAgoDate(2));
+    let DateTime = new Date(dateTime);
+
+    if (DateTime >= twoWeekAgo){
+      return format(DateTime, STANDARD_DATE_FORMAT);
+    }
+    return format(DateTime, SHORTENED_DATE_FORMAT)
+  }
 
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
@@ -96,20 +106,21 @@ const TimeSlider = (props) => {
   return <div className={styles.wrapper}>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
       <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
-        <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{format(startDate, STANDARD_DATE_FORMAT)}</span>
+        <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(startDate)}</span>
         <TimeAgo date={startDate}/>
       </div>
     </OverlayTrigger>
-    <div style={{position: 'relative', width: '100%'}}>
+    <div className={styles.wrapper_slider}>
       <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onSliderChange} value={value} />
       <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
         <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
-        {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> : 'Timeslider'}
+        {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> :
+        <span style={{color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
       <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
-        {until && <span className={styles.handleDate}  title={generateCurrentTimeZoneTitle()}>{format(endDate, STANDARD_DATE_FORMAT)}</span>}
+        {until && <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(endDate)}</span>}
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
       </div>
     </OverlayTrigger>
