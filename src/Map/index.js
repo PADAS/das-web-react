@@ -205,7 +205,7 @@ class Map extends Component {
     }
 
     return this.props.fetchMapSubjects(...args)
-      .then((latestMapSubjects) => this.fetchMapSubjectTracksForTimeslider(latestMapSubjects))
+      .then((latestMapSubjects) => timeSliderActive ? this.fetchMapSubjectTracksForTimeslider(latestMapSubjects) : Promise.resolve(latestMapSubjects))
       .catch((e) => {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
@@ -368,10 +368,12 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      trackIds, heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
+      heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
+
+    const trackIds = uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]);
 
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
@@ -492,7 +494,6 @@ const mapStatetoProps = (state, props) => {
     showReportsOnMap,
     timeSliderState,
     bounceEventIDs,
-    trackIds: displayedSubjectTrackIDs(state),
     trackLength,
     trackLengthOrigin,
     heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),

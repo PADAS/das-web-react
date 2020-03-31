@@ -28,18 +28,20 @@ export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, coll
 const mapPointCoordinateTimeToTimeProp = (item, index) => {
   const returnValue = { ...item };
   returnValue.properties.time = item.properties.coordinateProperties.times[index];
+  returnValue.properties.bearing = item.properties.coordinateProperties.coordinateBearings[index];
   delete returnValue.properties.coordinateProperties;
   return returnValue;
 };
 
 export const convertTrackFeatureCollectionToPoints = feature => {
-  const pointFeature = addBearingToTrackPoints(explode(feature));
-  return ({
+  const pointFeature = explode(feature);
+
+  return {
     ...pointFeature,
     features: pointFeature.features
       .map(mapPointCoordinateTimeToTimeProp)
-      .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
-  });
+      // .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
+  };
 };
 
 export const addBearingToTrackPoints = feature => ({
@@ -179,4 +181,50 @@ export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = 
     }),
   };
 
+};
+
+export const addBearingToTrackFeatureCollectionCoordinateProperties = featureCollection => {
+  return {
+    ...featureCollection,
+    features: featureCollection.features.map(feature => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        coordinateProperties: {
+          ...feature.properties.coordinateProperties,
+          coordinateBearings: feature.geometry.coordinates.map((coord, index, collection) => !!collection[index - 1] ? bearing(coord, collection[index - 1]) : 0),
+        }
+      }
+    }))
+  };
+};
+
+export const addSocketStatusUpdateToTrack = (tracks, update) => {
+  const [trackFeature] = tracks.features;
+  const updated = {
+    ...tracks,
+    features: [
+      {
+        ...trackFeature,
+        properties: {
+          ...trackFeature.properties,
+          coordinateProperties: {
+            ...trackFeature.properties.coordinateProperties,
+            times: [update.properties.coordinateProperties.time, ...trackFeature.properties.coordinateProperties.times],
+          },
+        },
+        geometry: {
+          ...trackFeature.geometry,
+          coordinates: [
+            update.geometry.coordinates,
+            ...trackFeature.geometry.coordinates,
+          ],
+        }
+      }
+    ]
+  };
+
+  updated.features[0].properties.coordinateProperties.coordinateBearings.splice(1, 0, bearing(updated.features[0].geometry.coordinates[1], updated.features[0].geometry.coordinates[0]));
+
+  return updated;
 };

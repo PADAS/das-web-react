@@ -8,25 +8,21 @@ import { createSelector, getTimeSliderState, getEventFilterDateRange, bboxBounds
 import { trimTrackFeatureCollectionToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
-export const displayedSubjectTrackIDs = ({ view: { subjectTrackState: { pinned, visible } } }) => uniq([...pinned, ...visible]);
+export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
 
 const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId];
 
-const getArrayOfVisibleTracks = createSelector(
-  [tracks, displayedSubjectTrackIDs],
-  (tracks, displayedSubjectTrackIDs) => {
-    return displayedSubjectTrackIDs
+const visibleTrackFeatureCollection = createSelector(
+  [tracks, subjectTrackState],
+  (tracks, subjectTrackState) => {
+    const displayedSubjectTrackIDs = uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]);
+
+    return featureCollection(displayedSubjectTrackIDs
       .filter(id => !!tracks[id])
-      .map(id => (tracks[id]));
+      .map(id => (tracks[id].features[0])));
   },
-);
-
-
-export const visibleTrackFeatureCollection = createSelector(
-  [getArrayOfVisibleTracks],
-  trackArray => featureCollection(trackArray.map(track => track.features[0])),
 );
 
 export const getTrackWhichCrossesCurrentMapViewById = createSelector(
