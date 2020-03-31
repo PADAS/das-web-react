@@ -199,7 +199,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   event_type,
   icon_id,
   is_collection: false,
-  state: 'active',
+  // state: 'active',
   priority,
   time: new Date(),
   event_details: {},
