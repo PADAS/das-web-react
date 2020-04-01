@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+import debounceRender from 'react-debounce-render';
 
 import { withMap } from '../EarthRangerMap';
 import { addMapImage } from '../utils/map';
@@ -93,11 +94,11 @@ const mapStateToProps = (state) => ({
   trackPointCollection: trimmedVisibleTrackPointFeatureCollection(state),
 });
 
-export default withMap(
+export default debounceRender(withMap(
   memo(
     connect(mapStateToProps, null)(TracksLayer)
   )
-);
+), 16.666);
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {

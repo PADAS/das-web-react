@@ -14,7 +14,7 @@ const trackLength = ({ view: { trackLength } }) => trackLength;
 
 const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId].track;
 
-const visibleTracks = createSelector(
+const visibleTrackData = createSelector(
   [tracks, subjectTrackState],
   (tracks, subjectTrackState) => {
     const displayedSubjectTrackIDs = uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]);
@@ -47,13 +47,13 @@ const calcTrackTimeEnvelope = createSelector([trackLength, getTimeSliderState, g
   });
 
 const trimmedVisibleTrackData = createSelector(
-  [visibleTracks, calcTrackTimeEnvelope],
-  (visibleTracks, timeEnvelope) => {
+  [visibleTrackData, calcTrackTimeEnvelope],
+  (visibleTrackData, timeEnvelope) => {
     const { from, until } = timeEnvelope;
 
-    return visibleTracks
+    return visibleTrackData
       .map(trackData => trimTrackDataToTimeRange(trackData, from, until));
-    // return trimTracksForLengthAndRange(visibleTracks, trackLength, timeSliderState, eventFilterDateRange);
+    // return trimTracksForLengthAndRange(visibleTrackData, trackLength, timeSliderState, eventFilterDateRange);
   },
 );
 
