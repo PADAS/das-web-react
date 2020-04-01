@@ -34,22 +34,25 @@ export const convertTrackFeatureCollectionToPoints = feature => {
   const [{ properties: { coordinateProperties } }] = feature.features;
   const pointFeatureCollection = explode(feature);
 
-  const mapPointCoordinateTimeToTimeProp = (item, index) => {
+  const addTimeAndBearingToPointFeature = (item, index, collection) => {
     const returnValue = { ...item };
-    delete returnValue.properties.coordinateProperties;
+    const { coordinateProperties:_omittedCoordProps, ...restProperties } = returnValue.properties;
+
+    const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
 
     return {
       ...returnValue,
       properties: {
-        ...returnValue.properties,
+        ...restProperties,
         time: coordinateProperties.times[index],
-        bearing: coordinateProperties.coordinateBearings[index],
+        bearing: measuredBearing,
       },
     };
   };
 
+
   pointFeatureCollection.features = pointFeatureCollection.features
-    .map(mapPointCoordinateTimeToTimeProp)
+    .map(addTimeAndBearingToPointFeature)
     .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
 
   return pointFeatureCollection;
@@ -114,11 +117,13 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
 
 export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   let results = [...collection];
-  if (envelope.from) {
-    results = results.slice(0, envelope.from + 1);
+  const { from, until } = envelope;
+
+  if (from) {
+    results = results.slice(0, from + 1);
   }
-  if (envelope.until) {
-    results = results.slice(envelope.until, collection.length + 1);
+  if (until) {
+    results = results.slice(until, collection.length + 1);
   }
   return results;
 };
@@ -142,20 +147,23 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   const { active:timeSliderActive } = timeSliderState;
   
   const results = ids.map((id) => {
-    const track = tracks[id];
-  
+    let dateRange;
     const { length, origin:trackLengthOrigin } = trackLength;
     const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
-    
-    let dateRange;
-  
+
     if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
     } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.customLength) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
+
+    if (!tracks[id]) {
+      return store.dispatch(fetchTracks(dateRange, cancelToken, id));
+    }
+    
+    const { track } = tracks[id];
   
-    if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
+    if (!trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
       return store.dispatch(fetchTracks(dateRange, cancelToken, id));
     }
     return Promise.resolve(track);
@@ -164,10 +172,49 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   return Promise.all(results);
 };
 
-export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = null, until = null) => {
-  if (!from && !until) return featureCollection;
+export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
+  if (!from && !until) return { track, points };
+
+  const [originalTrack] = track.features;
+
+  console.log('originalTrack from until', originalTrack, from, until);
+
+  const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
+
+  if (window.isNaN(indices.from) && window.isNaN(indices.until)) {
+    return { track, points };
+  }
+
+  console.log('begin the trimming!');
+  const trackResults = cloneDeep(originalTrack);
+
+  try {
+    trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
+    trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
+  } catch (e) {
+    console.warn('trim error', e);
+  }
+
+  console.log('completed the trimming!!!');
+
+  if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
+    const lastIndex = originalTrack.geometry.coordinates.length - 1;
+    trackResults.geometry.coordinates = [originalTrack.geometry.coordinates[lastIndex]];
+    trackResults.properties.coordinateProperties.times = [trackResults.properties.coordinateProperties.times[lastIndex]];
+  }
 
   return {
+    track: {
+      ...track,
+      features: [trackResults],
+    },
+    points: {
+      ...points,
+      features: trimArrayWithEnvelopeIndices(points.features, indices),
+    },
+  };
+
+/*   return {
     ...featureCollection,
     features: featureCollection.features.map((feature) => {
       const envelope = findTimeEnvelopeIndices(feature.properties.coordinateProperties.times, from, until);
@@ -190,39 +237,32 @@ export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = 
           
       return results;
     }),
-  };
-
-};
-
-export const addBearingToTrackFeatureCollectionCoordinateProperties = featureCollection => {
-  return {
-    ...featureCollection,
-    features: featureCollection.features.map(feature => ({
-      ...feature,
-      properties: {
-        ...feature.properties,
-        coordinateProperties: {
-          ...feature.properties.coordinateProperties,
-          coordinateBearings: feature.geometry.coordinates.map((coord, index, collection) => !!collection[index - 1] ? bearing(coord, collection[index - 1]) : 0),
-        }
-      }
-    }))
-  };
+  }; */
 };
 
 export const addSocketStatusUpdateToTrack = (tracks, update) => {
-  const [trackFeature] = tracks.features;
+  const { track, points } = tracks;
+
+  const [trackFeature] = track.features;
 
   if (update.geometry
     && !isEqual(update.geometry.coordinates, trackFeature.geometry.coordinates[0])) {
-    const withNewPoint = {
-      ...tracks,
+    const updatedTrack = {
+      ...track,
     };
-    withNewPoint.features[0].geometry.coordinates.unshift(update.geometry.coordinates);
-    withNewPoint.features[0].properties.coordinateProperties.times.unshift(update.properties.coordinateProperties.time);
-    withNewPoint.features[0].properties.coordinateProperties.coordinateBearings.splice(1, 0, bearing(withNewPoint.features[0].geometry.coordinates[1], withNewPoint.features[0].geometry.coordinates[0]));
+    updatedTrack.features[0].geometry.coordinates.unshift(update.geometry.coordinates);
+    updatedTrack.features[0].properties.coordinateProperties.times.unshift(update.properties.coordinateProperties.time);
+
+    const updatedPoints = {
+      ...points,
+    };
+
+    updatedPoints.features.unshift(update);
+    updatedPoints.features[1].properties.bearing = bearing(updatedPoints.features[0].geometry.coordinates, updatedPoints.features[1].geometry.coordinates);
   
-    return withNewPoint;
+    return {
+      track: updatedTrack, points: updatedPoints,
+    };
   }
   return tracks;
 };

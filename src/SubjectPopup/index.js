@@ -21,7 +21,8 @@ const SubjectPopup = (props) => {
       {<GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} />}
       {tracks_available && (
         <Fragment>
-          <TrackLength className={styles.trackLength} trackId={properties.id} />
+          {/* @TODO FIX ME TO USE THE RIGHT DATA */}
+          {/* <TrackLength className={styles.trackLength} trackId={properties.id} /> */}
           <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
         </Fragment>
       )}

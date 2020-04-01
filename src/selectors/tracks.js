@@ -5,23 +5,76 @@ import startOfDay from 'date-fns/start_of_day';
 import subDays from 'date-fns/sub_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange, bboxBoundsPolygon } from './';
-import { trimTrackFeatureCollectionToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
+import { trimTrackDataToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
 
-const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId];
+const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId].track;
 
-const visibleTrackFeatureCollection = createSelector(
+const visibleTracks = createSelector(
   [tracks, subjectTrackState],
   (tracks, subjectTrackState) => {
     const displayedSubjectTrackIDs = uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]);
 
-    return featureCollection(displayedSubjectTrackIDs
+    return displayedSubjectTrackIDs
       .filter(id => !!tracks[id])
-      .map(id => (tracks[id].features[0])));
+      .map(id => (tracks[id]));
+  },
+);
+
+const calcTrackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEventFilterDateRange], 
+  (trackLength, timeSliderState, eventFilterDateRange) => {
+    const { virtualDate, active:timeSliderActive } = timeSliderState;
+    const { lower } = eventFilterDateRange;
+
+    let trackLengthStartDate = startOfDay(
+      subDays(new Date(), trackLength.length),
+    );
+
+    if (timeSliderActive) {
+      if (virtualDate) {
+        trackLengthStartDate = virtualDate ? subDays(virtualDate, trackLength.length) : trackLengthStartDate;
+      }
+
+      const startDate = !!(trackLengthStartDate - new Date(lower)) ? trackLengthStartDate : new Date(lower);
+      return { from: startDate, until: virtualDate };
+    }
+
+    return { from: trackLengthStartDate, until: null };
+  });
+
+const trimmedVisibleTrackData = createSelector(
+  [visibleTracks, calcTrackTimeEnvelope],
+  (visibleTracks, timeEnvelope) => {
+    const { from, until } = timeEnvelope;
+
+    return visibleTracks
+      .map(trackData => trimTrackDataToTimeRange(trackData, from, until));
+    // return trimTracksForLengthAndRange(visibleTracks, trackLength, timeSliderState, eventFilterDateRange);
+  },
+);
+
+export const trimmedVisibleTrackFeatureCollection = createSelector(
+  [trimmedVisibleTrackData],
+  (trimmedVisibleTrackData) => {
+
+    return featureCollection(
+      trimmedVisibleTrackData
+        .map(data =>
+          data.track.features[0]
+        )
+    );
+  },
+);
+
+export const trimmedVisibleTrackPointFeatureCollection = createSelector(
+  [trimmedVisibleTrackData],
+  (trimmedVisibleTrackData) => {
+    return featureCollection(trimmedVisibleTrackData
+      .reduce((accumulator, data) => [...accumulator, ...data.points.features], []));
   },
 );
 
@@ -34,34 +87,6 @@ export const getTrackWhichCrossesCurrentMapViewById = createSelector(
     const doesIntersect = !booleanDisjoint(track, bboxPolygon);
     return doesIntersect && track;
   },
-);
-
-export const trimmedTrack = createSelector(
-  [getTrackWhichCrossesCurrentMapViewById, trackLength, getTimeSliderState, getEventFilterDateRange],
-  (trackFeatureCollection, trackLength, timeSliderState, eventFilterDateRange) => {
-
-    if (!trackFeatureCollection) return null;
-   
-    return trimTracksForLengthAndRange(trackFeatureCollection, trackLength, timeSliderState, eventFilterDateRange);
-  },
-);
-
-export const trimmedTrackPoints = createSelector(
-  [trimmedTrack],
-  (trackFeatureCollection) => trackFeatureCollection && convertTrackFeatureCollectionToPoints(trackFeatureCollection),
-);
-
-export const trimmedVisibleTrackFeatureCollection = createSelector(
-  [visibleTrackFeatureCollection, trackLength, getTimeSliderState, getEventFilterDateRange],
-  (visibleTracks, trackLength, timeSliderState, eventFilterDateRange) => {
-   
-    return trimTracksForLengthAndRange(visibleTracks, trackLength, timeSliderState, eventFilterDateRange);
-  },
-);
-
-export const trimmedVisibleTrackPointFeatureCollection = createSelector(
-  [trimmedVisibleTrackFeatureCollection],
-  (trackFeatureCollection) => convertTrackFeatureCollectionToPoints(trackFeatureCollection),
 );
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(
@@ -99,8 +124,9 @@ const trimTracksForLengthAndRange = (collection, trackLength, timeSliderState, e
     }
 
     const startDate = !!(trackLengthStartDate - new Date(lower)) ? trackLengthStartDate : new Date(lower);
-    return trimTrackFeatureCollectionToTimeRange(collection, startDate, virtualDate);
+    return trimTrackDataToTimeRange(collection, startDate, virtualDate);
   }
 
-  return trimTrackFeatureCollectionToTimeRange(collection, trackLengthStartDate);
+  return trimTrackDataToTimeRange(collection, trackLengthStartDate);
 };
+

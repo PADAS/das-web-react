@@ -18,7 +18,7 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getArrayOfVisibleHeatmapTracks, displayedSubjectTrackIDs } from '../selectors/tracks';
+import { getArrayOfVisibleHeatmapTracks } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';

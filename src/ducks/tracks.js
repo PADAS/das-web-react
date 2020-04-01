@@ -3,7 +3,7 @@ import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
-import { addSocketStatusUpdateToTrack, addBearingToTrackFeatureCollectionCoordinateProperties } from '../utils/tracks';
+import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -22,8 +22,19 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
       const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams, cancelToken: cancelToken.token })));
 
       const results = responses.reduce((accumulator, response, index) => {
-        accumulator[ids[index]] = addBearingToTrackFeatureCollectionCoordinateProperties(response.data.data);
-        console.log('track fetch data', accumulator[ids[index]]);
+        /* THE BELOW IS THE SECRET SAUCE FOR SIGNIFICANTLY INCREASING THE EFFICIENCY OF TRACK DATA 
+          COMBINED WITH THE INDICE TRIMMING BY INDEX THIS SHOULD BE ORDERS OF MAGNITUDE FASTER FOR SUBJECT POSITION AND TRACK DATA
+        */
+        const asPoints = convertTrackFeatureCollectionToPoints(response.data.data);
+
+        console.log('response.data.data', response.data.data);
+        console.log('asPoints', asPoints);
+
+        accumulator[ids[index]] = {
+          track: response.data.data,
+          points: asPoints,
+        };
+
         return accumulator;
       }, {});
 
@@ -64,7 +75,7 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
     const tracks = state[id];
     if (!tracks) return state;
 
-    const [trackFeature] = tracks.features;
+    const [trackFeature] = tracks.track.features;
 
     if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)
      || isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
@@ -114,3 +125,11 @@ export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { 
 
   return state;
 };
+
+
+/* const state = {
+  [id]: {
+    track: featureCollection(),
+    points: featureCollection() ^extrapolated from the above,
+  }
+} */

@@ -80,8 +80,6 @@ const TracksLayer = (props) => {
     <Source id={pointSourceId} geoJsonSource={trackPointData} />
     <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
       paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
-    <Layer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
-      layout={timepointLayerLayout} id={pointLayerId} {...rest} />
     {showTimepoints && <Layer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
