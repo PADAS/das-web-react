@@ -177,25 +177,16 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
 
   const [originalTrack] = track.features;
 
-  console.log('originalTrack from until', originalTrack, from, until);
-
   const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
 
   if (window.isNaN(indices.from) && window.isNaN(indices.until)) {
     return { track, points };
   }
 
-  console.log('begin the trimming!');
   const trackResults = cloneDeep(originalTrack);
 
-  try {
-    trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
-    trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
-  } catch (e) {
-    console.warn('trim error', e);
-  }
-
-  console.log('completed the trimming!!!');
+  trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
+  trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
 
   if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
     const lastIndex = originalTrack.geometry.coordinates.length - 1;

@@ -11,7 +11,7 @@ import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCo
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
-const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { TRACKS_LINES, TRACK_TIMEPOINTS_SYMBOLS, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const trackLayerLinePaint = {
   'line-color': [
@@ -62,11 +62,8 @@ const TracksLayer = (props) => {
     data: trackPointCollection,
   };
 
-  const sourceId = 'tracks-source';
-  const pointSourceId = 'track-points-source';
-
-  const layerId = 'tracks-layer';
-  const pointLayerId = 'track-points-layer';
+  const sourceId = `${TRACKS_LINES}_SOURCE`;
+  const pointSourceId = `${TRACK_TIMEPOINTS_SYMBOLS}_SOURCE`;
 
   useEffect(() => {
     if (!map.hasImage(ARROW_IMG_ID)) {
@@ -79,11 +76,11 @@ const TracksLayer = (props) => {
     <Source id={sourceId} geoJsonSource={trackData} />
     <Source id={pointSourceId} geoJsonSource={trackPointData} />
     <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
-      paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
+      paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={TRACKS_LINES} {...rest} />
     {showTimepoints && <Layer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
-      onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}
+      onClick={onPointClick} layout={timepointLayerLayout} id={TRACK_TIMEPOINTS_SYMBOLS} {...rest} />}
   </Fragment>;
 
   
