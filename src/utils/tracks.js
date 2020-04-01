@@ -1,6 +1,7 @@
 import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
+import { featureCollection }  from '@turf/helpers';
 import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
 
@@ -25,23 +26,33 @@ export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, coll
     || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
 };
 
-const mapPointCoordinateTimeToTimeProp = (item, index) => {
-  const returnValue = { ...item };
-  returnValue.properties.time = item.properties.coordinateProperties.times[index];
-  returnValue.properties.bearing = item.properties.coordinateProperties.coordinateBearings[index];
-  delete returnValue.properties.coordinateProperties;
-  return returnValue;
-};
+
 
 export const convertTrackFeatureCollectionToPoints = feature => {
-  const pointFeature = explode(feature);
+  if (!feature.features.length) return featureCollection([]);
 
-  return {
-    ...pointFeature,
-    features: pointFeature.features
-      .map(mapPointCoordinateTimeToTimeProp)
-      // .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
+  const [{ properties: { coordinateProperties } }] = feature.features;
+  const pointFeatureCollection = explode(feature);
+
+  const mapPointCoordinateTimeToTimeProp = (item, index) => {
+    const returnValue = { ...item };
+    delete returnValue.properties.coordinateProperties;
+
+    return {
+      ...returnValue,
+      properties: {
+        ...returnValue.properties,
+        time: coordinateProperties.times[index],
+        bearing: coordinateProperties.coordinateBearings[index],
+      },
+    };
   };
+
+  pointFeatureCollection.features = pointFeatureCollection.features
+    .map(mapPointCoordinateTimeToTimeProp)
+    .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
+
+  return pointFeatureCollection;
 };
 
 export const addBearingToTrackPoints = feature => ({
@@ -201,30 +212,17 @@ export const addBearingToTrackFeatureCollectionCoordinateProperties = featureCol
 
 export const addSocketStatusUpdateToTrack = (tracks, update) => {
   const [trackFeature] = tracks.features;
-  const updated = {
-    ...tracks,
-    features: [
-      {
-        ...trackFeature,
-        properties: {
-          ...trackFeature.properties,
-          coordinateProperties: {
-            ...trackFeature.properties.coordinateProperties,
-            times: [update.properties.coordinateProperties.time, ...trackFeature.properties.coordinateProperties.times],
-          },
-        },
-        geometry: {
-          ...trackFeature.geometry,
-          coordinates: [
-            update.geometry.coordinates,
-            ...trackFeature.geometry.coordinates,
-          ],
-        }
-      }
-    ]
-  };
 
-  updated.features[0].properties.coordinateProperties.coordinateBearings.splice(1, 0, bearing(updated.features[0].geometry.coordinates[1], updated.features[0].geometry.coordinates[0]));
-
-  return updated;
+  if (update.geometry
+    && !isEqual(update.geometry.coordinates, trackFeature.geometry.coordinates[0])) {
+    const withNewPoint = {
+      ...tracks,
+    };
+    withNewPoint.features[0].geometry.coordinates.unshift(update.geometry.coordinates);
+    withNewPoint.features[0].properties.coordinateProperties.times.unshift(update.properties.coordinateProperties.time);
+    withNewPoint.features[0].properties.coordinateProperties.coordinateBearings.splice(1, 0, bearing(withNewPoint.features[0].geometry.coordinates[1], withNewPoint.features[0].geometry.coordinates[0]));
+  
+    return withNewPoint;
+  }
+  return tracks;
 };
