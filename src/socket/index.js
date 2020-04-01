@@ -53,6 +53,8 @@ export const pingSocket = (socket) => {
 };
 
 const bindSocketEvents = (socket, store) => {
+  let eventsBounds = false;
+
   socket.on('connect', () => {
     console.log('realtime: connected');
     store.dispatch({ type: SOCKET_HEALTHY_STATUS });
@@ -72,12 +74,15 @@ const bindSocketEvents = (socket, store) => {
     }
     pingSocket(socket);
 
-    Object.entries(events).forEach(([event_name, actionTypes]) => {
-      return stateManagedSocketEventHandler(socket, event_name, (payload) => {
-        actionTypes.forEach(type => store.dispatch({ type, payload }));
+    if (!eventsBounds) {
+      Object.entries(events).forEach(([event_name, actionTypes]) => {
+        return stateManagedSocketEventHandler(socket, event_name, (payload) => {
+          actionTypes.forEach(type => store.dispatch({ type, payload }));
+        });
       });
+    }
 
-    });
+    eventsBounds = true;
   });
 };
 

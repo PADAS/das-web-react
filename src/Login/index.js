@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -34,6 +33,7 @@ class LoginPage extends Component {
   }
 
   componentDidMount() {
+    this.props.clearAuth();
     this.props.fetchEula();
     this.props.fetchSystemStatus();
   }
@@ -82,13 +82,7 @@ class LoginPage extends Component {
 
   render() {
     const { eula_url } = this.props.eula;
-    const { access_token } = this.props.token;
-    return access_token ? <Redirect
-      to={{
-        pathname: REACT_APP_ROUTE_PREFIX,
-        state: { from: this.props.location, },
-      }}
-    /> : <div className={styles.container}>
+    return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
       <Form className={styles.form} onSubmit={this.onFormSubmit}>
         <Label htmlFor='username'>Username</Label>
