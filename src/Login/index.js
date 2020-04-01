@@ -29,6 +29,9 @@ class LoginPage extends Component {
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
   }
+  componentDidMount() {
+    this.props.clearAuth();
+  }
   componentWillUnmount() {
     this.isCancelled = true;
   }
@@ -70,13 +73,7 @@ class LoginPage extends Component {
     });
   }
   render() {
-    const { access_token } = this.props.token;
-    return access_token ? <Redirect
-      to={{
-        pathname: REACT_APP_ROUTE_PREFIX,
-        state: { from: this.props.location, },
-      }}
-    /> : <div className={styles.container}>
+    return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
       <Form className={styles.form} onSubmit={this.onFormSubmit}>
         <Label htmlFor='username'>Username</Label>
