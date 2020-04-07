@@ -205,7 +205,11 @@ class Map extends Component {
     }
 
     return this.props.fetchMapSubjects(...args)
-      .then((latestMapSubjects) => this.fetchMapSubjectTracksForTimeslider(latestMapSubjects))
+      .then((latestMapSubjects) => {
+        if (timeSliderActive) {
+          this.fetchMapSubjectTracksForTimeslider(latestMapSubjects);
+        }
+      })
       .catch((e) => {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
