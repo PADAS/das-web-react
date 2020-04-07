@@ -25,6 +25,7 @@ export const SET_EXPORT_KML_ENABLED = 'SET_EXPORT_KML_ENABLED';
 export const SET_EVENT_MATRIX_ENABLED = 'SET_EVENT_MATRIX_ENABLED';
 export const SET_EVENT_SEARCH_ENABLED = 'SET_EVENT_SEARCH_ENABLED';
 export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
+export const SET_EULA_ENABLED = 'SET_EULA_ENABLED';
 export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
 
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STATUSES;
@@ -92,6 +93,10 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_ALERTS_ENABLED,
     payload: data.alerts_enabled,
+  });
+  dispatch({
+    type: SET_EULA_ENABLED,
+    payload: data.eula_enabled,
   });
   dispatch({
     type: SET_SHOW_TRACK_DAYS,
@@ -313,6 +318,7 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   eventMatrixEnabled: false,
   eventSearchEnabled: false,
   alertsEnabled: false,
+  eulaEnabled: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
 };
 export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
@@ -337,6 +343,9 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
   }
   case (SET_SHOW_TRACK_DAYS): {
     return { ...state, showTrackDays: payload, };
+  }
+  case (SET_EULA_ENABLED): {
+    return { ...state, eulaEnabled: payload, };
   }
   default: {
     return state;

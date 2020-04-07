@@ -33,7 +33,7 @@ const EulaPage = (props) => {
       .replace('routeAfterEulaAccepted=', '').replace('"', '').replace(';', '').replace('/"', '/') : null;
 
   // inspect the redirect cookie set and see if it is an admin endpoint
-  const loginUrl = /admin/.test(rerouteCookieValue) ? '/admin/login/' : 'login';
+  const adminReferrer = /admin/.test(rerouteCookieValue);
 
   const generateTempAuthHeaderIfNecessary = useCallback(() => {
     return temporaryAccessToken ? {
@@ -61,10 +61,14 @@ const EulaPage = (props) => {
   }, [rerouteCookieValue, submitted]);
 
   useEffect(() => {
+    if (canceled && adminReferrer && rerouteCookieValue) {
+      window.location = rerouteCookieValue.concat('logout/');
+    }
+  }, [adminReferrer, canceled, rerouteCookieValue]);
+
+  useEffect(() => {
     if (user.accepted_eula) return history.goBack();
   }, []);
-
-
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
@@ -122,7 +126,7 @@ const EulaPage = (props) => {
       </Form>
     </Dialog>;
     {submitted && !rerouteCookieValue && <Redirect to={rerouteOnSuccess} />}
-    {canceled && <Redirect to={loginUrl} />}
+    {canceled && !adminReferrer && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} />}
   </div>;
 };
 
