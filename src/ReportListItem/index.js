@@ -43,7 +43,7 @@ const ReportListItem = (props) => {
   
   const displayTitle = displayTitleForEventByEventType(report);
 
-  const bounceIDs = hasMultipleLocations ? getEventIdsForCollection(report) : [report.id];
+  const bounceIDs = report.is_collection ? getEventIdsForCollection(report) : [report.id];
 
   // Only fire bounce on the second and subsequent click of a jump. First
   // remove the existing ids so that redux can 'clear' the existing state.
