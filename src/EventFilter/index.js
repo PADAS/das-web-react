@@ -27,6 +27,7 @@ import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
+import FriendlyEventFilterString from './FriendlyEventFilterString';
 
 const EventFilter = (props) => {
   const { children, className, eventFilter, eventTypes, reporters, updateEventFilter } = props;
@@ -230,12 +231,13 @@ const EventFilter = (props) => {
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
-        <ClockIcon />Report Date Range
+        <ClockIcon />Date Range
         <Button type="button" variant='primary' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
     </Popover.Title>
     <Popover.Content>
+      <div><FriendlyEventFilterString showAsRangeTitle={true} className={styles.filterRangeTitle}/></div>
       <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
     </Popover.Content>
   </Popover>;
