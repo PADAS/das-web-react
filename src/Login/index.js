@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 
 import { postAuth, clearAuth } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
+
+import { fetchSystemStatus } from '../ducks/system-status';
+import { fetchEula } from '../ducks/eula';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
@@ -29,9 +31,13 @@ class LoginPage extends Component {
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
   }
+
   componentDidMount() {
     this.props.clearAuth();
+    this.props.fetchEula();
+    this.props.fetchSystemStatus();
   }
+
   componentWillUnmount() {
     this.isCancelled = true;
   }
@@ -72,7 +78,10 @@ class LoginPage extends Component {
       [id]: value,
     });
   }
+
+
   render() {
+    const { eula_url } = this.props.eula;
     return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
       <Form className={styles.form} onSubmit={this.onFormSubmit}>
@@ -85,10 +94,13 @@ class LoginPage extends Component {
           {this.state.errorMessage}
         </Alert>}
       </Form>
+      {this.props.eulaEnabled === true &&
+        <p className={styles.eulalink}><a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
+        </p>}
     </div>;
   }
 }
 
-const mapStateToProps = ({ data: { token } }) => ({ token });
+const mapStateToProps = ({ data: { eula, token }, view: { systemConfig: { eulaEnabled } } }) => ({ eula, token, eulaEnabled });
 
-export default connect(mapStateToProps, { postAuth, clearAuth })(LoginPage);
+export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(LoginPage);
