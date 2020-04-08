@@ -28,7 +28,7 @@ const SubjectPopup = (props) => {
   }, [data]);
 
   return (
-    <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
+    <Popup offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
       <h4>{properties.name}</h4>
       {coordProps.time && <DateTime date={coordProps.time} />}
       {<GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} />}
