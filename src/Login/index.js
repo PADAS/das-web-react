@@ -95,8 +95,7 @@ class LoginPage extends Component {
         </Alert>}
       </Form>
       {this.props.eulaEnabled === true &&
-        <p className={styles.eulalink}>Please <a href={eula_url} target='_blank' rel='noopener noreferrer'>click here and
-            read our EULA</a> before using EarthRanger
+        <p className={styles.eulalink}><a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
         </p>}
     </div>;
   }
