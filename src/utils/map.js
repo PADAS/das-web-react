@@ -11,16 +11,6 @@ import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constan
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage } from './img';
 
-export const addIconToGeoJson = (geojson) => {
-  const { properties: { image } } = geojson;
-  if (geojson.properties.icon_id) return geojson;
-
-  if (image) {
-    geojson.properties.icon_id = calcUrlForImage(image);
-  }
-  return geojson;
-};
-
 export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
   const clone2 = { ...item };
@@ -90,10 +80,10 @@ const setUpEventGeoJson = (events, eventTypes) =>
       eventTypes.findIndex(item => item.value === event_type) > -1
       ? eventTypes.find(item => item.value === event_type).display
       : event_type;
-    return addTitleWithDateToGeoJson(addIconToGeoJson(geojson), displayTitle);
+    return addTitleWithDateToGeoJson(geojson, displayTitle);
   }
   );
-const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
+const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => geojson);
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
