@@ -42,6 +42,11 @@ export const imgElFromSrc = (src, width = 30, height = null) => new Promise((res
   img.src = src;
 });
 
+export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) => {
+  const path = calcUrlForImage(src);
+  return `${path}-${width ? width: 'x'}-${height ? height: 'x'}`;
+};
+
 export const calcUrlForImage = imagePath => {
   if (!imgNeedsHostAppended(imagePath)) {
     return imagePath;

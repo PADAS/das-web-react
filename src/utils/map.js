@@ -9,7 +9,7 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
-import { imgElFromSrc, calcUrlForImage } from './img';
+import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
 export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
@@ -29,7 +29,7 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
 
 export const addMapImage = async ({ src, id, height, width }) => {
   const iconSrc = calcUrlForImage(src);
-  const icon_id = id || iconSrc;
+  const icon_id = id ? id : calcImgIdFromUrlForMapImages(src, width, height);
   const img = await imgElFromSrc(
     iconSrc,
     (width ? (width * MAP_ICON_SCALE) : (MAP_ICON_SIZE * MAP_ICON_SCALE)),

@@ -64,7 +64,7 @@ const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
   'icon-image': ['case',
     ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
-    ['has', 'image'], ['get', 'image'],
+    ['has', 'image'], DEFAULT_SYMBOL_LAYOUT['icon-image'],
     'marker-icon',
   ],
   'text-size': 0,
