@@ -104,7 +104,7 @@ const TimeSlider = (props) => {
   </Popover>;
 
   return <div className={styles.wrapper}>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
       <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
         <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(startDate)}</span>
         <TimeAgo date={startDate}/>
@@ -118,7 +118,7 @@ const TimeSlider = (props) => {
         <span style={{color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
       <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
         {until && <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(endDate)}</span>}
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
