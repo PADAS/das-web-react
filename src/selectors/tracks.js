@@ -1,10 +1,9 @@
 import uniq from 'lodash/uniq';
 import { featureCollection } from '@turf/helpers';
-import booleanDisjoint from '@turf/boolean-disjoint';
 import startOfDay from 'date-fns/start_of_day';
 import subDays from 'date-fns/sub_days';
 
-import { createSelector, getTimeSliderState, getEventFilterDateRange, bboxBoundsPolygon } from './';
+import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
 import { trimTrackDataToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
@@ -13,6 +12,11 @@ export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
 
 const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId].track;
+
+export const getVisibleTrackIds = createSelector(
+  [subjectTrackState],
+  (subjectTrackState) => uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]),
+);
 
 const visibleTrackData = createSelector(
   [tracks, subjectTrackState],
@@ -77,15 +81,9 @@ export const trimmedVisibleTrackPointFeatureCollection = createSelector(
   },
 );
 
-export const getTrackWhichCrossesCurrentMapViewById = createSelector(
-  [getTrackById, bboxBoundsPolygon],
-  (track, bboxPolygon) => {
-    if (!track) return null;
-    if (!bboxPolygon) return track;
-
-    const doesIntersect = !booleanDisjoint(track, bboxPolygon);
-    return doesIntersect && track;
-  },
+const trimmedTrackById = createSelector(
+  [getTrackById, trackTimeEnvelope],
+  (track, { from, until }) => trimTrackDataToTimeRange(track, from, until),
 );
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(

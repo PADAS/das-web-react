@@ -2,7 +2,6 @@ import React, { memo, useCallback, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
-import debounceRender from 'react-debounce-render';
 
 import { withMap } from '../EarthRangerMap';
 import { addMapImage } from '../utils/map';
@@ -29,12 +28,13 @@ const trackLayerLineLayout = {
 };
 
 const timepointLayerLayout = {
-  'icon-allow-overlap': true,
+  'icon-allow-overlap': ['step', ['zoom'], false, 15.5, true],
   'icon-anchor': 'bottom',
   'icon-size': [
     'interpolate', ['linear'], ['zoom'],
     0, 0,
     12, 0,
+    12.000001, 0.2 / MAP_ICON_SCALE,
     18, 0.75 / MAP_ICON_SCALE,
   ],
   'icon-rotate': ['get', 'bearing'],
@@ -94,11 +94,11 @@ const mapStateToProps = (state) => ({
   trackPointCollection: trimmedVisibleTrackPointFeatureCollection(state),
 });
 
-export default debounceRender(withMap(
+export default withMap(
   memo(
     connect(mapStateToProps, null)(TracksLayer)
   )
-), 16.666);
+);
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {

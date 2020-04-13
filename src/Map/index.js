@@ -18,7 +18,7 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getArrayOfVisibleHeatmapTracks } from '../selectors/tracks';
+import { getArrayOfVisibleHeatmapTracks, getVisibleTrackIds } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
@@ -368,12 +368,10 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
+      heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, trackIds,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
-
-    const trackIds = uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]);
 
     const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
@@ -504,6 +502,7 @@ const mapStatetoProps = (state, props) => {
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
+    trackIds: getVisibleTrackIds(state),
   });
 };
 
