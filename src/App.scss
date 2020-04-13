@@ -300,11 +300,10 @@ aside {
   transform: translateX(var(--sidebar-width));
   top: 0;
   width: var(--sidebar-width);
-  z-index: 10;
+  z-index: 11;
 
   [class*=addReportContainer] {
     .bs-popover-left {
-      margin-top: 3rem;
       margin-left: -0.5rem;
     }
   }

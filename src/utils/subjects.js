@@ -12,6 +12,9 @@ export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subjec
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(subject.subject_subtype);
 
+export const subjectIsARadioWithRecentVoiceActivity = (properties) => subjectIsARadio(properties)
+      && !!properties.last_voice_call_start_at;
+
 const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   if (subject
     && subject.last_position_status

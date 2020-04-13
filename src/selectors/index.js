@@ -3,7 +3,7 @@ import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 
-import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, addIconToGeoJson, filterInactiveRadiosFromCollection } from '../utils/map';
+import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
 
@@ -148,7 +148,6 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
           .filter(f => !hiddenFeatureIDs.includes(f.properties.id))
           .map(feature => {
             if (feature.properties.image) {
-              feature = addIconToGeoJson(feature);
               feature.properties.image = calcUrlForImage(feature.properties.image);
             }
             return feature;

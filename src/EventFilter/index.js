@@ -148,7 +148,7 @@ const EventFilter = (props) => {
     updateEventFilter({
       state: INITIAL_FILTER_STATE.state,
       filter: {
-        event_type: eventTypeIDs,
+        event_type: INITIAL_FILTER_STATE.filter.event_type,
         priority: INITIAL_FILTER_STATE.filter.priority,
         reported_by: INITIAL_FILTER_STATE.filter.reported_by,
       },
@@ -282,13 +282,13 @@ const EventFilter = (props) => {
 
   return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
     <div className={styles.controls}>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover}>
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
           <FilterIcon className={styles.filterIcon} />
           <span>Filters</span>
         </span>
       </OverlayTrigger>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover}>
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
           <ClockIcon className={styles.clockIcon} />
           <span>Dates</span>

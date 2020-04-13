@@ -64,7 +64,7 @@ const symbolLayout = {
   ...DEFAULT_SYMBOL_LAYOUT,
   'icon-image': ['case',
     ['==', ['get', 'title'], 'Ranger Stations'], 'ranger-stations',
-    ['has', 'icon_id'], ['get', 'icon_id'],
+    ['has', 'image'], DEFAULT_SYMBOL_LAYOUT['icon-image'],
     'marker-icon',
   ],
   'text-size': 0,
@@ -87,10 +87,10 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
 
   useEffect(() => {
     if (!!map && !map.hasImage('marker-icon')) {
-      addMapImage(MarkerImage, 'marker-icon');
+      addMapImage({ src: MarkerImage, id: 'marker-icon' });
     }
     if (!!map && !map.hasImage('ranger-stations')) {
-      addMapImage(RangerStationsImage, 'ranger-stations');
+      addMapImage({ src: RangerStationsImage, id: 'ranger-stations' });
     }
   }, [map]);
 

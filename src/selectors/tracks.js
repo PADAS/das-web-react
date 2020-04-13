@@ -25,7 +25,7 @@ const visibleTrackData = createSelector(
   },
 );
 
-const calcTrackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEventFilterDateRange], 
+const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEventFilterDateRange], 
   (trackLength, timeSliderState, eventFilterDateRange) => {
     const { virtualDate, active:timeSliderActive } = timeSliderState;
     const { lower } = eventFilterDateRange;
@@ -47,13 +47,12 @@ const calcTrackTimeEnvelope = createSelector([trackLength, getTimeSliderState, g
   });
 
 const trimmedVisibleTrackData = createSelector(
-  [visibleTrackData, calcTrackTimeEnvelope],
-  (visibleTrackData, timeEnvelope) => {
+  [visibleTrackData, trackTimeEnvelope],
+  (trackData, timeEnvelope) => {
     const { from, until } = timeEnvelope;
 
-    return visibleTrackData
+    return trackData
       .map(trackData => trimTrackDataToTimeRange(trackData, from, until));
-    // return trimTracksForLengthAndRange(visibleTrackData, trackLength, timeSliderState, eventFilterDateRange);
   },
 );
 

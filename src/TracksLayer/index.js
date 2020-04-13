@@ -34,7 +34,7 @@ const timepointLayerLayout = {
   'icon-size': [
     'interpolate', ['linear'], ['zoom'],
     0, 0,
-    10, 0,
+    12, 0,
     18, 0.75 / MAP_ICON_SCALE,
   ],
   'icon-rotate': ['get', 'bearing'],
@@ -68,7 +68,7 @@ const TracksLayer = (props) => {
 
   useEffect(() => {
     if (!map.hasImage(ARROW_IMG_ID)) {
-      addMapImage(Arrow, ARROW_IMG_ID);
+      addMapImage({ src: Arrow, id: ARROW_IMG_ID });
     }
   }, []); // eslint-disable-line
 
