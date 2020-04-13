@@ -29,6 +29,7 @@ const EventFilterDateRangeSelector = (props) => {
           lower,
           upper,
         },
+        current_selection: label,
       },
     });
   };
