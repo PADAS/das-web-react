@@ -148,7 +148,7 @@ const EventFilter = (props) => {
     updateEventFilter({
       state: INITIAL_FILTER_STATE.state,
       filter: {
-        event_type: eventTypeIDs,
+        event_type: INITIAL_FILTER_STATE.filter.event_type,
         priority: INITIAL_FILTER_STATE.filter.priority,
         reported_by: INITIAL_FILTER_STATE.filter.reported_by,
       },
