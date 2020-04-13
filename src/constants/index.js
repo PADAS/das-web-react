@@ -108,7 +108,17 @@ export const symbolTextSize = [
 export const DEFAULT_SYMBOL_LAYOUT = {
   'icon-allow-overlap': ['step', ['zoom'], false, 10, true],
   'icon-anchor': 'center',
-  'icon-image': ['get', 'image'],
+  'icon-image': ['concat',
+    ['get', 'image'], '-',
+    ['case',
+      ['has', 'width'], ['get', 'width'],
+      'x'],
+    '-',
+    ['case',
+      ['has', 'height'], ['get', 'height'],
+      'x'],
+  ],
+  /* keep the above icon-image expression aligned with the output of `calcImgIdFromUrlForMapImages`, found in utils/img */
   'icon-size': SYMBOL_ICON_SIZE_EXPRESSION,
   'text-allow-overlap': ['step', ['zoom'], false, 10, true],
   'text-anchor': 'top',

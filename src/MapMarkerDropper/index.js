@@ -51,7 +51,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 
   useEffect(() => {
     if (!!map && !map.hasImage('marker-icon')) {
-      addMapImage(MarkerImage, 'marker-icon');
+      addMapImage({ src: MarkerImage, id: 'marker-icon' });
     }
   }, [map]);
 

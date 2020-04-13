@@ -9,7 +9,7 @@ import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 import { addBounceToEventMapFeatures } from '../utils/events';
-import { calcUrlForImage } from '../utils/img';
+import { calcImgIdFromUrlForMapImages } from '../utils/img';
 
 import { withMap } from '../EarthRangerMap';
 import withMapNames from '../WithMapNames';
@@ -106,8 +106,8 @@ const EventsLayer = (props) => {
       ...eventsWithBounce,
       features: eventsWithBounce.features.filter((feature) => {
         return !!mapImages[
-          calcUrlForImage(
-            feature.properties.image || feature.properties.image_url
+          calcImgIdFromUrlForMapImages(
+            feature.properties.image || feature.properties.image_url, feature.properties.width, feature.properties.height,
           )
         ];
       }),
@@ -130,7 +130,7 @@ const EventsLayer = (props) => {
   useEffect(() => {
     const addClusterIconToMap = async () => {
       if (!map.hasImage('event-cluster-icon')) {
-        addMapImage(ClusterIcon, 'event-cluster-icon');
+        addMapImage({ src: ClusterIcon, id: 'event-cluster-icon' });
       }
     };
     !!events && addFeatureCollectionImagesToMap(events, map);
