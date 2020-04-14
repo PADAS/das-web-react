@@ -42,6 +42,7 @@ const EventFilterDateRangeSelector = (props) => {
     updateEventFilter({
       filter: {
         date_range: dateRangeUpdate,
+        current_selection: 'filtered',
       },
     });
     trackEvent('Event Filter', 'Change End Date Filter');
@@ -57,6 +58,7 @@ const EventFilterDateRangeSelector = (props) => {
     updateEventFilter({
       filter: {
         date_range: dateRangeUpdate,
+        current_selection: 'filtered',
       },
     });
     trackEvent('Event Filter', 'Change Start Date Filter');

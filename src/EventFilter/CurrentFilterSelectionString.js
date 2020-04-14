@@ -1,16 +1,14 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import { calcFriendlyDurationString } from '../utils/datetime';
+import {capitalize} from '../utils/string';
 
 const mapStateToProps = ({ data: { eventFilter } }, { view: timeSliderState }) => ({ eventFilter, timeSliderState });
 
 const CurrentFilterSelectionString = (props) => {
-  const { eventFilter, className, timeSliderState } = props;
-  const { filter: { date_range  } } = eventFilter;
+  const { eventFilter, className } = props;
+  const { filter: { current_selection } } = eventFilter;
 
-  const prefixText = (!!timeSliderState && timeSliderState.active) ? 'Show reports and locations from' : 'Show reports from';
-
-  return <span className={className || ''}>{prefixText} <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong></span>;
+  return <span className={className || ''}>{capitalize(current_selection)}</span>;
 };
 
 export default connect(mapStateToProps, null)(memo(CurrentFilterSelectionString));

@@ -13,9 +13,11 @@ import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
+import CurrentFilterSelectionString from '../EventFilter/CurrentFilterSelectionString';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
+import pickerStyles from '../EventFilter/styles.module.scss';
 
 const { Title, Content } = Popover;
 
@@ -85,8 +87,8 @@ const TimeSlider = (props) => {
     if (DateTime >= twoWeekAgo){
       return format(DateTime, STANDARD_DATE_FORMAT);
     }
-    return format(DateTime, SHORTENED_DATE_FORMAT)
-  }
+    return format(DateTime, SHORTENED_DATE_FORMAT);
+  };
 
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
@@ -99,6 +101,7 @@ const TimeSlider = (props) => {
       <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
     </Title>
     <Content className={styles.popoverBody}>
+      <div><CurrentFilterSelectionString className={pickerStyles.currentSelectedRange}/></div>
       <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' className={styles.rangeControls} />
     </Content>
   </Popover>;

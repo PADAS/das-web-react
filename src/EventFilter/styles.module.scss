@@ -153,9 +153,12 @@ div.filterPopover {
   }
 }
 
-.filterRangeTitle{
+.currentSelectedRange{
+  color: $primary-font-color;
   display: block; 
   text-align: center;
+  font-style: italic;
+  font-size: 130%;
   width: 100%;
   padding: .5rem;
 }
