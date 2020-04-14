@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Source } from 'react-mapbox-gl';
 import { featureCollection } from '@turf/helpers';
 
-import { calcUrlForImage } from '../utils/img';
+import { calcUrlForImage, calcImgIdFromUrlForMapImages } from '../utils/img';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 
@@ -48,11 +48,11 @@ const SubjectsLayer = (props) => {
       ...subjects,
       features: subjects.features.filter((feature) => {
         return !!mapImages[
-          calcUrlForImage(
+          calcImgIdFromUrlForMapImages(
             feature.properties.last_position 
               ? feature.properties.last_position.image 
               : (feature.properties.image || feature.properties.image_url)
-          )
+            , feature.properties.width, feature.properties.height)
         ];
       }),
     });

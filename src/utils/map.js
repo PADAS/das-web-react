@@ -9,17 +9,7 @@ import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
-import { imgElFromSrc, calcUrlForImage } from './img';
-
-export const addIconToGeoJson = (geojson) => {
-  const { properties: { image } } = geojson;
-  if (geojson.properties.icon_id) return geojson;
-
-  if (image) {
-    geojson.properties.icon_id = calcUrlForImage(image);
-  }
-  return geojson;
-};
+import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
 export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
@@ -37,10 +27,14 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   };
 };
 
-export const addMapImage = async (src, id) => {
+export const addMapImage = async ({ src, id, height, width }) => {
   const iconSrc = calcUrlForImage(src);
-  const icon_id = id || iconSrc;
-  const img = await imgElFromSrc(iconSrc, (MAP_ICON_SIZE * MAP_ICON_SCALE));
+  const icon_id = id ? id : calcImgIdFromUrlForMapImages(src, width, height);
+  const img = await imgElFromSrc(
+    iconSrc,
+    (width ? (width * MAP_ICON_SCALE) : (MAP_ICON_SIZE * MAP_ICON_SCALE)),
+    (height && (height * MAP_ICON_SCALE)),
+  );
   store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
   return {
     icon_id,
@@ -53,9 +47,9 @@ export const addFeatureCollectionImagesToMap = (collection, map) => {
 
   const images = features
     .filter(({ properties: { image } }) => !!image)
-    .map(({ properties: { image } }) => image)
-    .filter((image, index, array) => !map.hasImage(image) && (array.findIndex(item => item === image) === index))
-    .map(image => addMapImage(image));
+    .map(({ properties }) => properties)
+    .filter((properties, index, array) => !map.hasImage(properties.image) && (array.findIndex(item => item.image === properties.image) === index))
+    .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width }));
 
   return Promise.all(images).then(results => results);
 };
@@ -86,10 +80,10 @@ const setUpEventGeoJson = (events, eventTypes) =>
       eventTypes.findIndex(item => item.value === event_type) > -1
       ? eventTypes.find(item => item.value === event_type).display
       : event_type;
-    return addTitleWithDateToGeoJson(addIconToGeoJson(geojson), displayTitle);
+    return addTitleWithDateToGeoJson(geojson, displayTitle);
   }
   );
-const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => addIconToGeoJson(geojson));
+const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => geojson);
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
