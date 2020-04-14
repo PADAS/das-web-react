@@ -162,6 +162,7 @@ const EventFilter = (props) => {
     updateEventFilter({
       filter: {
         date_range: INITIAL_FILTER_STATE.filter.date_range,
+        current_selection: INITIAL_FILTER_STATE.filter.current_selection,
       },
     });
     trackEvent('Event Filter', 'Click Reset Date Range Filter');
@@ -237,7 +238,7 @@ const EventFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <div><CurrentFilterSelectionString className={styles.filterRangeTitle}/></div>
+      <div><CurrentFilterSelectionString className={styles.currentSelectedRange}/></div>
       <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
     </Popover.Content>
   </Popover>;
