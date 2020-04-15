@@ -12,7 +12,7 @@ const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
 
 const FriendlyEventFilterString = (props) => {
-  const { children, eventFilter, className, showAsRangeTitle } = props;
+  const { children, eventFilter, className } = props;
 
   const { state, filter: { date_range, priority, reported_by, text } } = eventFilter;
 
@@ -21,7 +21,7 @@ const FriendlyEventFilterString = (props) => {
     || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
     || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
-  return <span style={{lineHeight: 'normal'}} className={className || ''}>{showAsRangeTitle ? 'Show' : 'Showing'} {filterModified && 'filtered'} reports and locations from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}</span>;
+  return <span style={{lineHeight: 'normal'}} className={className || ''}>Showing {filterModified && 'filtered'} reports and locations from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}</span>;
 };
 
 export default connect(mapStateToProps, null)(memo(FriendlyEventFilterString));
