@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
@@ -36,10 +36,20 @@ const timepointLayerLayout = {
 const TrackLayer = (props) => {
   const { map, onPointClick, trackId, trackData, showTimepoints, ...rest } = props;
 
-  if (!trackData) return null;
+  useEffect(() => {
+    /* add track to legend */
+    return () => {
+      /* remove track from legend */
+    };
+  }, []);
 
   const { track:trackCollection, points:trackPointCollection } = trackData;
 
+  useEffect(() => {
+    if (trackPointCollection) {
+    /* emit length change to legend for trackData.points.features.length */
+    }
+  },  [trackPointCollection]);
   
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';

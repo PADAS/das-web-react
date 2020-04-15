@@ -11,7 +11,7 @@ export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTra
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
 
-const getTrackById = ({ data: { tracks } }, { trackId }) => tracks[trackId];
+const getTrackDataById = ({ data: { tracks } }, { trackId }) => tracks[trackId];
 
 export const getVisibleTrackIds = createSelector(
   [subjectTrackState],
@@ -82,8 +82,8 @@ export const trimmedVisibleTrackPointFeatureCollection = createSelector(
 );
 
 export const trimmedTrackDataById = createSelector(
-  [getTrackById, trackTimeEnvelope],
-  (track, { from, until }) => track ? trimTrackDataToTimeRange(track, from, until) : null,
+  [getTrackDataById, trackTimeEnvelope],
+  (track, { from, until }) => track ? trimTrackDataToTimeRange(track, from, until) : { track: null, points: null },
 );
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(
