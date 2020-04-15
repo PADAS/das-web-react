@@ -191,7 +191,7 @@ export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,
   clearIcon: null,
   calendarIcon: null,
-  format: 'dd-MM-yyyy HH:mm',
+  format: 'yyyy-MM-dd HH:mm',
 };
 
 export const GEOLOCATOR_OPTIONS = {
