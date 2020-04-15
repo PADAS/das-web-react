@@ -20,7 +20,7 @@ import EventFilterDateRangeSelector from './DateRange';
 import ReportTypeMultiSelect from '../ReportTypeMultiSelect';
 import PriorityPicker from '../PriorityPicker';
 import ReportedBySelect from '../ReportedBySelect';
-// import CheckMark from '../Checkmark';
+import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
@@ -266,7 +266,11 @@ const EventFilter = (props) => {
         <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
       </div>
       <div className={`${styles.filterRow} ${styles.reportTypeRow}`}>
-        <h5 className={styles.filterTitle}>
+        <h5 className={`${styles.filterTitle} ${styles.reportFilterTitle}`}>
+          <div className={styles.toggleAllReportTypes}>
+            <CheckMark fullyChecked={!noReportTypesChecked && !someReportTypesChecked} partiallyChecked={!noReportTypesChecked && someReportTypesChecked} onClick={toggleAllReportTypes} />
+            <span>All</span>
+          </div>
           Report Types
           <small className={!eventTypeFilterEmpty ? styles.modified : ''}>
             {eventTypeFilterEmpty && 'All selected'}
