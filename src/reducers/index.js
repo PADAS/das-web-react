@@ -6,7 +6,7 @@ import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
-import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
+import tracksReducer, { trackDateRangeReducer, trackLegendReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import {
@@ -96,6 +96,7 @@ const rootReducer = combineReducers({
     userLocation: userLocationReducer,
     showReportHeatmap: reportHeatmapStateReducer,
     trackLength: trackDateRangeReducer,
+    tracksLegend: trackLegendReducer,
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,

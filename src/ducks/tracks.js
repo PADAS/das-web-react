@@ -130,16 +130,25 @@ export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { 
   return state;
 };
 
+export const updateTrackInLegend = (track) => ({
+  type: UPDATE_TRACK_IN_LEGEND,
+  payload: track,
+});
+
+export const removeTrackFromLegend = (id) => ({
+  type: REMOVE_TRACK_FROM_LEGEND,
+  payload: id,
+});
+
+
 const INITIAL_TRACK_LEGEND_STATE = [];
-const trackLegendReducer = (state = INITIAL_TRACK_LEGEND_STATE, { type, payload }) => {
-  if (type === ADD_TRACK_TO_LEGEND) {
-    return [...state, payload];
-  }
+export const trackLegendReducer = (state = INITIAL_TRACK_LEGEND_STATE, { type, payload }) => {
   if (type === UPDATE_TRACK_IN_LEGEND) {
-    return state.map(track => track.properties.id === payload.properties.id ? payload : track);
+    const hasTrack = state.findIndex(item => item.properties.id === payload.properties.id) > -1;
+    return hasTrack ? state.map(track => track.properties.id === payload.properties.id ? payload : track) : [...state, payload];
   }
   if (type === REMOVE_TRACK_FROM_LEGEND) {
-    return state.filter(item => item.properties.id !== payload);
+    return state.filter(item => item.properties.id !== payload.properties.id);
   }
   return state;
 };

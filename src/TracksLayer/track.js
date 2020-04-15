@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
 import { trimmedTrackDataById } from '../selectors/tracks';
+import { updateTrackInLegend, removeTrackFromLegend } from '../ducks/tracks';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
@@ -34,14 +35,20 @@ const timepointLayerLayout = {
 };
 
 const TrackLayer = (props) => {
-  const { map, onPointClick, trackId, trackData, showTimepoints, ...rest } = props;
+  const { map, onPointClick, trackId, trackData, showTimepoints, updateTrackInLegend, removeTrackFromLegend, dispatch:_dispatch, ...rest } = props;
 
   useEffect(() => {
-    /* add track to legend */
+    if (trackData.track) {
+      const [track] = trackData.track.features;
+      updateTrackInLegend(track);
+    }
     return () => {
-      /* remove track from legend */
+      if (trackData.track) {
+        const [track] = trackData.track.features;
+        removeTrackFromLegend(track);
+      }
     };
-  }, []);
+  }, [removeTrackFromLegend, trackData, updateTrackInLegend]);
 
   const { track:trackCollection, points:trackPointCollection } = trackData;
 
@@ -90,7 +97,7 @@ const mapStateToProps = (state, props) => ({
   trackData: trimmedTrackDataById(state, props),
 });
 
-export default connect(mapStateToProps, null)(memo(TrackLayer));
+export default connect(mapStateToProps, { updateTrackInLegend, removeTrackFromLegend })(memo(TrackLayer));
 
 TrackLayer.defaultProps = {
   onPointClick(layer) {
