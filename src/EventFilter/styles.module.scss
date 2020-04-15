@@ -154,10 +154,9 @@ div.filterPopover {
 }
 
 .currentSelectedRange{
-  color: $primary-font-color;
+  color: lighten($primary-font-color, 15%);
   display: block; 
   text-align: center;
-  font-style: italic;
   font-size: 130%;
   width: 100%;
   padding: .5rem;
