@@ -15,6 +15,10 @@ export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 
+const ADD_TRACK_TO_LEGEND = 'ADD_TRACK_TO_LEGEND';
+const UPDATE_TRACK_IN_LEGEND = 'UPDATE_TRACK_IN_LEGEND';
+const REMOVE_TRACK_FROM_LEGEND = 'REMOVE_TRACK_FROM_LEGEND';
+
 // action creators
 export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...ids) => {
   return async (dispatch) => {
@@ -126,10 +130,16 @@ export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { 
   return state;
 };
 
-
-/* const state = {
-  [id]: {
-    track: featureCollection(),
-    points: featureCollection() ^extrapolated from the above,
+const INITIAL_TRACK_LEGEND_STATE = [];
+const trackLegendReducer = (state = INITIAL_TRACK_LEGEND_STATE, { type, payload }) => {
+  if (type === ADD_TRACK_TO_LEGEND) {
+    return [...state, payload];
   }
-} */
+  if (type === UPDATE_TRACK_IN_LEGEND) {
+    return state.map(track => track.properties.id === payload.properties.id ? payload : track);
+  }
+  if (type === REMOVE_TRACK_FROM_LEGEND) {
+    return state.filter(item => item.properties.id !== payload);
+  }
+  return state;
+};
