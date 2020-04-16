@@ -5,6 +5,8 @@ import { featureCollection }  from '@turf/helpers';
 import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
 
+import cloneDeep from 'lodash/cloneDeep';
+
 import { store } from '../index';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
@@ -182,7 +184,7 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
     return { track, points };
   }
 
-  const trackResults = { ...originalTrack };
+  const trackResults = cloneDeep(originalTrack);
 
   trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
   trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);

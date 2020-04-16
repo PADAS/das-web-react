@@ -11,16 +11,16 @@ import TrackToggleButton from '../TrackToggleButton';
 
 import { updateTrackState } from '../ducks/map-ui';
 
-import { trimmedVisibleTrackFeatureCollection, trimmedVisibleTrackPointFeatureCollection } from '../selectors/tracks';
+import { trimmedVisibleTrackData } from '../selectors/tracks';
 
 import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
 const TrackLegend = (props) => {
-  const { tracks, tracksAsPoints, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
+  const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
 
-  const subjectCount = tracks.features.length;
-  const trackPointCount = tracksAsPoints.features.length;
+  const subjectCount = trackData.length;
+  const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
   let displayTitle, iconSrc;
 
   const onRemoveTrackClick = ({ target: { value: id } }) => {
@@ -31,8 +31,8 @@ const TrackLegend = (props) => {
     });
   };
 
-  const convertTrackToSubjectDetailListItem = (track) => {
-    const { properties: { title, image, id } } = track;
+  const convertTrackToSubjectDetailListItem = ({ track }) => {
+    const { properties: { title, image, id } } = track.features[0];
 
     return <li key={id}>
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
@@ -45,7 +45,7 @@ const TrackLegend = (props) => {
   };
 
   if (subjectCount === 1) {
-    const { title, image } = tracks.features[0].properties;
+    const { title, image } = trackData[0].track.features[0].properties;
     displayTitle = `${title}`;
     iconSrc = image;
   } else {
@@ -65,7 +65,7 @@ const TrackLegend = (props) => {
       placement="right" overlay={
         <Popover className={styles.popover} id="track-details">
           <ul>
-            {tracks.features.map(convertTrackToSubjectDetailListItem)}
+            {trackData.map(convertTrackToSubjectDetailListItem)}
           </ul>
         </Popover>
       }>
@@ -88,8 +88,7 @@ const TrackLegend = (props) => {
 };
 
 const mapStatetoProps = (state) => ({
-  tracks: trimmedVisibleTrackFeatureCollection(state),
-  tracksAsPoints: trimmedVisibleTrackPointFeatureCollection(state),
+  trackData: trimmedVisibleTrackData(state),
   subjectTrackState: state.view.subjectTrackState,
   trackLength: state.view.trackLength,
 });

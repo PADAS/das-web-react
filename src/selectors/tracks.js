@@ -11,8 +11,6 @@ export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTra
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
 
-const getTrackDataById = ({ data: { tracks } }, { trackId }) => tracks[trackId];
-
 export const getVisibleTrackIds = createSelector(
   [subjectTrackState],
   (subjectTrackState) => uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]),
@@ -50,7 +48,7 @@ const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEv
     return { from: trackLengthStartDate, until: null };
   });
 
-const trimmedVisibleTrackData = createSelector(
+export const trimmedVisibleTrackData = createSelector(
   [visibleTrackData, trackTimeEnvelope],
   (trackData, timeEnvelope) => {
     const { from, until } = timeEnvelope;
@@ -60,31 +58,6 @@ const trimmedVisibleTrackData = createSelector(
   },
 );
 
-export const trimmedVisibleTrackFeatureCollection = createSelector(
-  [trimmedVisibleTrackData],
-  (trimmedVisibleTrackData) => {
-
-    return featureCollection(
-      trimmedVisibleTrackData
-        .map(data =>
-          data.track.features[0]
-        )
-    );
-  },
-);
-
-export const trimmedVisibleTrackPointFeatureCollection = createSelector(
-  [trimmedVisibleTrackData],
-  (trimmedVisibleTrackData) => {
-    return featureCollection(trimmedVisibleTrackData
-      .reduce((accumulator, data) => [...accumulator, ...data.points.features], []));
-  },
-);
-
-export const trimmedTrackDataById = createSelector(
-  [getTrackDataById, trackTimeEnvelope],
-  (track, { from, until }) => track ? trimTrackDataToTimeRange(track, from, until) : { track: null, points: null },
-);
 
 export const getArrayOfVisibleHeatmapTracks = createSelector(
   [tracks, heatmapSubjectIDs],

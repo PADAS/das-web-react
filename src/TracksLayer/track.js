@@ -1,10 +1,6 @@
-import React, { memo, Fragment, useEffect } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
-
-import { trimmedTrackDataById } from '../selectors/tracks';
-import { updateTrackInLegend, removeTrackFromLegend } from '../ducks/tracks';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
@@ -35,28 +31,12 @@ const timepointLayerLayout = {
 };
 
 const TrackLayer = (props) => {
-  const { map, onPointClick, trackId, trackData, showTimepoints, updateTrackInLegend, removeTrackFromLegend, dispatch:_dispatch, ...rest } = props;
+  const { map, onPointClick, trackData, showTimepoints, updateTrackInLegend, removeTrackFromLegend, dispatch:_dispatch, ...rest } = props;
 
-  useEffect(() => {
-    if (trackData.track) {
-      const [track] = trackData.track.features;
-      updateTrackInLegend(track);
-    }
-    return () => {
-      if (trackData.track) {
-        const [track] = trackData.track.features;
-        removeTrackFromLegend(track);
-      }
-    };
-  }, [removeTrackFromLegend, trackData, updateTrackInLegend]);
+  if (!trackData.track) return null;
 
   const { track:trackCollection, points:trackPointCollection } = trackData;
-
-  useEffect(() => {
-    if (trackPointCollection) {
-    /* emit length change to legend for trackData.points.features.length */
-    }
-  },  [trackPointCollection]);
+  const trackId = trackCollection.features[0].properties.id;
   
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
@@ -93,11 +73,7 @@ const TrackLayer = (props) => {
   </Fragment>;
 };
 
-const mapStateToProps = (state, props) => ({
-  trackData: trimmedTrackDataById(state, props),
-});
-
-export default connect(mapStateToProps, { updateTrackInLegend, removeTrackFromLegend })(memo(TrackLayer));
+export default memo(TrackLayer);
 
 TrackLayer.defaultProps = {
   onPointClick(layer) {

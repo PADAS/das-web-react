@@ -368,7 +368,7 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, trackIds,
+      heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
@@ -377,8 +377,6 @@ class Map extends Component {
 
     const { analyzerWarningLines, analyzerCriticalLines,
       analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
-
-    const tracksAvailable = !!trackIds && !!trackIds.length;
 
     const subjectHeatmapAvailable = !!heatmapTracks.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
@@ -438,7 +436,7 @@ class Map extends Component {
             {showReportHeatmap && <ReportsHeatLayer />}
 
             {tracksAvailable && (
-              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} trackIds={trackIds} />
+              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
             )}
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
@@ -502,7 +500,7 @@ const mapStatetoProps = (state, props) => {
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
-    trackIds: getVisibleTrackIds(state),
+    tracksAvailable: !!getVisibleTrackIds(state).length,
   });
 };
 
