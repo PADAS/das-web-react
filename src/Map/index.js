@@ -18,7 +18,7 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getArrayOfVisibleHeatmapTracks, getVisibleTrackIds } from '../selectors/tracks';
+import { getVisibleTrackIds } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
@@ -123,7 +123,7 @@ class Map extends Component {
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
     }
-    if (!isEqual(this.props.heatmapTracks, prev.heatmapTracks) && !!this.props.heatmapTracks.length && this.props.showReportHeatmap) {
+    if ((this.props.heatmapSubjectIDs !== prev.heatmapSubjectIDs) && !!this.props.heatmapSubjectIDs.length && this.props.showReportHeatmap) {
       this.onCloseReportHeatmap();
     }
     
@@ -368,7 +368,7 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      heatmapTracks, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
+      heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
@@ -378,7 +378,7 @@ class Map extends Component {
     const { analyzerWarningLines, analyzerCriticalLines,
       analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
 
-    const subjectHeatmapAvailable = !!heatmapTracks.length;
+    const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     if (!maps.length) return null;
 
@@ -492,7 +492,6 @@ const mapStatetoProps = (state, props) => {
     bounceEventIDs,
     trackLength,
     trackLengthOrigin,
-    heatmapTracks: getArrayOfVisibleHeatmapTracks(state, props),
     mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapImages: state.view.mapImages,
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),

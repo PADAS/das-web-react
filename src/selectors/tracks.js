@@ -1,10 +1,9 @@
 import uniq from 'lodash/uniq';
-import { featureCollection } from '@turf/helpers';
 import startOfDay from 'date-fns/start_of_day';
 import subDays from 'date-fns/sub_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
-import { trimTrackDataToTimeRange, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
+import { trimTrackDataToTimeRange } from '../utils/tracks';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
@@ -58,45 +57,19 @@ export const trimmedVisibleTrackData = createSelector(
   },
 );
 
-
-export const getArrayOfVisibleHeatmapTracks = createSelector(
+const heatmapTrackData = createSelector(
   [tracks, heatmapSubjectIDs],
   (tracks, heatmapSubjectIDs) => heatmapSubjectIDs
     .filter(id => !!tracks[id])
     .map(id => tracks[id]),
 );
 
-export const trimmedVisibleHeatmapTrackFeatureCollection = createSelector(
-  [getArrayOfVisibleHeatmapTracks, trackLength, getTimeSliderState, getEventFilterDateRange],
-  (arrayOfHeatmapTracks, trackLength, timeSliderState, eventFilterDateRange) => {
-    const heatmapFeatureCollection = featureCollection(arrayOfHeatmapTracks.map(({ features: [track] }) => track));
-    
-    return trimTracksForLengthAndRange(heatmapFeatureCollection, trackLength, timeSliderState, eventFilterDateRange);
-  }, 
+export const trimmedHeatmapTrackData = createSelector(
+  [heatmapTrackData, trackTimeEnvelope],
+  (trackData, timeEnvelope) => {
+    const { from, until } = timeEnvelope;
+
+    return trackData
+      .map(trackData => trimTrackDataToTimeRange(trackData, from, until));
+  },
 );
-
-export const trimmedHeatmapPointFeatureCollection = createSelector(
-  [trimmedVisibleHeatmapTrackFeatureCollection],
-  trackCollection => convertTrackFeatureCollectionToPoints(trackCollection),
-);
-
-const trimTracksForLengthAndRange = (collection, trackLength, timeSliderState, eventFilterDateRange) => {
-  const { virtualDate, active:timeSliderActive } = timeSliderState;
-  const { lower } = eventFilterDateRange;
-
-  let trackLengthStartDate = startOfDay(
-    subDays(new Date(), trackLength.length),
-  );
-
-  if (timeSliderActive) {
-    if (virtualDate) {
-      trackLengthStartDate = virtualDate ? subDays(virtualDate, trackLength.length) : trackLengthStartDate;
-    }
-
-    const startDate = !!(trackLengthStartDate - new Date(lower)) ? trackLengthStartDate : new Date(lower);
-    return trimTrackDataToTimeRange(collection, startDate, virtualDate);
-  }
-
-  return trimTrackDataToTimeRange(collection, trackLengthStartDate);
-};
-

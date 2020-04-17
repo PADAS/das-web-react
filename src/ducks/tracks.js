@@ -15,10 +15,6 @@ export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 
-const ADD_TRACK_TO_LEGEND = 'ADD_TRACK_TO_LEGEND';
-const UPDATE_TRACK_IN_LEGEND = 'UPDATE_TRACK_IN_LEGEND';
-const REMOVE_TRACK_FROM_LEGEND = 'REMOVE_TRACK_FROM_LEGEND';
-
 // action creators
 export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...ids) => {
   return async (dispatch) => {
@@ -30,9 +26,6 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
           COMBINED WITH THE INDICE TRIMMING BY INDEX THIS SHOULD BE ORDERS OF MAGNITUDE FASTER FOR SUBJECT POSITION AND TRACK DATA
         */
         const asPoints = convertTrackFeatureCollectionToPoints(response.data.data);
-
-        console.log('response.data.data', response.data.data);
-        console.log('asPoints', asPoints);
 
         accumulator[ids[index]] = {
           track: response.data.data,
@@ -127,28 +120,5 @@ export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { 
     };
   }
 
-  return state;
-};
-
-export const updateTrackInLegend = (track) => ({
-  type: UPDATE_TRACK_IN_LEGEND,
-  payload: track,
-});
-
-export const removeTrackFromLegend = (id) => ({
-  type: REMOVE_TRACK_FROM_LEGEND,
-  payload: id,
-});
-
-
-const INITIAL_TRACK_LEGEND_STATE = [];
-export const trackLegendReducer = (state = INITIAL_TRACK_LEGEND_STATE, { type, payload }) => {
-  if (type === UPDATE_TRACK_IN_LEGEND) {
-    const hasTrack = state.findIndex(item => item.properties.id === payload.properties.id) > -1;
-    return hasTrack ? state.map(track => track.properties.id === payload.properties.id ? payload : track) : [...state, payload];
-  }
-  if (type === REMOVE_TRACK_FROM_LEGEND) {
-    return state.filter(item => item.properties.id !== payload.properties.id);
-  }
   return state;
 };

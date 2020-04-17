@@ -16,20 +16,8 @@ import { trimmedVisibleTrackData } from '../selectors/tracks';
 import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
-const TrackLegend = (props) => {
-  const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
-
-  const subjectCount = trackData.length;
-  const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
-  let displayTitle, iconSrc;
-
-  const onRemoveTrackClick = ({ target: { value: id } }) => {
-    trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
-    updateTrackState({
-      pinned: subjectTrackState.pinned.filter(item => item !== id),
-      visible: subjectTrackState.visible.filter(item => item !== id),
-    });
-  };
+const TitleElement = memo((props) => { // eslint-disable-line
+  const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, trackData, trackPointCount, track_days } = props;
 
   const convertTrackToSubjectDetailListItem = ({ track }) => {
     const { properties: { title, image, id } } = track.features[0];
@@ -44,15 +32,7 @@ const TrackLegend = (props) => {
     </li>;
   };
 
-  if (subjectCount === 1) {
-    const { title, image } = trackData[0].track.features[0].properties;
-    displayTitle = `${title}`;
-    iconSrc = image;
-  } else {
-    displayTitle = `${subjectCount} subjects`;
-  }
-
-  const titleElement = <div className={styles.titleWrapper}>
+  return <div className={styles.titleWrapper}>
     <TrackToggleButton trackPinned={false} trackVisible={false} className={styles.trackIcon} showLabel={false} />
     <div className={styles.innerTitleWrapper}>
       <h6>
@@ -77,10 +57,33 @@ const TrackLegend = (props) => {
       <span>{trackPointCount} points over {track_days} day{track_days > 1 ? 's' :''}</span>
     </div>
   </div>;
+});
 
+const TrackLegend = (props) => {
+  const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
+
+  const subjectCount = trackData.length;
+  const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
+  let displayTitle, iconSrc;
+
+  const onRemoveTrackClick = ({ target: { value: id } }) => {
+    trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
+    updateTrackState({
+      pinned: subjectTrackState.pinned.filter(item => item !== id),
+      visible: subjectTrackState.visible.filter(item => item !== id),
+    });
+  };
+
+  if (subjectCount === 1) {
+    const { title, image } = trackData[0].track.features[0].properties;
+    displayTitle = `${title}`;
+    iconSrc = image;
+  } else {
+    displayTitle = `${subjectCount} subjects`;
+  }
 
   return subjectCount && <MapLegend
-    titleElement={titleElement}
+    titleElement={<TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick} subjectCount={subjectCount} trackData={trackData} trackPointCount={trackPointCount} track_days={track_days} />}
     onClose={onClose}
     settingsComponent={<TrackLengthControls />} 
   >
