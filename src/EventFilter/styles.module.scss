@@ -153,15 +153,6 @@ div.filterPopover {
   }
 }
 
-.currentSelectedRange{
-  color: lighten($primary-font-color, 15%);
-  display: block; 
-  text-align: center;
-  font-size: 130%;
-  width: 100%;
-  padding: .5rem;
-}
-
 .popoverTitle {
   --dimensions: 1.5rem;
   svg {

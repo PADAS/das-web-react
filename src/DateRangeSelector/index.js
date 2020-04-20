@@ -8,12 +8,15 @@ import DateTimePicker from 'react-datetime-picker';
 import styles from './styles.module.scss';
 import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
 
+import DateRangeSelectionString from './DateRangeSelectionString';
+
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
   const { startDate, endDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
-    startDateNullMessage, onStartDateBlur, onEndDateBlur, endDateNullMessage, className, gaEventSrc, children, ...rest } = props;
+    startDateNullMessage, onStartDateBlur, onEndDateBlur, endDateNullMessage, className, gaEventSrc, 
+    hideCurrentSelectionLabel, showLocationLabel, children, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -35,6 +38,7 @@ const DateRangeSelector = (props) => {
   };
 
   return <div className={className || ''}>
+    {!!hideCurrentSelectionLabel && <div  className={styles.currentSelectedRange}><DateRangeSelectionString startDate={startDate} endDate={endDate} showLocationLabel={showLocationLabel}/></div>}
     <div className={styles.dateSelectorWrapper}>
       <label className={styles.label}>
         {startDateLabel && <span>{startDateLabel}</span>}

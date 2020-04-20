@@ -27,7 +27,6 @@ import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
-import CurrentFilterSelectionString from './CurrentFilterSelectionString';
 
 const EventFilter = (props) => {
   const { children, className, eventFilter, eventTypes, reporters, updateEventFilter } = props;
@@ -238,8 +237,7 @@ const EventFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <div><CurrentFilterSelectionString className={styles.currentSelectedRange}/></div>
-      <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
+      <EventFilterDateRangeSelector endDateLabel='' startDateLabel=''/>
     </Popover.Content>
   </Popover>;
 
