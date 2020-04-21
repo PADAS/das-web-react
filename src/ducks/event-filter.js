@@ -21,7 +21,6 @@ export const INITIAL_FILTER_STATE = {
       lower: generateMonthsAgoDate(1).toISOString(),
       upper: null,
     },
-    current_selection: 'last 30 days',
     event_type: [],
     event_category: [],
     text: '',

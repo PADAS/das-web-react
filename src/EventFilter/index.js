@@ -161,7 +161,6 @@ const EventFilter = (props) => {
     updateEventFilter({
       filter: {
         date_range: INITIAL_FILTER_STATE.filter.date_range,
-        current_selection: INITIAL_FILTER_STATE.filter.current_selection,
       },
     });
     trackEvent('Event Filter', 'Click Reset Date Range Filter');
