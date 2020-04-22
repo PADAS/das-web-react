@@ -17,7 +17,8 @@ import styles from './styles.module.scss';
 const AddReport = (props) => {
   const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
-  const [selectedCategory, selectCategory] = useState(eventsByCategory[0].value);
+  const hasEventCategories = !!eventsByCategory.length;
+  const [selectedCategory, selectCategory] = useState(hasEventCategories ? eventsByCategory[0].value : null);
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);
@@ -91,11 +92,11 @@ const AddReport = (props) => {
     )}
   </ul>;
 
+  const reportTypeItems = hasEventCategories ? eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem) : '';
+
   const reportTypeList = <ul className={styles.reportTypeMenu}>
-    {eventsByCategory
-      .find(({ value: c }) => c === selectedCategory).types
-      .map(createListItem)}
-  </ul>;
+    {reportTypeItems}
+  </ul>; 
 
   const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}> {/* eslint-disable-line react/display-name */}
     <Popover.Title>{title}</Popover.Title>
