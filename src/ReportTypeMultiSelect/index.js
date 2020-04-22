@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useState } from 'react';
+import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
@@ -31,15 +31,14 @@ const filterEventTypes = (eventTypes, filterText) =>
 
 
 const ReportTypeMultiSelect = (props) => {
-  const { eventTypes, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
+  const { eventTypes, filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
 
   const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
 
-  const [filterText, setFilterText] = useState('');
-  const onFilterChange = ({ target: { value } }) => setFilterText(value);
-  const onFilterClear = () => setFilterText('');
+  const onSearchValueChange = ({ target: { value } }) => onFilterChange(value);
+  const onFilterClear = () => onFilterChange('');
 
-  const filteredEventTypes = filterText.length ? filterEventTypes(eventTypes, filterText) : eventTypes;
+  const filteredEventTypes = filter.length ? filterEventTypes(eventTypes, filter) : eventTypes;
 
   const itemsGroupedByCategory = mapReportTypesToCategories(filteredEventTypes);
 
@@ -78,9 +77,9 @@ const ReportTypeMultiSelect = (props) => {
 
   return <div className={styles.wrapper}>
     <div className={styles.searchBar}>
-      <SearchBar className={styles.search} placeholder='Search types' value={filterText}
-        onChange={onFilterChange} onClear={onFilterClear} />
-      {!!filterText.length
+      <SearchBar className={styles.search} placeholder='Search types' value={filter}
+        onChange={onSearchValueChange} onClear={onFilterClear} />
+      {!!filter.length
         && <Button onClick={selectFilteredItems} type="button" variant='info' size='sm' disabled={!filteredEventTypes.length}>
           {filteredEventTypes.length ?
             `Set to ${filteredEventTypes.length > 1 ? `these ${filteredEventTypes.length}`  : 'this one'}`
