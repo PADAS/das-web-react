@@ -1,9 +1,6 @@
 import React, { memo, Fragment } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
-
-import { trimmedTrack, trimmedTrackPoints } from '../selectors/tracks';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
@@ -24,14 +21,9 @@ const trackLayerLineLayout = {
 };
 
 const timepointLayerLayout = {
-  'icon-allow-overlap': true,
+  'icon-allow-overlap': ['step', ['zoom'], false, 15, true],
   'icon-anchor': 'bottom',
-  'icon-size': [
-    'interpolate', ['linear'], ['zoom'],
-    0, 0,
-    10, 0,
-    18, 0.75 / MAP_ICON_SCALE,
-  ],
+  'icon-size': ['step', ['zoom'], 0, 11, 0.3/MAP_ICON_SCALE, 15, 0.5/MAP_ICON_SCALE, 17, 0.6/MAP_ICON_SCALE],
   'icon-rotate': ['get', 'bearing'],
   'icon-image': 'track_arrow',
   'icon-pitch-alignment': 'map',
@@ -39,18 +31,23 @@ const timepointLayerLayout = {
 };
 
 const TrackLayer = (props) => {
-  const { map, onPointClick, trackId, trackCollection, trackPointCollection, showTimepoints, ...rest } = props;
-  if (!trackCollection) return null;
+  const { map, onPointClick, trackData, showTimepoints, updateTrackInLegend, removeTrackFromLegend, dispatch:_dispatch, ...rest } = props;
+
+  if (!trackData.track) return null;
+
+  const { track:trackCollection, points:trackPointCollection } = trackData;
+  const trackId = trackCollection.features[0].properties.id;
   
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  const trackData = {
+  const trackSourceConfig = {
+    tolerance: 1.5,
     type: 'geojson',
     data: trackCollection,
   };
 
-  const trackPointData = {
+  const trackPointSourceConfig = {
     type: 'geojson',
     data: trackPointCollection,
   };
@@ -62,8 +59,8 @@ const TrackLayer = (props) => {
   const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
 
   return <Fragment>
-    <Source id={sourceId} geoJsonSource={trackData} />
-    <Source id={pointSourceId} geoJsonSource={trackPointData} />
+    <Source id={sourceId} geoJsonSource={trackSourceConfig} />
+    <Source id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
 
     <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
       paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
@@ -76,12 +73,7 @@ const TrackLayer = (props) => {
   </Fragment>;
 };
 
-const mapStateToProps = (state, props) => ({
-  trackCollection: trimmedTrack(state, props),
-  trackPointCollection: trimmedTrackPoints(state, props),
-});
-
-export default connect(mapStateToProps, null)(memo(TrackLayer));
+export default memo(TrackLayer);
 
 TrackLayer.defaultProps = {
   onPointClick(layer) {

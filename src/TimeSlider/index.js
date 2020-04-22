@@ -85,8 +85,8 @@ const TimeSlider = (props) => {
     if (DateTime >= twoWeekAgo){
       return format(DateTime, STANDARD_DATE_FORMAT);
     }
-    return format(DateTime, SHORTENED_DATE_FORMAT)
-  }
+    return format(DateTime, SHORTENED_DATE_FORMAT);
+  };
 
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
@@ -115,7 +115,7 @@ const TimeSlider = (props) => {
       <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
         <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
         {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> :
-        <span style={{color: '#6d6d6d' }}>Timeslider</span>}
+          <span style={{color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>

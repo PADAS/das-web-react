@@ -1,10 +1,12 @@
 import isEqual from 'react-fast-compare';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
+import { featureCollection }  from '@turf/helpers';
 import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
 
 import cloneDeep from 'lodash/cloneDeep';
+
 import { store } from '../index';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
@@ -25,21 +27,36 @@ export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, coll
     || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
 };
 
-const mapPointCoordinateTimeToTimeProp = (item, index) => {
-  const returnValue = { ...item };
-  returnValue.properties.time = item.properties.coordinateProperties.times[index];
-  delete returnValue.properties.coordinateProperties;
-  return returnValue;
-};
+
 
 export const convertTrackFeatureCollectionToPoints = feature => {
-  const pointFeature = addBearingToTrackPoints(explode(feature));
-  return ({
-    ...pointFeature,
-    features: pointFeature.features
-      .map(mapPointCoordinateTimeToTimeProp)
-      .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection)),
-  });
+  if (!feature.features.length) return featureCollection([]);
+
+  const [{ properties: { coordinateProperties } }] = feature.features;
+  const pointFeatureCollection = explode(feature);
+
+  const addTimeAndBearingToPointFeature = (item, index, collection) => {
+    const returnValue = { ...item };
+    const { coordinateProperties:_omittedCoordProps, ...restProperties } = returnValue.properties;
+
+    const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
+
+    return {
+      ...returnValue,
+      properties: {
+        ...restProperties,
+        time: coordinateProperties.times[index],
+        bearing: measuredBearing,
+      },
+    };
+  };
+
+
+  pointFeatureCollection.features = pointFeatureCollection.features
+    .map(addTimeAndBearingToPointFeature)
+    .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
+
+  return pointFeatureCollection;
 };
 
 export const addBearingToTrackPoints = feature => ({
@@ -101,11 +118,13 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
 
 export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   let results = [...collection];
-  if (envelope.from) {
-    results = results.slice(0, envelope.from + 1);
+  const { from, until } = envelope;
+
+  if (from) {
+    results = results.slice(0, from + 1);
   }
-  if (envelope.until) {
-    results = results.slice(envelope.until, collection.length + 1);
+  if (until) {
+    results = results.slice(until, collection.length + 1);
   }
   return results;
 };
@@ -129,20 +148,23 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   const { active:timeSliderActive } = timeSliderState;
   
   const results = ids.map((id) => {
-    const track = tracks[id];
-  
+    let dateRange;
     const { length, origin:trackLengthOrigin } = trackLength;
     const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
-    
-    let dateRange;
-  
+
     if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
     } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.customLength) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
+
+    if (!tracks[id]) {
+      return store.dispatch(fetchTracks(dateRange, cancelToken, id));
+    }
+    
+    const { track } = tracks[id];
   
-    if (!track || !trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
+    if (!trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
       return store.dispatch(fetchTracks(dateRange, cancelToken, id));
     }
     return Promise.resolve(track);
@@ -151,10 +173,40 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   return Promise.all(results);
 };
 
-export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = null, until = null) => {
-  if (!from && !until) return featureCollection;
+export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
+  if (!from && !until) return { track, points };
+
+  const [originalTrack] = track.features;
+
+  const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
+
+  if (window.isNaN(indices.from) && window.isNaN(indices.until)) {
+    return { track, points };
+  }
+
+  const trackResults = cloneDeep(originalTrack);
+
+  trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
+  trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
+
+  if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
+    const lastIndex = originalTrack.geometry.coordinates.length - 1;
+    trackResults.geometry.coordinates = [originalTrack.geometry.coordinates[lastIndex]];
+    trackResults.properties.coordinateProperties.times = [trackResults.properties.coordinateProperties.times[lastIndex]];
+  }
 
   return {
+    track: {
+      ...track,
+      features: [trackResults],
+    },
+    points: {
+      ...points,
+      features: trimArrayWithEnvelopeIndices(points.features, indices),
+    },
+  };
+
+/*   return {
     ...featureCollection,
     features: featureCollection.features.map((feature) => {
       const envelope = findTimeEnvelopeIndices(feature.properties.coordinateProperties.times, from, until);
@@ -177,6 +229,32 @@ export const trimTrackFeatureCollectionToTimeRange = (featureCollection, from = 
           
       return results;
     }),
-  };
+  }; */
+};
 
+export const addSocketStatusUpdateToTrack = (tracks, update) => {
+  const { track, points } = tracks;
+
+  const [trackFeature] = track.features;
+
+  if (update.geometry
+    && !isEqual(update.geometry.coordinates, trackFeature.geometry.coordinates[0])) {
+    const updatedTrack = {
+      ...track,
+    };
+    updatedTrack.features[0].geometry.coordinates.unshift(update.geometry.coordinates);
+    updatedTrack.features[0].properties.coordinateProperties.times.unshift(update.properties.coordinateProperties.time);
+
+    const updatedPoints = {
+      ...points,
+    };
+
+    updatedPoints.features.unshift(update);
+    updatedPoints.features[1].properties.bearing = bearing(updatedPoints.features[1].geometry.coordinates, updatedPoints.features[0].geometry.coordinates);
+  
+    return {
+      track: updatedTrack, points: updatedPoints,
+    };
+  }
+  return tracks;
 };
