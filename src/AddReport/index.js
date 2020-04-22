@@ -92,7 +92,7 @@ const AddReport = (props) => {
     )}
   </ul>;
 
-  const reportTypeItems = hasEventCategories ? eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem) : '';
+  const reportTypeItems = hasEventCategories ? eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem) : null;
 
   const reportTypeList = <ul className={styles.reportTypeMenu}>
     {reportTypeItems}
