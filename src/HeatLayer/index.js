@@ -36,7 +36,7 @@ const HeatLayer = ({ heatmapStyles, points }) => {
 
   return <Fragment>
     <Source id={`heatmap-source-${idRef.current}`} geoJsonSource={sourceData} />;
-    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={TOPMOST_STYLE_LAYER} id={`${HEATMAP_LAYER}-${idRef.current}`} type="heatmap" />
+    <Layer sourceId={`heatmap-source-${idRef.current}`}  paint={paint} before={TOPMOST_STYLE_LAYER} id={`${HEATMAP_LAYER}-${idRef.current}`} type='heatmap' />
   </Fragment>;
 };
 

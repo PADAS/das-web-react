@@ -1,8 +1,10 @@
-import React, { memo, useEffect, Fragment } from 'react';
+import React, { memo, useCallback, useEffect, Fragment } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
 import { addMapImage } from '../utils/map';
+import { trimmedVisibleTrackData } from '../selectors/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
@@ -12,8 +14,13 @@ const ARROW_IMG_ID = 'track_arrow';
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const TracksLayer = (props) => {
-  const { map, onPointClick, trackIds, showTimepoints } = props;
-  const onSymbolClick = (e) => onPointClick(getPointLayer(e, map));
+  const { map, onPointClick, showTimepoints, trackData } = props;
+
+
+  const onTimepointClick = useCallback((e) => {
+    const layer = getPointLayer(e, map);
+    onPointClick(layer);
+  }, [map, onPointClick]);
 
 
   useEffect(() => {
@@ -22,10 +29,19 @@ const TracksLayer = (props) => {
     }
   }, []); // eslint-disable-line
 
-  return <Fragment>{trackIds.map(id => <TrackLayer key={`track-layer-${id}`} map={map} onPointClick={onSymbolClick} showTimepoints={showTimepoints} trackId={id} />)}</Fragment>;
+  if (!trackData.length) return null;
+
+  return <Fragment>{trackData.map(data => <TrackLayer key={`track-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />)}</Fragment>;
 };
 
-export default withMap(memo(TracksLayer));
+const mapStateToProps = (state) => ({
+  trackData: trimmedVisibleTrackData(state),
+});
+
+
+export default connect(mapStateToProps, null)(withMap(
+  memo(TracksLayer),
+));
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {
@@ -36,7 +52,6 @@ TracksLayer.defaultProps = {
 
 TracksLayer.propTypes = {
   map: PropTypes.object.isRequired,
-  trackIds: PropTypes.array.isRequired,
   onPointClick: PropTypes.func,
   showTimepoints: PropTypes.bool,
 };
