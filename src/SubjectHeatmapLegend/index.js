@@ -6,7 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
 import { trackEvent } from '../utils/analytics';
-import { trimmedVisibleHeatmapTrackFeatureCollection, trimmedHeatmapPointFeatureCollection } from '../selectors/tracks';
+import { trimmedHeatmapTrackData } from '../selectors/tracks';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
 import HeatmapLegend from '../HeatmapLegend';
@@ -15,38 +15,21 @@ import { ReactComponent as InfoIcon } from '../common/images/icons/information.s
 
 import styles from './styles.module.scss';
 
-const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, trackLength: { length:track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
-  const subjectCount = tracks.features.length;
-  const trackPointCount = tracksAsPoints.features.length;
-  let displayTitle, iconSrc;
-
-  const onRemoveTrackClick = ({ target: { value: id } }) => {
-    trackEvent('Map Interaction', 'Remove Subject Tracks Via Heatmap Legend Popover');
-    updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
-  };
-
-  const convertTrackToSubjectDetailListItem = (feature) => {
-    const { properties: { title, image, id } } = feature;
+const TitleElement = memo((props) => { // eslint-disable-line
+  const { displayTitle, iconSrc, subjectCount, trackData, onRemoveTrackClick } = props;
+  const convertTrackToSubjectDetailListItem = ({ track }) => {
+    const { properties: { title, image, id }, geometry } = track.features[0];
 
     return <li key={id}>
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        <small>{feature.geometry ? feature.geometry.coordinates.length : 0} points</small>
+        <small>{geometry.coordinates.length} points</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
   };
-
-  if (subjectCount === 1) {
-    const { title, image } = tracks.features[0].properties;
-    displayTitle = `${title}`;
-    iconSrc = image;
-  } else {
-    displayTitle = `${tracks.features.length} subjects`;
-  }
-
-  const titleElement = <h6>
+  return <h6>
     {displayTitle}
     {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {subjectCount > 1 && <OverlayTrigger
@@ -54,7 +37,7 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, trackLength: { length:tr
       onEntered={() => trackEvent('Map Interaction', 'Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
         <Popover className={styles.popover} id="track-details">
           <ul>
-            {tracks.features.map(convertTrackToSubjectDetailListItem)}
+            {trackData.map(convertTrackToSubjectDetailListItem)}
           </ul>
         </Popover>
       }>
@@ -63,17 +46,35 @@ const SubjectHeatmapLegend = ({ tracks, tracksAsPoints, trackLength: { length:tr
       </button>
     </OverlayTrigger>}
   </h6>;
+});
+
+const SubjectHeatmapLegend = ({ trackData, trackLength: { length:track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
+  const subjectCount = trackData.length;
+  const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
+  let displayTitle, iconSrc;
+
+  if (subjectCount === 1) {
+    const { title, image } = trackData[0].track.features[0].properties;
+    displayTitle = `${title}`;
+    iconSrc = image;
+  } else {
+    displayTitle = `${subjectCount} subjects`;
+  }
+
+  const onRemoveTrackClick = ({ target: { value: id } }) => {
+    trackEvent('Map Interaction', 'Remove Subject Tracks Via Heatmap Legend Popover');
+    updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
+  };
 
   return <HeatmapLegend
-    title={titleElement}
+    title={<TitleElement displayTitle={displayTitle} iconSrc={iconSrc} subjectCount={subjectCount} trackData={trackData} onRemoveTrackClick={onRemoveTrackClick} />}
     pointCount={trackPointCount}
     dayCount={track_days}
     onClose={onClose} />;
 };
 
 const mapStateToProps = (state) => ({
-  tracks: trimmedVisibleHeatmapTrackFeatureCollection(state),
-  tracksAsPoints: trimmedHeatmapPointFeatureCollection(state),
+  trackData: trimmedHeatmapTrackData(state),
   trackLength: state.view.trackLength,
   heatmapSubjectIDs: state.view.heatmapSubjectIDs,
 });

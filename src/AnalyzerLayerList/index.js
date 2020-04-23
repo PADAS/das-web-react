@@ -49,7 +49,7 @@ const AnalyzerLayerList = memo((props) => {
     return !hiddenAnalyzerIDs.includes(id);
   };
 
-  const partiallyChecked = (hiddenAnalyzerIDs.length <= analyzerList.length);
+  const partiallyChecked = (hiddenAnalyzerIDs.length < analyzerIds.length);
   const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
 
   const collapsibleShouldBeOpen = false;

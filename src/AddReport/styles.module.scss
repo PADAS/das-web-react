@@ -44,20 +44,20 @@
 
 div.popover {
   padding: 0;
-  width: 20rem;
-  max-width: unset;
+  max-width: 20rem;
+  width: 100vw;
   @media (min-width: $md-layout-width-min) {
-    width: 28rem;
+    max-width: 28rem;
   }
   [class*=popover-body] {
     align-items: center;
     display: flex;
     flex-flow: column;
-    max-height: 18rem;
+    max-height: 22rem;
     padding: 0;
     position: relative;
     @media (min-height: $lg-height-min) {
-      max-height: 26rem;
+      max-height: 28rem;
     }
   }
   [class*=popover-header] {

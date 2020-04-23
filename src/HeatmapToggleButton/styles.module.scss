@@ -28,8 +28,7 @@ $background_image_url: '../common/images/icons/';
   &.hasLabel {
     [class*=spinner] {
       position: relative;
-      right: 0.25rem;
-      top: 0;
+      top: -16%;
     }
   }
 }
