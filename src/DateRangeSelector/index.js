@@ -36,7 +36,7 @@ const DateRangeSelector = (props) => {
   };
 
   return <div className={className || ''}>
-    <div  className={styles.currentSelectedRange}><DateRangeSelectionString startDate={startDate} endDate={endDate} /></div>
+    <div  className={styles.currentSelectedRange}><DateRangeSelectionString className={styles.rangeString} startDate={startDate} endDate={endDate} /></div>
     <div className={styles.dateSelectorWrapper}>
       <label className={styles.label}>
         {startDateLabel && <span>{startDateLabel}</span>}

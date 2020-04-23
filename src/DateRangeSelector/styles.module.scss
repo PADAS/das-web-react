@@ -40,6 +40,10 @@
   }
 }
 
+.rangeString {
+  text-transform: uppercase;
+}
+
 .presets {
   align-items: center;
   background: lighten($light-gray-background, 5%);
