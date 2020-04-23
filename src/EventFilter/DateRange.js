@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 
 const EventFilterDateRangeSelector = (props) => {
-  const { children, eventFilter, updateEventFilter, onStartChange, onEndChange, showLocationLabel, ...rest } = props;
+  const { children, eventFilter, updateEventFilter, onStartChange, onEndChange, ...rest } = props;
 
   const { filter: { date_range } } = eventFilter;
 
@@ -29,7 +29,6 @@ const EventFilterDateRangeSelector = (props) => {
           lower,
           upper,
         },
-        current_selection: label,
       },
     });
   };
@@ -42,7 +41,6 @@ const EventFilterDateRangeSelector = (props) => {
     updateEventFilter({
       filter: {
         date_range: dateRangeUpdate,
-        current_selection: 'filtered',
       },
     });
     trackEvent('Event Filter', 'Change End Date Filter');
@@ -58,7 +56,6 @@ const EventFilterDateRangeSelector = (props) => {
     updateEventFilter({
       filter: {
         date_range: dateRangeUpdate,
-        current_selection: 'filtered',
       },
     });
     trackEvent('Event Filter', 'Change Start Date Filter');
@@ -75,7 +72,6 @@ const EventFilterDateRangeSelector = (props) => {
     showPresets={true}
     startDate={hasLower ? new Date(lower) : lower}
     startDateNullMessage='One month ago'
-    showLocationLabel={showLocationLabel}
     {...rest}
   >
     {children}
