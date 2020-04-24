@@ -164,8 +164,8 @@
 
 .addReportContainer {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
+  top: 0.3666rem;
+  left: 0.3666rem;
   z-index: 10;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .filterWrapper {
-  --height: 5rem;
+  --height: 5.75rem;
   --animation-duration: 0.2s;
   @include slideIn(var(--height),  var(--animation-duration));
   height: 0;
@@ -192,9 +192,7 @@
 
 .eventFilter {
   padding-left: 0.75rem;
-  @media (min-width: $md-layout-width-min) {
-    padding-left: 4rem;
-  }
+  padding-top: 1.25rem;
 }
 
 .friendlyFilterString {

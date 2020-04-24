@@ -101,7 +101,7 @@ div.filterPopover {
       margin-left: 0.25rem;
     }
     @media (min-width: $md-layout-width-min) {
-      --dimensions: 1.5rem;
+      --dimensions: 1.333rem;
     }
   }
   &:hover {
@@ -111,9 +111,10 @@ div.filterPopover {
 
 .filterIcon {
   * {
-    fill: lighten($primary-font-color, 15%);
+    shape-rendering: geometricprecision;
+    stroke: lighten($primary-font-color, 15%);
     &:hover {
-        fill: $primary-font-color;
+        stroke: $primary-font-color;
     }
   }
 }
@@ -131,8 +132,10 @@ div.filterPopover {
   color: $highlight-color;
   .filterIcon * {
     fill: $highlight-color;
+    stroke: $highlight-color;
     &:hover {
       fill: darken($highlight-color, 6%);
+      stroke: darken($highlight-color, 6%);
     }
   }
   .clockIcon * {

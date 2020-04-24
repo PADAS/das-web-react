@@ -1,10 +1,14 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
+import debounceRender from 'react-debounce-render';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
+
+const DebouncedLayer = debounceRender(Layer, 200);
+const DebouncedSource = debounceRender(Source, 200);
 
 const trackLayerLinePaint = {
   'line-color': [
@@ -60,12 +64,12 @@ const TrackLayer = (props) => {
 
   return <Fragment>
     <Source id={sourceId} geoJsonSource={trackSourceConfig} />
-    <Source id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
+    <DebouncedSource id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
 
     <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
       paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
 
-    {showTimepoints && <Layer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
+    {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
       onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}
