@@ -239,7 +239,7 @@ const EventFilter = (props) => {
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Report Date Range
-        <Button type="button" variant='primary' size='sm'
+        <Button type="button" variant='light' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
     </Popover.Title>
@@ -252,7 +252,7 @@ const EventFilter = (props) => {
     <Popover.Title>
       <div className={styles.popoverTitle}>
         Report Filters
-        <Button type="button" variant='primary' size='sm'
+        <Button type="button" variant='light' size='sm'
           onClick={resetPopoverFilters} disabled={!filterModified}>Reset all</Button>
       </div>
     </Popover.Title>
