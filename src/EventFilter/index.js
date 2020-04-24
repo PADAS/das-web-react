@@ -37,6 +37,7 @@ const EventFilter = (props) => {
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
 
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
+  const [reportTypeFilterText, setReportTypeFilterText] = useState('');
 
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
   const someReportTypesChecked = !eventTypeFilterEmpty && !!reportTypesCheckedCount;
@@ -66,6 +67,12 @@ const EventFilter = (props) => {
       trackEvent('Event Filter', 'Check All Event Types Filter');
       updateEventFilter({ filter: { event_type: [] } });
     }
+  };
+
+  const resetReportTypes = (_e) => {
+    trackEvent('Event Filter', 'Reset Event Types Filter');
+    setReportTypeFilterText('');
+    updateEventFilter({ filter: { event_type: [] } });
   };
 
   const onReportCategoryToggle = ({ value }) => {
@@ -153,6 +160,7 @@ const EventFilter = (props) => {
         reported_by: INITIAL_FILTER_STATE.filter.reported_by,
       },
     });
+    setReportTypeFilterText('');
     trackEvent('Event Filter', 'Click Reset All Filters');
   };
 
@@ -236,7 +244,7 @@ const EventFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <EventFilterDateRangeSelector endDateLabel='' startDateLabel='' />
+      <EventFilterDateRangeSelector endDateLabel='' startDateLabel=''/>
     </Popover.Content>
   </Popover>;
 
@@ -277,9 +285,9 @@ const EventFilter = (props) => {
             {someReportTypesChecked && `${reportTypesCheckedCount} of ${eventTypeIDs.length} selected`}
             {noReportTypesChecked && 'None selected'}
           </small>
-          <Button type="button" variant='light' size='sm' disabled={eventTypeFilterEmpty} onClick={toggleAllReportTypes}>Reset</Button>
+          <Button type="button" variant='light' size='sm' disabled={eventTypeFilterEmpty} onClick={resetReportTypes}>Reset</Button>
         </h5>
-        <ReportTypeMultiSelect selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
+        <ReportTypeMultiSelect filter={reportTypeFilterText} onFilterChange={setReportTypeFilterText} selectedReportTypeIDs={currentFilterReportTypes} onCategoryToggle={onReportCategoryToggle} onFilteredItemsSelect={onFilteredReportsSelect} onTypeToggle={onReportTypeToggle} />
       </div>
     </Popover.Content>
   </Popover>;

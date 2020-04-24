@@ -62,7 +62,7 @@ const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, 
 
   const labelPaint = {
     ...DEFAULT_SYMBOL_PAINT,
-    'icon-opacity': 1,
+    'icon-opacity': 0.5,
     'icon-color': '#ffffff',
     ...textPaint,
   };

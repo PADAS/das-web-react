@@ -150,28 +150,26 @@ const App = (props) => {
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  return <ErrorBoundary>
-    <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
-      <PrintTitle />
-      <Nav map={map} />
-      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+    <PrintTitle />
+    <Nav map={map} />
+    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
-        <ErrorBoundary>
-          <Map map={map} onMapLoad={onMapHasLoaded} />
-        </ErrorBoundary>
-        <ErrorBoundary>
-          {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-        </ErrorBoundary>
-        <ModalRenderer />
-      </div>
-      <div style={{
-        display: 'none',
-      }}>
-        <ReportTypeIconSprite id="reportTypeIconSprite" />
-        <EarthRangerLogoSprite />
-      </div>
+      {/* <ErrorBoundary> */}
+      <Map map={map} onMapLoad={onMapHasLoaded} />
+      {/* </ErrorBoundary> */}
+      {/* <ErrorBoundary> */}
+      {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+      {/* </ErrorBoundary> */}
+      <ModalRenderer />
     </div>
-  </ErrorBoundary>;
+    <div style={{
+      display: 'none',
+    }}>
+      <ReportTypeIconSprite id="reportTypeIconSprite" />
+      <EarthRangerLogoSprite />
+    </div>
+  </div>;
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });

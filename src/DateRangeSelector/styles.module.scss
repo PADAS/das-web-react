@@ -40,6 +40,10 @@
   }
 }
 
+.rangeString {
+  text-transform: capitalize;
+}
+
 .presets {
   align-items: center;
   background: lighten($light-gray-background, 5%);
@@ -70,4 +74,12 @@
 
 .dateRangeArrow {
   margin: 0 0.5rem;
+}
+
+.currentSelectedRange{
+  color: lighten($primary-font-color, 25%);
+  display: block; 
+  text-align: center;
+  width: 100%;
+  padding: 0.5rem;
 }

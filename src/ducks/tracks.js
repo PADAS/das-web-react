@@ -3,6 +3,7 @@ import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
+import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -21,7 +22,16 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
       const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams, cancelToken: cancelToken.token })));
 
       const results = responses.reduce((accumulator, response, index) => {
-        accumulator[ids[index]] = response.data.data;
+        /* THE BELOW IS THE SECRET SAUCE FOR SIGNIFICANTLY INCREASING THE EFFICIENCY OF TRACK DATA 
+          COMBINED WITH THE INDICE TRIMMING BY INDEX THIS SHOULD BE ORDERS OF MAGNITUDE FASTER FOR SUBJECT POSITION AND TRACK DATA
+        */
+        const asPoints = convertTrackFeatureCollectionToPoints(response.data.data);
+
+        accumulator[ids[index]] = {
+          track: response.data.data,
+          points: asPoints,
+        };
+
         return accumulator;
       }, {});
 
@@ -62,41 +72,16 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
     const tracks = state[id];
     if (!tracks) return state;
 
-    const [trackFeature] = tracks.features;
+    const [trackFeature] = tracks.track.features;
 
-    if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)) {
-      return state;
-    }
-
-    if (isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
+    if (isEqual(trackFeature.geometry.coordinates[0], payload.geometry.coordinates)
+     || isEqual(trackFeature.properties.coordinateProperties.times[0], payload.properties.coordinateProperties.time)) {
       return state;
     }
 
     return {
       ...state,
-      [id]: {
-        ...tracks,
-        features: [
-          {
-            ...trackFeature,
-            properties: {
-              ...trackFeature.properties,
-              coordinateProperties: {
-                ...trackFeature.coordinateProperties,
-                times: [payload.properties.coordinateProperties.time, ...trackFeature.properties.coordinateProperties.times],
-              },
-            },
-            geometry: {
-              ...trackFeature.geometry,
-              coordinates: [
-                payload.geometry.coordinates,
-                ...trackFeature.geometry.coordinates,
-              ],
-            }
-          }
-        ]
-
-      }
+      [id]: addSocketStatusUpdateToTrack(tracks, payload),
     };
 
   }

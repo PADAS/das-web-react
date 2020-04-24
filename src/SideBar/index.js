@@ -41,7 +41,7 @@ const TAB_KEYS = {
   LAYERS: 'layers',
 };
 
-const { screenIsExtraLargeWidth } = BREAKPOINTS;
+const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
@@ -91,8 +91,17 @@ const SideBar = (props) => {
     }
   }, [sidebarOpen]);
 
-  const isExtraLarge = useMatchMedia(screenIsExtraLargeWidth);
-  const addReportPopoverPlacement = (isExtraLarge && sidebarOpen) ? 'left' : 'auto';
+  const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
+  const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
+
+  const addReportPopoverPlacement = isExtraLargeLayout
+    ? 'left'
+    : (isMediumLayout
+      ? sidebarOpen
+        ? 'auto'
+        : 'left'
+      : 'auto'
+    );
 
   const showEventFeedError = !loadingEvents && !!events.error;
 

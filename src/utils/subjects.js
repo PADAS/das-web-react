@@ -109,7 +109,7 @@ export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tra
 
         if (!trackMatch) return feature;
 
-        const [trackFeature] = trackMatch.features;
+        const [trackFeature] = trackMatch.track.features;
 
         // this guard clause is a bit overboard because we're potentially querying very old/quirky track data.
         if (!trackFeature || !trackFeature.geometry || !trackFeature.geometry.coordinates || !trackFeature.geometry.coordinates.length) {
