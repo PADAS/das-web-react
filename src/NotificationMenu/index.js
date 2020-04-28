@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
@@ -17,14 +18,14 @@ const NotificationItem = (item, index) => {
   return <Item key={index} className={styles.item}>
     <h6>{message}</h6>
     <div className={styles.buttons}>
-      <Button className={styles.button} variant='secondary' onClick={() => onDismiss(item)}>Dismiss</Button>
-      {onConfirm && <Button className={styles.button} variant='info' onClick={() => onConfirm(item)}>{confirmText || 'Confirm'}</Button>}
+      <Button className={styles.button} variant='secondary' onClick={(e) => onDismiss(e, item)}>Dismiss</Button>
+      {onConfirm && <Button className={styles.button} variant='info' onClick={(e) => onConfirm(e, item)}>{confirmText || 'Confirm'}</Button>}
     </div>
 
   </Item>;
 };
 
-const NotificationMenu = ({ notifications = [], ...rest }) => {
+const NotificationMenu = ({ notifications = [], dispatch:_dispatch, ...rest }) => {
   const onToggle = (isOpen) => {
     trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} Notification Menu`);
   };
@@ -42,9 +43,8 @@ const NotificationMenu = ({ notifications = [], ...rest }) => {
 
 };
 
-
-export default memo(NotificationMenu);
-
+const mapStateToProps = ({ view: { userNotifications } }) => ({ notifications:userNotifications });
+export default connect(mapStateToProps, null)(memo(NotificationMenu));
 
 NotificationMenu.propTypes = {
   notifications: PropTypes.arrayOf(
@@ -52,7 +52,7 @@ NotificationMenu.propTypes = {
       message: PropTypes.string.isRequired,
       onDismiss: PropTypes.func.isRequired,
       onConfirm: PropTypes.func,
-      confirmText: PropTypes.func,
+      confirmText: PropTypes.string,
     })
   ),
 };

@@ -10,10 +10,12 @@
   > button + button {
     margin-top: 1rem;
   }
-  @media (min-width: $md-layout-width-min) {
-    flex-flow: row;
-    > button + button {
-      margin-top: 0;
+  &:first-of-type {
+    @media (min-width: $md-layout-width-min) {
+      flex-flow: row;
+      > button + button {
+        margin-top: 0;
+      }
     }
   }
   label {
