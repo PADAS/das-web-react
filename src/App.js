@@ -21,6 +21,7 @@ import { fetchEventSchema } from './ducks/event-schemas';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
+import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 import ErrorBoundary from './ErrorBoundary';
@@ -169,6 +170,7 @@ const App = (props) => {
       <ReportTypeIconSprite id="reportTypeIconSprite" />
       <EarthRangerLogoSprite />
     </div>
+    <ServiceWorkerWatcher />
   </div>;
 };
 
