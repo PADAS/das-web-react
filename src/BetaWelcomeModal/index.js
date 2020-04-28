@@ -31,7 +31,7 @@ const BetaWelcomeModal = (props) => {
       <Title>EarthRanger Beta Preview</Title>
     </Header>
     <Form onSubmit={onClose}>
-      <Body>
+      <Body style={{maxHeight: '60vh', overflowY: 'scroll'}}>
         <p>You have early access to the upcoming version of EarthRanger!</p>
         <p>Here&apos;s what we ask:</p>
         <ul className={styles.list}>
