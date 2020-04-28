@@ -21,7 +21,6 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
   const convertTrackToSubjectDetailListItem = ({ track }) => {
     const { properties: { title, image, id } } = track.features[0];
-    console.log('track', track);
 
     return <li key={id}>
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
