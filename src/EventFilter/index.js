@@ -202,7 +202,13 @@ const EventFilter = (props) => {
       </li>)}
   </ul>;
 
+  const onDateFilterIconClicked = (e) => {
+    trackEvent('Date Filter', 'Open Date Filter');
+  };
 
+  const onEventFilterIconClicked = (e) => {
+    trackEvent('Event Filter', 'Open Event Filter');
+  };
 
   const onSearchChange = ({ target: { value } }) => {
     setFilterText(value);
@@ -296,13 +302,13 @@ const EventFilter = (props) => {
     <div className={styles.controls}>
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
-          <FilterIcon className={styles.filterIcon} />
+          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} />
           <span>Filters</span>
         </span>
       </OverlayTrigger>
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
-          <ClockIcon className={styles.clockIcon} />
+          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
           <span>Dates</span>
         </span>
       </OverlayTrigger>
