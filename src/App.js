@@ -127,7 +127,7 @@ const App = (props) => {
       mapResized = true;
     });
     initZenDesk();
-    setTimeout(hideZenDesk, 1500);
+    setTimeout(hideZenDesk, 3000);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

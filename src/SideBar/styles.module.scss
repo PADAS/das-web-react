@@ -182,12 +182,13 @@
 }
 
 .filterWrapper {
-  --height: 5.75rem;
+  --height: 6rem;
   --animation-duration: 0.2s;
   @include slideIn(var(--height),  var(--animation-duration));
   height: 0;
+  margin-bottom: 0;
   overflow: hidden;
-  transition: var(--animation-duration) height linear;
+  transition: var(--animation-duration) all linear;
 }
 
 .eventFilter {
@@ -199,7 +200,7 @@
   display: block;
   font-size: 0.75rem;
   line-height: normal;
-  padding: 0.5rem 0.5rem 0;
+  padding: 0.5rem 0.5rem 0.75rem;
   transition: 0.3s all linear;
 }
 
@@ -207,9 +208,12 @@
   margin-top: 0.5rem;
 }
 
+
 .sidebarOpen {
   .filterWrapper {
+    border-bottom: 1px solid $light-gray-border;
     height: var(--height);
+    margin-bottom: -0.5rem;
   }
 }
 

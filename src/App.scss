@@ -362,22 +362,28 @@ aside {
 
   .handle {
     @include unstyledButton;
-    background: $off-black;
+    background-color: $off-black;
+    border: 1px solid lighten($off-black, 30%);
+    border-right: none;
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
     font-size: .75rem;
-    height: 4rem;
+    height: 3.9rem;
     width: 1.5rem;
     left: -1.5rem;
-    top: 45%;
+    top: 45.1%;
+    transition: 0.2s border-color linear, 0.2s background-color linear;
     position: absolute;
-
+    &:hover, &:active {
+      border: 1px solid lighten($off-black, 25%);
+      border-right: none;
+    }
     &:hover {
-      background: darken($off-black, 10%);
+      background-color: darken($off-black, 10%);
     }
 
     &:active {
-      background: darken($off-black, 16%);
+      background-color: darken($off-black, 16%);
     }
 
     span {

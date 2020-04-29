@@ -27,7 +27,7 @@ const trackLayerLineLayout = {
 const timepointLayerLayout = {
   'icon-allow-overlap': ['step', ['zoom'], false, 15, true],
   'icon-anchor': 'bottom',
-  'icon-size': ['step', ['zoom'], 0, 11, 0.3/MAP_ICON_SCALE, 15, 0.5/MAP_ICON_SCALE, 17, 0.6/MAP_ICON_SCALE],
+  'icon-size': ['step', ['zoom'], 0, 11, 0.3/MAP_ICON_SCALE, 15, 0.5/MAP_ICON_SCALE],
   'icon-rotate': ['get', 'bearing'],
   'icon-image': 'track_arrow',
   'icon-pitch-alignment': 'map',
