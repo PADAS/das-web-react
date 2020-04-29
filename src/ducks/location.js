@@ -12,11 +12,11 @@ const userLocationReducer = (state = INITIAL_LOCATION_STATE, { type, payload }) 
   if (type === USER_LOCATION_RETRIEVED) {
     return payload;
   };
-  if (state && state.timestamp) { /* five minute expiration window for stored user location */
-    if (((new Date() - new Date(state.timestamp)) / 1000) > 300) {
-      return INITIAL_LOCATION_STATE;
-    }
-  }
+  // if (state && state.timestamp) { /* five minute expiration window for stored user location */
+  //   if (((new Date() - new Date(state.timestamp)) / 1000) > 300) {
+  //     return INITIAL_LOCATION_STATE;
+  //   }
+  // }
   return state;
 };
 

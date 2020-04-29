@@ -9,6 +9,7 @@ import 'axios-progress-bar/dist/nprogress.css';
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
+import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
@@ -21,16 +22,17 @@ import { fetchEventSchema } from './ducks/event-schemas';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
+import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-import ErrorBoundary from './ErrorBoundary';
+// import ErrorBoundary from './ErrorBoundary';
 
 import './App.scss';
 import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-let interval, mapInterval, zendeskInterval;
+let interval, mapInterval;
 
 
 const resizeInterval = (map) => {
@@ -45,17 +47,6 @@ const resizeInterval = (map) => {
   }, numberOfFrames);
 };
 
-const setZendeskInterval = () => {
-  zendeskInterval = setInterval(() => {
-    if (window.zE && window.zE.hide) {
-      window.zE(function () {
-        window.zE.hide();
-        clearInterval(zendeskInterval);
-      });
-    }
-  }, 1000);
-};
-
 let mapResized = false;
 
 // use this block to do direct map event binding.
@@ -66,7 +57,7 @@ const bindDirectMapEventing = (map) => {
 };
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, zendeskEnabled } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -135,13 +126,9 @@ const App = (props) => {
     window.addEventListener('resize', () => {
       mapResized = true;
     });
+    initZenDesk();
+    setTimeout(hideZenDesk, 1500);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (zendeskEnabled) {
-      setZendeskInterval();
-    }
-  }, [zendeskEnabled]);
 
   useEffect(() => {
     if (map) {
@@ -169,9 +156,10 @@ const App = (props) => {
       <ReportTypeIconSprite id="reportTypeIconSprite" />
       <EarthRangerLogoSprite />
     </div>
+    <ServiceWorkerWatcher />
   </div>;
 };
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, systemConfig: { zendeskEnabled }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen, zendeskEnabled });
+const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });
 
 export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
