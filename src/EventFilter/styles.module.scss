@@ -88,12 +88,14 @@ div.filterPopover {
 }
 
 .popoverTrigger {
+  --transition-timing: 0.15s;
   align-items: center;
-  color: lighten($primary-font-color, 15%);
+  color: lighten($primary-font-color, 22.5%);
   cursor: pointer;
   display: flex;
   flex-flow: column;
   line-height: normal;
+  transition: var(--transition-timing) linear color;
   svg {
     --dimensions: 1rem;
     height: var(--dimensions);
@@ -103,38 +105,50 @@ div.filterPopover {
       margin-left: 0.25rem;
     }
     @media (min-width: $md-layout-width-min) {
-      --dimensions: 1.5rem;
+      --dimensions: 1.333rem;
+    }
+    * {
+      shape-rendering: geometricprecision;
+      stroke: lighten($primary-font-color, 15%);
+      transition: var(--transition-timing) linear stroke;
     }
   }
   &:hover {
     color: $primary-font-color;
-  }
-}
-
-.filterIcon {
-  * {
-    fill: lighten($primary-font-color, 15%);
-    &:hover {
-        fill: $primary-font-color;
-    }
-  }
-}
-
-.clockIcon {
-  * {
-    stroke: lighten($primary-font-color, 15%);
-    &:hover {
+    svg * {
       stroke: $primary-font-color;
     }
   }
 }
 
+.filterIcon {
+  * {
+    shape-rendering: geometricprecision;
+    stroke: lighten($primary-font-color, 15%);
+  }
+  &:hover * {
+    stroke: $primary-font-color;
+}
+}
+
+.clockIcon {
+  * {
+    stroke: lighten($primary-font-color, 15%);
+  }
+  &:hover * {
+    stroke: $primary-font-color;
+  }
+}
+
+
 .modified {
   color: $highlight-color;
   .filterIcon * {
     fill: $highlight-color;
+    stroke: $highlight-color;
     &:hover {
       fill: darken($highlight-color, 6%);
+      stroke: darken($highlight-color, 6%);
     }
   }
   .clockIcon * {

@@ -98,9 +98,7 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
   };
   if (from) {
     const fromIndex = findDateIndexInRange(times, from);
-    if (fromIndex > -1) {
-      results.from = fromIndex;
-    }
+    results.from = fromIndex;
   }
   if (until) {
     const untilIndex = findDateIndexInRange(times, until);
@@ -120,10 +118,10 @@ export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   let results = [...collection];
   const { from, until } = envelope;
 
-  if (from) {
+  if (!window.isNaN(from)) {
     results = results.slice(0, from + 1);
   }
-  if (until) {
+  if (!window.isNaN(until)) {
     results = results.slice(until, collection.length + 1);
   }
   return results;

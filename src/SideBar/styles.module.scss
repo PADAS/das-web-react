@@ -164,8 +164,8 @@
 
 .addReportContainer {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
+  top: 0.3666rem;
+  left: 0.3666rem;
   z-index: 10;
 }
 
@@ -182,36 +182,38 @@
 }
 
 .filterWrapper {
-  --height: 5rem;
+  --height: 6rem;
   --animation-duration: 0.2s;
   @include slideIn(var(--height),  var(--animation-duration));
   height: 0;
+  margin-bottom: 0;
   overflow: hidden;
-  transition: var(--animation-duration) height linear;
+  transition: var(--animation-duration) all linear;
 }
 
 .eventFilter {
   padding-left: 0.75rem;
-  @media (min-width: $md-layout-width-min) {
-    padding-left: 4rem;
-  }
+  padding-top: 1.25rem;
 }
 
 .friendlyFilterString {
   display: block;
   font-size: 0.75rem;
   line-height: normal;
-  padding: 0.5rem 0.5rem 0;
+  padding: 0.5rem 0.5rem 0.75rem;
   transition: 0.3s all linear;
 }
 
 .sidebarEventFeed {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
+
 
 .sidebarOpen {
   .filterWrapper {
+    border-bottom: 1px solid $light-gray-border;
     height: var(--height);
+    margin-bottom: -0.75rem;
   }
 }
 

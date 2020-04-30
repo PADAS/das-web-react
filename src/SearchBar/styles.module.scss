@@ -3,7 +3,9 @@
 $unfiltered-color : $secondary-light-gray;
 $filtered-color : $highlight-color;
 
+
 .search {
+  --transition-timing: 0.15s;
   align-items: center;
   display: flex;
   input {
@@ -23,8 +25,9 @@ $filtered-color : $highlight-color;
     }
   }
   .searchIcon {
-    height: 1.5rem;
-    width: 1.5rem;
+    --dimensions: 1.25rem;
+    height: var(--dimensions);
+    width: var(--dimensions);
     circle {
       fill: none;
       stroke: $unfiltered-color;
@@ -32,6 +35,9 @@ $filtered-color : $highlight-color;
     }
     path {
       fill: $unfiltered-color;
+    }
+    * {
+      transition: var(--transition-timing) linear stroke, fill;
     }
   }
   .clearButton {
@@ -44,7 +50,7 @@ $filtered-color : $highlight-color;
     background: white;
     visibility: hidden;
     right: 1rem;
-    cursor: pointer; 
+    cursor: pointer;
     &:hover > svg * {
       stroke: $filtered-color;
     }
@@ -58,6 +64,7 @@ $filtered-color : $highlight-color;
   &.isFiltered {
     input {
       border-bottom: 1px solid $filtered-color;
+      transition: var(--transition-timing) linear border-bottom;
     }
     .searchIcon {
       circle {
