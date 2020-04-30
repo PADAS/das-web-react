@@ -12,4 +12,11 @@ export const initZenDesk = () => window.zE || (function (e, t, s) {
   r.parentNode.insertBefore(a, r); 
 })(document, 'script', 'a65d5e9f-47c6-40c5-97e6-8d0f16721de2');
 
-export const hideZenDesk = () => window.zE && window.zE.hide();
+export const hideZenDesk = () => {
+  const interval = window.setInterval(() => {
+    if (window.zE && window.zE.hide) {
+      window.zE.hide();
+      window.clearInterval(interval);
+    }
+  }, 1000);
+};
