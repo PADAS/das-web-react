@@ -8,11 +8,13 @@ import { mapReportTypesToCategories } from '../utils/event-types';
 import CheckableList from '../CheckableList';
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
-import { trackEvent } from '../utils/analytics';
+import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
 const filterProps = ['display', 'value', 'category.display'];
+
+const trackTextAnalytics = debouncedTrackEvent();
 
 const filterEventTypes = (eventTypes, filterText) =>
   eventTypes.filter(item =>
@@ -38,7 +40,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const onSearchValueChange = ({ target: { value } }) => { 
     onFilterChange(value);
-    trackEvent('Event Filter', 'Change Report Type Text Filter')
+    trackTextAnalytics('Event Filter', 'Change Report Type Text Filter');
   };
 
   const onFilterClear = () => { 
@@ -64,7 +66,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const selectFilteredItems = () => {
     onFilteredItemsSelect(filteredEventTypes);
-    trackEvent('Event Filter', 'Set Selected Report Types');
+    trackEvent('Event Filter', 'Set Selected Report Types From Searchbar');
   };
 
   const reportTypeChecked = (type) => noEventTypeSetInFilter ? true : selectedReportTypeIDs.includes(type.id);

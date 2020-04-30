@@ -16,7 +16,7 @@ const MapLegend = (props) => {
       <CloseIcon />
     </button>
     {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' 
-      onEntered={() => trackEvent('Map Interaction', 'Show Heatmap Settings')} overlay={
+      onEntered={() => trackEvent('Map Interaction', 'Heatmap Settings Clicked')} overlay={
       <Popover className={styles.controlPopover}>
         {settingsComponent}
       </Popover>
