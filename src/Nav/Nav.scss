@@ -62,7 +62,6 @@
   
   .dropdown-toggle {
     @include unstyledDropdown;
-    align-items: flex-end;
   }
 
   .dropdown-item {
