@@ -203,11 +203,11 @@ const EventFilter = (props) => {
   </ul>;
 
   const onDateFilterIconClicked = (e) => {
-    trackEvent('Date Filter', 'Open Date Filter');
+    trackEvent('Date Filter', 'Date Filter Clicked');
   };
 
   const onEventFilterIconClicked = (e) => {
-    trackEvent('Event Filter', 'Open Event Filter');
+    trackEvent('Event Filter', 'Event Filter Clicked');
   };
 
   const onSearchChange = ({ target: { value } }) => {
