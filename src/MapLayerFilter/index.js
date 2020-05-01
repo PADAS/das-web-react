@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
 import { updateMapLayerFilter } from '../ducks/map-layer-filter';
-import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
+import { trackEvent } from '../utils/analytics';
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
@@ -10,7 +10,6 @@ import styles from './styles.module.scss';
 const MapLayerFilter = (props) => {
   const { mapLayerFilter, updateMapLayerFilter } = props;
   const { filter: { text } } = mapLayerFilter;
-  const trackEventDebounced = debouncedTrackEvent();
 
   const onClearSearch = (e) => {
     e.stopPropagation();
@@ -26,7 +25,7 @@ const MapLayerFilter = (props) => {
         text: !!value ? value.toLowerCase() : null,
       }
     });
-    trackEventDebounced('Map Layers', 'Change Search Text Filter');
+    trackEvent('Map Layers', 'Change Search Text Filter');
   };
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>

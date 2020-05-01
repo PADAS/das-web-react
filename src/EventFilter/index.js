@@ -11,7 +11,7 @@ import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
+import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
 
 import { reportedBy } from '../selectors';
@@ -33,8 +33,6 @@ const EventFilter = (props) => {
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
-
-  const trackEventDebounced = debouncedTrackEvent();
 
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
 
@@ -214,7 +212,7 @@ const EventFilter = (props) => {
 
   const onSearchChange = ({ target: { value } }) => {
     setFilterText(value);
-    trackEventDebounced('Event Filter', 'Change Search Text Filter');
+    trackEvent('Event Filter', 'Change Search Text Filter');
   };
 
   const onSearchClear = (e) => {
