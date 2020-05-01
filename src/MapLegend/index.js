@@ -17,10 +17,10 @@ const MapLegend = (props) => {
     </button>
     {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' 
       onEntered={() => trackEvent('Map Interaction', 'Heatmap Settings Clicked')} overlay={
-      <Popover className={styles.controlPopover}>
-        {settingsComponent}
-      </Popover>
-    }>
+        <Popover className={styles.controlPopover}>
+          {settingsComponent}
+        </Popover>
+      }>
       <button type="button" className={styles.gearButton}></button>
     </OverlayTrigger>}
   </div>;

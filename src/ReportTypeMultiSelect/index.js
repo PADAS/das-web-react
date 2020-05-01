@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 
 const filterProps = ['display', 'value', 'category.display'];
 
-const trackTextAnalytics = debouncedTrackEvent();
+const trackEventDebounced = debouncedTrackEvent();
 
 const filterEventTypes = (eventTypes, filterText) =>
   eventTypes.filter(item =>
@@ -40,7 +40,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const onSearchValueChange = ({ target: { value } }) => { 
     onFilterChange(value);
-    trackTextAnalytics('Event Filter', 'Change Report Type Text Filter');
+    trackEventDebounced('Event Filter', 'Change Report Type Text Filter');
   };
 
   const onFilterClear = () => { 
