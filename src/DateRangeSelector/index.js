@@ -64,7 +64,7 @@ const DateRangeSelector = (props) => {
 
       <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateDaysAgoDate(1),
-        upper: null,
+        upper: generateDaysAgoDate(0),
       }, 'yesterday')}>Yesterday</Button>
 
       <Button variant='link' onClick={() => onClickDateRangePreset({

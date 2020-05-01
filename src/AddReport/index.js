@@ -70,39 +70,53 @@ const AddReport = (props) => {
     setPopoverState(false);
   };
 
-  const createListItem = (reportType) => {
-    return <li key={reportType.id}>
-      <button type='button' onClick={() => startEditNewReport(reportType)}>
-        <EventTypeListItem {...reportType} />
-      </button>
-    </li>;
-  };
-
   const onCategoryClick = (category) => {
     selectCategory(category);
     trackEvent('Feed', `Click '${category}' Category option`);
   };
 
-  const categoryList = <ul className={styles.categoryMenu}>
-    {eventsByCategory.map(({ value, display }) =>
-      <li key={value}>
-        <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
-          onClick={() => onCategoryClick(value)}>{display}</button>
-      </li>
-    )}
-  </ul>;
 
-  const reportTypeItems = hasEventCategories ? eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem) : null;
+  const CategoryList = (props) => {
+    const { eventsByCategory, selectedCategory, onCategoryClick } = props;
 
-  const reportTypeList = <ul className={styles.reportTypeMenu}>
-    {reportTypeItems}
-  </ul>; 
+    return <ul className={styles.categoryMenu}>
+      {eventsByCategory
+        .sort((cat, cat2) => {
+          const first = typeof cat.ordernum === 'number' ? cat.ordernum : 0;
+          const second = typeof cat2.ordernum === 'number' ? cat.ordernum : 0;
+
+          return second - first;
+        })
+        .map(({ value, display }) =>
+          <li key={value}>
+            <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
+              onClick={() => onCategoryClick(value)}>{display}</button>
+          </li>
+        )}
+    </ul>;
+  };
+
+  const ReportTypeList = (props) => {
+    const { eventsByCategory, selectedCategory } = props;
+
+    const createListItem = (reportType) => {
+      return <li key={reportType.id}>
+        <button type='button' onClick={() => startEditNewReport(reportType)}>
+          <EventTypeListItem {...reportType} />
+        </button>
+      </li>;
+    };
+
+    return !!eventsByCategory.length && <ul className={styles.reportTypeMenu}>
+      {eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem)}
+    </ul>;
+  };
 
   const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}> {/* eslint-disable-line react/display-name */}
     <Popover.Title>{title}</Popover.Title>
     <Popover.Content>
-      {categoryList}
-      {reportTypeList}
+      <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
+      <ReportTypeList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} />
     </Popover.Content>
   </Popover>
   );
