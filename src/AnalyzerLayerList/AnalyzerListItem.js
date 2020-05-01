@@ -14,7 +14,7 @@ import listStyles from '../SideBar/styles.module.scss';
 
 // eslint-disable-next-line react/display-name
 const AnalyzerListItem = memo((props) => {
-  const { features, map } = props;
+  const { features, id, map } = props;
   const { properties } = features[0];
 
   const iconForCategory = category => {
@@ -30,7 +30,7 @@ const AnalyzerListItem = memo((props) => {
     }, 200);
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
-    props.showPopup('analyzer-config', { geometry, properties });
+    props.showPopup('analyzer-config', { geometry, properties, analyzerId: id, });
     trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
       `Feature Type:${properties.type_name}`);
   };

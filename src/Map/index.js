@@ -15,14 +15,14 @@ import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
-import { openModalForReport } from '../utils/events';
+import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getVisibleTrackIds } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
-import { getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
+import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
@@ -104,7 +104,7 @@ class Map extends Component {
     if (!this.props.map) return;
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
-      this.props.socket.emit('event_filter', this.props.eventFilter);
+      this.props.socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
       this.debouncedFetchMapData();
       if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
         && !isEqual(prev.eventFilter.filter.date_range, this.props.eventFilter.filter.date_range)) {
@@ -138,12 +138,15 @@ class Map extends Component {
         });
       }
     }
-    if (
-      this.props.popup 
-      && this.props.popup.type === 'feature-symbol'
-      && this.props.hiddenFeatureIDs.includes(this.props.popup.data.properties.id)
-    ) {
-      this.props.hidePopup(this.props.popup.id);
+    if (!!this.props.popup) {
+      const { type } = this.props.popup;
+
+      if (type === 'feature-symbol' && this.props.hiddenFeatureIDs.includes(this.props.popup.data.properties.id)) {
+        this.props.hidePopup(this.props.popup.id);
+      }
+      if (type === 'analyzer-config' && this.props.hiddenAnalyzerIDs.includes(this.props.popup.data.analyzerId)) {
+        this.props.hidePopup(this.props.popup.id);
+      }
     }
   }
   setTrackLengthToEventFilterRange() {
@@ -277,7 +280,8 @@ class Map extends Component {
     setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
     const properties = features[0].properties;
     const geometry = e.lngLat;
-    this.props.showPopup('analyzer-config', { geometry, properties });
+    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
+    this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
   }
 
   hideUnpinnedTrackLayers(map, event) {
@@ -473,13 +477,14 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter } = data;
-  const { hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
+  const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
     maps,
     heatmapSubjectIDs,
     tracks,
+    hiddenAnalyzerIDs,
     hiddenFeatureIDs,
     homeMap,
     mapIsLocked,

@@ -7,6 +7,7 @@ import intersection from 'lodash/intersection';
 import isEqual from 'react-fast-compare';
 import { hideAnalyzers, showAnalyzers } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
+import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import CheckableList from '../CheckableList';
 import { getAnalyzerListState } from './selectors';
 import { analyzerFeatures } from '../selectors';
@@ -35,11 +36,19 @@ const AnalyzerLayerList = memo((props) => {
   const onToggleAllFeatures = (e) => {
     e.stopPropagation();
 
+
     if (allVisible) {
+      const allFeatureIds = analyzers.reduce((accumulator, analyzer) => {
+        return [...accumulator, ...analyzer.features.map(f => f.properties.id)];
+      }, []);
+
       trackEvent('Map Layers', 'Uncheck All Features checkbox');
+      analyzerIds.forEach((id) => setAnalyzerFeatureActiveStateForIDs(map, allFeatureIds, false));
+
       return hideAllAnalyzers();
     } else {
       trackEvent('Map Layers', 'Check All Features checkbox');
+
       return showAllAnalyzers();
     }
   };
@@ -54,11 +63,13 @@ const AnalyzerLayerList = memo((props) => {
 
   const collapsibleShouldBeOpen = false;
 
-  const onAnalyzerClick = (item) => {
-
+  const onCheckClick = (item) => {
     const { id } = item;
+    
+
     if (featureIsVisible(item)) {
       trackEvent('Map Layer', 'Uncheck Analyzer checkbox');
+      setAnalyzerFeatureActiveStateForIDs(map, item.features.map(f => f.properties.id), false);
       return hideAnalyzers(id);
     } else {
       trackEvent('Map Layer', 'Check Analyzer checkbox');
@@ -88,7 +99,7 @@ const AnalyzerLayerList = memo((props) => {
       <CheckableList
         className={`${listStyles.list} ${listStyles.itemList} ${listStyles.compressed}`}
         id='analyzergroup'
-        onCheckClick={onAnalyzerClick}
+        onCheckClick={onCheckClick}
         itemComponent={AnalyzerListItem}
         itemProps={itemProps}
         items={analyzers}
