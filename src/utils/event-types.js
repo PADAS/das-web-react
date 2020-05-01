@@ -53,5 +53,10 @@ export const mapReportTypesToCategories = eventTypes => eventTypes
     }
     return accumulator;
   }, [])
-  .sort((item1, item2) => item1.ordernum - item2.ordernum)
+  .sort((item1, item2) => {
+    const first = typeof item1.ordernum === 'number' ? item1.ordernum : 0;
+    const second = typeof item2.ordernum === 'number' ? item2.ordernum : 0;
+
+    return second - first;
+  })
   .filter(item => !!item.types.length);
