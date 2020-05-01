@@ -11,6 +11,8 @@ import EventTypeListItem from '../EventTypeListItem';
 
 import styles from './styles.module.scss';
 
+import { trackEvent } from '../utils/analytics';
+
 const filterProps = ['display', 'value', 'category.display'];
 
 const filterEventTypes = (eventTypes, filterText) =>
