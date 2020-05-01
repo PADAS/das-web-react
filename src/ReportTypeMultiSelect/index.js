@@ -43,7 +43,7 @@ const ReportTypeMultiSelect = (props) => {
 
   const onFilterClear = () => { 
     onFilterChange('');
-    trackEvent('Event Filter', 'Clear Reprot Type Text Filter');
+    trackEvent('Event Filter', 'Clear Report Type Text Filter');
   };
 
   const filteredEventTypes = filter.length ? filterEventTypes(eventTypes, filter) : eventTypes;
