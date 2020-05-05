@@ -22,7 +22,7 @@ import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
 const ReportFormTopLevelControls = (props) => {
-  const { gpsFormat, map, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
+  const { gpsFormat, showUserLocation, map, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
@@ -102,7 +102,7 @@ const ReportFormTopLevelControls = (props) => {
             <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
             <div className={styles.locationButtons}>
               <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
-              <GeoLocator className={styles.geoLocator} onStart={onGeoLocationStart} onSuccess={onGeoLocationSuccess} />
+              {!!showUserLocation && <GeoLocator className={styles.geoLocator} onStart={onGeoLocationStart} onSuccess={onGeoLocationSuccess} />}
             </div>
           </div>
         </Popover>}
@@ -114,8 +114,9 @@ const ReportFormTopLevelControls = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({
-  gpsFormat
+const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat } } }) => ({
+  gpsFormat,
+  showUserLocation,
 });
 
 
