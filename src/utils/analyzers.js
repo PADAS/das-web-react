@@ -1,6 +1,9 @@
 import { bbox, bboxPolygon, circle, centroid } from '@turf/turf';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
+import { store } from '../';
+import { analyzerFeatures } from '../selectors';
+
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,
   ANALYZER_LINES_CRITICAL, ANALYZER_LINES_WARNING } = LAYER_IDS;
 const { ANALYZER_POLYS_WARNING_SOURCE, ANALYZER_POLYS_CRITICAL_SOURCE,
@@ -70,6 +73,12 @@ export const createGeoJSONCircle = (geometry, radius, options) => {
   if (!options) options = { steps: 32, units: 'kilometers' };
   const poly_circle = circle(centroid(geometry), radius / 1000, options);
   return poly_circle;
+};
+
+export const findAnalyzerIdByChildFeatureId = (featureId) => {
+  const analyzers = analyzerFeatures(store.getState());
+  const searchResult = analyzers.find((analyzer) => analyzer.geojson.features.some(f => f.properties.id === featureId));
+  return searchResult ? searchResult.id : null;
 };
 
 export const analyzerSourceLayerMap = {
