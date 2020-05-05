@@ -45,10 +45,10 @@ export const pingSocket = (socket) => {
       pinged = false;
       socket.emit('echo', { data: 'ping' });
     } else {
-      window.clearInterval(interval);
       resetSocketStateTracking(socket);
     }
   }, 30000);
+  socket.emit('echo', { data: 'ping' });
   return interval;
 };
 
