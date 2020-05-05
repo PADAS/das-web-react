@@ -24,7 +24,7 @@ const SubjectPopup = (props) => {
   const [radioWithRecentMicActivity, setIsRadioWithRecentMicActivity] = useState(subjectIsARadioWithRecentVoiceActivity(data));
 
   useEffect(() => {
-    setIsRadioWithRecentMicActivity(data);
+    setIsRadioWithRecentMicActivity(subjectIsARadioWithRecentVoiceActivity(data));
   }, [data]);
 
   return (
