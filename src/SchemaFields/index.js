@@ -17,7 +17,7 @@ const SelectField = (props) => {
 
   const getOptionLabel = ({ label, name }) => label || name;
   const getOptionValue = (val) => isPlainObject(val) ? val.value : val;
-  const isOptionDisabled = (option) => schema.inactive_table && schema.inactive_table.includes(option.label.toLowerCase());
+  const isOptionDisabled = (option) => schema.inactive_enum && schema.inactive_enum.includes(option.value.toLowerCase());
 
   const selected = enumOptions.find((item) => value ?
     item.value ===
