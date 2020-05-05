@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import Button from 'react-bootstrap/Button';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -78,6 +79,7 @@ class Map extends Component {
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.fetchMapData = this.fetchMapData.bind(this);
+    this.onRotationControlClick = this.onRotationControlClick.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
 
@@ -248,6 +250,13 @@ class Map extends Component {
   onFeatureSymbolClick({ geometry, properties }) {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+  }
+
+  onRotationControlClick = (e) => {
+    this.props.map.easeTo({
+      bearing: 0,
+      pitch: 0,
+    });
   }
 
   onAnalyzerGroupEnter = (e, groupIds) => {
@@ -429,7 +438,7 @@ class Map extends Component {
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              <RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} />
+              <button className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></button>
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
