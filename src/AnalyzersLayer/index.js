@@ -40,8 +40,7 @@ const lineLayout = {
   'line-cap': 'round',
 };
 
-// eslint-disable-next-line react/display-name
-const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, map }) => {
+const AnalyzerLayer = ({ warningLines, criticalLines, warningPolys, criticalPolys, layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, map }) => {
 
   const getLayerGroup = featureId => layerGroups
     .filter(group => !!group.feature_ids.includes(featureId))
@@ -120,6 +119,6 @@ const AnalyzerLayer = memo(({ warningLines, criticalLines, warningPolys, critica
       onMouseLeave={onAnalyzerFeatureExit}
       onClick={onAnalyzerFeatureClick} />
   </Fragment>;
-});
+};
 
-export default AnalyzerLayer;
+export default memo(AnalyzerLayer);
