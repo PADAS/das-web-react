@@ -80,8 +80,9 @@ const objectToParamString = (obj) => {
   }, new URLSearchParams()).toString();
 };
 
-export const calcEventFilterForRequest = (params = {}) => {
+export const calcEventFilterForRequest = (options = {}) => {
   const { data: { eventFilter, eventTypes } } = store.getState();
+  const { params, format = 'string' } = options;
 
   const toClean = { ...eventFilter, ...params };
 
@@ -108,7 +109,10 @@ export const calcEventFilterForRequest = (params = {}) => {
     delete cleaned.filter.event_type;
   }
 
-  return objectToParamString(cleaned);
+  if (format === 'string') return objectToParamString(cleaned);
+  if (format === 'object') return cleaned;
+  
+  throw new Error('invalid format specified');
 };
 
 export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {

@@ -74,7 +74,7 @@ const SideBar = (props) => {
 
   const loadFeedEvents = () => {
     setEventLoadState(true);
-    fetchEventFeed({}, calcEventFilterForRequest(optionalFeedProps))
+    fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
       .catch((e) => {
         console.warn('error loading feed events', e);
       })
