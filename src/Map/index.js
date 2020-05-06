@@ -441,7 +441,7 @@ class Map extends Component {
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              <button className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></button>
+              <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
