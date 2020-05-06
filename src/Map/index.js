@@ -78,6 +78,7 @@ class Map extends Component {
     this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.fetchMapData = this.fetchMapData.bind(this);
+    this.onRotationControlClick = this.onRotationControlClick.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
 
@@ -168,6 +169,13 @@ class Map extends Component {
   onMapMoveEnd = debounce(() => {
     this.debouncedFetchMapData();
   });
+
+  onRotationControlClick = (e) => {
+    this.props.map.easeTo({
+      bearing: 0,
+      pitch: 0,
+    });
+  }
 
   toggleMapLockState(e) {
     return toggleMapLockState();
@@ -433,7 +441,7 @@ class Map extends Component {
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              <RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} />
+              <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
