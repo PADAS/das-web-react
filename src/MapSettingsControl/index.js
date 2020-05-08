@@ -5,6 +5,7 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
+import MapDataZoomSimplificationControl from '../MapDataZoomSimplificationControl';
 import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { trackEvent } from '../utils/analytics';
@@ -24,6 +25,7 @@ const MapSettingsControl = (props) => {
           <li><MapNamesControl /></li>
           <li><MapTrackTimepointsControl /></li>
           <li><InactiveRadioControl /></li>
+          <li><MapDataZoomSimplificationControl /></li>
           {hasUserLocation && <li><UserLocationMapControl /></li>}
         </ul>
       </Popover.Content>

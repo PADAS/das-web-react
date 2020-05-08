@@ -93,14 +93,15 @@ export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
 
 export const SYMBOL_ICON_SIZE_EXPRESSION = [
   'interpolate', ['exponential', 0.5], ['zoom'],
-  6, 0,
+  0, IF_IS_GENERIC(0.1/MAP_ICON_SCALE, 0.2/MAP_ICON_SCALE),
   12, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
   MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.5/MAP_ICON_SCALE),
 ];
 
 export const symbolTextSize = [
   'interpolate', ['exponential', 0.5], ['zoom'],
-  6, 0,
+  0, 5,
+  6, 8,
   12, 14,
   MAX_ZOOM, 16,
 ];

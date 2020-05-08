@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { Source } from 'react-mapbox-gl';
 import { featureCollection } from '@turf/helpers';
 
-import { calcUrlForImage, calcImgIdFromUrlForMapImages } from '../utils/img';
+import { calcImgIdFromUrlForMapImages } from '../utils/img';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
-import withMapNames from '../WithMapNames';
+import withMapViewConfig from '../WithMapViewConfig';
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
@@ -23,7 +23,7 @@ const symbolPaint = {
 
 
 const SubjectsLayer = (props) => {
-  const { allowOverlap, onSubjectIconClick, subjects, map, mapImages = {}, mapNameLayout } = props;
+  const { allowOverlap, mapUserLayoutConfig, onSubjectIconClick, subjects, map, mapImages = {} } = props;
 
   const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
@@ -37,7 +37,8 @@ const SubjectsLayer = (props) => {
   const layoutConfig = allowOverlap ? {
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
-  } : {};
+    ...mapUserLayoutConfig,
+  } : { ...mapUserLayoutConfig };
 
   useEffect(() => {
     subjects && addFeatureCollectionImagesToMap(subjects, map);
@@ -63,12 +64,11 @@ const SubjectsLayer = (props) => {
   const layout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     ...layoutConfig,
-    ...mapNameLayout,
   };
 
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <LabeledSymbolLayer layout={layout} textPaint={symbolPaint} minZoom={7} sourceId='subject-symbol-source' type='symbol'
+    <LabeledSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
       onInit={setLayerIds}
     />
@@ -81,4 +81,4 @@ SubjectsLayer.propTypes = {
   onSubjectIconClick: PropTypes.func,
 };
 
-export default withMapNames(withMap(memo(SubjectsLayer)));
+export default withMap(memo(withMapViewConfig(SubjectsLayer)));

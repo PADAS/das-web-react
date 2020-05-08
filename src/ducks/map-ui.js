@@ -33,6 +33,8 @@ const SET_PRINT_TITLE = 'SET_PRINT_TITLE';
 
 const SET_BOUNCE_EVENT_ID = 'SET_BOUNCE_EVENT_ID';
 
+const SET_MAP_DATA_ZOOM_SIMPLIFICATION = 'SET_MAP_DATA_ZOOM_SIMPLIFICATION';
+
 
 // action creators
 export const setReportHeatmapVisibility = (show) => ({
@@ -103,6 +105,10 @@ export const updateHeatmapSubjects = (update) => ({
 export const toggleMapLockState = (enabled) => ({
   type: SET_MAP_LOCK_STATE,
   payload: enabled,
+});
+
+export const toggleMapDataSimplificationOnZoom = () => ({
+  type: SET_MAP_DATA_ZOOM_SIMPLIFICATION,
 });
 
 export const toggleMapNameState = (enabled) => ({
@@ -240,6 +246,13 @@ export const mapLockStateReducer = (state = false, action) => {
   if (type === SET_MAP_LOCK_STATE) return payload;
   return state;
 };
+
+export const mapDataZoomSimplificationReducer = (state = { enabled: true }, action) => {
+  const { type } = action;
+  if (type === SET_MAP_DATA_ZOOM_SIMPLIFICATION) return { enabled: !state.enabled };
+  return state;
+};
+
 
 export const displayMapNamesReducer = (state = true, action) => {
   const { type, payload } = action;
