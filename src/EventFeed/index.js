@@ -3,8 +3,6 @@ import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
 
-import uniqBy from 'lodash/uniqBy';
-
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
@@ -17,8 +15,6 @@ const EventFeed = (props) => {
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
-  const uniqEvents = uniqBy(events, 'serial_number');
-
   return (
     <div ref={scrollRef} className={`${className} ${styles.scrollContainer}`}>
       <InfiniteScroll
@@ -28,7 +24,7 @@ const EventFeed = (props) => {
         useWindow={false}
         getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
       >
-        {uniqEvents.map((item, index) =>
+        {events.map((item, index) =>
           <ReportListItem
             className={styles.listItem}
             map={map}
