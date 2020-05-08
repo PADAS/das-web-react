@@ -8,6 +8,8 @@ import { setPrintTitle } from '../ducks/map-ui';
 
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 
+import { trackEvent } from '../utils/analytics';
+
 import styles from './styles.module.scss';
 
 
@@ -24,6 +26,7 @@ const MapPrintControl = (props) => {
 
   const onPrintFormSubmit = (e) => {
     e.preventDefault();
+    trackEvent('Map Interaction', 'Print Map');
     window.print();
     toggleActiveState();
   };
@@ -54,6 +57,7 @@ const MapPrintControl = (props) => {
     if (active) {
       document.addEventListener('keydown', handleKeyDown);
       document.addEventListener('mousedown', handleOutsideClick);
+      trackEvent('Map Interaction', 'Open \'Print Dialog\'');
     } else {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handleOutsideClick);
