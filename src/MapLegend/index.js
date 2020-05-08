@@ -4,6 +4,8 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { ReactComponent as CloseIcon } from '../common/images/icons/close-icon.svg';
 
+import { trackEvent } from '../utils/analytics';
+
 import styles from './styles.module.scss';
 
 const MapLegend = (props) => {
@@ -13,11 +15,12 @@ const MapLegend = (props) => {
     <button className={styles.close} onClick={onClose}>
       <CloseIcon />
     </button>
-    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' overlay={
-      <Popover className={styles.controlPopover}>
-        {settingsComponent}
-      </Popover>
-    }>
+    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' 
+      onEntered={() => trackEvent('Map Interaction', 'Heatmap Settings Clicked')} overlay={
+        <Popover className={styles.controlPopover}>
+          {settingsComponent}
+        </Popover>
+      }>
       <button type="button" className={styles.gearButton}></button>
     </OverlayTrigger>}
   </div>;

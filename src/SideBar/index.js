@@ -51,7 +51,10 @@ const SideBar = (props) => {
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
-  const toggleReportHeatmapVisibility = () => setReportHeatmapVisibility(!reportHeatmapVisible);
+  const toggleReportHeatmapVisibility = () => {
+    setReportHeatmapVisibility(!reportHeatmapVisible);
+    trackEvent('Reports', `${reportHeatmapVisible ? 'Hide' : 'Show'} Reports Heatmap`);
+  }
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);

@@ -24,8 +24,8 @@ const SubjectPopup = (props) => {
   const [radioWithRecentMicActivity, setIsRadioWithRecentMicActivity] = useState(subjectIsARadioWithRecentVoiceActivity(data));
 
   useEffect(() => {
-    setIsRadioWithRecentMicActivity(subjectIsARadioWithRecentVoiceActivity(data));
-  }, [data]);
+    setIsRadioWithRecentMicActivity(subjectIsARadioWithRecentVoiceActivity(properties));
+  }, [properties]);
 
   return (
     <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>

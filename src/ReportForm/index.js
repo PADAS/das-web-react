@@ -213,10 +213,25 @@ const ReportForm = (props) => {
   };
 
   const onReportedByChange = selection => {
+    const updates = {
+      reported_by: selection ? selection : null,
+    };
+
+    if (selection
+      && selection.last_position 
+      && selection.last_position.geometry 
+      && selection.last_position.geometry.coordinates) {
+      updates.location = {
+        latitude: selection.last_position.geometry.coordinates[1],
+        longitude: selection.last_position.geometry.coordinates[0],
+      };
+    }
+    
     updateStateReport({
       ...report,
-      reported_by: selection ? selection : null,
+      ...updates,
     });
+    
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Report By');
   };
 
