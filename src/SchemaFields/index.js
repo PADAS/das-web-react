@@ -13,10 +13,12 @@ import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/exter
 import styles from './styles.module.scss';
 
 const SelectField = (props) => {
-  const { id, value, placeholder, required, onChange, options: { enumOptions } } = props;
+  const { id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
 
   const getOptionLabel = ({ label, name }) => label || name;
   const getOptionValue = (val) => isPlainObject(val) ? val.value : val;
+  const isOptionDisabled = (option) => schema.inactive_enum && schema.inactive_enum.includes(option.value.toLowerCase());
+
   const selected = enumOptions.find((item) => value ?
     item.value ===
     (isPlainObject(value) ?
@@ -41,6 +43,7 @@ const SelectField = (props) => {
     isSearchable={true}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
+    isOptionDisabled={isOptionDisabled}
     onChange={handleChange}
     styles={DEFAULT_SELECT_STYLES}
   />;

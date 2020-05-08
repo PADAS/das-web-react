@@ -176,8 +176,9 @@ export const DEFAULT_SELECT_STYLES = {
     return {
       ...styles,
       backgroundColor: isDisabled ? 'gray' : (isFocused ? '#006cd9' : 'white'),
-      color: isFocused ? 'white' : 'inherit',
+      color: (isFocused || isDisabled) ? 'white' : 'inherit',
       cursor: isDisabled ? 'not-allowed' : 'default',
+      opacity: isDisabled ? 0.5 : 1,
     };
   },
   menu(styles, state) {
