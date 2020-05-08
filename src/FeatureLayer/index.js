@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
-import withMapNames from '../WithMapNames';
+import withMapViewConfig from '../WithMapViewConfig';
 
 import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
@@ -75,10 +75,10 @@ const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
 
-const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameLayout, map }) => {
+const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserLayoutConfig, minZoom, map }) => {
   const layout = {
     ...symbolLayout,
-    ...mapNameLayout,
+    ...mapUserLayoutConfig,
   };
 
   useEffect(() => {
@@ -124,15 +124,15 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapNameL
     <Source id='feature-polygon-source' geoJsonSource={polygonData} />
     <Source id='feature-symbol-source' geoJsonSource={symbolData} />
 
-    <Layer minZoom={4} sourceId='feature-polygon-source' type='fill'
+    <Layer minZoom={minZoom} sourceId='feature-polygon-source' type='fill'
       id={FEATURE_FILLS} before={TOPMOST_STYLE_LAYER}
       paint={fillPaint} layout={fillLayout} />
 
-    <Layer minZoom={4} sourceId='feature-line-source' type='line'
+    <Layer minZoom={minZoom} sourceId='feature-line-source' type='line'
       id={FEATURE_LINES} before={TOPMOST_STYLE_LAYER}
       paint={linePaint} layout={lineLayout} />
 
-    <Layer minZoom={7} sourceId='feature-symbol-source' type='symbol'
+    <Layer minZoom={minZoom} sourceId='feature-symbol-source' type='symbol'
       id={FEATURE_SYMBOLS}
       before={TOPMOST_STYLE_LAYER}
       paint={symbolPaint} layout={layout}
@@ -148,4 +148,4 @@ FeatureLayer.propTypes = {
   polygons: PropTypes.object.isRequired,
 };
 
-export default memo(withMap(withMapNames(FeatureLayer)));
+export default memo(withMap(withMapViewConfig(FeatureLayer)));

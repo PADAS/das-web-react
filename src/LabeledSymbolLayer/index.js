@@ -3,12 +3,15 @@ import PropTypes from 'prop-types';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 import { withMap } from '../EarthRangerMap';
-import withMapNames from '../WithMapNames';
+import withMapViewConfig from '../WithMapViewConfig';
 
 import { Layer } from 'react-mapbox-gl';
 
-const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, map, mapNameLayout, onClick, onInit, onUnmount, onMouseEnter, onMouseLeave, ...rest }) => {
-  
+const LabeledSymbolLayer = (
+  { before, paint, layout, textPaint, textLayout, id, map, 
+    mapUserLayoutConfig, minZoom, onClick, onInit, onUnmount, 
+    onMouseEnter, onMouseLeave, ...rest }
+) => {
   const textLayerId = `${id}-labels`;
 
 
@@ -56,7 +59,7 @@ const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, 
     'icon-text-fit': 'both',
     'icon-text-fit-padding': [2,6,2,6],
     'text-anchor': 'top',
-    ...mapNameLayout,
+    ...mapUserLayoutConfig,
     'text-offset': [0, 1.1],
   };
 
@@ -79,15 +82,15 @@ const LabeledSymbolLayer = ({ before, paint, layout, textPaint, textLayout, id, 
   };
 
   return id && <Fragment>
-    <Layer before={before} id={textLayerId} layout={labelLayout} type='symbol' 
+    <Layer before={before} id={textLayerId} layout={labelLayout} minZoom={minZoom} type='symbol' 
       onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} 
       paint={labelPaint} {...rest} />
-    <Layer id={id} before={textLayerId} layout={symbolLayout} type='symbol' 
+    <Layer id={id} before={textLayerId} layout={symbolLayout} minZoom={minZoom} type='symbol' 
       paint={symbolPaint} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} {...rest} />
   </Fragment>;
 };
 
-export default memo(withMapNames(withMap(LabeledSymbolLayer)));
+export default memo(withMapViewConfig(withMap(LabeledSymbolLayer)));
 
 LabeledSymbolLayer.defaultProps = {
   onInit() {

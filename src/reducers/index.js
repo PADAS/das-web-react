@@ -12,7 +12,8 @@ import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  pickingLocationOnMapReducer, printTitleReducer, displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
+  mapDataZoomSimplificationReducer, pickingLocationOnMapReducer, printTitleReducer, 
+  displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
   displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, 
 } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
@@ -46,6 +47,7 @@ const mapsPersistanceConfig = generateStorageConfig('maps');
 const baseLayerPersistanceConfig = generateStorageConfig('baseLayer');
 const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
+const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -89,6 +91,7 @@ const rootReducer = combineReducers({
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
     showReportsOnMap: displayReportsOnMapReducer,
+    simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),
     modals: modalsReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,

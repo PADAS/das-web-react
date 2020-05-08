@@ -122,8 +122,8 @@ const UserCurrentLocationLayer = (props) => {
 
   return showLayer && <Fragment>
     <Source id='current-user-location' geoJsonSource={sourceData} />
-    <Layer minZoom={7} sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
-    <Layer minZoom={8} sourceId='current-user-location' paint={{
+    <Layer minZoom={6} sourceId='current-user-location' layout={symbolLayout} onClick={onCurrentLocationIconClick} type="symbol" />
+    <Layer minZoom={6} sourceId='current-user-location' paint={{
       'circle-radius': animationState.radius,
       'circle-radius-transition': { duration: 0 },
       'circle-opacity-transition': { duration: 0 },
