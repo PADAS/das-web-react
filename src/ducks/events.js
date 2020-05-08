@@ -4,7 +4,7 @@ import union from 'lodash/union';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection } from '../utils/events';
+import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection, uniqueEventIds } from '../utils/events';
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
 const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -378,7 +378,7 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
       count,
       next,
       previous,
-      results: [...state.results, ...events.map(event => event.id)],
+      results: [...state.results, ...events.map(event => event.id)].filter( uniqueEventIds ),
     };
   }
   
