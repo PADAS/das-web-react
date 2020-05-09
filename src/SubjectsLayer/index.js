@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Source } from 'react-mapbox-gl';
 import { featureCollection } from '@turf/helpers';
 
-import { calcUrlForImage, calcImgIdFromUrlForMapImages } from '../utils/img';
+import { calcImgIdFromUrlForMapImages } from '../utils/img';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 

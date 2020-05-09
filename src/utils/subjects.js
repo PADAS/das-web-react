@@ -92,7 +92,7 @@ export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroup
           if (!cachedSubjectUpdate) {
             cachedSubjectUpdate = updateSubjectLastPositionFromSocketStatusUpdate(s, update);
           }
-          return cachedSubjectUpdate;
+          return { ...cachedSubjectUpdate };
         }
         return s;
       }),

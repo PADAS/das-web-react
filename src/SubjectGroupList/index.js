@@ -2,8 +2,6 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import isEqual from 'react-fast-compare';
-
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
@@ -89,11 +87,8 @@ const SubjectGroupList = (props) => {
 
 const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) =>
   ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
-export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList, (prev, current) =>
-  isEqual(prev.mapLayerFilter, current.mapLayerFilter)
-   && isEqual(prev.subjectGroups.length, current.subjectGroups.length)
-   && isEqual(prev.hiddenSubjectIDs, current.hiddenSubjectIDs)
-));
+
+export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));
 
 SubjectGroupList.defaultProps = {
   map: {},
