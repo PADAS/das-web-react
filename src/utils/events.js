@@ -52,6 +52,9 @@ export const eventHasLocation = (evt) => {
 
 export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;
 
+export const uniqueEventIds = (value, index, self) => { 
+  return self.indexOf(value) === index;
+};
 
 const cleanedUpFilterObject = (filter) =>
   Object.entries(filter)
