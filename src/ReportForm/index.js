@@ -416,6 +416,7 @@ const ReportForm = (props) => {
       {!is_collection && <ReportFormBody
         ref={formRef}
         formData={report.event_details}
+        formScrollContainer={menuContainerRef.current}
         onChange={onDetailChange}
         onSubmit={startSave}
         schema={schema}

@@ -70,7 +70,7 @@ const DateRangeSelector = (props) => {
       <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateWeeksAgoDate(1),
         upper: null,
-      }, 'last week')}>Last week</Button>
+      }, 'last week')}>Last 7 days</Button>
 
       <Button variant='link' onClick={() => onClickDateRangePreset({
         lower: generateDaysAgoDate(30),
