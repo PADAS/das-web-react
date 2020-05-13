@@ -1,26 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import length from '@turf/length';
 
+import { trimmedVisibleTrackData } from '../selectors/tracks';
+
 // import { trimmedTrack } from '../selectors/tracks';
 
 function TrackLength(props) {
-  const { tracks, className } = props;
+  const { tracks, trackId, className } = props;
+  const [trackFeature, setTrackFeature] = useState();
 
-  if (!tracks) return null;
-  return <span className={className || ''}>Track length: {length(tracks).toFixed(2)} kilometers</span>;
+  useEffect(() => {
+    const match = tracks.find(({ track }) => !!track && track.features[0].properties.id === trackId);
+    if (match) {
+      setTrackFeature(match.track.features[0]);
+    }
+  }, [trackId, tracks]);
+
+  if (!trackFeature) return null;
+
+  return <span className={className || ''}>Track face: {length(trackFeature).toFixed(2)} kilometers</span>;
 
 }
 
 const mapStateToProps = (state, props) => ({
-  tracks: null,
+  tracks: trimmedVisibleTrackData(state),
 });
 
 export default connect(mapStateToProps, null)(TrackLength);
 
 TrackLength.propTypes = {
   trackId: PropTypes.string.isRequired,
-  tracks: PropTypes.object,
+  tracks: PropTypes.array,
   className: PropTypes.string,
 }; 

@@ -42,7 +42,7 @@ const SubjectPopup = (props) => {
       {tracks_available && (
         <Fragment>
           {/* @TODO FIX ME TO USE THE RIGHT DATA */}
-          {/* <TrackLength className={styles.trackLength} trackId={properties.id} /> */}
+          <TrackLength className={styles.trackLength} trackId={properties.id} />
           <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
         </Fragment>
       )}
