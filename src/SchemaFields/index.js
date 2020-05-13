@@ -13,17 +13,12 @@ import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/exter
 import styles from './styles.module.scss';
 
 const ensureInView = (container, element, heightToAdd, padding = 20) => {
-  container.scrollTop += element.offsetHeight;
-  
-  //Determine container top and bottom
   let cTop = container.scrollTop;
   let cBottom = cTop + container.clientHeight;
 
-  //Determine element top and bottom
   let eTop = element.offsetTop;
   let eBottom = eTop + element.clientHeight + heightToAdd + padding;
 
-  //Check if out of view
   if (eTop < cTop) {
     container.scrollTop -= (cTop - eTop);
   }

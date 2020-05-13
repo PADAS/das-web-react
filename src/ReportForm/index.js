@@ -34,7 +34,8 @@ const ReportForm = (props) => {
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
 
   const formRef = useRef(null);
-  const menuContainerRef = useRef(null);
+  const reportedBySelectPortalRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   const [report, updateStateReport] = useState({ ...originalReport });
   const [initialized, setInitState] = useState(false);
@@ -394,15 +395,15 @@ const ReportForm = (props) => {
       onAddToNewIncident={onAddToNewIncident}
       onAddToExistingIncident={onAddToExistingIncident} />
 
-    <div className={styles.formScrollContainer} ref={menuContainerRef}>
+    <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
+    <div className={styles.formScrollContainer} ref={scrollContainerRef}>
       {!is_collection && <ReportFormTopLevelControls
         map={map}
-        menuContainerRef={menuContainerRef.current}
+        menuContainerRef={reportedBySelectPortalRef.current}
         onReportDateChange={onReportDateChange}
         onReportedByChange={onReportedByChange}
         onReportLocationChange={onReportLocationChange}
         report={report} />}
-  
       {is_collection && <IncidentReportsList reports={report.contains} 
         onReportClick={onIncidentReportClick}>
         <ReportFormAttachmentList
@@ -416,7 +417,7 @@ const ReportForm = (props) => {
       {!is_collection && <ReportFormBody
         ref={formRef}
         formData={report.event_details}
-        formScrollContainer={menuContainerRef.current}
+        formScrollContainer={scrollContainerRef.current}
         onChange={onDetailChange}
         onSubmit={startSave}
         schema={schema}
