@@ -48,6 +48,7 @@ const baseLayerPersistanceConfig = generateStorageConfig('baseLayer');
 const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localForage);
 const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
+const trackLengthPersistanceConfig = generateStorageConfig('trackLength');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -98,7 +99,7 @@ const rootReducer = combineReducers({
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
     showReportHeatmap: reportHeatmapStateReducer,
-    trackLength: trackDateRangeReducer,
+    trackLength: persistReducer(trackLengthPersistanceConfig, trackDateRangeReducer),
     userNotifications: userNotificationReducer,
     systemConfig: systemConfigReducer,
     timeSliderState: timeSliderReducer,

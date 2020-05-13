@@ -19,6 +19,7 @@
 .formScrollContainer {
   overflow-y: auto;
   padding: 0;
+  position: relative;
 }
 
 
@@ -31,6 +32,9 @@
   @media #{$whenPageIsMediumHeightAndWidth} {
     font-size: 1rem;
     max-height: calc(62vh - 10rem);
+  }
+  [class*=col-] {
+    position: static;
   }
   [class*=react-datetime-picker__wrapper] {
     @include defaultTextInput;

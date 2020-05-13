@@ -94,6 +94,9 @@ class Map extends Component {
 
   componentDidMount() {
     this.props.fetchBaseLayers();
+    if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+      this.setTrackLengthToEventFilterRange();
+    }
   }
 
   componentWillUnmount() {

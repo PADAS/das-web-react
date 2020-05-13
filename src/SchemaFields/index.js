@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import Select from 'react-select';
+import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react';
+import Select, { components } from 'react-select';
 import DateTimePicker from 'react-datetime-picker';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
@@ -12,8 +12,40 @@ import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/exter
 
 import styles from './styles.module.scss';
 
+const ensureInView = (container, element, heightToAdd, padding = 20) => {
+  let cTop = container.scrollTop;
+  let cBottom = cTop + container.clientHeight;
+
+  let eTop = element.offsetTop;
+  let eBottom = eTop + element.clientHeight + heightToAdd + padding;
+
+  if (eTop < cTop) {
+    container.scrollTop -= (cTop - eTop);
+  }
+  else if (eBottom > cBottom) {
+    container.scrollTop += (eBottom - cBottom);
+  }
+};
+
+const scrollSelectIntoViewOnMenuOpenIfNecessary = (menuRef, containerRef, scrollContainerRef) => {
+  ensureInView(scrollContainerRef, containerRef, menuRef.clientHeight);
+};
+
+
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
+  const selectRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const SelectContainer = ({ children, ...props }) => {
+    return (
+      <div ref={containerRef}> 
+        <components.SelectContainer {...props}>
+          {children}
+        </components.SelectContainer>
+      </div>
+    );
+  };
 
   const getOptionLabel = ({ label, name }) => label || name;
   const getOptionValue = (val) => isPlainObject(val) ? val.value : val;
@@ -26,6 +58,15 @@ const SelectField = (props) => {
     : null
   );
 
+  const onMenuOpen = useCallback(() => setTimeout(() => {
+    if (selectRef.current.select.menuListRef
+      && props.registry.formContext
+      && props.registry.formContext.scrollContainer
+    ) {
+      scrollSelectIntoViewOnMenuOpenIfNecessary(selectRef.current.select.menuListRef, containerRef.current, props.registry.formContext.scrollContainer);
+    }
+  }), [props.registry.formContext]);
+
   const handleChange = (update) => {
     if (!update) return onChange(update);
 
@@ -34,13 +75,17 @@ const SelectField = (props) => {
   };
 
   return <Select
+    components={{SelectContainer}}
     id={id}
+    ref={selectRef}
     required={required}
     value={selected}
     options={enumOptions}
     placeholder={placeholder}
     isClearable={true}
+    onMenuOpen={onMenuOpen}
     isSearchable={true}
+    menuShouldScrollIntoView={true}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}
     isOptionDisabled={isOptionDisabled}

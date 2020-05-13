@@ -28,7 +28,7 @@ const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based 
   });
 
 const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react/display-name
-  const { formData, children, schema, uiSchema, onChange, onSubmit, ...rest } = props;
+  const { formData, formScrollContainer, children, schema, uiSchema, onChange, onSubmit, ...rest } = props;
 
   const transformErrors = useCallback((errors) =>
     filterOutEnumErrors(errors, schema), [schema]
@@ -42,6 +42,11 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     formData={formData}
     liveValidate={true}
     onChange={onChange}
+    formContext={
+      {
+        scrollContainer: formScrollContainer,
+      }
+    }
     onSubmit={onSubmit}
     ref={ref}
     schema={schema}
