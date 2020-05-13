@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useCallback, useState, useEffect } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
@@ -36,32 +36,33 @@ const TrackLengthControls = (props) => {
     lower,
   );
 
+  const setTrackLengthToEventDateRange = useCallback(() => {
+    debouncedAnalytics('Map Interaction', 'Set Track Length To Match Report Filter');
+    setTrackLength(eventFilterDateRangeLength);
+  }, [eventFilterDateRangeLength, setTrackLength]);
+
+  const setTrackLengthToCustomDateRange = useCallback(() => {
+    const rangeIsValid = (customLengthValue >= FREEHAND_INPUT_ATTRS.min) && (customLengthValue <= FREEHAND_INPUT_ATTRS.max);
+    if (rangeIsValid) {
+      setCustomLengthValidity(true);
+      setTrackLength(customLengthValue);
+      debouncedAnalytics('Map Interaction', 'Set Track Length To Custom Length', `${customLengthValue} days`);
+    } else {
+      setCustomLengthValidity(false);
+    }
+  }, [customLengthValue, setTrackLength]);
+
   useEffect(() => {
-    const setTrackLengthToEventDateRange = () => {
-      debouncedAnalytics('Map Interaction', 'Set Track Length To Match Report Filter');
-      setTrackLength(eventFilterDateRangeLength);
-    };
-  
     if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
       setTrackLengthToEventDateRange();
+    } else if (origin === TRACK_LENGTH_ORIGINS.customLength) {
+      setTrackLengthToCustomDateRange();
     }
-  }, [origin, lower, upper, setTrackLength, eventFilterDateRangeLength]);
+  }, [origin, lower, upper, setTrackLength, eventFilterDateRangeLength, setTrackLengthToEventDateRange, setTrackLengthToCustomDateRange]);
+
 
   useEffect(() => {
-    if (origin === TRACK_LENGTH_ORIGINS.customLength) {
-      const rangeIsValid = (customLengthValue >= FREEHAND_INPUT_ATTRS.min) && (customLengthValue <= FREEHAND_INPUT_ATTRS.max);
-      if (rangeIsValid) {
-        setCustomLengthValidity(true);
-        setTrackLength(customLengthValue);
-        debouncedAnalytics('Map Interaction', 'Set Track Length To Custom Length', `${customLengthValue} days`);
-      } else {
-        setCustomLengthValidity(false);
-      }
-    }
-  }, [origin, customLengthValue, setTrackLength]);
-
-  useEffect(() => {
-    if (!initialized) return setInitState(true);
+    if (!initialized) setInitState(true);
   }, [initialized]);
 
   const onOriginChange = ({ target: { value } }) => setTrackLengthRangeOrigin(value);
