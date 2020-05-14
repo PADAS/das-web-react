@@ -34,7 +34,6 @@ const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
 let interval, mapInterval;
 
-
 const resizeInterval = (map) => {
   clearInterval(interval);
   const transitionLength = 300;
