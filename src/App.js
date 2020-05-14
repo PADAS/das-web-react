@@ -25,7 +25,7 @@ import ModalRenderer from './ModalRenderer';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-//  import ErrorBoundary from './ErrorBoundary';
+// import ErrorBoundary from './ErrorBoundary';
 
 import './App.scss';
 import { trackEvent } from './utils/analytics';
