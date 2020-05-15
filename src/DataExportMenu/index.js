@@ -70,7 +70,7 @@ const DataExportMenu = (props) => {
   };
 
   const onModalClick = (modal, analyticsTitle = 'Report Export') => {
-    addModal({...modal,});
+    addModal({...modal});
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   };
 

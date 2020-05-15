@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -26,11 +26,22 @@ const ReportFormTopLevelControls = (props) => {
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
+  const [temporaryCalendarProps, setTemporaryCalendarProps] = useState({});
   const canShowReportedBy = report.provenance !== 'analyzer';
   
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const testRef = useRef(null);
+
+  const handleCalendarOpen = useCallback(() => {
+    setTemporaryCalendarProps({
+      isCalendarOpen: true,
+      onBlur() {
+        setTemporaryCalendarProps({
+        });
+      },
+    });
+  }, []);
   
 
   const handleGpsInputKeydown = (event) => {
@@ -76,7 +87,18 @@ const ReportFormTopLevelControls = (props) => {
     setGpsPopoverState(false);
   };
 
-  return <div className={styles.reportControls}>
+  const handleEscapePress = (event) => {
+    const { key } = event;
+    if (key === 'Escape' 
+    && (gpsPopoverOpen || temporaryCalendarProps.isCalendarOpen)) {
+      event.preventDefault();
+      event.stopPropagation();
+      setGpsPopoverState(false);
+      setTemporaryCalendarProps({});
+    }
+  };
+
+  return <div className={styles.reportControls} onKeyDown={handleEscapePress}>
     {canShowReportedBy && <label>
       <PersonIcon className={`${styles.icon} ${styles.iconFill}`} />
       <span>Reported by:</span>
@@ -87,11 +109,13 @@ const ReportFormTopLevelControls = (props) => {
       <span>Report time:</span>
       <DateTimePicker
         {...DATEPICKER_DEFAULT_CONFIG}
+        onCalendarOpen={handleCalendarOpen}
         clearIcon={null}
         required={true}
         value={report.time ? new Date(report.time) : null}
         maxDate={new Date()}
-        onChange={onReportDateChange} />
+        onChange={onReportDateChange} 
+        {...temporaryCalendarProps} />
     </label>
     <label ref={gpsInputLabelRef}>
       <LocationIcon className={styles.icon} />
