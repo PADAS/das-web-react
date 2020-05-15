@@ -35,10 +35,8 @@ const BetaWelcomeModal = (props) => {
         <p>You have early access to the upcoming version of EarthRanger!</p>
         <p>Here&apos;s what we ask:</p>
         <ul className={styles.list}>
-          <li><strong>This is a preview, and we’re seeking your feedback.</strong>  <em>We do not recommend using this to replace your main operational view</em>. While we’ve done thorough testing, it’s possible that you may find bugs or encounter errors.</li>
           <li>Try using the new EarthRanger the same way you use the current version.  We want to make sure everything works for you as expected. </li>
         </ul>
- 
  
         <p>If you have feedback about this preview or anything else, you may use the &quot;Contact Support&quot; link in the top right menu.</p>
         <p>Or, reach us directly at <a href="mailto:feedback@earthranger.com">feedback@earthranger.com</a>.</p>
