@@ -6,12 +6,7 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 const DateTimePicker = (props) => {
   const [temporaryCalendarProps, setTemporaryCalendarProps] = useState({});
 
-  const onKeyDown = (event) => {
-    handleEscapePress(event);
-    props.onKeyDown && props.onKeyDown(event);
-  };
-
-  const handleEscapePress = (event) => {
+  const handleEscapePress = useCallback((event) => {
     const { key } = event;
     if (key === 'Escape' 
     && temporaryCalendarProps.isCalendarOpen) {
@@ -19,7 +14,12 @@ const DateTimePicker = (props) => {
       event.stopPropagation();
       temporaryCalendarProps.onBlur(event);
     }
-  };
+  }, [temporaryCalendarProps]);
+
+  const onKeyDown = useCallback((event) => {
+    handleEscapePress(event);
+    props.onKeyDown && props.onKeyDown(event);
+  }, [handleEscapePress, props]);
 
   const handleCalendarOpen = useCallback(() => {
     setTemporaryCalendarProps({
