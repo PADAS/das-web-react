@@ -17,7 +17,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import AddToIncidentModal from './AddToIncidentModal';
 import DateTime from '../DateTime';
 
-import { displayTitleForEventByEventType } from '../utils/events'; 
+import { displayTitleForEvent, eventTypeTitleForEvent } from '../utils/events'; 
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -40,7 +40,8 @@ const ReportFormHeader = (props) => {
     trackEvent('Event Report', 'Cancel Change Report Title');
   };
 
-  const reportTitle = displayTitleForEventByEventType(report);
+  const reportTitle = displayTitleForEvent(report);
+  const reportTypeTitle = eventTypeTitleForEvent(report);
   const eventOrIncidentReport = `${report.is_collection? 'Incident' : 'Event'} Report`;
   const reportBelongsToCollection = !!report.is_contained_in && !!report.is_contained_in.length;
   const canAddToIncident = !report.is_collection && !reportBelongsToCollection;
@@ -137,8 +138,8 @@ const ReportFormHeader = (props) => {
   </Popover>);
 
   return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`} onKeyDown={handleEscapePress}>
-    <h4>
-      <EventIcon className={styles.icon} report={report} />
+    <h4 title={reportTypeTitle}>
+      <EventIcon title={reportTypeTitle} className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}
       <InlineEditable onCancel={onReportTitleChangeCancel} value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
