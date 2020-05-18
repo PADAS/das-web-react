@@ -7,7 +7,7 @@ import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, 
-  displayTitleForEventByEventType, getEventIdsForCollection } from '../utils/events';
+  displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
 import { jumpToLocation } from '../utils/map';
@@ -41,7 +41,7 @@ const ReportListItem = (props) => {
     displayPriority = report.priority;
   }
   
-  const displayTitle = displayTitleForEventByEventType(report);
+  const displayTitle = displayTitleForEvent(report);
 
   const bounceIDs = report.is_collection ? getEventIdsForCollection(report) : [report.id];
 
@@ -65,7 +65,7 @@ const ReportListItem = (props) => {
       <EventIcon report={report} />
     </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
-    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEventByEventType(report)}</button>
+    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEvent(report)}</button>
     <span className={styles.date}>
       <DateTime date={report.updated_at || report.time} />
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}

@@ -12,17 +12,20 @@ import { EVENT_STATE_CHOICES } from '../constants';
 import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 import ReportFormModal from '../ReportFormModal';
 
-export const displayTitleForEventByEventType = (event) => {
+export const eventTypeTitleForEvent = (event) => {
   const { data: { eventTypes } } = store.getState();
-
-  if (event.title) return event.title;
-
   const matchingType = (eventTypes || []).find(t => t.value === event.event_type);
 
   if (matchingType) return matchingType.display;
   if (event.event_type) return event.event_type;
 
   return 'Unknown event type';
+};
+
+export const displayTitleForEvent = (event) => {
+  if (event.title) return event.title;
+
+  return eventTypeTitleForEvent(event);
 };
 
 export const getCoordinatesForEvent = evt => evt.geojson
