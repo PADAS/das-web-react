@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from '../DateTimePicker';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import ReportedBySelect from '../ReportedBySelect';
@@ -26,23 +26,12 @@ const ReportFormTopLevelControls = (props) => {
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
-  const [temporaryCalendarProps, setTemporaryCalendarProps] = useState({});
   const canShowReportedBy = report.provenance !== 'analyzer';
   
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const testRef = useRef(null);
 
-  const handleCalendarOpen = useCallback(() => {
-    setTemporaryCalendarProps({
-      isCalendarOpen: true,
-      onBlur() {
-        setTemporaryCalendarProps({
-        });
-      },
-    });
-  }, []);
-  
 
   const handleGpsInputKeydown = (event) => {
     const { key } = event;
@@ -90,11 +79,10 @@ const ReportFormTopLevelControls = (props) => {
   const handleEscapePress = (event) => {
     const { key } = event;
     if (key === 'Escape' 
-    && (gpsPopoverOpen || temporaryCalendarProps.isCalendarOpen)) {
+    && gpsPopoverOpen) {
       event.preventDefault();
       event.stopPropagation();
       setGpsPopoverState(false);
-      setTemporaryCalendarProps({});
     }
   };
 
@@ -109,19 +97,17 @@ const ReportFormTopLevelControls = (props) => {
       <span>Report time:</span>
       <DateTimePicker
         {...DATEPICKER_DEFAULT_CONFIG}
-        onCalendarOpen={handleCalendarOpen}
         clearIcon={null}
         required={true}
         value={report.time ? new Date(report.time) : null}
         maxDate={new Date()}
-        onChange={onReportDateChange} 
-        {...temporaryCalendarProps} />
+        onChange={onReportDateChange}  />
     </label>
     <label ref={gpsInputLabelRef}>
       <LocationIcon className={styles.icon} />
       <span>Location:</span>
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
-        {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
+        {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`} style={{bottom: '-8rem', top: 'auto'}}>
           <div ref={testRef}>
             <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
             <div className={styles.locationButtons}>

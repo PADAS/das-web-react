@@ -198,7 +198,7 @@ export const openModalForReport = (report, map, config = {}) => {
       onSaveError,
       modalProps: {
         className: 'event-form-modal',
-        keyboard: false,
+        // keyboard: false,
       },
     }));
 };

@@ -152,6 +152,8 @@ const App = (props) => {
     </div>
     <div style={{
       display: 'none',
+      height: 0,
+      width: 0,
     }}>
       <ReportTypeIconSprite id="reportTypeIconSprite" />
       <EarthRangerLogoSprite />

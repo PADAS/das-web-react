@@ -1,10 +1,10 @@
 import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react';
 import Select, { components } from 'react-select';
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from '../DateTimePicker';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
 
-import { DATEPICKER_DEFAULT_CONFIG, DEFAULT_SELECT_STYLES } from '../constants';
+import { DEFAULT_SELECT_STYLES } from '../constants';
 import { trackEvent } from '../utils/analytics';
 import { uuid } from '../utils/string';
 
@@ -103,7 +103,7 @@ const DateTimeField = (props) => {
 
   return <Fragment>
     <label htmlFor={id}>{label}</label>
-    <DateTimePicker className={styles.datepicker} id={id} required={required} {...DATEPICKER_DEFAULT_CONFIG} maxDate={new Date()} value={date} onChange={handleChange} />
+    <DateTimePicker className={styles.datepicker} id={id} required={required}  maxDate={new Date()} value={date} onChange={handleChange} />
   </Fragment>;
 };
 
