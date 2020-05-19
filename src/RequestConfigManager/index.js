@@ -57,7 +57,7 @@ const RequestConfigManager = (props) => {
       if (error && error.toString().includes('401')) {
         resetMasterCancelToken();
         clearAuth().then(() => {
-          window.location = REACT_APP_ROUTE_PREFIX === '/' ? `${REACT_APP_ROUTE_PREFIX}login` : `${REACT_APP_ROUTE_PREFIX}/login`;
+          window.location = `${REACT_APP_ROUTE_PREFIX}login`;
           return Promise.reject(error);
         });
       }
