@@ -67,6 +67,17 @@ const ReportFormHeader = (props) => {
       console.log('error occured while opening external report', e);
     }
   };
+
+  const handleEscapePress = (event) => {
+    const { key } = event;
+    if (key === 'Escape' 
+    && (headerPopoverOpen || historyPopoverOpen)) {
+      event.preventDefault();
+      event.stopPropagation();
+      setHeaderPopoverState(false);
+      setHistoryPopoverState(false);
+    }
+  };
   
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen);
@@ -107,7 +118,7 @@ const ReportFormHeader = (props) => {
     </Popover.Content>
   </Popover>);
 
-  const ReportHistoryPopover = <Popover placement='auto' className={styles.historyPopover}>
+  const ReportHistoryPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} placement='auto' className={styles.historyPopover}> {/* eslint-disable-line react/display-name */}
     <Popover.Title>History</Popover.Title>
     <Popover.Content>
       <ul>
@@ -124,9 +135,9 @@ const ReportFormHeader = (props) => {
         )}
       </ul>
     </Popover.Content>
-  </Popover>;
+  </Popover>);
 
-  return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`}>
+  return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`} onKeyDown={handleEscapePress}>
     <h4 title={reportTypeTitle}>
       <EventIcon title={reportTypeTitle} className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}
@@ -134,13 +145,13 @@ const ReportFormHeader = (props) => {
       <div className={styles.headerDetails}>
         <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
         <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} 
-          onHide={() => setHeaderPopoverState(false)} placement='auto' rootClose trigger='click'>
+          onHide={() => setHeaderPopoverState(false)} placement='auto' trigger='click'>
           <ReportHeaderPopover />
         </Overlay>
         {ReportHistory}          
         <Overlay show={historyPopoverOpen} target={historyRef.current} shouldUpdatePosition={true} 
-          onHide={() => setHistoryPopoverState(false)} placement='right' rootClose trigger='click'>
-          {ReportHistoryPopover}
+          onHide={() => setHistoryPopoverState(false)} placement='right' trigger='click'>
+          <ReportHistoryPopover />
         </Overlay>
         {report.state === 'resolved' && <small>resolved</small>}
       </div>
