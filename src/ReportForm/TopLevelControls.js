@@ -1,9 +1,9 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from '../DateTimePicker';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import ReportedBySelect from '../ReportedBySelect';
@@ -31,7 +31,7 @@ const ReportFormTopLevelControls = (props) => {
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const testRef = useRef(null);
-  
+
 
   const handleGpsInputKeydown = (event) => {
     const { key } = event;
@@ -76,7 +76,17 @@ const ReportFormTopLevelControls = (props) => {
     setGpsPopoverState(false);
   };
 
-  return <div className={styles.reportControls}>
+  const handleEscapePress = (event) => {
+    const { key } = event;
+    if (key === 'Escape' 
+    && gpsPopoverOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      setGpsPopoverState(false);
+    }
+  };
+
+  return <div className={styles.reportControls} onKeyDown={handleEscapePress}>
     {canShowReportedBy && <label>
       <PersonIcon className={`${styles.icon} ${styles.iconFill}`} />
       <span>Reported by:</span>
@@ -91,13 +101,13 @@ const ReportFormTopLevelControls = (props) => {
         required={true}
         value={report.time ? new Date(report.time) : null}
         maxDate={new Date()}
-        onChange={onReportDateChange} />
+        onChange={onReportDateChange}  />
     </label>
     <label ref={gpsInputLabelRef}>
       <LocationIcon className={styles.icon} />
       <span>Location:</span>
       <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={() => setGpsPopoverState(false)} container={gpsInputLabelRef.current}>
-        {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`}>
+        {() => <Popover placement='bottom' className={`${styles.popover} ${styles.gpsPopover}`} style={{bottom: '-8rem', top: 'auto'}}>
           <div ref={testRef}>
             <GpsInput onValidChange={onReportLocationChange} lngLat={reportLocation} onKeyDown={handleGpsInputKeydown} />
             <div className={styles.locationButtons}>

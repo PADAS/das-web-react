@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -23,6 +23,14 @@ const ReportFormModal = (props) => {
   const [stateReport, setReport] = useState(null);
   const [schemas, setSchemas] = useState(null);
   const [loaded, setLoadState] = useState(false);
+
+  const onUpdateModal = useCallback((...data) => {
+    updateModal({ id: modalId, ...data });
+  }, [modalId, updateModal]);
+
+  const onRemoveModal = useCallback(() => {
+    removeModal(modalId);
+  }, [modalId, removeModal]);
 
   useEffect(() => {
     if (!schemasFromStore) {
@@ -58,8 +66,8 @@ const ReportFormModal = (props) => {
     report={stateReport}
     modalId={modalId}
     uiSchema={schemas.uiSchema}
-    removeModal={() => removeModal(modalId)}
-    updateModal={(...data) => updateModal({ id: modalId, ...data })}
+    removeModal={onRemoveModal}
+    updateModal={onUpdateModal}
     schema={schemas.schema}
     onSaveError={onSaveError}
     onSaveSuccess={onSaveSuccess}

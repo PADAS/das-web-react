@@ -27,7 +27,7 @@
   width: 50%;
   @media (min-width: $md-layout-width-min) {
     margin-right: unset;
-    width: unset;
+    width: 62%;
   }
 }
 
@@ -119,42 +119,21 @@ div.filterPopover {
       stroke: $primary-font-color;
     }
   }
-}
-
-.filterIcon {
-  * {
-    shape-rendering: geometricprecision;
-    stroke: lighten($primary-font-color, 15%);
-  }
-  &:hover * {
-    stroke: $primary-font-color;
-}
-}
-
-.clockIcon {
-  * {
-    stroke: lighten($primary-font-color, 15%);
-  }
-  &:hover * {
-    stroke: $primary-font-color;
-  }
-}
-
-
-.modified {
-  color: $highlight-color;
-  .filterIcon * {
-    fill: $highlight-color;
-    stroke: $highlight-color;
-    &:hover {
-      fill: darken($highlight-color, 6%);
-      stroke: darken($highlight-color, 6%);
+  &.modified {
+    color: $highlight-color;
+    svg * {
+      stroke: $highlight-color;
     }
-  }
-  .clockIcon * {
-    stroke: $highlight-color;
+    svg.filterIcon * {
+      fill: $highlight-color;
+    }
     &:hover {
-      stroke: darken($highlight-color, 6%);
+      svg * {
+        stroke: darken($highlight-color, 6%);
+      }
+      svg.filterIcon * {
+        fill: darken($highlight-color, 6%);
+      }
     }
   }
 }

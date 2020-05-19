@@ -46,7 +46,6 @@ const ReportForm = (props) => {
 
   const { is_collection } = report;
 
-
   useEffect(() => {
     updateStateReport({
       ...originalReport,
