@@ -175,10 +175,9 @@ export const DEFAULT_SELECT_STYLES = {
     const { isDisabled, isFocused } = state;
     return {
       ...styles,
-      backgroundColor: isDisabled ? 'gray' : (isFocused ? '#006cd9' : 'white'),
-      color: (isFocused || isDisabled) ? 'white' : 'inherit',
-      cursor: isDisabled ? 'not-allowed' : 'default',
-      opacity: isDisabled ? 0.5 : 1,
+      backgroundColor: isFocused ? '#006cd9' : 'white',
+      color: isFocused ? 'white' : 'inherit',
+      display: isDisabled ? 'none' : 'block',
     };
   },
   menu(styles, state) {
