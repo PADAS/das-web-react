@@ -35,7 +35,7 @@ const EulaProtectedRoute = (props) => {
   }, [user, eulaEnabled]);
 
   return <Suspense fallback={<LoadingOverlay message='Loading...' />}>
-    {!eulaAccepted && <Redirect to={`${REACT_APP_ROUTE_PREFIX}eula`} />}
+    {!eulaAccepted && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'eula' : '/eula'}`} />}
     {eulaAccepted === 'unknown' ? null : <PrivateRoute {...rest} />}
   </Suspense>;
 };
