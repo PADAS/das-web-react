@@ -126,7 +126,7 @@ const EulaPage = (props) => {
       </Form>
     </Dialog>;
     {submitted && !rerouteCookieValue && <Redirect to={rerouteOnSuccess} />}
-    {canceled && !adminReferrer && <Redirect to={`${REACT_APP_ROUTE_PREFIX}${REACT_APP_ROUTE_PREFIX === '/' ? 'login' : '/login'}`} />}
+    {canceled && !adminReferrer && <Redirect to={`${REACT_APP_ROUTE_PREFIX}login`} />}
   </div>;
 };
 
