@@ -53,9 +53,9 @@ ReactDOM.render(
       <BrowserRouter>
         <Suspense fallback={<LoadingOverlay message='Loading...' />}>
           <Switch>
+            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
             <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
-            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
           </Switch>
         </Suspense>
         <RequestConfigManager />
