@@ -144,12 +144,12 @@ const ReportFormHeader = (props) => {
       <InlineEditable onCancel={onReportTitleChangeCancel} value={reportTitle} onSave={onReportTitleChange} />
       <div className={styles.headerDetails}>
         <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
-        <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} 
+        <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} rootClose
           onHide={() => setHeaderPopoverState(false)} placement='auto' trigger='click'>
           <ReportHeaderPopover />
         </Overlay>
         {ReportHistory}          
-        <Overlay show={historyPopoverOpen} target={historyRef.current} shouldUpdatePosition={true} 
+        <Overlay show={historyPopoverOpen} target={historyRef.current} shouldUpdatePosition={true} rootClose
           onHide={() => setHistoryPopoverState(false)} placement='right' trigger='click'>
           <ReportHistoryPopover />
         </Overlay>
