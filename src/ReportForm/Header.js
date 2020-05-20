@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useMemo, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import TimeAgo from '../TimeAgo';
@@ -23,26 +23,27 @@ import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
-const calcPriorityClassNameForReport = (report, eventTypes) => {
-
-  const { is_collection } = report;
-
-  const priority = (!is_collection || !!report.priority) 
-    ? report.priority 
-    : calcTopRatedReportAndTypeForCollection(report, eventTypes).related_event.priority;
-
-  if (priority === 300) return 'highPriority';
-  if (priority === 200) return 'mediumPriority';
-  if (priority === 100) return 'lowPriority';
-  return 'noPriority';
-};
-
 const ReportFormHeader = (props) => {
   const { addModal, eventTypes, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
+
+  const displayPriority = useMemo(() => {
+    if (report.is_collection) {
+      const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+      if (topRatedReportAndType) {
+        return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
+          topRatedReportAndType.related_event.priority :
+          (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.priority) ?
+            topRatedReportAndType.event_type.default_priority : report.priority;
+      } else {
+        return  report.priority;
+      }
+    }
+    return report.priority;
+  }, [eventTypes, report]);
 
   const onReportTitleChangeCancel = () => {
     trackEvent('Event Report', 'Cancel Change Report Title');
@@ -145,7 +146,7 @@ const ReportFormHeader = (props) => {
     </Popover.Content>
   </Popover>);
 
-  return <div className={`${styles.formHeader} ${styles[calcPriorityClassNameForReport(report, eventTypes)]}`}  onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[`priority-${displayPriority}`]}`}  onKeyDown={handleEscapePress}>
     <h4 title={reportTypeTitle}>
       <EventIcon title={reportTypeTitle} className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}

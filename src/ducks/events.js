@@ -400,6 +400,30 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
 
       accumulator[event.id] = { ...state[event.id], ...event };
 
+      if (!!event.is_contained_in.length) {
+        const incidentsToUpdate = event.is_contained_in
+          .map(({ related_event: { id } }) => state[id])
+          .filter(item => !!item);
+        incidentsToUpdate.forEach(incident => {
+          const toMerge = !!accumulator[incident.id] ? accumulator[incident.id] : incident;
+
+          accumulator[incident.id] = {
+            ...toMerge,
+            contains: toMerge.contains.map(item => {
+              if (item.related_event.id !== event.id) return item;
+              return {
+                ...item,
+                related_event: {
+                  ...item.related_event, ...event,
+                },
+              };
+            }),
+          };
+        });
+      }
+
+
+
       return accumulator;
     }, {});
 

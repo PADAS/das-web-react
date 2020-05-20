@@ -3,9 +3,10 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 
   if (!contains || !contains.length) return null;
 
-  const calcPriorityRatingForEventAndEventType = (event, eventType) => {
-    if (event.hasOwnProperty('priority')) return event.priority;
-    if (eventType && eventType.hasOwnProperty('default_priority')) return eventType.default_priority;
+  const calcPriorityRatingForEventAndEventType = (eventData) => {
+    const { related_event, event_type } = eventData;
+    if (related_event.hasOwnProperty('priority')) return related_event.priority;
+    if (event_type && event_type.hasOwnProperty('default_priority')) return event_type.default_priority;
     return 0;
   };
 
@@ -16,8 +17,11 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
       event_type: reportTypes.find(({ value }) => value === event_type),
     };
   });
-  return reportsWithTypes
-    .sort((a, b) => calcPriorityRatingForEventAndEventType(b) - calcPriorityRatingForEventAndEventType(a))[0];
+
+  const sorted = reportsWithTypes
+    .sort((a, b) => calcPriorityRatingForEventAndEventType(b) - calcPriorityRatingForEventAndEventType(a));
+    
+  return sorted[0];
 };
 
 
