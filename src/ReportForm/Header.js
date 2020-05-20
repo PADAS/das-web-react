@@ -23,13 +23,13 @@ import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
-const calcPriorityClassNameForReport = (report) => {
+const calcPriorityClassNameForReport = (report, eventTypes) => {
 
   const { is_collection } = report;
 
   const priority = (!is_collection || !!report.priority) 
     ? report.priority 
-    : calcTopRatedReportAndTypeForCollection(report).related_event;
+    : calcTopRatedReportAndTypeForCollection(report, eventTypes).related_event.priority;
 
   if (priority === 300) return 'highPriority';
   if (priority === 200) return 'mediumPriority';
@@ -38,7 +38,7 @@ const calcPriorityClassNameForReport = (report) => {
 };
 
 const ReportFormHeader = (props) => {
-  const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
+  const { addModal, eventTypes, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
@@ -145,7 +145,7 @@ const ReportFormHeader = (props) => {
     </Popover.Content>
   </Popover>);
 
-  return <div className={`${styles.formHeader} ${styles[calcPriorityClassNameForReport(report)]}`}  onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[calcPriorityClassNameForReport(report, eventTypes)]}`}  onKeyDown={handleEscapePress}>
     <h4 title={reportTypeTitle}>
       <EventIcon title={reportTypeTitle} className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}
@@ -167,8 +167,8 @@ const ReportFormHeader = (props) => {
   </div>;
 };
 
-
-export default connect(null, { addModal })(memo(ReportFormHeader));
+const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+export default connect(mapStateToProps, { addModal })(memo(ReportFormHeader));
 
 ReportFormHeader.propTypes = {
   report: PropTypes.object.isRequired,
