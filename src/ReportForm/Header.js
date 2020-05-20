@@ -31,17 +31,19 @@ const ReportFormHeader = (props) => {
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
 
   const displayPriority = useMemo(() => {
+    if (!!report.priority) return report.priority;
+
     if (report.is_collection) {
       const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
-      if (topRatedReportAndType) {
-        return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-          topRatedReportAndType.related_event.priority :
-          (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.priority) ?
-            topRatedReportAndType.event_type.default_priority : report.priority;
-      } else {
-        return  report.priority;
-      }
+      if (!topRatedReportAndType) return report.priority;
+
+      return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
+        topRatedReportAndType.related_event.priority 
+        : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
+          topRatedReportAndType.event_type.default_priority
+          : report.priority;
     }
+
     return report.priority;
   }, [eventTypes, report]);
 
