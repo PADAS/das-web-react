@@ -18,11 +18,19 @@ import AddToIncidentModal from './AddToIncidentModal';
 import DateTime from '../DateTime';
 
 import { displayTitleForEvent, eventTypeTitleForEvent } from '../utils/events'; 
+import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
-const calcClassNameForPriority = (priority) => {
+const calcPriorityClassNameForReport = (report) => {
+
+  const { is_collection } = report;
+
+  const priority = (!is_collection || !!report.priority) 
+    ? report.priority 
+    : calcTopRatedReportAndTypeForCollection(report).related_event;
+
   if (priority === 300) return 'highPriority';
   if (priority === 200) return 'mediumPriority';
   if (priority === 100) return 'lowPriority';
@@ -137,7 +145,7 @@ const ReportFormHeader = (props) => {
     </Popover.Content>
   </Popover>);
 
-  return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`} onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[calcPriorityClassNameForReport(report)]}`}  onKeyDown={handleEscapePress}>
     <h4 title={reportTypeTitle}>
       <EventIcon title={reportTypeTitle} className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}

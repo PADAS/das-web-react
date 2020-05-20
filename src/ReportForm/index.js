@@ -322,7 +322,7 @@ const ReportForm = (props) => {
   };
 
   const onAddToNewIncident = async () => {
-    const incident = createNewIncidentCollection({ priority: report.priority });
+    const incident = createNewIncidentCollection(/* { priority: report.priority } */);
 
     const { data: { data: newIncident } } = await createEvent(incident);
     const [{ data: { data: thisReport } }] = await saveChanges();
@@ -360,7 +360,7 @@ const ReportForm = (props) => {
             });
           } else {
             const { data: { data: { id: incidentID } } } = await createEvent(
-              createNewIncidentCollection({ priority: Math.max(thisReport.priority, newReport.priority) })
+              createNewIncidentCollection(/* { priority: Math.max(thisReport.priority, newReport.priority) } */)
             );
             await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
             return fetchEvent(incidentID).then(({ data: { data } }) => {
