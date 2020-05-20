@@ -53,7 +53,7 @@ export const pingSocket = (socket) => {
 };
 
 const bindSocketEvents = (socket, store) => {
-  let eventsBounds = false;
+  let eventsBound = false;
 
   socket.on('connect', () => {
     console.log('realtime: connected');
@@ -74,7 +74,7 @@ const bindSocketEvents = (socket, store) => {
     }
     pingSocket(socket);
 
-    if (!eventsBounds) {
+    if (!eventsBound) {
       Object.entries(events).forEach(([event_name, actionTypes]) => {
         return stateManagedSocketEventHandler(socket, event_name, (payload) => {
           actionTypes.forEach(type => store.dispatch({ type, payload }));
@@ -82,7 +82,7 @@ const bindSocketEvents = (socket, store) => {
       });
     }
 
-    eventsBounds = true;
+    eventsBound = true;
   });
 };
 

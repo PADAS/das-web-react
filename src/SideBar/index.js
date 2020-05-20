@@ -1,10 +1,11 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useMemo, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
+import uniq from 'lodash/uniq';
 
 import { BREAKPOINTS } from '../constants';
 import { useMatchMedia } from '../hooks';
@@ -47,6 +48,7 @@ const SideBar = (props) => {
   const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
+  const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
@@ -54,7 +56,32 @@ const SideBar = (props) => {
   const toggleReportHeatmapVisibility = () => {
     setReportHeatmapVisibility(!reportHeatmapVisible);
     trackEvent('Reports', `${reportHeatmapVisible ? 'Hide' : 'Show'} Reports Heatmap`);
-  }
+  };
+
+  const optionalFeedProps = useMemo(() => {
+    let value = {};
+    if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+      value.exclude_contained = true;
+    }
+    return value;
+  }, [eventFilter]);
+
+  useEffect(() => {
+    if (!optionalFeedProps.exclude_contained) { 
+      setFeedEvents(events.results);
+    }
+    else {  
+      /* guard code against new events being pushed into the feed despite not matching the exclude_contained filter. 
+      this happens as relationships can be established outside the state awareness of the feed. */
+      const containedEventIdsToRemove = uniq(events.results
+        .filter(({ is_collection }) => !!is_collection)
+        .reduce((accumulator, item) => [
+          ...accumulator,
+          ...item.contains.map(({ related_event: { id } }) => id),
+        ], []));
+      setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
+    }
+  }, [events.results, optionalFeedProps.exclude_contained]);
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
@@ -69,11 +96,6 @@ const SideBar = (props) => {
     };
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
-
-  const optionalFeedProps = {};
-  if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
-    optionalFeedProps.exclude_contained = true;
-  }
 
   const loadFeedEvents = () => {
     setEventLoadState(true);
@@ -141,7 +163,7 @@ const SideBar = (props) => {
               hasMore={!!events.next}
               map={map}
               loading={loadingEvents}
-              events={events.results}
+              events={feedEvents}
               onScroll={onScroll}
               onTitleClick={onEventTitleClick}
             />
