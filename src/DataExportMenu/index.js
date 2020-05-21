@@ -61,7 +61,7 @@ const DataExportMenu = (props) => {
 
   const onLegacyLinkClick = useCallback(() => {
     trackEvent('Main Toolbar', 'Click Link to Legacy Web UI');
-    window.location = '/';
+    window.location = '/legacy/';
   }, []);
 
   const onDropdownToggle = (isOpen) => {
