@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useMemo, useState, useRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import TimeAgo from '../TimeAgo';
@@ -18,23 +18,34 @@ import AddToIncidentModal from './AddToIncidentModal';
 import DateTime from '../DateTime';
 
 import { displayTitleForEvent, eventTypeTitleForEvent } from '../utils/events'; 
+import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
-const calcClassNameForPriority = (priority) => {
-  if (priority === 300) return 'highPriority';
-  if (priority === 200) return 'mediumPriority';
-  if (priority === 100) return 'lowPriority';
-  return 'noPriority';
-};
-
 const ReportFormHeader = (props) => {
-  const { addModal, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
+  const { addModal, eventTypes, report, onReportTitleChange, onPrioritySelect, onAddToNewIncident, onAddToExistingIncident } = props;
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
+
+  const displayPriority = useMemo(() => {
+    if (!!report.priority) return report.priority;
+
+    if (report.is_collection) {
+      const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+      if (!topRatedReportAndType) return report.priority;
+
+      return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
+        topRatedReportAndType.related_event.priority 
+        : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
+          topRatedReportAndType.event_type.default_priority
+          : report.priority;
+    }
+
+    return report.priority;
+  }, [eventTypes, report]);
 
   const onReportTitleChangeCancel = () => {
     trackEvent('Event Report', 'Cancel Change Report Title');
@@ -137,7 +148,7 @@ const ReportFormHeader = (props) => {
     </Popover.Content>
   </Popover>);
 
-  return <div className={`${styles.formHeader} ${styles[calcClassNameForPriority(report.priority)]}`} onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[`priority-${displayPriority}`]}`}  onKeyDown={handleEscapePress}>
     <h4 title={reportTypeTitle}>
       <EventIcon title={reportTypeTitle} className={styles.icon} report={report} />
       {report.serial_number && <span>{report.serial_number}</span>}
@@ -159,8 +170,8 @@ const ReportFormHeader = (props) => {
   </div>;
 };
 
-
-export default connect(null, { addModal })(memo(ReportFormHeader));
+const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+export default connect(mapStateToProps, { addModal })(memo(ReportFormHeader));
 
 ReportFormHeader.propTypes = {
   report: PropTypes.object.isRequired,

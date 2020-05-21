@@ -282,16 +282,16 @@
     }
   }
   
-  &.highPriority {
+  &.priority-300 {
     background-color: $high-priority;
   }
-  &.mediumPriority {
+  &.priority-200 {
     background-color: $medium-priority;
   }
-  &.lowPriority {
+  &.priority-100 {
     background-color: $low-priority;
   }
-  &.noPriority {
+  &.priority-0 {
     background-color: $no-priority;
   }
   button {
