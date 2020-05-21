@@ -82,14 +82,15 @@ class Map extends Component {
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
 
-    if (!this.props.userPreferences.seenBeta) {
-      this.props.addModal({
-        content: BetaWelcomeModal,
-        modalProps: {
-          keyboard: false,
-        },
-      });
-    }
+    // Disable the beta welcome until used again...
+    // if (!this.props.userPreferences.seenBeta) {
+    //   this.props.addModal({
+    //     content: BetaWelcomeModal,
+    //     modalProps: {
+    //       keyboard: false,
+    //     },
+    //   });
+    // }
   }
 
   componentDidMount() {
