@@ -40,7 +40,7 @@ const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEv
         trackLengthStartDate = virtualDate ? subDays(virtualDate, trackLength.length) : trackLengthStartDate;
       }
 
-      const startDate = !!(trackLengthStartDate - new Date(lower)) ? trackLengthStartDate : new Date(lower);
+      const startDate = new Date(Math.max(trackLengthStartDate, new Date(lower)));
       return { from: startDate, until: virtualDate };
     }
 
