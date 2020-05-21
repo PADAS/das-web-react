@@ -48,7 +48,7 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
-// import BetaWelcomeModal from '../BetaWelcomeModal';
+import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 
@@ -82,15 +82,14 @@ class Map extends Component {
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
 
-    // Disable the beta welcome until used again...
-    // if (!this.props.userPreferences.seenBeta) {
-    //   this.props.addModal({
-    //     content: BetaWelcomeModal,
-    //     modalProps: {
-    //       keyboard: false,
-    //     },
-    //   });
-    // }
+    if (!this.props.userPreferences.seenReleaseIntro) {
+      this.props.addModal({
+        content: BetaWelcomeModal,
+        modalProps: {
+          keyboard: false,
+        },
+      });
+    }
   }
 
   componentDidMount() {

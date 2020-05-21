@@ -61,7 +61,7 @@ const DataExportMenu = (props) => {
 
   const onLegacyLinkClick = useCallback(() => {
     trackEvent('Main Toolbar', 'Click Link to Legacy Web UI');
-    window.location = '/legacy/';
+    window.location = '/legacy';
   }, []);
 
   const onDropdownToggle = (isOpen) => {
@@ -96,7 +96,7 @@ const DataExportMenu = (props) => {
       <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
       <Divider />
-      <Item onClick={onLegacyLinkClick}>&laquo; Legacy EarthRanger</Item>
+      <Item onClick={onLegacyLinkClick}>&laquo; Legacy Version</Item>
     </Menu>
   </Dropdown>;
 };
