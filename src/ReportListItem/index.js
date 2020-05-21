@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -19,28 +19,28 @@ const ReportListItem = (props) => {
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
+  
 
   const locationClicked = useRef(false);
 
   const iconClickHandler = onIconClick || onTitleClick;
 
-  let displayPriority;
 
-  if (report.is_collection) {
-    const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
-    if (topRatedReportAndType) {
-      displayPriority =
-        (topRatedReportAndType.related_event && topRatedReportAndType.related_event.hasOwnProperty('priority')) ?
+  const displayPriority = useMemo(() => {
+    if (report.is_collection) {
+      const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+      if (topRatedReportAndType) {
+        return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
           topRatedReportAndType.related_event.priority :
-          (topRatedReportAndType.event_type && topRatedReportAndType.event_type.hasOwnProperty('default_priority')) ?
+          (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.priority) ?
             topRatedReportAndType.event_type.default_priority : report.priority;
-    } else {
-      displayPriority = report.priority;
+      } else {
+        return  report.priority;
+      }
     }
-  } else {
-    displayPriority = report.priority;
-  }
-  
+    return report.priority;
+  }, [eventTypes, report]);
+
   const displayTitle = displayTitleForEvent(report);
 
   const bounceIDs = report.is_collection ? getEventIdsForCollection(report) : [report.id];
