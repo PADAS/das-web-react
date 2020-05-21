@@ -48,7 +48,7 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
-import BetaWelcomeModal from '../BetaWelcomeModal';
+// import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 
