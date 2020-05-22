@@ -12,7 +12,7 @@ const DateTimePicker = (props) => {
     && temporaryCalendarProps.isCalendarOpen) {
       event.preventDefault();
       event.stopPropagation();
-      temporaryCalendarProps.onBlur(event);
+      setTemporaryCalendarProps({});
     }
   }, [temporaryCalendarProps]);
 
@@ -24,11 +24,6 @@ const DateTimePicker = (props) => {
   const handleCalendarOpen = useCallback(() => {
     setTemporaryCalendarProps({
       isCalendarOpen: props.isCalendarOpen || true,
-      onBlur(e) {
-        setTemporaryCalendarProps({
-        });
-        !!props.onBlur && props.onBlur(e);
-      },
     });
   }, [props]);
 

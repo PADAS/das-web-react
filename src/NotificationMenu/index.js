@@ -13,10 +13,15 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
+const onShowMoreInfo = (e) => {
+  e.stopPropagation();
+}
+
 const NotificationItem = (item, index) => {
-  const { message, onConfirm, confirmText, onDismiss } = item;
+  const { message, infolink, onConfirm, confirmText, onDismiss } = item;
   return <Item key={index} className={styles.item}>
     <h6>{message}</h6>
+    {!!infolink && <div><a href={infolink} target='_blank' rel='noopener noreferrer' onClick={onShowMoreInfo}>More information</a></div>}
     <div className={styles.buttons}>
       <Button className={styles.button} variant='secondary' onClick={(e) => onDismiss(e, item)}>Dismiss</Button>
       {onConfirm && <Button className={styles.button} variant='info' onClick={(e) => onConfirm(e, item)}>{confirmText || 'Confirm'}</Button>}

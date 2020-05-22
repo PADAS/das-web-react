@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef, useCallback } from 'react';
+import React, { Fragment, memo, useEffect, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
@@ -48,11 +48,11 @@ const ReportForm = (props) => {
 
   useEffect(() => {
     updateStateReport({
-      ...originalReport,
       ...report,
+      ...originalReport,
       event_details: {
-        ...originalReport.event_details,
         ...report.event_details,
+        ...originalReport.event_details,
       },
     });
     updateFilesToUpload([]);
@@ -322,7 +322,7 @@ const ReportForm = (props) => {
   };
 
   const onAddToNewIncident = async () => {
-    const incident = createNewIncidentCollection({ priority: report.priority });
+    const incident = createNewIncidentCollection(/* { priority: report.priority } */);
 
     const { data: { data: newIncident } } = await createEvent(incident);
     const [{ data: { data: thisReport } }] = await saveChanges();
@@ -360,7 +360,7 @@ const ReportForm = (props) => {
             });
           } else {
             const { data: { data: { id: incidentID } } } = await createEvent(
-              createNewIncidentCollection({ priority: Math.max(thisReport.priority, newReport.priority) })
+              createNewIncidentCollection(/* { priority: Math.max(thisReport.priority, newReport.priority) } */)
             );
             await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
             return fetchEvent(incidentID).then(({ data: { data } }) => {
@@ -396,13 +396,6 @@ const ReportForm = (props) => {
 
     <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
     <div className={styles.formScrollContainer} ref={scrollContainerRef}>
-      {!is_collection && <ReportFormTopLevelControls
-        map={map}
-        menuContainerRef={reportedBySelectPortalRef.current}
-        onReportDateChange={onReportDateChange}
-        onReportedByChange={onReportedByChange}
-        onReportLocationChange={onReportLocationChange}
-        report={report} />}
       {is_collection && <IncidentReportsList reports={report.contains} 
         onReportClick={onIncidentReportClick}>
         <ReportFormAttachmentList
@@ -413,22 +406,32 @@ const ReportForm = (props) => {
           onDeleteNote={onDeleteNote}
           onDeleteFile={onDeleteFile} />
       </IncidentReportsList>}
-      {!is_collection && <ReportFormBody
-        ref={formRef}
-        formData={report.event_details}
-        formScrollContainer={scrollContainerRef.current}
-        onChange={onDetailChange}
-        onSubmit={startSave}
-        schema={schema}
-        uiSchema={uiSchema}>
-        <ReportFormAttachmentList
-          files={filesToList}
-          notes={notesToList}
-          onClickFile={onClickFile}
-          onClickNote={startEditNote}
-          onDeleteNote={onDeleteNote}
-          onDeleteFile={onDeleteFile} />
-      </ReportFormBody>}
+      {!is_collection && <Fragment>
+        <ReportFormTopLevelControls
+          map={map}
+          menuContainerRef={reportedBySelectPortalRef.current}
+          onReportDateChange={onReportDateChange}
+          onReportedByChange={onReportedByChange}
+          onReportLocationChange={onReportLocationChange}
+          report={report} />
+        <ReportFormBody
+          ref={formRef}
+          formData={report.event_details}
+          formScrollContainer={scrollContainerRef.current}
+          onChange={onDetailChange}
+          onSubmit={startSave}
+          schema={schema}
+          uiSchema={uiSchema}>
+          <ReportFormAttachmentList
+            files={filesToList}
+            notes={notesToList}
+            onClickFile={onClickFile}
+            onClickNote={startEditNote}
+            onDeleteNote={onDeleteNote}
+            onDeleteFile={onDeleteFile} />
+        </ReportFormBody>
+      </Fragment>
+      }
     </div>
     {/* bottom controls */}
     <ReportFormAttachmentControls
