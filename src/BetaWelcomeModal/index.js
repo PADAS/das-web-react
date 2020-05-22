@@ -38,7 +38,7 @@ const BetaWelcomeModal = (props) => {
           powerful and useful tool.</p>
         <ul className = {styles.list}>
           <li>A full description of the release can be found here: <a href="https://earthranger.com/News/2020/Major-EarthRanger-Release-Summer-2020.aspx">Release Article</a></li>
-          <li>Should you need it, the previous version can be found here: <a href="/legacy">Legacy Version</a>, or in the top-right menu.</li>
+          <li>Should you need it, the previous version can be found here: <a href="/legacy/">Legacy Version</a>, or in the top-right menu.</li>
           <li>And, as always, please send us feedback at <a href="mailto:feedback@earthranger.com">feedback@earthranger.com</a>.</li>
         </ul>
         <p>Thank you for your continued efforts to protect the world’s animals and their habitats!</p>
