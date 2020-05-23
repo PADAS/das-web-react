@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from '../DateTimePicker';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import ReportedBySelect from '../ReportedBySelect';
