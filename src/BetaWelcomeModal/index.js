@@ -33,12 +33,12 @@ const BetaWelcomeModal = (props) => {
     <Form onSubmit={onClose}>
       <Body style={{maxHeight: '60vh', overflowY: 'scroll'}}>
         <p>Welcome to the latest version of EarthRanger!</p>
-        <p>The team has been hard at work in putting together a collection of significant upgrades 
-          to aid you in your mission.  We hope that you’ll find EarthRanger to be an even more 
+        <p>The team has been hard at work putting together a collection of significant upgrades 
+          to aid you in your mission.  We hope you will find the latest version of EarthRanger to be an even more 
           powerful and useful tool.</p>
         <ul className = {styles.list}>
-          <li>A full description of the release can be found here: <a href="https://earthranger.com/News/2020/Major-EarthRanger-Release-Summer-2020.aspx">Release Article</a></li>
-          <li>Should you need it, the previous version can be found here: <a href="/legacy/">Legacy Version</a>, or in the top-right menu.</li>
+          <li>A full description of the release can be found here: <a rel='noopener noreferrer' target='_blank' href="https://earthranger.com/News/2020/Major-EarthRanger-Release-Summer-2020.aspx">Release Article</a></li>
+          <li>Should you need it, the previous version can be found here: <a rel='noopener noreferrer' target='_blank' href="/legacy/">Legacy Version</a>, or in the top-right menu.</li>
           <li>And, as always, please send us feedback at <a href="mailto:feedback@earthranger.com">feedback@earthranger.com</a>.</li>
         </ul>
         <p>Thank you for your continued efforts to protect the world’s animals and their habitats!</p>
