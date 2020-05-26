@@ -355,7 +355,10 @@ class Map extends Component {
   }
 
   setMap(map) {
-    map.setZoom(this.props.homeMap.zoom);
+    // don't set zoom if not hydrated
+    if (this.props.homeMap && this.props.homeMap.zoom) {
+      map.setZoom(this.props.homeMap.zoom);
+    };   
     window.map = map;
     this.props.onMapLoad(map);
     this.onMapMoveEnd(); 
