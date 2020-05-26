@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import ReduxPromise from 'redux-promise';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -43,6 +43,10 @@ dom.watch();
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
 
+const NoMatch = ({ location }) => {
+  return <Redirect to={location.pathname} />
+};
+
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
 export const store = createStoreWithMiddleware(reducers);
 const persistor = persistStore(store);
@@ -56,6 +60,7 @@ ReactDOM.render(
             <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
             <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
+            <Route component={NoMatch} />
           </Switch>
         </Suspense>
         <RequestConfigManager />
