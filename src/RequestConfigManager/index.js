@@ -1,12 +1,13 @@
 import { memo, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 const RequestConfigManager = (props) => {
-  const {clearAuth,  masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
+  const {clearAuth,  history, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
   const userProfileHeaderInterceptor = useRef(null);
   const masterRequestCancelTokenManager = useRef(null);
   const onAuthFailure = useRef(null);
@@ -57,7 +58,7 @@ const RequestConfigManager = (props) => {
       if (error && error.toString().includes('401')) {
         resetMasterCancelToken();
         clearAuth().then(() => {
-          window.location = `${REACT_APP_ROUTE_PREFIX}login`;
+          history.push(`${REACT_APP_ROUTE_PREFIX}login`);
           return Promise.reject(error);
         });
       }
@@ -87,4 +88,4 @@ const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCance
 });
 
 
-export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));
+export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(withRouter(RequestConfigManager)));
