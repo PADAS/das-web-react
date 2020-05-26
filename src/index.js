@@ -44,7 +44,8 @@ dom.watch();
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
 
 const NoMatch = ({ location }) => {
-  return <Redirect to={location.pathname} />
+  console.log('no match', location, location.pathname);
+  window.location = location.pathname;
 };
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
