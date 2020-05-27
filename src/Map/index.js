@@ -7,6 +7,8 @@ import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import MapboxglSpiderifier from 'mapboxgl-spiderifier';
+
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
@@ -58,6 +60,7 @@ import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 
+
 import './Map.scss';
 class Map extends Component {
   constructor(props) {
@@ -79,6 +82,7 @@ class Map extends Component {
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.fetchMapData = this.fetchMapData.bind(this);
     this.onRotationControlClick = this.onRotationControlClick.bind(this);
+    this.unspiderfy = this.unspiderfy.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
 
@@ -153,6 +157,11 @@ class Map extends Component {
       }
     }
   }
+
+  unspiderfy() {
+    this.spiderifier.unspiderfy();
+  }
+
   setTrackLengthToEventFilterRange() {
     this.props.setTrackLength(differenceInCalendarDays(
       this.props.eventFilter.filter.date_range.upper || new Date(),
@@ -249,6 +258,7 @@ class Map extends Component {
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
+    this.unspiderfy();
   }
 
   onEventSymbolClick({ properties }) {
@@ -310,6 +320,7 @@ class Map extends Component {
   onCloseReportHeatmap() {
     this.props.setReportHeatmapVisibility(false);
   }
+
   onClusterClick(e) {
     const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
@@ -318,11 +329,11 @@ class Map extends Component {
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
       if (this.props.map.getZoom() >= zoom) {
-        // clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
-        //   if (err) return;
-        //   var markers = features.map(feature => feature.properties);
-        //   spiderifier.spiderfy(features[0].geometry.coordinates, markers);
-        // });
+        clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
+          if (err) return;
+          var markers = features.map(feature => feature.properties);
+          this.spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+        });
       } else {
         this.props.map.easeTo({
           center: features[0].geometry.coordinates,
@@ -360,6 +371,15 @@ class Map extends Component {
       map.setZoom(this.props.homeMap.zoom);
     };   
     window.map = map;
+
+    this.spiderifier = new MapboxglSpiderifier(map, {
+  	onClick: function(e, spiderLeg){
+    	console.log('Clicked on ', spiderLeg);
+      },
+      markerWidth: 40,
+      markerHeight: 40,
+    });
+    
     this.props.onMapLoad(map);
     this.onMapMoveEnd(); 
   }
