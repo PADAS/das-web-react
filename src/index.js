@@ -73,6 +73,7 @@ ReactDOM.render(
               window.location.href = localMatch;
               return null;
             }} />
+
           </Switch>
         </Suspense>
         <RequestConfigManager />
