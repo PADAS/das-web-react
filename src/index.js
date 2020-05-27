@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
@@ -57,6 +57,12 @@ ReactDOM.render(
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
             <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
             <Route component={(props) => {
+              const externalRedirectRef = useRef(null);
+
+              useEffect(() => {
+                !!externalRedirectRef.current && externalRedirectRef.current.click();
+              });
+
               const GoToHomepage = () => <Redirect
                 to={REACT_APP_ROUTE_PREFIX}
               />;
@@ -69,7 +75,9 @@ ReactDOM.render(
               if (!localMatch) {
                 return <GoToHomepage />;
               }
-              return window.location.reload(true);
+
+
+              return <a href={localMatch} style={{opacity: 0}} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
             }} />
 
           </Switch>
