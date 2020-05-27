@@ -7,14 +7,11 @@ const buildSW = () => {
   return workboxBuild
     .injectManifest({
       swSrc: 'src/sw-custom.js', // custom sw rule
-
-      swDest: 'build/sw.js', // sw output file (auto-generated
-
+      swDest: 'build/sw.js', // sw output file (auto-generated)
       globDirectory: 'build',
-
-      globPatterns: ['**/*.{js,css,png,svg}'],
-
-      maximumFileSizeToCacheInBytes: 5 * 1024 * 102,
+      globPatterns: ['**/*.{js,html,css,png,svg}'],
+      globIgnores: ['**/*service-worker*.js', '**/*precache-manifest*.js'],
+      maximumFileSizeToCacheInBytes: 50 * 1024 * 102,
     })
     .then(({ count, size, warnings }) => {
       warnings.forEach(console.warn);
