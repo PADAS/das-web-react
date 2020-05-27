@@ -21,7 +21,7 @@ const FriendlyEventFilterString = (props) => {
     || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
     || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
-  return <span style={{lineHeight: 'normal'}} className={className || ''}>Showing {filterModified && 'filtered'} reports from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}</span>;
+  return <span style={{lineHeight: 'normal'}} className={className || ''}>Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}</span>;
 };
 
 export default connect(mapStateToProps, null)(memo(FriendlyEventFilterString));
