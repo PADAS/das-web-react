@@ -69,9 +69,7 @@ ReactDOM.render(
               if (!localMatch) {
                 return <GoToHomepage />;
               }
-              
-              window.location.href = localMatch;
-              return null;
+              return window.location.reload(true);
             }} />
 
           </Switch>
