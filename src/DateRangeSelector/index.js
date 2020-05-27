@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from '../DateTimePicker';
 
 import styles from './styles.module.scss';
 import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
