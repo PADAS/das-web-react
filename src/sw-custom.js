@@ -9,13 +9,13 @@ if ('function' === typeof importScripts) {
     // Disable logging
     workbox.setConfig({ debug: false });
 
-    //`generateSW` and `generateSWString` provide the option
-    // to force update an exiting service worker.
-    // Since we're using `injectManifest` to build SW,
-    // manually overriding the skipWaiting();
-    self.addEventListener('install', (event) => {
-      self.skipWaiting();
+    self.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+      }
     });
+
+    workbox.core.clientsClaim();
 
     self.addEventListener( 'fetch', function ( event ) {
       if ( event.request.url.match( '^.*(\/admin\/).*$' ) ) {
