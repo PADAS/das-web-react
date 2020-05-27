@@ -76,13 +76,18 @@ const addTitleWithDateToGeoJson = (geojson, title) => {
 const setUpEventGeoJson = (events, eventTypes) => 
   addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => 
     copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => {
-    const displayTitle = title ||
-      eventTypes.findIndex(item => item.value === event_type) > -1
-      ? eventTypes.find(item => item.value === event_type).display
-      : event_type;
+    const displayTitle = title || getEventTypeTitle(eventTypes, event_type);
     return addTitleWithDateToGeoJson(geojson, displayTitle);
   }
   );
+
+const getEventTypeTitle = (event_types, event_type) => {
+  const typeTitle = event_types.findIndex(item => item.value === event_type) > -1
+      ? event_types.find(item => item.value === event_type)
+      : event_type;
+  return (typeTitle && typeTitle.display) ? typeTitle.display : typeTitle;
+};
+
 const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => geojson);
 const featureCollectionFromGeoJson = geojson_collection => featureCollection(geojson_collection.map(({ geometry, properties }) => feature(geometry, properties)));
 
