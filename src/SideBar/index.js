@@ -61,7 +61,7 @@ const SideBar = (props) => {
   const optionalFeedProps = useMemo(() => {
     let value = {};
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
-      value.exclude_contained = true;
+      value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
     }
     return value;
   }, [eventFilter]);
