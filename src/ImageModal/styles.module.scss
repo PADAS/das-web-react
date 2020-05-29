@@ -3,9 +3,11 @@
   display: flex;
   flex-flow: column;
   justify-content: center;
+  max-height: 80vh;
   min-height: 10rem;
   img {
-    width: 90%;
+    max-height: calc(77vh - 3rem);
+    max-width: 90%;
   }
   h5 {
     margin-bottom: 1rem;
