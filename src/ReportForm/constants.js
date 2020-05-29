@@ -35,7 +35,7 @@ export const REPORT_SAVE_ACTIONS = {
       },
     };
   }, */
- /*  updateEventState: { // these belong inside `updateEvent` now
+  /*  updateEventState: { // these belong inside `updateEvent` now
     priority: 100,
   }, */
   addEventToIncident(incident_id) {

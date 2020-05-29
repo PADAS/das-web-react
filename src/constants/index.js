@@ -218,3 +218,8 @@ export const COLUMN_CLASS_PREFIXES = {
   md: 'col-md-',
   lg: 'col-lg-',
 };
+
+export const EXTERNAL_SAME_DOMAIN_ROUTES = [
+  '/admin',
+  '/admin/',
+];
