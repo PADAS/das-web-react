@@ -15,7 +15,7 @@ import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../du
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer, createReportMarkerForSpiderLeg } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -328,7 +328,7 @@ class Map extends Component {
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
-      if (this.props.map.getZoom() >= zoom) {
+      if (this.props.map.getZoom() >= 11) {
         clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
           if (err) return;
           var markers = features.map(feature => feature.properties);
@@ -373,11 +373,17 @@ class Map extends Component {
     window.map = map;
 
     this.spiderifier = new MapboxglSpiderifier(map, {
-  	onClick: function(e, spiderLeg){
-    	console.log('Clicked on ', spiderLeg);
+      animate: true,
+      customPin: true,
+      initializeLeg(leg) {
+        console.log('leggy', leg);
+        createReportMarkerForSpiderLeg(leg);
       },
-      markerWidth: 40,
       markerHeight: 40,
+      markerWidth: 40,
+      onClick: function(e, spiderLeg){
+        console.log('Clicked on ', spiderLeg);
+      },
     });
     
     this.props.onMapLoad(map);

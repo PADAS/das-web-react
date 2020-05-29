@@ -1,12 +1,17 @@
-import format from 'date-fns/format';
-
-import { store } from '../';
-
-import { addImageToMapIfNecessary } from '../ducks/map-images';
-
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
 import { feature, featureCollection, polygon } from '@turf/helpers';
 import { LngLatBounds } from 'mapbox-gl';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import format from 'date-fns/format';
+
+
+import { store } from '../';
+import SpideredReportMarker from '../SpideredReportMarker';
+
+import { addImageToMapIfNecessary } from '../ducks/map-images';
+
 import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
@@ -40,6 +45,36 @@ export const addMapImage = async ({ src, id, height, width }) => {
     icon_id,
     img,
   };
+};
+
+export const createReportMarkerForSpiderLeg = (spiderLeg, spiderifierInstance) => {
+  var pinElem = spiderLeg.elements.pin;
+  // var popup;
+
+  /* eslint-disable */
+  ReactDOM.render(<Provider store={store}>
+    <SpideredReportMarker report={ spiderLeg.feature} />
+  </Provider>, pinElem); 
+  /* eslint-enable */
+
+  // $(pinElem)
+  //   .on('mouseenter', function(){
+  //     popup = new mapboxgl.Popup({
+  //       closeButton: true,
+  //       closeOnClick: false,
+  //       offset: MapboxglSpiderifier.popupOffsetForSpiderLeg(spiderLeg)
+  //     });
+
+  //     popup.setHTML('Icon used is <b>fa-' + feature.type+'</b>')
+  //       .addTo(map);
+
+  //     spiderLeg.mapboxMarker.setPopup(popup);
+  //   })
+  //   .on('mouseleave', function(){
+  //     if(popup){
+  //       popup.remove();
+  //     }
+  //   });
 };
 
 export const addFeatureCollectionImagesToMap = (collection, map) => {
@@ -83,8 +118,8 @@ const setUpEventGeoJson = (events, eventTypes) =>
 
 const getEventTypeTitle = (event_types, event_type) => {
   const typeTitle = event_types.findIndex(item => item.value === event_type) > -1
-      ? event_types.find(item => item.value === event_type)
-      : event_type;
+    ? event_types.find(item => item.value === event_type)
+    : event_type;
   return (typeTitle && typeTitle.display) ? typeTitle.display : typeTitle;
 };
 
