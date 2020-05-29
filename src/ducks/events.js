@@ -23,7 +23,7 @@ const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
 const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
 const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
 const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
-const REMOVE_EVENT_AFTER_UPDATE = 'REMOVE_EVENT_AFTER_UPDATE';
+const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
 
 const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
@@ -189,16 +189,14 @@ export const updateEvent = (event) => (dispatch) => {
     .then((response) => {
       eventResults = response.data.data;
       return axios.get(`${EVENTS_API_URL}?${calcEventFilterForRequest({ 
-        params: {
-          filter: { eventIds: [event.id] },
-        },
+        params: { event_ids: [event.id] },
       })}`);
     })
     .then((response) => {
       const matchesEventFilter = !!response.data.data.count;
       if (!matchesEventFilter) {
         dispatch({
-          type: REMOVE_EVENT_AFTER_UPDATE,
+          type: REMOVE_EVENT_BY_ID,
           payload: event.id,
         });
       } else {
@@ -373,7 +371,7 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
     return reducer(stateUpdate, action);
   }
 
-  if (type === REMOVE_EVENT_AFTER_UPDATE) {
+  if (type === REMOVE_EVENT_BY_ID) {
     return {
       ...state,
       results: state.results.filter(id => id !== payload),
@@ -537,6 +535,12 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
     return {
       ...state,
       events: extractEventIDs(payload),
+    };
+  }
+  if (type === REMOVE_EVENT_BY_ID) {
+    return {
+      ...state,
+      events: state.events.filter(id => id !== payload),
     };
   }
   if (SOCKET_EVENTS.includes(type)) {
