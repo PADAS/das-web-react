@@ -2,6 +2,7 @@ import { store } from '../';
 import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
+import merge from 'lodash/merge';
 import isEqual from 'react-fast-compare';
 
 import { addModal } from '../ducks/modals';
@@ -90,7 +91,7 @@ export const calcEventFilterForRequest = (options = {}) => {
   const { data: { eventFilter, eventTypes } } = store.getState();
   const { params, format = 'string' } = options;
 
-  const toClean = { ...eventFilter, ...params };
+  const toClean = merge({}, eventFilter, params);
 
   const cleaned = {
     ...cleanedUpFilterObject(toClean),

@@ -23,6 +23,7 @@ const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
 const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
 const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
 const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
+const REMOVE_EVENT_AFTER_UPDATE = 'REMOVE_EVENT_AFTER_UPDATE';
 
 const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
@@ -182,14 +183,32 @@ export const updateEvent = (event) => (dispatch) => {
     payload: event,
   });
 
+  let eventResults;
+
   return axios.patch(`${EVENT_API_URL}${event.id}`, event)
     .then((response) => {
-      dispatch({
-        type: UPDATE_EVENT_SUCCESS,
-        payload: response.data.data,
-      });
-      dispatch(updateEventStore(response.data.data));
-      return response;
+      eventResults = response.data.data;
+      return axios.get(`${EVENTS_API_URL}?${calcEventFilterForRequest({ 
+        params: {
+          filter: { eventIds: [event.id] },
+        },
+      })}`);
+    })
+    .then((response) => {
+      const matchesEventFilter = !!response.data.data.count;
+      if (matchesEventFilter) {
+        dispatch({
+          type: UPDATE_EVENT_SUCCESS,
+          payload: eventResults,
+        });
+        dispatch(updateEventStore(eventResults));
+      } else {
+        dispatch({
+          type: REMOVE_EVENT_AFTER_UPDATE,
+          payload: event.id,
+        });
+      }
+      return eventResults;
     })
     .catch((error) => {
       dispatch({
@@ -354,6 +373,13 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
     return reducer(stateUpdate, action);
   }
 
+  if (type === REMOVE_EVENT_AFTER_UPDATE) {
+    return {
+      ...state,
+      results: state.results.filter(id => id !== payload),
+    };
+  }
+
   if (name !== action.name) return state;
 
   if (type === FEED_FETCH_START) {
@@ -453,7 +479,7 @@ export const INITIAL_EVENT_FEED_STATE = {
   results: [],
 };
 
-export const eventFeedReducer = namedFeedReducer('EVENT_FEED', (state, { type, payload }) => {
+export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type, payload }) => {
   if (SOCKET_EVENTS.includes(type)) {
     const { event_data, event_id } = payload;
     if (eventBelongsToCollection(event_data)) {
@@ -466,7 +492,7 @@ export const eventFeedReducer = namedFeedReducer('EVENT_FEED', (state, { type, p
   return state;
 });
 
-export const incidentFeedReducer = namedFeedReducer('INCIDENT_FEED', (state, { type, payload }) => {
+export const incidentFeedReducer = namedFeedReducer(INCIDENT_FEED_NAME, (state, { type, payload }) => {
   if (SOCKET_EVENTS.includes(type)) {
     const { event_data, event_id } = payload;
     if (!event_data.is_collection) {
