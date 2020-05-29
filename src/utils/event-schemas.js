@@ -260,6 +260,13 @@ const addCustomSelectFieldForEnums = (schema) => {
         [key]: addCustomSelectFieldForEnums(value),
       });
     }
+    if (value.type === 'array' && !!value.items  && value.items.type === 'object') {
+      return merge(accumulator, {
+        [key]: {
+          items: addCustomSelectFieldForEnums(value.items),
+        }
+      });
+    }
     return accumulator;
   }, {});
 };
