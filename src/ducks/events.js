@@ -196,18 +196,18 @@ export const updateEvent = (event) => (dispatch) => {
     })
     .then((response) => {
       const matchesEventFilter = !!response.data.data.count;
-      if (matchesEventFilter) {
-        dispatch({
-          type: UPDATE_EVENT_SUCCESS,
-          payload: eventResults,
-        });
-        dispatch(updateEventStore(eventResults));
-      } else {
+      if (!matchesEventFilter) {
         dispatch({
           type: REMOVE_EVENT_AFTER_UPDATE,
           payload: event.id,
         });
+      } else {
+        dispatch({
+          type: UPDATE_EVENT_SUCCESS,
+          payload: eventResults,
+        });
       }
+      dispatch(updateEventStore(eventResults));
       return eventResults;
     })
     .catch((error) => {
