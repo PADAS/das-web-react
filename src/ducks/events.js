@@ -4,7 +4,8 @@ import union from 'lodash/union';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection, uniqueEventIds } from '../utils/events';
+import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection,
+  uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
 const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -46,12 +47,31 @@ const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
 const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
-export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
-export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
-
+const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
-const SOCKET_EVENTS = [SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT];
+export const socketEventData = (payload) => (dispatch) => {
+  const { event_id, event_data } = payload;
+
+  const isValidWithFilter = validateReportAgainstCurrentEventFilter(event_data);
+
+  if (!isValidWithFilter) {
+    dispatch({
+      type: REMOVE_EVENT_BY_ID,
+      payload: event_id,
+    });
+  } else {
+    dispatch({
+      type: SOCKET_EVENT_DATA,
+      payload: event_data,
+    });
+  }
+  dispatch({
+    type: UPDATE_EVENT_STORE,
+    payload: [event_data],
+  });
+};
+
 
 // higher-order action creators
 const fetchNamedFeedActionCreator = (name) => {
@@ -188,12 +208,9 @@ export const updateEvent = (event) => (dispatch) => {
   return axios.patch(`${EVENT_API_URL}${event.id}`, event)
     .then((response) => {
       eventResults = response.data.data;
-      return axios.get(`${EVENTS_API_URL}?${calcEventFilterForRequest({ 
-        params: { event_ids: [event.id] },
-      })}`);
+      return Promise.resolve(validateReportAgainstCurrentEventFilter(eventResults));
     })
-    .then((response) => {
-      const matchesEventFilter = !!response.data.data.count;
+    .then((matchesEventFilter) => {
       if (!matchesEventFilter) {
         dispatch({
           type: REMOVE_EVENT_BY_ID,
@@ -361,8 +378,12 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
   }
 
   /* socket changes and event updates should affect all feeds */
-  if (SOCKET_EVENTS.includes(type) || type === UPDATE_EVENT_SUCCESS) {
-    const id = SOCKET_EVENTS.includes(type) ? payload.event_id : payload.id; 
+  if (
+    type === UPDATE_EVENT_SUCCESS || 
+    type === SOCKET_EVENT_DATA
+  ) {
+    const { id } = payload;
+    
     const stateUpdate = {
       ...state,
       results: union([id], state.results),
@@ -412,8 +433,6 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
 // reducers
 const INITIAL_STORE_STATE = {};
 export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
-  const SOCKET_EVENTS = [SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT];
-
   if (type === CLEAR_EVENT_DATA) {
     return { ...INITIAL_STORE_STATE };
   }
@@ -456,16 +475,6 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
       ...toAdd,
     };
   }
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data } = payload;
-    return {
-      ...state,
-      [event_data.id]: {
-        ...state[event_data.id],
-        ...event_data,
-      },
-    };
-  }
   return state;
 };
 
@@ -478,12 +487,11 @@ export const INITIAL_EVENT_FEED_STATE = {
 };
 
 export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type, payload }) => {
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data, event_id } = payload;
-    if (eventBelongsToCollection(event_data)) {
+  if (type === SOCKET_EVENT_DATA) {
+    if (eventBelongsToCollection(payload)) {
       return {
         ...state,
-        results: state.results.filter(id => id !== event_id),
+        results: state.results.filter(id => id !== payload.id),
       };
     }
   }
@@ -491,12 +499,12 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
 });
 
 export const incidentFeedReducer = namedFeedReducer(INCIDENT_FEED_NAME, (state, { type, payload }) => {
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data, event_id } = payload;
-    if (!event_data.is_collection) {
+  if (type === SOCKET_EVENT_DATA) {
+    
+    if (!payload.is_collection) {
       return {
         ...state,
-        results: state.results.filter(id => id !== event_id),
+        results: state.results.filter(id => id !== payload.id),
       };
     }
   }
@@ -543,13 +551,12 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
       events: state.events.filter(id => id !== payload),
     };
   }
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data, event_id } = payload;
-    if (!event_data.geojson) return state;
+  if (type === SOCKET_EVENT_DATA) {
+    if (!payload.geojson) return state;
 
     return {
       ...state,
-      events: union([event_id], state.events),
+      events: union([payload.id], state.events),
     };
   }
   return state;

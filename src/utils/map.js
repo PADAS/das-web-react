@@ -83,8 +83,8 @@ const setUpEventGeoJson = (events, eventTypes) =>
 
 const getEventTypeTitle = (event_types, event_type) => {
   const typeTitle = event_types.findIndex(item => item.value === event_type) > -1
-      ? event_types.find(item => item.value === event_type)
-      : event_type;
+    ? event_types.find(item => item.value === event_type)
+    : event_type;
   return (typeTitle && typeTitle.display) ? typeTitle.display : typeTitle;
 };
 
