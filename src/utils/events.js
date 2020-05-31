@@ -324,6 +324,17 @@ export const validateReportAgainstCurrentEventFilter = (report) => {
     return eventTypeValuesFromFilterIds.includes(report.event_type);
   };
 
+  const reportMatchesTextFiter = () => {
+    const { filter: { text } } = eventFilter;
+    if (!text || !text.length) return true;
+
+    const { notes, serial_number, title, event_details } = report;
+    const toTest = JSON.stringify({ notes, serial_number, title, event_details }).toLowerCase();
+
+    return toTest.includes(text.toLowerCase());
+    
+  };
+
   const reportMatchesPriorityFilter = () => {
     if (!eventFilter.filter.priority.length) return true;
     return eventFilter.filter.priority.includes(report.priority);
@@ -342,11 +353,13 @@ export const validateReportAgainstCurrentEventFilter = (report) => {
     && reportMatchesPriorityFilter()
     && reportMatchesReportedByFilter()
     && reportMatchesDateFilter()
+    && reportMatchesTextFiter()
     && reportMatchesEventTypeFilter();
   /* 
   state
   event_type
   priority
   reported_by
+  text
    */
 };
