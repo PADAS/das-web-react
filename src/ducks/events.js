@@ -4,7 +4,8 @@ import union from 'lodash/union';
 import { API_URL } from '../constants';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection, uniqueEventIds } from '../utils/events';
+import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection,
+  uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
 const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -23,6 +24,7 @@ const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
 const UPDATE_EVENT_START = 'UPDATE_EVENT_START';
 const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
 const UPDATE_EVENT_ERROR = 'UPDATE_EVENT_ERROR';
+const REMOVE_EVENT_BY_ID = 'REMOVE_EVENT_BY_ID';
 
 const UPLOAD_EVENT_FILES_START = 'UPLOAD_EVENT_FILES_START';
 const UPLOAD_EVENT_FILES_SUCCESS = 'UPLOAD_EVENT_FILES_SUCCESS';
@@ -45,12 +47,29 @@ const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
 const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
-export const SOCKET_NEW_EVENT = 'SOCKET_NEW_EVENT';
-export const SOCKET_UPDATE_EVENT = 'SOCKET_UPDATE_EVENT';
-
+const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
-const SOCKET_EVENTS = [SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT];
+export const socketEventData = (payload) => (dispatch) => {
+  const { event_id, event_data, matches_current_filter } = payload;
+
+  if (!matches_current_filter) {
+    dispatch({
+      type: REMOVE_EVENT_BY_ID,
+      payload: event_id,
+    });
+  } else {
+    dispatch({
+      type: SOCKET_EVENT_DATA,
+      payload: event_data,
+    });
+  }
+  dispatch({
+    type: UPDATE_EVENT_STORE,
+    payload: [event_data],
+  });
+};
+
 
 // higher-order action creators
 const fetchNamedFeedActionCreator = (name) => {
@@ -182,14 +201,27 @@ export const updateEvent = (event) => (dispatch) => {
     payload: event,
   });
 
+  let eventResults;
+
   return axios.patch(`${EVENT_API_URL}${event.id}`, event)
     .then((response) => {
-      dispatch({
-        type: UPDATE_EVENT_SUCCESS,
-        payload: response.data.data,
-      });
-      dispatch(updateEventStore(response.data.data));
-      return response;
+      eventResults = response.data.data;
+      return Promise.resolve(validateReportAgainstCurrentEventFilter(eventResults));
+    })
+    .then((matchesEventFilter) => {
+      if (!matchesEventFilter) {
+        dispatch({
+          type: REMOVE_EVENT_BY_ID,
+          payload: event.id,
+        });
+      } else {
+        dispatch({
+          type: UPDATE_EVENT_SUCCESS,
+          payload: eventResults,
+        });
+      }
+      dispatch(updateEventStore(eventResults));
+      return eventResults;
     })
     .catch((error) => {
       dispatch({
@@ -344,14 +376,25 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
   }
 
   /* socket changes and event updates should affect all feeds */
-  if (SOCKET_EVENTS.includes(type) || type === UPDATE_EVENT_SUCCESS) {
-    const id = SOCKET_EVENTS.includes(type) ? payload.event_id : payload.id; 
+  if (
+    type === UPDATE_EVENT_SUCCESS || 
+    type === SOCKET_EVENT_DATA
+  ) {
+    const { id } = payload;
+    
     const stateUpdate = {
       ...state,
       results: union([id], state.results),
     };
 
     return reducer(stateUpdate, action);
+  }
+
+  if (type === REMOVE_EVENT_BY_ID) {
+    return {
+      ...state,
+      results: state.results.filter(id => id !== payload),
+    };
   }
 
   if (name !== action.name) return state;
@@ -388,8 +431,6 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
 // reducers
 const INITIAL_STORE_STATE = {};
 export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
-  const SOCKET_EVENTS = [SOCKET_NEW_EVENT, SOCKET_UPDATE_EVENT];
-
   if (type === CLEAR_EVENT_DATA) {
     return { ...INITIAL_STORE_STATE };
   }
@@ -432,16 +473,6 @@ export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }
       ...toAdd,
     };
   }
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data } = payload;
-    return {
-      ...state,
-      [event_data.id]: {
-        ...state[event_data.id],
-        ...event_data,
-      },
-    };
-  }
   return state;
 };
 
@@ -453,26 +484,25 @@ export const INITIAL_EVENT_FEED_STATE = {
   results: [],
 };
 
-export const eventFeedReducer = namedFeedReducer('EVENT_FEED', (state, { type, payload }) => {
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data, event_id } = payload;
-    if (eventBelongsToCollection(event_data)) {
+export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type, payload }) => {
+  if (type === SOCKET_EVENT_DATA) {
+    if (eventBelongsToCollection(payload)) {
       return {
         ...state,
-        results: state.results.filter(id => id !== event_id),
+        results: state.results.filter(id => id !== payload.id),
       };
     }
   }
   return state;
 });
 
-export const incidentFeedReducer = namedFeedReducer('INCIDENT_FEED', (state, { type, payload }) => {
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data, event_id } = payload;
-    if (!event_data.is_collection) {
+export const incidentFeedReducer = namedFeedReducer(INCIDENT_FEED_NAME, (state, { type, payload }) => {
+  if (type === SOCKET_EVENT_DATA) {
+    
+    if (!payload.is_collection) {
       return {
         ...state,
-        results: state.results.filter(id => id !== event_id),
+        results: state.results.filter(id => id !== payload.id),
       };
     }
   }
@@ -513,13 +543,18 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
       events: extractEventIDs(payload),
     };
   }
-  if (SOCKET_EVENTS.includes(type)) {
-    const { event_data, event_id } = payload;
-    if (!event_data.geojson) return state;
+  if (type === REMOVE_EVENT_BY_ID) {
+    return {
+      ...state,
+      events: state.events.filter(id => id !== payload),
+    };
+  }
+  if (type === SOCKET_EVENT_DATA) {
+    if (!payload.geojson) return state;
 
     return {
       ...state,
-      events: union([event_id], state.events),
+      events: union([payload.id], state.events),
     };
   }
   return state;

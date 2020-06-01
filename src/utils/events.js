@@ -2,6 +2,7 @@ import { store } from '../';
 import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
+import merge from 'lodash/merge';
 import isEqual from 'react-fast-compare';
 
 import { addModal } from '../ducks/modals';
@@ -90,7 +91,7 @@ export const calcEventFilterForRequest = (options = {}) => {
   const { data: { eventFilter, eventTypes } } = store.getState();
   const { params, format = 'string' } = options;
 
-  const toClean = { ...eventFilter, ...params };
+  const toClean = merge({}, eventFilter, params);
 
   const cleaned = {
     ...cleanedUpFilterObject(toClean),
@@ -283,3 +284,75 @@ export const addBounceToEventMapFeatures = (features, bounceIDs) => {
   return featuresWithIds;
 };
 
+export const validateReportAgainstCurrentEventFilter = (report) => { /* client-side filter validation -- save a round trip request after event updates */
+  const { data: { eventFilter, eventTypes } } = store.getState();
+
+  const reportMatchesDateFilter = () => {
+    const { filter: { date_range: { lower, upper } } } = eventFilter;
+    const { updated_at } = report;
+    
+    const updateDate = new Date(updated_at);
+
+
+    if (lower &&
+     (updateDate.getTime() < new Date(lower).getTime())
+    ) {
+      return false;
+    }
+
+    if (upper &&
+    (updateDate.getTime() > new Date(upper).getTime())
+    ) {
+      return false;
+    }
+
+    return true;
+    
+  };
+
+  const reportMatchesStateFilter = () => {
+    return eventFilter.state.includes(report.state);
+  };
+
+  const reportMatchesEventTypeFilter = () => {
+    if (!eventFilter.filter.event_type.length) return true;
+    const eventTypeValuesFromFilterIds = eventFilter.filter.event_type
+      .map(id => eventTypes.find(type => type.id === id))
+      .filter(item => !!item)
+      .map(({ value }) => value);
+
+    return eventTypeValuesFromFilterIds.includes(report.event_type);
+  };
+
+  const reportMatchesTextFiter = () => {
+    const { filter: { text } } = eventFilter;
+    if (!text || !text.length) return true;
+
+    const { notes, serial_number, title, event_details } = report;
+    const toTest = JSON.stringify({ notes, serial_number, title, event_details }).toLowerCase();
+
+    return toTest.includes(text.toLowerCase());
+    
+  };
+
+  const reportMatchesPriorityFilter = () => {
+    if (!eventFilter.filter.priority.length) return true;
+    return eventFilter.filter.priority.includes(report.priority);
+  };
+
+  const reportMatchesReportedByFilter = () => {
+    if (!eventFilter.filter.reported_by.length) return true;
+
+    if (!!eventFilter.filter.reported_by.length
+    && !report.reported_by) return false;
+    
+    return eventFilter.filter.reported_by.includes(report.reported_by.id);
+  };
+
+  return reportMatchesStateFilter()
+    && reportMatchesPriorityFilter()
+    && reportMatchesReportedByFilter()
+    && reportMatchesDateFilter()
+    && reportMatchesTextFiter()
+    && reportMatchesEventTypeFilter();
+};

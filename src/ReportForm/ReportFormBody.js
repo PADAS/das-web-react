@@ -13,7 +13,8 @@ const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based 
     const linearErrorPropTree = error.property
       .replace(/'|\.properties|\[|\]|\.enumNames|\.enum/g, '.')
       .split('.')
-      .filter(p => !!p);
+      .filter(p => !!p)
+      .map(item => isNaN(item) ? item : parseFloat(item));
 
     let match;
 
@@ -21,7 +22,12 @@ const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based 
       match = schema.properties[linearErrorPropTree[0]];
     } else {
       match = linearErrorPropTree
-        .reduce((accumulator, p) => (accumulator.properties || accumulator)[p], schema);
+        .reduce((accumulator, p) => {
+          if (!isNaN(p)) {
+            return accumulator.items;
+          }
+          return (accumulator.properties || accumulator)[p];
+        }, schema);
     }
 
     return !!match && !match.enum;
