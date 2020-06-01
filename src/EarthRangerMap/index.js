@@ -1,6 +1,6 @@
-import React, { createContext, Fragment, memo, useRef, useState, useEffect } from 'react';
+import React, { Fragment, memo, useRef, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import ReactMapboxGl, { ZoomControl, ScaleControl } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 
 import { trackEvent } from '../utils/analytics';
@@ -15,9 +15,6 @@ import '../Map/Map.scss';
 import BaseLayerRenderer from '../BaseLayerRenderer';
 import Attribution from './Attribution';
 
-
-const EarthRangerMapContext = createContext(null);
-
 const MapboxMap = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_TOKEN,
   minZoom: MIN_ZOOM,
@@ -26,13 +23,11 @@ const MapboxMap = ReactMapboxGl({
 });
 
 export function withMap(Component) {
-  return props => <EarthRangerMapContext.Consumer>{map => <Component map={map} {...props} />}</EarthRangerMapContext.Consumer>; // eslint-disable-line react/display-name
+  return props => <MapContext.Consumer>{map => <Component map={map} {...props} />}</MapContext.Consumer>; // eslint-disable-line react/display-name
 };
 
 const EarthRangerMap = (props) => {
   const { currentBaseLayer, children, controls, onMapLoaded, ...rest } = props;
-  const [map, setMap] = useState(null);
-
   
   const [mapStyle, setMapStyle] = useState(REACT_APP_BASE_MAP_STYLES);
 
@@ -44,7 +39,6 @@ const EarthRangerMap = (props) => {
 
     });
     onMapLoaded && onMapLoaded(map);
-    setMap(map);
   };
 
   const id = useRef(uuid());
@@ -68,8 +62,8 @@ const EarthRangerMap = (props) => {
     movingMethod='easeTo'
     {...rest}
     onStyleLoad={onLoad}>
-    <EarthRangerMapContext.Provider value={map}>
-      {map && <Fragment>
+    <MapContext.Consumer>
+      {(map) => map && <Fragment>
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>
@@ -79,7 +73,7 @@ const EarthRangerMap = (props) => {
         <Attribution currentBaseLayer={currentBaseLayer}  className='mapboxgl-ctrl mapboxgl-ctrl-attrib er-map' />
         <BaseLayerRenderer />
       </Fragment>}
-    </EarthRangerMapContext.Provider>
+    </MapContext.Consumer>
   </MapboxMap>;
 };
 

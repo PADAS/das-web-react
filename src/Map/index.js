@@ -7,7 +7,7 @@ import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
-import MapboxglSpiderifier from 'mapboxgl-spiderifier';
+import { ReactMapboxGlSpiderifier } from 'react-mapbox-gl-spiderifier';
 
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
@@ -15,7 +15,7 @@ import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../du
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer, createReportMarkerForSpiderLeg } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -33,7 +33,7 @@ import { LAYER_IDS } from '../constants';
 
 import withSocketConnection from '../withSocketConnection';
 import DelayedUnmount from '../DelayedUnmount';
-import EarthRangerMap from '../EarthRangerMap';
+import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
@@ -52,6 +52,7 @@ import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
+import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
 
 import MapRulerControl from '../MapRulerControl';
@@ -63,6 +64,13 @@ import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
 class Map extends Component {
+  state = {
+    reportSpiderConfig: {
+      reports: null,
+      coordinates: null,
+    },
+  };
+  
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
@@ -159,7 +167,13 @@ class Map extends Component {
   }
 
   unspiderfy() {
-    this.spiderifier.unspiderfy();
+    console.log('unsetting state');
+    this.setState({
+      reportSpiderConfig: {
+        coordinates: null,
+        reports: null,
+      },
+    });
   }
 
   setTrackLengthToEventFilterRange() {
@@ -258,7 +272,9 @@ class Map extends Component {
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
-    this.unspiderfy();
+    if (!!this.state.reportSpiderConfig.reports) {
+      this.unspiderfy();
+    }
   }
 
   onEventSymbolClick({ properties }) {
@@ -321,8 +337,8 @@ class Map extends Component {
     this.props.setReportHeatmapVisibility(false);
   }
 
-  onClusterClick(e) {
-    const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+  onClusterClick({ point, lngLat }) {
+    const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
 
@@ -331,8 +347,18 @@ class Map extends Component {
       if (this.props.map.getZoom() >= 11) {
         clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
           if (err) return;
-          var markers = features.map(feature => feature.properties);
-          this.spiderifier.spiderfy(features[0].geometry.coordinates, markers);
+          const reports = features.map(feature => feature.properties);
+
+          console.log('setting state');
+
+          this.setState({
+            reportSpiderConfig: {
+              coordinates: [lngLat.lng, lngLat.lat],
+              reports,
+            }
+          });
+          /* CREATE SPIDERFIED CLUSTER HERE */
+          // this.spiderifier.spiderfy(features[0].geometry.coordinates, markers);
         });
       } else {
         this.props.map.easeTo({
@@ -371,18 +397,6 @@ class Map extends Component {
       map.setZoom(this.props.homeMap.zoom);
     };   
     window.map = map;
-
-    this.spiderifier = new MapboxglSpiderifier(map, {
-      animate: true,
-      customPin: true,
-      initializeLeg(leg) {
-        console.log('leggy', leg);
-        createReportMarkerForSpiderLeg(leg);
-      },
-      onClick: function(e, spiderLeg){
-        console.log('Clicked on ', spiderLeg);
-      },
-    });
     
     this.props.onMapLoad(map);
     this.onMapMoveEnd(); 
@@ -493,6 +507,12 @@ class Map extends Component {
               onClusterClick={this.onClusterClick}
               bounceEventIDs={bounceEventIDs} />}
 
+            {!!this.state.reportSpiderConfig.reports &&
+              <ReactMapboxGlSpiderifier coordinates={this.state.reportSpiderConfig.coordinates}>
+                <SpideredReportMarkers mapImages={this.props.mapImages} eventTypes={this.props.eventTypes} reports={this.state.reportSpiderConfig.reports} />
+              </ReactMapboxGlSpiderifier>
+            }
+
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
@@ -515,12 +535,13 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter } = data;
+  const { maps, tracks, eventFilter, eventTypes, } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
     maps,
+    eventTypes,
     heatmapSubjectIDs,
     tracks,
     hiddenAnalyzerIDs,
@@ -562,7 +583,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(withSocketConnection(Map));
+)(withMap(withSocketConnection(Map)));
 
 // secret code burial ground
 // for future reference and potential experiments

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { addTitleWithDateToGeoJson, getEventTypeTitle } from '../utils/map';
@@ -7,7 +7,7 @@ import { addTitleWithDateToGeoJson, getEventTypeTitle } from '../utils/map';
 import styles from './styles.module.scss';
 
 const SpideredReportMarker = (props) => {
-  const { eventTypes, mapImages, report } = props;
+  const { eventTypes, mapImages, report, ...rest } = props;
   const [imageAttributes, setImgAttributes] = useState(null);
   const [displayTitle, setDisplayTitle] = useState('');
   
@@ -34,23 +34,16 @@ const SpideredReportMarker = (props) => {
   useEffect(() => {
     const { title, event_type } = report;
     const displayTitle = title || getEventTypeTitle(eventTypes, event_type);
-    setDisplayTitle(addTitleWithDateToGeoJson({ properties: { ...report } }, displayTitle).properties.display_title);
+    setDisplayTitle(addTitleWithDateToGeoJson({ properties: cloneDeep(report) }, displayTitle).properties.display_title);
   }, [eventTypes, report]);
 
 
   
-  return <div className={styles.marker}>
+  return <div className={styles.marker} {...rest}>
     {!!imageAttributes && <img alt='wow' {...imageAttributes} />}
-    {/* <h6>{displayTitle}</h6> */}
-    {/* style up to be a close match */}
+    <h6>{displayTitle}</h6>
     {/* increase zoom threshold tolerance for declustering, line up w/spiderification behavior */}
   </div>;
 };
 
-const mapStateToProps = ({ data: { eventTypes }, view: { mapImages } }) => ({
-  eventTypes,
-  mapImages,
-});
-
-
-export default connect(mapStateToProps, null)(memo(SpideredReportMarker));
+export default memo(SpideredReportMarker);

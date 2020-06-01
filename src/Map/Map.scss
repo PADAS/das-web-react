@@ -24,29 +24,6 @@
   }
 }
 
-.spider-leg-container .spider-leg-pin {
-  display: flex;
-  text-align: center;
-  left: -1rem;
-  top: 0.5rem;
-  position: relative;
-}
-.spider-leg-container .spider-leg-line {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 2px;
-    background-color: #343434;
-    opacity: 0.45;
-    transform-origin: bottom;
-    z-index: 0;
-    height: 0;
-}
-
-.spider-leg-container:hover .spider-leg-line {
-  background-color: #f404f4;
-}
-
 .map-controls-container {
   bottom: 1.25rem;
   display: flex;
