@@ -284,7 +284,7 @@ export const addBounceToEventMapFeatures = (features, bounceIDs) => {
   return featuresWithIds;
 };
 
-export const validateReportAgainstCurrentEventFilter = (report) => {
+export const validateReportAgainstCurrentEventFilter = (report) => { /* client-side filter validation -- save a round trip request after event updates */
   const { data: { eventFilter, eventTypes } } = store.getState();
 
   const reportMatchesDateFilter = () => {
@@ -355,11 +355,4 @@ export const validateReportAgainstCurrentEventFilter = (report) => {
     && reportMatchesDateFilter()
     && reportMatchesTextFiter()
     && reportMatchesEventTypeFilter();
-  /* 
-  state
-  event_type
-  priority
-  reported_by
-  text
-   */
 };

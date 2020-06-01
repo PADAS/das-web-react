@@ -15,7 +15,7 @@ import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
-import { openModalForReport } from '../utils/events';
+import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getVisibleTrackIds } from '../selectors/tracks';
@@ -108,6 +108,7 @@ class Map extends Component {
     if (!this.props.map) return;
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
+      this.props.socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
       this.debouncedFetchMapData();
       if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
         && !isEqual(prev.eventFilter.filter.date_range, this.props.eventFilter.filter.date_range)) {

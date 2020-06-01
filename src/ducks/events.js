@@ -51,11 +51,9 @@ const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 export const socketEventData = (payload) => (dispatch) => {
-  const { event_id, event_data } = payload;
+  const { event_id, event_data, matches_current_filter } = payload;
 
-  const isValidWithFilter = validateReportAgainstCurrentEventFilter(event_data);
-
-  if (!isValidWithFilter) {
+  if (!matches_current_filter) {
     dispatch({
       type: REMOVE_EVENT_BY_ID,
       payload: event_id,

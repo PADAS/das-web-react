@@ -7,6 +7,7 @@ import { events, SOCKET_RECOVERY_DISPATCHES } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
+import { calcEventFilterForRequest } from '../utils/events';
 
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
 
@@ -89,8 +90,9 @@ const bindSocketEvents = (socket, store) => {
         });
       });
     }
-
     eventsBound = true;
+
+    socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
   });
 };
 
