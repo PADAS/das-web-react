@@ -1,10 +1,13 @@
 import io from 'socket.io-client';
+import isFunction from 'lodash/isFunction';
+
 import { store } from '../index';
 import { REACT_APP_DAS_HOST } from '../constants';
 import { events, SOCKET_RECOVERY_DISPATCHES } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
+import { calcEventFilterForRequest } from '../utils/events';
 
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
 
@@ -77,12 +80,19 @@ const bindSocketEvents = (socket, store) => {
     if (!eventsBound) {
       Object.entries(events).forEach(([event_name, actionTypes]) => {
         return stateManagedSocketEventHandler(socket, event_name, (payload) => {
-          actionTypes.forEach(type => store.dispatch({ type, payload }));
+          actionTypes.forEach(type => {
+            if (isFunction(type)) {
+              store.dispatch(type(payload));
+            } else {
+              store.dispatch({ type, payload });
+            }
+          });
         });
       });
     }
-
     eventsBound = true;
+
+    socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
   });
 };
 
