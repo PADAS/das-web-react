@@ -53,7 +53,7 @@ export const createReportMarkerForSpiderLeg = (spiderLeg, spiderifierInstance) =
 
   /* eslint-disable */
   ReactDOM.render(<Provider store={store}>
-    <SpideredReportMarker report={ spiderLeg.feature} />
+    <SpideredReportMarker report={spiderLeg.feature} />
   </Provider>, pinElem); 
   /* eslint-enable */
 
@@ -103,7 +103,7 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   return featureCollection([]);
 };
 
-const addTitleWithDateToGeoJson = (geojson, title) => { 
+export const addTitleWithDateToGeoJson = (geojson, title) => { 
   const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
   return (geojson.properties.display_title = displayTitle) && geojson;
 };
@@ -116,7 +116,7 @@ const setUpEventGeoJson = (events, eventTypes) =>
   }
   );
 
-const getEventTypeTitle = (event_types, event_type) => {
+export const getEventTypeTitle = (event_types, event_type) => {
   const typeTitle = event_types.findIndex(item => item.value === event_type) > -1
     ? event_types.find(item => item.value === event_type)
     : event_type;

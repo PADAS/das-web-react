@@ -26,11 +26,13 @@
 
 .spider-leg-container .spider-leg-pin {
   display: flex;
-  height: 2.5rem;
-  margin-left: -2rem;
+  height: 4rem;
+  margin-left: -0.75rem;
   margin-top: -2rem;
+  text-align: center;
+  top: 1rem;
   position: relative;
-  width: 2.5rem;
+  width: 8;
 }
 .spider-leg-container .spider-leg-line {
     position: absolute;

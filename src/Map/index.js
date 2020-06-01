@@ -379,8 +379,8 @@ class Map extends Component {
         console.log('leggy', leg);
         createReportMarkerForSpiderLeg(leg);
       },
-      markerHeight: 40,
-      markerWidth: 40,
+      markerHeight: 64,
+      markerWidth: 192,
       onClick: function(e, spiderLeg){
         console.log('Clicked on ', spiderLeg);
       },
