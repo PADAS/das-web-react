@@ -202,10 +202,12 @@ export const updateEvent = (event) => (dispatch) => {
   });
 
   let eventResults;
+  let resp;
 
   return axios.patch(`${EVENT_API_URL}${event.id}`, event)
     .then((response) => {
       eventResults = response.data.data;
+      resp = response;
       return Promise.resolve(validateReportAgainstCurrentEventFilter(eventResults));
     })
     .then((matchesEventFilter) => {
@@ -221,7 +223,7 @@ export const updateEvent = (event) => (dispatch) => {
         });
       }
       dispatch(updateEventStore(eventResults));
-      return eventResults;
+      return resp;
     })
     .catch((error) => {
       dispatch({
