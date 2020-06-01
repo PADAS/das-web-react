@@ -29,12 +29,12 @@ import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
-import { LAYER_IDS } from '../constants';
+import { LAYER_IDS, MAX_ZOOM } from '../constants';
 
 import withSocketConnection from '../withSocketConnection';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
-import EventsLayer from '../EventsLayer';
+import EventsLayer, { CLUSTER_CONFIG } from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
@@ -61,8 +61,10 @@ import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 
-
 import './Map.scss';
+
+const REPORT_SPIDER_THRESHOLD = MAX_ZOOM - 2;
+
 class Map extends Component {
   state = {
     reportSpiderConfig: {
@@ -78,11 +80,13 @@ class Map extends Component {
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
+    this.onMapZoom = this.onMapZoom.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
+    this.onClusterLeafClick = this.onClusterLeafClick.bind(this);
     this.onFeatureSymbolClick = this.onFeatureSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
@@ -103,6 +107,12 @@ class Map extends Component {
       });
     }
   }
+
+  onMapZoom = debounce((e) => {
+    if (!!this.state.reportSpiderConfig.reports) {
+      this.unspiderfy();
+    }
+  }, 100)
 
   componentDidMount() {
     this.props.fetchBaseLayers();
@@ -167,7 +177,6 @@ class Map extends Component {
   }
 
   unspiderfy() {
-    console.log('unsetting state');
     this.setState({
       reportSpiderConfig: {
         coordinates: null,
@@ -285,6 +294,10 @@ class Map extends Component {
     openModalForReport(event, map);
   }
 
+  onClusterLeafClick(report) {
+    this.onEventSymbolClick({ properties: report });
+  }
+
   onFeatureSymbolClick({ geometry, properties }) {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
@@ -344,12 +357,10 @@ class Map extends Component {
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
-      if (this.props.map.getZoom() >= 11) {
+      if (this.props.map.getZoom() >= REPORT_SPIDER_THRESHOLD) {
         clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
           if (err) return;
           const reports = features.map(feature => feature.properties);
-
-          console.log('setting state');
 
           this.setState({
             reportSpiderConfig: {
@@ -357,8 +368,6 @@ class Map extends Component {
               reports,
             }
           });
-          /* CREATE SPIDERFIED CLUSTER HERE */
-          // this.spiderifier.spiderfy(features[0].geometry.coordinates, markers);
         });
       } else {
         this.props.map.easeTo({
@@ -455,6 +464,7 @@ class Map extends Component {
         </Fragment>}
         onMoveStart={this.onMapMoveStart}
         onMoveEnd={this.onMapMoveEnd}
+        onZoom={this.onMapZoom}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
 
@@ -507,10 +517,10 @@ class Map extends Component {
               onClusterClick={this.onClusterClick}
               bounceEventIDs={bounceEventIDs} />}
 
-            {!!this.state.reportSpiderConfig.reports &&
-              <ReactMapboxGlSpiderifier coordinates={this.state.reportSpiderConfig.coordinates}>
-                <SpideredReportMarkers mapImages={this.props.mapImages} eventTypes={this.props.eventTypes} reports={this.state.reportSpiderConfig.reports} />
-              </ReactMapboxGlSpiderifier>
+            {!!this.state.reportSpiderConfig.coordinates && 
+              <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 
+                mapImages={this.props.mapImages} eventTypes={this.props.eventTypes} 
+                reports={this.state.reportSpiderConfig.reports} onReportClick={this.onClusterLeafClick} />
             }
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />

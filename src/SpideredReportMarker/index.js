@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
@@ -7,9 +7,16 @@ import { addTitleWithDateToGeoJson, getEventTypeTitle } from '../utils/map';
 import styles from './styles.module.scss';
 
 const SpideredReportMarker = (props) => {
-  const { eventTypes, mapImages, report, ...rest } = props;
+  const { eventTypes, mapImages, report, onClick, ...rest } = props;
   const [imageAttributes, setImgAttributes] = useState(null);
   const [displayTitle, setDisplayTitle] = useState('');
+  
+  const handleClick = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    onClick(report);
+  }, [onClick, report]);
   
   useEffect(() => {
     const storeImage = mapImages[
@@ -39,7 +46,7 @@ const SpideredReportMarker = (props) => {
 
 
   
-  return <div className={styles.marker} {...rest}>
+  return <div className={styles.marker} onClick={handleClick} {...rest}>
     {!!imageAttributes && <img alt='wow' {...imageAttributes} />}
     <h6>{displayTitle}</h6>
     {/* increase zoom threshold tolerance for declustering, line up w/spiderification behavior */}
