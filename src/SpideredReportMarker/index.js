@@ -41,7 +41,7 @@ const SpideredReportMarker = (props) => {
   
   return <div className={styles.marker}>
     {!!imageAttributes && <img alt='wow' {...imageAttributes} />}
-    <h6>{displayTitle}</h6>
+    {/* <h6>{displayTitle}</h6> */}
     {/* style up to be a close match */}
     {/* increase zoom threshold tolerance for declustering, line up w/spiderification behavior */}
   </div>;
