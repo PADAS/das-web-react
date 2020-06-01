@@ -7,7 +7,6 @@ import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
-import { ReactMapboxGlSpiderifier } from 'react-mapbox-gl-spiderifier';
 
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
@@ -34,7 +33,7 @@ import { LAYER_IDS, MAX_ZOOM } from '../constants';
 import withSocketConnection from '../withSocketConnection';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
-import EventsLayer, { CLUSTER_CONFIG } from '../EventsLayer';
+import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
 import FeatureLayer from '../FeatureLayer';
