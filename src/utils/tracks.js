@@ -172,9 +172,9 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
 };
 
 export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
-  if (!from && !until) return { track, points };
 
   const [originalTrack] = track.features;
+  if ((!from && !until) || !originalTrack.geometry) return { track, points };
 
   const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
 
@@ -184,17 +184,13 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
 
   const trackResults = cloneDeep(originalTrack);
 
-  // when filtering dates with tracks open, we sometimes wind up with a null gemetry, 
-  // so don't let it create a runtime exception via referencing a null property here
-  if(!!trackResults.geometry) {
-    trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
-    trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
+  trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
+  trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
 
-    if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
-      const lastIndex = originalTrack.geometry.coordinates.length - 1;
-      trackResults.geometry.coordinates = [originalTrack.geometry.coordinates[lastIndex]];
-      trackResults.properties.coordinateProperties.times = [trackResults.properties.coordinateProperties.times[lastIndex]];
-    }
+  if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
+    const lastIndex = originalTrack.geometry.coordinates.length - 1;
+    trackResults.geometry.coordinates = [originalTrack.geometry.coordinates[lastIndex]];
+    trackResults.properties.coordinateProperties.times = [trackResults.properties.coordinateProperties.times[lastIndex]];
   }
 
   return {
