@@ -184,13 +184,17 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
 
   const trackResults = cloneDeep(originalTrack);
 
-  trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
-  trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
+  // when filtering dates with tracks open, we sometimes wind up with a null gemetry, 
+  // so don't let it create a runtime exception via referencing a null property here
+  if(!!trackResults.geometry) {
+    trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
+    trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
 
-  if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
-    const lastIndex = originalTrack.geometry.coordinates.length - 1;
-    trackResults.geometry.coordinates = [originalTrack.geometry.coordinates[lastIndex]];
-    trackResults.properties.coordinateProperties.times = [trackResults.properties.coordinateProperties.times[lastIndex]];
+    if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
+      const lastIndex = originalTrack.geometry.coordinates.length - 1;
+      trackResults.geometry.coordinates = [originalTrack.geometry.coordinates[lastIndex]];
+      trackResults.properties.coordinateProperties.times = [trackResults.properties.coordinateProperties.times[lastIndex]];
+    }
   }
 
   return {
