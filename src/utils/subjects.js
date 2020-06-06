@@ -64,7 +64,10 @@ export const canShowTrackForSubject = subject =>
 export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
 
-export const getSubjectLastPositionCoordinates = subject => subject.last_position ? subject.last_position.geometry.coordinates : subject.geometry ? subject.geometry.coordinates : null;
+export const getSubjectLastPositionCoordinates = subject => {
+  return subject.last_position && subject.last_position.geometry ? subject.last_position.geometry.coordinates 
+    : subject.geometry ? subject.geometry.coordinates : null;
+};
 
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, update) => ({
   ...subject,
