@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { withRouter } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -90,6 +91,23 @@ class Map extends Component {
         },
       });
     }
+
+    const location = new URLSearchParams(this.props.location.search).get('lnglat');
+
+    if (location) {
+      this.lngLatFromParams = location.replace(' ', '').split(',').map(n => parseFloat(n));
+      const newLocation = { ...this.props.location };
+
+      delete newLocation.search;
+      this.props.history.push(newLocation);
+    }
+  }
+
+  get mapCenter() {
+    if (this.lngLatFromParams) {
+      return this.lngLatFromParams;
+    }
+    return this.props.homeMap.center;
   }
 
   componentDidMount() {
@@ -357,7 +375,11 @@ class Map extends Component {
   setMap(map) {
     // don't set zoom if not hydrated
     if (this.props.homeMap && this.props.homeMap.zoom) {
-      map.setZoom(this.props.homeMap.zoom);
+      if (this.lngLatFromParams) {
+        map.setZoom(16);
+      } else {
+        map.setZoom(this.props.homeMap.zoom);
+      }
     };   
     window.map = map;
     this.props.onMapLoad(map);
@@ -386,7 +408,7 @@ class Map extends Component {
 
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
-      mapEventFeatureCollection, homeMap, mapFeaturesFeatureCollection, analyzersFeatureCollection,
+      mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
@@ -405,7 +427,7 @@ class Map extends Component {
 
     return (
       <EarthRangerMap
-        center={homeMap.center}
+        center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
           <MapBaseLayerControl />
@@ -538,7 +560,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(withSocketConnection(Map));
+)(withSocketConnection(withRouter(Map)));
 
 // secret code burial ground
 // for future reference and potential experiments
