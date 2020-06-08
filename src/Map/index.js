@@ -62,6 +62,7 @@ import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
 
+
 const REPORT_SPIDER_THRESHOLD = MAX_ZOOM - 2;
 
 class Map extends Component {
@@ -77,6 +78,7 @@ class Map extends Component {
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
+    this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapZoom = this.onMapZoom.bind(this);
@@ -112,6 +114,14 @@ class Map extends Component {
       this.unspiderfy();
     }
   }, 100)
+
+  withLocationPickerState(func) {
+    return (...args) => {
+      if (!this.props.pickingLocationOnMap) {
+        return func(...args);
+      }
+    };
+  }
 
   componentDidMount() {
     this.props.fetchBaseLayers();
@@ -190,10 +200,10 @@ class Map extends Component {
       this.props.eventFilter.filter.date_range.lower,
     ));
   }
-  onTimepointClick(layer) {
+  onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
-  }
+  })
 
   onMapMoveStart() {
     mapSubjectsFetchCancelToken.cancel();
@@ -269,7 +279,7 @@ class Map extends Component {
         console.warn('error fetching map events', e);
       });
   }
-  onMapClick(map, event) {
+  onMapClick = this.withLocationPickerState((map, event) => {
     if (this.props.popup) {
       // be sure to also deactivate the analyzer features
       // when dismissing an analyzer popup
@@ -283,24 +293,24 @@ class Map extends Component {
     if (!!this.state.reportSpiderConfig.reports) {
       this.unspiderfy();
     }
-  }
+  })
 
-  onEventSymbolClick({ properties }) {
+  onEventSymbolClick = this.withLocationPickerState(({ properties }) => {
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
     trackEvent('Map Interaction', 'Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
-  }
+  })
 
-  onClusterLeafClick(report) {
+  onClusterLeafClick = this.withLocationPickerState((report) => {
     this.onEventSymbolClick({ properties: report });
-  }
+  });
 
-  onFeatureSymbolClick({ geometry, properties }) {
+  onFeatureSymbolClick = this.withLocationPickerState(({ geometry, properties }) => {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  }
+  })
 
   onAnalyzerGroupEnter = (e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new 
@@ -323,7 +333,7 @@ class Map extends Component {
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
   }
 
-  onAnalyzerFeatureClick = (e) => {
+  onAnalyzerFeatureClick = this.withLocationPickerState((e) => {
     const { map } = this.props;
     const features = getAnalyzerFeaturesAtPoint(map, e.point);
     setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
@@ -331,7 +341,7 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
-  }
+  })
 
   hideUnpinnedTrackLayers(map, event) {
     const { updateTrackState, subjectTrackState: { visible } } = this.props;
@@ -349,7 +359,7 @@ class Map extends Component {
     this.props.setReportHeatmapVisibility(false);
   }
 
-  onClusterClick({ point, lngLat }) {
+  onClusterClick = this.withLocationPickerState(({ point, lngLat }) => {
     const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
@@ -375,14 +385,14 @@ class Map extends Component {
         });
       }
     });
-  }
+  })
 
-  onCurrentUserLocationClick(location) {
+  onCurrentUserLocationClick = this.withLocationPickerState((location) => {
     this.props.showPopup('current-user-location', { location });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
-  }
+  })
 
-  async onMapSubjectClick(layer) {
+  onMapSubjectClick = this.withLocationPickerState(async (layer) => {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
     const { updateTrackState, subjectTrackState } = this.props;
@@ -397,7 +407,7 @@ class Map extends Component {
       });
     }
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
-  }
+  });
 
   setMap(map) {
     // don't set zoom if not hydrated
