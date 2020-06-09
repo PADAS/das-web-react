@@ -2,6 +2,7 @@ import axios, { CancelToken } from 'axios';
 import { REACT_APP_DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
 import { deleteAuthTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
+import { updateHeatmapSubjects, updateTrackState, INITIAL_TRACK_STATE, displayReportsOnMapState } from '../ducks/map-ui';
 
 const AUTH_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
@@ -47,6 +48,11 @@ export const clearAuth = () => dispatch => {
         type: CLEAR_AUTH,
         payload: {},
       });
+      // XXX clear tracks and reports here temporarily
+      dispatch(displayReportsOnMapState(false));
+      dispatch(updateTrackState(INITIAL_TRACK_STATE));
+      dispatch(updateHeatmapSubjects([]));
+
       resolve();
     }, 100);
   });
