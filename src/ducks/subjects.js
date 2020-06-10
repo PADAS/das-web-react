@@ -2,6 +2,7 @@ import axios, { CancelToken } from 'axios';
 import unionBy from 'lodash/unionBy';
 
 import { API_URL } from '../constants';
+import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
 import { updateSubjectLastPositionFromSocketStatusUpdate, updateSubjectsInSubjectGroupsFromSocketStatusUpdate } from '../utils/subjects';
@@ -96,7 +97,7 @@ const INITIAL_MAP_SUBJECT_STATE = {
 
 
 
-export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, action = {}) {
+export default globallyResettableReducer((state, action = {}) => {
   switch (action.type) {
   case CLEAR_SUBJECT_DATA: {
     return { ...INITIAL_MAP_SUBJECT_STATE };
@@ -137,9 +138,9 @@ export default function mapSubjectReducer(state = INITIAL_MAP_SUBJECT_STATE, act
     return state;
   }
   }
-};
+}, INITIAL_MAP_SUBJECT_STATE);
 
-export const subjectGroupsReducer = (state = [], action = {}) => {
+export const subjectGroupsReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
   if (type === CLEAR_SUBJECT_DATA) {
     return [];
@@ -153,4 +154,4 @@ export const subjectGroupsReducer = (state = [], action = {}) => {
     return updateSubjectsInSubjectGroupsFromSocketStatusUpdate(state, payload);
   }
   return state;
-};
+}, []);

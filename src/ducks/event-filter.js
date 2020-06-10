@@ -1,4 +1,5 @@
 import { generateMonthsAgoDate } from '../utils/datetime';
+import globallyResettableReducer from '../reducers/global-resettable';
 
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
@@ -30,7 +31,7 @@ export const INITIAL_FILTER_STATE = {
   },
 };
 
-export default (state = INITIAL_FILTER_STATE, action) => {
+const eventFilterReducer = (state, action) => {
   const { type, payload } = action;
 
   switch (type) {
@@ -47,6 +48,8 @@ export default (state = INITIAL_FILTER_STATE, action) => {
   }
   }
 };
+
+export default globallyResettableReducer(eventFilterReducer, INITIAL_FILTER_STATE);
 
 /*
 {

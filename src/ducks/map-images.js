@@ -1,3 +1,5 @@
+import globallyResettableReducer from '../reducers/global-resettable';
+
 const ADD_IMAGE_TO_MAP_IF_NECESSARY = 'ADD_IMAGE_TO_MAP_IF_NECESSARY';
 
 export const addImageToMapIfNecessary = (imgData) => ({
@@ -6,7 +8,7 @@ export const addImageToMapIfNecessary = (imgData) => ({
 });
 
 const INITIAL_STATE = {};
-const mapImagesReducer = (state = INITIAL_STATE, action) => {
+const mapImagesReducer = (state, action) => {
   const { payload, type } = action;
   if (type === ADD_IMAGE_TO_MAP_IF_NECESSARY && !state[payload.icon_id]) {
     return {
@@ -17,4 +19,4 @@ const mapImagesReducer = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export default mapImagesReducer;
+export default globallyResettableReducer(mapImagesReducer, INITIAL_STATE);

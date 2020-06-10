@@ -1,6 +1,7 @@
 import axios, { CancelToken } from 'axios';
 import { REACT_APP_DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
+import { resetGlobalState } from '../reducers/global-resettable';
 import { deleteAuthTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
 import { updateHeatmapSubjects, updateTrackState, INITIAL_TRACK_STATE, displayReportsOnMapState } from '../ducks/map-ui';
 
@@ -48,11 +49,7 @@ export const clearAuth = () => dispatch => {
         type: CLEAR_AUTH,
         payload: {},
       });
-      // XXX clear tracks and reports here temporarily
-      dispatch(displayReportsOnMapState(false));
-      dispatch(updateTrackState(INITIAL_TRACK_STATE));
-      dispatch(updateHeatmapSubjects([]));
-
+      dispatch(resetGlobalState());
       resolve();
     }, 100);
   });
