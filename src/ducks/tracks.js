@@ -1,6 +1,7 @@
 import axios, { CancelToken } from 'axios';
 import isEqual from 'react-fast-compare';
 
+import globallyResettableReducer from '../reducers/global-resettable';
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
 import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
@@ -64,7 +65,7 @@ export const setTrackLengthRangeOrigin = (origin) => ({
 
 // reducers
 const INITIAL_TRACKS_STATE = {};
-export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {}) {
+const tracksReducer = (state = INITIAL_TRACKS_STATE, action = {}) => {
   switch (action.type) {
   case SOCKET_SUBJECT_STATUS: {
     const { payload } = action;
@@ -99,6 +100,9 @@ export default function tracksReducer(state = INITIAL_TRACKS_STATE, action = {})
   }
 };
 
+export default globallyResettableReducer(tracksReducer, INITIAL_TRACKS_STATE);
+
+
 export const TRACK_LENGTH_ORIGINS = {
   eventFilter: 'eventFilter',
   customLength: 'customLength',
@@ -109,7 +113,7 @@ const INITIAL_TRACK_DATE_RANGE_STATE = {
   length: 21, // days
 };
 
-export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { type, payload }) => {
+export const trackDateRangeReducer = globallyResettableReducer((state, { type, payload }) => {
   if (type === SET_TRACK_LENGTH_ORIGIN) {
     return {
       ...state,
@@ -123,4 +127,4 @@ export const trackDateRangeReducer = (state = INITIAL_TRACK_DATE_RANGE_STATE, { 
   }
 
   return state;
-};
+}, INITIAL_TRACK_DATE_RANGE_STATE);

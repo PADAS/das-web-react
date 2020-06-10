@@ -1,4 +1,5 @@
 import isEqual from 'react-fast-compare';
+import globallyResettableReducer from '../reducers/global-resettable';
 
 // ACTIONS
 const UPDATE_MAP_LAYER_FILTER = 'UPDATE_MAP_LAYER_FILTER';
@@ -19,7 +20,7 @@ export const INITIAL_FILTER_STATE = {
   },
 };
 
-export default (state = INITIAL_FILTER_STATE, action) => {
+const mapLayerFilterReducer = (state, action) => {
   const { type, payload } = action;
 
   switch (type) {
@@ -41,3 +42,5 @@ export default (state = INITIAL_FILTER_STATE, action) => {
   }
   }
 };
+
+export default globallyResettableReducer(mapLayerFilterReducer, INITIAL_FILTER_STATE);
