@@ -14,7 +14,7 @@ import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../du
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
-import { cleanUpBadlyStoredValuesFromMapSymbolLayer } from '../utils/map';
+import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -104,10 +104,7 @@ class Map extends Component {
   }
 
   get mapCenter() {
-    if (this.lngLatFromParams) {
-      return this.lngLatFromParams;
-    }
-    return this.props.homeMap.center;
+    return this.lngLatFromParams || this.props.homeMap.center;
   }
 
   componentDidMount() {
@@ -124,6 +121,15 @@ class Map extends Component {
 
   componentDidUpdate(prev) {
     if (!this.props.map) return;
+
+    if ((this.props.homeMap !== prev.homeMap)
+      && this.props.homeMap.id) {
+      const { zoom, center } = this.props.homeMap;
+      jumpToLocation(this.props.map, this.lngLatFromParams || center, zoom);
+      if (this.lngLatFromParams) {
+        delete this.lngLatFromParams;
+      }
+    }
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.props.socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));

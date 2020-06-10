@@ -20,6 +20,9 @@ export const fetchCurrentUser = (config = {}) => (dispatch) => axios.get(CURRENT
       setUserRole(data.role);
     }
     dispatch(fetchUserSuccess(data));
+  })
+  .catch((error) => {
+    console.log('error fetching current user');
   });
 
 
