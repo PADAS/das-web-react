@@ -14,7 +14,7 @@ import { trackEvent } from '../utils/analytics';
 
 import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
-import { createEvent, addEventToIncident, fetchEvent } from '../ducks/events';
+import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 
 import StateButton from './StateButton';
 import IncidentReportsList from './IncidentReportsList';
@@ -31,7 +31,7 @@ import styles from './styles.module.scss';
 
 const ReportForm = (props) => {
   const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState } = props;
 
   const formRef = useRef(null);
   const reportedBySelectPortalRef = useRef(null);
@@ -105,10 +105,15 @@ const ReportForm = (props) => {
     return executeReportSaveActions(actions)
       .then((results) => {
         onSaveSuccess(results);
+        if (report.is_collection && toSubmit.state) {
+          return Promise.all(report.contains
+            .map(contained => contained.related_event.id)
+            .map(id => setEventState(id, toSubmit.state)));
+        }
         return results;
       })
       .catch(handleSaveError);
-  }, [filesToUpload, handleSaveError, is_collection, notesToAdd, onSaveSuccess, originalReport, report]);
+  }, [filesToUpload, handleSaveError, is_collection, notesToAdd, onSaveSuccess, originalReport, report, setEventState]);
 
   useEffect(() => {
     if (!initialized) {
@@ -462,6 +467,7 @@ export default connect(mapStateToProps, {
   createEvent: (...args) => createEvent(...args),
   addEventToIncident: (...args) => addEventToIncident(...args),
   fetchEvent: id => fetchEvent(id),
+  setEventState: (id, state) => setEventState(id, state),
 })(memo(ReportForm));
 
 ReportForm.defaultProps = {
