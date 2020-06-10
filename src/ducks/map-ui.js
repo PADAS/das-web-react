@@ -1,5 +1,7 @@
 import uniq from 'lodash/uniq';
 
+import globallyResettableReducer from '../reducers/global-resettable';
+
 // actions
 const UPDATE_HEATMAP_CONFIG = 'UPDATE_HEATMAP_CONFIG';
 
@@ -190,11 +192,11 @@ export const bounceEventReducer = (state = '', action) => {
 };
 
 const INITIAL_REPORT_HEATMAP_STATE = false;
-export const reportHeatmapStateReducer = (state = INITIAL_REPORT_HEATMAP_STATE, action) => {
+export const reportHeatmapStateReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === SET_REPORT_HEATMAP_VISIBILITY) return payload;
   return state;
-};
+}, INITIAL_REPORT_HEATMAP_STATE);
 
 const INITIAL_HEATMAP_STYLE_STATE = {
   radiusInMeters: 500,
@@ -207,39 +209,39 @@ export const heatmapStyleConfigReducer = (state = INITIAL_HEATMAP_STYLE_STATE, a
   return state;
 };
 
-export const heatmapSubjectIDsReducer = (state = [], action) => {
+export const heatmapSubjectIDsReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === UPDATE_SUBJECT_HEATMAP_STATE) return payload;
   return state;
-};
+}, []);
 
-export const hiddenSubjectIDsReducer = (state = [], action) => {
+export const hiddenSubjectIDsReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === HIDE_SUBJECTS) return uniq([...payload, ...state]);
   if (type === SHOW_SUBJECTS) return state.filter(item => !payload.includes(item));
   return state;
-};
+}, []);
 
-export const hiddenFeatureIDsReducer = (state = [], action) => {
+export const hiddenFeatureIDsReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === HIDE_FEATURES) return uniq([...payload, ...state]);
   if (type === SHOW_FEATURES) return state.filter(item => !payload.includes(item));
   return state;
-};
+}, []);
 
-export const hiddenAnalyzerIDsReducer = (state = [], action) => {
+export const hiddenAnalyzerIDsReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === HIDE_ANALYZERS) return uniq([...payload, ...state]);
   if (type === SHOW_ANALYZERS) return state.filter(item => !payload.includes(item));
   return state;
-};
+}, []);
 
-export const openMapFeatureTypesReducer = (state = [], action) => {
+export const openMapFeatureTypesReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === OPEN_MAP_FEATURE_TYPES) return uniq([...payload, ...state]);
   if (type === CLOSE_MAP_FEATURE_TYPES) return state.filter(item => !payload.includes(item));
   return state;
-};
+}, []);
 
 export const mapLockStateReducer = (state = false, action) => {
   const { type, payload } = action;
@@ -271,11 +273,11 @@ export const INITIAL_TRACK_STATE = {
   pinned: [],
 };
 
-export const subjectTrackReducer = (state = INITIAL_TRACK_STATE, action) => {
+export const subjectTrackReducer = globallyResettableReducer((state, action) => {
   const { type, payload } = action;
   if (type === UPDATE_SUBJECT_TRACK_STATE) return { ...state, ...payload };
   return state;
-};
+}, INITIAL_TRACK_STATE);
 
 export const pickingLocationOnMapReducer = (state = false, action) => {
   const { type, payload } = action;

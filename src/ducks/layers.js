@@ -1,5 +1,7 @@
 import { get } from 'axios';
 import { API_URL, REACT_APP_BASE_MAP_STYLES } from '../constants';
+import globallyResettableReducer from '../reducers/global-resettable';
+
 
 const FETCH_BASE_LAYERS_START = 'FETCH_BASE_LAYERS_START';
 const FETCH_BASE_LAYERS_SUCCESS = 'FETCH_BASE_LAYERS_SUCCESS';
@@ -45,16 +47,16 @@ const DEFAULT_BASE_LAYER = {
 };
 
 const INITIAL_BASE_LAYERS_STATE = [DEFAULT_BASE_LAYER];
-const baseLayersReducer = (state = INITIAL_BASE_LAYERS_STATE, { type, payload }) => {
+const baseLayersReducer = (state, { type, payload }) => {
   if (type === FETCH_BASE_LAYERS_SUCCESS) return [DEFAULT_BASE_LAYER, ...payload];
   return state;
 };
 
-export default baseLayersReducer;
-
-export const currentBaseLayerReducer = (state = DEFAULT_BASE_LAYER, { type, payload }) => {
+export const currentBaseLayerReducer = globallyResettableReducer((state, { type, payload }) => {
   if (type === SET_BASE_LAYER) {
     return payload;
   }
   return state;
-};
+}, DEFAULT_BASE_LAYER);
+
+export default globallyResettableReducer(baseLayersReducer, INITIAL_BASE_LAYERS_STATE);

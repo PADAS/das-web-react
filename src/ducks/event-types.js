@@ -1,4 +1,5 @@
 import axios from 'axios';
+import globallyResettableReducer from '../reducers/global-resettable';
 
 import { API_URL } from '../constants';
 
@@ -22,7 +23,7 @@ const fetchEventTypesSuccess = response => dispatch => {
 
 // reducer
 const INITIAL_STATE = [];
-export default function reducer(state = INITIAL_STATE, action = {}) {
+const eventTypesReducer = (state, action = {}) => {
   switch (action.type) {
   case FETCH_EVENT_TYPES_SUCCESS: {
     return action.payload;
@@ -32,3 +33,5 @@ export default function reducer(state = INITIAL_STATE, action = {}) {
   }
   }
 };
+
+export default globallyResettableReducer(eventTypesReducer, INITIAL_STATE);

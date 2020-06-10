@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 
+import globallyResettableReducer from '../reducers/global-resettable';
+
 const FEATURESET_API_URL = `${API_URL}featureset/`;
 
 // actions
@@ -59,7 +61,7 @@ export const fetchFeaturesets = () => async (dispatch) => {
 
 const INITIAL_FEATURESET_STATE = {data: []};
 // reducer
-export default (state = INITIAL_FEATURESET_STATE, action) => {
+export default globallyResettableReducer((state, action) => {
   const { payload, type } = action;
   if (type === FETCH_FEATURESETS_SUCCESS) {
     return {
@@ -67,4 +69,4 @@ export default (state = INITIAL_FEATURESET_STATE, action) => {
     };
   }
   return state;
-};
+}, INITIAL_FEATURESET_STATE);
