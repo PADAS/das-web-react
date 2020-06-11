@@ -57,7 +57,7 @@ const INITIAL_HOME_MAP_STATE = null;
 export const homeMapReducer = function homeMapReducer(state = INITIAL_HOME_MAP_STATE, action = {}) {
   switch (action.type) {
   case SET_HOME_MAP: {
-    return action.payload;
+    return { ...action.payload };
   }
   default: {
     return state;
