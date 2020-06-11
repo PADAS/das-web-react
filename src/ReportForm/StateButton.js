@@ -2,12 +2,11 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 
-const ACTIVE_STATES = ['active', 'new'];
-
+import {reportIsActive } from './';
 
 const StateButton = (props) => {
   const { state, isCollection, onStateToggle, ...rest } = props;
-  const isActive = ACTIVE_STATES.includes(state);
+  const isActive = reportIsActive(state);
 
   const onClick = () => {
     onStateToggle(isActive ? 'resolved' : 'active');
