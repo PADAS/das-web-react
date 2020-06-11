@@ -8,6 +8,7 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
+
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
@@ -27,11 +28,11 @@ import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
-import { LAYER_IDS } from '../constants';
+import { LAYER_IDS, MAX_ZOOM } from '../constants';
 
 import withSocketConnection from '../withSocketConnection';
 import DelayedUnmount from '../DelayedUnmount';
-import EarthRangerMap from '../EarthRangerMap';
+import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
@@ -50,6 +51,7 @@ import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
+import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
 
 import MapRulerControl from '../MapRulerControl';
@@ -59,19 +61,33 @@ import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
+
+
+const REPORT_SPIDER_THRESHOLD = MAX_ZOOM - 2;
+
 class Map extends Component {
+  state = {
+    reportSpiderConfig: {
+      reports: null,
+      coordinates: null,
+    },
+  };
+  
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
+    this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
+    this.onMapZoom = this.onMapZoom.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
+    this.onClusterLeafClick = this.onClusterLeafClick.bind(this);
     this.onFeatureSymbolClick = this.onFeatureSymbolClick.bind(this);
     this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
     this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
@@ -79,6 +95,7 @@ class Map extends Component {
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.fetchMapData = this.fetchMapData.bind(this);
     this.onRotationControlClick = this.onRotationControlClick.bind(this);
+    this.unspiderfy = this.unspiderfy.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.currentAnalyzerIds = [];
 
@@ -90,6 +107,20 @@ class Map extends Component {
         },
       });
     }
+  }
+
+  onMapZoom = debounce((e) => {
+    if (!!this.state.reportSpiderConfig.reports) {
+      this.unspiderfy();
+    }
+  }, 100)
+
+  withLocationPickerState(func) {
+    return (...args) => {
+      if (!this.props.pickingLocationOnMap) {
+        return func(...args);
+      }
+    };
   }
 
   componentDidMount() {
@@ -153,16 +184,26 @@ class Map extends Component {
       }
     }
   }
+
+  unspiderfy() {
+    this.setState({
+      reportSpiderConfig: {
+        coordinates: null,
+        reports: null,
+      },
+    });
+  }
+
   setTrackLengthToEventFilterRange() {
     this.props.setTrackLength(differenceInCalendarDays(
       this.props.eventFilter.filter.date_range.upper || new Date(),
       this.props.eventFilter.filter.date_range.lower,
     ));
   }
-  onTimepointClick(layer) {
+  onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties });
-  }
+  })
 
   onMapMoveStart() {
     mapSubjectsFetchCancelToken.cancel();
@@ -238,7 +279,7 @@ class Map extends Component {
         console.warn('error fetching map events', e);
       });
   }
-  onMapClick(map, event) {
+  onMapClick = this.withLocationPickerState((map, event) => {
     if (this.props.popup) {
       // be sure to also deactivate the analyzer features
       // when dismissing an analyzer popup
@@ -249,20 +290,27 @@ class Map extends Component {
       this.props.hidePopup(this.props.popup.id);
     }
     this.hideUnpinnedTrackLayers(map, event);
-  }
+    if (!!this.state.reportSpiderConfig.reports) {
+      this.unspiderfy();
+    }
+  })
 
-  onEventSymbolClick({ properties }) {
+  onEventSymbolClick = this.withLocationPickerState(({ properties }) => {
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
     trackEvent('Map Interaction', 'Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
-  }
+  })
 
-  onFeatureSymbolClick({ geometry, properties }) {
+  onClusterLeafClick = this.withLocationPickerState((report) => {
+    this.onEventSymbolClick({ properties: report });
+  });
+
+  onFeatureSymbolClick = this.withLocationPickerState(({ geometry, properties }) => {
     this.props.showPopup('feature-symbol', { geometry, properties });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  }
+  })
 
   onAnalyzerGroupEnter = (e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new 
@@ -285,7 +333,7 @@ class Map extends Component {
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
   }
 
-  onAnalyzerFeatureClick = (e) => {
+  onAnalyzerFeatureClick = this.withLocationPickerState((e) => {
     const { map } = this.props;
     const features = getAnalyzerFeaturesAtPoint(map, e.point);
     setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
@@ -293,7 +341,7 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
-  }
+  })
 
   hideUnpinnedTrackLayers(map, event) {
     const { updateTrackState, subjectTrackState: { visible } } = this.props;
@@ -310,19 +358,26 @@ class Map extends Component {
   onCloseReportHeatmap() {
     this.props.setReportHeatmapVisibility(false);
   }
-  onClusterClick(e) {
-    const features = this.props.map.queryRenderedFeatures(e.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+
+  onClusterClick = this.withLocationPickerState(({ point, lngLat }) => {
+    const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
-      if (this.props.map.getZoom() >= zoom) {
-        // clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
-        //   if (err) return;
-        //   var markers = features.map(feature => feature.properties);
-        //   spiderifier.spiderfy(features[0].geometry.coordinates, markers);
-        // });
+      if (this.props.map.getZoom() >= REPORT_SPIDER_THRESHOLD) {
+        clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
+          if (err) return;
+          const reports = features.map(feature => feature.properties);
+
+          this.setState({
+            reportSpiderConfig: {
+              coordinates: [lngLat.lng, lngLat.lat],
+              reports,
+            }
+          });
+        });
       } else {
         this.props.map.easeTo({
           center: features[0].geometry.coordinates,
@@ -330,14 +385,14 @@ class Map extends Component {
         });
       }
     });
-  }
+  })
 
-  onCurrentUserLocationClick(location) {
+  onCurrentUserLocationClick = this.withLocationPickerState((location) => {
     this.props.showPopup('current-user-location', { location });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
-  }
+  })
 
-  async onMapSubjectClick(layer) {
+  onMapSubjectClick = this.withLocationPickerState(async (layer) => {
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
     const { updateTrackState, subjectTrackState } = this.props;
@@ -352,7 +407,7 @@ class Map extends Component {
       });
     }
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
-  }
+  });
 
   setMap(map) {
     // don't set zoom if not hydrated
@@ -360,6 +415,7 @@ class Map extends Component {
       map.setZoom(this.props.homeMap.zoom);
     };   
     window.map = map;
+    
     this.props.onMapLoad(map);
     this.onMapMoveEnd(); 
   }
@@ -417,6 +473,7 @@ class Map extends Component {
         </Fragment>}
         onMoveStart={this.onMapMoveStart}
         onMoveEnd={this.onMapMoveEnd}
+        onZoom={this.onMapZoom}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
 
@@ -469,6 +526,12 @@ class Map extends Component {
               onClusterClick={this.onClusterClick}
               bounceEventIDs={bounceEventIDs} />}
 
+            {!!this.state.reportSpiderConfig.coordinates && 
+              <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 
+                mapImages={this.props.mapImages} eventTypes={this.props.eventTypes} 
+                reports={this.state.reportSpiderConfig.reports} onReportClick={this.onClusterLeafClick} />
+            }
+
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
@@ -491,12 +554,13 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter } = data;
+  const { maps, tracks, eventFilter, eventTypes, } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
     maps,
+    eventTypes,
     heatmapSubjectIDs,
     tracks,
     hiddenAnalyzerIDs,
@@ -538,7 +602,7 @@ export default connect(mapStatetoProps, {
   updateTrackState,
   updateHeatmapSubjects,
 }
-)(withSocketConnection(Map));
+)(withMap(withSocketConnection(Map)));
 
 // secret code burial ground
 // for future reference and potential experiments
