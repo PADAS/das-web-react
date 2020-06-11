@@ -143,7 +143,7 @@ const App = (props) => {
     <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
       {/* <ErrorBoundary> */}
-      <Map map={map} onMapLoad={onMapHasLoaded} />
+      <Map map={map} onMapLoad={onMapHasLoaded} pickingLocationOnMap={pickingLocationOnMap} />
       {/* </ErrorBoundary> */}
       {/* <ErrorBoundary> */}
       {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}

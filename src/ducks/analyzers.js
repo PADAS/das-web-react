@@ -3,6 +3,8 @@ import { API_URL } from '../constants';
 import { featureCollection } from '@turf/helpers';
 import { createGeoJSONCircle } from '../utils/analyzers';
 
+import globallyResettableReducer from '../reducers/global-resettable';
+
 export const ANALYZERS_API_URL = `${API_URL}analyzers/spatial?active=true`;
 
 // actions
@@ -56,7 +58,7 @@ export const fetchAnalyzers = () => async (dispatch) => {
 
 const INITIAL_ANALYZER_FEATURE_STATE = {data: []};
 // reducer
-const analyzersReducer = (state = INITIAL_ANALYZER_FEATURE_STATE, action) => {
+const analyzersReducer = (state, action) => {
   const { payload, type } = action;
   if (type === FETCH_ANALYZERS_SUCCESS) {
     return {
@@ -66,6 +68,6 @@ const analyzersReducer = (state = INITIAL_ANALYZER_FEATURE_STATE, action) => {
   return state;
 };
 
-export default analyzersReducer;
+export default globallyResettableReducer(analyzersReducer, INITIAL_ANALYZER_FEATURE_STATE);
 
 

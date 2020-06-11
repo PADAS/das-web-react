@@ -18,6 +18,12 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM, symbolTextSize } from '../constants';
 
+export const CLUSTER_CONFIG = {
+  cluster: true,
+  clusterMaxZoom: MAX_ZOOM, // Max zoom to cluster points on
+  clusterRadius: 40,
+};
+
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS, EVENT_SYMBOLS } = LAYER_IDS;
 
 const clusterSymbolLayout = {
@@ -142,8 +148,8 @@ const EventsLayer = (props) => {
     && !!clusterBufferPolygon.geometry.coordinates
     && !!clusterBufferPolygon.geometry.coordinates.length;
 
-  const onClusterMouseEnter = (e) => {
-    if (!clusterGeometryIsSet) {
+  const onClusterMouseEnter = useCallback((e) => {
+    if (!clusterGeometryIsSet && map.getZoom() < CLUSTER_CONFIG.clusterMaxZoom) {
       const clusterID = map.queryRenderedFeatures(e.point, { layers: [EVENT_CLUSTERS_CIRCLES] })[0].id;
       if (clusterID) {
         const clusterSource = map.getSource('events-data-clustered');
@@ -169,12 +175,12 @@ const EventsLayer = (props) => {
         setClusterBufferPolygon(featureCollection([]));
       }
     }
-  };
+  }, [clusterGeometryIsSet, map]);
   
-  const onClusterMouseLeave = () => {
+  const onClusterMouseLeave = useCallback(() => {
     // console.log('mouse leave, should be clearing the polygon');
     setClusterBufferPolygon(featureCollection([]));
-  };
+  }, []);
 
   const eventClusterDisabledLayout = enableClustering ? {} : {
     'icon-allow-overlap': true,
@@ -183,7 +189,7 @@ const EventsLayer = (props) => {
 
   const animationFrameID = useRef(null);
 
-  const updateBounceSineAnimation = () => {
+  const updateBounceSineAnimation = useCallback(() => {
     let currFrame = animationState.frame;
     const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
     if (bounceIDs.length) {
@@ -198,7 +204,7 @@ const EventsLayer = (props) => {
         setAnimationState({frame: 1, scale: 0.0, isRendering: false});
       }
     }
-  };
+  }, [animationState.frame, bounceIDs.length]);
 
   useEffect(() => {
     if (bounceIDs.length && animationState.isRendering) {
@@ -250,12 +256,6 @@ const EventsLayer = (props) => {
     ...mapUserLayoutConfig,
   };
 
-  const clusterConfig = {
-    cluster: true,
-    clusterMaxZoom: 15, // Max zoom to cluster points on
-    clusterRadius: 40,
-  };
-
   const sourceData = {
     type: 'geojson',
     data: mapEventFeatureCollection,
@@ -263,7 +263,7 @@ const EventsLayer = (props) => {
 
   const clusteredSourceData = {
     ...sourceData,
-    ...clusterConfig,
+    ...CLUSTER_CONFIG,
   };
 
   const clusterBufferData = {
@@ -291,7 +291,7 @@ const EventsLayer = (props) => {
         filter={['has', 'point_count']} onClick={handleClusterClick} layout={{...clusterSymbolLayout, 'visibility': enableClustering ? 'visible' : 'none'}} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave} />
 
-      <Layer minZoom={minZoom} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
+      <Layer minZoom={minZoom} maxZoom={MAX_ZOOM - 2} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
   </Fragment>;
 };

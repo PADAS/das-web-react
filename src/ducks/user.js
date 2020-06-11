@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 import { setUserRole } from '../utils/analytics';
+import globallyResettableReducer from '../reducers/global-resettable';
 
 export const CURRENT_USER_API_URL = `${API_URL}user/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
@@ -22,7 +23,7 @@ export const fetchCurrentUser = (config = {}) => (dispatch) => axios.get(CURRENT
     dispatch(fetchUserSuccess(data));
   })
   .catch((error) => {
-    console.log('error fetching current user');
+    console.log('error fetching current user', error);
   });
 
 
@@ -86,7 +87,7 @@ export default (state = INITIAL_USER_STATE, action = {}) => {
 
 
 const INITIAL_USER_PROFILE_STATE = [];
-export const userProfilesReducer = (state = INITIAL_USER_PROFILE_STATE, action = {}) => {
+export const userProfilesReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
   
   switch (type) {
@@ -97,10 +98,10 @@ export const userProfilesReducer = (state = INITIAL_USER_PROFILE_STATE, action =
     return state;
   }
   }
-};
+}, INITIAL_USER_PROFILE_STATE);
 
 const INITIAL_SELECTED_PROFILE_STATE = {};
-export const selectedUserProfileReducer = (state = INITIAL_SELECTED_PROFILE_STATE, action = {}) => {
+export const selectedUserProfileReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
   
   switch (type) {
@@ -114,4 +115,4 @@ export const selectedUserProfileReducer = (state = INITIAL_SELECTED_PROFILE_STAT
     return state;
   }
   }
-};
+}, INITIAL_SELECTED_PROFILE_STATE);

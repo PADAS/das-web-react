@@ -1,12 +1,13 @@
+import { feature, featureCollection, polygon } from '@turf/helpers';
+import { LngLatBounds } from 'mapbox-gl';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import format from 'date-fns/format';
+
 
 import { store } from '../';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import { feature, featureCollection, polygon } from '@turf/helpers';
-import { LngLatBounds } from 'mapbox-gl';
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
@@ -68,7 +69,7 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   return featureCollection([]);
 };
 
-const addTitleWithDateToGeoJson = (geojson, title) => { 
+export const addTitleWithDateToGeoJson = (geojson, title) => { 
   const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
   return (geojson.properties.display_title = displayTitle) && geojson;
 };
@@ -81,7 +82,7 @@ const setUpEventGeoJson = (events, eventTypes) =>
   }
   );
 
-const getEventTypeTitle = (event_types, event_type) => {
+export const getEventTypeTitle = (event_types, event_type) => {
   const typeTitle = event_types.findIndex(item => item.value === event_type) > -1
     ? event_types.find(item => item.value === event_type)
     : event_type;

@@ -2,10 +2,12 @@ import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
 
 import { API_URL } from '../constants';
+import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
+
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
 const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -367,7 +369,7 @@ const updateEventStore = (...results) => ({
 });
 
 // higher-order reducers
-const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EVENT_FEED_STATE, action) => {
+const namedFeedReducer = (name, reducer = state => state) => globallyResettableReducer((state, action) => {
   const isInitializationCall = state === undefined;
   if (isInitializationCall) return state;
 
@@ -428,11 +430,11 @@ const namedFeedReducer = (name, reducer = state => state) => (state = INITIAL_EV
   }
   
   return reducer(state, action);
-};
+}, INITIAL_EVENT_FEED_STATE);
 
 // reducers
 const INITIAL_STORE_STATE = {};
-export const eventStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
+export const eventStoreReducer = (state, { type, payload }) => {
   if (type === CLEAR_EVENT_DATA) {
     return { ...INITIAL_STORE_STATE };
   }
@@ -519,7 +521,7 @@ const INITIAL_MAP_EVENTS_STATE = {
   events: [],
 };
 
-export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EVENTS_STATE, { type, payload }) {
+export const mapEventsReducer = globallyResettableReducer((state, { type, payload }) => {
   const extractEventIDs = events => events.map(e => e.id);
 
   if (type === CLEAR_EVENT_DATA) {
@@ -560,6 +562,6 @@ export const mapEventsReducer = function mapEventsReducer(state = INITIAL_MAP_EV
     };
   }
   return state;
-};
+}, INITIAL_MAP_EVENTS_STATE);
 
-export default eventStoreReducer;
+export default globallyResettableReducer(eventStoreReducer, INITIAL_STORE_STATE);
