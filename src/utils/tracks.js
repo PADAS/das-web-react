@@ -172,9 +172,9 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
 };
 
 export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
-  if (!from && !until) return { track, points };
 
   const [originalTrack] = track.features;
+  if ((!from && !until) || !originalTrack.geometry) return { track, points };
 
   const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
 
