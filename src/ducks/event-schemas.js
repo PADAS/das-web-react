@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '../constants';
 import { generateFormSchemasFromEventTypeSchema } from '../utils/event-schemas';
+import globallyResettableReducer from '../reducers/global-resettable';
 
 const { get } = axios;
 
@@ -35,7 +36,7 @@ const fetchEventSchemaSuccess = payload => ({
   payload,
 });
 
-export default (state = {}, action) => {
+const eventSchemasReducer = (state, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_EVENT_TYPE_SCHEMA_SUCCESS) {
@@ -56,3 +57,5 @@ export default (state = {}, action) => {
 
   return state;
 };
+
+export default globallyResettableReducer(eventSchemasReducer, {});
