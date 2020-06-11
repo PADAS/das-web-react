@@ -29,6 +29,10 @@ import ImageModal from '../ImageModal';
 
 import styles from './styles.module.scss';
 
+const ACTIVE_STATES = ['active', 'new'];
+
+export const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
+
 const ReportForm = (props) => {
   const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState } = props;
@@ -45,6 +49,8 @@ const ReportForm = (props) => {
   const [saving, setSavingState] = useState(false);
 
   const { is_collection } = report;
+
+  const isActive = reportIsActive(report.state);
 
   useEffect(() => {
     updateStateReport({
@@ -125,7 +131,7 @@ const ReportForm = (props) => {
     } else {
       startSave();
     }
-  }, [report.state]); // eslint-disable-line
+  }, [isActive]); // eslint-disable-line
 
   useEffect(() => {
     const onSubmit = () => {
