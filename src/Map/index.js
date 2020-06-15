@@ -54,6 +54,7 @@ import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
+import ReloadOnProfileChange from '../ReloadOnProfileChange';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -574,7 +575,7 @@ class Map extends Component {
         )}
 
         {timeSliderActive && <TimeSlider />}
-
+        <ReloadOnProfileChange />
       </EarthRangerMap>
     );
   }

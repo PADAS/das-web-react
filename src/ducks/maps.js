@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { API_URL } from '../constants';
+import isEqual from 'lodash/isEqual';
 
+import { API_URL } from '../constants';
 export const MAPS_API_URL = `${API_URL}maps/`;
 
 // actions
@@ -21,16 +22,29 @@ export const setHomeMap = (payload) => ({
   payload,
 });
 
-const setHomeMapIfNoneSelected = map => (_dispatch, getState) => {
+
+const setHomeMapIfNecessary = (maps) => (dispatch, getState) => {
   const { view: { homeMap } } = getState();
-  
-  if (!homeMap.id) return setHomeMap(map);
+  const defaultMap = maps.find(map => map.default === true) || maps[0];
+
+  if (!homeMap) {
+    return dispatch(setHomeMap(defaultMap));
+  } 
+
+  const homeMapClone = { ...homeMap };
+  const homeMapFromApi = maps.find(map => map.id === homeMapClone.id);
+
+  delete homeMapClone._persist;
+
+  if (isEqual(homeMapFromApi, homeMapClone)) return;
+  return dispatch(setHomeMap(homeMapFromApi || defaultMap));
 };
+
 
 const fetchMapsSuccess = (response) => dispatch => {
   const maps = response.data.data;
 
-  setHomeMapIfNoneSelected(maps[0]);
+  dispatch(setHomeMapIfNecessary(maps));
   
   dispatch({
     type: FETCH_MAPS_SUCCESS,
