@@ -283,7 +283,7 @@ const ReportForm = (props) => {
       ? {
         latitude: location[1],
         longitude: location[0],
-      } : location;
+      } : null;
 
     updateStateReport({
       ...report,
