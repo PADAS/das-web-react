@@ -98,6 +98,10 @@ const ReportForm = (props) => {
       }
     }
 
+    if (toSubmit.hasOwnProperty('location') && !toSubmit.location) {
+      toSubmit.location = null;
+    }
+
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click 'Save' button for ${reportIsNew?'new':'existing'} report`);
 
     const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
@@ -277,7 +281,7 @@ const ReportForm = (props) => {
       ? {
         latitude: location[1],
         longitude: location[0],
-      } : location;
+      } : null;
 
     updateStateReport({
       ...report,
