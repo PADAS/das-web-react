@@ -57,7 +57,7 @@ const MapRulerLayer = (props) => {
    
     {<Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
       {points.length === 0 && <p>Click to start measurement</p>}
-      {points.length >= 1 && <Fragment>
+      {!!points.length && <Fragment>
         {popupLocationAndFirstPointAreIdentical && <p>Select a second point</p>}
         {!popupLocationAndFirstPointAreIdentical && <Fragment>
           <p>Distance: {distance(points[0], popupCoords).toFixed(2)}km</p>
