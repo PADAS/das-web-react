@@ -10,7 +10,9 @@ const ReloadOnProfileChange = (props) => {
     if (!initialized) {
       setInit(true);
     } else {
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload(true);
+      }, [1000]);
     }
   }, [selectedUserProfile]); // eslint-disable-line
 

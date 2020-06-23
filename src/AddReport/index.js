@@ -33,30 +33,28 @@ const AddReport = (props) => {
     trackEvent('Feed', 'Click \'Add Report\' button');
   }, [clickSideEffect, popoverOpen]);
 
+  const handleKeyDown = useCallback((event) => {
+    const { key } = event;
+    if (key === 'Escape' && popoverOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      setPopoverState(false);
+    }
+  }, [popoverOpen]);
+
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setPopoverState(false);
       }
     };
-    const handleKeyDown = (event) => {
-      const { key } = event;
-      if (key === 'Escape') {
-        event.preventDefault();
-        event.stopPropagation();
-        setPopoverState(false);
-      }
-    };
     if (popoverOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
-      document.addEventListener('keydown', handleKeyDown);
     } else {
       document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -121,7 +119,7 @@ const AddReport = (props) => {
   </Popover>
   );
 
-  return <div ref={containerRef}>
+  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown}>
     <button title={title} className={styles.addReport} ref={targetRef}
       type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
