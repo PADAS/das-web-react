@@ -20,9 +20,7 @@ import './Nav.scss';
 const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
 
   const onHomeMapSelect = (chosenMap) => {
-    const { zoom, center } = chosenMap;
     setHomeMap(chosenMap);
-    jumpToLocation(map, center, zoom);
     trackEvent('Main Toolbar', 'Change Home Area', `Home Area:${chosenMap.title}`);
   };
 

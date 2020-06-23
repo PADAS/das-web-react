@@ -7,7 +7,7 @@ import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 const RequestConfigManager = (props) => {
-  const {clearAuth,  history, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
+  const {clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
   const userProfileHeaderInterceptor = useRef(null);
   const masterRequestCancelTokenManager = useRef(null);
   const onAuthFailure = useRef(null);
@@ -58,7 +58,10 @@ const RequestConfigManager = (props) => {
       if (error && error.toString().includes('401')) {
         resetMasterCancelToken();
         clearAuth().then(() => {
-          history.push(`${REACT_APP_ROUTE_PREFIX}login`);
+          history.push({
+            pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+            search: location.search,
+          });
           return Promise.reject(error);
         });
       }

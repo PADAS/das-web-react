@@ -118,9 +118,12 @@ export const jumpToLocation = (map, coords, zoom = 15) => {
   
   if (!Array.isArray(coords[0])) {
     map.setZoom(zoom);
-  }
-
-  if (Array.isArray(coords[0])) {
+    map.easeTo({
+      center: coords,
+      zoom,
+      speed: 200,
+    });
+  } else {
     if (coords.length > 1) {
 
       const boundaries = coords.reduce((bounds, coords) => bounds.extend(coords), new LngLatBounds());
@@ -136,13 +139,7 @@ export const jumpToLocation = (map, coords, zoom = 15) => {
         speed: 200,
       });
     }
-  } else {
-    map.easeTo({
-      center: coords,
-      zoom,
-      speed: 200,
-    });
-  };
+  }
 };
 
 /* react-mapbox-gl generates layer names for the GeoJsonLayer component by appending them with `-<layertype>`, such as `-fill` or `-circle`. 

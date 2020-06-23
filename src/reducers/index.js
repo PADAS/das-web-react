@@ -64,7 +64,6 @@ const rootReducer = combineReducers({
     featureSets: persistReducer(featureSetsPersistanceConfig, featuresReducer),
     mapLayerFilter: mapLayerFilterReducer,
     analyzerFeatures: persistReducer(analyzersPersistanceConfig, analyzersReducer),
-    showReportsOnMap: displayReportsOnMapReducer,
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,

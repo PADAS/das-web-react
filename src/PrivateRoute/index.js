@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, memo } from 'react';
 import { connect } from 'react-redux';
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Redirect, withRouter } from 'react-router-dom';
 
 import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
 
@@ -27,6 +27,7 @@ class PrivateRoute extends Component {
             <Redirect
               to={{
                 pathname: this.loginPath,
+                search: this.props.location.search,
                 state: { from: this.props.location, },
               }}
             />
@@ -39,4 +40,4 @@ class PrivateRoute extends Component {
 
 const mapStateToProps = ({ data: { token } }) => ({ token });
 
-export default connect(mapStateToProps, null)(PrivateRoute);
+export default connect(mapStateToProps, null)(memo(withRouter(PrivateRoute)));

@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, memo } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -47,7 +48,10 @@ class LoginPage extends Component {
 
     this.props.postAuth(data)
       .then((success) => {
-        this.props.history.push(REACT_APP_ROUTE_PREFIX);
+        this.props.history.push({
+          pathname: REACT_APP_ROUTE_PREFIX,
+          search: this.props.location.search,
+        });
       })
       .catch((error) => {
         let errorObject = JSON.parse(JSON.stringify(error));
@@ -103,4 +107,4 @@ class LoginPage extends Component {
 
 const mapStateToProps = ({ data: { eula, token }, view: { systemConfig: { eulaEnabled } } }) => ({ eula, token, eulaEnabled });
 
-export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(LoginPage);
+export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(withRouter(LoginPage)));
