@@ -311,6 +311,7 @@ export const validateReportAgainstCurrentEventFilter = (report) => { /* client-s
   };
 
   const reportMatchesStateFilter = () => {
+    if (!eventFilter.state) return true;
     return eventFilter.state.includes(report.state);
   };
 
