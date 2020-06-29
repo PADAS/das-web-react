@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Redirect, withRouter } from 'react-router-dom';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
@@ -35,7 +35,10 @@ const EulaProtectedRoute = (props) => {
   }, [user, eulaEnabled]);
 
   return <Suspense fallback={<LoadingOverlay message='Loading...' />}>
-    {!eulaAccepted && <Redirect to={`${REACT_APP_ROUTE_PREFIX}eula`} />}
+    {!eulaAccepted && <Redirect to={{
+      pathname: `${REACT_APP_ROUTE_PREFIX}eula`,
+      search: this.props.location.search,
+    }} />}
     {eulaAccepted === 'unknown' ? null : <PrivateRoute {...rest} />}
   </Suspense>;
 };
@@ -45,4 +48,4 @@ const mapStateToProps = ({ data: { user }, view: { systemConfig: { eulaEnabled }
   user, eulaEnabled
 });
 
-export default connect(mapStateToProps, { fetchCurrentUser, fetchSystemStatus })(memo(EulaProtectedRoute));
+export default connect(mapStateToProps, { fetchCurrentUser, fetchSystemStatus })(memo(withRouter(EulaProtectedRoute)));

@@ -8,6 +8,11 @@ if ('function' === typeof importScripts) {
 
     // Disable logging
     workbox.setConfig({ debug: false });
+
+    self.addEventListener('install', (event) => {
+      self.skipWaiting();
+    });
+
     workbox.core.clientsClaim();
 
     self.addEventListener( 'fetch', function ( event ) {

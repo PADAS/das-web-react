@@ -36,22 +36,20 @@ export const updateNetworkStatus = (status) => ({
   payload: status,
 });
 
-export const fetchSystemStatus = () => {
-  return async function (dispatch) {
-    const response = await axios.get(STATUS_API_URL, {
-      params: {
-        service_status: true,
-      },
-    }).catch(error => {
-      dispatch(fetchSystemStatusError(error));
-      throw error;
-    });
-
+export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
+  params: {
+    service_status: true,
+  },
+})
+  .then((response) => {
     dispatch(setZendeskConfigStatus(response));
     dispatch(setSystemConfig(response));
     dispatch(fetchSystemStatusSuccess(response));
-  };
-};
+  })
+  .catch(error => {
+    dispatch(fetchSystemStatusError(error));
+    // throw error;
+  });
 
 const setZendeskConfigStatus = (response) => (dispatch) => {
   let enabled;
