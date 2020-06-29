@@ -18,7 +18,7 @@ const AddReport = (props) => {
   const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
   const hasEventCategories = !!eventsByCategory.length;
-  const [selectedCategory, selectCategory] = useState(hasEventCategories ? eventsByCategory[0].value : null);
+  const [selectedCategory, selectCategory] = useState(null);
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);
@@ -41,6 +41,12 @@ const AddReport = (props) => {
       setPopoverState(false);
     }
   }, [popoverOpen]);
+
+  useEffect(() => {
+    if (hasEventCategories && !selectedCategory) {
+      selectCategory(eventsByCategory[0].value);
+    }
+  }, [hasEventCategories, eventsByCategory, selectedCategory]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -105,7 +111,7 @@ const AddReport = (props) => {
       </li>;
     };
 
-    return !!eventsByCategory.length && <ul className={styles.reportTypeMenu}>
+    return hasEventCategories && <ul className={styles.reportTypeMenu}>
       {eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem)}
     </ul>;
   };
