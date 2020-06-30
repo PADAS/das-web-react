@@ -58,4 +58,3 @@ workflows:
             branches:
               only: 
                 - 'develop'
-                - 'das-5326' 
