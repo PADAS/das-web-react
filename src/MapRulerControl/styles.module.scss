@@ -13,6 +13,11 @@
   }
 }
 
+.popup {
+  margin-top: 2.25rem;
+  position: fixed;
+}
+
 .button {
   @include mapboxControlButton;
   svg path {

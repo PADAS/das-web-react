@@ -1,11 +1,12 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useMemo } from 'react';
 import { Popup, Source, Layer } from 'react-mapbox-gl';
-import distance from '@turf/distance';
+import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 
 import { calcPositiveBearing } from '../utils/location';
+import { withMap } from '../EarthRangerMap';
 
 import styles from './styles.module.scss';
 
@@ -20,63 +21,115 @@ const lineLayout = {
   'line-cap': 'round',
 };
 
+const symbolLayout = {
+  'text-allow-overlap': true,
+  'icon-allow-overlap': true,
+  'symbol-placement': 'line-center',
+  'text-font': ['Open Sans Regular'],
+  // 'text-field': 'neat0',
+  // 'text-size': 16,
+};
+
 const circlePaint = {
-  'circle-radius': 4,
+  'circle-radius': 5,
   'circle-color': 'orange',
 };
 
 const MapRulerLayer = (props) => {
-  const { pointerLocation, points } = props;
+  const { drawing, map, onPointClick, pointerLocation, points } = props;
   const showLayer = pointerLocation || points.length;
-  const rulerComplete = points.length === 2;
-  const popupCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[1];
+  const cursorPopupCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1];
 
-  const popupClassName = `${styles.popup} ${rulerComplete ? '' : styles.notDone}`;
-  const popupOffset = rulerComplete ? [0, -4] : [-8, 0];
-  const popupAnchorPosition = rulerComplete ? 'bottom' : 'right';
+  const onCircleMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
+  const onCircleMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  const popupLocationAndFirstPointAreIdentical = isEqual(popupCoords, points[0]);
+  const geoJsonLayerData = useMemo(() => {
+    if (drawing) {
+      const pointArray = [...points, cursorPopupCoords];
 
-  const calcDataForGeoJsonLayer = () => {
-    if (rulerComplete) {
+      if (pointArray.length > 1) {
+        return lineString([...points, cursorPopupCoords]);
+      }
+
+      return null;
+    }
+    if (points.length > 1) {
       return lineString(points);
     }
-    if (points.length === 1) {
-      return lineString([points[0], popupCoords]);
-    }
-  };
+    return null;
+  }, [cursorPopupCoords, points, drawing]);
 
   const sourceData = {
     type: 'geojson',
-    data: calcDataForGeoJsonLayer(),
+    data: geoJsonLayerData,
   };
 
   if (!showLayer) return null;
 
+  const lineLabelLayout = {
+    ...symbolLayout,
+    'text-field': [...points, cursorPopupCoords].length > 1 ? `${length(lineString([...points, cursorPopupCoords])).toFixed(2)}km` : '',
+  };
+
+
   return <Fragment>
-   
-    {<Popup className={popupClassName} offset={popupOffset} coordinates={popupCoords} anchor={popupAnchorPosition}>
-      {points.length === 0 && <p>Click to start measurement</p>}
-      {!!points.length && <Fragment>
-        {popupLocationAndFirstPointAreIdentical && <p>Select a second point</p>}
-        {!popupLocationAndFirstPointAreIdentical && <Fragment>
-          <p>Distance: {distance(points[0], popupCoords).toFixed(2)}km</p>
-          <p>Bearing: {calcPositiveBearing(points[0], popupCoords).toFixed(2)}&deg;</p>
-          {points.length === 1 && <small>(Click map to finish)</small>}
-        </Fragment>}
-      </Fragment>}
-    </Popup>}
+    {drawing && <MemoizedCursorPopup coords={cursorPopupCoords} points={points} />}
+    {/*     {drawing && points.length > 1 && <MemoizedPointPopup points={points} point={points[points.length - 1]} drawing={drawing} />}
+    {!drawing && !!selectedPoint && <MemoizedPointPopup points={points} point={selectedPoint} drawing={drawing} />} */}
     {!!points.length && <Fragment>
       <Source id='map-ruler-source' geoJsonSource={sourceData} />
-      <Layer sourceId='map-ruler-source' type='circle' paint={circlePaint} />
+      <Layer sourceId='map-ruler-source' type='circle' onMouseEnter={onCircleMouseEnter} onMouseLeave={onCircleMouseLeave} paint={circlePaint} onClick={onPointClick} />
       <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />
+      <Layer sourceId='map-ruler-source' type='symbol' layout={lineLabelLayout} />
     </Fragment>}
   </Fragment>;
 };
 
-export default memo(MapRulerLayer);
+export default memo(withMap(MapRulerLayer));
 
 PropTypes.propTypes = {
   pointerLocation: PropTypes.object,
   points: PropTypes.array,
 };
+
+const CursorPopup = (props) => {
+  const { coords, points } = props;
+
+  const popupClassName = `${styles.popup} ${styles.notDone}`;
+  const popupOffset = [-8, 0];
+  const popupAnchorPosition = 'right';
+
+  const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
+  const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
+
+  return <Popup className={popupClassName} offset={popupOffset} coordinates={coords} anchor={popupAnchorPosition}>
+    {points.length === 0 && <p>Click to start measurement</p>}
+    {!!points.length && <Fragment>
+      {showPromptForSecondPoint && <div>
+        <p>Select another point</p>
+      </div>}
+      {!showPromptForSecondPoint && <Fragment>
+        <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
+        {!!points.length && <small>(click to add point)</small>}
+      </Fragment>}
+    </Fragment>}
+  </Popup>;
+};
+
+const MemoizedCursorPopup = memo(CursorPopup);
+
+
+/* separate point popup from cursor popup
+  add to point popup:  <AddReport reportData={{
+      location: {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      }
+    }} onSaveSuccess={onComplete} onSaveError={onComplete} />
+  enable multiple points
+  - design interaction pattern for closing ruler
+
+
+  
+  
+ */
