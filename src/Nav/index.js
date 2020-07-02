@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
@@ -14,6 +15,8 @@ import EarthRangerLogo from '../EarthRangerLogo';
 import DataExportMenu from '../DataExportMenu';
 import SystemStatusComponent from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
+
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import './Nav.scss';
 
@@ -46,7 +49,13 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
   }, [map, maps]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    fetchCurrentUser();
+    fetchCurrentUser()
+      .catch((error) => {
+        this.props.history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: this.props.location.search,
+        });
+      });
     fetchCurrentUserProfiles();
   }, []); // eslint-disable-line
 
@@ -68,4 +77,4 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
 
 const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) => ({ homeMap, maps, user, userProfiles, selectedUserProfile });
 
-export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(memo(Nav));
+export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(memo(withRouter(Nav)));

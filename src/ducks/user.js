@@ -24,6 +24,7 @@ export const fetchCurrentUser = (config = {}) => (dispatch) => axios.get(CURRENT
   })
   .catch((error) => {
     console.log('error fetching current user', error);
+    throw new Error(error);
   });
 
 

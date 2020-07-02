@@ -44,7 +44,13 @@ const EulaPage = (props) => {
   }, [temporaryAccessToken]);
 
   useEffect(() => {
-    fetchCurrentUser(generateTempAuthHeaderIfNecessary());
+    fetchCurrentUser(generateTempAuthHeaderIfNecessary()).catch((error) => {
+      this.props.history.push({
+        pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+        search: this.props.location.search,
+      });
+    });
+    ;
     fetchEula(generateTempAuthHeaderIfNecessary());
   }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary]);
 
@@ -68,7 +74,7 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     if (user.accepted_eula) return history.goBack();
-  }, []);
+  }, [history, user.accepted_eula]);
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
@@ -83,7 +89,13 @@ const EulaPage = (props) => {
 
     acceptEula(payload, generateTempAuthHeaderIfNecessary())
       .then(() => {
-        return fetchCurrentUser(generateTempAuthHeaderIfNecessary());
+        return fetchCurrentUser(generateTempAuthHeaderIfNecessary())
+          .catch((error) => {
+            this.props.history.push({
+              pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+              search: this.props.location.search,
+            });
+          });;
       })
       .then(() => {
         setSubmitState(true);
