@@ -52,6 +52,7 @@ ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
+        <RequestConfigManager />
         <Switch>
           <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
           <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
@@ -81,7 +82,6 @@ ReactDOM.render(
           }} />
 
         </Switch>
-        <RequestConfigManager />
       </BrowserRouter>
       <ToastContainer />
       <DetectOffline />

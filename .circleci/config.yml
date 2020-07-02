@@ -11,13 +11,24 @@ commands:
   activate_google_service_account:
     steps:
       - run: 'gcloud auth activate-service-account --key-file=<(echo "$ENCODED_GCR_KEY" | base64 --decode)'
+
   docker_login:
     steps:
       - run: 'echo "$ENCODED_GCR_KEY" | base64 --decode | docker login --username _json_key --password-stdin https://gcr.io'
+
+  trigger_downstream_builds:
+    parameters:
+      target_project_slug:
+        type: string
+        default: "das-web"
+    steps:
+      - run: 'ci-helpers/trigger-downstream.sh << parameters.target_project_slug >> ${CIRCLE_BRANCH}'
+
 executors:
   gcloud:
     docker:
       - image: 'google/cloud-sdk:269.0.0'
+
 jobs:
   build_das_web_react:
     executor: 'gcloud'
@@ -26,11 +37,24 @@ jobs:
       - 'docker_login'
       - 'checkout'
       - run: 'make build_and_push descriptive_gcr_path_stem="$CIRCLE_BRANCH" unique_gcr_tag="$CIRCLE_WORKFLOW_ID"'
-      - 'configure_git_for_commit_and_push'
-      - 'activate_google_service_account'
-      - run: 'make commit_and_push_manifest descriptive_gcr_path_stem="$CIRCLE_BRANCH" unique_gcr_tag="$CIRCLE_WORKFLOW_ID"'
+
+  trigger_downstream:
+    executor: 'gcloud'
+    steps:
+      - checkout
+      - trigger_downstream_builds:
+        name: "Trigger downstream builds"
+
 workflows:
   version: 2
   docker_build_workflow:
     jobs:
-      - 'build_das_web_react'
+      - build_das_web_react
+      - trigger_downstream:
+          context: padas-context
+          requires:
+            - build_das_web_react
+          filters:
+            branches:
+              only: 
+                - 'develop'

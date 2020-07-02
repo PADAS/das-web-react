@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = (props) => {
-  const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, history, user, temporaryAccessToken } = props;
+  const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, history, location, user, temporaryAccessToken } = props;
 
   const { eula_url, version:eula_version, id:eula_id } = eula;
 
@@ -44,9 +44,15 @@ const EulaPage = (props) => {
   }, [temporaryAccessToken]);
 
   useEffect(() => {
-    fetchCurrentUser(generateTempAuthHeaderIfNecessary());
+    fetchCurrentUser(generateTempAuthHeaderIfNecessary()).catch((error) => {
+      history.push({
+        pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+        search: location.search,
+      });
+    });
+    ;
     fetchEula(generateTempAuthHeaderIfNecessary());
-  }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary]);
+  }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary, history, location.search]);
 
   useEffect(() => {
     if (rerouteCookieValue) {
@@ -68,7 +74,7 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     if (user.accepted_eula) return history.goBack();
-  }, []);
+  }, [history, user.accepted_eula]);
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
@@ -83,7 +89,13 @@ const EulaPage = (props) => {
 
     acceptEula(payload, generateTempAuthHeaderIfNecessary())
       .then(() => {
-        return fetchCurrentUser(generateTempAuthHeaderIfNecessary());
+        return fetchCurrentUser(generateTempAuthHeaderIfNecessary())
+          .catch((error) => {
+            this.props.history.push({
+              pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+              search: this.props.location.search,
+            });
+          });;
       })
       .then(() => {
         setSubmitState(true);
