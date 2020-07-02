@@ -82,11 +82,11 @@ const LabeledSymbolLayer = (
   };
 
   return id && <Fragment>
+    <Layer id={id} before={before} layout={symbolLayout} minZoom={minZoom} type='symbol' 
+      paint={symbolPaint} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} {...rest} />
     <Layer before={id} id={textLayerId} layout={labelLayout} minZoom={minZoom} type='symbol' 
       onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} 
       paint={labelPaint} {...rest} />
-    <Layer id={id} before={before} layout={symbolLayout} minZoom={minZoom} type='symbol' 
-      paint={symbolPaint} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} {...rest} />
   </Fragment>;
 };
 

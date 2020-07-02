@@ -513,6 +513,16 @@ class Map extends Component {
           <Fragment>
             {children}
 
+            <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
+              <EventsLayer
+                enableClustering={enableEventClustering} 
+                events={mapEventFeatureCollection} 
+                mapImages={mapImages}
+                onEventClick={this.onEventSymbolClick}
+                onClusterClick={this.onClusterClick}
+                bounceEventIDs={bounceEventIDs} />
+            </DelayedUnmount>
+
             <MapImagesLayer />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
@@ -549,13 +559,7 @@ class Map extends Component {
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
 
-            {showReportsOnMap && <EventsLayer
-              enableClustering={enableEventClustering} 
-              events={mapEventFeatureCollection} 
-              mapImages={mapImages}
-              onEventClick={this.onEventSymbolClick}
-              onClusterClick={this.onClusterClick}
-              bounceEventIDs={bounceEventIDs} />}
+       
 
             {!!this.state.reportSpiderConfig.coordinates && 
               <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 
