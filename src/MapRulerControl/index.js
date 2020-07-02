@@ -244,8 +244,10 @@ const PointPopup = (props) => {
     {!drawing && <Fragment>
       <GpsFormatToggle lng={point[0]} lat={point[1]} />
       {points.length > 1 && !isFirstPoint && <Fragment>
-        <p><strong>Bearing:</strong> {bearingFromPrev}&deg;</p>
-        <p><strong>Distance from start:</strong> {distanceFromStart}</p>
+        <p>
+          <strong>Bearing:</strong> {bearingFromPrev}&deg; <br />
+          <strong>Distance from start:</strong> {distanceFromStart}
+        </p>
       </Fragment>}
       <AddReport reportData={{
         location: {
