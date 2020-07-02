@@ -1,14 +1,19 @@
 import React, { memo, Fragment, useMemo } from 'react';
 import { Popup, Source, Layer } from 'react-mapbox-gl';
-import length from '@turf/length';
 import { lineString } from '@turf/helpers';
+import length from '@turf/length';
+import lineSegment from '@turf/line-segment';
 import PropTypes from 'prop-types';
 import isEqual from 'react-fast-compare';
 
 import { calcPositiveBearing } from '../utils/location';
 import { withMap } from '../EarthRangerMap';
 
+import { DEFAULT_SYMBOL_PAINT } from '../constants';
+
 import styles from './styles.module.scss';
+
+export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
 const linePaint = {
   'line-color': 'orange',
@@ -26,8 +31,7 @@ const symbolLayout = {
   'icon-allow-overlap': true,
   'symbol-placement': 'line-center',
   'text-font': ['Open Sans Regular'],
-  // 'text-field': 'neat0',
-  // 'text-size': 16,
+  'text-field': ['get', 'lengthLabel'],
 };
 
 const circlePaint = {
@@ -44,19 +48,26 @@ const MapRulerLayer = (props) => {
   const onCircleMouseLeave = () => map.getCanvas().style.cursor = '';
 
   const geoJsonLayerData = useMemo(() => {
-    if (drawing) {
-      const pointArray = [...points, cursorPopupCoords];
+    let pointArray = drawing ? [...points, cursorPopupCoords] : points;
 
-      if (pointArray.length > 1) {
-        return lineString([...points, cursorPopupCoords]);
-      }
+    if (pointArray.length < 2) return null;
 
-      return null;
-    }
-    if (points.length > 1) {
-      return lineString(points);
-    }
-    return null;
+    const lineSegments = lineSegment(lineString(pointArray));
+    lineSegments.features = lineSegments.features.map(feature => {
+      const lineLength = length(feature);
+      const lengthLabel = `${lineLength.toFixed(2)}km`;
+
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          length: lineLength,
+          lengthLabel,
+        }
+      };
+    });
+
+    return lineSegments;
   }, [cursorPopupCoords, points, drawing]);
 
   const sourceData = {
@@ -66,21 +77,14 @@ const MapRulerLayer = (props) => {
 
   if (!showLayer) return null;
 
-  const lineLabelLayout = {
-    ...symbolLayout,
-    'text-field': [...points, cursorPopupCoords].length > 1 ? `${length(lineString([...points, cursorPopupCoords])).toFixed(2)}km` : '',
-  };
-
 
   return <Fragment>
     {drawing && <MemoizedCursorPopup coords={cursorPopupCoords} points={points} />}
-    {/*     {drawing && points.length > 1 && <MemoizedPointPopup points={points} point={points[points.length - 1]} drawing={drawing} />}
-    {!drawing && !!selectedPoint && <MemoizedPointPopup points={points} point={selectedPoint} drawing={drawing} />} */}
     {!!points.length && <Fragment>
       <Source id='map-ruler-source' geoJsonSource={sourceData} />
-      <Layer sourceId='map-ruler-source' type='circle' onMouseEnter={onCircleMouseEnter} onMouseLeave={onCircleMouseLeave} paint={circlePaint} onClick={onPointClick} />
+      <Layer sourceId='map-ruler-source' id={RULER_POINTS_LAYER_ID} type='circle' onMouseEnter={onCircleMouseEnter} onMouseLeave={onCircleMouseLeave} paint={circlePaint} onClick={onPointClick} />
       <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />
-      <Layer sourceId='map-ruler-source' type='symbol' layout={lineLabelLayout} />
+      <Layer sourceId='map-ruler-source' type='symbol' paint={DEFAULT_SYMBOL_PAINT} layout={symbolLayout} />
     </Fragment>}
   </Fragment>;
 };
@@ -102,6 +106,8 @@ const CursorPopup = (props) => {
   const popupLocationAndPreviousPointAreIdentical = isEqual(coords, points[points.length - 1]);
   const showPromptForSecondPoint = popupLocationAndPreviousPointAreIdentical && points.length === 1;
 
+  const lineLength = useMemo(() => [...points, coords].length > 1 ? `${length(lineString([...points, coords])).toFixed(2)}km` : null, [coords, points]);
+
   return <Popup className={popupClassName} offset={popupOffset} coordinates={coords} anchor={popupAnchorPosition}>
     {points.length === 0 && <p>Click to start measurement</p>}
     {!!points.length && <Fragment>
@@ -110,6 +116,7 @@ const CursorPopup = (props) => {
       </div>}
       {!showPromptForSecondPoint && <Fragment>
         <p>Bearing: {calcPositiveBearing(points[points.length - 1], coords).toFixed(2)}&deg;</p>
+        <p>Distance: {lineLength}</p>
         {!!points.length && <small>(click to add point)</small>}
       </Fragment>}
     </Fragment>}

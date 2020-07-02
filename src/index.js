@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
@@ -27,14 +27,15 @@ import './index.scss';
 import withTracker from './WithTracker';
 
 import DetectOffline from './DetectOffline';
-import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import RequestConfigManager from './RequestConfigManager';
 
-const App = lazy(() => import('./App'));
-const Login = lazy(() => import('./Login'));
-const EulaPage = lazy(() => import('./views/EULA'));
-const PrivateRoute = lazy(() => import('./PrivateRoute'));
-const EulaProtectedRoute = lazy(() => import('./EulaProtectedRoute'));
+/* LAZY LOAD THESE WITH React.Suspense and React.lazy once the server is config'd to keep old deployment chunks */
+// import LoadingOverlay from './EarthRangerIconLoadingOverlay';
+import App from './App';
+import Login from './Login';
+import EulaPage from './views/EULA';
+import PrivateRoute from './PrivateRoute';
+import EulaProtectedRoute from './EulaProtectedRoute';
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
@@ -51,37 +52,35 @@ ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
-        <Suspense fallback={<LoadingOverlay message='Loading...' />}>
-          <Switch>
-            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
-            <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
-            <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
-            <Route component={(props) => {
-              const externalRedirectRef = useRef(null);
+        <Switch>
+          <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+          <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
+          <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
+          <Route component={(props) => {
+            const externalRedirectRef = useRef(null);
 
-              useEffect(() => {
-                !!externalRedirectRef.current && externalRedirectRef.current.click();
-              });
+            useEffect(() => {
+              !!externalRedirectRef.current && externalRedirectRef.current.click();
+            });
 
-              const GoToHomepage = () => <Redirect
-                to={REACT_APP_ROUTE_PREFIX}
-              />;
+            const GoToHomepage = () => <Redirect
+              to={REACT_APP_ROUTE_PREFIX}
+            />;
 
-              if (process.env.NODE_ENV !== 'production') {
-                return <GoToHomepage />;
-              } 
+            if (process.env.NODE_ENV !== 'production') {
+              return <GoToHomepage />;
+            } 
 
-              const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === props.location.pathname);
-              if (!localMatch) {
-                return <GoToHomepage />;
-              }
+            const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === props.location.pathname);
+            if (!localMatch) {
+              return <GoToHomepage />;
+            }
 
 
-              return <a href={localMatch} style={{opacity: 0}} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
-            }} />
+            return <a href={localMatch} style={{opacity: 0}} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
+          }} />
 
-          </Switch>
-        </Suspense>
+        </Switch>
         <RequestConfigManager />
       </BrowserRouter>
       <ToastContainer />

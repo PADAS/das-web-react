@@ -249,7 +249,7 @@ export const mapLockStateReducer = (state = false, action) => {
   return state;
 };
 
-export const mapDataZoomSimplificationReducer = (state = { enabled: true }, action) => {
+export const mapDataZoomSimplificationReducer = (state = { enabled: false }, action) => {
   const { type } = action;
   if (type === SET_MAP_DATA_ZOOM_SIMPLIFICATION) return { enabled: !state.enabled };
   return state;

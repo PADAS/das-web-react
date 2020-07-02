@@ -18,7 +18,10 @@ import { setPickingMapLocationState } from '../ducks/map-ui';
 import { calcPositiveBearing } from '../utils/location';
 
 
+import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
+
 import styles from './styles.module.scss';
+
 
 const MapRulerControl = (props) => {
   const { map, setPickingMapLocationState } = props;
@@ -41,7 +44,6 @@ const MapRulerControl = (props) => {
   }, [active]);
 
   const onMapClick = (e) => {
-    console.log('fire map click', e);
     const { lngLat } = e;
     e.preventDefault();
     e.originalEvent.stopPropagation();
@@ -49,7 +51,8 @@ const MapRulerControl = (props) => {
   };
 
   const onMapDblClick = useCallback((e) => {
-    console.log('fire map double click', e);
+    onMapClick(e);
+
     e.preventDefault();
     e.originalEvent.stopPropagation();
     mapClickFunc.current.cancel();
@@ -57,13 +60,18 @@ const MapRulerControl = (props) => {
     setCompletedState(true);
   }, []);
 
-  const onMapClickToReset = () => {
-    setActiveState(false);
-    map.off('click', nextClickResetsState.current);
+  const onMapClickToReset = (e) => {
+    const isPointClick = !!map.queryRenderedFeatures(e.point, {
+      layers: [RULER_POINTS_LAYER_ID],
+    }).length;
+    
+    if (!isPointClick) {
+      setActiveState(false);
+      map.off('click', nextClickResetsState.current);
+    }
   };
 
   const onPointClick = useCallback((e) => {
-    console.log('circy clicky');
     e.preventDefault();
     e.originalEvent.stopPropagation();
 
@@ -77,10 +85,13 @@ const MapRulerControl = (props) => {
     );
 
     if (pointMatch) {
-      console.log('pointMatch', pointMatch);
       setSelectedPoint(pointMatch);
     }
   }, [points]);
+
+  const onClickFinish = useCallback(() => {
+    setCompletedState(true);
+  }, []);
 
   const resetState = () => {
     setPointState([]);
@@ -133,7 +144,7 @@ const MapRulerControl = (props) => {
   useEffect(() => {
     if (completed) {
       unbindRulerMapEvents();
-      // map.on('click', nextClickResetsState.current);
+      map.on('click', nextClickResetsState.current);
     } else {
       bindRulerMapEvents();
     }
@@ -184,9 +195,13 @@ const MapRulerControl = (props) => {
         {completed ? 'Close' : 'Cancel'}
       </Button>}
     </div>
-    {!completed && points.length > 1 && <MemoizedPointPopup points={points} point={points[points.length - 1]} drawing={completed} />}
-    {completed && !!selectedPoint && <MemoizedPointPopup points={points} point={selectedPoint} drawing={completed} />}
-    {active && <MapRulerLayer drawing={!completed} onPointClick={onPointClick} points={points} pointerLocation={pointerLocation}  />}
+    {active && <Fragment>
+      {points.length > 1 && <Fragment>
+        {!completed && <MemoizedPointPopup points={points} point={points[points.length - 1]} drawing={!completed} onClickFinish={onClickFinish} />}
+        {completed && !!selectedPoint && <MemoizedPointPopup points={points} point={selectedPoint} drawing={!completed} />}
+      </Fragment>}
+      <MapRulerLayer drawing={!completed} onPointClick={onPointClick} points={points} pointerLocation={pointerLocation}  />
+    </Fragment>}
   </Fragment>;
 };
 
@@ -194,7 +209,7 @@ export default connect(null, { setPickingMapLocationState })(memo(withMap(MapRul
 
 
 const PointPopup = (props) => {
-  const { drawing, point, points } = props;
+  const { drawing, onClickFinish, point, points } = props;
   const pointIndex = points.findIndex(p => isEqual(p, point));
   const isFirstPoint = pointIndex === 0;
   const popupOffset = [0, -4];
@@ -206,6 +221,8 @@ const PointPopup = (props) => {
     const clonedPoints = [...points];
     clonedPoints.length = (pointIndex + 1);
 
+    if (!clonedPoints.length) return null;
+
     return `${length(lineString(clonedPoints)).toFixed(2)}km`;
 
   }, [isFirstPoint, pointIndex, points]);
@@ -213,33 +230,35 @@ const PointPopup = (props) => {
   const bearingFromPrev = useMemo(() => {
     if (isFirstPoint) return null;
 
-    return calcPositiveBearing(points[pointIndex - 1], point).toFixed(2);
+    const prevPoint = points[pointIndex - 1];
+
+    if (!prevPoint || !point) return null;
+
+    return calcPositiveBearing(prevPoint, point).toFixed(2);
   }, [isFirstPoint, point, pointIndex, points]);
 
 
-  return <Popup className={styles.popup} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
-    <GpsFormatToggle lng={point[0]} lat={point[1]} />
-    {!isFirstPoint && <Fragment>
-      <p>Bearing: {bearingFromPrev}&deg;</p>
-      <p>Distance from start: {distanceFromStart}</p>
-      <p></p>
+  return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
+    
+    
+    {!drawing && <Fragment>
+      <GpsFormatToggle lng={point[0]} lat={point[1]} />
+      {points.length > 1 && !isFirstPoint && <Fragment>
+        <p><strong>Bearing:</strong> {bearingFromPrev}&deg;</p>
+        <p><strong>Distance from start:</strong> {distanceFromStart}</p>
+      </Fragment>}
+      <AddReport reportData={{
+        location: {
+          latitude: point[1],
+          longitude: point[0],
+        }
+      }} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
     </Fragment>}
     {
-      drawing && <p>Click here to finish</p>}
-    <AddReport reportData={{
-      location: {
-        latitude: point[1],
-        longitude: point[0],
-      }
-    }} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
+      drawing && <p onClick={onClickFinish} className={styles.finishButton}>
+        <RulerIcon />
+        click here to finish
+      </p>}
   </Popup>;
 };
 const MemoizedPointPopup = memo(PointPopup);
-
-/* 
-
-
-
-{!completed && points.length > 1 && <MemoizedPointPopup points={points} point={points[points.length - 1]} drawing={completed} />}
-    {completed && !!selectedPoint && <MemoizedPointPopup points={points} point={selectedPoint} drawing={completed} />}
- */
