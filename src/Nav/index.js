@@ -20,7 +20,7 @@ import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import './Nav.scss';
 
-const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, homeMap, location, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
 
   const onHomeMapSelect = (chosenMap) => {
     setHomeMap(chosenMap);
@@ -51,9 +51,9 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, homeMap, m
   useEffect(() => {
     fetchCurrentUser()
       .catch((error) => {
-        this.props.history.push({
+        history.push({
           pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: this.props.location.search,
+          search: location.search,
         });
       });
     fetchCurrentUserProfiles();

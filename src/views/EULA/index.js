@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = (props) => {
-  const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, history, user, temporaryAccessToken } = props;
+  const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, history, location, user, temporaryAccessToken } = props;
 
   const { eula_url, version:eula_version, id:eula_id } = eula;
 
@@ -45,14 +45,14 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     fetchCurrentUser(generateTempAuthHeaderIfNecessary()).catch((error) => {
-      this.props.history.push({
+      history.push({
         pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-        search: this.props.location.search,
+        search: location.search,
       });
     });
     ;
     fetchEula(generateTempAuthHeaderIfNecessary());
-  }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary]);
+  }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary, history, location.search]);
 
   useEffect(() => {
     if (rerouteCookieValue) {

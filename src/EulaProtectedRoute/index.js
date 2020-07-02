@@ -13,7 +13,7 @@ import { fetchSystemStatus } from '../ducks/system-status';
 import PrivateRoute from '../PrivateRoute';
 
 const EulaProtectedRoute = (props) => {
-  const { dispatch:_dispatch, fetchCurrentUser, fetchSystemStatus, user, eulaEnabled, ...rest } = props;
+  const { dispatch:_dispatch, history, fetchCurrentUser, fetchSystemStatus, location, user, eulaEnabled, ...rest } = props;
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
@@ -22,8 +22,14 @@ const EulaProtectedRoute = (props) => {
   }, [fetchSystemStatus]);
 
   useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
+    fetchCurrentUser()
+      .catch((error) => {
+        history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: location.search,
+        });
+      });
+  }, [fetchCurrentUser]); /* eslint-disable-line */
 
   useEffect(() => {
     // null check to distinguish from eulaEnabled = false
@@ -39,7 +45,7 @@ const EulaProtectedRoute = (props) => {
   return <Fragment>
     {!eulaAccepted && <Redirect to={{
       pathname: `${REACT_APP_ROUTE_PREFIX}eula`,
-      search: this.props.location.search,
+      search: location.search,
     }} />}
     {eulaAccepted === 'unknown' ? null : <PrivateRoute {...rest} />}
   </Fragment>;
