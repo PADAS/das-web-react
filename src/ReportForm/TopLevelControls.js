@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
