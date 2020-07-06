@@ -26,6 +26,9 @@
   p {
     margin: 0.75rem 0;
   }
+  [class*=addReport] {
+    background: none !important;
+  }
 }
 
 .button {
