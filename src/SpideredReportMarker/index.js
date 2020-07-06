@@ -26,8 +26,8 @@ const SpideredReportMarker = (props) => {
     ];
     if (storeImage) {
       const attributes = {};
-      for (var i=0;i<storeImage.attributes.length;i++) {
-        const { nodeName, nodeValue } = storeImage.attributes.item(i);
+      for (var i=0;i<storeImage.image.attributes.length;i++) {
+        const { nodeName, nodeValue } = storeImage.image.attributes.item(i);
         if (nodeName === 'crossorigin') {
           attributes.crossOrigin = nodeValue;
         } else {

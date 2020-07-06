@@ -5,7 +5,7 @@ import { uuid } from '../utils/string';
 
 import { trackEvent } from '../utils/analytics';
 
-import mapLabel from '../common/images/icons/name-label-v2.png';
+import mapLabel from '../common/images/icons/symbol-label-outline.png';
 
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 

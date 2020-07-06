@@ -391,7 +391,6 @@ class Map extends Component {
 
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
-      const newMapZoom = (zoom > REPORT_SPIDER_THRESHOLD) ? REPORT_SPIDER_THRESHOLD : zoom;
 
       if (zoom > REPORT_SPIDER_THRESHOLD) {
         clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
@@ -407,10 +406,17 @@ class Map extends Component {
           });
         });
       }
-      this.props.map.easeTo({
-        center: features[0].geometry.coordinates,
-        zoom: newMapZoom
-      });
+
+      const mapZoom = this.props.map.getZoom();
+      const newMapZoom = (zoom > REPORT_SPIDER_THRESHOLD) ? REPORT_SPIDER_THRESHOLD : zoom;
+
+      if (mapZoom < REPORT_SPIDER_THRESHOLD
+      && mapZoom < zoom) {
+        this.props.map.easeTo({
+          center: features[0].geometry.coordinates,
+          zoom: newMapZoom
+        });
+      }
     });
   })
 
