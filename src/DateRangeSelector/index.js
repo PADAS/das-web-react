@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 
-import DateTimePicker from '../DateTimePicker';
+import DateTimePickerPopover from '../DateTimePickerPopover';
 
 import styles from './styles.module.scss';
 import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
@@ -15,7 +15,7 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 const DateRangeSelector = (props) => {
   const { startDate, endDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
-    startDateNullMessage, onStartDateBlur, onEndDateBlur, endDateNullMessage, className, gaEventSrc, 
+    startDateNullMessage, endDateNullMessage, className, gaEventSrc, 
     children, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
@@ -42,7 +42,7 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePicker {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} onBlur={onStartDateBlur} />
+          <DateTimePickerPopover {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={styles.datePopover} />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -51,7 +51,7 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePicker onClickDay={handleEndDateDayClick} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} onBlur={onEndDateBlur} />
+          <DateTimePickerPopover onClickDay={handleEndDateDayClick} popoverClassName={styles.datePopover} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} />
         </span>
       </label>
     </div>

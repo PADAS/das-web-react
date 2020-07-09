@@ -94,16 +94,15 @@ export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
 export const SYMBOL_ICON_SIZE_EXPRESSION = [
   'interpolate', ['exponential', 0.5], ['zoom'],
   0, IF_IS_GENERIC(0.1/MAP_ICON_SCALE, 0.2/MAP_ICON_SCALE),
-  12, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
-  MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.5/MAP_ICON_SCALE),
+  14, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
+  // MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.1/MAP_ICON_SCALE),
 ];
 
-export const symbolTextSize = [
+export const SYMBOL_TEXT_SIZE_EXPRESSION = [
   'interpolate', ['exponential', 0.5], ['zoom'],
   0, 5,
   6, 8,
-  12, 14,
-  MAX_ZOOM, 16,
+  14, 13,
 ];
 
 export const DEFAULT_SYMBOL_LAYOUT = {
@@ -126,7 +125,8 @@ export const DEFAULT_SYMBOL_LAYOUT = {
   'text-offset': [0, .75],
   'text-field': '{title}',
   'text-justify': 'center',
-  'text-size': symbolTextSize,
+  'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+  'text-size': SYMBOL_TEXT_SIZE_EXPRESSION,
 };
 
 export const DEFAULT_SYMBOL_PAINT = {
@@ -192,7 +192,7 @@ export const DATEPICKER_DEFAULT_CONFIG = {
   disableClock: true,
   clearIcon: null,
   calendarIcon: null,
-  format: 'yyyy-MM-dd HH:mm',
+  format: 'YYYY-MM-DD HH:mm',
 };
 
 export const GEOLOCATOR_OPTIONS = {

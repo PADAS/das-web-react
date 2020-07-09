@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react';
 import Select, { components } from 'react-select';
-import DateTimePicker from '../DateTimePicker';
+import DateTimePickerPopover from '../DateTimePickerPopover';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
 
@@ -74,12 +74,12 @@ const SelectField = (props) => {
     }
   }), [props.registry.formContext]);
 
-  const handleChange = (update) => {
+  const handleChange = useCallback((update) => {
     if (!update) return onChange(update);
 
     const { value } = update;
     return onChange(value);
-  };
+  }, [onChange]);
 
   return <Select
     components={{SelectContainer}}
@@ -106,11 +106,14 @@ const DateTimeField = (props) => {
   const { idSchema: { id }, schema: { title: label }, onChange, required, formData } = props;
   const date = formData ? new Date(formData) : undefined;
 
-  const handleChange = newVal => onChange(newVal ? newVal.toISOString() : newVal);
+  const handleChange = useCallback((newVal) => {
+    console.log('newVal', newVal);
+    onChange(newVal ? newVal.toISOString() : newVal);
+  }, [onChange]);
 
   return <Fragment>
     <label htmlFor={id}>{label}</label>
-    <DateTimePicker className={styles.datepicker} id={id} required={required}  maxDate={new Date()} value={date} onChange={handleChange} />
+    <DateTimePickerPopover className={styles.datepicker} id={id} required={required}  maxDate={new Date()} value={date} onChange={handleChange} />
   </Fragment>;
 };
 

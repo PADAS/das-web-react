@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
-import DateTimePicker from '../DateTimePicker';
+import DateTimePickerPopover from '../DateTimePickerPopover';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import ReportedBySelect from '../ReportedBySelect';
@@ -95,11 +95,11 @@ const ReportFormTopLevelControls = (props) => {
     <label>
       <ClockIcon className={styles.icon} />
       <span>Report time:</span>
-      <DateTimePicker
+      <DateTimePickerPopover
         {...DATEPICKER_DEFAULT_CONFIG}
         clearIcon={null}
-        required={true}
         value={report.time ? new Date(report.time) : null}
+        placement='bottom'
         maxDate={new Date()}
         onChange={onReportDateChange}  />
     </label>
