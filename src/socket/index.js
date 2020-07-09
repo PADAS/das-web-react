@@ -58,6 +58,10 @@ export const pingSocket = (socket) => {
 const bindSocketEvents = (socket, store) => {
   let eventsBound = false;
 
+  socket.on('*', (msg) => {
+    console.log('wildcard bitches', msg);
+  });
+
   socket.on('connect', () => {
     console.log('realtime: connected');
     store.dispatch({ type: SOCKET_HEALTHY_STATUS });
@@ -108,6 +112,20 @@ export const unbindSocketEvents = (socket) => {
 
 export default (url = SOCKET_URL) => {
   const socket = io(url);
+  socket._on = socket.on.bind(socket);
+
+  socket.on = (eventName, oldFn) => {
+    const newFn = (msg, fn) => {
+      // new behavior for all socket events
+      if (fn && msg && msg.trace_id) {
+        fn(msg.trace_id);
+      }
+      // original behavior for bound events
+      return oldFn(msg, fn);
+    };
+    return socket._on(eventName, newFn);
+  };
+
   bindSocketEvents(socket, store);
   return socket;
 };
