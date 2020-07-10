@@ -63,6 +63,16 @@
         word-break: initial;
       }
     }
+    .itemTitle {
+      align-items: center;
+      display: flex;
+      flex-grow: 1;
+      img {
+        margin-right: 0.5rem;
+        max-height: 1.5rem;
+        max-width: 1.5rem;
+      }
+    }
     [class*=Collapsible__trigger] {
       cursor: pointer;
       padding-bottom: 1rem;
