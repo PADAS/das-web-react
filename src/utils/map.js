@@ -28,7 +28,7 @@ export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   };
 };
 
-export const addMapImage = async ({ src, id, height, width }) => {
+export const addMapImage = async ({ src, id, height, width, options = {} }) => {
   const iconSrc = calcUrlForImage(src);
   const icon_id = id ? id : calcImgIdFromUrlForMapImages(src, width, height);
   const img = await imgElFromSrc(
@@ -36,7 +36,7 @@ export const addMapImage = async ({ src, id, height, width }) => {
     (width ? (width * MAP_ICON_SCALE) : (MAP_ICON_SIZE * MAP_ICON_SCALE)),
     (height && (height * MAP_ICON_SCALE)),
   );
-  store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }));
+  store.dispatch(addImageToMapIfNecessary({ icon_id, image: img }, options));
   return {
     icon_id,
     img,

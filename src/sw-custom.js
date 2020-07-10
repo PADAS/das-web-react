@@ -21,6 +21,11 @@ if ('function' === typeof importScripts) {
       }
     });
 
+    self.addEventListener('install', function (event) {
+
+        self.skipWaiting();
+    });
+
     // Manual injection point for manifest files.
     // All assets under build/ and 5MB sizes are precached.
     workbox.precaching.precacheAndRoute([]);

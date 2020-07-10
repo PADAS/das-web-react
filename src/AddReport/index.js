@@ -10,6 +10,7 @@ import { openModalForReport, createNewReportForEventType } from '../utils/events
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
 
+import { withMap } from '../EarthRangerMap';
 import EventTypeListItem from '../EventTypeListItem';
 
 import styles from './styles.module.scss';
@@ -140,7 +141,7 @@ const AddReport = (props) => {
 const mapStateToProps = (state) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state),
 });
-export default connect(mapStateToProps, null)(memo(AddReport));
+export default connect(mapStateToProps, null)(memo(withMap(AddReport)));
 
 AddReport.defaultProps = {
   relationshipButtonDisabled: false,
