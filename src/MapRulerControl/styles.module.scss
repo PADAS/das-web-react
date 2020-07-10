@@ -13,6 +13,24 @@
   }
 }
 
+.popup {
+  line-height: normal;
+  margin-top: 2.25rem;
+  position: fixed;
+  &.unfinished {
+    [class*=mapboxgl-popup-content] {
+      width: 7rem;
+      padding: 0.5rem 0;
+    }
+  }
+  p {
+    margin: 0.75rem 0;
+  }
+  [class*=addReport] {
+    background: none !important;
+  }
+}
+
 .button {
   @include mapboxControlButton;
   svg path {
@@ -21,3 +39,14 @@
 }
 
 
+.finishButton {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  svg {
+    height: 2rem;
+    width: 2rem;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
 
 const ReloadOnProfileChange = (props) => {

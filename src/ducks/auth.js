@@ -3,7 +3,6 @@ import { REACT_APP_DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
 import { clearUserProfile } from '../ducks/user';
 import { resetGlobalState } from '../reducers/global-resettable';
 import { deleteAuthTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
-import { updateHeatmapSubjects, updateTrackState, INITIAL_TRACK_STATE, displayReportsOnMapState } from '../ducks/map-ui';
 
 const AUTH_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_AUTH_TOKEN_URL}`;
 
