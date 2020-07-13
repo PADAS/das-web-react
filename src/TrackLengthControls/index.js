@@ -80,7 +80,7 @@ const TrackLengthControls = (props) => {
     <h6>Track Length:</h6>
     <Label htmlFor='filter' className={styles.label}>
       <Control onChange={onOriginChange} id='filter' checked={isSelected(TRACK_LENGTH_ORIGINS.eventFilter)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.eventFilter} type='radio' name='track-length-method' />
-      <span>Match report filter ({eventFilterDateRangeLength} days)</span>
+      <span>Match report filter start date ({eventFilterDateRangeLength} days)</span>
     </Label>
     <Label htmlFor='custom-length' className={styles.label}>
       <Control onChange={onOriginChange} id='custom-length' checked={isSelected(TRACK_LENGTH_ORIGINS.customLength)} className={styles.radio} value={TRACK_LENGTH_ORIGINS.customLength} type='radio' name='track-length-method' />

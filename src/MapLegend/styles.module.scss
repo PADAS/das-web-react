@@ -45,7 +45,9 @@
 }
 
 .controlPopover {
-  width: 20rem;
+  font-size: 0.85rem;
+  max-width: 20rem;
+  min-width: 17rem;
 }
 
 .close {
