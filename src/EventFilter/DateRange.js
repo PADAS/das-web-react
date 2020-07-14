@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 
 const EventFilterDateRangeSelector = (props) => {
-  const { children, eventFilter, updateEventFilter, onStartChange, onEndChange, ...rest } = props;
+  const { children, eventFilter, updateEventFilter, onStartChange, onEndChange, popoverClassName, ...rest } = props;
 
   const { filter: { date_range } } = eventFilter;
 
@@ -64,6 +64,8 @@ const EventFilterDateRangeSelector = (props) => {
 
   return <DateRangeSelector
     className={styles.dateSelect}
+    popoverClassName={popoverClassName || ''}
+    placement={props.placement || 'auto'}
     endDate={hasUpper ? new Date(upper) : upper}
     endDateNullMessage='Now'
     onClickDateRangePreset={onClickDateRangePreset}

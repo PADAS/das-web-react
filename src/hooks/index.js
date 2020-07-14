@@ -13,7 +13,7 @@ const useMatchMedia = (matchMediaDef) => {
 
     const handleResize = () => {
       setMatchState(matchMediaDef.matches);
-    }
+    };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);

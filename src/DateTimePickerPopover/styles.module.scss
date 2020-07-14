@@ -1,14 +1,8 @@
 @import '../common/styles/inputs';
+@import '../common/styles/vars/colors';
 
 .container {
   position: relative;
-}
-
-.button {
-  @include defaultTextInput;
-  padding: 0.5rem;
-  text-align: left;
-  width: 100%;
 }
 
 div.popover {
@@ -21,6 +15,17 @@ div.popover {
   }
 }
 
-.input {
+.button {
   text-align: left;
+  @include defaultTextInput;
+  padding: 0.5rem;
+  position: relative;
+  text-align: left;
+  width: 100%;
+  height: 2.4375rem;
+  vertical-align: middle;
+}
+
+[type=text].invalidInput {
+  border: 1px solid $bright-red;
 }

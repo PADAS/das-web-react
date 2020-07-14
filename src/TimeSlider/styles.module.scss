@@ -30,6 +30,10 @@ $contrast: 25%;
   box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0px 0px $shadow-size lighten($shadow-color,5%);
 }
 
+.dateRangePopover {
+  top: -16rem;
+}
+
 @mixin track {
   width: $track-width;
   height: $track-height;

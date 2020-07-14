@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState, forwardRef } from 'react';
 
 import styles from './styles.module.scss';
 
@@ -21,8 +21,8 @@ const numberToTimeString = (value) => {
   return asString.length > 1 ? asString : `0${asString}`;
 };
 
-const TimeInput = (props) => {
-  const { disabled, onChange, value, className } = props;
+const TimeInput = (props, ref) => {
+  const { disabled, onChange, value } = props;
 
   const [hourValue, setHourValue] = useState('00');
   const [minuteValue, setMinuteValue] = useState('00');
@@ -62,8 +62,8 @@ const TimeInput = (props) => {
   }, [hourValue, onChange]);
   
   return <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-evenly'}}>
-    <input disabled={disabled} className={styles.input} {...NUMBER_INPUT_ATTRS} value={hourValue} onChange={onHourChange} />:<input disabled={disabled} className={styles.input} {...NUMBER_INPUT_ATTRS} value={minuteValue} onChange={onMinuteChange} />
+    <input ref={ref} disabled={disabled} className={styles.input} {...NUMBER_INPUT_ATTRS} value={hourValue} onChange={onHourChange} />:<input disabled={disabled} className={styles.input} {...NUMBER_INPUT_ATTRS} value={minuteValue} onChange={onMinuteChange} />
   </div>;
 };
 
-export default memo(TimeInput);
+export default memo(forwardRef(TimeInput));

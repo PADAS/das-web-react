@@ -100,6 +100,7 @@ const ReportFormTopLevelControls = (props) => {
         clearIcon={null}
         value={report.time ? new Date(report.time) : null}
         placement='bottom'
+        popoverClassName={styles.datePopover}
         maxDate={new Date()}
         onChange={onReportDateChange}  />
     </label>

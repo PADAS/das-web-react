@@ -1,26 +1,42 @@
-import React, { forwardRef, memo, useCallback , useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import format from 'date-fns/format';
-import parse from 'date-fns/parse';
+import debounce from 'lodash/debounce';
 
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
-import DateTimePicker from '../DateTimePicker/index2.js';
+import DateTimePicker from '../DateTimePicker';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import styles from './styles.module.scss';
 
-const PLACEHOLDER = '----/--/-- --:--';
+const DEFAULT_PLACEMENT = 'bottom';
 
-const DateTimePickerPopover = (props) => {
-  const [popoverOpen, setPopoverState] = useState(false);
+const DateTimePickerPopover = (props, ref) => {
+  const { popperConfig = {}, onPopoverToggle } = props;
+  const isControlledComponent = props.hasOwnProperty('popoverOpen');
 
-  const onBlur = useCallback(() => setPopoverState(false), []);
-  const onFocus = useCallback(() => setPopoverState(true), []);
+  const [popoverOpen, setPopoverState] = useState(isControlledComponent ? props.popoverOpen : false);
+  const [buttonValue, setButtonValue] = useState('');
 
-  const onDateInputChange = useCallback(({ target: { value } }) => {
-    console.log('value', value);
-    console.log('parsed', parse(value));
-  }, []);
+  // const isValid = useMemo(() => , []);
+  
+  const onClick = useCallback(debounce((e) => {
+    if (isControlledComponent) {
+      onPopoverToggle(true);
+    } else {
+      setPopoverState(true);
+    }
+  }, 100), []);
+
+  const hidePopover = useCallback((event) => {
+    if (event) {
+      if (!containerRef.current.contains(event.target)) {
+        isControlledComponent ? onPopoverToggle(false) : setPopoverState(false);
+      };
+    } else {
+      isControlledComponent ? onPopoverToggle(false) : setPopoverState(false);
+    }
+  }, [isControlledComponent, onPopoverToggle]);
 
   const handleKeyDown = useCallback((event) => {
     const { key } = event;
@@ -29,22 +45,39 @@ const DateTimePickerPopover = (props) => {
     if (closingKeys.includes(key) && popoverOpen) {
       event.preventDefault();
       event.stopPropagation();
-      setPopoverState(false);
+      hidePopover();
     }
-  }, [popoverOpen]);
+  }, [hidePopover, popoverOpen]);
 
-  const targetRef = useRef(null);
+  const buttonRef = useRef(null);
   const containerRef = useRef(null);
 
-  const displayString = useMemo(() => {
-    if (!props.value) return props.label || PLACEHOLDER;
+  useEffect(() => {
+    setButtonValue(
+      props.value ? 
+        format(new Date(props.value), DATEPICKER_DEFAULT_CONFIG.format) 
+        : ''
+    );
 
-    return format(new Date(props.value), DATEPICKER_DEFAULT_CONFIG.format);
-  }, [props.label, props.value]);
+  }, [props.value]);
+
+  useEffect(() => {
+    if (isControlledComponent && popoverOpen !== props.popoverOpen) {
+      setPopoverState(props.popoverOpen);
+    }
+  }, [isControlledComponent, popoverOpen, props.popoverOpen]);
+
+  const optionalProps = useMemo(() => {
+    const value = {};
+    if (props.placement === 'auto') {
+      value.flip = true;
+    }
+    return value;
+  }, [props.placement]);
 
   return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={styles.container}>
-    <input className={styles.input} type='text' placeholder={PLACEHOLDER} className={styles.button} onFocus={onFocus} onBlur={onBlur} onChange={onDateInputChange} value={displayString} ref={targetRef} />
-    <Overlay show={popoverOpen} placement={props.placement || 'bottom'} rootClose onHide={() => setPopoverState(false)}  target={targetRef.current} container={containerRef.current}>
+    <button type='button' onClick={onClick} ref={buttonRef} className={styles.button}>{buttonValue}</button>
+    <Overlay popperConfig={popperConfig} show={popoverOpen} placement={props.placement || DEFAULT_PLACEMENT} {...optionalProps} rootClose onHide={hidePopover} target={buttonRef.current} container={containerRef.current}>
       <DateTimePopover {...props}  />
     </Overlay>
   </div>;
@@ -52,11 +85,12 @@ const DateTimePickerPopover = (props) => {
 };
 
 const DateTimePopover = forwardRef((props, ref) => {  /* eslint-disable-line react/display-name */
-  return <Popover ref={ref} className={`${styles.popover} ${props.popoverClassName}`} placement={props.placement || 'auto'}>
+  const { placement, popoverStyles = {}, popoverClassName } = props;
+  return <Popover ref={ref} className={`${styles.popover} ${popoverClassName}`} style={popoverStyles} placement={placement || DEFAULT_PLACEMENT}>
     <Popover.Content>
       <DateTimePicker {...props} />
     </Popover.Content>
   </Popover>;
 });
 
-export default memo(DateTimePickerPopover);
+export default memo(forwardRef(DateTimePickerPopover));

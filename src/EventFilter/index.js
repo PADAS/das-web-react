@@ -250,7 +250,7 @@ const EventFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <EventFilterDateRangeSelector endDateLabel='' startDateLabel=''/>
+      <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
     </Popover.Content>
   </Popover>;
 

@@ -15,8 +15,8 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 const DateRangeSelector = (props) => {
   const { startDate, endDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
-    startDateNullMessage, endDateNullMessage, className, gaEventSrc, 
-    children, ...rest } = props;
+    startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
+    children, placement, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -42,7 +42,7 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePickerPopover {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={styles.datePopover} />
+          <DateTimePickerPopover placement={placement} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -51,7 +51,7 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePickerPopover onClickDay={handleEndDateDayClick} popoverClassName={styles.datePopover} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} />
+          <DateTimePickerPopover placement={placement} onClickDay={handleEndDateDayClick} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} />
         </span>
       </label>
     </div>

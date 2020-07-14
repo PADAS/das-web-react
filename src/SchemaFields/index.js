@@ -3,6 +3,7 @@ import Select, { components } from 'react-select';
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
+import debounce from 'lodash/debounce';
 
 import { DEFAULT_SELECT_STYLES } from '../constants';
 import { trackEvent } from '../utils/analytics';
@@ -10,27 +11,20 @@ import { uuid } from '../utils/string';
 
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 
+import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
+
 import styles from './styles.module.scss';
 
-const ensureInView = (container, element, heightToAdd, padding = 20) => {
-  let cTop = container.scrollTop;
-  let cBottom = cTop + container.clientHeight;
 
-  let eTop = element.offsetTop;
-  let eBottom = eTop + element.clientHeight + heightToAdd + padding;
+const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, heightToAdd) => {
+  const { isAboveFold, isBelowFold, eTop, eBottom, cTop, cBottom } = getElementPositionDataWithinScrollContainer(scrollContainer, element, heightToAdd);
 
-  if (eTop < cTop) {
-    container.scrollTop -= (cTop - eTop);
-  }
-  else if (eBottom > cBottom) {
-    container.scrollTop += (eBottom - cBottom);
+  if (isAboveFold) {
+    scrollContainer.scrollTop -= (cTop - eTop);
+  } else if (isBelowFold) {
+    scrollContainer.scrollTop += (eBottom - cBottom);
   }
 };
-
-const scrollSelectIntoViewOnMenuOpenIfNecessary = (menuRef, containerRef, scrollContainerRef) => {
-  ensureInView(scrollContainerRef, containerRef, menuRef.clientHeight);
-};
-
 
 const SelectField = (props) => {
   const { id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
@@ -70,7 +64,7 @@ const SelectField = (props) => {
       && props.registry.formContext
       && props.registry.formContext.scrollContainer
     ) {
-      scrollSelectIntoViewOnMenuOpenIfNecessary(selectRef.current.select.menuListRef, containerRef.current, props.registry.formContext.scrollContainer);
+      scrollSelectIntoViewOnMenuOpenIfNecessary(props.registry.formContext.scrollContainer, containerRef.current, selectRef.current.select.menuListRef.clientHeight);
     }
   }), [props.registry.formContext]);
 
@@ -101,19 +95,99 @@ const SelectField = (props) => {
   />;
 };
 
+const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
+  const { eBottom, cBottom } = getElementPositionDataWithinScrollContainer(scrollContainer, element, 0);
+  const { left, top } = element.getBoundingClientRect();
+
+  console.log('eBottom, cBottom', eBottom, cBottom);
+
+  const placement = cBottom - eBottom > 200 ? 'bottom' : 'top';
+
+  const offsets = {
+    left,
+    top: placement === 'bottom' ? top + 40 : top - 340,
+  };
+
+  return {
+    offsets, placement,
+  };
+};
+
 
 const DateTimeField = (props) => {
   const { idSchema: { id }, schema: { title: label }, onChange, required, formData } = props;
+  const labelRef = useRef(null);
+  const [localCss, setStyles] = useState({ display: 'none' });
+  const [popoverOpen, setPopoverState] = useState(false);
+  const [placement, setPlacement] = useState('bottom');
+
+  const onPopoverToggle = useCallback((state) => {
+    setPopoverState(state);
+  }, []);
+
+  const scrollEventRef = useRef(null);
+
+  useEffect(() => {
+    if (!!props.registry.formContext.scrollContainer && !!popoverOpen) {
+
+      if (scrollEventRef.current) {
+        scrollEventRef.current.cancel();
+        window.removeEventListener('resize', scrollEventRef.current);
+        props.registry.formContext.scrollContainer.removeEventListener('scroll', scrollEventRef.current);
+      }
+
+      scrollEventRef.current = debounce(() => {
+        if (!labelRef || !labelRef.current || !popoverOpen) return null;
+
+        if (
+          !!props.registry.formContext.scrollContainer
+          && !getElementPositionDataWithinScrollContainer(props.registry.formContext.scrollContainer, labelRef.current, 0)
+            .isFullyVisible) {
+          return setPopoverState(false);
+        }
+
+        const { offsets, placement:newPlacement } = calcPlacementForFixedDateTimeField(props.registry.formContext.scrollContainer, labelRef.current);
+
+        if (placement !== newPlacement) {
+          setPlacement(newPlacement);
+        }
+
+        setStyles({
+          display: 'block',
+          transform: `translate(${offsets.left}px, ${offsets.top}px)`,
+        });
+      }, 100);
+
+      window.addEventListener('resize', scrollEventRef.current);
+      props.registry.formContext.scrollContainer.addEventListener('scroll', scrollEventRef.current);
+    }
+
+    return () => {
+      if (!!props.registry.formContext.scrollContainer && !!scrollEventRef.current) {
+        window.removeEventListener('resize', scrollEventRef.current);
+        props.registry.formContext.scrollContainer.removeEventListener('scroll', scrollEventRef.current); /* eslint-disable-line */
+      }
+    };
+
+  }, [localCss, placement, popoverOpen, props.registry.formContext.scrollContainer]);
+
   const date = formData ? new Date(formData) : undefined;
 
   const handleChange = useCallback((newVal) => {
-    console.log('newVal', newVal);
     onChange(newVal ? newVal.toISOString() : newVal);
   }, [onChange]);
 
+  useEffect(() =>{
+    if (!!popoverOpen) {
+      scrollEventRef.current();
+    }
+  }, [popoverOpen]);
+
   return <Fragment>
-    <label htmlFor={id}>{label}</label>
-    <DateTimePickerPopover className={styles.datepicker} id={id} required={required}  maxDate={new Date()} value={date} onChange={handleChange} />
+    <label ref={labelRef} htmlFor={id}>{label}</label>
+    <DateTimePickerPopover placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
+      id={id} required={required}  maxDate={new Date()} value={date} popoverOpen={popoverOpen} onPopoverToggle={onPopoverToggle}
+      onChange={handleChange} defaultTimeValue='00:00' />
   </Fragment>;
 };
 

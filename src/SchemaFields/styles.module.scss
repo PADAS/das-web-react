@@ -1,10 +1,10 @@
 @import '../common//styles/layout';
 
-.datepicker {
-  width: 100%;
-  [class*=react-datetime-picker__wrapper] {
-    width: 100%;
-  }
+div.datepicker {
+  left: 0;
+  position: fixed;
+  margin: unset;
+  top: 0;
 }
 
 .linkLabel {
