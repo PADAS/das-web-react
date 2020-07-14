@@ -5,13 +5,6 @@
   position: relative;
   width: 50%;
 
-  // .nullMessage, [class*=react-datetime-picker__inputGroup__input] [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open], [class*=react-datetime-picker__wrapper] {
-  //   cursor: pointer;
-  // }
-  .nullMessage, [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open] {
-    width: 100%;
-  }
-
   .nullMessage {
     align-items: center;
     display: flex;
@@ -26,16 +19,10 @@
     position: absolute;
     top: 0.25rem;
     z-index: 2;
-    + [class*=react-datetime-picker--closed] {
-      opacity: 0;
-    }
   }
   [class|=react-calendar] {
     // top: 45% !important;
     position: fixed !important;
-  }
-  + .label [class*=react-datetime-picker__calendar] {
-    left: 50% !important;
   }
 }
 

@@ -42,9 +42,6 @@ div.datePopover {
   [class*=col-] {
     position: static;
   }
-  [class*=react-datetime-picker__wrapper] {
-    @include defaultTextInput;
-  }
   legend, [class*=card][class*=errors] {
     display: none;
   }
@@ -233,7 +230,7 @@ div.datePopover {
       fill: $primary-font-color; 
     }
   }
-  [class*=react-datetime-picker__wrapper], .locationAnchor {
+  .locationAnchor {
     @include defaultTextInput;
     padding: 0.5rem 0.25rem;
     width: 100%;
