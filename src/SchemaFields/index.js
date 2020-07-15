@@ -115,7 +115,7 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
 
 
 const DateTimeField = (props) => {
-  const { idSchema: { id }, schema: { title: label }, onChange, required, formData } = props;
+  const { idSchema: { id }, schema: { title: label }, onChange, required, maxDate, formData } = props;
   const labelRef = useRef(null);
   const [localCss, setStyles] = useState({ display: 'none' });
   const [popoverOpen, setPopoverState] = useState(false);
@@ -186,7 +186,7 @@ const DateTimeField = (props) => {
   return <Fragment>
     <label ref={labelRef} htmlFor={id}>{label}</label>
     <DateTimePickerPopover placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
-      id={id} required={required}  maxDate={new Date()} value={date} popoverOpen={popoverOpen} onPopoverToggle={onPopoverToggle}
+      id={id} required={required}  maxDate={maxDate || new Date('2050')} value={date} popoverOpen={popoverOpen} onPopoverToggle={onPopoverToggle}
       onChange={handleChange} defaultTimeValue='00:00' />
   </Fragment>;
 };

@@ -15,6 +15,7 @@ import styles from './styles.module.scss';
 
 export const RULER_POINTS_LAYER_ID = 'RULER_POINTS_LAYER_ID';
 
+
 const linePaint = {
   'line-color': 'orange',
   'line-dasharray': [2, 4],
@@ -32,6 +33,11 @@ const symbolLayout = {
   'symbol-placement': 'line-center',
   'text-font': ['Open Sans Regular'],
   'text-field': ['get', 'lengthLabel'],
+};
+
+const symbolPaint = {
+  ...DEFAULT_SYMBOL_PAINT,
+  'text-halo-width': 2,
 };
 
 const circlePaint = {
@@ -84,7 +90,7 @@ const MapRulerLayer = (props) => {
       <Source id='map-ruler-source' geoJsonSource={sourceData} />
       <Layer sourceId='map-ruler-source' id={RULER_POINTS_LAYER_ID} type='circle' onMouseEnter={onCircleMouseEnter} onMouseLeave={onCircleMouseLeave} paint={circlePaint} onClick={onPointClick} />
       <Layer sourceId='map-ruler-source' type='line' paint={linePaint} layout={lineLayout} />
-      <Layer sourceId='map-ruler-source' type='symbol' paint={DEFAULT_SYMBOL_PAINT} layout={symbolLayout} />
+      <Layer sourceId='map-ruler-source' type='symbol' paint={symbolPaint} layout={symbolLayout} />
     </Fragment>}
   </Fragment>;
 };
