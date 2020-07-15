@@ -5,23 +5,28 @@ import debounce from 'lodash/debounce';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import DateTimePicker from '../DateTimePicker';
+import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import styles from './styles.module.scss';
 
 const DEFAULT_PLACEMENT = 'bottom';
+const BLANK_BUTTON_VALUE = '----/--/-- --:--';
 
 const DateTimePickerPopover = (props, ref) => {
   const { popperConfig = {}, onPopoverToggle } = props;
-  const isControlledComponent = props.hasOwnProperty('popoverOpen');
+  const popoverStateIsControlled = props.hasOwnProperty('popoverOpen');
 
-  const [popoverOpen, setPopoverState] = useState(isControlledComponent ? props.popoverOpen : false);
-  const [buttonValue, setButtonValue] = useState('');
+  const [popoverOpen, setPopoverState] = useState(popoverStateIsControlled ? props.popoverOpen : false);
+  const [buttonValue, setButtonValue] = useState(BLANK_BUTTON_VALUE);
+
+  const noValueSet = useMemo(() => buttonValue === BLANK_BUTTON_VALUE, [buttonValue]);
+  const canShowClearButton = useMemo(() => !noValueSet && !props.required, [noValueSet, props.required]);
 
   // const isValid = useMemo(() => , []);
   
   const onClick = useCallback(debounce((e) => {
-    if (isControlledComponent) {
+    if (popoverStateIsControlled) {
       onPopoverToggle(true);
     } else {
       setPopoverState(true);
@@ -31,12 +36,12 @@ const DateTimePickerPopover = (props, ref) => {
   const hidePopover = useCallback((event) => {
     if (event) {
       if (!containerRef.current.contains(event.target)) {
-        isControlledComponent ? onPopoverToggle(false) : setPopoverState(false);
+        popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
       };
     } else {
-      isControlledComponent ? onPopoverToggle(false) : setPopoverState(false);
+      popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
     }
-  }, [isControlledComponent, onPopoverToggle]);
+  }, [popoverStateIsControlled, onPopoverToggle]);
 
   const handleKeyDown = useCallback((event) => {
     const { key } = event;
@@ -52,20 +57,24 @@ const DateTimePickerPopover = (props, ref) => {
   const buttonRef = useRef(null);
   const containerRef = useRef(null);
 
+  const onClickClearIcon = useCallback(() => {
+    !!props.onChange && props.onChange('');
+  }, [props]);
+
   useEffect(() => {
     setButtonValue(
       props.value ? 
         format(new Date(props.value), DATEPICKER_DEFAULT_CONFIG.format) 
-        : ''
+        : BLANK_BUTTON_VALUE
     );
 
   }, [props.value]);
 
   useEffect(() => {
-    if (isControlledComponent && popoverOpen !== props.popoverOpen) {
+    if (popoverStateIsControlled && popoverOpen !== props.popoverOpen) {
       setPopoverState(props.popoverOpen);
     }
-  }, [isControlledComponent, popoverOpen, props.popoverOpen]);
+  }, [popoverStateIsControlled, popoverOpen, props.popoverOpen]);
 
   const optionalProps = useMemo(() => {
     const value = {};
@@ -76,7 +85,8 @@ const DateTimePickerPopover = (props, ref) => {
   }, [props.placement]);
 
   return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={styles.container}>
-    <button type='button' onClick={onClick} ref={buttonRef} className={styles.button}>{buttonValue}</button>
+    <button type='button' onClick={onClick} ref={buttonRef} className={`${styles.button} ${noValueSet ? styles.empty : ''}`}>{buttonValue}</button>
+    {canShowClearButton && <ClearIcon onClick={onClickClearIcon} className={styles.clearIcon} />}
     <Overlay popperConfig={popperConfig} show={popoverOpen} placement={props.placement || DEFAULT_PLACEMENT} {...optionalProps} rootClose onHide={hidePopover} target={buttonRef.current} container={containerRef.current}>
       <DateTimePopover {...props}  />
     </Overlay>

@@ -24,8 +24,22 @@ div.popover {
   width: 100%;
   height: 2.4375rem;
   vertical-align: middle;
+  &.empty {
+    color: $light-font-color;
+  }
 }
 
 [type=text].invalidInput {
   border: 1px solid $bright-red;
+}
+
+.clearIcon {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 0.75rem;
+  height: 1rem;
+&:hover * {
+    stroke: $highlight-color;
+  }
 }

@@ -42,7 +42,7 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePickerPopover placement={placement} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireStart} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
+          <DateTimePickerPopover placement={placement} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={true} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>

@@ -182,13 +182,16 @@ aside {
       width: 3rem;
   
       &:not(:disabled):hover,
-      &.react-calendar__tile--active {
+      &.react-calendar__tile--active,
+      &.react-calendar__tile--now {
         border: 1px solid $light-gray-border;
       }
-  
+      &.react-calendar__tile--now {
+        background: none;
+      }
       &.react-calendar__tile--active {
-        background: unset;
-        color: unset;
+        background: $primary-button-color;
+        color: white;
       }
     }
   }

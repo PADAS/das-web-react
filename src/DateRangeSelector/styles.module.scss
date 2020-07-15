@@ -7,17 +7,17 @@
 
   .nullMessage {
     align-items: center;
+    background: white;
     display: flex;
     font-size: 0.75rem;
     height: 2rem;
     padding: 0.25rem;
-  }
-  .nullMessage {
     color: $link-color;
     left: 0.25rem;
     pointer-events: none;
     position: absolute;
     top: 0.25rem;
+    width: 90%;
     z-index: 2;
   }
   [class|=react-calendar] {
