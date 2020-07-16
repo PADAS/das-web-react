@@ -250,7 +250,7 @@ $contrast: 25%;
   align-items: center;
   display: flex;
   flex-flow: column;
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   justify-content: center;
   text-align: center;
   position: absolute;
@@ -258,6 +258,9 @@ $contrast: 25%;
   top: 15%;
   white-space: nowrap;
   width: var(--thumb-width);
+  @media (min-width: $md-layout-width-min) {
+    font-size: 0.7rem;
+  }
 }
 
 .handleText span {

@@ -23,8 +23,6 @@ const DateTimePickerPopover = (props, ref) => {
   const noValueSet = useMemo(() => buttonValue === BLANK_BUTTON_VALUE, [buttonValue]);
   const canShowClearButton = useMemo(() => !noValueSet && !props.required, [noValueSet, props.required]);
 
-  // const isValid = useMemo(() => , []);
-  
   const onClick = useCallback(debounce((e) => {
     if (popoverStateIsControlled) {
       onPopoverToggle(true);
@@ -34,10 +32,8 @@ const DateTimePickerPopover = (props, ref) => {
   }, 100), []);
 
   const hidePopover = useCallback((event) => {
-    if (event) {
-      if (!containerRef.current.contains(event.target)) {
-        popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
-      };
+    if (event && !containerRef.current.contains(event.target)) {
+      popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
     } else {
       popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
     }
@@ -71,7 +67,10 @@ const DateTimePickerPopover = (props, ref) => {
   }, [props.value]);
 
   useEffect(() => {
-    if (popoverStateIsControlled && popoverOpen !== props.popoverOpen) {
+    if (
+      popoverStateIsControlled
+      && (popoverOpen !== props.popoverOpen)
+    ) {
       setPopoverState(props.popoverOpen);
     }
   }, [popoverStateIsControlled, popoverOpen, props.popoverOpen]);

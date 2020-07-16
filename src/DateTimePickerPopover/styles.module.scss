@@ -1,4 +1,5 @@
 @import '../common/styles/inputs';
+@import '../common/styles/layout';
 @import '../common/styles/vars/colors';
 
 .container {
@@ -18,6 +19,7 @@ div.popover {
 .button {
   text-align: left;
   @include defaultTextInput;
+  font-size: 0.8rem;
   padding: 0.5rem;
   position: relative;
   text-align: left;
@@ -26,6 +28,9 @@ div.popover {
   vertical-align: middle;
   &.empty {
     color: $light-font-color;
+  }
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
   }
 }
 

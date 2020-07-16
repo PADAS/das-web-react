@@ -26,6 +26,9 @@ const DataExportMenu = (props) => {
       ...(dailyReportEnabled? [{
         title: 'Daily Report',
         content: DailyReportModal,
+        modalProps: {
+          className: 'daily-report-modal',
+        },
       }] : []),
       {
         title: 'Field Reports',
@@ -37,6 +40,9 @@ const DataExportMenu = (props) => {
         title: 'Master KML',
         content: KMLExportModal,
         url: 'subjects/kml/root',
+        modalProps: {
+          className: 'kml-export-modal',
+        },
       }] : []),
       {
         title: 'Subject Information',

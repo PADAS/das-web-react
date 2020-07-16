@@ -569,3 +569,9 @@ div.mapboxgl-popup-tip {
     width: 100%;
   }
 }
+
+.daily-report-modal, .kml-export-modal {
+  .modal-dialog {
+    margin-top: -5rem;
+  }
+}
