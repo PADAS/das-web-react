@@ -16,7 +16,7 @@ div.popover {
   }
 }
 
-.button {
+.input {
   text-align: left;
   @include defaultTextInput;
   font-size: 0.8rem;
@@ -31,6 +31,10 @@ div.popover {
   }
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
+  }
+  &.invalid {
+    border-color: $error-border;
+    color: $error;
   }
 }
 

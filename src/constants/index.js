@@ -193,6 +193,7 @@ export const DATEPICKER_DEFAULT_CONFIG = {
   clearIcon: null,
   calendarIcon: null,
   format: 'YYYY-MM-DD HH:mm',
+  minDate: new Date('2010-01-01'),
 };
 
 export const GEOLOCATOR_OPTIONS = {
