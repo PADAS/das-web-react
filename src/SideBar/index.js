@@ -98,16 +98,16 @@ const SideBar = (props) => {
   };
 
   const loadFeedEvents = () => {
-    setEventLoadState(true);
-    fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
+    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
       .catch((e) => {
         console.warn('error loading feed events', e);
-      })
-      .finally(() => setEventLoadState(false));
+      });
   };
 
   useEffect(() => {
-    loadFeedEvents();
+    setEventLoadState(true);
+    loadFeedEvents()
+      .finally(() => setEventLoadState(false));
   }, [eventFilter]); // eslint-disable-line
 
   useEffect(() => {

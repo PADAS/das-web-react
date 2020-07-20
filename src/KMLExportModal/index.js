@@ -50,11 +50,13 @@ const KMLExportModal = (props) => {
     <div>
       <DateRangeSelector
         className={styles.controls}
+        popoverClassName={styles.datePopover}
         maxDate={today}
         startDate={customStartDate}
         endDate={customEndDate}
         requireStart={true}
         requireEnd={true}
+        placement='bottom'
         onStartDateChange={handleStartDateChange}
         onEndDateChange={handleEndDateChange}
         gaEventSrc='KML Export'

@@ -16,7 +16,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM, symbolTextSize } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM, SYMBOL_TEXT_SIZE_EXPRESSION } from '../constants';
 
 export const CLUSTER_CONFIG = {
   cluster: true,
@@ -39,7 +39,7 @@ const clusterSymbolLayout = {
   'text-allow-overlap': true,
   'text-field': '{point_count_abbreviated}',
   'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-  'text-size': symbolTextSize,
+  'text-size': SYMBOL_TEXT_SIZE_EXPRESSION,
   'text-offset': [-0.8, -0.8],
 };
 
@@ -235,9 +235,6 @@ const EventsLayer = (props) => {
       12, IF_IS_GENERIC(
         SCALE_ICON_IF_BOUNCED(0.5/MAP_ICON_SCALE, ICON_SCALE_RATE), 
         SCALE_ICON_IF_BOUNCED(1/MAP_ICON_SCALE, ICON_SCALE_RATE)),
-      MAX_ZOOM, IF_IS_GENERIC(
-        SCALE_ICON_IF_BOUNCED(0.75/MAP_ICON_SCALE, ICON_SCALE_RATE), 
-        SCALE_ICON_IF_BOUNCED(1.5/MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
     ...mapUserLayoutConfig,
     'text-size': 0,
@@ -249,9 +246,9 @@ const EventsLayer = (props) => {
     'text-field': '{display_title}',
     'text-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
-      0, 4,
-      12, SCALE_FONT_IF_BOUNCED(14, FONT_SCALE_RATE),
-      MAX_ZOOM, SCALE_FONT_IF_BOUNCED(16, FONT_SCALE_RATE),
+      0, 5,
+      6, SCALE_FONT_IF_BOUNCED(8, FONT_SCALE_RATE),
+      14, SCALE_FONT_IF_BOUNCED(13, FONT_SCALE_RATE),
     ],
     ...mapUserLayoutConfig,
   };

@@ -91,12 +91,14 @@ const fetchNamedFeedActionCreator = (name) => {
       cancelToken: cancelToken.token,
     })
       .then((response) => {
-        dispatch(updateEventStore(...response.data.data.results));
-        dispatch({
-          name,
-          type: FEED_FETCH_SUCCESS,
-          payload: response.data.data,
-        });
+        if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
+          dispatch(updateEventStore(...response.data.data.results));
+          dispatch({
+            name,
+            type: FEED_FETCH_SUCCESS,
+            payload: response.data.data,
+          });
+        }
         return response;
       })
       .catch((error) => {

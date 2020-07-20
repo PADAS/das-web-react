@@ -1,35 +1,79 @@
-import React, { memo, useCallback, useState } from 'react';
-import DefaultDateTimePicker from 'react-datetime-picker';
+import React, { memo, useCallback, useRef, useEffect, useState } from 'react';
+import Calendar from 'react-calendar';
 
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
+import setHours from 'date-fns/set_hours';
+import getHours from 'date-fns/get_hours';
+
+import setMinutes from 'date-fns/set_minutes';
+import getMinutes from 'date-fns/get_minutes';
+
+import TimeInput from '../TimeInput';
+
+import 'react-calendar/dist/Calendar.css';
+
+const CALENDAR_CONFIG = {
+  clearIcon: null,
+  calendarIcon: null,
+  format: 'yyyy-MM-dd HH:mm',
+  minDate: new Date(2011, 1, 1),
+};
+
+const preventEventBubbling = (_value, event) => {
+  event.preventDefault();
+  event.stopPropagation();
+};
+
+const BLOCKED_EVENT_HANDLERS = { /* bugfix for odd react-calendar behavior in which clicks bubble up to every subsequent button control. issue to be filed w/react-calendar in github. */
+  onClickMonth: preventEventBubbling,
+  onClickYear: preventEventBubbling,
+  onClickDecade: preventEventBubbling,
+};
 
 const DateTimePicker = (props) => {
-  const [temporaryCalendarProps, setTemporaryCalendarProps] = useState({});
+  const { value, onChange, ...rest } = props;
 
-  const handleEscapePress = useCallback((event) => {
-    const { key } = event;
-    if (key === 'Escape' 
-    && temporaryCalendarProps.isCalendarOpen) {
-      event.preventDefault();
-      event.stopPropagation();
-      setTemporaryCalendarProps({});
+  const [timeInputValue, setTimeInputValue] = useState('00:00');
+  const firstTimeInputRef = useRef(null);
+
+  useEffect(() => {
+    if (value) {
+      const hours = getHours(value);
+      const minutes = getMinutes(value);
+
+      setTimeInputValue(`${hours}:${minutes}`);
     }
-  }, [temporaryCalendarProps]);
+  }, [value]);
 
-  const onKeyDown = useCallback((event) => {
-    handleEscapePress(event);
-    props.onKeyDown && props.onKeyDown(event);
-  }, [handleEscapePress, props]);
+  const handleCalendarChange = useCallback((value) => {
+    const [hours, minutes] = timeInputValue.split(':');
+    let newValue = new Date(value.getTime());
 
-  const handleCalendarOpen = useCallback(() => {
-    setTemporaryCalendarProps({
-      isCalendarOpen: props.isCalendarOpen || true,
-    });
-  }, [props]);
+    newValue = setHours(newValue, parseFloat(hours));
+    newValue = setMinutes(newValue, parseFloat(minutes));
 
+    setTimeout(() => {
+      firstTimeInputRef.current.focus();
+      firstTimeInputRef.current.select();
+    }, 100);
+    
+    onChange(newValue);
+  }, [onChange, timeInputValue]);
 
+  const handleTimeChange = useCallback((inputValue) => {
+    const [hours, minutes] = inputValue.split(':');
+    let newValue = new Date(value.getTime());
 
-  return <DefaultDateTimePicker onKeyDown={onKeyDown} onCalendarOpen={handleCalendarOpen} {...DATEPICKER_DEFAULT_CONFIG} {...props} {...temporaryCalendarProps} />;
+    newValue = setHours(newValue, parseFloat(hours));
+    newValue = setMinutes(newValue, parseFloat(minutes));
+
+    onChange(newValue);
+  }, [onChange, value]);
+
+  return <div>
+    <Calendar {...CALENDAR_CONFIG} {...BLOCKED_EVENT_HANDLERS} onChange={handleCalendarChange} value={value} {...rest} />
+    {!!value && <TimeInput ref={firstTimeInputRef} disabled={!value} value={timeInputValue} onChange={handleTimeChange} />}
+  </div>;
+
 };
 
 export default memo(DateTimePicker);

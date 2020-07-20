@@ -4,39 +4,25 @@
 .label {
   position: relative;
   width: 50%;
+
   .nullMessage {
-    pointer-events: none;
-  }
-
-
-  // .nullMessage, [class*=react-datetime-picker__inputGroup__input] [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open], [class*=react-datetime-picker__wrapper] {
-  //   cursor: pointer;
-  // }
-  .nullMessage, [class*=react-datetime-picker--closed], [class*=react-datetime-picker--open], [class*=react-datetime-picker__wrapper] {
-    width: 100%;
-  }
-
-  .nullMessage, [class*=react-datetime-picker__wrapper] {
     align-items: center;
+    background: white;
     display: flex;
     font-size: 0.75rem;
     height: 2rem;
     padding: 0.25rem;
-  }
-  .nullMessage {
-    border: 1px solid $light-gray-border;
     color: $link-color;
+    left: 0.25rem;
+    pointer-events: none;
     position: absolute;
-    + [class*=react-datetime-picker--closed] {
-      opacity: 0;
-    }
+    top: 0.25rem;
+    width: 95%;
+    z-index: 2;
   }
   [class|=react-calendar] {
     // top: 45% !important;
     position: fixed !important;
-  }
-  + .label [class*=react-datetime-picker__calendar] {
-    left: 50% !important;
   }
 }
 
@@ -82,4 +68,10 @@
   text-align: center;
   width: 100%;
   padding: 0.5rem;
+}
+
+.datePopover {
+  left: unset;
+  position: fixed;
+  top: unset;
 }

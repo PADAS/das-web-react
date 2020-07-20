@@ -182,13 +182,16 @@ aside {
       width: 3rem;
   
       &:not(:disabled):hover,
-      &.react-calendar__tile--active {
+      &.react-calendar__tile--active,
+      &.react-calendar__tile--now {
         border: 1px solid $light-gray-border;
       }
-  
+      &.react-calendar__tile--now {
+        background: none;
+      }
       &.react-calendar__tile--active {
-        background: unset;
-        color: unset;
+        background: $primary-button-color;
+        color: white;
       }
     }
   }
@@ -200,41 +203,6 @@ aside {
     opacity: 0.5;
   }
 }
-
-.react-datetime-picker__inputGroup, .react-datetime-picker__inputGroup__input {
-  color: $bright-blue;
-}
-
-.react-datetime-picker__wrapper {
-  border: 1px solid $light-gray-border;
-  cursor: pointer;
-  > * {
-    cursor: pointer;
-  }
-}
-
-.react-datetime-picker__calendar--open {
-  z-index: 5;
-}
-
-/* .react-datetime-picker__clear-button {
-  align-items: center;
-  border: 1px solid $bright-blue;
-  border-radius: 100%;
-  display: flex;
-  height: 1rem;
-  justify-content: center;
-  padding: 0;
-  position: relative;
-  top: -0.25rem;
-  width: 1rem;
-  svg {
-    height: 75%;
-    fill: $bright-blue;
-    stroke: $bright-blue;
-    width: 75%;
-  }
-} */
 
 .maplock {
   text-align: center;
@@ -602,7 +570,8 @@ div.mapboxgl-popup-tip {
   }
 }
 
-
-.react-datetime-picker__calendar {
-  z-index: 10;
+.daily-report-modal, .kml-export-modal {
+  .modal-dialog {
+    margin-top: -5rem;
+  }
 }
