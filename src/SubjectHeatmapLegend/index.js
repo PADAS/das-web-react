@@ -24,7 +24,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
       <div>
         <span>{title}</span>
-        <small>{geometry.coordinates.length} points</small>
+        <small>{geometry ? geometry.coordinates.length : 0} points</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemoveTrackClick}>remove</Button>
     </li>;
