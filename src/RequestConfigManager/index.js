@@ -62,9 +62,9 @@ const RequestConfigManager = (props) => {
             pathname: `${REACT_APP_ROUTE_PREFIX}login`,
             search: location.search,
           });
-          return Promise.reject(error);
         });
       }
+      return Promise.reject(error);
     }];
 
     if (onAuthFailure.current) {

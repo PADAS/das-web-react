@@ -54,14 +54,12 @@ class LoginPage extends Component {
         });
       })
       .catch((error) => {
-        let errorObject = JSON.parse(JSON.stringify(error));
+        let errorObject = error.toJSON();
         this.props.clearAuth();
 
         const errorMessage = errorObject
-          && errorObject.response
-          && errorObject.response.data 
-          && ((errorObject.response.status >= 400 && errorObject.response.status <= 499) || errorObject.response.data.error) === 'invalid_grant' 
-          ? 'Invalid credentials given. Please try again.' 
+          && errorObject.message
+          && errorObject.message.includes('400') ? 'Invalid credentials given. Please try again.' 
           : 'An error has occured. Please try again.';
 
         !this.isCancelled && this.setState({
