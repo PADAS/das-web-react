@@ -556,6 +556,7 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
     };
   }
   if (type === SOCKET_EVENT_DATA) {
+    console.log('socket event data payload', payload);
     if (!payload.geojson) return state;
 
     return {

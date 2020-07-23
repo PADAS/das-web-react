@@ -17,9 +17,8 @@ div.popover {
 }
 
 .input {
-  text-align: left;
   @include defaultTextInput;
-  font-size: 0.8rem;
+  text-align: left;
   padding: 0.5rem;
   position: relative;
   text-align: left;
@@ -28,9 +27,6 @@ div.popover {
   vertical-align: middle;
   &.empty {
     color: $light-font-color;
-  }
-  @media (min-width: $md-layout-width-min) {
-    font-size: 1rem;
   }
   &.invalid {
     border-color: $error-border;
