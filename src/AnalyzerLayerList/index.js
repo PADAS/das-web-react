@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Checkmark from '../Checkmark';
@@ -15,27 +15,53 @@ import AnalyzerListItem from './AnalyzerListItem';
 
 import listStyles from '../SideBar/styles.module.scss';
 
+const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
+  lazyRender: true,
+  transitionTime: 1,
+};
+
 // eslint-disable-next-line react/display-name
 const AnalyzerLayerList = memo((props) => {
-  const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map } = props;
+  const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map, mapLayerFilter } = props;
 
-  const analyzers = analyzerList[0].features;
-  const analyzerIds = analyzers.map((analyzer) => {
-    const { id } = analyzer;
-    return id;
-  });
-  const analyzerFeatureIDs = analyzers.map((analyzer) => {
-    return analyzer.features.map((feature) => feature.properties.feature_group);
-  });
+  console.log('analyzerList', analyzerList);
+
+  const analyzers = useMemo(() => {
+    const { filter: { text = '' } } = mapLayerFilter;
+
+    if (!text) return analyzerList[0].features;
+
+    return analyzerList[0].features.filter(({ name }) => name.toLowerCase().includes(text.toLowerCase()));
+
+  }, [analyzerList, mapLayerFilter]);
+
+  const analyzerIds = useMemo(() => analyzers.map(({ id }) => id), [analyzers]);
+  const analyzerFeatureIDs = useMemo(() =>
+    analyzers.map((analyzer) =>
+      analyzer.features.map((feature) =>
+        feature.properties.feature_group)
+    ), [analyzers]);
+
   // XXX flatten the feature array - should be a cleaner way
   const featureIds = analyzerFeatureIDs.flat(2);
 
-  const hideAllAnalyzers = () => hideAnalyzers(...analyzerIds);
-  const showAllAnalyzers = () => showAnalyzers(...analyzerIds);
+  const hideAllAnalyzers = useCallback(() => hideAnalyzers(...analyzerIds), [analyzerIds, hideAnalyzers]);
+  const showAllAnalyzers = useCallback(() => showAnalyzers(...analyzerIds), [analyzerIds, showAnalyzers]);
 
-  const onToggleAllFeatures = (e) => {
+  const partiallyChecked = (hiddenAnalyzerIDs.length < analyzerIds.length);
+  const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
+
+  const collapsibleShouldBeOpen = useMemo(() => {
+    const { filter: { text = '' } } = mapLayerFilter;
+
+    if (!text) return false;
+    
+    return !!analyzers.length;
+  }, [analyzers.length, mapLayerFilter]);
+
+
+  const onToggleAllFeatures = useCallback((e) => {
     e.stopPropagation();
-
 
     if (allVisible) {
       const allFeatureIds = analyzers.reduce((accumulator, analyzer) => {
@@ -51,21 +77,16 @@ const AnalyzerLayerList = memo((props) => {
 
       return showAllAnalyzers();
     }
-  };
+  }, [allVisible, analyzerIds, analyzers, hideAllAnalyzers, map, showAllAnalyzers]);
 
-  const featureIsVisible = item => {
+  const featureIsVisible = useCallback(item => {
     const { id } = item;
     return !hiddenAnalyzerIDs.includes(id);
-  };
+  }, [hiddenAnalyzerIDs]);
 
-  const partiallyChecked = (hiddenAnalyzerIDs.length < analyzerIds.length);
-  const allVisible = !hiddenAnalyzerIDs.length || !intersection(hiddenAnalyzerIDs, analyzerIds);
 
-  const collapsibleShouldBeOpen = false;
-
-  const onCheckClick = (item) => {
+  const onCheckClick = useCallback((item) => {
     const { id } = item;
-    
 
     if (featureIsVisible(item)) {
       trackEvent('Map Layer', 'Uncheck Analyzer checkbox');
@@ -75,12 +96,7 @@ const AnalyzerLayerList = memo((props) => {
       trackEvent('Map Layer', 'Check Analyzer checkbox');
       return showAnalyzers(id);
     }
-  };
-
-  const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-    lazyRender: true,
-    transitionTime: 1,
-  };
+  }, [featureIsVisible, hideAnalyzers, map, showAnalyzers]);
 
   const itemProps = { map, analyzerIds, featureIds };
 
