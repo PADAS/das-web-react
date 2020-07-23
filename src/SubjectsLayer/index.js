@@ -15,12 +15,9 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../const
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
-
 const symbolPaint = {
   ...DEFAULT_SYMBOL_PAINT,
 };
-
-
 
 const SubjectsLayer = (props) => {
   const { allowOverlap, mapUserLayoutConfig, onSubjectIconClick, subjects, map, mapImages = {} } = props;
@@ -59,7 +56,7 @@ const SubjectsLayer = (props) => {
     });
   }, [subjects, mapImages]);
 
-  const onSymbolClick = (e) => onSubjectIconClick(getSubjectLayer(e, map));
+  const onSymbolClick = (event) => onSubjectIconClick(({ event, layer: getSubjectLayer(event, map) }));
 
   const layout = {
     ...DEFAULT_SYMBOL_LAYOUT,

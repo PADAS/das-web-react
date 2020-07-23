@@ -1,0 +1,31 @@
+@import '../common/styles/vars/colors';
+
+.popup {
+  padding-bottom: 0.25rem;
+}
+
+.list {
+  margin-bottom: 0;
+  max-height: 15rem;
+  overflow-y: auto;
+}
+
+.listItem {
+  align-items: center;
+  border-top: 1px solid $light-gray-border;
+  cursor: pointer;
+  display: flex;
+  line-height: normal;
+  text-align: left;
+  padding: 0.25rem 0.5rem;
+  img {
+    margin-right: 0.75rem;
+    width: 1.5rem;
+  }
+  &:hover {
+    text-decoration: underline;
+  }
+  &:last-of-type {
+    padding-bottom: 0;
+  }
+}
