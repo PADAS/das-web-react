@@ -2,12 +2,27 @@
 
 .popup {
   padding-bottom: 0.25rem;
+  h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    small {
+      color: $highlight-color;
+      font-size: 0.65rem;
+      font-style: italic;
+      font-weight: normal;
+    }
+  }
 }
 
 .list {
   margin-bottom: 0;
-  max-height: 15rem;
+  max-height: 11rem;
   overflow-y: auto;
+}
+
+.filterInput {
+  margin-bottom: 0.5rem;
 }
 
 .listItem {
@@ -16,6 +31,7 @@
   cursor: pointer;
   display: flex;
   line-height: normal;
+  min-height: 2rem;
   text-align: left;
   padding: 0.25rem 0.5rem;
   img {
