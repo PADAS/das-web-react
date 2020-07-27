@@ -85,6 +85,10 @@ export const LAYER_PICKER_IDS = [
   LAYER_IDS.SUBJECT_SYMBOLS, `${LAYER_IDS.EVENT_SYMBOLS}-labels`, `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`
 ];
 
+export const FEATURE_FLAGS = {
+  PATROL_MANAGEMENT: 'PATROL_MANAGEMENT',
+};
+
 export const SOURCE_IDS = {
   ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
   ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
