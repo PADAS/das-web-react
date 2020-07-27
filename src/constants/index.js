@@ -79,6 +79,10 @@ export const LAYER_IDS = {
   ISOCHRONE_LAYER: 'isochrone',
 };
 
+export const FEATURE_FLAGS = {
+  PATROL_MANAGEMENT: 'PATROL_MANAGEMENT',
+};
+
 export const SOURCE_IDS = {
   ANALYZER_POLYS_WARNING_SOURCE: 'analyzer-polygon-warning-source',
   ANALYZER_POLYS_CRITICAL_SOURCE: 'analyzer-polygon-critical-source',
