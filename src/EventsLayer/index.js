@@ -122,11 +122,11 @@ const EventsLayer = (props) => {
 
   const getEventLayer = useCallback((e, map) => map.queryRenderedFeatures(e.point, { layers: eventSymbolLayerIDs })[0], [eventSymbolLayerIDs]);
 
-  const handleEventClick = useCallback((e) => {
+  const handleEventClick = useCallback((event) => {
     if (!clicking.current) {
       clicking.current = true;
-      const clickedLayer = getEventLayer(e, map);
-      onEventClick(clickedLayer);
+      const clickedLayer = getEventLayer(event, map);
+      onEventClick({ event, layer: clickedLayer });
       setTimeout(() => {
         clicking.current = false;
       });

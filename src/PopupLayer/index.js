@@ -9,6 +9,7 @@ import DroppedMarkerPopup from '../DroppedMarkerPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
 import FeatureSymbolPopup from '../FeatureLayer/FeatureSymbolPopup';
 import AnalyzerConfigPopup from '../AnalyzerConfigPopup';
+import LayerSelectorPopup from '../LayerSelectorPopup';
 
 const PopupLayer = ({ popup, ...rest }) => {
   const { id, type, data } = popup;
@@ -20,6 +21,7 @@ const PopupLayer = ({ popup, ...rest }) => {
   if (type === 'current-user-location') Template = UserCurrentLocationPopup;
   if (type === 'feature-symbol') Template = FeatureSymbolPopup;
   if (type === 'analyzer-config') Template = AnalyzerConfigPopup;
+  if (type === 'multi-layer-select') Template = LayerSelectorPopup;
   
   return Template ? <Template key={id} data={data} {...rest} /> : null;
 };

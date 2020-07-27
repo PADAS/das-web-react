@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
+import uniqBy from 'lodash/uniqBy';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -29,7 +30,7 @@ import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 
-import { LAYER_IDS, MAX_ZOOM } from '../constants';
+import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
 import withSocketConnection from '../withSocketConnection';
 import DelayedUnmount from '../DelayedUnmount';
@@ -63,7 +64,6 @@ import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 
 import './Map.scss';
-
 
 const REPORT_SPIDER_THRESHOLD = MAX_ZOOM - 2;
 
@@ -99,6 +99,7 @@ class Map extends Component {
     this.onRotationControlClick = this.onRotationControlClick.bind(this);
     this.unspiderfy = this.unspiderfy.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
+    this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
 
     if (!this.props.userPreferences.seenReleaseIntro) {
@@ -128,6 +129,9 @@ class Map extends Component {
   onMapZoom = debounce((e) => {
     if (!!this.state.reportSpiderConfig.reports) {
       this.unspiderfy();
+    }
+    if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
+      this.props.hidePopup(this.props.popup.id);
     }
   }, 100)
 
@@ -189,13 +193,19 @@ class Map extends Component {
     
     if (!!this.props.timeSliderState.active && !!this.props.popup
       && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
-      && this.props.popup.type === 'subject') {
-      const subjectMatch = this.props.mapSubjectFeatureCollection.features.find(item => item.properties.id === this.props.popup.data.properties.id);
-      if (subjectMatch) {
-        this.props.showPopup('subject', {
-          geometry: subjectMatch.geometry,
-          properties: subjectMatch.properties,
-        });
+    ) {
+      if (this.props.popup.type === 'subject') {
+        const subjectMatch = this.props.mapSubjectFeatureCollection.features.find(item => item.properties.id === this.props.popup.data.properties.id);
+
+        if (subjectMatch) {
+          this.props.showPopup('subject', {
+            geometry: subjectMatch.geometry,
+            properties: subjectMatch.properties,
+          });
+        }
+      }
+      if (this.props.popup.type === 'multi-layer-select') {
+        this.props.hidePopup(this.props.popup.id);
       }
     }
     if (!!this.props.popup) {
@@ -290,7 +300,16 @@ class Map extends Component {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
+  handleMultiFeaturesAtSameLocationClick(event, layers) {
+    this.props.showPopup('multi-layer-select',
+      { layers,
+        coordinates: [event.lngLat.lng, event.lngLat.lat],
+        onSelectSubject: this.onMapSubjectClick,
+        onSelectEvent: this.onEventSymbolClick,
+      },
+    );
   
+  }
   fetchMapSubjectTracksForTimeslider(subjects) {
     this.resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
@@ -305,6 +324,19 @@ class Map extends Component {
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
+    const clickedLayersOfInterest = uniqBy(
+      map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
+      , layer => layer.properties.id);
+
+
+    let showingMultiPopup;
+      
+    if (clickedLayersOfInterest.length > 1) {
+      event.originalEvent.cancelBubble = true;
+      this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+      showingMultiPopup = true;
+    }
+
     if (this.props.popup) {
       // be sure to also deactivate the analyzer features
       // when dismissing an analyzer popup
@@ -312,7 +344,9 @@ class Map extends Component {
         const { map } = this.props;
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
-      this.props.hidePopup(this.props.popup.id);
+      if (!showingMultiPopup) {
+        this.props.hidePopup(this.props.popup.id);
+      }
     }
     this.hideUnpinnedTrackLayers(map, event);
     if (!!this.state.reportSpiderConfig.reports) {
@@ -320,7 +354,9 @@ class Map extends Component {
     }
   })
 
-  onEventSymbolClick = this.withLocationPickerState(({ properties }) => {
+  onEventSymbolClick = this.withLocationPickerState(({ event:clickEvent, layer: { properties } }) => {
+    if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
+    
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
@@ -329,7 +365,7 @@ class Map extends Component {
   })
 
   onClusterLeafClick = this.withLocationPickerState((report) => {
-    this.onEventSymbolClick({ properties: report });
+    this.onEventSymbolClick({ layer: { properties: report } });
   });
 
   onFeatureSymbolClick = this.withLocationPickerState(({ geometry, properties }) => {
@@ -425,7 +461,9 @@ class Map extends Component {
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   })
 
-  onMapSubjectClick = this.withLocationPickerState(async (layer) => {
+  onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
+    if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
+    
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
     const { updateTrackState, subjectTrackState } = this.props;
