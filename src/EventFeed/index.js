@@ -5,6 +5,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
+import withFeatureFlag from '../withFeatureFlag';
 
 import styles from './styles.module.scss';
 
@@ -41,7 +42,7 @@ const EventFeed = (props) => {
   );
 };
 
-export default memo(EventFeed);
+export default memo(withFeatureFlag('PATROL_MANAGEMENT', EventFeed));
 
 EventFeed.defaultProps = {
   onTitleClick(event) {
