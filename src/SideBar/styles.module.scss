@@ -35,6 +35,9 @@
     justify-content: center;
     &:not([class*=active]):not(:last-child) {
       border-right: 1px solid $gray-border;
+      &:hover {
+        border-right: 1px solid $gray-border;
+      }
     }
     &[class*=active]{
       background: white;
