@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
 
-// Hook
+const useFeatureFlag = (flag) => {
+  const [visible, setVisibility] = useState(!!process.env[`REACT_APP_FF_${flag}`]);
+
+  useEffect(() => {
+    setVisibility(!!process.env[`REACT_APP_FF_${flag}`]);
+  }, [flag]);
+
+  return visible;
+};
+
 const useMatchMedia = (matchMediaDef) => {
   const isClient = typeof window === 'object';
 
@@ -23,5 +32,7 @@ const useMatchMedia = (matchMediaDef) => {
 };
 
 export {
+  useFeatureFlag,
   useMatchMedia,
 };
+

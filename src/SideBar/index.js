@@ -7,8 +7,8 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
-import { BREAKPOINTS } from '../constants';
-import { useMatchMedia } from '../hooks';
+import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
+import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
@@ -40,6 +40,7 @@ import ErrorMessage from '../ErrorMessage';
 const TAB_KEYS = {
   REPORTS: 'reports',
   LAYERS: 'layers',
+  PATROLS: 'patrols',
 };
 
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
@@ -93,6 +94,7 @@ const SideBar = (props) => {
     let tabTitles = {
       [TAB_KEYS.REPORTS]: 'Reports',
       [TAB_KEYS.LAYERS]: 'Map Layers',
+      [TAB_KEYS.PATROLS]: 'Patrols',
     };
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
@@ -119,6 +121,8 @@ const SideBar = (props) => {
   const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
   const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
 
+  const showPatrols = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'
     : (isMediumLayout
@@ -135,11 +139,11 @@ const SideBar = (props) => {
   return <ErrorBoundary>
     <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
       <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-      <Tabs activeKey={activeTab} onSelect={onTabsSelect}>
+      <div className={styles.addReportContainer}>
+        <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
+      </div>
+      <Tabs activeKey={activeTab} onSelect={onTabsSelect} className={styles.tabBar}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
-          <div className={styles.addReportContainer}>
-            <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
-          </div>
           <DelayedUnmount isMounted={sidebarOpen}>
             <ErrorBoundary>
               <div className={styles.filterWrapper}>
@@ -170,6 +174,8 @@ const SideBar = (props) => {
             }
           </ErrorBoundary>
         </Tab>
+        {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+        </Tab>}
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
             <MapLayerFilter />
