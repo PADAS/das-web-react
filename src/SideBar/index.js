@@ -100,15 +100,16 @@ const SideBar = (props) => {
   };
 
   const loadFeedEvents = () => {
-    setEventLoadState(true);
     return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
-      .then(() => {
-        setEventLoadState(false);
+      .catch((e) => {
+        console.warn('error loading feed events', e);
       });
   };
 
   useEffect(() => {
-    loadFeedEvents();
+    setEventLoadState(true);
+    loadFeedEvents()
+      .finally(() => setEventLoadState(false));
   }, [eventFilter]); // eslint-disable-line
 
   useEffect(() => {
@@ -131,11 +132,7 @@ const SideBar = (props) => {
       : 'auto'
     );
 
-  useEffect(() => {
-    if (loadingEvents && events.error) {
-      setEventLoadState(false);
-    }
-  }, [events.error, loadingEvents]);
+  const showEventFeedError = !loadingEvents && !!events.error;
 
   if (!map) return null;
 
@@ -158,14 +155,14 @@ const SideBar = (props) => {
             </ErrorBoundary>
           </DelayedUnmount>
           <ErrorBoundary>
-            {!!events.error && <div className={styles.feedError}>
-              <ErrorMessage message='Could not load reports. Please try again.' details={events.error} />
+            {showEventFeedError && <div className={styles.feedError}>
+              <ErrorMessage message='Could not load events. Please try again.' details={events.error} />
               <Button type='button' variant='primary' onClick={loadFeedEvents}>
                 <RefreshIcon />
                 Try again
               </Button>
             </div>}
-            {!events.error && <EventFeed
+            {!showEventFeedError && <EventFeed
               className={styles.sidebarEventFeed}
               hasMore={!!events.next}
               map={map}

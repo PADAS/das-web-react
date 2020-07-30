@@ -1,4 +1,4 @@
-import { get, isCancel } from 'axios';
+import { get } from 'axios';
 import toString from 'lodash/toString';
 
 import bbox from '@turf/bbox';
@@ -47,7 +47,5 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
       }
     })
     .catch((e) => {
-      if (!isCancel(e)) {
-        console.warn('recursive query failure', e);
-      }
+      console.warn('recursive query failure', e);
     });

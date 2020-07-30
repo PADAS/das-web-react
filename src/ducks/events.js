@@ -1,4 +1,4 @@
-import axios, { CancelToken, isCancel } from 'axios';
+import axios, { CancelToken } from 'axios';
 import union from 'lodash/union';
 
 import { API_URL } from '../constants';
@@ -415,7 +415,7 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
     };
   }
   if (type === FEED_FETCH_ERROR) {
-    return isCancel(payload) ? state : {
+    return {
       ...state,
       error: generateErrorMessageForRequest(payload),
     };
@@ -556,7 +556,7 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
     };
   }
   if (type === SOCKET_EVENT_DATA) {
-    if (!payload.geojson || !payload.geojson.geometry) return state;
+    if (!payload.geojson) return state;
 
     return {
       ...state,
