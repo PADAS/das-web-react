@@ -324,17 +324,22 @@ class Map extends Component {
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
+    const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clickedLayersOfInterest = uniqBy(
       map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
       , layer => layer.properties.id);
 
-
     let showingMultiPopup;
-      
-    if (clickedLayersOfInterest.length > 1) {
+
+    if (!!clusterFeaturesAtPoint.length || !!clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
-      this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-      showingMultiPopup = true;
+    }
+    
+    if (clickedLayersOfInterest.length > 1) {
+      if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
+        this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+        showingMultiPopup = true;
+      }
     }
 
     if (this.props.popup) {
@@ -345,7 +350,7 @@ class Map extends Component {
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
       if (!showingMultiPopup) {
-        this.props.hidePopup(this.props.popup.id);
+        this.props.hidePopup(this.props.popup.id); 
       }
     }
     this.hideUnpinnedTrackLayers(map, event);
@@ -421,6 +426,7 @@ class Map extends Component {
   }
 
   onClusterClick = this.withLocationPickerState(({ point, lngLat }) => {
+    console.log('cluster click');
     const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
