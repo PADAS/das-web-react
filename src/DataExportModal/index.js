@@ -31,7 +31,7 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
 
   const triggerDownload = () => {
     setDownloadState(true);
-    downloadFileFromUrl(DOWNLOAD_URL, params, downloadCancelToken)
+    downloadFileFromUrl(DOWNLOAD_URL, { params }, downloadCancelToken)
       .catch((e) => {
         console.warn('error downloading file', e);
       }) 
