@@ -7,7 +7,8 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { downloadFileFromUrl, fetchImageAsBase64FromUrl } from '../utils/file';
+import { fetchImageAsBase64FromUrl } from '../utils/file';
+import { downloadFileFromUrl } from '../utils/download';
 import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEvent } from '../utils/analytics';
@@ -331,7 +332,7 @@ const ReportForm = (props) => {
         title: file.filename,
       });
     } else {
-      await downloadFileFromUrl(file.url, file.filename);
+      await downloadFileFromUrl(file.url, { filename: file.filename });
     }
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Attachment');
   };

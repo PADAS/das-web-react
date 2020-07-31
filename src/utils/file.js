@@ -18,13 +18,6 @@ export const convertFileListToArray = (list) => {
   return array;
 };
 
-export const downloadFileFromUrl = (url, filename) => {
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = filename;
-  anchor.click();
-};
-
 export const fetchImageAsBase64FromUrl = async (url) => {
   const response = await get(url, {
     responseType: 'arraybuffer',
