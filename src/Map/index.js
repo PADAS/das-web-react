@@ -331,7 +331,7 @@ class Map extends Component {
 
     let showingMultiPopup;
 
-    if (!!clusterFeaturesAtPoint.length || !!clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
+    if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
     }
     
