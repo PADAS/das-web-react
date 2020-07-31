@@ -426,7 +426,6 @@ class Map extends Component {
   }
 
   onClusterClick = this.withLocationPickerState(({ point, lngLat }) => {
-    console.log('cluster click');
     const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
