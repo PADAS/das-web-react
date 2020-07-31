@@ -92,16 +92,19 @@ const TimeSlider = (props) => {
     onRangeChange({ target: { value: 1 } });
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const PopoverContent = <Popover className={styles.popover}>
-    <Title className={styles.popoverTitle}>
-      <ClockIcon />
+  const PopoverContent = (props) => {
+    console.log('content props', props);
+    return <Popover {...props} className={styles.popover}>
+      <Title className={styles.popoverTitle}>
+        <ClockIcon />
       Date Range
-      <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
-    </Title>
-    <Content className={styles.popoverBody}>
-      <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' className={styles.rangeControls} popoverClassName={styles.dateRangePopover} placement='top' />
-    </Content>
-  </Popover>;
+        <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
+      </Title>
+      <Content className={styles.popoverBody}>
+        <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' className={styles.rangeControls} popoverClassName={styles.dateRangePopover} placement='top' />
+      </Content>
+    </Popover>;
+  };
 
   return <div className={styles.wrapper}>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
@@ -118,7 +121,7 @@ const TimeSlider = (props) => {
           <span style={{color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' buttFace='totally' overlay={PopoverContent} flip={true}>
       <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
         {until && <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(endDate)}</span>}
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>

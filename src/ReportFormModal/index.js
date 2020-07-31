@@ -53,10 +53,10 @@ const ReportFormModal = (props) => {
   }, [report_id, eventFromStore, report, fetchEvent]);
 
   useEffect(() => {
-    if (stateReport && schemas) {
+    if (!loaded && stateReport && schemas) {
       setLoadState(true);
     }
-  }, [stateReport, schemas]);
+  }, [stateReport, schemas, loaded]);
 
   if (!loaded) {
     return <LoadingOverlay className={styles.loadingOverlay} message='Loading...' />;

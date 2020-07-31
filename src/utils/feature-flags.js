@@ -1,0 +1,1 @@
+export const hasFeatureFlag = flag => !!process.env[`REACT_APP_FF_${flag}`];

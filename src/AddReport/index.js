@@ -67,6 +67,16 @@ const AddReport = (props) => {
 
   const startEditNewReport = (reportType) => {
     trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
+
+    /* PATROL_SCAFFOLD */
+    const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
+
+    if (isPatrol) {
+      console.log('you clicked a patrol type!');
+      return;
+    }
+    /* END PATROL_SCAFFOLD */
+
     const newReport = {
       ...createNewReportForEventType(reportType),
       ...reportData,
