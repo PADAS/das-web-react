@@ -272,13 +272,18 @@ aside {
   [class*=addReportContainer] {
     .bs-popover-left {
       margin-left: -0.5rem;
-      margin-top: -1.25rem;
+      margin-top: 3rem;
     }
   }
 
   .bs-popover-left {
-    .arrow::after {
-      border-left-color: $popover-header-color;
+    .arrow {
+      &::after, &::before {
+        top: -3rem;
+      }
+      &::after {
+        border-left-color: $popover-header-color;
+      }
     }
   }
 

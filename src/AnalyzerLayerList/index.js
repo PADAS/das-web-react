@@ -24,8 +24,6 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 const AnalyzerLayerList = memo((props) => {
   const { analyzerList, hiddenAnalyzerIDs, hideAnalyzers, showAnalyzers, map, mapLayerFilter } = props;
 
-  console.log('analyzerList', analyzerList);
-
   const analyzers = useMemo(() => {
     const { filter: { text = '' } } = mapLayerFilter;
 
