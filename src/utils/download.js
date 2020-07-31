@@ -4,18 +4,20 @@ import { createWriteStream } from 'streamsaver';
 import { uuid } from '../utils/string';
 const { get } = axios;
 
-export const downloadFileFromUrl = async (url, params = {}, { token:cancelToken } = CancelToken.source()) => {
+export const downloadFileFromUrl = async (url, { params = {}, filename = null }, { token:cancelToken } = CancelToken.source()) => {
   const { data, headers } = await get(url, {
     cancelToken,
     params,
     responseType: 'blob',
   })
-    .catch(error => console.log('error downloading file', error));
+    .catch((error) => {
+      console.log('error downloading file', error);
+    });
   const link = document.createElement('a');
 
   link.href = window.URL.createObjectURL(new Blob([data], { type: headers['Content-Type'] }));
   link.id = uuid();
-  link.setAttribute('download', headers['x-das-download-filename']);
+  link.setAttribute('download', filename ? filename : headers['x-das-download-filename']);
 
   document.body.appendChild(link);
 
