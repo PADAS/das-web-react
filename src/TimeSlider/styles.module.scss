@@ -34,6 +34,14 @@ $contrast: 25%;
   top: -16rem;
 }
 
+.rightPopover.sidebarClosed {
+  $adjustment: 13rem;
+  margin-left: -#{$adjustment};
+  > [class*=arrow] {
+    margin-left: $adjustment;
+  }
+}
+
 @mixin track {
   width: $track-width;
   height: $track-height;

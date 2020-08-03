@@ -49,7 +49,7 @@ div.popover {
   max-width: 20rem;
   width: 100vw;
   @media (min-width: $md-layout-width-min) {
-    max-width: 28rem;
+    max-width: 30rem;
   }
   [class*=popover-body] {
     align-items: center;
