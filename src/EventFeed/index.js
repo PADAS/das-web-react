@@ -33,7 +33,7 @@ const EventFeed = (props) => {
             onTitleClick={onTitleClick}
             onIconClick={onIconClick} />
         )}
-        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more events...</li>}
+        {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}
         {!!events.length && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more reports to display.</li>}
         {!events.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
       </InfiniteScroll>
