@@ -1,0 +1,6 @@
+{
+  "/patrols": "patrols",
+  "/patrols/types": "patrol_types",
+  "/patrols/segments": "patrol_segments",
+  "/patrols/templates": "patrol_templates"
+}

@@ -7,6 +7,13 @@ services:
     volumes:
       - /app/node_modules
       - .:/app
+  mock_api:
+    build:
+      context: ./mock-api
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app
+      # - .:/app
   # web_test:
   #   build:
   #     context: .
@@ -17,15 +24,6 @@ services:
   #   environment:
   #     - CI=true
   #   command: yarn test
-  # web_old:
-  #   build:
-  #     context: $PWD/../das-web
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - /app/node_modules
-  #     - /app/client/bower_components
-  #     - $PWD/../das-web:/app
-  #   command: yarn docker_start
   nginx:
     build:
       context: ./nginx
@@ -33,7 +31,7 @@ services:
     restart: always
     depends_on:
       - "web"
-      # - "web_old"
+      - "mock_api"
     ports:
       - '9000:80'
       - '35729:35729'
