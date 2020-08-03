@@ -9,9 +9,12 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
+import { hasFeatureFlag } from '../utils/feature-flags';
 
 import { withMap } from '../EarthRangerMap';
 import EventTypeListItem from '../EventTypeListItem';
+
+import { FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -67,6 +70,18 @@ const AddReport = (props) => {
 
   const startEditNewReport = (reportType) => {
     trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
+
+    /* PATROL_SCAFFOLD */
+    if (hasFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
+      const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
+
+      if (isPatrol) {
+        console.log('you clicked a patrol type!');
+        return;
+      }
+    }
+    /* END PATROL_SCAFFOLD */
+
     const newReport = {
       ...createNewReportForEventType(reportType),
       ...reportData,
