@@ -98,11 +98,11 @@ div.datePopover {
     font-weight: 500;
     margin-bottom: 0;
   }
-  [class$='checkbox '] {
+  [class$='checkbox '], [class$='checkbox disabled'] {
     align-items: center;
     display: flex;
     margin-bottom: 0;
-    + [class$='checkbox '] {
+    + [class$='checkbox '], + [class$='checkbox disabled'] {
       margin-top: 0.5rem;
     }
   }
