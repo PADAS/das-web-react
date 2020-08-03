@@ -209,14 +209,14 @@ const CustomCheckboxes = (props) => {
     });
   }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const enumOptionIsChecked = option => inputValues.findIndex(item => item === option.value) !== -1;
+  const enumOptionIsChecked = option => inputValues.includes(option.value);
 
   return (
     <div className='json-schema-checkbox-wrapper checkboxes' id={id}>
       {enumOptions.map((option, index) => {
 
         const itemDisabled =
-          schema.inactive_enum && schema.inactive_enum.findIndex(item => item === option.value) !== -1;
+          schema.inactive_enum && schema.inactive_enum.includes(option.value);
         const disabledCls =
           disabled || itemDisabled || readonly ? 'disabled' : '';
         const inputId = `${id}_${instanceId}_${index}`;
