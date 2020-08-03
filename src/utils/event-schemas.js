@@ -220,6 +220,7 @@ const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
         enum: titleMap.map(item => item.value),
         enumNames: titleMap.map(item => item.name),
       },
+      inactive_enum: definition.inactive_titleMap || null,
       title,
       type: 'array',
       uniqueItems: true,

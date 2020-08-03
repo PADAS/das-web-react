@@ -192,8 +192,8 @@ const DateTimeField = (props) => {
 };
 
 const CustomCheckboxes = (props) => {
-  const { id, disabled, options, value, autofocus, readonly, onChange } = props;
-  const { enumOptions, enumDisabled, inline } = options;
+  const { id, disabled, options, value, autofocus, readonly, onChange, schema } = props;
+  const { enumOptions, inline } = options;
   const [instanceId] = useState(uuid());
 
   const inputValues = value.map(val => {
@@ -216,7 +216,7 @@ const CustomCheckboxes = (props) => {
       {enumOptions.map((option, index) => {
 
         const itemDisabled =
-          enumDisabled && enumDisabled.findIndex(item => item.value === option.value) !== -1;
+          schema.inactive_enum && schema.inactive_enum.findIndex(item => item === option.value) !== -1;
         const disabledCls =
           disabled || itemDisabled || readonly ? 'disabled' : '';
         const inputId = `${id}_${instanceId}_${index}`;
