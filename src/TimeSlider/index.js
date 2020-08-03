@@ -20,9 +20,11 @@ import styles from './styles.module.scss';
 const { Title, Content } = Popover;
 
 const TimeSlider = (props) => {
-  const { timeSliderState, since, until, clearVirtualDate, setVirtualDate, updateEventFilter } = props;
+  const { sidebarOpen, timeSliderState, since, until, clearVirtualDate, setVirtualDate, updateEventFilter } = props;
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
   const handleTextRef = useRef(null);
+  const leftPopoverTrigger = useRef(null);
+  const rightPopoverTrigger = useRef(null);
   const debouncedRangeChangeAnalytics = useRef(debouncedTrackEvent(300));
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
@@ -92,23 +94,24 @@ const TimeSlider = (props) => {
     onRangeChange({ target: { value: 1 } });
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const PopoverContent = (props) => {
-    console.log('content props', props);
-    return <Popover {...props} className={styles.popover}>
+  const PopoverContent = ({ popoverClassName, ...rest }) => {
+    return <Popover {...rest} className={`${styles.popover} ${props.className}`}>
       <Title className={styles.popoverTitle}>
         <ClockIcon />
       Date Range
         <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
       </Title>
       <Content className={styles.popoverBody}>
-        <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' className={styles.rangeControls} popoverClassName={styles.dateRangePopover} placement='top' />
+        <EventFilterDateRangeSelector onStartChange={onDateChange} onEndChange={onDateChange} endDateLabel='' startDateLabel='' popoverClassName={`${styles.dateRangePopover} ${popoverClassName || ''} ${sidebarOpen ? '' : styles.sidebarClosed}`} placement='top' />
       </Content>
     </Popover>;
   };
 
-  return <div className={styles.wrapper}>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
-      <div onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
+  const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
+
+  return <div className={`${styles.wrapper} ${sidebarOpen ? '' : styles.sidebarClosed}`}>
+    <OverlayTrigger target={leftPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={PopoverContent} flip={true}>
+      <div ref={leftPopoverTrigger} onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
         <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(startDate)}</span>
         <TimeAgo date={startDate}/>
       </div>
@@ -121,8 +124,8 @@ const TimeSlider = (props) => {
           <span style={{color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' buttFace='totally' overlay={PopoverContent} flip={true}>
-      <div onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
+    <OverlayTrigger target={rightPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={RightPopoverContent} flip={true}>
+      <div ref={rightPopoverTrigger} onClick={() => onHandleClick('Right')} className={`${styles.handle} ${styles.right}  ${endDateModified ? styles.modified : ''}`}>
         {until && <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(endDate)}</span>}
         <button type='button'> {until ? <TimeAgo date={until}/> : 'Now'}</button>
       </div>
@@ -130,7 +133,7 @@ const TimeSlider = (props) => {
   </div>;
 };
 
-const mapStatetoProps = ({ view: { timeSliderState }, data: { eventFilter: { filter: { date_range } } } }) => ({
+const mapStatetoProps = ({ view: { timeSliderState, userPreferences: { sidebarOpen } }, data: { eventFilter: { filter: { date_range } } } }) => ({
   timeSliderState,
   since: date_range.lower,
   until: date_range.upper,

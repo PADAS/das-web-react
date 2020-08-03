@@ -32,12 +32,13 @@ $contrast: 25%;
 
 .dateRangePopover {
   top: -16rem;
-  &.rightPopover {
-    $adjustment: 6rem;
-    margin-left: -#{$adjustment};
-    > [class*=arrow] {
-      margin-left: $adjustment;
-    }
+}
+
+.rightPopover.sidebarClosed {
+  $adjustment: 13rem;
+  margin-left: -#{$adjustment};
+  > [class*=arrow] {
+    margin-left: $adjustment;
   }
 }
 
