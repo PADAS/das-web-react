@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
 
+const evaluateFeatureFlag = flag => {
+  if (!process.env[`REACT_APP_FF_${flag}`]) return false;
+  if (process.env[`REACT_APP_FF_${flag}`] === 'true') return true; /* bool-to-string interpolations for production build idiosyncracies */
+  if (process.env[`REACT_APP_FF_${flag}`] === 'false') return false;
+  return process.env[`REACT_APP_FF_${flag}`];
+};
+
 const useFeatureFlag = (flag) => {
-  const [visible, setVisibility] = useState(!!process.env[`REACT_APP_FF_${flag}`]);
+  const [visible, setVisibility] = useState(evaluateFeatureFlag(flag));
 
   useEffect(() => {
-    setVisibility(!!process.env[`REACT_APP_FF_${flag}`]);
+    setVisibility(evaluateFeatureFlag(flag));
   }, [flag]);
 
   return visible;
