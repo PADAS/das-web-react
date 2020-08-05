@@ -93,8 +93,7 @@ const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subje
 const featureCollectionFromGeoJson = geojson_collection => 
   featureCollection(
     geojson_collection
-      .filter(({ geometry, properties }) =>
-        !!geometry && !!properties)
+      .filter(({ geometry, properties }) => !!geometry && !!properties)
       .map(({ geometry, properties }) =>
         feature(geometry, properties)
       )

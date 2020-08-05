@@ -1,6 +1,7 @@
 {
-  "/patrols": "patrols",
-  "/patrols/types": "patrol_types",
-  "/patrols/segments": "patrol_segments",
-  "/patrols/templates": "patrol_templates"
+  "/api/*": "/$1",
+  "/v1.0/activity/patrols": "/patrols",
+  "/v1.0/activity/patrols/types": "/patrol_types",
+  "/v1.0/activity/patrols/segments": "/patrol_segments",
+  "/v1.0/activity/patrols/templates": "/patrol_templates"
 }

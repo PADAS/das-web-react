@@ -99,8 +99,6 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
   const { eBottom, cBottom } = getElementPositionDataWithinScrollContainer(scrollContainer, element, 0);
   const { left, top } = element.getBoundingClientRect();
 
-  console.log('eBottom, cBottom', eBottom, cBottom);
-
   const placement = cBottom - eBottom > 200 ? 'bottom' : 'top';
 
   const offsets = {
