@@ -90,11 +90,14 @@ export const getEventTypeTitle = (event_types, event_type) => {
 };
 
 const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => geojson);
-const featureCollectionFromGeoJson = geojson_collection =>
+const featureCollectionFromGeoJson = geojson_collection => 
   featureCollection(
-    geojson_collection.map(({ geometry, properties }) =>
-      feature(geometry, properties)
-    )
+    geojson_collection
+      .filter(({ geometry, properties }) =>
+        !!geometry && !!properties)
+      .map(({ geometry, properties }) =>
+        feature(geometry, properties)
+      )
   );
 
 export const createFeatureCollectionFromSubjects = subjects => featureCollectionFromGeoJson(setUpSubjectGeoJson(subjects));
