@@ -24,7 +24,12 @@ export const fetchPatrols = () => async (dispatch) => {
   return patrols;
 };
 
-const INITIAL_PATROLS_STATE = [];
+const INITIAL_PATROLS_STATE = {
+  count: null,
+  next: null,
+  previous: null,
+  results: [],
+};
 
 const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   const { type, payload } = action;

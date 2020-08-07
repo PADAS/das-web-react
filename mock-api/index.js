@@ -1,4 +1,6 @@
 const models = require('./models');
+const utils = require('./utils');
+
 
 const generateMockPatrols = (number) => {
   const results = [];
@@ -22,9 +24,21 @@ const generateMockPatrolTemplates = () => {
   return [];
 }; */
 
+const generatePatrolData = () => {
+  const patrols = generateMockPatrols(utils.randomInteger());
+  return {
+    count: patrols.length,
+    next: null,
+    previous: null,
+    results: patrols,
+  };
+};
+
 module.exports = () => ({
-  patrols: generateMockPatrols(3),
+  patrols: generatePatrolData(),
   patrol_types: []/* generateMockPatrolTypes() */,
   patrol_segments: [] /* generateMockPatrolSegments() */,
   patrol_templates: [] /* generateMockPatrolTemplates() */,
 });
+
+
