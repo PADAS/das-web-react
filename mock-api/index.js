@@ -1,7 +1,15 @@
-const generateMockPatrols = () => {
-  return [];
-};
+const models = require('./models');
 
+const generateMockPatrols = (number) => {
+  const results = [];
+
+  for (let i = 0; i < number; i++) {
+    results.push(models.generatePatrol());
+  }
+
+  return results;
+};
+/* 
 const generateMockPatrolTypes = () => {
   return [];
 };
@@ -12,11 +20,11 @@ const generateMockPatrolSegments = () => {
 
 const generateMockPatrolTemplates = () => {
   return [];
-};
+}; */
 
 module.exports = () => ({
-  patrols: generateMockPatrols(),
-  patrol_types: generateMockPatrolTypes(),
-  patrol_segments: generateMockPatrolSegments(),
-  patrol_templates: generateMockPatrolTemplates(),
+  patrols: generateMockPatrols(3),
+  patrol_types: []/* generateMockPatrolTypes() */,
+  patrol_segments: [] /* generateMockPatrolSegments() */,
+  patrol_templates: [] /* generateMockPatrolTemplates() */,
 });

@@ -12,8 +12,8 @@ services:
       context: ./mock-api
       dockerfile: Dockerfile.dev
     volumes:
-      - /app
-      # - .:/app
+      - /app/node_modules
+      - ./mock-api:/app
   # web_test:
   #   build:
   #     context: .
