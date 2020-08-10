@@ -6,9 +6,10 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
+import { FEATURE_FLAGS, STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
+import { hasFeatureFlag } from './utils/feature-flags';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
@@ -108,10 +109,12 @@ const App = (props) => {
       .catch((e) => {
         // 
       });
-    fetchPatrols()
-      .catch((e) => {
+    if (hasFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
+      fetchPatrols()
+        .catch((e) => {
         //
-      });
+        });
+    }
     fetchAnalyzers()
       .catch((e) => {
         // 
