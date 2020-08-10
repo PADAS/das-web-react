@@ -17,7 +17,6 @@ export const FETCH_ANALYZERS_ERROR = 'FETCH_ANALYZERS_ERROR';
 let featureLayerIdentifier = 1000;
 
 export const fetchAnalyzers = () => async (dispatch) => {
-
   // fetch the active analyzers, only processing the non-null spatial group urls
   const { data: { data } } = await axios.get(ANALYZERS_API_URL);
 

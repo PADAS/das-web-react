@@ -5,6 +5,7 @@ import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
+import patrolsReducer from '../ducks/patrols';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
@@ -67,6 +68,7 @@ const rootReducer = combineReducers({
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,
+    patrols: patrolsReducer,
     subjectGroups: subjectGroupsReducer,
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistanceConfig, tokenReducer),
