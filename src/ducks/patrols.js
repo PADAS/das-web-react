@@ -35,7 +35,6 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_PATROLS_SUCCESS) {
-    console.log('FETCH_PATROLS_SUCCESS', payload);
     return payload;
   }
   
