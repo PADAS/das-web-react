@@ -6,7 +6,7 @@ import bboxPolygon from '@turf/bbox-polygon';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
-import { hasFeatureFlag } from '../utils/feature-flags';
+import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import { generatePatrolEventCategory } from '../fixtures/patrol_management';
 import { FEATURE_FLAGS } from '../constants';
@@ -108,7 +108,7 @@ export const getUserCreatableEventTypesByCategory = createSelector(
     }));
 
     return [
-      ...(hasFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) ? [generatePatrolEventCategory()] : []),
+      ...(evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) ? [generatePatrolEventCategory()] : []),
       ...categoriesWithoutCollections
     ];
 

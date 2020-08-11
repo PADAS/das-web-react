@@ -9,7 +9,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
-import { hasFeatureFlag } from '../utils/feature-flags';
+import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import { withMap } from '../EarthRangerMap';
 import EventTypeListItem from '../EventTypeListItem';
@@ -72,7 +72,7 @@ const AddReport = (props) => {
     trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
 
     /* PATROL_SCAFFOLD */
-    if (hasFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
+    if (evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
       const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
 
       if (isPatrol) {
