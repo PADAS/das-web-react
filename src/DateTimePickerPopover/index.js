@@ -2,13 +2,14 @@ import React, { forwardRef, memo, useCallback, useEffect, useRef, useState, useM
 import format from 'date-fns/format';
 import debounce from 'lodash/debounce';
 import InputMask from 'react-input-mask';
-import setSeconds from 'date-fns/set_seconds';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
+import setSeconds from 'date-fns/set_seconds';
+
 import DateTimePicker from '../DateTimePicker';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 
-import { dateIsValid } from '../utils/datetime';
+import { dateIsValid, timeValuesAreEqualToTheMinute } from '../utils/datetime';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import styles from './styles.module.scss';
 
@@ -90,11 +91,9 @@ const DateTimePickerPopover = (props, ref) => {
 
   useEffect(() => {
     if (value && dateIsValid(value)) {
-      const potentialVal = setSeconds(new Date(value), 0);
-
-      if (potentialVal.getTime() !== new Date(inputValue).getTime()) {
+      if (!timeValuesAreEqualToTheMinute(value, inputValue)) {
         setInputValue(
-          format(potentialVal, DATEPICKER_DEFAULT_CONFIG.format) 
+          format(value, DATEPICKER_DEFAULT_CONFIG.format) 
         );
       }
     } else {
@@ -106,7 +105,7 @@ const DateTimePickerPopover = (props, ref) => {
 
   useEffect(() => {
     const handleChange = (newDate) => {
-      if (new Date(newDate).getTime() !== new Date(value).getTime()) {
+      if (!timeValuesAreEqualToTheMinute(newDate, value)) {
         !!onChange && onChange(newDate);
       }
     };
