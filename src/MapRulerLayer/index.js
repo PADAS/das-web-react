@@ -130,19 +130,3 @@ const CursorPopup = (props) => {
 };
 
 const MemoizedCursorPopup = memo(CursorPopup);
-
-
-/* separate point popup from cursor popup
-  add to point popup:  <AddReport reportData={{
-      location: {
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      }
-    }} onSaveSuccess={onComplete} onSaveError={onComplete} />
-  enable multiple points
-  - design interaction pattern for closing ruler
-
-
-  
-  
- */

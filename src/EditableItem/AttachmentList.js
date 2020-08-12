@@ -13,7 +13,7 @@ const AttachmentList = (props) => {
   const { files, notes, onDeleteFile, onDeleteNote, onClickFile, onClickNote } = props;
   const hasItems = !!(files.length || notes.length);
 
-  const generateListItemForNote = (note) => {
+  const ListItemForNote = (note) => {
     const key = note.id || note.text;
     const noteIsNew = !note.id;
 
@@ -29,7 +29,7 @@ const AttachmentList = (props) => {
 
   };
 
-  const generateListItemForFile = (file) => {
+  const ListItemForFile = (file) => {
     const key = file.id || file.name;
     const fileIsNew = !file.id;
 
@@ -46,8 +46,8 @@ const AttachmentList = (props) => {
 
   return hasItems &&
     <ul className={styles.attachmentList}>
-      {files.map(generateListItemForFile)}
-      {notes.map(generateListItemForNote)}
+      {files.map(ListItemForFile)}
+      {notes.map(ListItemForNote)}
     </ul>;
 };
 

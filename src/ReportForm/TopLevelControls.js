@@ -23,6 +23,7 @@ import { trackEvent } from '../utils/analytics';
 
 const ReportFormTopLevelControls = (props) => {
   const { gpsFormat, showUserLocation, map, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report, setModalVisibilityState, updateUserPreferences } = props;
+
   const reportLocation = !!report.location ? [report.location.longitude, report.location.latitude] : null;
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
@@ -132,4 +133,8 @@ const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsForma
 });
 
 
-export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(ReportFormTopLevelControls));
+export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(
+  memo(
+    ReportFormTopLevelControls
+  )
+);

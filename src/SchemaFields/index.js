@@ -322,7 +322,7 @@ const createGroupedFields = ({ instanceId, properties, groups, props }) => {
   const mapped = groups.map((g, index) => {
     if (typeof g === 'string') {
       const found = properties.filter(p => p.name === g);
-      if (found.length === 1) {
+      if (!!found && found.length === 1) {
         const el = found[0];
         return el.content;
       }
