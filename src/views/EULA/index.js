@@ -74,7 +74,7 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     if (user.accepted_eula) return history.goBack();
-  }, [history, user.accepted_eula]);
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
