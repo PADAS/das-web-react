@@ -44,8 +44,13 @@ const SelectField = (props) => {
   const getOptionLabel = (option) => {
     const { label, name } = option;
     const value = getOptionValue(option);
-    if (label === value && schema.enumNames && schema.enumNames[value]) {
-      return schema.enumNames[value];
+    if (label === value && schema.enumNames) {
+      if (
+        (Array.isArray(schema.enumNames) && schema.enumNames.includes(value))
+        || (schema.enumNames[value])
+      ) {
+        return value;
+      }
     }
     return (label || name);
   };
@@ -227,10 +232,10 @@ const CustomCheckboxes = (props) => {
         })
         .map((option, index) => {
         
-        const disabledCls =
+          const disabledCls =
           (disabled || readonly) ? 'disabled' : '';
-        const inputId = `${id}_${instanceId}_${index}`;
-        const checkbox =  <span>
+          const inputId = `${id}_${instanceId}_${index}`;
+          const checkbox =  <span>
             <input
               type='checkbox'
               id={inputId}
@@ -246,17 +251,17 @@ const CustomCheckboxes = (props) => {
               }}
             />
             <span>{option.label}</span>
-          </span>
-        return inline ? (
-          <label htmlFor={inputId} key={index} className={`checkbox-inline ${disabledCls}`}>
-            {checkbox}
-          </label>
-        ) : (
-          <div key={index} className={`checkbox ${disabledCls}`}>
-            <label htmlFor={inputId}>{checkbox}</label>
-          </div>
-        );
-      })}
+          </span>;
+          return inline ? (
+            <label htmlFor={inputId} key={index} className={`checkbox-inline ${disabledCls}`}>
+              {checkbox}
+            </label>
+          ) : (
+            <div key={index} className={`checkbox ${disabledCls}`}>
+              <label htmlFor={inputId}>{checkbox}</label>
+            </div>
+          );
+        })}
     </div>
   );
 };
