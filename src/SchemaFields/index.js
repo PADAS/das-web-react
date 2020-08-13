@@ -103,7 +103,7 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
 
   const offsets = {
     left,
-    top: placement === 'bottom' ? top + 40 : top - 350,
+    top: placement === 'bottom' ? top + 60 : top - 400,
   };
 
   return {
