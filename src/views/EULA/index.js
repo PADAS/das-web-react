@@ -9,6 +9,8 @@ import { clearAuth } from '../../ducks/auth';
 import { fetchCurrentUser } from '../../ducks/user';
 import { fetchEula, acceptEula } from '../../ducks/eula';
 
+import { deleteCookie } from '../../utils/auth';
+
 import { REACT_APP_ROUTE_PREFIX } from '../../constants';
 
 import Alert from 'react-bootstrap/Alert';
@@ -22,6 +24,7 @@ const EulaPage = (props) => {
 
   const { eula_url, version:eula_version, id:eula_id } = eula;
 
+  const [pageLoaded, setPageLoadState] = useState(false);
   const [formAccepted, setFormAccepted] = useState(false);
   const [submitted, setSubmitState] = useState(false);
   const [canceled, setCancelState] = useState(false);
@@ -44,7 +47,8 @@ const EulaPage = (props) => {
   }, [temporaryAccessToken]);
 
   useEffect(() => {
-    fetchCurrentUser(generateTempAuthHeaderIfNecessary()).catch((error) => {
+    fetchCurrentUser(generateTempAuthHeaderIfNecessary())
+    .catch((error) => {
       history.push({
         pathname: `${REACT_APP_ROUTE_PREFIX}login`,
         search: location.search,
@@ -73,8 +77,16 @@ const EulaPage = (props) => {
   }, [adminReferrer, canceled, rerouteCookieValue]);
 
   useEffect(() => {
-    if (user.accepted_eula) return history.goBack();
-  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
+    if (user.hasOwnProperty('accepted_eula')) {
+      if (!user.accepted_eula) setPageLoadState(true);
+      else history.goBack();
+    }
+  }, [user]); /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  useEffect(() => () => {
+      deleteCookie('routeAfterEulaAccepted');
+      deleteCookie('temporaryAccessToken');
+    }, []);
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
@@ -118,7 +130,7 @@ const EulaPage = (props) => {
     setFormAccepted(!formAccepted);
   };
 
-  return <div className={styles.wrapper}>
+  return !!pageLoaded && <div className={styles.wrapper}>
     <Dialog>
       <Header>
         <Title>You must accept the End User License Agreement (EULA) to continue</Title>
