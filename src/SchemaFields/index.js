@@ -44,8 +44,13 @@ const SelectField = (props) => {
   const getOptionLabel = (option) => {
     const { label, name } = option;
     const value = getOptionValue(option);
-    if (label === value && schema.enumNames && schema.enumNames[value]) {
-      return schema.enumNames[value];
+    if (label === value && schema.enumNames) {
+      if (
+        (Array.isArray(schema.enumNames) && schema.enumNames.includes(value))
+        || (schema.enumNames[value])
+      ) {
+        return value;
+      }
     }
     return (label || name);
   };
@@ -103,7 +108,7 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
 
   const offsets = {
     left,
-    top: placement === 'bottom' ? top + 40 : top - 350,
+    top: placement === 'bottom' ? top + 60 : top - 400,
   };
 
   return {
@@ -193,6 +198,12 @@ const CustomCheckboxes = (props) => {
   const { id, disabled, options, value, autofocus, readonly, onChange, schema } = props;
   const { enumOptions, inline } = options;
   const [instanceId] = useState(uuid());
+  const [originalValues] = useState(
+    value.map(val => {
+      if (isPlainObject(val)) return val.value;
+      return val;
+    })
+  );
 
   const inputValues = value.map(val => {
     if (isPlainObject(val)) return val.value;
@@ -211,20 +222,25 @@ const CustomCheckboxes = (props) => {
 
   return (
     <div className='json-schema-checkbox-wrapper checkboxes' id={id}>
-      {enumOptions.map((option, index) => {
-
-        const itemDisabled =
+      {enumOptions
+        .filter((option) => {
+          const itemDisabled =
           schema.inactive_enum && schema.inactive_enum.includes(option.value);
-        const disabledCls =
-          disabled || itemDisabled || readonly ? 'disabled' : '';
-        const inputId = `${id}_${instanceId}_${index}`;
-        const checkbox = (
-          <span>
+          
+          return !itemDisabled || 
+          (!!itemDisabled && !!originalValues.includes(option.value));
+        })
+        .map((option, index) => {
+        
+          const disabledCls =
+          (disabled || readonly) ? 'disabled' : '';
+          const inputId = `${id}_${instanceId}_${index}`;
+          const checkbox =  <span>
             <input
               type='checkbox'
               id={inputId}
               checked={enumOptionIsChecked(option)}
-              disabled={disabled || itemDisabled || readonly}
+              disabled={disabled || readonly}
               autoFocus={autofocus && index === 0}
               onChange={event => {
                 if (enumOptionIsChecked(option)) {
@@ -235,18 +251,17 @@ const CustomCheckboxes = (props) => {
               }}
             />
             <span>{option.label}</span>
-          </span>
-        );
-        return inline ? (
-          <label htmlFor={inputId} key={index} className={`checkbox-inline ${disabledCls}`}>
-            {checkbox}
-          </label>
-        ) : (
-          <div key={index} className={`checkbox ${disabledCls}`}>
-            <label htmlFor={inputId}>{checkbox}</label>
-          </div>
-        );
-      })}
+          </span>;
+          return inline ? (
+            <label htmlFor={inputId} key={index} className={`checkbox-inline ${disabledCls}`}>
+              {checkbox}
+            </label>
+          ) : (
+            <div key={index} className={`checkbox ${disabledCls}`}>
+              <label htmlFor={inputId}>{checkbox}</label>
+            </div>
+          );
+        })}
     </div>
   );
 };
