@@ -19,7 +19,11 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, []);
 
   const layers = useMemo(() => {
-    if (!filter) return layerList;
+    if (!filter) return layerList.sort((a, b) => {
+      const first = a.properties.name.toLowerCase();
+      const second = b.properties.name.toLowerCase();
+      return first > second ? 1 : first < second ? -1 : 0;
+    });
     return layerList.filter((layer) => {
       const displayName = layer.properties.display_title || layer.properties.name;
       return displayName.toLowerCase().includes(filter.toLowerCase());
