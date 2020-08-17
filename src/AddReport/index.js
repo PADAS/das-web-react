@@ -11,7 +11,6 @@ import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 
-import { withMap } from '../EarthRangerMap';
 import EventTypeListItem from '../EventTypeListItem';
 
 import { FEATURE_FLAGS } from '../constants';
@@ -156,7 +155,7 @@ const AddReport = (props) => {
 const mapStateToProps = (state) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state),
 });
-export default connect(mapStateToProps, null)(memo(withMap(AddReport)));
+export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
   relationshipButtonDisabled: false,

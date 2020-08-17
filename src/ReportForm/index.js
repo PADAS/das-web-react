@@ -1,15 +1,13 @@
-import React, { Fragment, memo, useEffect, useState, useRef, useCallback } from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Button from 'react-bootstrap/Button';
-import SplitButton from 'react-bootstrap/SplitButton';
-import Dropdown from 'react-bootstrap/Dropdown';
 
 import LoadingOverlay from '../LoadingOverlay';
 
 import { fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport } from '../utils/events';
+import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEvent } from '../utils/analytics';
 
@@ -17,13 +15,20 @@ import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 
-import StateButton from './StateButton';
+import EventIcon from '../EventIcon';
+
 import IncidentReportsList from './IncidentReportsList';
-import ReportFormAttachmentControls from './AttachmentControls';
 import ReportFormTopLevelControls from './TopLevelControls';
-import ReportFormAttachmentList from './AttachmentList';
 import ReportFormErrorMessages from './ErrorMessages';
-import ReportFormHeader from './Header';
+import RelationshipButton from './RelationshipButton';
+
+
+import EditableItem from '../EditableItem';
+import HeaderMenuContent from './HeaderMenuContent';
+import AddToIncidentModal from './AddToIncidentModal';
+
+import { withFormDataContext } from '../EditableItem/context';
+
 import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
@@ -32,10 +37,10 @@ import styles from './styles.module.scss';
 
 const ACTIVE_STATES = ['active', 'new'];
 
-export const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
+const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 
 const ReportForm = (props) => {
-  const { map, report: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
+  const { eventTypes, map, data: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState } = props;
 
   const formRef = useRef(null);
@@ -51,7 +56,27 @@ const ReportForm = (props) => {
 
   const { is_collection } = report;
 
+  const reportTitle = displayTitleForEvent(report);
+  const reportTypeTitle = eventTypeTitleForEvent(report);
+
   const isActive = reportIsActive(report.state);
+
+  const displayPriority = useMemo(() => {
+    if (!!report.priority) return report.priority;
+
+    if (report.is_collection) {
+      const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
+      if (!topRatedReportAndType) return report.priority;
+
+      return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
+        topRatedReportAndType.related_event.priority 
+        : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
+          topRatedReportAndType.event_type.default_priority
+          : report.priority;
+    }
+
+    return report.priority;
+  }, [eventTypes, report]);
 
   useEffect(() => {
     updateStateReport({
@@ -275,13 +300,13 @@ const ReportForm = (props) => {
     },
   });
 
-  const onPrioritySelect = priority => {
+  const onPrioritySelect = useCallback((priority) => {
     updateStateReport({
       ...report,
       priority,
     });
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Priority\' option', `Priority:${priority}`);
-  };
+  }, [is_collection, report]);
 
   const onReportLocationChange = location => {
     const updatedLocation = !!location
@@ -337,7 +362,7 @@ const ReportForm = (props) => {
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Attachment');
   };
 
-  const onAddToNewIncident = async () => {
+  const onAddToNewIncident = useCallback(async () => {
     const incident = createNewIncidentCollection(/* { priority: report.priority } */);
 
     const { data: { data: newIncident } } = await createEvent(incident);
@@ -350,9 +375,9 @@ const ReportForm = (props) => {
       openModalForReport(data, map);
       removeModal();
     });
-  };
+  }, [addEventToIncident, createEvent, fetchEvent, is_collection, map, removeModal, saveChanges]);
 
-  const onAddToExistingIncident = async (incident) => {
+  const onAddToExistingIncident = useCallback(async (incident) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, incident.id);
 
@@ -362,7 +387,16 @@ const ReportForm = (props) => {
       openModalForReport(data, map);
       removeModal();
     });
-  };
+  }, [addEventToIncident, fetchEvent, is_collection, map, removeModal, saveChanges]);
+
+  const onStartAddToIncident = useCallback(() => {
+    // trackEvent(eventOrIncidentReport, 'Click \'Add to Incident\'');
+    addModal({
+      content: AddToIncidentModal,
+      onAddToNewIncident,
+      onAddToExistingIncident,
+    });
+  }, [addModal, onAddToExistingIncident, onAddToNewIncident]);
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
@@ -390,31 +424,32 @@ const ReportForm = (props) => {
     }
   };
 
-  const onUpdateStateReportToggle = (state) => {
+  const onUpdateStateReportToggle = useCallback((state) => {
     updateStateReport({ ...report, state });
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
-  };
+  }, [is_collection, report]);
 
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
 
-  return <div className={styles.wrapper}>
+  return <EditableItem.ContextProvider value={report}>
+  
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
-    <ReportFormHeader
-      report={report}
-      onReportTitleChange={onReportTitleChange}
-      onPrioritySelect={onPrioritySelect}
-      onAddToNewIncident={onAddToNewIncident}
-      onAddToExistingIncident={onAddToExistingIncident} />
+    <EditableItem.Header 
+      icon={<EventIcon title={reportTypeTitle} className={styles.headerIcon} report={report} />}
+      menuContent={<HeaderMenuContent report={report} onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} />}
+      priority={displayPriority}
+      title={reportTitle} onTitleChange={onReportTitleChange} />
 
     <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
-    <div className={styles.formScrollContainer} ref={scrollContainerRef}>
+
+    <EditableItem.Body ref={scrollContainerRef}>
       {is_collection && <IncidentReportsList reports={report.contains} 
         onReportClick={onIncidentReportClick}>
-        <ReportFormAttachmentList
+        <EditableItem.AttachmentList
           files={filesToList}
           notes={notesToList}
           onClickFile={onClickFile}
@@ -425,11 +460,11 @@ const ReportForm = (props) => {
       {!is_collection && <Fragment>
         <ReportFormTopLevelControls
           map={map}
+          report={report}
           menuContainerRef={reportedBySelectPortalRef.current}
           onReportDateChange={onReportDateChange}
           onReportedByChange={onReportedByChange}
-          onReportLocationChange={onReportLocationChange}
-          report={report} />
+          onReportLocationChange={onReportLocationChange} />
         <ReportFormBody
           ref={formRef}
           formData={report.event_details}
@@ -438,7 +473,7 @@ const ReportForm = (props) => {
           onSubmit={startSave}
           schema={schema}
           uiSchema={uiSchema}>
-          <ReportFormAttachmentList
+          <EditableItem.AttachmentList
             files={filesToList}
             notes={notesToList}
             onClickFile={onClickFile}
@@ -448,38 +483,47 @@ const ReportForm = (props) => {
         </ReportFormBody>
       </Fragment>
       }
-    </div>
+    </EditableItem.Body>
     {/* bottom controls */}
-    <ReportFormAttachmentControls
-      isCollection={is_collection}
-      isCollectionChild={eventBelongsToCollection(report)}
-      onGoToCollection={goToParentCollection}
-      relationshipButtonDisabled={disableAddReport}
-      map={map} onAddFiles={onAddFiles}
-      onSaveNote={onSaveNote} onNewReportSaved={onReportAdded} />
-    <div className={styles.formButtons}>
-      <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-      {/* <Button type="submit" variant="primary">Save</Button> */}
-      <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={startSave}>
-        <Dropdown.Item>
-          <StateButton isCollection={report.is_collection} state={report.state} onStateToggle={state => onUpdateStateReportToggle(state)} />
-        </Dropdown.Item>
-      </SplitButton>
-    </div>
-  </div>;
+    <EditableItem.AttachmentControls
+      onAddFiles={onAddFiles}
+      onSaveNote={onSaveNote} >
+
+      <RelationshipButton
+        isCollection={is_collection}
+        map={map}
+        isCollectionChild={eventBelongsToCollection(report)}
+        onGoToCollection={goToParentCollection}
+        relationshipButtonDisabled={disableAddReport}
+        onNewReportSaved={onReportAdded}
+      />
+
+    </EditableItem.AttachmentControls>
+
+    <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+  </EditableItem.ContextProvider>;
 };
 
 const mapStateToProps = (state, props) => ({
+  eventTypes: state.data.eventTypes,
   ...getReportFormSchemaData(state, props),
 });
 
-export default connect(mapStateToProps, {
-  addModal,
-  createEvent: (...args) => createEvent(...args),
-  addEventToIncident: (...args) => addEventToIncident(...args),
-  fetchEvent: id => fetchEvent(id),
-  setEventState: (id, state) => setEventState(id, state),
-})(memo(ReportForm));
+export default memo(
+  withFormDataContext(
+    connect(
+      mapStateToProps,
+      {
+        addModal,
+        createEvent: (...args) => createEvent(...args),
+        addEventToIncident: (...args) => addEventToIncident(...args),
+        fetchEvent: id => fetchEvent(id),
+        setEventState: (id, state) => setEventState(id, state),
+      }
+    )
+    (ReportForm)
+  )
+);
 
 ReportForm.defaultProps = {
   relationshipButtonDisabled: false,
@@ -492,7 +536,7 @@ ReportForm.defaultProps = {
 
 ReportForm.propTypes = {
   relationshipButtonDisabled: PropTypes.bool,
-  report: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
