@@ -240,18 +240,6 @@ div.datePopover {
   padding: 1rem;
 }
 
-.headerIcon {
-  --dimensions: 1.5rem;
-  --half-size: calc(var(--dimensions)/2);
-  max-height: var(--dimensions);
-  width: var(--dimensions);
-  @media #{$whenPageIsMediumHeightAndWidth} {
-    --dimensions: 2.5rem;
-  }
-  &[class*=generic] {
-    max-height: var(--half-size);
-  }
-}
 
 .formHeader {
   color: white;

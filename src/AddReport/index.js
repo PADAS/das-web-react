@@ -9,6 +9,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
+import { openModalForPatrol } from '../utils/patrols';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import EventTypeListItem from '../EventTypeListItem';
@@ -19,7 +20,7 @@ import styles from './styles.module.scss';
 
 const AddReport = (props) => {
   const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
+    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrols } = props;
   const hasEventCategories = !!eventsByCategory.length;
   const [selectedCategory, selectCategory] = useState(null);
 
@@ -75,6 +76,8 @@ const AddReport = (props) => {
       const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
 
       if (isPatrol) {
+        console.log('the patrols', patrols);
+        openModalForPatrol(patrols.results[0]);
         console.log('you clicked a patrol type!');
         return;
       }
@@ -154,6 +157,7 @@ const AddReport = (props) => {
 
 const mapStateToProps = (state) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state),
+  patrols: state.data.patrols,
 });
 export default connect(mapStateToProps, null)(memo(AddReport));
 

@@ -15,7 +15,7 @@ import DateTime from '../DateTime';
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const { /* addModal,  */children, priority, icon:Icon, menuContent: MenuContent, title, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
+  const { /* addModal,  */children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
 
   const data = useContext(FormDataContext);
   
@@ -23,6 +23,10 @@ const EditableItemHeader = (props) => {
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
+
+  const title = useMemo(() => {
+    return titleProp || data.title;
+  }, [data.title, titleProp]);
 
   /*  const onTitleChangeCancel = () => {
     trackEvent('Event Report', 'Cancel Change Report Title');
@@ -78,7 +82,11 @@ const EditableItemHeader = (props) => {
 
   return <div className={`${styles.formHeader} ${styles[`priority-${priority}`]}`} onKeyDown={handleEscapePress}>
     <h4>
-      {!!Icon && Icon}
+      {!!Icon &&
+        <span className={styles.headerIcon}>
+          {Icon}
+        </span>
+      }
       {data.serial_number && <span>{data.serial_number}</span>}
       <InlineEditable /* onCancel={onTitleChangeCancel} */ value={title} onSave={onTitleChange} />
       {children}
@@ -106,7 +114,7 @@ export default memo(EditableItemHeader);
 
 EditableItemHeader.propTypes = {
   data: PropTypes.object,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   onTitleChange: PropTypes.func.isRequired,
   priority: PropTypes.number,
   Icon: PropTypes.oneOfType([

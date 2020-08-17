@@ -439,7 +439,7 @@ const ReportForm = (props) => {
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
     <EditableItem.Header 
-      icon={<EventIcon title={reportTypeTitle} className={styles.headerIcon} report={report} />}
+      icon={<EventIcon title={reportTypeTitle} report={report} />}
       menuContent={<HeaderMenuContent report={report} onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} />}
       priority={displayPriority}
       title={reportTitle} onTitleChange={onReportTitleChange} />

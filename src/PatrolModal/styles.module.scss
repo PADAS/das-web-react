@@ -1,0 +1,58 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+@import '../common/styles/inputs';
+@import '../common/styles/layout';
+@import '../common/styles/animations';
+@import '../common/styles/popovers';
+@import '../common/styles/vars/fonts';
+
+
+$container-padding: 0.5rem;
+
+.timeBar {
+  background: $bright-blue;
+  color: white;
+  padding: $container-padding;
+}
+
+.topControls {
+  background: lighten($light-gray-background, 5%);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.65);
+  flex-wrap: wrap;
+  padding: $container-padding;
+  position: relative;
+  > label {
+    align-items: center;
+    display: flex;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 0;
+    padding: 0.25rem 0.5rem;
+    position: relative;
+    width: 50%;
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+    > * {
+      font-weight: initial;
+    }
+    > div {
+      flex-grow: 1;
+      margin-left: 0.5rem;
+    }
+    > span {
+      display: none;
+      @media #{$whenPageIsMediumHeightAndWidth} {
+        display: initial;
+      }
+      + * {
+        width: 100%;
+        @media #{$whenPageIsMediumHeightAndWidth} {
+          margin-top: 0.25rem;
+        }
+      }
+    }
+  }
+}
