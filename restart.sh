@@ -1,1 +1,1 @@
-docker-compose down && docker-compose up --build
+docker-compose kill && docker-compose up --build
