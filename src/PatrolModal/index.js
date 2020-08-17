@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { withMap } from '../EarthRangerMap';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { removeModal } from '../ducks/modals';
+import { removeModal, setModalVisibilityState } from '../ducks/modals';
+
+import MapLocationPicker from '../MapLocationPicker';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -16,7 +17,10 @@ import styles from './styles.module.scss';
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList } = EditableItem;
 
 const PatrolModal = (props) => {
-  const [statePatrol, setStatePatrol] = useState(props.patrol);
+  const { patrol, map, setModalVisibilityState } = props;
+  const [statePatrol, setStatePatrol] = useState(patrol);
+
+  console.log('here is my map', map);
 
   const handleTitleChange = useCallback((value) => {
     console.log('my title changed to this', value);
@@ -25,6 +29,19 @@ const PatrolModal = (props) => {
   const onSelectTrackedSubject = useCallback((value) => {
     console.log('what does the API expect for the value of the tracked subject?', value);
   }, []);
+
+  const onLocationSelectFromMapStart = useCallback(() => {
+    setModalVisibilityState(false);
+  }, [setModalVisibilityState]);
+
+  const onLocationSelectFromMapCancel = useCallback(() => {
+    setModalVisibilityState(true);
+  }, [setModalVisibilityState]);
+
+  const onLocationSelectFromMap = useCallback((value) => {
+    setModalVisibilityState(true);
+    console.log('i clicked it!', value);
+  }, [setModalVisibilityState]);
 
   const displayPriority = useMemo(() => {
     if (statePatrol.priority) return statePatrol.priority;
@@ -48,11 +65,9 @@ const PatrolModal = (props) => {
       </div>
       <Body>
         <div className={`${styles.timeBar} ${styles.start}`}>
-          This is where you place the time and location of the patrol beginning. Here&apost;s a list of what that contains.
-          <ul>
-            <li>Time selector</li>
-            <li> Location selector </li>
-          </ul>
+          This is where you place the time and location of the patrol beginning. Here&#39;s a list of what that contains.
+          <p>I am a time selector</p>
+          <MapLocationPicker map={map} label={null} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
         </div>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
@@ -65,7 +80,7 @@ const PatrolModal = (props) => {
           </li>
         </ul>
         <div className={`${styles.timeBar} ${styles.end}`}>
-        This is where you place the time and location of the patrol ending. Here&apost;s a list of what that contains.
+        This is where you place the time and location of the patrol ending. Here&#39;s a list of what that contains.
           <ul>
             <li>Time selector</li>
             <li> Duration </li>
@@ -95,7 +110,7 @@ const PatrolModal = (props) => {
 
 };
 
-export default connect(null, null)(memo(withMap(PatrolModal)));
+export default connect(null, { setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,

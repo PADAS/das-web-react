@@ -77,7 +77,7 @@ const AddReport = (props) => {
 
       if (isPatrol) {
         console.log('the patrols', patrols);
-        openModalForPatrol(patrols.results[0]);
+        openModalForPatrol(patrols.results[0], map);
         console.log('you clicked a patrol type!');
         return;
       }
