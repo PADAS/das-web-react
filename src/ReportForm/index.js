@@ -308,7 +308,7 @@ const ReportForm = (props) => {
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Priority\' option', `Priority:${priority}`);
   }, [is_collection, report]);
 
-  const onReportLocationChange = location => {
+  const onReportLocationChange = useCallback((location) => {
     const updatedLocation = !!location
       ? {
         latitude: location[1],
@@ -320,7 +320,7 @@ const ReportForm = (props) => {
       location: updatedLocation,
     });
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Location');
-  };
+  }, [is_collection, report]);
 
   const goToParentCollection = () => {
     const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;

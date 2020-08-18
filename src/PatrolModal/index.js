@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 
 import { removeModal, setModalVisibilityState } from '../ducks/modals';
 
-import MapLocationPicker from '../MapLocationPicker';
-
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
@@ -14,34 +12,46 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
-const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList } = EditableItem;
+const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { patrol, map, setModalVisibilityState } = props;
+  const { patrol, map } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
 
-  console.log('here is my map', map);
-
   const handleTitleChange = useCallback((value) => {
-    console.log('my title changed to this', value);
-  }, []);
+    setStatePatrol({
+      ...statePatrol,
+      title: value,
+    });
+  }, [statePatrol]);
+
+  const onStartLocationChange = useCallback((value) => {
+    setStatePatrol({
+      ...statePatrol,
+      patrol_segments: [
+        {
+          ...statePatrol.patrol_segments[0],
+          start_location: value ? {
+            lng: value[0],
+            lat: value[1],
+          } : null,
+        },
+      ],
+    });
+  }, [statePatrol]);
 
   const onSelectTrackedSubject = useCallback((value) => {
     console.log('what does the API expect for the value of the tracked subject?', value);
   }, []);
 
-  const onLocationSelectFromMapStart = useCallback(() => {
-    setModalVisibilityState(false);
-  }, [setModalVisibilityState]);
+  const patrolStartLocation = useMemo(() => {
+    if (!statePatrol.patrol_segments.length) return null;
 
-  const onLocationSelectFromMapCancel = useCallback(() => {
-    setModalVisibilityState(true);
-  }, [setModalVisibilityState]);
+    const [firstLeg] = statePatrol.patrol_segments;
 
-  const onLocationSelectFromMap = useCallback((value) => {
-    setModalVisibilityState(true);
-    console.log('i clicked it!', value);
-  }, [setModalVisibilityState]);
+    if (!firstLeg.start_location) return null;
+    return [firstLeg.start_location.lng, firstLeg.start_location.lat];
+  }, [statePatrol.patrol_segments]);
 
   const displayPriority = useMemo(() => {
     if (statePatrol.priority) return statePatrol.priority;
@@ -65,9 +75,8 @@ const PatrolModal = (props) => {
       </div>
       <Body>
         <div className={`${styles.timeBar} ${styles.start}`}>
-          This is where you place the time and location of the patrol beginning. Here&#39;s a list of what that contains.
           <p>I am a time selector</p>
-          <MapLocationPicker map={map} label={null} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
+          <LocationSelectorInput label='Start Location:' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} />
         </div>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>

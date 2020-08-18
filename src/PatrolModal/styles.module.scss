@@ -11,8 +11,9 @@ $container-padding: 0.5rem;
 
 .timeBar {
   background: $bright-blue;
-  display: flex;
   color: white;
+  display: flex;
+  justify-content: space-between;
   padding: $container-padding;
 }
 

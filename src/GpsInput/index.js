@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState, useEffect } from 'react';
+import React, { Fragment, memo, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
@@ -22,14 +22,15 @@ const GpsInput = (props) => {
   const [lastKnownValidValue, setLastKnownValidValue] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [valid, setValidationState] = useState(true);
+  const [initialized, setInitState] = useState(false);
 
   const handleValidationError = (e) => {
     setValidationState(false);
   };
 
-  const onInputChange = ({ target: { value } }) => {
+  const onInputChange = useCallback(({ target: { value } }) => {
     setInputValue(value);
-  };
+  }, []);
 
 
   const setUpStateWithLocationProp = () => {
@@ -56,11 +57,11 @@ const GpsInput = (props) => {
     }
   };
 
-  const onInputBlur = () => {
+  const onInputBlur = useCallback(() => {
     if (lastKnownValidValue) {
       setInputValue(calcGpsDisplayString(lastKnownValidValue[1], lastKnownValidValue[0], gpsFormat));
     }
-  };
+  }, [gpsFormat, lastKnownValidValue]);
 
   const validateNewInputValue = () => {
     if (!inputValue) {
@@ -81,9 +82,13 @@ const GpsInput = (props) => {
     }
   };
 
-  const handleValidChange = () => {
-    onValidChange(lastKnownValidValue);
-  };
+  const handleValidChange = useCallback(() => {
+    if (!initialized) {
+      setInitState(true);
+    } else {
+      onValidChange(lastKnownValidValue);
+    }
+  }, [initialized, lastKnownValidValue, onValidChange]);
 
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);

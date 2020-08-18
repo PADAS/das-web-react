@@ -22,11 +22,8 @@ const MapboxMap = ReactMapboxGl({
   logoPosition: 'bottom-left',
 });
 
-export function withMap(Component) { 
-  return props => <MapContext.Consumer>{map => { // eslint-disable-line react/display-name
-    console.log('i am with map and my map is this', map);
-    return <Component map={map} {...props} />;
-  }}</MapContext.Consumer>; 
+export function withMap(Component) {
+  return props => <MapContext.Consumer>{map => <Component map={map} {...props} />}</MapContext.Consumer>; // eslint-disable-line react/display-name
 };
 
 const EarthRangerMap = (props) => {
