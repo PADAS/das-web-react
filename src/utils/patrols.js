@@ -14,7 +14,7 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
       onSaveSuccess,
       onSaveError,
       modalProps: {
-        className: 'event-form-modal',
+        className: 'patrol-form-modal',
         // keyboard: false,
       },
     }));

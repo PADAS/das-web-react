@@ -7,14 +7,102 @@
 @import '../common/styles/vars/fonts';
 
 
-$container-padding: 0.5rem;
+$container-padding: 1rem;
 
-.timeBar {
+.faded {
+  opacity: 0.5;
+}
+
+section.timeBar {
+  align-items: center;
   background: $bright-blue;
   color: white;
   display: flex;
+  font-size: 0.9rem;
   justify-content: space-between;
-  padding: $container-padding;
+  padding: 0.25rem $container-padding !important;
+  > div {
+    align-items: center;
+    display: flex;
+    h6 {
+      width: 3rem;
+    }
+  }
+  > *:last-child {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+  .timeInput {
+    border: none;
+    &:not([class*=empty]) {
+      background: none;
+      > input {
+        color: white;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      svg * {
+        stroke: white;
+      }
+      svg[class*=clearIcon] {
+        display: none;
+      }
+      svg[class*=clearIcon] * {
+        fill: white;
+      }
+      &:hover {
+        cursor: pointer;
+        svg[class*=clearIcon] {
+          display: block;
+        }
+      }
+    }
+    &[class*=empty] {
+      background: white;
+      max-width: 9rem;
+      svg * {
+        stroke: $light-blue;
+      }
+    }
+  }
+  ::placeholder {
+    color: $light-blue;
+    opacity: 1;
+  }
+  &.start {
+    [class*=bs-popover-bottom] {
+      top: 100%;
+    }
+  }
+  &.end {
+    [class*=bs-popover-top] {
+      margin-top: -26.25rem;
+    }
+  }
+  [class*=locationAnchor] {
+    svg * {
+      fill: $light-blue;
+      stroke: $light-blue;
+    }
+  }
+  [class*=locationAnchor]:not([class*=empty]) {
+    $dark-blue: darken($bright-blue, 5%);
+    font-size: 0;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $dark-blue;
+    border: 1px solid $dark-blue;
+    svg * {
+      fill: white;
+      stroke: white;
+    }
+  }
+  > * + * {
+    margin-left: 0.5rem;
+  }
 }
 
 .topControls {
@@ -57,4 +145,8 @@ $container-padding: 0.5rem;
       }
     }
   }
+}
+
+.body {
+  max-height: 45vh;
 }

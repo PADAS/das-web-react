@@ -356,6 +356,8 @@
   position: relative;
   .gpsPopover {
     left: auto;
+    max-width: unset;
+    min-width: 18rem;
     padding: 0.5rem;
     right: 0;
     top: 90%;
@@ -371,6 +373,9 @@
   @include defaultTextInput;
   padding: 0.5rem 0.25rem;
   width: 100%;
+  .icon {
+    margin-right: 0;
+  }
 }
 
 .geoLocator {

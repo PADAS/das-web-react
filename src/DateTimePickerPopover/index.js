@@ -1,4 +1,6 @@
 import React, { forwardRef, memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import debounceRender from 'react-debounce-render';
+import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 import debounce from 'lodash/debounce';
 import InputMask from 'react-input-mask';
@@ -8,6 +10,7 @@ import setSeconds from 'date-fns/set_seconds';
 
 import DateTimePicker from '../DateTimePicker';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
+import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import { dateIsValid, timeValuesAreEqualToTheMinute } from '../utils/datetime';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
@@ -17,7 +20,7 @@ const DEFAULT_PLACEMENT = 'bottom';
 const BLANK_VALUE = '____-__-__ __:__';
 
 const DateTimePickerPopover = (props, ref) => {
-  const { popperConfig = {}, onPopoverToggle, minDate, maxDate, onChange, required, value, placement } = props;
+  const { className = '', popperConfig = {}, inputClassName = '', placeholder = '', onPopoverToggle, minDate, maxDate, onChange, required, value, placement, showClockIcon = false } = props;
   const popoverStateIsControlled = props.hasOwnProperty('popoverOpen');
 
   const [popoverOpen, setPopoverState] = useState(popoverStateIsControlled ? props.popoverOpen : false);
@@ -27,6 +30,7 @@ const DateTimePickerPopover = (props, ref) => {
 
   const canShowClearButton = useMemo(() => (
     inputValue !== BLANK_VALUE)
+    && (!!inputValue)
     && !required, 
   [inputValue, required],
   );
@@ -160,8 +164,9 @@ const DateTimePickerPopover = (props, ref) => {
     return value;
   }, [placement]);
 
-  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={styles.container}>
-    <InputMask type='text' value={inputValue} mask="9999-99-99 99:99" placeholder={BLANK_VALUE} onClick={onInputClick} onChange={onInputChange} onBlur={onInputBlur} ref={buttonRef} className={`${styles.input} ${!isValid ? styles.invalid : ''}`} />
+  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={`${styles.container} ${!!inputValue ? '' : 'empty'} ${className}`}>
+    {showClockIcon && <ClockIcon className={styles.clockIcon} />}
+    <InputMask type='text' value={inputValue} mask="9999-99-99 99:99" placeholder={placeholder || BLANK_VALUE} onClick={onInputClick} onChange={onInputChange} onBlur={onInputBlur} ref={buttonRef} className={`${styles.input} ${!isValid ? styles.invalid : ''} ${inputClassName}`} />
     {canShowClearButton && <ClearIcon onClick={onClickClearIcon} className={styles.clearIcon} />}
     <Overlay popperConfig={popperConfig} show={popoverOpen} placement={placement || DEFAULT_PLACEMENT} {...optionalProps} rootClose onHide={hidePopover} target={buttonRef.current} container={containerRef.current}>
       <DateTimePopover {...props}  />
@@ -179,4 +184,18 @@ const DateTimePopover = forwardRef((props, ref) => {  /* eslint-disable-line rea
   </Popover>;
 });
 
-export default memo(forwardRef(DateTimePickerPopover));
+export default debounceRender(memo(forwardRef(DateTimePickerPopover)), 60);
+
+DateTimePickerPopover.propTypes = {
+  popperConfig: PropTypes.object,
+  onPopoverToggle: PropTypes.func,
+  minDate: PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]),
+  maxDate:  PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]),
+  onChange: PropTypes.func.isRequired,
+  required: PropTypes.bool,
+  value: PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]).isRequired,
+  placement: PropTypes.string,
+  inputClassName: PropTypes.string,
+  placeholder: PropTypes.string,
+  showClockIcon: PropTypes.bool,
+};

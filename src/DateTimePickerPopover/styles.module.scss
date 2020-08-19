@@ -3,7 +3,15 @@
 @import '../common/styles/vars/colors';
 
 .container {
+  @include defaultTextInput;
+  align-items: center;
+  display: flex;
+  padding: 0 0.25rem;
   position: relative;
+  svg {
+    max-height: 1.5rem;
+    max-width: 1.5rem;
+  }
 }
 
 div.popover {
@@ -16,10 +24,11 @@ div.popover {
   }
 }
 
-.input {
-  @include defaultTextInput;
-  text-align: left;
-  padding: 0.5rem;
+input.input {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
   position: relative;
   text-align: left;
   width: 100%;
@@ -38,10 +47,17 @@ div.popover {
   border: 1px solid $bright-red;
 }
 
+.clockIcon {
+  margin-right: 0.5rem;
+  svg * {
+    stroke: $light-font-color;
+  }
+}
+
 .clearIcon {
   cursor: pointer;
   position: absolute;
-  right: 0;
+  right: 0.25rem;
   top: 0.75rem;
   height: 1rem;
 &:hover * {

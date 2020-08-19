@@ -92,7 +92,7 @@ aside {
   min-height: 100%;
 }
 
-.event-form-modal {
+.event-form-modal, .patrol-form-modal {
   .modal-dialog {
     align-items: center;
     max-height: 90vh;
@@ -117,6 +117,12 @@ aside {
     [class*=loadingOverlay] [class*=spinner] {
       top: 0;
     }
+  }
+}
+
+.patrol-form-modal {
+  .modal-dialog {
+    max-width: 46rem;
   }
 }
 
@@ -495,9 +501,11 @@ div.mapboxgl-popup-tip {
 
 
 @media (min-width: $md-layout-width-min) {
-  .event-form-modal+.modal-backdrop+.event-form-modal .modal-dialog {
-    left: 1rem;
-    top: 1rem;
+  .event-form-modal, .patrol-form-modal {
+    &+.modal-backdrop+.event-form-modal .modal-dialog {
+      left: 1rem;
+      top: 1rem;
+    }
   }
 }
 

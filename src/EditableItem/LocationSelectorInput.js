@@ -1,5 +1,6 @@
 import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import debounceRender from 'react-debounce-render';
 import { connect } from 'react-redux';
 
 import Overlay from 'react-bootstrap/Overlay';
@@ -46,7 +47,7 @@ const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-lin
 }));
 
 const LocationSelectorInput = (props) => {
-  const { label, popoverClassName, location, map, onLocationChange, updateUserPreferences, setModalVisibilityState, gpsFormat, showUserLocation } = props;
+  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, gpsFormat, showUserLocation } = props;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
@@ -124,7 +125,7 @@ const LocationSelectorInput = (props) => {
 
   
   return <label ref={gpsInputLabelRef} onKeyDown={handleEscapePress} className={styles.locationSelectionLabel}>
-    <LocationIcon className={styles.icon} />
+    {iconPlacement === 'label' && <LocationIcon className={styles.icon} />}
     {!!label && <span>{label}</span>}
     <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={hideGpsPopover} container={gpsInputLabelRef.current} className={styles.wowieZowie}>
       <PopoverComponent popoverContentRef={popoverContentRef}
@@ -141,8 +142,9 @@ const LocationSelectorInput = (props) => {
         onGeoLocationStart={onGeoLocationStart}
         onGeoLocationSuccess={onGeoLocationSuccess} />
     </Overlay>
-      <a href="#" onClick={onClickLocationAnchor} className={styles.locationAnchor} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
-      {location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : 'Click here to set location'}
+      <a href="#" onClick={onClickLocationAnchor} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
+      {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
+      {location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : placeholder}
     </a>
   </label>;
 };
@@ -152,15 +154,19 @@ const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsForma
   showUserLocation,
 });
 
-export default connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(LocationSelectorInput));
+export default debounceRender(connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(LocationSelectorInput)), 100);
 
 LocationSelectorInput.defaultProps = {
   label: 'Location:',
+  placeholder: 'Click here to set location',
+  iconPlacement: 'label',
 };
 
 LocationSelectorInput.propTypes = {
   popoverClassName: PropTypes.string,
+  placeholder: PropTypes.string,
   label: PropTypes.string,
+  iconPlacement: PropTypes.oneOf(['label', 'input', 'none']),
   location: PropTypes.array,
   map: PropTypes.object.isRequired,
   onLocationChange: PropTypes.func.isRequired,
