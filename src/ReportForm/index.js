@@ -440,7 +440,7 @@ const ReportForm = (props) => {
 
     <EditableItem.Header 
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<HeaderMenuContent report={report} onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} />}
+      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} />}
       priority={displayPriority}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 
@@ -495,6 +495,7 @@ const ReportForm = (props) => {
         isCollectionChild={eventBelongsToCollection(report)}
         onGoToCollection={goToParentCollection}
         relationshipButtonDisabled={disableAddReport}
+        hidePatrols={props.hidePatrols}
         onNewReportSaved={onReportAdded}
       />
 

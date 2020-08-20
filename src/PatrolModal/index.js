@@ -15,6 +15,7 @@ import ReportedBySelect from '../ReportedBySelect';
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import ReportListItem from '../ReportListItem';
 import TimeElapsed from '../TimeElapsed';
+import AddReport from '../AddReport';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -57,16 +58,16 @@ const PatrolModal = (props) => {
   }, [statePatrol.patrol_segments]);
 
   const displayDuration = useMemo(() => {
-    const now = new Date().getTime();
+    const now = new Date();
+    const nowTime = now.getTime();
 
-    const hasStarted = !displayStartTime
-    || (!!displayStartTime
-      && !!displayStartTime.getTime() < now);
+    const hasStarted = !!displayStartTime
+    && (displayStartTime.getTime() < nowTime);
 
     if (!hasStarted) return '0s';
 
-    const hasEnded = !displayEndTime 
-    || (!!displayEndTime && displayEndTime.getTime() <= new Date().getTime());
+    const hasEnded = !!displayEndTime 
+    && (displayEndTime.getTime() <= nowTime);
 
     if (!hasEnded) {
       return <TimeElapsed date={displayStartTime} />;
@@ -199,7 +200,9 @@ const PatrolModal = (props) => {
         menuContent={null}
         priority={displayPriority}
         onTitleChange={onTitleChange}
-      />
+      >
+        <span>Active</span>
+      </Header>
       <div className={styles.topControls}>
         <label>
           Tracking:
@@ -274,7 +277,9 @@ const PatrolModal = (props) => {
       </section>
       <AttachmentControls
         onAddFiles={() => console.log('file added')}
-        onSaveNote={() => console.log('note saved')} />
+        onSaveNote={() => console.log('note saved')}>
+        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
+      </AttachmentControls>
       <Footer
         onCancel={() => console.log('cancel')}
         onSave={() => console.log('save')}

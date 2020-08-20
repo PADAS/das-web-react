@@ -19,7 +19,7 @@ import { FEATURE_FLAGS } from '../constants';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, reportData, eventsByCategory, map, popoverPlacement,
+  const { relationshipButtonDisabled, hidePatrols, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrols } = props;
   const hasEventCategories = !!eventsByCategory.length;
   const [selectedCategory, selectCategory] = useState(null);
@@ -76,8 +76,7 @@ const AddReport = (props) => {
       const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
 
       if (isPatrol) {
-        console.log('the patrols', patrols);
-        openModalForPatrol(patrols.results[0], map);
+        openModalForPatrol(patrols.results[0], map, { relationshipButtonDisabled });
         console.log('you clicked a patrol type!');
         return;
       }
@@ -88,7 +87,7 @@ const AddReport = (props) => {
       ...createNewReportForEventType(reportType),
       ...reportData,
     };
-    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled });
+    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols  });
     setPopoverState(false);
   };
 
@@ -155,8 +154,8 @@ const AddReport = (props) => {
   </div>;
 };
 
-const mapStateToProps = (state) => ({
-  eventsByCategory: getUserCreatableEventTypesByCategory(state),
+const mapStateToProps = (state, ownProps) => ({
+  eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
   patrols: state.data.patrols,
 });
 export default connect(mapStateToProps, null)(memo(AddReport));
@@ -177,6 +176,7 @@ AddReport.defaultProps = {
 
 AddReport.propTypes = {
   relationshipButtonDisabled: PropTypes.bool,
+  hidePatrols: PropTypes.bool,
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,

@@ -4,7 +4,7 @@ import { addModal } from '../ducks/modals';
 import PatrolModal from '../PatrolModal';
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
-  const { onSaveSuccess, onSaveError } = config;
+  const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
 
   return store.dispatch(
     addModal({
@@ -13,6 +13,7 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
       map,
       onSaveSuccess,
       onSaveError,
+      relationshipButtonDisabled,
       modalProps: {
         className: 'patrol-form-modal',
         // keyboard: false,
