@@ -6,12 +6,15 @@ import timeDistanceInWords from 'date-fns/distance_in_words';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
+import { getFeedEvents } from '../selectors';
 import { removeModal, setModalVisibilityState } from '../ducks/modals';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
 import DateTimePickerPopover from '../DateTimePickerPopover';
+import ReportListItem from '../ReportListItem';
+import TimeElapsed from '../TimeElapsed';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -20,8 +23,14 @@ import styles from './styles.module.scss';
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { patrol, map } = props;
+  const { events, patrol, map } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
+
+  const eventsToShow = useMemo(() => {
+    const cloned = [...events.results];
+    cloned.length = Math.min(cloned.length, 5);
+    return cloned;
+  }, [events]);
 
   const displayStartTime = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -48,8 +57,23 @@ const PatrolModal = (props) => {
   }, [statePatrol.patrol_segments]);
 
   const displayDuration = useMemo(() => {
-    if (!displayStartTime || !displayEndTime) return 0;
+    const now = new Date().getTime();
+
+    const hasStarted = !displayStartTime
+    || (!!displayStartTime
+      && !!displayStartTime.getTime() < now);
+
+    if (!hasStarted) return '0s';
+
+    const hasEnded = !displayEndTime 
+    || (!!displayEndTime && displayEndTime.getTime() <= new Date().getTime());
+
+    if (!hasEnded) {
+      return <TimeElapsed date={displayStartTime} />;
+    }
+
     return timeDistanceInWords(displayStartTime, displayEndTime);
+    
   }, [displayEndTime, displayStartTime]);
 
   const displayTrackingSubject = useMemo(() => {
@@ -202,62 +226,16 @@ const PatrolModal = (props) => {
       <Body className={styles.body}>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
-            This is where a report segment, currently represented in the UI as a list of contained reports, would live.
             <ul>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
-              <li>Report 1 huh</li>
-              <li>Report 2 huh</li>
-              <li>Report 3 huh</li>
+              {eventsToShow.map((item, index) =>
+                <ReportListItem
+                  className={styles.listItem}
+                  map={map}
+                  report={item}
+                  key={`${item.id}-${index}`}
+                  onTitleClick={() => console.log('title click')}
+                  onIconClick={() => console.log('icon click')} />
+              )}
             </ul>
           </li>
         </ul>
@@ -286,10 +264,10 @@ const PatrolModal = (props) => {
             maxDate={null}
             onChange={onEndTimeChange}  />
         </div>
-        <span className={!!displayDuration ? '' : styles.faded}>
+        <span className={displayDuration !== '0s' ? '' : styles.faded}>
           <strong>Duration:</strong> {displayDuration}
         </span>
-        <span>
+        <span className={styles.faded}>
           <strong>Distance:</strong> 0km
         </span>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
@@ -308,7 +286,10 @@ const PatrolModal = (props) => {
 
 };
 
-export default connect(null, { setModalVisibilityState })(memo(PatrolModal));
+const mapStateToProps = (state) => ({
+  events: getFeedEvents(state),
+});
+export default connect(mapStateToProps, { setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,

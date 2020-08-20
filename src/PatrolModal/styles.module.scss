@@ -15,12 +15,12 @@ $container-padding: 1rem;
 
 section.timeBar {
   align-items: center;
-  background: $bright-blue;
+  background: $light-blue;
   color: white;
   display: flex;
   font-size: 0.9rem;
   justify-content: space-between;
-  padding: 0.25rem $container-padding !important;
+  padding: 0.25rem 0.5rem 0.25rem 1rem !important;
   > div {
     align-items: center;
     display: flex;
@@ -34,6 +34,9 @@ section.timeBar {
   }
   .timeInput {
     border: none;
+    input {
+      cursor: pointer;
+    }
     &:not([class*=empty]) {
       background: none;
       > input {
@@ -52,7 +55,6 @@ section.timeBar {
         fill: white;
       }
       &:hover {
-        cursor: pointer;
         svg[class*=clearIcon] {
           display: block;
         }
@@ -87,7 +89,7 @@ section.timeBar {
     }
   }
   [class*=locationAnchor]:not([class*=empty]) {
-    $dark-blue: darken($bright-blue, 5%);
+    $dark-blue: darken($light-blue, 5%);
     font-size: 0;
     padding: 0.25rem;
     display: flex;
@@ -149,4 +151,8 @@ section.timeBar {
 
 .body {
   max-height: 45vh;
+}
+
+.segmentList, segmentList ul {
+  margin-bottom: 0;
 }
