@@ -68,7 +68,7 @@ const symbolLayout = {
     'marker-icon',
   ],
   'text-size': 0,
-  'icon-anchor': 'bottom',
+  'icon-anchor': 'center',
 };
 
 const symbolPaint = {
