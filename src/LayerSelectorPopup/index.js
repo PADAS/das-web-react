@@ -19,8 +19,13 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, []);
 
   const layers = useMemo(() => {
-    if (!filter) return layerList;
-    return layerList.filter((layer) => {
+    const sortedLayerList = layerList.sort((a, b) => {
+      const first = (a.properties.display_title || a.properties.name || '').toLowerCase();
+      const second = (b.properties.display_title || b.properties.name || '').toLowerCase();
+      return first > second ? 1 : first < second ? -1 : 0;
+    });
+    if (!filter) return sortedLayerList;
+    return sortedLayerList.filter((layer) => {
       const displayName = layer.properties.display_title || layer.properties.name;
       return displayName.toLowerCase().includes(filter.toLowerCase());
     });
