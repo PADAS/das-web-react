@@ -103,7 +103,7 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   });
   dispatch({
     type: SET_SITENAME,
-    payload: data.sitename ? data.sitename : window.location.hostname,
+    payload: data.site_name || window.location.hostname,
   });
 };
 
