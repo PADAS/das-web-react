@@ -20,10 +20,8 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
 
   const layers = useMemo(() => {
     const sortedLayerList = layerList.sort((a, b) => {
-      const first = a.properties.name ? a.properties.name.toLowerCase() : 
-        a.properties.display_title ? a.properties.display_title.toLowerCase() : '';
-      const second = b.properties.name ? b.properties.name.toLowerCase() : 
-        b.properties.display_title ? b.properties.display_title.toLowerCase() : '';
+      const first = (a.properties.display_title || a.properties.name || '').toLowerCase();
+      const second = (b.properties.display_title || b.properties.name || '').toLowerCase();
       return first > second ? 1 : first < second ? -1 : 0;
     });
     if (!filter) return sortedLayerList;
