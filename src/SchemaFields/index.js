@@ -45,11 +45,10 @@ const SelectField = (props) => {
     const { label, name } = option;
     const value = getOptionValue(option);
     if (label === value && schema.enumNames) {
-      if (
-        (Array.isArray(schema.enumNames) && schema.enumNames.includes(value))
-        || (schema.enumNames[value])
-      ) {
+      if (Array.isArray(schema.enumNames) && schema.enumNames.includes(value)) {
         return value;
+      } else if (schema.enumNames[value]) {
+        return (schema.enumNames[value]);
       }
     }
     return (label || name);
