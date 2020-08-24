@@ -24,6 +24,7 @@ import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
+import PatrolFilter from '../PatrolFilter';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
 import { trackEvent } from '../utils/analytics';
@@ -36,6 +37,7 @@ import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import ErrorMessage from '../ErrorMessage';
+import PatrolList from '../PatrolList';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -46,7 +48,7 @@ const TAB_KEYS = {
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, patrols, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -178,6 +180,8 @@ const SideBar = (props) => {
           </ErrorBoundary>
         </Tab>
         {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+          <PatrolFilter /> 
+          <PatrolList map={map} patrols={patrols}/>
         </Tab>}
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
@@ -202,6 +206,7 @@ const SideBar = (props) => {
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
+  patrols: state.data.patrols,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
 });
