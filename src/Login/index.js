@@ -6,7 +6,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 
 import { postAuth, clearAuth } from '../ducks/auth';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
+import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
@@ -84,6 +85,10 @@ class LoginPage extends Component {
 
   render() {
     const { eula_url } = this.props.eula;
+
+    const eulaEnabled = evaluateFeatureFlag(FEATURE_FLAGS.EULA);
+
+     
     return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
       <Form className={styles.form} onSubmit={this.onFormSubmit}>
@@ -96,13 +101,13 @@ class LoginPage extends Component {
           {this.state.errorMessage}
         </Alert>}
       </Form>
-      {this.props.eulaEnabled === true &&
+      {eulaEnabled === true &&
         <p className={styles.eulalink}><a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
         </p>}
     </div>;
   }
 }
 
-const mapStateToProps = ({ data: { eula, token }, view: { systemConfig: { eulaEnabled } } }) => ({ eula, token, eulaEnabled });
+const mapStateToProps = ({ data: { eula, token } }) => ({ eula, token });
 
 export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(withRouter(LoginPage)));
