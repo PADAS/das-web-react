@@ -113,7 +113,7 @@ const App = (props) => {
     if (evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
       fetchPatrolTypes()
         .catch((e) => {
-          console.warn('patrol type failure', e);
+          // 
         });
       fetchPatrols()
         .catch((e) => {
