@@ -13,6 +13,16 @@ $container-padding: 1rem;
   opacity: 0.5;
 }
 
+.headerPopover {
+  max-width: unset;
+}
+
+h4 {
+  > span.statusBadge {
+    margin-left: auto;
+  }
+}
+
 section.timeBar {
   align-items: center;
   background: $light-blue;

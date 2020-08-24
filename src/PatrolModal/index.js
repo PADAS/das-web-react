@@ -17,6 +17,9 @@ import ReportListItem from '../ReportListItem';
 import TimeElapsed from '../TimeElapsed';
 import AddReport from '../AddReport';
 
+import HeaderMenuContent from './HeaderMenuContent';
+import StatusBadge from './StatusBadge';
+
 import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
@@ -37,10 +40,10 @@ const PatrolModal = (props) => {
     if (!statePatrol.patrol_segments.length) return null;
     const [firstLeg] = statePatrol.patrol_segments;
 
-    const { scheduled_start, start_time } = firstLeg;
+    const { start_time } = firstLeg;
 
-    return start_time || scheduled_start
-      ?  new Date(start_time || scheduled_start)
+    return start_time
+      ?  new Date(start_time)
       : null;
     
   }, [statePatrol.patrol_segments]);
@@ -130,7 +133,7 @@ const PatrolModal = (props) => {
       patrol_segments: [
         {
           ...statePatrol.patrol_segments[0],
-          scheduled_start: value ? new Date(value).toISOString() : null,
+          start_time: value ? new Date(value).toISOString() : null,
         },
       ],
     });
@@ -169,6 +172,13 @@ const PatrolModal = (props) => {
     });
   }, [statePatrol]);
 
+  const onPrioritySelect = useCallback((priority) => {
+    setStatePatrol({
+      ...statePatrol,
+      priority,
+    });
+  }, [statePatrol]);
+
   const patrolStartLocation = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
 
@@ -197,11 +207,11 @@ const PatrolModal = (props) => {
     <Modal>
       <Header 
         icon={<DasIcon type='events' iconId='fence-patrol-icon' />}
-        menuContent={null}
+        menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
         onTitleChange={onTitleChange}
       >
-        <span>Active</span>
+        <StatusBadge />
       </Header>
       <div className={styles.topControls}>
         <label>

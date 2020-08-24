@@ -154,7 +154,7 @@ const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsForma
   showUserLocation,
 });
 
-export default debounceRender(connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(LocationSelectorInput)), 100);
+export default debounceRender(connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(LocationSelectorInput)));
 
 LocationSelectorInput.defaultProps = {
   label: 'Location:',

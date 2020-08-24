@@ -184,7 +184,7 @@ const DateTimePopover = forwardRef((props, ref) => {  /* eslint-disable-line rea
   </Popover>;
 });
 
-export default debounceRender(memo(forwardRef(DateTimePickerPopover)), 60);
+export default debounceRender(memo(forwardRef(DateTimePickerPopover)));
 
 DateTimePickerPopover.propTypes = {
   popperConfig: PropTypes.object,

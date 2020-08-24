@@ -97,6 +97,9 @@
     @media #{$whenPageIsMediumHeightAndWidth} {
       //font-size: 1.5rem;
     }
+    > *:last-child {
+      margin-left: auto;
+    }
   }
   .icon {
     --dimensions: 1.5rem;
@@ -158,7 +161,6 @@
   display: flex;
   flex-flow: column;
   text-align: right;
-  margin-left: auto;
   small {
     font-size: $font-size-smaller;
     line-height: $line-height-small;
