@@ -127,7 +127,7 @@ const LocationSelectorInput = (props) => {
   return <label ref={gpsInputLabelRef} onKeyDown={handleEscapePress} className={styles.locationSelectionLabel}>
     {iconPlacement === 'label' && <LocationIcon className={styles.icon} />}
     {!!label && <span>{label}</span>}
-    <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={hideGpsPopover} container={gpsInputLabelRef.current} className={styles.wowieZowie}>
+    <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={hideGpsPopover} container={gpsInputLabelRef.current}>
       <PopoverComponent popoverContentRef={popoverContentRef}
         className={popoverClassString}
         onLocationChange={onLocationChange}
