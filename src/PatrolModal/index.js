@@ -7,7 +7,9 @@ import timeDistanceInWords from 'date-fns/distance_in_words';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 import { getFeedEvents } from '../selectors';
-import { removeModal, setModalVisibilityState } from '../ducks/modals';
+import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
+import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
+import { downloadFileFromUrl } from '../utils/download';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -16,6 +18,9 @@ import DateTimePickerPopover from '../DateTimePickerPopover';
 import ReportListItem from '../ReportListItem';
 import TimeElapsed from '../TimeElapsed';
 import AddReport from '../AddReport';
+
+import NoteModal from '../NoteModal';
+import ImageModal from '../ImageModal';
 
 import HeaderMenuContent from './HeaderMenuContent';
 import StatusBadge from './StatusBadge';
@@ -27,14 +32,19 @@ import styles from './styles.module.scss';
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { events, patrol, map } = props;
+  const { addModal, events, patrol, map, /* removeModal */ } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
+  const [filesToUpload, updateFilesToUpload] = useState([]);
+  const [notesToAdd, updateNotesToAdd] = useState([]);
 
   const eventsToShow = useMemo(() => {
     const cloned = [...events.results];
     cloned.length = Math.min(cloned.length, 5);
     return cloned;
   }, [events]);
+
+  const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
+  const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
 
   const displayStartTime = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -179,6 +189,67 @@ const PatrolModal = (props) => {
     });
   }, [statePatrol]);
 
+  const onAddFiles = useCallback((files) => {
+    const uploadableFiles = filterDuplicateUploadFilenames([...filesToList], files);
+    
+    updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
+  }, [filesToList, filesToUpload]);
+
+  const onSaveNote = useCallback((noteToSave) => {
+    const note = { ...noteToSave };
+    const noteIsNew = !note.id;
+
+    if (noteIsNew) {
+      const { originalText } = note;
+
+      if (originalText) {
+        updateNotesToAdd(
+          notesToAdd.map(n => n.text === originalText ? note : n)
+        );
+      } else {
+        updateNotesToAdd([...notesToAdd, note]);
+      }
+      delete note.originalText;
+    } else {
+      setStatePatrol({
+        ...statePatrol,
+        notes: statePatrol.notes.map(n => n.id === note.id ? note : n),
+      });
+    }
+  }, [notesToAdd, statePatrol]);
+
+  const onDeleteNote = useCallback((note) => {
+    const { text } = note;
+    updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
+  }, [notesToAdd]);
+
+  const onDeleteFile = useCallback((file) => {
+    const { name } = file;
+    updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
+  }, [filesToUpload]);
+
+  const onClickFile = useCallback(async (file) => {
+    if (file.file_type === 'image') {
+      const fileData = await fetchImageAsBase64FromUrl(file.images.original);
+        
+      addModal({
+        content: ImageModal,
+        src: fileData,
+        title: file.filename,
+      });
+    } else {
+      await downloadFileFromUrl(file.url, { filename: file.filename });
+    }
+  }, [addModal]);
+
+  const startEditNote = useCallback((note) => {
+    addModal({
+      content: NoteModal,
+      note,
+      onSubmit: onSaveNote,
+    });
+  }, [addModal, onSaveNote]);
+
   const patrolStartLocation = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
 
@@ -253,12 +324,12 @@ const PatrolModal = (props) => {
           </li>
         </ul>
         <AttachmentList
-          files={statePatrol.files}
-          notes={statePatrol.notes}
-          onClickFile={() => console.log('file click')}
-          onClickNote={() => console.log('note click')}
-          onDeleteNote={() => console.log('note delete')}
-          onDeleteFile={() => console.log('file delete')} />
+          files={filesToList}
+          notes={notesToList}
+          onClickFile={onClickFile}
+          onClickNote={startEditNote}
+          onDeleteNote={onDeleteNote}
+          onDeleteFile={onDeleteFile} />
       </Body>
       <section className={`${styles.timeBar} ${styles.end}`}>
         <div>
@@ -286,8 +357,8 @@ const PatrolModal = (props) => {
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
       </section>
       <AttachmentControls
-        onAddFiles={() => console.log('file added')}
-        onSaveNote={() => console.log('note saved')}>
+        onAddFiles={onAddFiles}
+        onSaveNote={onSaveNote}>
         <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
       </AttachmentControls>
       <Footer
@@ -304,7 +375,7 @@ const PatrolModal = (props) => {
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
 });
-export default connect(mapStateToProps, { setModalVisibilityState })(memo(PatrolModal));
+export default connect(mapStateToProps, { addModal, removeModal, setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,

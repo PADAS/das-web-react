@@ -14,7 +14,33 @@ $container-padding: 1rem;
 }
 
 .headerPopover {
-  max-width: unset;
+  &[class*=bs-popover] {
+    max-width: unset;
+    z-index: 1050;
+  }
+  [class*=popover-header] {
+    @include popoverTitle;
+  }
+  [class*=popover-header]::before {
+    border-bottom: 1px solid $popover-header-color;
+  }
+  > [class*=arrow]::after {
+    border-bottom-color: $popover-header-color;
+  }
+  [class*=popover-body] {
+    padding: 0;
+    margin: 0.75rem 0.75rem;
+    h6 {
+      margin-bottom: 0.5rem;
+    }
+    hr {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+  + [class*=modal-backdrop] + [role=dialog] {
+    z-index: 1050;
+  }
 }
 
 h4 {

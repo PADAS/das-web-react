@@ -62,24 +62,9 @@ const isFinished = (patrolSegment) => {
 
 const StatusBadge = (props) => {
   const { data } = props;
-  const [status, setStatus] = useState(calcPatrolSegmentStatus(data));
-
-  const poll = useRef(window.setInterval(() => {
-    const val = calcPatrolSegmentStatus(data);
-    if (val !== status) {
-      setStatus(val);
-    }
-  }, 1000));
-
-  useEffect(() => {
-    return () => {
-      window.clearInterval(poll.current); /* eslint-disable-line */
-    };
-  }, []);
+  const status = calcPatrolSegmentStatus(data);
 
   return <span className={styles.statusBadge}><Chevron /> {status}</span>;
-
-
 };
 
 export default memo(withFormDataContext(StatusBadge));
