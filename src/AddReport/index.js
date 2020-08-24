@@ -72,7 +72,7 @@ const AddReport = (props) => {
 
     /* PATROL_SCAFFOLD */
     if (evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
-      const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
+      const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
         console.log('you clicked a patrol type!');
