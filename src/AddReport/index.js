@@ -76,8 +76,11 @@ const AddReport = (props) => {
       const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
 
       if (isPatrol) {
-        openModalForPatrol(patrols.results[0], map, { relationshipButtonDisabled });
         console.log('you clicked a patrol type!');
+      }
+
+      if (isPatrol && !!patrols.results.length) {
+        openModalForPatrol(patrols.results[0], map, { relationshipButtonDisabled });
         return;
       }
     }
