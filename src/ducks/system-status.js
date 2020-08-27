@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { combineReducers } from 'redux';
 
-import { API_URL, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
+import { API_URL, FEATURE_FLAGS, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
 
 const STATUS_API_URL = `${API_URL}status`;
@@ -22,8 +22,7 @@ export const SOCKET_SERVICE_STATUS = 'SOCKET_SERVICE_STATUS';
 export const SET_ZENDESK_ENABLED = 'SET_ZENDESK_ENABLED';
 export const SET_DAILY_REPORT_ENABLED = 'SET_DAILY_REPORT_ENABLED';
 export const SET_EXPORT_KML_ENABLED = 'SET_EXPORT_KML_ENABLED';
-export const SET_EVENT_MATRIX_ENABLED = 'SET_EVENT_MATRIX_ENABLED';
-export const SET_EVENT_SEARCH_ENABLED = 'SET_EVENT_SEARCH_ENABLED';
+export const SET_PATROL_MANAGEMENT_ENABLED = 'SET_PATROL_MANAGEMENT_ENABLED';
 export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
 export const SET_EULA_ENABLED = 'SET_EULA_ENABLED';
 export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
@@ -75,27 +74,23 @@ const setZendeskConfigStatus = (response) => (dispatch) => {
 const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_DAILY_REPORT_ENABLED,
-    payload: data.daily_report_enabled,
+    payload: data[FEATURE_FLAGS.DAILY_REPORT],
   });
   dispatch({
     type: SET_EXPORT_KML_ENABLED,
-    payload: data.export_kml_enabled,
+    payload: data[FEATURE_FLAGS.KML_EXPORT],
   });
   dispatch({
-    type: SET_EVENT_MATRIX_ENABLED,
-    payload: data.event_matrix_enabled,
-  });
-  dispatch({
-    type: SET_EVENT_SEARCH_ENABLED,
-    payload: data.event_search_enabled,
-  });
+    type: SET_PATROL_MANAGEMENT_ENABLED,
+    payload: data[FEATURE_FLAGS.PATROL_MANAGEMENT],
+  })
   dispatch({
     type: SET_ALERTS_ENABLED,
-    payload: data.alerts_enabled,
+    payload: data[FEATURE_FLAGS.ALERTS],
   });
   dispatch({
     type: SET_EULA_ENABLED,
-    payload: data.eula_enabled,
+    payload: data[FEATURE_FLAGS.EULA],
   });
   dispatch({
     type: SET_SHOW_TRACK_DAYS,
@@ -315,13 +310,11 @@ export default combineReducers({
 });
 
 const INITIAL_SYSTEM_CONFIG_STATE = {
-  zendeskEnabled: false,
-  dailyReportEnabled: false,
-  exportKmlEnabled: false,
-  eventMatrixEnabled: false,
-  eventSearchEnabled: false,
-  alertsEnabled: false,
-  eulaEnabled: false,
+  [FEATURE_FLAGS.DAILY_REPORT]: false,
+  [FEATURE_FLAGS.DAILY_REPORT]: false,
+  [FEATURE_FLAGS.KML_EXPORT]: false,
+  [FEATURE_FLAGS.ALERTS]: false,
+  [FEATURE_FLAGS.EULA]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };
@@ -331,25 +324,24 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
     return { ...state, zendeskEnabled: payload, };
   }
   case (SET_DAILY_REPORT_ENABLED): {
-    return { ...state, dailyReportEnabled: payload, };
+    return { ...state, [FEATURE_FLAGS.DAILY_REPORT]: payload, };
   }
   case (SET_EXPORT_KML_ENABLED): {
-    return { ...state, exportKmlEnabled: payload, };
+    return { ...state, [FEATURE_FLAGS.KML_EXPORT]: payload, };
   }
-  case (SET_EVENT_MATRIX_ENABLED): {
-    return { ...state, eventMatrixEnabled: payload, };
+
+  case (SET_PATROL_MANAGEMENT_ENABLED): {
+    return { ...state, [FEATURE_FLAGS.PATROL_MANAGEMENT]: payload, };
   }
-  case (SET_EVENT_SEARCH_ENABLED): {
-    return { ...state, eventSearchEnabled: payload, };
-  }
+
   case (SET_ALERTS_ENABLED): {
-    return { ...state, alertsEnabled: payload, };
+    return { ...state, [FEATURE_FLAGS.ALERTS]: payload, };
   }
   case (SET_SHOW_TRACK_DAYS): {
     return { ...state, showTrackDays: payload, };
   }
   case (SET_EULA_ENABLED): {
-    return { ...state, eulaEnabled: payload, };
+    return { ...state, [FEATURE_FLAGS.EULA]: payload, };
   }
   case (SET_SITENAME): {
     setSitenameDimension(payload);

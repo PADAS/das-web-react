@@ -2,7 +2,8 @@ import React, { Fragment, memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { evaluateFeatureFlag } from '../utils/feature-flags';
+import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
 
@@ -13,7 +14,7 @@ import { fetchSystemStatus } from '../ducks/system-status';
 import PrivateRoute from '../PrivateRoute';
 
 const EulaProtectedRoute = (props) => {
-  const { dispatch:_dispatch, history, fetchCurrentUser, fetchSystemStatus, location, user, eulaEnabled, ...rest } = props;
+  const { dispatch:_dispatch, history, fetchCurrentUser, fetchSystemStatus, location, user, ...rest } = props;
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
@@ -32,6 +33,7 @@ const EulaProtectedRoute = (props) => {
   }, [fetchCurrentUser]); /* eslint-disable-line */
 
   useEffect(() => {
+    const eulaEnabled = evaluateFeatureFlag(FEATURE_FLAGS.EULA);
     // null check to distinguish from eulaEnabled = false
     if (user.id && !(eulaEnabled == null)) {
       const accepted = user.hasOwnProperty('accepted_eula') 
@@ -40,7 +42,7 @@ const EulaProtectedRoute = (props) => {
       const ignoreEula = (eulaEnabled === false);
       setEulaAccepted(accepted || ignoreEula);
     }
-  }, [user, eulaEnabled]);
+  }, [user]);
 
   return <Fragment>
     {!eulaAccepted && <Redirect to={{
@@ -52,8 +54,8 @@ const EulaProtectedRoute = (props) => {
 };
 
 
-const mapStateToProps = ({ data: { user }, view: { systemConfig: { eulaEnabled } } }) => ({
-  user, eulaEnabled
+const mapStateToProps = ({ data: { user } }) => ({
+  user,
 });
 
 export default connect(mapStateToProps, { fetchCurrentUser, fetchSystemStatus })(memo(withRouter(EulaProtectedRoute)));

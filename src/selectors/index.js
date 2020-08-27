@@ -8,7 +8,7 @@ import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 
-import { generatePatrolEventCategory } from '../fixtures/patrol_management';
+import { generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 import { FEATURE_FLAGS } from '../constants';
 
 export const createSelector = createSelectorCreator(
@@ -17,6 +17,7 @@ export const createSelector = createSelectorCreator(
 );
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
+const patrolTypes = ({ data: { patrolTypes } }) => patrolTypes;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -100,15 +101,15 @@ export const getFeedIncidents = createSelector(
 );
 
 export const getUserCreatableEventTypesByCategory = createSelector(
-  [userCreatableEventTypesByCategory],
-  (categories) => {
+  [userCreatableEventTypesByCategory, patrolTypes],
+  (categories, patrolTypes) => {
     const categoriesWithoutCollections = categories.map(cat => ({
       ...cat,
       types: cat.types.filter(t => !t.is_collection),
     }));
 
     return [
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) ? [generatePatrolEventCategory()] : []),
+      ...(evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) ? [generatePseudoReportCategoryForPatrolTypes(patrolTypes)] : []),
       ...categoriesWithoutCollections
     ];
 
