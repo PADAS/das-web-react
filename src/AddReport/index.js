@@ -98,10 +98,8 @@ const AddReport = (props) => {
     }
     /* END PATROL_SCAFFOLD */
 
-    const newReport = {
-      ...createNewReportForEventType(reportType),
-      ...reportData,
-    };
+    const newReport = createNewReportForEventType(reportType, reportData);
+    
     openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols  });
     setPopoverState(false);
   };

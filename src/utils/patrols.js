@@ -1,6 +1,8 @@
 import { store } from '../';
 import { addModal } from '../ducks/modals';
 
+import { getReporterById } from '../utils/events';
+
 import PatrolModal from '../PatrolModal';
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
@@ -45,6 +47,13 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
 
 export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, default_priority: priority = 0 }, data) => {
   const location = data && data.location;
+  const reportedById = data && data.reportedById;
+  const time = data && data.time;
+
+  const trackingSubject = reportedById && getReporterById(reportedById);
+
+  const sources = trackingSubject ? [trackingSubject] : [];
+
   return {
     icon_id,
     is_collection: false,
@@ -57,9 +66,9 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         priority,
         reports: [],
         scheduled_start: null,
-        sources: [],
+        sources,
         start_location: location ? { lat: location.latitude, lng: location.longitude } : null,
-        start_time: new Date(),
+        start_time: time ? new Date(time) : new Date(),
         end_time: null,
         end_location: null,
       },

@@ -34,7 +34,7 @@ export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeat
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
-const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
+export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
   : [];
