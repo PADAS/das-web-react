@@ -11,7 +11,7 @@ import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
 import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
-import { getFeedEvents } from '../selectors';
+import { getFeedEvents, getPatrols } from '../selectors';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
@@ -181,7 +181,7 @@ const SideBar = (props) => {
         </Tab>
         {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
           <PatrolFilter /> 
-          <PatrolList map={map} patrols={patrols}/>
+          <PatrolList map={map} patrols={patrols.results || []}/>
         </Tab>}
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
@@ -207,6 +207,7 @@ const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
   patrols: state.data.patrols,
+  //patrols: getPatrols(state),
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
 });

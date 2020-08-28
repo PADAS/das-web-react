@@ -29,6 +29,7 @@ const getReportSchemas = ({ data: { eventSchemas } }, { data:report }) => eventS
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
+const patrols = ({ data: { patrols } }) => patrols;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
@@ -187,6 +188,16 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
 export const getReportFormSchemaData = createSelector(
   [getReportSchemas],
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
+);
+
+export const getPatrols = createSelector(
+  [patrols, eventStore],
+  (patrols, eventStore) => ({
+    ...patrols,
+    results: patrols.results
+      .map(id => eventStore[id])
+      .filter(item => !!item),
+  }),
 );
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];

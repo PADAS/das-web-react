@@ -1,0 +1,96 @@
+@import '../common/styles/vars/colors';
+
+.patrolList {
+    background-color: #f3f2ed;
+    height: 100%;
+    padding: 1rem .25rem;
+}
+
+.listHeader {
+    background-color: #dfdfdf;
+    h4 {
+        font-size: .75rem;
+        font-weight: bold;
+    }
+}
+
+.patrolRow {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.patrolListItem {
+    border-radius: .75rem;
+    margin: .25rem;
+    text-align: center;
+    width: 45%;
+    padding:.125rem;
+    h4 {
+        font-size: .75rem;
+        font-weight: bold;
+        padding-top: .25rem;
+        margin-bottom: .125rem;
+    }
+    p {
+        font-size: .5rem;
+        font-style: italic;
+        margin-bottom: .125rem;
+    }
+    button {
+        font-size: .5rem;
+        font-style: plain;
+        padding-top: 0rem;
+        color: #323335;
+    }
+}
+
+.status-ready {
+    border: 2px dashed #746dcd;  //blue_marguerite
+    background-color: #fffab9;   //portafino
+    &:hover {
+        background-color: darken(#fffab9, 10%);
+    }
+}
+
+.status-active {
+    border: 2px solid #8a2fcf; //purple_heart
+    background-color: #ecfce4; //feta
+    &:hover {
+        background-color: darken(#ecfce4, 10%);
+    }
+}
+
+.status-checkin-overdue {
+    border: 2px solid #d20c17; //monza
+    background-color: #fff1f1; //chablis
+    &:hover {
+        background-color: darken(#fff1f1, 10%);
+    }
+}
+
+.status-start-overdue {
+    border: 2px dashed #d20c17;
+    background-color: #fff1f1;
+    &:hover {
+        background-color: darken(#fff1f1, 10%);
+    }
+}
+
+.status-done {
+    border: 2px solid #000000; //black
+    background-color: #ffffff; //white
+    &:hover {
+        background-color: darken(#ffffff, 10%);
+    }
+}
+
+.status-cancelled {
+    border: 2px dashed #8e8e8b; //natural_gray
+    background-color: #f7f7f4; //cararra
+    &:hover {
+        background-color: darken(#f7f7f4, 10%);
+    }
+}
+
