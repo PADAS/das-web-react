@@ -10,6 +10,7 @@ import { getFeedEvents } from '../selectors';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
+import { displayTitleForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -33,6 +34,7 @@ const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, Locatio
 
 const PatrolModal = (props) => {
   const { addModal, events, patrol, map, /* removeModal */ } = props;
+  console.log('my map', map);
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
@@ -69,6 +71,8 @@ const PatrolModal = (props) => {
       : null;
     
   }, [statePatrol.patrol_segments]);
+
+  const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
 
   const displayDuration = useMemo(() => {
     const now = new Date();
@@ -278,6 +282,7 @@ const PatrolModal = (props) => {
     <Modal>
       <Header 
         icon={<DasIcon type='events' iconId='fence-patrol-icon' />}
+        title={displayTitle}
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
         onTitleChange={onTitleChange}

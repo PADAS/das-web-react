@@ -86,7 +86,12 @@ export const LAYER_PICKER_IDS = [
 ];
 
 export const FEATURE_FLAGS = {
-  PATROL_MANAGEMENT: 'PATROL_MANAGEMENT',
+  PATROL_MANAGEMENT: 'patrol_enabled',
+  ALERTS: 'alerts_enabled',
+  DAILY_REPORT: 'daily_report_enabled',
+  EVENT_MATRIX: 'event_matrix_enabled',
+  EULA: 'eula_enabled',
+  KML_EXPORT: 'export_kml_enabled',
 };
 
 export const SOURCE_IDS = {

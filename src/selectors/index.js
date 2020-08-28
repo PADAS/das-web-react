@@ -100,20 +100,14 @@ export const getFeedIncidents = createSelector(
 );
 
 export const getUserCreatableEventTypesByCategory = createSelector(
-  [userCreatableEventTypesByCategory, (state, props) =>  props.hidePatrols],
-  (categories, hidePatrols) => {
-    const categoriesWithoutCollections = categories
+  [userCreatableEventTypesByCategory],
+  (categories) => {
+    return categories
       .map(cat => ({
         ...cat,
         types: cat.types
           .filter(t => !t.is_collection),
       }));
-
-    return [
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) && !hidePatrols ? [generatePatrolEventCategory()] : []),
-      ...categoriesWithoutCollections
-    ];
-
   },
 );
 

@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useCallback, useEffect, useState, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -9,7 +9,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
-import { openModalForPatrol } from '../utils/patrols';
+import { openModalForPatrol, generatePseudoReportCategoryForPatrolTypes, createNewPatrolForPatrolType } from '../utils/patrols';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import EventTypeListItem from '../EventTypeListItem';
@@ -19,15 +19,26 @@ import { FEATURE_FLAGS } from '../constants';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, hidePatrols, reportData, eventsByCategory, map, popoverPlacement,
+  const { relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrols } = props;
-  const hasEventCategories = !!eventsByCategory.length;
   const [selectedCategory, selectCategory] = useState(null);
+
+  const patrolsEnabled = evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);
   const [popoverOpen, setPopoverState] = useState(false);
   const placement = popoverPlacement || 'auto';
+
+  const displayCategories = useMemo(() => {
+    if (hidePatrols || !patrolsEnabled) return eventsByCategory;
+    return [
+      generatePseudoReportCategoryForPatrolTypes(patrolTypes),
+      ...eventsByCategory,
+    ];
+  }, [eventsByCategory, hidePatrols, patrolTypes, patrolsEnabled]);
+
+  const hasEventCategories = !!displayCategories.length;
 
   const onButtonClick = useCallback((e) => {
     if (clickSideEffect) {
@@ -48,9 +59,9 @@ const AddReport = (props) => {
 
   useEffect(() => {
     if (hasEventCategories && !selectedCategory) {
-      selectCategory(eventsByCategory[0].value);
+      selectCategory(displayCategories[0].value);
     }
-  }, [hasEventCategories, eventsByCategory, selectedCategory]);
+  }, [hasEventCategories, displayCategories, selectedCategory]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -73,14 +84,15 @@ const AddReport = (props) => {
 
     /* PATROL_SCAFFOLD */
     if (evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
-      const isPatrol = !!reportType.value.match(/(patrol)[1-9]/g);
+      const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
         console.log('you clicked a patrol type!');
       }
 
       if (isPatrol && !!patrols.results.length) {
-        openModalForPatrol(patrols.results[0], map, { relationshipButtonDisabled });
+        openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
+
         return;
       }
     }
@@ -139,8 +151,8 @@ const AddReport = (props) => {
   const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}> {/* eslint-disable-line react/display-name */}
     <Popover.Title>{title}</Popover.Title>
     <Popover.Content>
-      <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
-      <ReportTypeList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} />
+      <CategoryList eventsByCategory={displayCategories} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
+      <ReportTypeList eventsByCategory={displayCategories} selectedCategory={selectedCategory} />
     </Popover.Content>
   </Popover>
   );
@@ -159,6 +171,7 @@ const AddReport = (props) => {
 
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
+  patrolTypes: state.data.patrolTypes,
   patrols: state.data.patrols,
 });
 export default connect(mapStateToProps, null)(memo(AddReport));
