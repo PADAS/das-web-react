@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { fetchImageAsBase64FromUrl } from '../utils/file';
+import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
@@ -190,18 +190,8 @@ const ReportForm = (props) => {
   };
 
   const onAddFiles = files => {
-    const uploadableFiles = files.filter((file) => {
-      const { name } = file;
-      const filenameExists =
-        filesToUpload.some(({ name: n }) => n === name)
-        || reportFiles.some(({ filename: n }) => n === name);
-
-      if (filenameExists) {
-        window.alert(`Can not add ${name}: 
-        file already exists`);
-      }
-      return !filenameExists;
-    });
+    const uploadableFiles = filterDuplicateUploadFilenames([...reportFiles, ...filesToUpload], files);
+    
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
     goToBottomOfForm();
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Added Attachment');
@@ -308,7 +298,7 @@ const ReportForm = (props) => {
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Priority\' option', `Priority:${priority}`);
   }, [is_collection, report]);
 
-  const onReportLocationChange = location => {
+  const onReportLocationChange = useCallback((location) => {
     const updatedLocation = !!location
       ? {
         latitude: location[1],
@@ -320,7 +310,7 @@ const ReportForm = (props) => {
       location: updatedLocation,
     });
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Location');
-  };
+  }, [is_collection, report]);
 
   const goToParentCollection = () => {
     const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
@@ -439,8 +429,8 @@ const ReportForm = (props) => {
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
     <EditableItem.Header 
-      icon={<EventIcon title={reportTypeTitle} className={styles.headerIcon} report={report} />}
-      menuContent={<HeaderMenuContent report={report} onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} />}
+      icon={<EventIcon title={reportTypeTitle} report={report} />}
+      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} />}
       priority={displayPriority}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 
@@ -495,6 +485,7 @@ const ReportForm = (props) => {
         isCollectionChild={eventBelongsToCollection(report)}
         onGoToCollection={goToParentCollection}
         relationshipButtonDisabled={disableAddReport}
+        hidePatrols={props.hidePatrols}
         onNewReportSaved={onReportAdded}
       />
 

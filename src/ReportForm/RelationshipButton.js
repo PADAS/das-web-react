@@ -7,10 +7,10 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 
 const RelationshipButton = (props) => {
-  const { relationshipButtonDisabled, onNewReportSaved, isCollectionChild, onGoToCollection, map } = props;
+  const { relationshipButtonDisabled, hidePatrols, onNewReportSaved, isCollectionChild, onGoToCollection, map } = props;
 
   return !relationshipButtonDisabled && <Fragment>
-    {!isCollectionChild && <AddReport map={map} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
+    {!isCollectionChild && <AddReport map={map} hidePatrols={hidePatrols} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
     {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
 
   </Fragment>;

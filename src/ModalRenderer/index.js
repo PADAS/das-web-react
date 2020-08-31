@@ -8,7 +8,7 @@ import { removeModal } from '../ducks/modals';
 import styles from './styles.module.scss';
 
 const ModalRenderer = (props) => {
-  const { canShowModals, modals, removeModal } = props;
+  const { canShowModals, map, modals, removeModal } = props;
 
   const style = {
     display: canShowModals ? 'block' : 'none',
@@ -33,7 +33,7 @@ const ModalRenderer = (props) => {
             {...modalProps}
             onHide={() => removeModal(id)}>
 
-            <ContentComponent id={id} {...rest} />
+            <ContentComponent id={id} {...rest} map={map} />
           </Modal>
         );
       })}

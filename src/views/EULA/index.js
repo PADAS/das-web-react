@@ -81,7 +81,7 @@ const EulaPage = (props) => {
       if (!user.accepted_eula) setPageLoadState(true);
       else history.goBack();
     }
-  }, [user]); /* eslint-disable-line react-hooks/exhaustive-deps */
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   useEffect(() => () => {
       deleteCookie('routeAfterEulaAccepted');

@@ -25,3 +25,14 @@ export const fetchImageAsBase64FromUrl = async (url) => {
 
   return `data:image/png;base64, ${new Buffer(response.data, 'binary').toString('base64')}`;
 };
+
+export const filterDuplicateUploadFilenames = (currentFiles, newFilesToUpload) => newFilesToUpload.filter((file) => {
+  const { name } = file;
+  const filenameAlreadyExists = currentFiles.some(({ name: n }) => n === name);
+
+  if (filenameAlreadyExists) {
+    window.alert(`Can not add ${name}: 
+        file already exists`);
+  }
+  return !filenameAlreadyExists;
+});

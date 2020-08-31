@@ -8,7 +8,7 @@ import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 
-import { generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
+import { generatePatrolEventCategory } from '../fixtures/patrol_management';
 import { FEATURE_FLAGS } from '../constants';
 
 export const createSelector = createSelectorCreator(
@@ -17,7 +17,6 @@ export const createSelector = createSelectorCreator(
 );
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
-const patrolTypes = ({ data: { patrolTypes } }) => patrolTypes;
 const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -35,7 +34,7 @@ export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeat
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
-const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
+export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
   : [];
@@ -101,18 +100,14 @@ export const getFeedIncidents = createSelector(
 );
 
 export const getUserCreatableEventTypesByCategory = createSelector(
-  [userCreatableEventTypesByCategory, patrolTypes],
-  (categories, patrolTypes) => {
-    const categoriesWithoutCollections = categories.map(cat => ({
-      ...cat,
-      types: cat.types.filter(t => !t.is_collection),
-    }));
-
-    return [
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) ? [generatePseudoReportCategoryForPatrolTypes(patrolTypes)] : []),
-      ...categoriesWithoutCollections
-    ];
-
+  [userCreatableEventTypesByCategory],
+  (categories) => {
+    return categories
+      .map(cat => ({
+        ...cat,
+        types: cat.types
+          .filter(t => !t.is_collection),
+      }));
   },
 );
 

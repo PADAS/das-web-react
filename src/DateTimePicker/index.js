@@ -52,8 +52,10 @@ const DateTimePicker = (props) => {
     newValue = setMinutes(newValue, parseFloat(minutes));
 
     setTimeout(() => {
-      firstTimeInputRef.current.focus();
-      firstTimeInputRef.current.select();
+      if (firstTimeInputRef.current) {
+        firstTimeInputRef.current.focus();
+        firstTimeInputRef.current.select();
+      }
     }, 100);
     
     onChange(newValue);

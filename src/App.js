@@ -162,7 +162,7 @@ const App = (props) => {
       {/* <ErrorBoundary> */}
       {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
       {/* </ErrorBoundary> */}
-      <ModalRenderer />
+      <ModalRenderer map={map} />
     </div>
     <div style={{
       display: 'none',
