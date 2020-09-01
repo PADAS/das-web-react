@@ -9,8 +9,6 @@ import { removeModal } from '../ducks/modals';
 
 import { trackEvent } from '../utils/analytics';
 
-import styles from './styles.module.scss';
-
 
 const { Header, Title, Body, Footer } = Modal;
 
@@ -20,28 +18,22 @@ const BetaWelcomeModal = (props) => {
   const onClose = () => {
     updateUserPreferences({
       ...userPreferences,
-      seenReleaseIntro: true,
+      seenSunsetWarning: true,
     });
-    trackEvent('Release Intro', 'Accepted Summer 2020 Release', null);
+    trackEvent('Release Intro', 'Dismissed Legacy Sunset Modal', null);
     removeModal(id);
   };
 
   return <Fragment>
     <Header>
-      <Title>EarthRanger Summer 2020 Release</Title>
+      <Title>EarthRanger Legacy Version Shutdown </Title>
     </Header>
     <Form onSubmit={onClose}>
       <Body style={{maxHeight: '60vh', overflowY: 'scroll'}}>
-        <p>Welcome to the latest version of EarthRanger!</p>
-        <p>The team has been hard at work putting together a collection of significant upgrades 
-          to aid you in your mission.  We hope you will find the latest version of EarthRanger to be an even more 
-          powerful and useful tool.</p>
-        <ul className = {styles.list}>
-          <li>A full description of the release can be found here: <a rel='noopener noreferrer' target='_blank' href="https://earthranger.com/News/2020/Major-EarthRanger-Release-Summer-2020.aspx">Release Article</a></li>
-          <li>Should you need it, the previous version can be found here: <a rel='noopener noreferrer' target='_blank' href="/legacy/">Legacy Version</a>, or in the top-right menu.</li>
-          <li>And, as always, please send us feedback at <a href="mailto:feedback@earthranger.com">feedback@earthranger.com</a>.</li>
-        </ul>
-        <p>Thank you for your continued efforts to protect the world’s animals and their habitats!</p>
+        <p>We hope you&apos;ve found the new version of EarthRanger launched nearly three months ago to be a more useful tool in helping you with your critically important work!  After working closely with many of you to make ongoing improvements to the new version since its release, we believe it is time to shut down the legacy version.</p>
+        <p>As a result, we will be ending access to the legacy version of EarthRanger as of September 30, 2020.  As always, if you have any concerns or feedback, please contact us at <a href="mailto:feedback@earthranger.com">feedback@earthranger.com</a>.</p>
+        <p>Thanks again for all you do in protecting the world&apos;s animals and their habitats!</p>
+        <p>-The EarthRanger Team</p>
       </Body>
       <Footer>
         <Button tabIndex={2} type="submit" variant="primary">OK</Button>
