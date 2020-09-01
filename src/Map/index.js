@@ -102,7 +102,7 @@ class Map extends Component {
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
 
-    if (!this.props.userPreferences.seenReleaseIntro) {
+    if (!this.props.userPreferences.seenSunsetWarning) {
       this.props.addModal({
         content: BetaWelcomeModal,
         modalProps: {
