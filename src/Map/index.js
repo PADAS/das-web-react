@@ -182,7 +182,7 @@ class Map extends Component {
       this.onTrackLengthChange();
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
-      this.fetchMapData();
+      this.debouncedFetchMapData();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -280,7 +280,7 @@ class Map extends Component {
       });
   }
 
-  debouncedFetchMapData = debounce(this.fetchMapData, 100)
+  debouncedFetchMapData = debounce(this.fetchMapData, 300)
 
   fetchMapSubjects() {
     const args = [this.props.map];
