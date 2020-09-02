@@ -182,7 +182,7 @@ class Map extends Component {
       this.onTrackLengthChange();
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
-      this.fetchMapData();
+      this.debouncedFetchMapData();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
