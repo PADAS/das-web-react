@@ -218,7 +218,7 @@ export const openModalForReport = (report, map, config = {}) => {
 
 export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
 
-  const location = data.location || null;
+  const location = data && data.location;
 
   const reportedById = data && data.reportedById;
   const reporter = reportedById && getReporterById(reportedById);
