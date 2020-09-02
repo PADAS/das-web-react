@@ -218,9 +218,14 @@
   margin-bottom: 0;
   overflow: hidden;
   transition: var(--animation-duration) all linear;
+
+  @media (max-width: $md-layout-width-min) {
+    --height: 7rem;
+  }
 }
 
 .filterStringWrapper {
+  align-items: center;
   display: flex;
   gap: 16px;
   justify-content: space-between;
@@ -237,6 +242,11 @@
   line-height: normal;
   padding: 0.5rem 0.5rem 0.75rem;
   transition: 0.3s all linear;
+  width: 77.5%;
+
+  @media (max-width: $md-layout-width-min) {
+    width: 65%;
+  }
 }
 
 .totalReportCountString {
