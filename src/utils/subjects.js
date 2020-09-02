@@ -12,8 +12,12 @@ export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subjec
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(subject.subject_subtype);
 
-export const subjectIsARadioWithRecentVoiceActivity = (properties) => subjectIsARadio(properties)
-      && !!properties.last_voice_call_start_at;
+export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
+  console.log('properties.last_voice_call_start_at', properties.last_voice_call_start_at);
+  return subjectIsARadio(properties)
+    && !!properties.last_voice_call_start_at 
+    && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
+};
 
 const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   if (subject

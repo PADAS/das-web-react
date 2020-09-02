@@ -79,13 +79,13 @@ class Map extends Component {
     super(props);
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
-    this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapZoom = this.onMapZoom.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
+    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
@@ -244,10 +244,6 @@ class Map extends Component {
     mapSubjectsFetchCancelToken.cancel();
     mapEventsFetchCancelToken.cancel();
   }
-
-  onMapMoveEnd = debounce(() => {
-    this.debouncedFetchMapData();
-  });
 
   onRotationControlClick = (e) => {
     this.props.map.easeTo({
@@ -497,7 +493,7 @@ class Map extends Component {
     window.map = map;
     
     this.props.onMapLoad(map);
-    this.onMapMoveEnd(); 
+    this.debouncedFetchMapData(); 
   }
 
   onSubjectHeatmapClose() {
@@ -552,7 +548,7 @@ class Map extends Component {
           <TimeSliderMapControl />
         </Fragment>}
         onMoveStart={this.onMapMoveStart}
-        onMoveEnd={this.onMapMoveEnd}
+        onMoveEnd={this.debouncedFetchMapData}
         onZoom={this.onMapZoom}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >

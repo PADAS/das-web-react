@@ -19,7 +19,7 @@ import { FEATURE_FLAGS } from '../constants';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
+  const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrols } = props;
   const [selectedCategory, selectCategory] = useState(null);
 
@@ -31,7 +31,7 @@ const AddReport = (props) => {
   const placement = popoverPlacement || 'auto';
 
   const displayCategories = useMemo(() => {
-    if (hidePatrols || !patrolsEnabled) return eventsByCategory;
+    if (hidePatrols || !patrolsEnabled || !patrolTypes.length) return eventsByCategory;
     return [
       generatePseudoReportCategoryForPatrolTypes(patrolTypes),
       ...eventsByCategory,
@@ -155,7 +155,7 @@ const AddReport = (props) => {
   </Popover>
   );
 
-  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown}>
+  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
     <button title={title} className={styles.addReport} ref={targetRef}
       type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
