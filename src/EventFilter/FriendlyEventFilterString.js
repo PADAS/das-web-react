@@ -12,7 +12,7 @@ const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
 
 const FriendlyEventFilterString = (props) => {
-  const { children, currentFeedEventCount, eventFilter, totalFeedEventCount, className } = props;
+  const { children, eventFilter, className } = props;
 
   const { state, filter: { date_range, priority, reported_by, text } } = eventFilter;
 
@@ -21,13 +21,7 @@ const FriendlyEventFilterString = (props) => {
     || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
     || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
-  const countLabelWithCurrentFeedEventCount = () => totalFeedEventCount ? `${Boolean(currentFeedEventCount) ? currentFeedEventCount + ' of' : ''} ${totalFeedEventCount} results` : null;
-  const countLabelWithoutCurrentFeedEventCount = () => totalFeedEventCount ? totalFeedEventCount + ' results' : null;
-  const countLabel = Math.random() > 0.5 
-    ? countLabelWithCurrentFeedEventCount()
-    : countLabelWithoutCurrentFeedEventCount();
-
-  return <span style={{lineHeight: 'normal'}} className={className || ''}>Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{filterModified && <span style={{float: 'right'}}>{countLabel}</span>}{children}</span>;
+  return <span style={{lineHeight: 'normal'}} className={className || ''}>Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}</span>;
 };
 
 export default connect(mapStateToProps, null)(memo(FriendlyEventFilterString));

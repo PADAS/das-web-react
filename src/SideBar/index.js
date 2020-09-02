@@ -36,6 +36,7 @@ import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import ErrorMessage from '../ErrorMessage';
+import TotalReportCountString from '../EventFilter/TotalReportCountString';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -158,7 +159,10 @@ const SideBar = (props) => {
                 <EventFilter className={styles.eventFilter}>
                   <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
                 </EventFilter>
-                <FriendlyEventFilterString className={styles.friendlyFilterString} currentFeedEventCount={currentFeedEventCount} totalFeedEventCount={events.count} />
+                <div className={styles.filterStringWrapper}>
+                  <FriendlyEventFilterString className={styles.friendlyFilterString} />
+                  <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
+                </div>
               </div>
             </ErrorBoundary>
           </DelayedUnmount>

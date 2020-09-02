@@ -220,6 +220,12 @@
   transition: var(--animation-duration) all linear;
 }
 
+.filterStringWrapper {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
 .eventFilter {
   padding-left: 0.75rem;
   padding-top: 1.25rem;
@@ -231,6 +237,15 @@
   line-height: normal;
   padding: 0.5rem 0.5rem 0.75rem;
   transition: 0.3s all linear;
+}
+
+.totalReportCountString {
+  display: block;
+  font-size: 0.75rem;
+  line-height: normal;
+  padding: 0.5rem 0.5rem 0.75rem;
+  transition: 0.3s all linear;
+  text-align: right;
 }
 
 .sidebarEventFeed {
