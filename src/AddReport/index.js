@@ -31,7 +31,7 @@ const AddReport = (props) => {
   const placement = popoverPlacement || 'auto';
 
   const displayCategories = useMemo(() => {
-    if (hidePatrols || !patrolsEnabled) return eventsByCategory;
+    if (hidePatrols || !patrolsEnabled || !patrolTypes.length) return eventsByCategory;
     return [
       generatePseudoReportCategoryForPatrolTypes(patrolTypes),
       ...eventsByCategory,
