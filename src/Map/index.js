@@ -79,6 +79,10 @@ class Map extends Component {
     super(props);
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
+<<<<<<< HEAD
+=======
+    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
+>>>>>>> 2.7.1
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
@@ -276,7 +280,11 @@ class Map extends Component {
       });
   }
 
+<<<<<<< HEAD
   debouncedFetchMapData = debounce(this.fetchMapData, 300)
+=======
+  debouncedFetchMapData = debounce(this.fetchMapData, 500)
+>>>>>>> 2.7.1
 
   fetchMapSubjects() {
     const args = [this.props.map];
