@@ -52,7 +52,6 @@ const SideBar = (props) => {
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
-  const [currentFeedEventCount, setCurrentFeedEventCount] = useState(0);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
@@ -68,10 +67,6 @@ const SideBar = (props) => {
     }
     return value;
   }, [eventFilter]);
-
-  useEffect(() => {
-    setCurrentFeedEventCount(feedEvents.length);
-  }, [feedEvents]);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
