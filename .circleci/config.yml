@@ -54,7 +54,3 @@ workflows:
           context: padas-context
           requires:
             - build_das_web_react
-          filters:
-            branches:
-              only: 
-                - 'develop'
