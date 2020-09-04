@@ -211,7 +211,7 @@
 }
 
 .filterWrapper {
-  --height: 6rem;
+  --height: 7rem;
   --animation-duration: 0.2s;
   @include slideIn(var(--height),  var(--animation-duration));
   height: 0;
@@ -219,8 +219,8 @@
   overflow: hidden;
   transition: var(--animation-duration) all linear;
 
-  @media (max-width: $md-layout-width-min) {
-    --height: 7rem;
+  @media (min-width: $md-layout-width-min) {
+    --height: 6rem;
   }
 }
 
