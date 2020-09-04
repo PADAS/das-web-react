@@ -15,6 +15,7 @@ const INITIAL_STATE = {
   sidebarOpen: false,
   hideModals: false,
   seenSunsetWarning: false,
+  seenTrackAnnouncement: false,
 };
 
 export default (state = INITIAL_STATE, action = {}) => {
