@@ -1,15 +1,14 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { isFilterModified } from '../utils/event-filter-strings';
+import { isFilterModified } from '../utils/event-filter';
 
 
 const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
 const TotalReportCountString = ({ className, eventFilter, totalFeedEventCount, ...props } ) => {
-  const { state, filter: { date_range, priority, reported_by, text } } = eventFilter;
 
-  const filterModified = isFilterModified(state, priority, text, reported_by);
+  const filterModified = isFilterModified(eventFilter);
 
   if (!filterModified || !Boolean(totalFeedEventCount)) {
     return null;
