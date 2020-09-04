@@ -2,10 +2,7 @@ import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
 import { calcFriendlyDurationString } from '../utils/datetime';
-
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-
-import isEqual from 'react-fast-compare';
+import { isFilterModified } from '../utils/event-filter';
 
 const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
@@ -14,12 +11,9 @@ const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 const FriendlyEventFilterString = (props) => {
   const { children, eventFilter, className } = props;
 
-  const { state, filter: { date_range, priority, reported_by, text } } = eventFilter;
+  const { filter: { date_range } } = eventFilter;
 
-  const filterModified = !isEqual(INITIAL_FILTER_STATE.state, state)
-    || !isEqual(INITIAL_FILTER_STATE.filter.priority, priority)
-    || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
-    || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
+  const filterModified = isFilterModified(eventFilter);
 
   return <span style={{lineHeight: 'normal'}} className={className || ''}>Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}</span>;
 };
