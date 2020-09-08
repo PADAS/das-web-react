@@ -45,3 +45,9 @@ export function setUserRole(role) {
     dimension2: role
   });
 }
+
+export const setSitenameDimension = (site)  =>{
+  ReactGA.set({
+    dimension3: site
+  });
+}

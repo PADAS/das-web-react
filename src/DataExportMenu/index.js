@@ -2,6 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
+import { FEATURE_FLAGS } from '../constants';
+
+
+
 import { addModal } from '../ducks/modals';
 import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
@@ -9,6 +13,7 @@ import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
 import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
+import { evaluateFeatureFlag } from '../utils/feature-flags';
 import { calcEventFilterForRequest } from '../utils/events';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
@@ -16,14 +21,14 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, systemConfig: {dailyReportEnabled, exportKmlEnabled, zendeskEnabled}, eventTypes, eventFilter, ...rest } = props;
+  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
 
   useEffect(() => {
     setModals([
-      ...(dailyReportEnabled? [{
+      ...(evaluateFeatureFlag(FEATURE_FLAGS.DAILY_REPORT)? [{
         title: 'Daily Report',
         content: DailyReportModal,
         modalProps: {
@@ -36,7 +41,7 @@ const DataExportMenu = (props) => {
         url: 'activity/events/export',
         paramString: calcEventFilterForRequest(),
       },
-      ...(exportKmlEnabled? [{
+      ...(evaluateFeatureFlag(FEATURE_FLAGS.KML_EXPORT) ? [{
         title: 'Master KML',
         content: KMLExportModal,
         url: 'subjects/kml/root',
@@ -55,7 +60,7 @@ const DataExportMenu = (props) => {
         url: 'trackingdata/export',
       },
     ]);
-  }, [eventTypes, eventFilter, dailyReportEnabled, exportKmlEnabled]);
+  }, [props.systemConfig, eventTypes, eventFilter]);
 
   const alertModal = {
     title: 'Alerts',

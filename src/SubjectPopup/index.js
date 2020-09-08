@@ -8,6 +8,7 @@ import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
+import AddReport from '../AddReport';
 
 import { subjectIsARadioWithRecentVoiceActivity } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
@@ -21,7 +22,16 @@ const SubjectPopup = (props) => {
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
-  const [radioWithRecentMicActivity, setIsRadioWithRecentMicActivity] = useState(subjectIsARadioWithRecentVoiceActivity(data));
+  const [radioWithRecentMicActivity, setIsRadioWithRecentMicActivity] = useState(subjectIsARadioWithRecentVoiceActivity(properties));
+
+  const locationObject = {
+    longitude: geometry.coordinates[0],
+    latitude: geometry.coordinates[1],
+  };
+
+  const reportedById = properties.id;
+
+  const time = new Date(properties.last_position_date);
 
   useEffect(() => {
     setIsRadioWithRecentMicActivity(subjectIsARadioWithRecentVoiceActivity(properties));
@@ -44,6 +54,7 @@ const SubjectPopup = (props) => {
           {/* @TODO FIX ME TO USE THE RIGHT DATA */}
           <TrackLength className={styles.trackLength} trackId={properties.id} />
           <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
+          <AddReport className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
         </Fragment>
       )}
     </Popup>

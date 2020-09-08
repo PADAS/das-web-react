@@ -2,8 +2,12 @@
 
 .patrolList {
     background-color: #f3f2ed;
+    display: flex;
+    flex-wrap: wrap;
     height: 100%;
-    padding: 1rem .25rem;
+    justify-content: space-evenly;
+    overflow-y: scroll;
+    padding: 1rem .25rem 3rem;
 }
 
 .listHeader {

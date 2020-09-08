@@ -10,12 +10,12 @@ const PatrolListItem = (props) => {
   const onPatrolStatusClick = (e) => console.log('clicked status');
   const patrolStatusStyle = calcPatrolStatusStyle(patrol.state);
 
-  return <div className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
+  return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
     <h4>{patrol.title}</h4>
     <p>Time on patrol: {patrol.elapsed_time}</p>
     <p>Distance covered: {patrol.distance}</p>
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
-  </div>;
+  </li>;
 };
 
 export default memo(PatrolListItem);

@@ -35,7 +35,7 @@ export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeat
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
 export const getTimeSliderState = ({ view: { timeSliderState } }) => timeSliderState;
 export const getEventFilterDateRange = ({ data: { eventFilter: { filter: { date_range } } } }) => date_range;
-const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
+export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.globalSchema
   ? eventSchemas.globalSchema.properties.reported_by.enum_ext
     .map(({ value }) => value)
   : [];
@@ -103,16 +103,12 @@ export const getFeedIncidents = createSelector(
 export const getUserCreatableEventTypesByCategory = createSelector(
   [userCreatableEventTypesByCategory],
   (categories) => {
-    const categoriesWithoutCollections = categories.map(cat => ({
-      ...cat,
-      types: cat.types.filter(t => !t.is_collection),
-    }));
-
-    return [
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT) ? [generatePatrolEventCategory()] : []),
-      ...categoriesWithoutCollections
-    ];
-
+    return categories
+      .map(cat => ({
+        ...cat,
+        types: cat.types
+          .filter(t => !t.is_collection),
+      }));
   },
 );
 

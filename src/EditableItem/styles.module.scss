@@ -36,6 +36,21 @@
   }
 }
 
+.headerIcon {
+  --dimensions: 1.5rem;
+  --half-size: calc(var(--dimensions)/2);
+  svg {
+    max-height: var(--dimensions);
+    width: var(--dimensions);
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      --dimensions: 2.5rem;
+    }
+    &[class*=generic] {
+      max-height: var(--half-size);
+    }
+  }
+}
+
 .historyItem {
   display: flex;
   flex-flow: row;
@@ -82,6 +97,9 @@
     @media #{$whenPageIsMediumHeightAndWidth} {
       //font-size: 1.5rem;
     }
+    > *:last-child {
+      margin-left: auto;
+    }
   }
   .icon {
     --dimensions: 1.5rem;
@@ -95,6 +113,7 @@
       max-height: var(--half-size);
     }
   }
+  
   
   &.priority-300 {
     background-color: $high-priority;
@@ -142,7 +161,6 @@
   display: flex;
   flex-flow: column;
   text-align: right;
-  margin-left: auto;
   small {
     font-size: $font-size-smaller;
     line-height: $line-height-small;
@@ -319,3 +337,85 @@
     padding: 0 0.5rem;
   }
 }
+
+.icon {
+  --dimensions: 1rem;
+  margin-right: 0.5rem;
+  @media #{$whenPageIsMediumHeightAndWidth} {
+    --dimensions: 1.5rem;
+  }
+  height: var(--dimensions);
+  width: var(--dimensions);
+  g {
+    stroke: $primary-font-color;
+  }
+  &.iconFill, &.iconFill * {
+    fill: $primary-font-color; 
+  }
+}
+
+.locationSelectionLabel {
+  position: relative;
+  .gpsPopover {
+    left: auto;
+    max-width: unset;
+    min-width: 18rem;
+    padding: 0.5rem;
+    right: 0;
+    top: 90%;
+    [class*=arrow] { 
+      left: auto;
+      right: 1rem;
+    }
+  }
+}
+
+
+.locationAnchor {
+  @include defaultTextInput;
+  padding: 0.5rem 0.25rem;
+  width: 100%;
+  .icon {
+    margin-right: 0;
+  }
+}
+
+.geoLocator {
+  [class*=alert-danger] {
+    bottom: -35%;
+    left: 0;
+    position: absolute;
+    width: 100%;
+  }
+}
+
+.locationButtons {
+  display: flex;
+  flex-flow: column;
+  margin-top: 0.25rem;
+  button {
+    @include linkButton;
+    align-items: center;
+    display: flex;
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+    text-align: left;
+    &:hover {
+      opacity: 1;
+    }
+    @media #{$whenPageIsMediumHeightAndWidth} {
+      margin-top: 0;
+    }
+    svg {
+      margin-right: 0.25rem;
+    }
+  }
+  @media #{$whenPageIsMediumHeightAndWidth} {
+    flex-flow: row;
+    justify-content: space-between;
+  }
+}
+
+

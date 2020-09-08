@@ -1,4 +1,6 @@
 import { store } from '../';
+import { getEventReporters } from '../selectors';
+
 import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
@@ -21,6 +23,12 @@ export const eventTypeTitleForEvent = (event) => {
   if (event.event_type) return event.event_type;
 
   return 'Unknown event type';
+};
+
+export const getReporterById = (id) => {
+  const reporters = getEventReporters(store.getState());
+
+  return reporters.find(r => r.id === id);
 };
 
 export const displayTitleForEvent = (event) => {
@@ -190,13 +198,14 @@ export const executeReportSaveActions = (saveActions) => {
 };
 
 export const openModalForReport = (report, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
+  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols } = config;
 
   return store.dispatch(
     addModal({
       content: ReportFormModal,
       report,
       relationshipButtonDisabled,
+      hidePatrols,
       map,
       onSaveSuccess,
       onSaveError,
@@ -207,15 +216,28 @@ export const openModalForReport = (report, map, config = {}) => {
     }));
 };
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }) => ({
-  event_type,
-  icon_id,
-  is_collection: false,
-  // state: 'active',
-  priority,
-  time: new Date(),
-  event_details: {},
-});
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
+
+  const location = data && data.location;
+
+  const reportedById = data && data.reportedById;
+  const reporter = reportedById && getReporterById(reportedById);
+  const time = data && data.time;
+
+  const reported_by = reporter ? reporter : null;
+  
+  return {
+    event_type,
+    icon_id,
+    is_collection: false,
+    location,
+    // state: 'active',
+    priority,
+    reported_by,
+    time: time ? new Date(time) : new Date(),
+    event_details: {},
+  };
+};
 
 export const createNewIncidentCollection = attributes =>
   createNewReportForEventType(
