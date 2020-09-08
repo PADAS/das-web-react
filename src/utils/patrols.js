@@ -10,18 +10,6 @@ import { getReporterById } from '../utils/events';
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 
-const patrolItemStatusTable = {
-  'upcoming': 'status-ready',
-  'active': 'status-active',
-  'checkin-past': 'status-start-overdue',
-  'cancelled': 'status-done',
-  'past': 'status-start-overdue'
-};
-
-export const calcPatrolStatusStyle = (patrolState) => {
-  return patrolItemStatusTable[patrolState] || 'status-ready';
-};
-
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
 

@@ -50,7 +50,7 @@
     }
 }
 
-.status-ready {
+.status-upcoming {
     border: 2px dashed #746dcd;  //blue_marguerite
     background-color: $patrol-ready-bg;   //portafino
     &:hover {
@@ -74,7 +74,7 @@
     }
 }
 
-.status-start-overdue {
+.status-checkin-past, .status-past {
     border: 2px dashed #d20c17;
     background-color: $patrol-overdue-bg;
     &:hover {
@@ -82,7 +82,7 @@
     }
 }
 
-.status-done {
+.status-cancelled {
     border: 2px solid #000000; //black
     background: white; //white
     &:hover {

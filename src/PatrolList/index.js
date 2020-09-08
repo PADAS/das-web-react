@@ -39,6 +39,6 @@ const PatrolList = (props) => {
 export default memo(PatrolList);
 
 PatrolList.propTypes = {
-  patrols: PropTypes.object,
+  patrols: PropTypes.array,
   loading: PropTypes.bool,
 };
