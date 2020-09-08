@@ -152,7 +152,7 @@ const SideBar = (props) => {
             <ErrorBoundary>
               <div className={styles.filterWrapper}>
                 <EventFilter className={styles.eventFilter}>
-                  <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
+                  <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
                 </EventFilter>
                 <div className={styles.filterStringWrapper}>
                   <FriendlyEventFilterString className={styles.friendlyFilterString} />
