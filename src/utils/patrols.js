@@ -1,4 +1,3 @@
-// XXX remove this after we get a stable api
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
 
