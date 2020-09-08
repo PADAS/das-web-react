@@ -211,17 +211,13 @@
 }
 
 .filterWrapper {
-  --height: 7rem;
+  --height: auto;
   --animation-duration: 0.2s;
   @include slideIn(var(--height),  var(--animation-duration));
   height: 0;
   margin-bottom: 0;
   overflow: hidden;
   transition: var(--animation-duration) all linear;
-
-  @media (min-width: $md-layout-width-min) {
-    --height: 6rem;
-  }
 }
 
 .filterStringWrapper {
@@ -239,9 +235,9 @@
   display: block;
   font-size: 0.75rem;
   line-height: normal;
-  padding: 0.5rem 0.5rem 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem;
   transition: 0.3s all linear;
-  width: 72%;
+  width: 73.5%;
 }
 
 .totalReportCountString {
