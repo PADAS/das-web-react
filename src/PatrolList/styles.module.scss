@@ -83,14 +83,6 @@
 }
 
 .status-cancelled {
-    border: 2px solid #000000; //black
-    background: white; //white
-    &:hover {
-        background-color: darken(white, 6%);
-    }
-}
-
-.status-cancelled {
     border: 2px dashed #8e8e8b; //natural_gray
     background-color: #f7f7f4; //cararra
     &:hover {
