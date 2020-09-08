@@ -184,7 +184,7 @@ const SideBar = (props) => {
           </ErrorBoundary>
         </Tab>
         {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
-          <PatrolFilter /> 
+          {/* <PatrolFilter />  */}
           <PatrolList map={map} patrols={patrols.results || []}/>
         </Tab>}
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
