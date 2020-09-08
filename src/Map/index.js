@@ -29,6 +29,8 @@ import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../u
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
+import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { updateUserPreferences } from '../ducks/user-preferences';
 
 import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
@@ -78,6 +80,7 @@ class Map extends Component {
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
+    this.showTrackAlert = this.showTrackAlert.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
@@ -112,6 +115,10 @@ class Map extends Component {
       });
     }
 
+    if (!this.props.userPreferences.seenTrackAnnouncement) {
+      this.showTrackAlert();
+    }
+
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
 
     if (location) {
@@ -121,6 +128,23 @@ class Map extends Component {
       delete newLocation.search;
       this.props.history.push(newLocation);
     }
+  }
+
+  showTrackAlert() {
+    const { props: { addUserNotification, updateUserPreferences, removeUserNotification } } = this;
+    addUserNotification({
+        message: "We’re excited to announce EarthRanger Track, the new mobile app that lets users track their Android phone's GPS location in EarthRanger!",
+        onConfirm(_e, item) {
+          updateUserPreferences({ seenTrackAnnouncement: true });
+          removeUserNotification(item.id);
+          window.open('https://earthranger.com/News/2020/Earthranger-Track-for-Android.aspx', '_blank');
+        },
+        onDismiss(_e, item) {
+          updateUserPreferences({ seenTrackAnnouncement: true });
+          removeUserNotification(item.id);
+        },
+        confirmText: 'Learn more',
+      });
   }
 
   get mapCenter() {
@@ -669,6 +693,7 @@ const mapStatetoProps = (state, props) => {
 };
 
 export default connect(mapStatetoProps, {
+  addUserNotification,
   clearEventData,
   clearSubjectData,
   fetchBaseLayers,
@@ -676,10 +701,12 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   hidePopup,
   addModal,
+  removeUserNotification,
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
   toggleMapLockState,
+  updateUserPreferences,
   updateTrackState,
   updateHeatmapSubjects,
 }
