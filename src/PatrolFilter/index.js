@@ -8,8 +8,7 @@ import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 import uniq from 'lodash/uniq';
 
-import { EVENT_STATE_CHOICES } from '../constants';
-import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
 
@@ -24,26 +23,45 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 
 import styles from '../EventFilter/styles.module.scss';
 
-const EventFilter = (props) => {
-  const { children, className, eventFilter, reporters, updateEventFilter } = props;
-  const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
+const PATROL_STATUS_CHOICES = [
+  { value: 'cancelled', 
+    label: 'Cancelled',
+  },
+  { value: 'overdue', 
+    label: 'Overdue',
+  },
+  { value: 'done', 
+    label: 'Done',
+  },
+  { value: 'active', 
+    label: 'Active',
+  },
+  { value: 'scheduled', 
+    label: 'Scheduled',
+  },
+      
+];
 
-  const eventTypeFilterEmpty = !currentFilterReportTypes.length;
+const PatrolFilter = (props) => {
+  const { children, className, patrolFilter, reporters, updatePatrolFilter } = props;
+  console.log('patrolFilter', patrolFilter);
+  const { status, filter: { date_range, patrol_type: currentFilterReportTypes, leader, text } } = patrolFilter;
+
+  const patrolTypeFilterEmpty = !currentFilterReportTypes.length;
 
   const menuContainerRef = useRef(null);
 
-  const [filterText, setFilterText] = useState(eventFilter.filter.text);
+  const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
-  const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
-  const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
-  const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
+  const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.status, status);
+  const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leader, leader);
 
-  const filterModified = priorityFilterModified || !eventTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
+  const filterModified = !patrolTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
 
-  const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
+  const selectedReporters = patrolFilter.filter.leader && !!patrolFilter.filter.leader.length ?
 
-    eventFilter.filter.reported_by
+    patrolFilter.filter.leader
       .map(id =>
         reporters.find(r => r.id === id)
       ).filter(item => !!item)
@@ -53,68 +71,67 @@ const EventFilter = (props) => {
     const hasValue = values && !!values.length;
     
     if (hasValue) {
-      updateEventFilter({
+      updatePatrolFilter({
         filter: {
-          reported_by: uniq(values.map(({ id }) => id)),
+          leader: uniq(values.map(({ id }) => id)),
         }
       });
     } else {
-      updateEventFilter({
+      updatePatrolFilter({
         filter: {
-          reported_by: [],
+          leader: [],
         }
       });
     }
-    trackEvent('Event Filter', `${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
+    trackEvent('Patrol Filter', `${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
   };
 
-  const updateEventFilterDebounced = useRef(debounce(function (update) {
-    updateEventFilter(update);
+  const updatePatrolFilterDebounced = useRef(debounce(function (update) {
+    updatePatrolFilter(update);
   }, 200));
   
 
   const onStateSelect = ({ value }) => {
-    updateEventFilter({ state: value });
-    trackEvent('Event Filter', `Select '${value}' State Filter`);
+    updatePatrolFilter({ status: value });
+    trackEvent('Patrol Filter', `Select '${value}' State Filter`);
   };
 
   const resetPopoverFilters = () => {
-    updateEventFilter({
-      state: INITIAL_FILTER_STATE.state,
+    updatePatrolFilter({
+      status: INITIAL_FILTER_STATE.status,
       filter: {
-        event_type: INITIAL_FILTER_STATE.filter.event_type,
-        priority: INITIAL_FILTER_STATE.filter.priority,
-        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        leader: INITIAL_FILTER_STATE.filter.leader,
       },
     });
-    trackEvent('Event Filter', 'Click Reset All Filters');
+    trackEvent('Patrol Filter', 'Click Reset All Filters');
   };
 
   const clearDateRange = (e) => {
     e.stopPropagation();
-    updateEventFilter({
+    updatePatrolFilter({
       filter: {
         date_range: INITIAL_FILTER_STATE.filter.date_range,
       },
     });
-    trackEvent('Event Filter', 'Click Reset Date Range Filter');
+    trackEvent('Patrol Filter', 'Click Reset Date Range Filter');
   };
 
   const resetStateFilter = (e) => {
     e.stopPropagation();
-    updateEventFilter({ state: INITIAL_FILTER_STATE.state });
-    trackEvent('Event Filter', 'Click Reset State Filter');
+    updatePatrolFilter({ status: INITIAL_FILTER_STATE.status });
+    trackEvent('Patrol Filter', 'Click Reset State Filter');
   };
 
   const resetReportedByFilter = (e) => {
     e.stopPropagation();
-    updateEventFilter({ filter: { reported_by: INITIAL_FILTER_STATE.filter.reported_by } });
-    trackEvent('Event Filter', 'Click Reset Reported By Filter');
+    updatePatrolFilter({ filter: { leader: INITIAL_FILTER_STATE.filter.leader } });
+    trackEvent('Patrol Filter', 'Click Reset Reported By Filter');
   };
 
   const StateSelector = () => <ul className={styles.stateList}>
-    {EVENT_STATE_CHOICES.map(choice =>
-      <li className={isEqual(choice.value, state) ? styles.activeState : ''}
+    {PATROL_STATUS_CHOICES.map(choice =>
+      <li className={isEqual(choice.value, status) ? styles.activeState : ''}
         key={choice.value} onClick={() => onStateSelect(choice)}>
         <Button variant='link'>
           {choice.label}
@@ -126,29 +143,29 @@ const EventFilter = (props) => {
     trackEvent('Reports', 'Dates Icon Clicked');
   };
 
-  const onEventFilterIconClicked = (e) => {
+  const onPatrolFilterIconClicked = (e) => {
     trackEvent('Reports', 'Filters Icon Clicked');
   };
 
   const onSearchChange = ({ target: { value } }) => {
     setFilterText(value);
-    trackEvent('Event Filter', 'Change Search Text Filter');
+    trackEvent('Patrol Filter', 'Change Search Text Filter');
   };
 
   const onSearchClear = (e) => {
     e.stopPropagation();
     setFilterText('');
-    trackEvent('Event Filter', 'Clear Search Text Filter');
+    trackEvent('Patrol Filter', 'Clear Search Text Filter');
   };
 
   useEffect(() => {
     if (!caseInsensitiveCompare(filterText, text)) {
       if (!!filterText.length) {
-        updateEventFilterDebounced.current({
+        updatePatrolFilterDebounced.current({
           filter: { text: filterText },
         });
       } else {
-        updateEventFilter({
+        updatePatrolFilter({
           filter: { text: '', },
         });
       }
@@ -191,19 +208,17 @@ const EventFilter = (props) => {
       </div>
       <div className={styles.filterRow}>
         <UserIcon />Team
-        <ReportedBySelect menuRef={menuContainerRef ? menuContainerRef : null} className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
+        <ReportedBySelect menuRef={menuContainerRef.current} className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
         <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
       </div>
     </Popover.Content>
   </Popover>;
 
-  console.log('menuContainerRef', menuContainerRef);
-
   return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
     <div className={styles.controls}  ref={menuContainerRef}>
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
-          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} />
+          <FilterIcon className={styles.filterIcon} onClick={onPatrolFilterIconClicked} />
           <span>Filter Patrols</span>
         </span>
       </OverlayTrigger>
@@ -223,9 +238,9 @@ const EventFilter = (props) => {
 
 const mapStateToProps = (state) =>
   ({
-    eventFilter: state.data.eventFilter,
-    eventTypes: state.data.eventTypes,
+    patrolFilter: state.data.patrolFilter,
+    patrolTypes: state.data.patrolTypes,
     reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { updateEventFilter })(memo(EventFilter));
+export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));

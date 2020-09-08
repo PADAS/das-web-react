@@ -14,33 +14,36 @@ export const updatePatrolFilter = (update) => (dispatch) => {
 
 // REDUCER
 export const INITIAL_FILTER_STATE = {
+  status: ['scheduled', 'active', 'done', 'overdue', 'cancelled'], /* FPO - as per designs */
   filter: {
+    date_range: {
+      lower: null, // generateMonthsAgoDate(1).toISOString(),
+      upper: null,
+    },
+    patrol_type: [],
     text: '',
+    leader: [],
   },
 };
 
-const patrolFilterReducer = (state, action) => {
+const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
   const { type, payload } = action;
 
-  switch (type) {
-  case (UPDATE_PATROL_FILTER): {
+  if (type === UPDATE_PATROL_FILTER) {
     const updated = {
       ...state, ...payload, filter: {
         ...state.filter,
         ...payload.filter,
       }
     };
-    if (isEqual(state, updated)) return state;
     return updated;
   }
-  case (RESET_PATROL_FILTER): {
+
+  if (type === RESET_PATROL_FILTER) {
     return { ...payload };
   }
-  default: {
-    return state;
-  }
 
-  }
+  return state;
 };
 
 export default patrolFilterReducer;
