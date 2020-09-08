@@ -3,8 +3,7 @@
 @import '../common/styles/layout';
 
 .listItem {
-  align-content: center;
-  align-items: stretch;
+  align-items: center;
   color: $primary-font-color;
   display: flex;
   line-height: normal;
@@ -22,7 +21,7 @@
     padding: 0.5rem 1rem;
   }
   > button:last-child {
-    margin: 0.75rem 0 0.75rem 0.5rem;
+    margin: 0.25rem 0 0.25rem 0.5rem;
     padding: 0;
   }
 }
@@ -51,7 +50,7 @@ $colors in $priorities {
 .icon {
   align-items: center;
   display: flex;
-  height: 3.75rem;
+  height: 3.05rem;
   justify-content: center;
   padding: 0.5rem 1rem;
   width: 3.75rem;
