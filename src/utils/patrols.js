@@ -1,9 +1,13 @@
+import React from 'react';
+import timeDistanceInWords from 'date-fns/distance_in_words';
+
 import { store } from '../';
 import { addModal } from '../ducks/modals';
 
 import { getReporterById } from '../utils/events';
 
 import PatrolModal from '../PatrolModal';
+import TimeElapsed from '../TimeElapsed';
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
@@ -93,4 +97,48 @@ export const displayTitleForPatrol = (patrol) => {
   if (matchingType) return matchingType.display;
 
   return patrol.patrol_segments[0].patrol_type;
+};
+
+export const displayStartTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { start_time } = firstLeg;
+
+  return start_time
+    ?  new Date(start_time)
+    : null;
+};
+
+export const displayEndTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { end_time } = firstLeg;
+
+  return end_time
+    ?  new Date(end_time)
+    : null;
+};
+
+export const displayDurationForPatrol = (patrol) => {
+  const now = new Date();
+  const nowTime = now.getTime();
+
+  const displayStartTime = displayStartTimeForPatrol(patrol);
+  const displayEndTime = displayEndTimeForPatrol(patrol);
+
+  const hasStarted = !!displayStartTime
+    && (displayStartTime.getTime() < nowTime);
+
+  if (!hasStarted) return '0s';
+
+  const hasEnded = !!displayEndTime 
+    && (displayEndTime.getTime() <= nowTime);
+
+  if (!hasEnded) {
+    return <TimeElapsed date={displayStartTime} />;
+  }
+
+  return timeDistanceInWords(displayStartTime, displayEndTime);
 };

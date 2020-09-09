@@ -2,22 +2,19 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import timeDistanceInWords from 'date-fns/distance_in_words';
-
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 import { getFeedEvents } from '../selectors';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { displayTitleForPatrol } from '../utils/patrols';
+import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import ReportListItem from '../ReportListItem';
-import TimeElapsed from '../TimeElapsed';
 import AddReport from '../AddReport';
 
 import NoteModal from '../NoteModal';
@@ -48,51 +45,11 @@ const PatrolModal = (props) => {
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
 
-  const displayStartTime = useMemo(() => {
-    if (!statePatrol.patrol_segments.length) return null;
-    const [firstLeg] = statePatrol.patrol_segments;
-
-    const { start_time } = firstLeg;
-
-    return start_time
-      ?  new Date(start_time)
-      : null;
-    
-  }, [statePatrol.patrol_segments]);
-
-  const displayEndTime = useMemo(() => {
-    if (!statePatrol.patrol_segments.length) return null;
-    const [firstLeg] = statePatrol.patrol_segments;
-
-    const { end_time } = firstLeg;
-
-    return end_time
-      ?  new Date(end_time)
-      : null;
-    
-  }, [statePatrol.patrol_segments]);
+  const displayStartTime = displayStartTimeForPatrol(statePatrol);
+  const displayEndTime = displayEndTimeForPatrol(statePatrol);
+  const displayDuration = displayDurationForPatrol(statePatrol);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
-
-  const displayDuration = useMemo(() => {
-    const now = new Date();
-    const nowTime = now.getTime();
-
-    const hasStarted = !!displayStartTime
-    && (displayStartTime.getTime() < nowTime);
-
-    if (!hasStarted) return '0s';
-
-    const hasEnded = !!displayEndTime 
-    && (displayEndTime.getTime() <= nowTime);
-
-    if (!hasEnded) {
-      return <TimeElapsed date={displayStartTime} />;
-    }
-
-    return timeDistanceInWords(displayStartTime, displayEndTime);
-    
-  }, [displayEndTime, displayStartTime]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
