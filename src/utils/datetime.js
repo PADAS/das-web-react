@@ -25,7 +25,7 @@ export const calcFriendlyDurationString = (from, until) => {
 };
 
 
-export const STANDARD_DATE_FORMAT = 'D MMM YYYY HH:mm';
+export const STANDARD_DATE_FORMAT = 'D MMM \'YY HH:mm';
 export const SHORTENED_DATE_FORMAT = STANDARD_DATE_FORMAT.replace(' HH:mm', '');
 
 
