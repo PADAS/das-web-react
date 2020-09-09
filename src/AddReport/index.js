@@ -178,7 +178,7 @@ AddReport.defaultProps = {
   relationshipButtonDisabled: false,
   showIcon: true,
   showLabel: true,
-  title: 'Add Report',
+  title: 'Add',
   onSaveSuccess() {
 
   },
