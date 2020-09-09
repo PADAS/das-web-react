@@ -14,12 +14,11 @@ const PatrolListItem = (props) => {
   const patrolStatusStyle = `status-${patrol.state}`;
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
-    <h4>{patrol.title}</h4>
-    <p>Time on patrol: {displayDurationForPatrol(patrol)}</p>
-    <p>Distance covered: 0km</p>
+    <h4>{patrol.title} <KebabMenuIcon className={styles.kebab} /></h4>
+    <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
+    <p>Distance covered: <span>0km</span></p>
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
     <AddReport className={styles.addReport} showLabel={false} />
-    <KebabMenuIcon className={styles.kebab} />
   </li>;
 };
 

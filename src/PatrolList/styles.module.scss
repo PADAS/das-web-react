@@ -13,10 +13,19 @@
 }
 
 .listHeader {
+    align-items: center;
     background-color: #dfdfdf;
-    h4 {
-        font-size: .75rem;
-        font-weight: bold;
+    display: flex;
+    padding: 0.25rem 1rem;
+    h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+    }
+    h6 {
+        font-size: 0.75rem;
+        margin: 0;
     }
 }
 
@@ -33,17 +42,20 @@
     padding: 0.125rem 0.25rem;
     position: relative;
     text-align: center;
-    width: 45%;
+    width: 48%;
     h4 {
-        font-size: 0.75rem;
-        font-weight: bold;
-        padding-top: 0.25rem;
-        margin-bottom: 0.125rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin: 0.6875rem 0 0.25rem;
     }
     p {
+        color: #8C8C8C;
         font-size: .5rem;
         font-style: italic;
         margin-bottom: 0.125rem;
+        span {
+            color: #646161;
+        }
     }
     button {
         font-size: .5rem;
@@ -122,10 +134,28 @@
     height: 1.75rem;
     justify-content: center;
     right: 0.125rem;
-    transition: background 0.3s linear;
+    transition: background 0.15s linear;
     top: 0.125rem;
     width: 1.75rem;
     &:active {
         background: rgba(0,0,0,0.17);
+    }
+}
+
+.headerControls {
+    --button-dimensions: 1.75rem;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-left: auto;
+    width: 7rem;
+    button {
+        height: var(--button-dimensions);
+        width: var(--button-dimensions);
+    }
+    .kebab {
+        --hamburger-menu-color: rgba(0, 0, 0, 0.47);
+        display: flex;
+        position: static;
     }
 }

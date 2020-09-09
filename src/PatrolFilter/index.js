@@ -219,7 +219,7 @@ const PatrolFilter = (props) => {
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
           <FilterIcon className={styles.filterIcon} onClick={onPatrolFilterIconClicked} />
-          <span>Filter Patrols</span>
+          <span>Filter</span>
         </span>
       </OverlayTrigger>
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
