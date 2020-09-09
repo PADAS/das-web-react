@@ -87,14 +87,10 @@ const AddReport = (props) => {
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        console.log('you clicked a patrol type!');
-      }
-
-      if (isPatrol && !!patrols.results.length) {
         openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
-
         return;
       }
+
     }
     /* END PATROL_SCAFFOLD */
 
