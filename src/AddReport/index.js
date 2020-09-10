@@ -20,7 +20,7 @@ import styles from './styles.module.scss';
 
 const AddReport = (props) => {
   const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrols } = props;
+    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
   const [selectedCategory, selectCategory] = useState(null);
 
   const patrolsEnabled = evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -32,8 +32,16 @@ const AddReport = (props) => {
 
   const displayCategories = useMemo(() => {
     if (hidePatrols || !patrolsEnabled || !patrolTypes.length) return eventsByCategory;
+
+    const sortedPatrolTypes = patrolTypes.sort((item1, item2) => {
+      const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
+      const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
+
+      return first - second;
+    });
+
     return [
-      generatePseudoReportCategoryForPatrolTypes(patrolTypes),
+      generatePseudoReportCategoryForPatrolTypes(sortedPatrolTypes),
       ...eventsByCategory,
     ];
   }, [eventsByCategory, hidePatrols, patrolTypes, patrolsEnabled]);

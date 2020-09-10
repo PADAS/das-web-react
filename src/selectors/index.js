@@ -6,10 +6,6 @@ import bboxPolygon from '@turf/bbox-polygon';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
-import { evaluateFeatureFlag } from '../utils/feature-flags';
-
-import { generatePatrolEventCategory } from '../fixtures/patrol_management';
-import { FEATURE_FLAGS } from '../constants';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
