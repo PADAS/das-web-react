@@ -111,12 +111,6 @@ const AddReport = (props) => {
 
     return <ul className={styles.categoryMenu}>
       {eventsByCategory
-        .sort((cat, cat2) => {
-          const first = typeof cat.ordernum === 'number' ? cat.ordernum : 0;
-          const second = typeof cat2.ordernum === 'number' ? cat.ordernum : 0;
-
-          return second - first;
-        })
         .map(({ value, display }) =>
           <li key={value}>
             <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
