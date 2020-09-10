@@ -53,7 +53,7 @@ const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 export const socketEventData = (payload) => (dispatch) => {
-  const { event_id, event_data, matches_current_filter } = payload;
+  const { count, event_id, event_data, matches_current_filter } = payload;
 
   if (!matches_current_filter) {
     dispatch({
@@ -63,7 +63,10 @@ export const socketEventData = (payload) => (dispatch) => {
   } else {
     dispatch({
       type: SOCKET_EVENT_DATA,
-      payload: event_data,
+      payload: {
+        count,
+        event_data
+      },
     });
   }
   dispatch({
@@ -386,7 +389,7 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
     type === UPDATE_EVENT_SUCCESS || 
     type === SOCKET_EVENT_DATA
   ) {
-    const { id } = payload;
+    const { event_data: { id } } = payload;
     
     const stateUpdate = {
       ...state,
@@ -497,6 +500,11 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
         ...state,
         results: state.results.filter(id => id !== payload.id),
       };
+    } else {
+      return {
+        ...state,
+        count: payload.count,
+      }
     }
   }
   return state;
