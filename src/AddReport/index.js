@@ -33,12 +33,18 @@ const AddReport = (props) => {
   const displayCategories = useMemo(() => {
     if (hidePatrols || !patrolsEnabled || !patrolTypes.length) return eventsByCategory;
 
-    const sortedPatrolTypes = patrolTypes.sort((item1, item2) => {
-      const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
-      const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
+    const sortedPatrolTypes = patrolTypes
+      .filter((type) =>
+        type.hasOwnProperty('is_active')
+          ? !!type.is_active 
+          : true
+      )
+      .sort((item1, item2) => {
+        const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
+        const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
 
-      return first - second;
-    });
+        return first - second;
+      });
 
     return [
       generatePseudoReportCategoryForPatrolTypes(sortedPatrolTypes),
