@@ -500,10 +500,10 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
         ...state,
         results: state.results.filter(id => id !== payload.id),
       };
-    } else {
+    } else if (validateReportAgainstCurrentEventFilter(payload)) {
       return {
         ...state,
-        count: payload.count,
+        count: state.count++
       }
     }
   }
