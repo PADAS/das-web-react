@@ -6,7 +6,7 @@ const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
 const TotalReportCountString = ({ className, eventFilter, totalFeedEventCount, ...props } ) => {
 
-  if (!Boolean(totalFeedEventCount)) {
+  if (!totalFeedEventCount) {
     return null;
   }
 
