@@ -210,11 +210,24 @@
   animation: slideFilterHeight $duration linear;
 }
 
+@mixin slideInMaxHeight($maxHeight, $duration: 0.4s) {
+  @keyframes slideFilterMaxHeight {
+    from {
+      max-height: 0;
+    }
+    to {
+      max-height: $maxHeight;
+    }
+  }
+  animation: slideFilterMaxHeight $duration linear forwards;
+}
+
 .filterWrapper {
-  --height: auto;
   --animation-duration: 0.2s;
-  @include slideIn(var(--height),  var(--animation-duration));
-  height: 0;
+  --max-height: 7.5em;
+  @include slideInMaxHeight(var(--max-height),  var(--animation-duration));
+  height: auto;
+  max-height: 0;
   margin-bottom: 0;
   overflow: hidden;
   transition: var(--animation-duration) all linear;
