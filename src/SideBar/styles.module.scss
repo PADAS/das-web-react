@@ -216,18 +216,27 @@
   animation: slideFilterHeight $duration linear;
 }
 
+@mixin slideInMaxHeight($maxHeight, $duration: 0.4s) {
+  @keyframes slideFilterMaxHeight {
+    from {
+      max-height: 0;
+    }
+    to {
+      max-height: $maxHeight;
+    }
+  }
+  animation: slideFilterMaxHeight $duration linear;
+}
+
 .filterWrapper {
-  --height: 7rem;
   --animation-duration: 0.2s;
-  @include slideIn(var(--height),  var(--animation-duration));
-  height: 0;
+  --max-height: 7.5em;
+  @include slideInMaxHeight(var(--max-height),  var(--animation-duration));
+  height: auto;
+  max-height: var(--max-height);
   margin-bottom: 0;
   overflow: hidden;
   transition: var(--animation-duration) all linear;
-
-  @media (min-width: $md-layout-width-min) {
-    --height: 6rem;
-  }
 }
 
 .filterStringWrapper {
@@ -245,16 +254,16 @@
   display: block;
   font-size: 0.75rem;
   line-height: normal;
-  padding: 0.5rem 0.5rem 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem;
   transition: 0.3s all linear;
-  width: 72%;
+  width: 73.5%;
 }
 
 .totalReportCountString {
   display: block;
   font-size: 0.75rem;
   line-height: normal;
-  padding: 0.5rem 0.5rem 0.75rem;
+  padding: 0.5rem 0.5rem 0.5rem;
   transition: 0.3s all linear;
   text-align: right;
 }

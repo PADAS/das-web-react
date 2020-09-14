@@ -19,6 +19,8 @@ const CREATE_EVENT_START = 'CREATE_EVENT_START';
 const CREATE_EVENT_SUCCESS = 'CREATE_EVENT_SUCCESS';
 const CREATE_EVENT_ERROR = 'CREATE_EVENT_ERROR';
 
+const EVENTS_COUNT_INCREMENT = 'EVENTS_COUNT_INCREMENT';
+
 const SET_EVENT_STATE_START = 'SET_EVENT_STATE_START';
 const SET_EVENT_STATE_SUCCESS = 'SET_EVENT_STATE_SUCCESS';
 const SET_EVENT_STATE_ERROR = 'SET_EVENT_STATE_ERROR';
@@ -49,11 +51,12 @@ const FETCH_MAP_EVENTS_SUCCESS = 'FETCH_MAP_EVENTS_SUCCESS';
 const FETCH_MAP_EVENTS_ERROR = 'FETCH_MAP_EVENTS_ERROR';
 const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
+const NEW_EVENT_TYPE = 'new_event';
 const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 export const socketEventData = (payload) => (dispatch) => {
-  const { event_id, event_data, matches_current_filter } = payload;
+  const { count, event_id, event_data, matches_current_filter, type } = payload;
 
   if (!matches_current_filter) {
     dispatch({
@@ -63,9 +66,19 @@ export const socketEventData = (payload) => (dispatch) => {
   } else {
     dispatch({
       type: SOCKET_EVENT_DATA,
-      payload: event_data,
+      payload: {
+        count,
+        event_data
+      },
     });
   }
+
+  if (validateReportAgainstCurrentEventFilter(event_data) && type === NEW_EVENT_TYPE) {
+    dispatch({
+      type: EVENTS_COUNT_INCREMENT
+    });
+  } 
+
   dispatch({
     type: UPDATE_EVENT_STORE,
     payload: [event_data],
@@ -380,13 +393,17 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
   if (type === CLEAR_EVENT_DATA) {
     return { ...INITIAL_EVENT_FEED_STATE };
   }
+  
+  if (type === EVENTS_COUNT_INCREMENT) {
+    return reducer(state, action);
+  }
 
   /* socket changes and event updates should affect all feeds */
   if (
     type === UPDATE_EVENT_SUCCESS || 
     type === SOCKET_EVENT_DATA
   ) {
-    const { id } = payload;
+    const { event_data: { id } } = payload;
     
     const stateUpdate = {
       ...state,
@@ -497,6 +514,11 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
         ...state,
         results: state.results.filter(id => id !== payload.id),
       };
+    } 
+  } else if (type === EVENTS_COUNT_INCREMENT) {
+    return {
+      ...state,
+      count: state.count + 1
     }
   }
   return state;
