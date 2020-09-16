@@ -8,6 +8,7 @@ import { trimmedVisibleTrackData } from '../selectors/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
+import { trackEvent } from '../utils/analytics';
 
 const ARROW_IMG_ID = 'track_arrow';
 
@@ -19,6 +20,7 @@ const TracksLayer = (props) => {
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
+    trackEvent('Map Layers', 'Clicked Track Timepoint');
     onPointClick(layer);
   }, [map, onPointClick]);
 
