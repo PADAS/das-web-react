@@ -403,8 +403,12 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
     type === UPDATE_EVENT_SUCCESS || 
     type === SOCKET_EVENT_DATA
   ) {
-    const { event_data: { id } } = payload;
-    
+
+    const id = 
+      (type === UPDATE_EVENT_SUCCESS)
+        ? payload.id
+        : payload.event_data.id;
+
     const stateUpdate = {
       ...state,
       results: union([id], state.results),
@@ -519,7 +523,7 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
     return {
       ...state,
       count: state.count + 1
-    }
+    };
   }
   return state;
 });
