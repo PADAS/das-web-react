@@ -513,10 +513,10 @@ export const INITIAL_EVENT_FEED_STATE = {
 
 export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type, payload }) => {
   if (type === SOCKET_EVENT_DATA) {
-    if (eventBelongsToCollection(payload)) {
+    if (eventBelongsToCollection(payload.event_data)) {
       return {
         ...state,
-        results: state.results.filter(id => id !== payload.id),
+        results: state.results.filter(id => id !== payload.event_data.id),
       };
     } 
   } else if (type === EVENTS_COUNT_INCREMENT) {
@@ -531,10 +531,10 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
 export const incidentFeedReducer = namedFeedReducer(INCIDENT_FEED_NAME, (state, { type, payload }) => {
   if (type === SOCKET_EVENT_DATA) {
     
-    if (!payload.is_collection) {
+    if (!payload.event_data.is_collection) {
       return {
         ...state,
-        results: state.results.filter(id => id !== payload.id),
+        results: state.results.filter(id => id !== payload.event_data.id),
       };
     }
   }
@@ -582,11 +582,11 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
     };
   }
   if (type === SOCKET_EVENT_DATA) {
-    if (!payload.geojson || !payload.geojson.geometry) return state;
+    if (!payload.event_data.geojson || !payload.event_data.geojson.geometry) return state;
 
     return {
       ...state,
-      events: union([payload.id], state.events),
+      events: union([payload.event_data.id], state.events),
     };
   }
   return state;
