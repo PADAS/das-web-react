@@ -13,10 +13,6 @@ const PatrolList = (props) => {
 
   // const scrollRef = useRef(null);
 
-  const onPatrolClick = (e) => {
-    console.log('Click', e.target);
-  };
-
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
@@ -30,8 +26,7 @@ const PatrolList = (props) => {
       {patrols.map((item, index) =>
         <PatrolListItem
           patrol={item}
-          key={`${item.id}-${index}`}
-          onPatrolClick={onPatrolClick} />
+          key={`${item.id}-${index}`}/>
       )}
       {!patrols.length && <div className={`${styles.listItem} ${styles.loadMessage}`} key='no-patrols-to-display'>No patrols to display.</div>}
     </InfiniteScroll>

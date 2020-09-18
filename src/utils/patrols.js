@@ -26,6 +26,7 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
       },
     }));
 };
+
 export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
   const categoryObject = {
     'value': 'patrols',
