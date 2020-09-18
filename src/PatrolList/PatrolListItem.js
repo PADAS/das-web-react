@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import { displayDurationForPatrol } from '../utils/patrols';
-import { withMap } from '../EarthRangerMap';
 import { openModalForPatrol } from '../utils/patrols';
 
 import AddReport from '../AddReport';
@@ -15,7 +14,6 @@ const PatrolListItem = (props) => {
   const onPatrolStatusClick = (e) => console.log('clicked status');
 
   const onPatrolTitleClick = (e) => {
-    console.log('clicked title to edit patrol');
     openModalForPatrol(patrol, map);
   };
 
@@ -30,4 +28,4 @@ const PatrolListItem = (props) => {
   </li>;
 };
 
-export default memo(withMap(PatrolListItem));
+export default memo(PatrolListItem);

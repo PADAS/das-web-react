@@ -9,7 +9,7 @@ import PatrolListTitle from './Title';
 import styles from './styles.module.scss';
 
 const PatrolList = (props) => {
-  const { patrols, loading } = props;
+  const { map, patrols, loading } = props;
 
   // const scrollRef = useRef(null);
 
@@ -26,6 +26,7 @@ const PatrolList = (props) => {
       {patrols.map((item, index) =>
         <PatrolListItem
           patrol={item}
+          map={map}
           key={`${item.id}-${index}`}/>
       )}
       {!patrols.length && <div className={`${styles.listItem} ${styles.loadMessage}`} key='no-patrols-to-display'>No patrols to display.</div>}
