@@ -27,14 +27,6 @@ export const REPORT_SAVE_ACTIONS = {
       },
     };
   },
-  /* deleteNote(note_id) {
-    return {
-      priority: 200,
-      action(event_id) {
-        return store.dispatch(deleteNoteFromEvent(event_id, note_id));
-      },
-    };
-  }, */
   /*  updateEventState: { // these belong inside `updateEvent` now
     priority: 100,
   }, */
@@ -55,14 +47,6 @@ export const REPORT_SAVE_ACTIONS = {
       },
     };
   },
-  /*  deleteFile(file_id) {
-    return {
-      priority: 200,
-      action(event_id) {
-        return store.dispatch(deleteFileFromEvent(event_id, file_id));
-      },
-    };
-  }, */
 };
 
 /*

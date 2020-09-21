@@ -3,6 +3,7 @@ import timeDistanceInWords from 'date-fns/distance_in_words';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
+import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
 import { getReporterById } from '../utils/events';
 
@@ -88,8 +89,6 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 export const displayTitleForPatrol = (patrol) => {
   const UKNOWN_MESSAGE = 'Unknown patrol type';
   
-  console.log('calculating for patrol', patrol);
-  
   if (patrol.title) return patrol.title;
 
   if (!patrol.patrol_segments.length
@@ -145,4 +144,48 @@ export const displayDurationForPatrol = (patrol) => {
   }
 
   return timeDistanceInWords(displayStartTime, displayEndTime);
+};
+
+export const PATROL_SAVE_ACTIONS = {
+  createPatrol(data) {
+    return {
+      priority: 300,
+      action() {
+        return store.dispatch(createPatrol(data));
+      },
+    };
+  },
+  updatePatrol(data) {
+    return {
+      priority: 250,
+      action() {
+        return store.dispatch(updatePatrol(data));
+      },
+    };
+  },
+  addNote(note) {
+    return {
+      priority: 200,
+      action(patrol_id) {
+        return store.dispatch(addNoteToPatrol(patrol_id, note));
+      },
+    };
+  },
+  addReportToPatrol(incident_id) {
+    return {
+      priority: 150,
+      action(patrol_id) {
+        //  POST `${apiEndpoint}/activity/event/${patrol_id}/relationships`
+        // data:{ to_patrol_id: incident_id, type })
+      },
+    };
+  },
+  addFile(file) {
+    return {
+      priority: 200,
+      action(patrol_id) {
+        return store.dispatch(uploadPatrolFile(patrol_id, file));
+      },
+    };
+  },
 };
