@@ -1,15 +1,15 @@
 import axios from 'axios';
-import { REACT_APP_DAS_API_URL } from '../constants';
+import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
-const PATROLS_API_URL = `${REACT_APP_DAS_API_URL}activity/patrols`;
+const PATROLS_API_URL = `${API_URL}activity/patrols`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
 
 export const fetchPatrols = () => async (dispatch) => {
-  const { data:patrols } = await axios.get(PATROLS_API_URL).catch((error) => {
+  const { data: { data: patrols } } = await axios.get(PATROLS_API_URL).catch((error) => {
     console.warn('error fetching patrols', error);
     dispatch({
       type: FETCH_PATROLS_ERROR,

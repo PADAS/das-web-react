@@ -56,7 +56,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 
   const trackingSubject = reportedById && getReporterById(reportedById);
 
-  const sources = trackingSubject ? [trackingSubject] : [];
+  const leader = trackingSubject ? trackingSubject : null;
 
   return {
     icon_id,
@@ -70,10 +70,12 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         priority,
         reports: [],
         scheduled_start: null,
-        sources,
+        leader,
         start_location: location ? { lat: location.latitude, lng: location.longitude } : null,
-        start_time: time ? new Date(time) : new Date(),
-        end_time: null,
+        time_range: { 
+          start_time: time ? new Date(time) : new Date(),
+          end_time: null,
+        },
         end_location: null,
       },
     ],
@@ -84,26 +86,28 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 };
 
 export const displayTitleForPatrol = (patrol) => {
+  const UKNOWN_MESSAGE = 'Unknown patrol type';
+  
   console.log('calculating for patrol', patrol);
   
   if (patrol.title) return patrol.title;
 
   if (!patrol.patrol_segments.length
-  || !patrol.patrol_segments[0].patrol_type) return 'Unknown patrol type';
+  || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
   
   const { data: { patrolTypes } } = store.getState();
-  const matchingType = (patrolTypes || []).find(t => t.value === patrol.patrol_segments[0].patrol_type);
+  const matchingType = (patrolTypes || []).find(t => t.id === patrol.patrol_segments[0].patrol_type);
 
   if (matchingType) return matchingType.display;
 
-  return patrol.patrol_segments[0].patrol_type;
+  return UKNOWN_MESSAGE;
 };
 
 export const displayStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { start_time } = firstLeg;
+  const { time_range: { start_time } } = firstLeg;
 
   return start_time
     ?  new Date(start_time)
