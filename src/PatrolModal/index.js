@@ -250,16 +250,18 @@ const PatrolModal = (props) => {
     // const reportIsNew = !statePatrol.id;
     let toSubmit = statePatrol;
 
+    const LOCATION_PROPS =  ['start_location', 'end_location'];
 
-    if (toSubmit.hasOwnProperty('location') && !toSubmit.location) {
-      toSubmit.location = null;
-    }
+    LOCATION_PROPS.forEach((prop) => {
+      if (toSubmit.hasOwnProperty(prop) && !toSubmit[prop]) {
+        toSubmit[prop] = null;
+      }
+    });
 
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
     return executeSaveActions(actions)
       .then((results) => {
-        console.log('i did it', results);
         removeModal(id);
         // onSaveSuccess(results);
         /*   if (report.is_collection && toSubmit.state) {
@@ -270,7 +272,7 @@ const PatrolModal = (props) => {
         return results;
       })
       .catch((error) => {
-        console.log('i did not do it my doggie', error);
+        console.warn('failed to save new patrol', error);
       });
   }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
 
