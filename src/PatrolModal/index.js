@@ -55,9 +55,9 @@ const PatrolModal = (props) => {
     if (!statePatrol.patrol_segments.length) return null;
     const [firstLeg] = statePatrol.patrol_segments;
 
-    const { sources } = firstLeg;
-    if (!sources || !sources.length) return null;
-    return sources[0];
+    const { leader } = firstLeg;
+    if (!leader) return null;
+    return leader;
   }, [statePatrol.patrol_segments]);
 
   const onTitleChange = useCallback((value) => {
@@ -99,24 +99,33 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onStartTimeChange = useCallback((value) => {
+    const [segment] = statePatrol.patrol_segments;
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
         {
-          ...statePatrol.patrol_segments[0],
-          start_time: value ? new Date(value).toISOString() : null,
+          ...segment,
+          time_range: {
+            ...segment.time_range,
+            start_time: value ? new Date(value).toISOString() : null,
+          },
         },
       ],
     });
   }, [statePatrol]);
 
   const onEndTimeChange = useCallback((value) => {
+    const [segment] = statePatrol.patrol_segments;
+
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
         {
-          ...statePatrol.patrol_segments[0],
-          end_time: value ? new Date(value).toISOString() : null,
+          ...segment,
+          time_range: {
+            ...segment.time_range,
+            end_time: value ? new Date(value).toISOString() : null,
+          },
         },
       ],
     });
@@ -133,7 +142,7 @@ const PatrolModal = (props) => {
       patrol_segments: [
         {
           ...statePatrol.patrol_segments[0],
-          sources: value ? [value] : null,
+          leader: value ? value : null,
           start_location: !!trackedSubjectLocation ? {
             lat: trackedSubjectLocation[1],
             lng: trackedSubjectLocation[0],

@@ -3,6 +3,7 @@ import timeDistanceInWords from 'date-fns/distance_in_words';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
+import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
 import { getReporterById } from '../utils/events';
 
@@ -57,7 +58,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 
   const trackingSubject = reportedById && getReporterById(reportedById);
 
-  const sources = trackingSubject ? [trackingSubject] : [];
+  const leader = trackingSubject ? trackingSubject : null;
 
   return {
     icon_id,
@@ -71,10 +72,12 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         priority,
         reports: [],
         scheduled_start: null,
-        sources,
+        leader,
         start_location: location ? { lat: location.latitude, lng: location.longitude } : null,
-        start_time: time ? new Date(time) : new Date(),
-        end_time: null,
+        time_range: { 
+          start_time: time ? new Date(time) : new Date(),
+          end_time: null,
+        },
         end_location: null,
       },
     ],
@@ -85,26 +88,26 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 };
 
 export const displayTitleForPatrol = (patrol) => {
-  console.log('calculating for patrol', patrol);
+  const UKNOWN_MESSAGE = 'Unknown patrol type';
   
   if (patrol.title) return patrol.title;
 
   if (!patrol.patrol_segments.length
-  || !patrol.patrol_segments[0].patrol_type) return 'Unknown patrol type';
+  || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
   
   const { data: { patrolTypes } } = store.getState();
-  const matchingType = (patrolTypes || []).find(t => t.value === patrol.patrol_segments[0].patrol_type);
+  const matchingType = (patrolTypes || []).find(t => t.id === patrol.patrol_segments[0].patrol_type);
 
   if (matchingType) return matchingType.display;
 
-  return patrol.patrol_segments[0].patrol_type;
+  return UKNOWN_MESSAGE;
 };
 
 export const displayStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { start_time } = firstLeg;
+  const { time_range: { start_time } } = firstLeg;
 
   return start_time
     ?  new Date(start_time)
@@ -142,4 +145,48 @@ export const displayDurationForPatrol = (patrol) => {
   }
 
   return timeDistanceInWords(displayStartTime, displayEndTime);
+};
+
+export const PATROL_SAVE_ACTIONS = {
+  createPatrol(data) {
+    return {
+      priority: 300,
+      action() {
+        return store.dispatch(createPatrol(data));
+      },
+    };
+  },
+  updatePatrol(data) {
+    return {
+      priority: 250,
+      action() {
+        return store.dispatch(updatePatrol(data));
+      },
+    };
+  },
+  addNote(note) {
+    return {
+      priority: 200,
+      action(patrol_id) {
+        return store.dispatch(addNoteToPatrol(patrol_id, note));
+      },
+    };
+  },
+  addReportToPatrol(incident_id) {
+    return {
+      priority: 150,
+      action(patrol_id) {
+        //  POST `${apiEndpoint}/activity/event/${patrol_id}/relationships`
+        // data:{ to_patrol_id: incident_id, type })
+      },
+    };
+  },
+  addFile(file) {
+    return {
+      priority: 200,
+      action(patrol_id) {
+        return store.dispatch(uploadPatrolFile(patrol_id, file));
+      },
+    };
+  },
 };
