@@ -7,15 +7,15 @@ const patrolStates = ['upcoming', 'active', 'past', 'cancelled'];
 const patrolTypes = ['patrol1', 'patrol2', 'patrol3', 'patrol4', 'patrol5'];
 
 const patrolStartLocations = [
-  { lng: -122.33156202520189, lat: 47.561758667585565 },
-  { lng: -120, lat: 45 },
-  { lng: -119.34134, lat: 51.222 },
+  { longitude: -122.33156202520189, latitude: 47.561758667585565 },
+  { longitude: -120, latitude: 45 },
+  { longitude: -119.34134, latitude: 51.222 },
 ];
 
 const patrolEndLocations = [
-  { lng: -120.5, lat: 49 },
-  { lng: -116.312312, lat: 46.33434234 },
-  { lng: -118.4318843923, lat: 50.0012321 },
+  { longitude: -120.5, latitude: 49 },
+  { longitude: -116.312312, latitude: 46.33434234 },
+  { longitude: -118.4318843923, latitude: 50.0012321 },
 ];
 
 const {
@@ -31,14 +31,16 @@ const generatePatrolSegment = (patrol) => ({
   patrol_type: randomItemFromArray(patrolTypes),
   priority: randomItemFromArray(priorities), // not for MVP
   // state: randomItemFromArray(segmentStates), // ? we should define these,
-  sources: [], // limited to 1 for MVP,
+  leader: null,
   scheduled_start: randomItemFromArray([faker.date.future(), faker.date.recent()]),
-  start_time: generateSegmentStartTime(),
-  end_time: generateSegmentEndTime(),
+  time_range: {
+    start_time: generateSegmentStartTime(),
+    end_time: generateSegmentEndTime(),
+  },
   start_location: randomItemFromArray(patrolStartLocations),
   end_location: randomItemFromArray(patrolEndLocations), 
   // icon_id: String (url to image resource),
-  // image_url: String (url to API resource),
+  image_url: null,
   // members: Array <Member>, // not for MVP,
   // targets:  Array <Targets>, // not for MVP,
   // leader: Object (Member), // not for MVP,

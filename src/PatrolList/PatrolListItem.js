@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol } from '../utils/patrols';
+import { displayDurationForPatrol, displayTitleForPatrol } from '../utils/patrols';
 
 import AddReport from '../AddReport';
 import KebabMenuIcon from '../KebabMenuIcon';
@@ -14,7 +14,7 @@ const PatrolListItem = (props) => {
   const patrolStatusStyle = `status-${patrol.state}`;
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
-    <h4>{patrol.title} <KebabMenuIcon className={styles.kebab} /></h4>
+    <h4>{displayTitleForPatrol(patrol)} <KebabMenuIcon className={styles.kebab} /></h4>
     <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
     <p>Distance covered: <span>0km</span></p>
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
