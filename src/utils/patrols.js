@@ -147,7 +147,7 @@ export const displayDurationForPatrol = (patrol) => {
 };
 
 export const PATROL_SAVE_ACTIONS = {
-  createPatrol(data) {
+  create(data) {
     return {
       priority: 300,
       action() {
@@ -155,7 +155,7 @@ export const PATROL_SAVE_ACTIONS = {
       },
     };
   },
-  updatePatrol(data) {
+  update(data) {
     return {
       priority: 250,
       action() {
@@ -168,15 +168,6 @@ export const PATROL_SAVE_ACTIONS = {
       priority: 200,
       action(patrol_id) {
         return store.dispatch(addNoteToPatrol(patrol_id, note));
-      },
-    };
-  },
-  addReportToPatrol(incident_id) {
-    return {
-      priority: 150,
-      action(patrol_id) {
-        //  POST `${apiEndpoint}/activity/event/${patrol_id}/relationships`
-        // data:{ to_patrol_id: incident_id, type })
       },
     };
   },

@@ -44,7 +44,6 @@ const PATROL_STATUS_CHOICES = [
 
 const PatrolFilter = (props) => {
   const { children, className, patrolFilter, reporters, updatePatrolFilter } = props;
-  console.log('patrolFilter', patrolFilter);
   const { status, filter: { date_range, patrol_type: currentFilterReportTypes, leader, text } } = patrolFilter;
 
   const patrolTypeFilterEmpty = !currentFilterReportTypes.length;

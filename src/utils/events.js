@@ -12,7 +12,6 @@ import { addModal } from '../ducks/modals';
 import { generateMonthsAgoDate } from './datetime';
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
-import { REPORT_SAVE_ACTIONS } from '../ReportForm/constants';
 import ReportFormModal from '../ReportFormModal';
 
 export const eventTypeTitleForEvent = (event) => {
@@ -149,52 +148,6 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
   const { label } = EVENT_STATE_CHOICES.find(c => isEqual(state, c.value));
 
   return label;
-};
-
-export const generateSaveActionsForReport = (formData, notesToAdd = [], filesToAdd = []) => {
-  const report = { ...formData };
-
-  const primarySaveOperation = report.id ? REPORT_SAVE_ACTIONS.updateEvent(report) : REPORT_SAVE_ACTIONS.createEvent(report);
-  const fileOperations = [
-    ...filesToAdd.map(REPORT_SAVE_ACTIONS.addFile),
-  ];
-
-  const noteOperations = [
-    ...notesToAdd.map(REPORT_SAVE_ACTIONS.addNote),
-  ];
-
-  return [primarySaveOperation, ...fileOperations, ...noteOperations].sort((a, b) => b.priority - a.priority);
-};
-
-export const executeReportSaveActions = (saveActions) => {
-  let eventID;
-  let responses = [];
-
-  return new Promise((resolve, reject) => {
-    try {
-      saveActions.reduce(async (action, { action: nextAction }, index, collection) => {
-        const isPrimaryAction = index === 1;
-        const isLast = index === collection.length - 1;
-        const results = await action;
-
-        if (isPrimaryAction) {
-          eventID = results.data.data.id;
-        }
-
-        return nextAction(eventID)
-          .then((results) => {
-            responses.push(results);
-            if (isLast) {
-              return resolve(responses);
-            }
-            return results;
-          })
-          .catch((error) => reject(error));
-      }, Promise.resolve());
-    } catch (e) {
-      return reject(e);
-    }
-  });
 };
 
 export const openModalForReport = (report, map, config = {}) => {
