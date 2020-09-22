@@ -369,9 +369,8 @@ const PatrolModal = (props) => {
         <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
       </AttachmentControls>
       <Footer
-        onCancel={() => console.log('cancel')}
+        onCancel={onCancel}
         onSave={onSave}
-        onStateToggle={() => console.log('state toggle')}
         isActiveState={true}
       />
     </Modal>
