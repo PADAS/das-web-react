@@ -8,6 +8,7 @@ import { getFeedEvents } from '../selectors';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
@@ -23,14 +24,14 @@ import ImageModal from '../ImageModal';
 import HeaderMenuContent from './HeaderMenuContent';
 import StatusBadge from './StatusBadge';
 
-import LoadingOverlay from '../LoadingOverlay';
+// import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { addModal, events, patrol, map, /* removeModal */ } = props;
+  const { addModal, events, patrol, map, id, removeModal } = props;
   console.log('my map', map);
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
@@ -74,8 +75,8 @@ const PatrolModal = (props) => {
         {
           ...statePatrol.patrol_segments[0],
           start_location: value ? {
-            lng: value[0],
-            lat: value[1],
+            longitude: value[0],
+            latitude: value[1],
           } : null,
         },
       ],
@@ -90,8 +91,8 @@ const PatrolModal = (props) => {
         {
           ...statePatrol.patrol_segments[0],
           end_location: value ? {
-            lng: value[0],
-            lat: value[1],
+            longitude: value[0],
+            latitude: value[1],
           } : null,
         },
       ],
@@ -144,8 +145,8 @@ const PatrolModal = (props) => {
           ...statePatrol.patrol_segments[0],
           leader: value ? value : null,
           start_location: !!trackedSubjectLocation ? {
-            lat: trackedSubjectLocation[1],
-            lng: trackedSubjectLocation[0],
+            latitude: trackedSubjectLocation[1],
+            longitude: trackedSubjectLocation[0],
           } : statePatrol.patrol_segments[0].start_location,
         },
       ],
@@ -164,6 +165,7 @@ const PatrolModal = (props) => {
     
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
   }, [filesToList, filesToUpload]);
+  
 
   const onSaveNote = useCallback((noteToSave) => {
     const note = { ...noteToSave };
@@ -226,7 +228,7 @@ const PatrolModal = (props) => {
     const [firstLeg] = statePatrol.patrol_segments;
 
     if (!firstLeg.start_location) return null;
-    return [firstLeg.start_location.lng, firstLeg.start_location.lat];
+    return [firstLeg.start_location.longitude, firstLeg.start_location.latitude];
   }, [statePatrol.patrol_segments]);
 
   const patrolEndLocation = useMemo(() => {
@@ -235,7 +237,7 @@ const PatrolModal = (props) => {
     const [firstLeg] = statePatrol.patrol_segments;
 
     if (!firstLeg.end_location) return null;
-    return [firstLeg.end_location.lng, firstLeg.end_location.lat];
+    return [firstLeg.end_location.longitude, firstLeg.end_location.latitude];
   }, [statePatrol.patrol_segments]);
 
   const displayPriority = useMemo(() => {
@@ -243,6 +245,40 @@ const PatrolModal = (props) => {
     if (!!statePatrol.patrol_segments.length) return statePatrol.patrol_segments[0].priority;
     return null;
   }, [statePatrol.patrol_segments, statePatrol.priority]);
+
+  const onSave = useCallback(() => {
+    // const reportIsNew = !statePatrol.id;
+    let toSubmit = statePatrol;
+
+    const LOCATION_PROPS =  ['start_location', 'end_location'];
+
+    LOCATION_PROPS.forEach((prop) => {
+      if (toSubmit.hasOwnProperty(prop) && !toSubmit[prop]) {
+        toSubmit[prop] = null;
+      }
+    });
+
+    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
+
+    return executeSaveActions(actions)
+      .then((results) => {
+        removeModal(id);
+        // onSaveSuccess(results);
+        /*   if (report.is_collection && toSubmit.state) {
+          return Promise.all(report.contains
+            .map(contained => contained.related_event.id)
+            .map(id => setEventState(id, toSubmit.state)));
+        } */
+        return results;
+      })
+      .catch((error) => {
+        console.warn('failed to save new patrol', error);
+      });
+  }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+
+  const onCancel = useCallback(() => {
+    removeModal(id);
+  }, [id, removeModal]);
 
   return <EditableItem data={statePatrol}>
     <Modal>
@@ -333,9 +369,8 @@ const PatrolModal = (props) => {
         <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
       </AttachmentControls>
       <Footer
-        onCancel={() => console.log('cancel')}
-        onSave={() => console.log('save')}
-        onStateToggle={() => console.log('state toggle')}
+        onCancel={onCancel}
+        onSave={onSave}
         isActiveState={true}
       />
     </Modal>

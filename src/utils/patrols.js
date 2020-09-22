@@ -73,7 +73,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         reports: [],
         scheduled_start: null,
         leader,
-        start_location: location ? { lat: location.latitude, lng: location.longitude } : null,
+        start_location: location ? { ...location } : null,
         time_range: { 
           start_time: time ? new Date(time) : new Date(),
           end_time: null,
@@ -107,7 +107,10 @@ export const displayTitleForPatrol = (patrol) => {
     || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
   
   const { data: { patrolTypes } } = store.getState();
-  const matchingType = (patrolTypes || []).find(t => t.id === patrol.patrol_segments[0].patrol_type);
+  const matchingType = (patrolTypes || []).find(t => 
+    (t.value === patrol.patrol_segments[0].patrol_type)
+    || (t.id === patrol.patrol_segments[0].patrol_type)
+  );
 
   if (matchingType) return matchingType.display;
 
@@ -129,7 +132,7 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { end_time } = firstLeg;
+  const { time_range: { end_time } } = firstLeg;
 
   return end_time
     ?  new Date(end_time)
@@ -159,7 +162,7 @@ export const displayDurationForPatrol = (patrol) => {
 };
 
 export const PATROL_SAVE_ACTIONS = {
-  createPatrol(data) {
+  create(data) {
     return {
       priority: 300,
       action() {
@@ -167,7 +170,7 @@ export const PATROL_SAVE_ACTIONS = {
       },
     };
   },
-  updatePatrol(data) {
+  update(data) {
     return {
       priority: 250,
       action() {
@@ -180,15 +183,6 @@ export const PATROL_SAVE_ACTIONS = {
       priority: 200,
       action(patrol_id) {
         return store.dispatch(addNoteToPatrol(patrol_id, note));
-      },
-    };
-  },
-  addReportToPatrol(incident_id) {
-    return {
-      priority: 150,
-      action(patrol_id) {
-        //  POST `${apiEndpoint}/activity/event/${patrol_id}/relationships`
-        // data:{ to_patrol_id: incident_id, type })
       },
     };
   },
