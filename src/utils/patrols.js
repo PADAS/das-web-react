@@ -72,7 +72,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         reports: [],
         scheduled_start: null,
         leader,
-        start_location: location ? { lat: location.latitude, lng: location.longitude } : null,
+        start_location: location ? { ...location } : null,
         time_range: { 
           start_time: time ? new Date(time) : new Date(),
           end_time: null,
@@ -95,7 +95,10 @@ export const displayTitleForPatrol = (patrol) => {
   || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
   
   const { data: { patrolTypes } } = store.getState();
-  const matchingType = (patrolTypes || []).find(t => t.id === patrol.patrol_segments[0].patrol_type);
+  const matchingType = (patrolTypes || []).find(t => 
+    (t.value === patrol.patrol_segments[0].patrol_type)
+    || (t.id === patrol.patrol_segments[0].patrol_type)
+  );
 
   if (matchingType) return matchingType.display;
 
@@ -117,7 +120,7 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { end_time } = firstLeg;
+  const { time_range: { end_time } } = firstLeg;
 
   return end_time
     ?  new Date(end_time)

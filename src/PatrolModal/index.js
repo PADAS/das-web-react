@@ -31,7 +31,7 @@ import styles from './styles.module.scss';
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { addModal, events, patrol, map, /* removeModal */ } = props;
+  const { addModal, events, patrol, map, id, removeModal } = props;
   console.log('my map', map);
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
@@ -247,7 +247,7 @@ const PatrolModal = (props) => {
   }, [statePatrol.patrol_segments, statePatrol.priority]);
 
   const onSave = useCallback(() => {
-    const reportIsNew = !statePatrol.id;
+    // const reportIsNew = !statePatrol.id;
     let toSubmit = statePatrol;
 
 
@@ -260,6 +260,7 @@ const PatrolModal = (props) => {
     return executeSaveActions(actions)
       .then((results) => {
         console.log('i did it', results);
+        removeModal(id);
         // onSaveSuccess(results);
         /*   if (report.is_collection && toSubmit.state) {
           return Promise.all(report.contains
@@ -271,7 +272,7 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.log('i did not do it my doggie', error);
       });
-  }, [filesToUpload, notesToAdd, statePatrol]);
+  }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
 
   return <EditableItem data={statePatrol}>
     <Modal>
