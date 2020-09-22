@@ -276,6 +276,10 @@ const PatrolModal = (props) => {
       });
   }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
 
+  const onCancel = useCallback(() => {
+    removeModal(id);
+  }, [id, removeModal]);
+
   return <EditableItem data={statePatrol}>
     <Modal>
       <Header 
