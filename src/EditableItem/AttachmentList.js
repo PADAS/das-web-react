@@ -46,8 +46,8 @@ const AttachmentList = (props) => {
 
   return hasItems &&
     <ul className={styles.attachmentList}>
-      {files.map(ListItemForFile)}
-      {notes.map(ListItemForNote)}
+      {/* {files.map(ListItemForFile)}
+      {notes.map(ListItemForNote)} */}
     </ul>;
 };
 

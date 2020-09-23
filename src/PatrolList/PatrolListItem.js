@@ -18,17 +18,17 @@ const PatrolListItem = (props) => {
   };
 
   const patrolStatusStyle = `status-${patrol.state}`;
-  const iconType = iconTypeForPatrol(patrol);
+  const patrolIconId = iconTypeForPatrol(patrol);
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
 
-    <div>
-      {/* {iconType && <DasIcon type='event' iconId={iconType} />} */}
+    <div className={styles.textContainer}>
+      {patrolIconId && <DasIcon type='events' onClick={onPatrolTitleClick} iconId={patrolIconId} />}
       <h4 onClick={onPatrolTitleClick}>{displayTitleForPatrol(patrol)}</h4>
       <KebabMenuIcon className={styles.kebab}/>
+      <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
+      <p>Distance covered: <span>0km</span></p>
     </div>
-    <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
-    <p>Distance covered: <span>0km</span></p>
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
     <AddReport className={styles.addReport} showLabel={false} />
   </li>;

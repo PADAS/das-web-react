@@ -241,7 +241,7 @@ const PatrolModal = (props) => {
   }, [statePatrol.patrol_segments]);
 
   const displayPriority = useMemo(() => {
-    if (statePatrol.priority) return statePatrol.priority;
+    if (statePatrol.priority.hasOwnProperty) return statePatrol.priority; 
     if (!!statePatrol.patrol_segments.length) return statePatrol.patrol_segments[0].priority;
     return null;
   }, [statePatrol.patrol_segments, statePatrol.priority]);
