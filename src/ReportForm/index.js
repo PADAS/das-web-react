@@ -6,8 +6,9 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { eventBelongsToCollection, generateSaveActionsForReport, executeReportSaveActions, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEvent } from '../utils/analytics';
 
@@ -136,9 +137,9 @@ const ReportForm = (props) => {
 
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click 'Save' button for ${reportIsNew?'new':'existing'} report`);
 
-    const actions = generateSaveActionsForReport(toSubmit, notesToAdd, filesToUpload);
+    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'report', notesToAdd, filesToUpload);
 
-    return executeReportSaveActions(actions)
+    return executeSaveActions(actions)
       .then((results) => {
         onSaveSuccess(results);
         if (report.is_collection && toSubmit.state) {
