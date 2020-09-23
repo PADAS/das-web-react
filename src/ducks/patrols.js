@@ -76,7 +76,7 @@ export const updatePatrol = (event) => (dispatch) => {
   let eventResults;
   let resp;
 
-  return axios.patch(`${PATROLS_API_URL}${event.id}`, event)
+  return axios.patch(`${PATROLS_API_URL}/${event.id}`, event)
     .then((response) => {
       eventResults = response.data.data;
       resp = response;
