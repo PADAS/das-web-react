@@ -4,7 +4,6 @@ import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
-const PATROLS_API_PATCH_URL = `${API_URL}activity/patrol/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
@@ -78,7 +77,7 @@ export const updatePatrol = (event) => (dispatch) => {
   let eventResults;
   let resp;
 
-  return axios.patch(`${PATROLS_API_PATCH_URL}${event.id}`, event)
+  return axios.patch(`${PATROLS_API_URL}${event.id}`, event)
     .then((response) => {
       eventResults = response.data.data;
       resp = response;
