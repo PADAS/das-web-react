@@ -3,8 +3,8 @@ import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
-const PATROLS_API_URL = `${API_URL}activity/patrols`;
-const PATROLS_API_PATCH_URL = `${API_URL}activity/patrol`;
+const PATROLS_API_URL = `${API_URL}activity/patrols/`;
+const PATROLS_API_PATCH_URL = `${API_URL}activity/patrol/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
@@ -28,7 +28,8 @@ const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
 export const fetchPatrols = () => async (dispatch) => {
-  const { data: { data: patrols } } = await axios.get(PATROLS_API_URL).catch((error) => {
+
+  const { data: { data: patrols } } = await axios.get(`${PATROLS_API_URL}?page_size=300`).catch((error) => {
     console.warn('error fetching patrols', error);
     dispatch({
       type: FETCH_PATROLS_ERROR,
@@ -77,7 +78,7 @@ export const updatePatrol = (event) => (dispatch) => {
   let eventResults;
   let resp;
 
-  return axios.patch(`${PATROLS_API_PATCH_URL}/${event.id}`, event)
+  return axios.patch(`${PATROLS_API_PATCH_URL}${event.id}`, event)
     .then((response) => {
       eventResults = response.data.data;
       resp = response;
