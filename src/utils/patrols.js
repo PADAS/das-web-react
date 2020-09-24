@@ -27,6 +27,7 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
       },
     }));
 };
+
 export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
   const categoryObject = {
     'value': 'patrols',
@@ -86,13 +87,24 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
   };
 };
 
+export const iconTypeForPatrol = (patrol) => {
+  const UKNOWN_TYPE = '';
+  
+  if (patrol.icon_id) return patrol.icon_id;
+
+  if ( patrol.patrol_segments.length && patrol.patrol_segments[0].icon_id) 
+    return patrol.patrol_segments[0].icon_id;
+
+  return UKNOWN_TYPE;
+};
+
 export const displayTitleForPatrol = (patrol) => {
   const UKNOWN_MESSAGE = 'Unknown patrol type';
   
   if (patrol.title) return patrol.title;
 
   if (!patrol.patrol_segments.length
-  || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
+    || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
   
   const { data: { patrolTypes } } = store.getState();
   const matchingType = (patrolTypes || []).find(t => 

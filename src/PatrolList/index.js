@@ -1,21 +1,22 @@
-import React, { Fragment, /* useRef, */ memo } from 'react';
+import React, { Fragment, /* useRef, */ memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 // import { findDOMNode } from 'react-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import LoadingOverlay from '../LoadingOverlay';
-import PatrolListItem from './PatrolListItem';
 import PatrolListTitle from './Title';
+import { openModalForPatrol } from '../utils/patrols';
 
 import styles from './styles.module.scss';
+import PatrolFeedCard from './PatrolFeedCard';
 
 const PatrolList = (props) => {
-  const { patrols, loading } = props;
+  const { map, patrols, loading } = props;
+
+  const onPatrolTitleClick = useCallback((patrol) => {
+    openModalForPatrol(patrol, map);
+  }, [map]);
 
   // const scrollRef = useRef(null);
-
-  const onPatrolClick = (e) => {
-    console.log('Click', e.target);
-  };
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
@@ -28,10 +29,11 @@ const PatrolList = (props) => {
       // getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
     >
       {patrols.map((item, index) =>
-        <PatrolListItem
+        <PatrolFeedCard
+          onPatrolTitleClick={onPatrolTitleClick}
           patrol={item}
-          key={`${item.id}-${index}`}
-          onPatrolClick={onPatrolClick} />
+          map={map}
+          key={`${item.id}-${index}`}/>
       )}
       {!patrols.length && <div className={`${styles.listItem} ${styles.loadMessage}`} key='no-patrols-to-display'>No patrols to display.</div>}
     </InfiniteScroll>
