@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol, displayTitleForPatrol, openModalForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
 import AddReport from '../AddReport';
 import KebabMenuIcon from '../KebabMenuIcon';
@@ -8,14 +8,10 @@ import DasIcon from '../DasIcon';
 
 import styles from './styles.module.scss';
 
-const PatrolListItem = (props) => {
-  const { map, patrol, onPatrolClick } = props;
+const PatrolFeedCard = (props) => {
+  const { patrol, onPatrolClick, onPatrolTitleClick } = props;
 
   const onPatrolStatusClick = (e) => console.log('clicked status');
-
-  const onPatrolTitleClick = (e) => {
-    openModalForPatrol(patrol, map);
-  };
 
   const patrolStatusStyle = `status-${patrol.state}`;
   const patrolIconId = iconTypeForPatrol(patrol);
@@ -23,8 +19,8 @@ const PatrolListItem = (props) => {
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
 
     <div className={styles.textContainer}>
-      {patrolIconId && <DasIcon type='events' onClick={onPatrolTitleClick} iconId={patrolIconId} />}
-      <h4 onClick={onPatrolTitleClick}>{displayTitleForPatrol(patrol)}</h4>
+      {patrolIconId && <DasIcon type='events' onClick={()=>onPatrolTitleClick(patrol)} iconId={patrolIconId} />}
+      <h4 onClick={()=>onPatrolTitleClick(patrol)}>{displayTitleForPatrol(patrol)}</h4>
       <KebabMenuIcon className={styles.kebab}/>
       <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
       <p>Distance covered: <span>0km</span></p>
@@ -34,4 +30,4 @@ const PatrolListItem = (props) => {
   </li>;
 };
 
-export default memo(PatrolListItem);
+export default memo(PatrolFeedCard);
