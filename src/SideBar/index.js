@@ -11,7 +11,7 @@ import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
 import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
-import { getFeedEvents } from '../selectors';
+import { getFeedEvents, getPatrols } from '../selectors';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
@@ -39,6 +39,7 @@ import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString'
 import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
+import { fetchPatrols } from '../ducks/patrols';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -49,10 +50,11 @@ const TAB_KEYS = {
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, patrols, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, patrols, eventFilter, fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
+  const [patrolFeed, setPatrolFeed] = useState([]);
   const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
@@ -69,6 +71,11 @@ const SideBar = (props) => {
     }
     return value;
   }, [eventFilter]);
+
+
+  useEffect(() => {
+    setPatrolFeed(patrols.results);
+  }, [patrols.results]);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
@@ -109,6 +116,10 @@ const SideBar = (props) => {
         setEventLoadState(false);
       });
   };
+
+  useEffect(() => {
+    fetchPatrols();
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     loadFeedEvents();
@@ -185,7 +196,7 @@ const SideBar = (props) => {
         </Tab>
         {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
           <PatrolFilter className={styles.patrolFilter} /> 
-          <PatrolList map={map} patrols={patrols.results || []}/>
+          <PatrolList map={map} patrols={patrolFeed || []}/>
         </Tab>}
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
@@ -210,16 +221,21 @@ const SideBar = (props) => {
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
-  patrols: state.data.patrols,
-  //patrols: getPatrols(state),
+  patrols: getPatrols(state),
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
-});
+});   //patrols: state.data.patrols,
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, setReportHeatmapVisibility })(memo(SideBar));
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility })(memo(SideBar));
 
 SideBar.propTypes = {
   events: PropTypes.shape({
+    count: PropTypes.number,
+    next: PropTypes.string,
+    previous: PropTypes.string,
+    results: PropTypes.array,
+  }).isRequired,
+  patrols: PropTypes.shape({
     count: PropTypes.number,
     next: PropTypes.string,
     previous: PropTypes.string,
@@ -229,5 +245,6 @@ SideBar.propTypes = {
   onHandleClick: PropTypes.func.isRequired,
   fetchEventFeed: PropTypes.func.isRequired,
   fetchNextEventFeedPage: PropTypes.func.isRequired,
+  fetchPatrols: PropTypes.func.isRequired,
   map: PropTypes.object,
 };
