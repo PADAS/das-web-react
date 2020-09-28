@@ -7,15 +7,18 @@ import styles from './styles.module.scss';
 
 
 const PatrolJumpButton = (props) => {
-  const { clickAnalytics, onClick, map, showLabel, hoverText, ...rest } = props;
+  const { clickAnalytics, onClick, map, showLabel, ...rest } = props;
+
+  const hoverText = 'Jump to patrol';
 
   const onJumpButtonClick = (e) => {
     // implement logic 
+    console.log('click');
     trackEvent('Patrol List', 'Jump to Patrols on Map');
   };
 
   return <div className={styles.container}>
-    <button title="Jump to patrol" type="button"
+    <button title={hoverText} type="button"
       className={styles.button} onClick={onJumpButtonClick} {...rest}>
     </button>
     {showLabel && <span>{hoverText}</span>}
