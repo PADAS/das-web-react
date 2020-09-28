@@ -53,7 +53,6 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
-import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
@@ -104,16 +103,6 @@ class Map extends Component {
     this.trackRequestCancelToken = CancelToken.source();
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
-
-    if (!this.props.userPreferences.seenSunsetWarning) {
-      this.props.addModal({
-        content: BetaWelcomeModal,
-        modalProps: {
-          keyboard: false,
-        },
-      });
-    }
-
 
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
 
