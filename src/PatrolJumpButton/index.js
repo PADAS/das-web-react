@@ -1,27 +1,30 @@
 import React, { memo } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { trackEvent } from '../utils/analytics';
-import { ReactComponent as MultiPatrolIcon } from '../common/images/icons/multi-patrol-marker.svg';
 
 import styles from './styles.module.scss';
 
 
 const PatrolJumpButton = (props) => {
-  const { clickAnalytics, onClick, map, hasMultiPatrols, ...rest } = props;
+  const { clickAnalytics, onClick, map, showLabel, hoverText, ...rest } = props;
 
   const onJumpButtonClick = (e) => {
-
+    // implement logic 
+    trackEvent('Patrol List', 'Jump to Patrols on Map');
   };
 
-  return <button title="Jump to patrol" type="button"
-    className={styles.patrolJumpButton} onClick={onJumpButtonClick} {...rest}>
-    <MultiPatrolIcon />
-  </button>;
+  return <div className={styles.container}>
+    <button title="Jump to patrol" type="button"
+      className={styles.button} onClick={onJumpButtonClick} {...rest}>
+    </button>
+    {showLabel && <span>{hoverText}</span>}
+  </div>;
+
 };
 
-export default PatrolJumpButton;
+
+export default memo(PatrolJumpButton);
 
 PatrolJumpButton.propTypes = {
   coordinates: PropTypes.array,
