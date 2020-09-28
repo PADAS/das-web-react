@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -70,11 +70,6 @@ const DataExportMenu = (props) => {
     },
   };
 
-  const onLegacyLinkClick = useCallback(() => {
-    trackEvent('Main Toolbar', 'Click Link to Legacy Web UI');
-    window.location = '/legacy/';
-  }, []);
-
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
     trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
@@ -106,8 +101,6 @@ const DataExportMenu = (props) => {
       <Divider />
       <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
-      <Divider />
-      <Item onClick={onLegacyLinkClick}>&laquo; Legacy Version</Item>
     </Menu>
   </Dropdown>;
 };
