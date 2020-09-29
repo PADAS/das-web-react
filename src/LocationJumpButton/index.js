@@ -7,7 +7,6 @@ import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
-import { ReactComponent as PatrolMarkerIcon } from '../common/images/icons/multi-patrol-marker.svg';
 
 import { updateUserPreferences } from '../ducks/user-preferences';
 
@@ -17,9 +16,9 @@ const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
   const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
-    zoom, updateUserPreferences, onButtonClick, usePatrolIcon, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
+    zoom, updateUserPreferences, onButtonClick, iconOverride, className, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
 
-  const buttonClass = usePatrolIcon ? styles.patrol : isMulti ? styles.multi : styles.jump;
+  const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
   
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
@@ -44,8 +43,8 @@ const LocationJumpButton = (props) => {
 
   return isValidLocation && <button title="Jump to this location" type="button"
     className={buttonClass} onClick={onJumpButtonClick} {...rest}>
-    {usePatrolIcon 
-      ? <PatrolMarkerIcon /> 
+    {iconOverride 
+      ? iconOverride
       :  <MarkerIcon /> }
     {isMulti && <MarkerIcon />}
   </button>;
