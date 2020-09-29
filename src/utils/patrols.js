@@ -1,5 +1,6 @@
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
+import isToday from 'date-fns/is_today';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -137,6 +138,18 @@ export const displayEndTimeForPatrol = (patrol) => {
   return end_time
     ?  new Date(end_time)
     : null;
+};
+
+export const patrolsStartingToday = (patrols) => {
+  return patrols.filter( (patrol) => {
+    // defensive driving - we have a patrol with no segments
+    if (!patrol.patrol_segments.length) return false;
+    const { time_range } = patrol.patrol_segments[0];
+    // likewise, need a second destructure here, 
+    // as start_times are null
+    const { start_time } = time_range;
+    return start_time && isToday(new Date(start_time));
+  });
 };
 
 export const displayDurationForPatrol = (patrol) => {

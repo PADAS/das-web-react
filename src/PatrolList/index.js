@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { openModalForPatrol } from '../utils/patrols';
+import { openModalForPatrol, patrolsStartingToday } from '../utils/patrols';
 
 import styles from './styles.module.scss';
 import PatrolFeedCard from './PatrolFeedCard';
@@ -20,6 +20,8 @@ const PatrolList = (props) => {
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
+  const startingPatrols = patrolsStartingToday(patrols);
+
   return <Fragment>
     <PatrolListTitle />
     <InfiniteScroll
@@ -28,7 +30,7 @@ const PatrolList = (props) => {
       className={styles.patrolList}
       // getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
     >
-      {patrols.map((item, index) =>
+      {startingPatrols.map((item, index) =>
         <PatrolFeedCard
           onPatrolTitleClick={onPatrolTitleClick}
           patrol={item}
