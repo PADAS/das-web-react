@@ -2,13 +2,17 @@ import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
+import Dropdown from 'react-bootstrap/Dropdown';
+
 import AddReport from '../AddReport';
 import KebabMenuIcon from '../KebabMenuIcon';
 import DasIcon from '../DasIcon';
 
 import styles from './styles.module.scss';
 
-const PatrolFeedCard = (props) => {
+const { Toggle, Menu, Item, Header, Divider } = Dropdown;
+
+const PatrolCard = (props) => {
   const { patrol, onPatrolClick, onPatrolTitleClick } = props;
 
   const onPatrolStatusClick = (e) => console.log('clicked status');
@@ -21,7 +25,18 @@ const PatrolFeedCard = (props) => {
     <div className={styles.textContainer}>
       {patrolIconId && <DasIcon type='events' onClick={()=>onPatrolTitleClick(patrol)} iconId={patrolIconId} />}
       <h4 onClick={()=>onPatrolTitleClick(patrol)}>{displayTitleForPatrol(patrol)}</h4>
-      <KebabMenuIcon className={styles.kebab}/>
+      <Dropdown alignRight onToggle={(e) => console.log('toggle')} className={styles.kebabMenu}>
+        <Toggle as="button">
+          <KebabMenuIcon />
+        </Toggle>
+        <Menu>
+          <Item onClick={(e) => console.log('click start', e)}>Start Patrol</Item>
+          <Item onClick={(e) => console.log('click open', e)}>Open</Item>
+          <Item onClick={(e) => console.log('click rename', e)}>Rename</Item>
+          <Item onClick={(e) => console.log('click cancel', e)}>Cancel Patrol</Item>
+        </Menu>
+      </Dropdown>
+      
       <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
       <p>Distance covered: <span>0km</span></p>
     </div>
@@ -30,4 +45,4 @@ const PatrolFeedCard = (props) => {
   </li>;
 };
 
-export default memo(PatrolFeedCard);
+export default memo(PatrolCard);

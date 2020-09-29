@@ -7,7 +7,7 @@ import PatrolListTitle from './Title';
 import { openModalForPatrol } from '../utils/patrols';
 
 import styles from './styles.module.scss';
-import PatrolFeedCard from './PatrolFeedCard';
+import PatrolCard from '../PatrolCard';
 
 const PatrolList = (props) => {
   const { map, patrols, loading } = props;
@@ -29,7 +29,7 @@ const PatrolList = (props) => {
       // getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
     >
       {patrols.map((item, index) =>
-        <PatrolFeedCard
+        <PatrolCard
           onPatrolTitleClick={onPatrolTitleClick}
           patrol={item}
           map={map}

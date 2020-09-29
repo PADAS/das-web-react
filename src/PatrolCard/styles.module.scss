@@ -1,0 +1,149 @@
+@import '../common/styles/vars/colors';
+
+.patrolListItem {
+  border-radius: .75rem;
+  margin: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  position: relative;
+  text-align: center;
+  width: 48%;
+  h4 {
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding-left: 2.25rem;
+      padding-right: 2.25rem;
+      align-items: center;
+      margin: 0.6875rem 0 0.25rem;
+      cursor: pointer;
+  }
+  svg {
+      height: 1.25rem;
+      width: 2.0rem;
+      fill: gray; 
+      position: absolute;
+      left: 0.375rem;
+      top: 0.5rem;
+      cursor: pointer;
+  }
+  p {
+      color: #8C8C8C;
+      font-size: .5rem;
+      font-style: italic;
+      margin-bottom: 0.125rem;
+      span {
+          color: #646161;
+      }
+  }
+  button {
+      font-size: .5rem;
+      font-style: plain;
+      padding-top: 0rem;
+      color: #323335;
+  }
+  &:hover {
+      .addReport {
+          display: block;
+      }
+      .kebabMenu {
+          display: flex;
+      }
+  }
+}
+
+
+.status-upcoming {
+  border: 2px dashed #746dcd;  //blue_marguerite
+  background-color: $patrol-ready-bg;   //portafino
+  &:hover {
+      background-color: darken($patrol-ready-bg, 6%);
+  }
+}
+
+.status-active {
+  border: 2px solid #8a2fcf; //purple_heart
+  background-color: $patrol-active-bg; //feta
+  &:hover {
+      background-color: darken($patrol-active-bg, 6%);
+  }
+}
+
+.status-checkin-overdue {
+  border: 2px solid #d20c17; //monza
+  background-color: $patrol-overdue-bg; //chablis
+  &:hover {
+      background-color: darken($patrol-overdue-bg, 6%);
+  }
+}
+
+.status-checkin-past, .status-past {
+  border: 2px dashed #d20c17;
+  background-color: $patrol-overdue-bg;
+  &:hover {
+      background-color: darken($patrol-overdue-bg, 6%);
+  }
+}
+
+.status-cancelled {
+  border: 2px dashed #8e8e8b; //natural_gray
+  background-color: #f7f7f4; //cararra
+  &:hover {
+      background-color: darken(#f7f7f4, 6%);
+  }
+}
+
+.addReport, .kebabMenu {
+  display: none;
+  position: absolute;
+}
+
+.addReport {
+  bottom: 2.25rem;
+  pointer-events: none;
+  left: 0;
+  svg {
+      height: 1.5rem;
+      width: 1.5rem;
+  }
+}
+
+.kebabMenu {
+  --hamburger-menu-color: #1a2026;
+  align-items: center;
+  border-radius: 1rem;
+  height: 1.75rem;
+  justify-content: center;
+  right: 0.125rem;
+  transition: background 0.15s linear;
+  top: 0.125rem;
+  width: 1.75rem;
+  &:active {
+      background: rgba(0,0,0,0.17);
+  }
+  > button {
+    border: none;
+    outline: none;
+    background: none;
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.headerControls {
+  --button-dimensions: 1.75rem;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-left: auto;
+  width: 7rem;
+  button {
+      height: var(--button-dimensions);
+      width: var(--button-dimensions);
+  }
+  .kebabMenu {
+      --hamburger-menu-color: rgba(0, 0, 0, 0.47);
+      display: flex;
+      position: static;
+  }
+}
+
