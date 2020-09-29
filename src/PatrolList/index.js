@@ -16,12 +16,16 @@ const PatrolList = (props) => {
     openModalForPatrol(patrol, map);
   }, [map]);
 
+  const onPatrolJumpClick = useCallback((e) => {
+    //todo
+  }, []);
+
   // const scrollRef = useRef(null);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
-    <PatrolListTitle />
+    <PatrolListTitle onPatrolJumpClick={onPatrolJumpClick}/>
     <InfiniteScroll
       useWindow={false}
       element='ul'
