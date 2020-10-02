@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -41,12 +41,12 @@ const LocationJumpButton = (props) => {
     closeSidebarForSmallViewports();
   };
 
+  const defaultIcon = isMulti? 
+    <Fragment><MarkerIcon /><MarkerIcon /></Fragment> : <MarkerIcon />;
+
   return isValidLocation && <button title="Jump to this location" type="button"
     className={buttonClass} onClick={onJumpButtonClick} {...rest}>
-    {iconOverride 
-      ? iconOverride
-      :  <MarkerIcon /> }
-    {isMulti && <MarkerIcon />}
+    {iconOverride ? iconOverride : defaultIcon}
   </button>;
 };
 
