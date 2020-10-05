@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import TimeAgo from 'react-timeago';
+import { displayStartTimeForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
 import AddReport from '../AddReport';
 import KebabMenuIcon from '../KebabMenuIcon';
@@ -22,7 +23,7 @@ const PatrolFeedCard = (props) => {
       {patrolIconId && <DasIcon type='events' onClick={()=>onPatrolTitleClick(patrol)} iconId={patrolIconId} />}
       <h4 onClick={()=>onPatrolTitleClick(patrol)}>{displayTitleForPatrol(patrol)}</h4>
       <KebabMenuIcon className={styles.kebab}/>
-      <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
+      <p>Time on patrol: <TimeAgo date={displayStartTimeForPatrol(patrol)} /></p>
       <p>Distance covered: <span>0km</span></p>
     </div>
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
