@@ -26,9 +26,9 @@ const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
-export const fetchPatrols = () => async (dispatch) => {
+export const fetchPatrols = (filter) => async (dispatch) => {
 
-  const { data: { data: patrols } } = await axios.get(`${PATROLS_API_URL}?page_size=300`).catch((error) => {
+  const { data: { data: patrols } } = await axios.get(`${PATROLS_API_URL}?page_size=200&${filter}`).catch((error) => {
     console.warn('error fetching patrols', error);
     dispatch({
       type: FETCH_PATROLS_ERROR,

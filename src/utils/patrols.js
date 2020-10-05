@@ -1,6 +1,7 @@
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
-import isToday from 'date-fns/is_today';
+import startOfDay from 'date-fns/start_of_day';
+import endOfDay from 'date-fns/end_of_day';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -10,6 +11,7 @@ import { getReporterById } from '../utils/events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
+import { objectToParamString } from './query';
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
@@ -140,16 +142,18 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const patrolsStartingToday = (patrols) => {
-  return patrols.filter( (patrol) => {
-    // defensive driving - we have a patrol with no segments
-    if (!patrol.patrol_segments.length) return false;
-    const { time_range } = patrol.patrol_segments[0];
-    // likewise, need a second destructure here, 
-    // as start_times are null
-    const { start_time } = time_range;
-    return start_time && isToday(new Date(start_time));
-  });
+export const currentPatrolDateQuery = () => {
+  const naive_date = new Date();
+  const utc_now = Date.UTC(naive_date.getUTCFullYear(), naive_date.getUTCMonth(), naive_date.getUTCDate(),
+    naive_date.getUTCHours(), naive_date.getUTCMinutes(), naive_date.getUTCSeconds());
+
+  const startTimeTxt = startOfDay(utc_now).toISOString();
+  const endTimeTxt = endOfDay(utc_now).toISOString();
+
+  const timeRangeDict =  {'date_range': {'lower': startTimeTxt, 'upper': endTimeTxt}};
+  const jsonEndcoded = encodeURI('filter=' + JSON.stringify(timeRangeDict));
+
+  return jsonEndcoded;
 };
 
 export const displayDurationForPatrol = (patrol) => {
