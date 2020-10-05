@@ -23,7 +23,7 @@ const InlineEditable = (props) => {
           inputRef.current.setSelectionRange(0, value.length);
         }
       }
-    });
+    }, 80);
   }, [originalValue, validationFunc, value]);
 
   useEffect(onStartEdit, [editing]);
