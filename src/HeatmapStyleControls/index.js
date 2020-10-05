@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useRef, useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import InlineEditable from '../InlineEditable';
@@ -23,6 +23,15 @@ const HeatmapStyleControls = (props) => {
   const { heatmapStyles: { radiusInMeters, intensity }, updateHeatmapConfig } = props;
 
   const trackEventDebounced = useRef(debouncedTrackEvent());
+  const [editingRadius, setRadiusEditState] = useState(false);
+
+  const startRadiusEdit = useCallback(() => {
+    setRadiusEditState(true);
+  }, []);
+
+  const cancelRadiusEdit = useCallback(() => {
+    setRadiusEditState(false);
+  }, []);
   
   const onRadiusChange = (value) => {
     const updateValue = parseFloat(value) || MINIMUM_RADIUS;
@@ -53,7 +62,7 @@ const HeatmapStyleControls = (props) => {
   return <div className={styles.controls}>
     <label htmlFor='heatmap-radius-input'>
       <span>Radius (in meters):</span>
-      <InlineEditable step='1' showCancel={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusChange} /><span className={styles.unit}>m</span>
+      <InlineEditable step='1' onCancel={cancelRadiusEdit} editing={editingRadius} onClick={startRadiusEdit} onEsc={cancelRadiusEdit} showCancel={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusChange} /><span className={styles.unit}>m</span>
     </label>
     <LogarithmicSlider value={radiusInMeters} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} onChange={onRadiusChange} />
 

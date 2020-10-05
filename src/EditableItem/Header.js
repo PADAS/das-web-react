@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useContext, useMemo, useState, useRef, Fragment } from 'react';
+import React, { forwardRef, memo, useCallback, useContext, useMemo, useState, useRef, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import TimeAgo from '../TimeAgo';
 import Popover from 'react-bootstrap/Popover';
@@ -23,6 +23,21 @@ const EditableItemHeader = (props) => {
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
+  const [editingTitle, setTitleEditState] = useState(false);
+
+
+  const startTitleEdit = useCallback(() => {
+    setTitleEditState(true);
+  }, []);
+
+  const cancelTitleEdit = useCallback(() => {
+    setTitleEditState(false);
+  }, []);
+
+  const onSaveTitle = useCallback((value) => {
+    onTitleChange(value);
+    setTitleEditState(false);
+  }, [onTitleChange]);
 
   const title = useMemo(() => {
     return titleProp || data.title;
@@ -88,7 +103,7 @@ const EditableItemHeader = (props) => {
         </span>
       }
       {data.serial_number && <span>{data.serial_number}</span>}
-      <InlineEditable /* onCancel={onTitleChangeCancel} */ value={title} onSave={onTitleChange} />
+      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} />
       {children}
       <div className={styles.headerDetails}>
         {!!MenuContent && <Fragment>

@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useEffect, useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './styles.module.scss';
@@ -6,24 +6,14 @@ import styles from './styles.module.scss';
 import Checkmark from '../Checkmark';
 
 const InlineEditable = (props) => {
-  const { validationFunc, value:originalValue, onCancel, onSave, onChange, showCancel, showEditButton, ...rest } = props;
+  const { editing, onEsc, onClick, validationFunc, value:originalValue, onCancel, onSave, onChange, showCancel, showEditButton, ...rest } = props;
   const inputRef = useRef(null);
 
-  const [editing, setEditState] = useState(false);
   const [valid, setValidationState] = useState(validationFunc(originalValue));
   const [value, setStateValue] = useState(originalValue);
 
-  const onInputChange = (event) => {
-    const { target: { value } } = event;
-
-    setValidationState(validationFunc(value));
-    setStateValue(value);
-    onChange && onChange(value);
-  };
-
-  const onStartEdit = () => {
+  const onStartEdit = useCallback(() => {
     setStateValue(originalValue);
-    setEditState(true);
     setValidationState(validationFunc(value));
 
     setTimeout(() => {
@@ -34,39 +24,48 @@ const InlineEditable = (props) => {
         }
       }
     });
+  }, [originalValue, validationFunc, value]);
+
+  useEffect(onStartEdit, [editing]);
+
+
+
+  const onInputChange = (event) => {
+    const { target: { value } } = event;
+
+    setValidationState(validationFunc(value));
+    setStateValue(value);
+    onChange && onChange(value);
   };
 
   const onChangeCancel = () => {
     onCancel && onCancel();
-    setEditState(false);
   };
 
-  const handleKeyDown = (event) => {
+  const save = useCallback(async () => {
+    await onSave(value);
+  }, [onSave, value]);
+
+
+  const handleKeyDown = useCallback((event) => {
     const { key } = event;
     if (key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
-      return setEditState(false);
+      onEsc && onEsc();
     }
-    if (key === 'Enter') {
-      return save();
-    }
-  };
-
-  const save = async () => {
-    await onSave(value);
-    setEditState(false);
-  };
+  }, [onEsc]);
 
   return (
     editing ?
-      <form className={styles.form} onSubmit={save} onKeyDown={handleKeyDown}>
+      <form className={styles.form} onSubmit={save}>
         <input
           className={styles.input}
           ref={inputRef}
           value={value}
           type={typeof originalValue}
           onChange={onInputChange}
+          onKeyDown={handleKeyDown}
           {...rest}
         />
         {showCancel && <button className={styles.button} type="button" onClick={onChangeCancel}>
@@ -77,8 +76,8 @@ const InlineEditable = (props) => {
         </button>
         {!valid && <span>Invalid, yo</span>}
       </form>
-      : <span onClick={onStartEdit} className={styles.editable} {...rest}>
-        {originalValue} {showEditButton && <button type="button" onClick={onStartEdit}>Edit</button>}
+      : <span onClick={onClick} className={styles.editable} {...rest}>
+        {originalValue} {showEditButton && <button type="button" onClick={onClick}>Edit</button>}
       </span>
   );
 
@@ -102,8 +101,12 @@ InlineEditable.propTypes = {
     PropTypes.string,
     PropTypes.number,
   ]),
+  editing: PropTypes.bool.isRequired,
   showEditButton: PropTypes.bool,
   showCancel: PropTypes.bool,
+  onCancel: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
+  onEsc: PropTypes.func,
   onSave: PropTypes.func.isRequired,
-  onChange: PropTypes.func,
 };
