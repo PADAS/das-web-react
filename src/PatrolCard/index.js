@@ -1,4 +1,4 @@
-import React, { memo, useState, useMemo, useCallback } from 'react';
+import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
@@ -23,9 +23,20 @@ const PATROL_STATES = {
 };
 
 const PatrolCard = (props) => {
-  const { patrol, onPatrolClick, onPatrolTitleClick } = props;
+  const { patrol, onTitleClick, onTitleChange } = props;
 
   const [editingTitle, setTitleEditState] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (editingTitle && menuRef.current && !menuRef.current.contains(e.target)) {
+        endTitleEdit();
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);  /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const startTitleEdit = useCallback(() => {
     setTitleEditState(true);
@@ -70,41 +81,37 @@ const PatrolCard = (props) => {
   }, [canRestorePatrol]);
 
   const togglePatrolCancelationState = useCallback(() => {
-
+    console.log('toggling patrol cancel/restore state');
   }, []);
 
   const togglePatrolStartStopState = useCallback(() => {
-
-  }, []);
-
-  const openPatrol = useCallback(() => {
-    console.log('opening the patrol');
+    console.log('toggling patrol start/stop state');
   }, []);
 
   const onPatrolTitleChange = useCallback((value) => {
-    console.log('change the title to this', value);
+    onTitleChange(value);
     endTitleEdit();
-  }, [endTitleEdit]);
+  }, [endTitleEdit, onTitleChange]);
 
   const patrolStatusStyle = `status-${patrol.state}`;
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
-  return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} onClick={onPatrolClick}>
+  return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
 
     
-    {patrolIconId && <DasIcon type='events' onClick={()=>onPatrolTitleClick(patrol)} iconId={patrolIconId} />}
+    {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
-      onCancel={endTitleEdit} onSave={onPatrolTitleChange} />
-    <Dropdown alignRight onToggle={(e) => console.log('toggle')} className={styles.kebabMenu}>
+      onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} />
+    <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />
       </Toggle>
-      <Menu>
+      <Menu ref={menuRef}>
         <Item disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
-        <Item onClick={openPatrol}>Open</Item>
+        <Item onClick={()=>onTitleClick(patrol)}>Open</Item>
         <Item onClick={startTitleEdit}>Rename</Item>
         <Item disabled={patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
