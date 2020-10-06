@@ -18,7 +18,7 @@ const PatrolListItem = (props) => {
     openModalForPatrol(patrol, map);
   }, [map, patrol]);
 
-  const onPatrolJumpClick = useCallback((e) => {
+  const onPatrolClick = useCallback((e) => {
     //todo
   }, []);
 
@@ -43,7 +43,7 @@ const PatrolList = (props) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
-    <PatrolListTitle onPatrolJumpClick={onPatrolJumpClick}/>
+    <PatrolListTitle onClick={true}/>
     <InfiniteScroll
       useWindow={false}
       element='ul'

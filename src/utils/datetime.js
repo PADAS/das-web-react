@@ -60,3 +60,10 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
+
+export const utcNow = () => {
+  const naive_date = new Date();
+  const utc_now = Date.UTC(naive_date.getUTCFullYear(), naive_date.getUTCMonth(), naive_date.getUTCDate(),
+    naive_date.getUTCHours(), naive_date.getUTCMinutes(), naive_date.getUTCSeconds());
+  return utc_now;
+}
