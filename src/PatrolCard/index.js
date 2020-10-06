@@ -15,15 +15,20 @@ const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
 
 const PATROL_STATES = {
-  UPCOMING: 'upcoming',
-  ACTIVE: 'active',
+  OPEN: 'open',
   DONE: 'done',
   CANCELLED: 'cancelled',
-  PAST: 'past',
 };
 
 const PatrolCard = (props) => {
   const { patrol, onTitleClick, onTitleChange } = props;
+
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { time_range: { start_time, end_time } } = firstLeg;
+
+  const hasStarted = !!start_time && new Date(start_time).getTime() < new Date().getTime();
+  const hasEnded = !!end_time && new Date(end_time).getTime() < new Date().getTime();
 
   const [editingTitle, setTitleEditState] = useState(false);
   const menuRef = useRef(null);
@@ -46,30 +51,38 @@ const PatrolCard = (props) => {
     setTitleEditState(false);
   },[]);
 
-  const onPatrolStatusClick = (e) => console.log('clicked status');
+  const onPatrolStatusClick = useCallback((e) => console.log('clicked status'), []);
+
+  const canStartPatrol = useMemo(() =>
+    patrol.state === PATROL_STATES.OPEN
+    && !hasStarted
+  , [hasStarted, patrol.state]);
+
+  const canEndPatrol = useMemo(() =>
+    patrol.state === PATROL_STATES.OPEN
+      && hasStarted
+      && !hasEnded
+  , [hasEnded, hasStarted, patrol.state]);
+
+  const canRestorePatrol = useMemo(() => {
+    return patrol.state === PATROL_STATES.CANCELLED;
+  }, [patrol.state]);
+
+  const canCancelPatrol = useMemo(() => {
+    return patrol.state === PATROL_STATES.OPEN &&
+    !hasEnded;
+  }, [hasEnded, patrol.state]);
 
   const patrolStartEndCanBeToggled = useMemo(() => {
-    const disqualifyingStates = ['cancelled', 'done', 'past'];
-    return !disqualifyingStates.includes(patrol.state);
-  }, [patrol.state]);
+    return (patrol.state === PATROL_STATES.OPEN)
+      && (canStartPatrol || canEndPatrol);
+  }, [canEndPatrol, canStartPatrol, patrol.state]);
 
   const patrolCancelRestoreCanBeToggled = useMemo(() => {
-    const disqualifyingStates = ['done', 'past'];
-    return !!disqualifyingStates.includes(patrol.state);
-  }, [patrol.state]);
+    return (patrol.state !== PATROL_STATES.DONE)
+    && (canRestorePatrol || canCancelPatrol);
+  }, [canCancelPatrol, canRestorePatrol, patrol.state]);
   
-  const canRestorePatrol = useMemo(() => {
-    const qualifyingStates = ['cancelled'];
-    return qualifyingStates.includes(patrol.state);
-  }, [patrol.state]);
-
-  const canStartPatrol = useMemo(() => {
-    const qualifyingStates = ['upcoming', undefined, null];
-    return qualifyingStates.includes(patrol.state);
-  }, [patrol.state]);
-
-  const canEndPatrol = useMemo(() => patrol.state === 'active', [patrol.state]);
-
   const patrolStartStopTitle = useMemo(() => {
     if (canEndPatrol) return 'End Patrol';
     return 'Start Patrol';
@@ -99,8 +112,6 @@ const PatrolCard = (props) => {
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
-
-    
     {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
@@ -113,7 +124,7 @@ const PatrolCard = (props) => {
         <Item disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
         <Item onClick={()=>onTitleClick(patrol)}>Open</Item>
         <Item onClick={startTitleEdit}>Rename</Item>
-        <Item disabled={patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
+        <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
       
