@@ -62,7 +62,10 @@ const HeatmapStyleControls = (props) => {
   return <div className={styles.controls}>
     <label htmlFor='heatmap-radius-input'>
       <span>Radius (in meters):</span>
-      <InlineEditable step='1' onCancel={cancelRadiusEdit} editing={editingRadius} onClick={startRadiusEdit} onEsc={cancelRadiusEdit} showCancel={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} value={radiusInMeters} onChange={onRadiusChange} /><span className={styles.unit}>m</span>
+      <InlineEditable step='1' onCancel={cancelRadiusEdit}
+        editing={editingRadius} onClick={startRadiusEdit} onEsc={cancelRadiusEdit} 
+        showCancel={false} onSave={onRadiusChange} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS}
+        value={radiusInMeters} onChange={onRadiusChange} /><span className={styles.unit}>m</span>
     </label>
     <LogarithmicSlider value={radiusInMeters} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS} onChange={onRadiusChange} />
 
