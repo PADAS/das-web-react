@@ -33,7 +33,6 @@ const PatrolCard = (props) => {
   const hasEnded = !!end_time && new Date(end_time).getTime() < new Date().getTime();
 
   const [editingTitle, setTitleEditState] = useState(false);
-  const [showTitleHover, setShowTitleHover] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -121,8 +120,7 @@ const PatrolCard = (props) => {
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
       onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} 
-      onMouseEnter={() => setShowTitleHover(true)} onMouseLeave={() => setShowTitleHover(false)}/>
-    {/* {showTitleHover && <div>{patrol.title}</div>} */}
+      title={displayTitle} />
     <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />
