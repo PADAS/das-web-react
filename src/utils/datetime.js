@@ -65,5 +65,5 @@ export const utcNow = () => {
   const naive_date = new Date();
   const utc_now = Date.UTC(naive_date.getUTCFullYear(), naive_date.getUTCMonth(), naive_date.getUTCDate(),
     naive_date.getUTCHours(), naive_date.getUTCMinutes(), naive_date.getUTCSeconds());
-  return utc_now;
+  return new Date(utc_now);
 }

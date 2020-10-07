@@ -201,17 +201,25 @@ export const PATROL_SAVE_ACTIONS = {
 
 const { SCHEDULED, READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_STATE;
 
+
+const isActivePatrol = (currentUtc, startTime, endTime) => {
+  return currentUtc > startTime && (currentUtc < endTime || !endTime);
+};
+
 export const calcPatrolCardState = (patrol) => {
+  // eslint-disable-next-line default-case
   switch (patrol.state) {
   case 'done':
     return DONE;
-  case 'active':
-    return ACTIVE;
   case 'cancelled':
     return CANCELLED;
   case 'open':
     const startTime = displayStartTimeForPatrol(patrol);
+    const endTime = displayEndTimeForPatrol(patrol);
     const currentUtc = utcNow();
+    if(isActivePatrol(currentUtc, startTime, endTime)) {
+      return ACTIVE;
+    }
     const timeToStartMinutes = differenceInMinutes(startTime, currentUtc);
     if (timeToStartMinutes > -30) {
       return START_OVERDUE;

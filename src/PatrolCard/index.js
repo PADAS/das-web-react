@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, calcPatrolCardState } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -27,10 +27,13 @@ const PatrolCard = (props) => {
 
   const { time_range: { start_time, end_time } } = firstLeg;
 
+  
+
   const hasStarted = !!start_time && new Date(start_time).getTime() < new Date().getTime();
   const hasEnded = !!end_time && new Date(end_time).getTime() < new Date().getTime();
 
   const [editingTitle, setTitleEditState] = useState(false);
+  const [showTitleHover, setShowTitleHover] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -63,6 +66,9 @@ const PatrolCard = (props) => {
       && hasStarted
       && !hasEnded
   , [hasEnded, hasStarted, patrol.state]);
+
+  const patrolState = calcPatrolCardState(patrol);
+  console.log(patrolState);
 
   const canRestorePatrol = useMemo(() => {
     return patrol.state === PATROL_STATES.CANCELLED;
@@ -115,7 +121,9 @@ const PatrolCard = (props) => {
     {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
-      onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} />
+      onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} 
+      onMouseEnter={() => setShowTitleHover(true)} onMouseLeave={() => setShowTitleHover(false)}/>
+    {/* {showTitleHover && <div>{patrol.title}</div>} */}
     <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />
