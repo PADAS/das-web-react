@@ -76,7 +76,7 @@
   }
 }
 
-.status-active {
+.status-open {
   border: 2px solid #8a2fcf; //purple_heart
   background-color: $patrol-active-bg; //feta
   &:hover {
@@ -92,7 +92,7 @@
   }
 }
 
-.status-checkin-past, .status-past {
+.status-done, .status-done {
   border: 2px dashed #d20c17;
   background-color: $patrol-overdue-bg;
   &:hover {

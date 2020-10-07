@@ -1,6 +1,7 @@
 import React, { Fragment, /* useRef, */ memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import merge from 'lodash/merge';
 // import { findDOMNode } from 'react-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import LoadingOverlay from '../LoadingOverlay';
@@ -18,13 +19,17 @@ const PatrolListItem = (props) => {
     openModalForPatrol(patrol, map);
   }, [map, patrol]);
 
-  const onTitleChange = useCallback((title) => {
-    updatePatrol({ id: patrol.id, title });
-  }, [patrol.id, updatePatrol]);
+  const onPatrolChange = useCallback((value) => {
+    const merged = merge(patrol, value);
+    
+    delete merged.updates;
+    updatePatrol(merged);
+  }, [patrol, updatePatrol]);
 
   return <PatrolCard
     onTitleClick={onTitleClick}
-    onTitleChange={onTitleChange}
+    onTitleChange={onPatrolChange}
+    onPatrolChange={onPatrolChange}
     patrol={patrol}
     map={map}
     {...rest} />;

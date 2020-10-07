@@ -1,4 +1,5 @@
 import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
@@ -21,11 +22,13 @@ const PATROL_STATES = {
 };
 
 const PatrolCard = (props) => {
-  const { patrol, onTitleClick, onTitleChange } = props;
+  const { patrol, onTitleClick, onPatrolChange } = props;
 
   const [firstLeg] = patrol.patrol_segments;
 
   const { time_range: { start_time, end_time } } = firstLeg;
+
+  const patrolIsCancelled = patrol.state === PATROL_STATES.CANCELLED;
 
   const hasStarted = !!start_time && new Date(start_time).getTime() < new Date().getTime();
   const hasEnded = !!end_time && new Date(end_time).getTime() < new Date().getTime();
@@ -65,7 +68,7 @@ const PatrolCard = (props) => {
   , [hasEnded, hasStarted, patrol.state]);
 
   const canRestorePatrol = useMemo(() => {
-    return patrol.state === PATROL_STATES.CANCELLED;
+    return patrol.state !== PATROL_STATES.OPEN;
   }, [patrol.state]);
 
   const canCancelPatrol = useMemo(() => {
@@ -79,9 +82,8 @@ const PatrolCard = (props) => {
   }, [canEndPatrol, canStartPatrol, patrol.state]);
 
   const patrolCancelRestoreCanBeToggled = useMemo(() => {
-    return (patrol.state !== PATROL_STATES.DONE)
-    && (canRestorePatrol || canCancelPatrol);
-  }, [canCancelPatrol, canRestorePatrol, patrol.state]);
+    return canRestorePatrol || canCancelPatrol;
+  }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
     if (canEndPatrol) return 'End Patrol';
@@ -94,17 +96,25 @@ const PatrolCard = (props) => {
   }, [canRestorePatrol]);
 
   const togglePatrolCancelationState = useCallback(() => {
-    console.log('toggling patrol cancel/restore state');
-  }, []);
+    if (canRestorePatrol) {
+      onPatrolChange({ state: PATROL_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
+    } else {
+      onPatrolChange({ state: PATROL_STATES.CANCELLED });
+    }
+  }, [canRestorePatrol, onPatrolChange]);
 
   const togglePatrolStartStopState = useCallback(() => {
-    console.log('toggling patrol start/stop state');
-  }, []);
+    if (canStartPatrol) {
+      onPatrolChange({ state: PATROL_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
+    } else {
+      onPatrolChange({ state: PATROL_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
+    }
+  }, [canStartPatrol, onPatrolChange]);
 
   const onPatrolTitleChange = useCallback((value) => {
-    onTitleChange(value);
+    onPatrolChange({ title: value });
     endTitleEdit();
-  }, [endTitleEdit, onTitleChange]);
+  }, [endTitleEdit, onPatrolChange]);
 
   const patrolStatusStyle = `status-${patrol.state}`;
 
@@ -121,9 +131,9 @@ const PatrolCard = (props) => {
         <KebabMenuIcon />
       </Toggle>
       <Menu ref={menuRef}>
-        <Item disabled={!patrolStartEndCanBeToggled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
-        <Item onClick={()=>onTitleClick(patrol)}>Open</Item>
-        <Item onClick={startTitleEdit}>Rename</Item>
+        <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
+        <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open</Item>
+        <Item disabled={patrolIsCancelled} onClick={startTitleEdit}>Rename</Item>
         <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
@@ -137,3 +147,9 @@ const PatrolCard = (props) => {
 };
 
 export default memo(PatrolCard);
+
+PatrolCard.propTypes = {
+  patrol: PropTypes.object.isRequired,
+  onTitleClick: PropTypes.func,
+  onPatrolChange: PropTypes.func.isRequired,
+};
