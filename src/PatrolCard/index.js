@@ -68,7 +68,6 @@ const PatrolCard = (props) => {
   , [hasEnded, hasStarted, patrol.state]);
 
   const patrolState = calcPatrolCardState(patrol);
-  console.log(patrolState);
 
   const canRestorePatrol = useMemo(() => {
     return patrol.state === PATROL_STATES.CANCELLED;
@@ -112,7 +111,7 @@ const PatrolCard = (props) => {
     endTitleEdit();
   }, [endTitleEdit, onTitleChange]);
 
-  const patrolStatusStyle = `status-${patrol.state}`;
+  const patrolStatusStyle = `status-${patrolState.status}`;
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
@@ -139,7 +138,7 @@ const PatrolCard = (props) => {
     <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
     <p>Distance covered: <span>0km</span></p>
 
-    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
+    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolState.title}</Button>
     <AddReport className={styles.addReport} showLabel={false} />
   </li>;
 };

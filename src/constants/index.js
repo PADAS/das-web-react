@@ -45,12 +45,12 @@ export const STATUSES = {
 };
 
 export const PATROL_STATE = {
-  SCHEDULED: 'Scheduled',
-  READY_TO_START: 'Ready to Start',
-  ACTIVE: 'Active',
-  DONE: 'Done',
-  START_OVERDUE: 'Start Overdue',
-  CANCELLED: 'Cancelled'
+  SCHEDULED: {title: 'Scheduled', status: 'scheduled'},
+  READY_TO_START: {title: 'Ready to Start', status: 'ready'},
+  ACTIVE: {title: 'Active', status: 'active'},
+  DONE: {title: 'Done', status: 'done'},
+  START_OVERDUE: {title: 'Start Overdue', status: 'start-overdue'},
+  CANCELLED: {title: 'Cancelled', status: 'cancelled'},
 };
 
 export const MAP_ICON_SIZE = 30;

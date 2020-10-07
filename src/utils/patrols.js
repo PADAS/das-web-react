@@ -109,6 +109,8 @@ export const displayTitleForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length
     || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
 
+
+
   const { data: { patrolTypes } } = store.getState();
   const matchingType = (patrolTypes || []).find(t =>
     (t.value === patrol.patrol_segments[0].patrol_type)
@@ -199,32 +201,59 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { SCHEDULED, READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_STATE;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_STATE;
 
+export const displayScheduledStartDate = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { scheduled_start } = firstLeg;
+
+  return scheduled_start
+    ? new Date(scheduled_start)
+    : null;
+};
 
 const isActivePatrol = (currentUtc, startTime, endTime) => {
   return currentUtc > startTime && (currentUtc < endTime || !endTime);
 };
 
+// Overdue to start = scheduled start before current date, no start date set
+const isStartOverduePatrol = (currentUtc, startTime, scheduledStart) => {
+  if (scheduledStart && !startTime) {
+    return (differenceInMinutes(currentUtc, scheduledStart) > -30);
+  } else return false;
+};
+
+export const displayDoneTime = (patrol) => {
+
+};
+
 export const calcPatrolCardState = (patrol) => {
   // eslint-disable-next-line default-case
   switch (patrol.state) {
+  // XXX remove me - legacy
+  case 'active':
+    return ACTIVE;
   case 'done':
     return DONE;
   case 'cancelled':
     return CANCELLED;
   case 'open':
+    const scheduledStart = displayScheduledStartDate(patrol);
     const startTime = displayStartTimeForPatrol(patrol);
     const endTime = displayEndTimeForPatrol(patrol);
     const currentUtc = utcNow();
-    if(isActivePatrol(currentUtc, startTime, endTime)) {
-      return ACTIVE;
-    }
-    const timeToStartMinutes = differenceInMinutes(startTime, currentUtc);
-    if (timeToStartMinutes > -30) {
-      return START_OVERDUE;
-    } else {
+    // defensive driving for edits
+    if(!startTime && !endTime) {
       return READY_TO_START;
     }
+    if(isStartOverduePatrol(currentUtc, startTime, scheduledStart)) {
+      return START_OVERDUE;
+    }
+    if(isActivePatrol(currentUtc, startTime, endTime)) {
+      return ACTIVE;
+    } 
+    return READY_TO_START;
   }
 };
