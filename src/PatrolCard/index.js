@@ -1,7 +1,8 @@
 import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, 
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -11,6 +12,7 @@ import DasIcon from '../DasIcon';
 import InlineEditable from '../InlineEditable';
 
 import styles from './styles.module.scss';
+import { PATROL_CARD_STATES } from '../constants';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
@@ -67,9 +69,12 @@ const PatrolCard = (props) => {
       && !hasEnded
   , [hasEnded, hasStarted, patrol.state]);
 
+  const patrolState = calcPatrolCardState(patrol);
+
   const canRestorePatrol = useMemo(() => {
-    return patrol.state !== PATROL_STATES.OPEN;
-  }, [patrol.state]);
+    return patrol.state !== PATROL_STATES.OPEN
+    || !!hasEnded;
+  }, [hasEnded, patrol.state]);
 
   const canCancelPatrol = useMemo(() => {
     return patrol.state === PATROL_STATES.OPEN &&
@@ -86,14 +91,21 @@ const PatrolCard = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol) return 'End';
-    return 'Start';
+    if (canEndPatrol) return 'End Patrol';
+    return 'Start Patrol';
   }, [canEndPatrol]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
-    if (canRestorePatrol) return 'Restore';
-    return 'Cancel';
+    if (canRestorePatrol) return 'Restore Patrol';
+    return 'Cancel Patrol';
   }, [canRestorePatrol]);
+
+  const patrolStateTitle = useMemo(() => {
+    if(patrolState.status === PATROL_STATES.DONE) {
+      return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
+    } 
+    return patrolState.title;
+  }, [patrol, patrolState]);
 
   const togglePatrolCancelationState = useCallback(() => {
     if (canRestorePatrol) {
@@ -116,7 +128,7 @@ const PatrolCard = (props) => {
     endTitleEdit();
   }, [endTitleEdit, onPatrolChange]);
 
-  const patrolStatusStyle = `status-${patrol.state}`;
+  const patrolStatusStyle = `status-${patrolState.status}`;
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
@@ -125,15 +137,16 @@ const PatrolCard = (props) => {
     {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
-      onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} />
+      onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} 
+      title={displayTitle} />
     <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />
       </Toggle>
       <Menu ref={menuRef}>
         <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
-        <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open</Item>
-        <Item disabled={patrolIsCancelled} onClick={startTitleEdit}>Rename</Item>
+        <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open Patrol</Item>
+        <Item disabled={patrolIsCancelled} onClick={startTitleEdit}>Rename Patrol</Item>
         <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
@@ -141,7 +154,7 @@ const PatrolCard = (props) => {
     <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
     <p>Distance covered: <span>0km</span></p>
 
-    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrol.state}</Button>
+    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolStateTitle}</Button>
     <AddReport className={styles.addReport} showLabel={false} />
   </li>;
 };

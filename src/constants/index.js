@@ -44,6 +44,15 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
+export const PATROL_CARD_STATES = {
+  SCHEDULED: {title: 'Scheduled', status: 'scheduled'},
+  READY_TO_START: {title: 'Ready to Start', status: 'ready'},
+  ACTIVE: {title: 'Active', status: 'open'},
+  DONE: {title: 'Done', status: 'done'},
+  START_OVERDUE: {title: 'Start Overdue', status: 'start-overdue'},
+  CANCELLED: {title: 'Cancelled', status: 'cancelled'},
+};
+
 export const MAP_ICON_SIZE = 30;
 export const MAP_ICON_SCALE = 2;
 
