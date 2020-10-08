@@ -33,6 +33,10 @@ $square-button-border-radius: .25rem;
   }
 }
 
+@mixin patrolJumpButton {
+  @include jumpButton;
+}
+
 @mixin multiJumpButton {
   @include jumpButton;
   svg {

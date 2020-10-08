@@ -44,7 +44,7 @@ const PatrolList = (props) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
-    <PatrolListTitle />
+    <PatrolListTitle onPatrolJumpClick={onPatrolJumpClick}/>
     <InfiniteScroll
       useWindow={false}
       element='ul'

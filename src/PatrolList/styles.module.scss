@@ -1,4 +1,5 @@
 @import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
 
 .patrolList {
     align-content: flex-start;
@@ -82,5 +83,9 @@
         display: flex;
         position: static;
     }
+}
+
+.patrolButton {
+  @include patrolJumpButton;
 }
 
