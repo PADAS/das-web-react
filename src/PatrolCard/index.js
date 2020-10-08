@@ -1,7 +1,8 @@
 import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, calcPatrolCardState } from '../utils/patrols';
+import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, 
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -11,6 +12,7 @@ import DasIcon from '../DasIcon';
 import InlineEditable from '../InlineEditable';
 
 import styles from './styles.module.scss';
+import { PATROL_STATE } from '../constants';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
@@ -97,6 +99,13 @@ const PatrolCard = (props) => {
     return 'Cancel Patrol';
   }, [canRestorePatrol]);
 
+  const patrolStateTitle = useMemo(() => {
+    if(patrolState.state === PATROL_STATE.patrolStartEndCanBeToggled) {
+      return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
+    } 
+    return patrolState.title;
+  }, [patrol, patrolState]);
+
   const togglePatrolCancelationState = useCallback(() => {
     if (canRestorePatrol) {
       onPatrolChange({ state: PATROL_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
@@ -144,7 +153,7 @@ const PatrolCard = (props) => {
     <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
     <p>Distance covered: <span>0km</span></p>
 
-    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolState.title}</Button>
+    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolStateTitle}</Button>
     <AddReport className={styles.addReport} showLabel={false} />
   </li>;
 };

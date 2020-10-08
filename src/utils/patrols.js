@@ -1,7 +1,9 @@
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
+import format from 'date-fns/format';
 import { PATROL_STATE } from '../constants';
+import { SHORT_TIME_FORMAT } from '../utils/datetime';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -221,20 +223,18 @@ const isActivePatrol = (currentUtc, startTime, endTime) => {
 // Overdue to start = scheduled start before current date, no start date set
 const isStartOverduePatrol = (currentUtc, startTime, scheduledStart) => {
   if (scheduledStart && !startTime) {
-    return (differenceInMinutes(currentUtc, scheduledStart) > -30);
+    return (differenceInMinutes(currentUtc, scheduledStart) > 30);
   } else return false;
 };
 
-export const displayDoneTime = (patrol) => {
-
+export const displayPatrolDoneTime = (patrol) => {
+  const doneTime = displayEndTimeForPatrol(patrol);
+  return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
 export const calcPatrolCardState = (patrol) => {
   // eslint-disable-next-line default-case
   switch (patrol.state) {
-  // XXX remove me - legacy
-  case 'active':
-    return ACTIVE;
   case 'done':
     return DONE;
   case 'cancelled':
@@ -244,10 +244,6 @@ export const calcPatrolCardState = (patrol) => {
     const startTime = displayStartTimeForPatrol(patrol);
     const endTime = displayEndTimeForPatrol(patrol);
     const currentUtc = utcNow();
-    // defensive driving for edits
-    if(!startTime && !endTime) {
-      return READY_TO_START;
-    }
     if(isStartOverduePatrol(currentUtc, startTime, scheduledStart)) {
       return START_OVERDUE;
     }
