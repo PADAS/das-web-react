@@ -12,7 +12,7 @@ import DasIcon from '../DasIcon';
 import InlineEditable from '../InlineEditable';
 
 import styles from './styles.module.scss';
-import { PATROL_STATE } from '../constants';
+import { PATROL_CARD_STATES } from '../constants';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
@@ -101,7 +101,7 @@ const PatrolCard = (props) => {
   }, [canRestorePatrol]);
 
   const patrolStateTitle = useMemo(() => {
-    if(patrolState.state === PATROL_STATES.DONE) {
+    if(patrolState.status === PATROL_STATES.DONE) {
       return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
     } 
     return patrolState.title;
