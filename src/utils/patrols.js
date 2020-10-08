@@ -11,7 +11,6 @@ import { getReporterById } from '../utils/events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
-import { objectToParamString } from './query';
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
@@ -150,7 +149,7 @@ export const currentPatrolDateQuery = () => {
   const startTimeTxt = startOfDay(utc_now).toISOString();
   const endTimeTxt = endOfDay(utc_now).toISOString();
 
-  const timeRangeDict =  {'date_range': {'lower': startTimeTxt, 'upper': endTimeTxt}};
+  const timeRangeDict =  {date_range: {lower: startTimeTxt, upper: endTimeTxt}};
   const jsonEndcoded = encodeURI('filter=' + JSON.stringify(timeRangeDict));
 
   return jsonEndcoded;
