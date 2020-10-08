@@ -2,7 +2,7 @@ import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import format from 'date-fns/format';
-import { PATROL_STATE } from '../constants';
+import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 
 import { store } from '../';
@@ -202,7 +202,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_STATE;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
 
 export const displayScheduledStartDate = (patrol) => {
   if (!patrol.patrol_segments.length) return null;

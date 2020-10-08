@@ -12,7 +12,7 @@ import DasIcon from '../DasIcon';
 import InlineEditable from '../InlineEditable';
 
 import styles from './styles.module.scss';
-import { PATROL_STATE } from '../constants';
+import { PATROL_CARD_STATES } from '../constants';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
