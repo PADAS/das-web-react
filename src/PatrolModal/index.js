@@ -303,13 +303,11 @@ const PatrolModal = (props) => {
           <DateTimePickerPopover
             {...DATEPICKER_DEFAULT_CONFIG}
             value={displayStartTime}
+            maxDate={displayEndTime || null}
             className={!!displayStartTime ? styles.timeInput : `${styles.timeInput} ${styles.empty}`}
             showClockIcon={true}
             placement='bottom'
             placeholder='Set Start Time'
-            // required={true}
-            // popoverClassName={styles.datePopover}
-            // maxDate={}
             onChange={onStartTimeChange}  />
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
@@ -351,7 +349,6 @@ const PatrolModal = (props) => {
             // popoverClassName={styles.datePopover}
             // required={true}
             minDate={displayStartTime || DATEPICKER_DEFAULT_CONFIG.minDate}
-            defaultValue={displayStartTime || null}
             maxDate={null}
             onChange={onEndTimeChange}  />
         </div>
