@@ -1,25 +1,44 @@
 import React, { Fragment, /* useRef, */ memo, useCallback } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import merge from 'lodash/merge';
 // import { findDOMNode } from 'react-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { openModalForPatrol } from '../utils/patrols';
+import { updatePatrol } from '../ducks/patrols';
 
 import styles from './styles.module.scss';
-import PatrolFeedCard from './PatrolFeedCard';
+import PatrolCard from '../PatrolCard';
+
+const PatrolListItem = (props) => {
+  const { map, patrol, updatePatrol, ...rest } = props;
+  
+  const onTitleClick = useCallback(() => {
+    openModalForPatrol(patrol, map);
+  }, [map, patrol]);
+
+  const onPatrolChange = useCallback((value) => {
+    const merged = merge(patrol, value);
+    
+    delete merged.updates;
+    updatePatrol(merged);
+  }, [patrol, updatePatrol]);
+
+  return <PatrolCard
+    onTitleClick={onTitleClick}
+    onTitleChange={onPatrolChange}
+    onPatrolChange={onPatrolChange}
+    patrol={patrol}
+    map={map}
+    {...rest} />;
+};
+
+const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
 
 const PatrolList = (props) => {
   const { map, patrols, loading } = props;
-
-  const onPatrolTitleClick = useCallback((patrol) => {
-    openModalForPatrol(patrol, map);
-  }, [map]);
-
-  const onPatrolJumpClick = useCallback((e) => {
-    //todo
-  }, []);
-
   // const scrollRef = useRef(null);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
@@ -33,8 +52,7 @@ const PatrolList = (props) => {
       // getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
     >
       {patrols.map((item, index) =>
-        <PatrolFeedCard
-          onPatrolTitleClick={onPatrolTitleClick}
+        <ConnectedListItem
           patrol={item}
           map={map}
           key={`${item.id}-${index}`}/>
