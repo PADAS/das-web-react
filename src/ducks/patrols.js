@@ -68,32 +68,32 @@ export const createPatrol = (patrol) => (dispatch) => {
 };
 
 
-export const updatePatrol = (event) => (dispatch) => {
+export const updatePatrol = (patrol) => (dispatch) => {
   dispatch({
     type: UPDATE_PATROL_START,
-    payload: event,
+    payload: patrol,
   });
 
-  let eventResults;
+  let patrolResults;
   let resp;
 
-  return axios.patch(`${PATROLS_API_URL}${event.id}`, event)
+  return axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol)
     .then((response) => {
-      eventResults = response.data.data;
+      patrolResults = response.data.data;
       resp = response;
       return true;
       // return Promise.resolve(validateReportAgainstCurrentEventFilter(eventResults));
     })
-    .then((matchesEventFilter) => {
-      if (!matchesEventFilter) {
+    .then((matchesPatrolFilter) => {
+      if (!matchesPatrolFilter) {
         dispatch({
           type: REMOVE_PATROL_BY_ID,
-          payload: event.id,
+          payload: patrol.id,
         });
       } else {
         dispatch({
           type: UPDATE_PATROL_SUCCESS,
-          payload: eventResults,
+          payload: patrolResults,
         });
       }
       // dispatch(updateEventStore(eventResults));
@@ -178,6 +178,20 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
 
   if (type === FETCH_PATROLS_SUCCESS) {
     return payload;
+  }
+
+  if (type === UPDATE_PATROL_SUCCESS) {
+    const match = state.results.findIndex(item => item.id === payload.id);
+    if (match > -1) {
+      const newResults = [...state.results];
+      newResults[match] = payload;
+
+      return {
+        ...state,
+        results: newResults,
+      };
+    }
+    return state;
   }
   
   return state;

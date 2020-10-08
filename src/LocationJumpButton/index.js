@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { Fragment, memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -16,8 +16,10 @@ const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
   const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
-    zoom, updateUserPreferences, onButtonClick, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
+    zoom, updateUserPreferences, onButtonClick, iconOverride, className, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
 
+  const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
+  
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
       coordinates.every(coords => validateLngLat(coords[0], coords[1]))
@@ -39,10 +41,12 @@ const LocationJumpButton = (props) => {
     closeSidebarForSmallViewports();
   };
 
+  const defaultIcon = isMulti? 
+    <Fragment><MarkerIcon /><MarkerIcon /></Fragment> : <MarkerIcon />;
+
   return isValidLocation && <button title="Jump to this location" type="button"
-    className={isMulti ? styles.multi : styles.jump} onClick={onJumpButtonClick} {...rest}>
-    <MarkerIcon />
-    {isMulti && <MarkerIcon />}
+    className={buttonClass} onClick={onJumpButtonClick} {...rest}>
+    {iconOverride ? iconOverride : defaultIcon}
   </button>;
 };
 

@@ -1,6 +1,8 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import setSeconds from 'date-fns/set_seconds';
+import isFuture from 'date-fns/is_future';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
@@ -99,16 +101,30 @@ const PatrolModal = (props) => {
     });
   }, [statePatrol]);
 
-  const onStartTimeChange = useCallback((value) => {
+  const onStartTimeChange = useCallback((val) => {
+    let start_time = null;
+    let scheduled_start = null;
+
+    if (!!val) {
+      const value = setSeconds(new Date(val), 0);
+      const isInFuture = isFuture(value);
+      const asISOString = value.toISOString();
+      
+      start_time = isInFuture ? null : asISOString;
+      scheduled_start = isInFuture ? asISOString : null;
+    }
+    
     const [segment] = statePatrol.patrol_segments;
+    
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
         {
           ...segment,
+          scheduled_start,
           time_range: {
             ...segment.time_range,
-            start_time: value ? new Date(value).toISOString() : null,
+            start_time,
           },
         },
       ],
@@ -244,7 +260,7 @@ const PatrolModal = (props) => {
     if (statePatrol.hasOwnProperty('priority')) return statePatrol.priority; 
     if (!!statePatrol.patrol_segments.length) return statePatrol.patrol_segments[0].priority;
     return null;
-  }, [statePatrol.patrol_segments, statePatrol.priority]);
+  }, [statePatrol]);
 
   const onSave = useCallback(() => {
     // const reportIsNew = !statePatrol.id;
@@ -303,13 +319,11 @@ const PatrolModal = (props) => {
           <DateTimePickerPopover
             {...DATEPICKER_DEFAULT_CONFIG}
             value={displayStartTime}
+            maxDate={displayEndTime || null}
             className={!!displayStartTime ? styles.timeInput : `${styles.timeInput} ${styles.empty}`}
             showClockIcon={true}
             placement='bottom'
             placeholder='Set Start Time'
-            // required={true}
-            // popoverClassName={styles.datePopover}
-            // maxDate={}
             onChange={onStartTimeChange}  />
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
@@ -351,7 +365,6 @@ const PatrolModal = (props) => {
             // popoverClassName={styles.datePopover}
             // required={true}
             minDate={displayStartTime || DATEPICKER_DEFAULT_CONFIG.minDate}
-            defaultValue={displayStartTime || null}
             maxDate={null}
             onChange={onEndTimeChange}  />
         </div>

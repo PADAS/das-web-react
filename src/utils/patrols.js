@@ -2,6 +2,10 @@ import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
 import startOfDay from 'date-fns/start_of_day';
 import endOfDay from 'date-fns/end_of_day';
+import differenceInMinutes from 'date-fns/difference_in_minutes';
+import format from 'date-fns/format';
+import { PATROL_CARD_STATES } from '../constants';
+import { SHORT_TIME_FORMAT } from '../utils/datetime';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -76,7 +80,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
         scheduled_start: null,
         leader,
         start_location: location ? { ...location } : null,
-        time_range: { 
+        time_range: {
           start_time: time ? new Date(time) : new Date(),
           end_time: null,
         },
@@ -90,43 +94,43 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 };
 
 export const iconTypeForPatrol = (patrol) => {
-  const UKNOWN_TYPE = '';
-  
+  const UNKNOWN_TYPE = '';
+
   if (patrol.icon_id) return patrol.icon_id;
 
-  if ( patrol.patrol_segments.length && patrol.patrol_segments[0].icon_id) 
+  if (patrol.patrol_segments.length && patrol.patrol_segments[0].icon_id)
     return patrol.patrol_segments[0].icon_id;
 
-  return UKNOWN_TYPE;
+  return UNKNOWN_TYPE;
 };
 
 export const displayTitleForPatrol = (patrol) => {
-  const UKNOWN_MESSAGE = 'Unknown patrol type';
-  
+  const UNKNOWN_MESSAGE = 'Unknown patrol type';
+
   if (patrol.title) return patrol.title;
 
   if (!patrol.patrol_segments.length
-    || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
-  
+    || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
+
   const { data: { patrolTypes } } = store.getState();
-  const matchingType = (patrolTypes || []).find(t => 
+  const matchingType = (patrolTypes || []).find(t =>
     (t.value === patrol.patrol_segments[0].patrol_type)
     || (t.id === patrol.patrol_segments[0].patrol_type)
   );
 
   if (matchingType) return matchingType.display;
 
-  return UKNOWN_MESSAGE;
+  return UNKNOWN_MESSAGE;
 };
 
 export const displayStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { start_time } } = firstLeg;
+  const { time_range: { start_time }, scheduled_start } = firstLeg;
 
-  return start_time
-    ?  new Date(start_time)
+  return (start_time || scheduled_start) 
+    ? new Date((start_time || scheduled_start))
     : null;
 };
 
@@ -137,7 +141,7 @@ export const displayEndTimeForPatrol = (patrol) => {
   const { time_range: { end_time } } = firstLeg;
 
   return end_time
-    ?  new Date(end_time)
+    ? new Date(end_time)
     : null;
 };
 
@@ -167,7 +171,7 @@ export const displayDurationForPatrol = (patrol) => {
 
   if (!hasStarted) return '0s';
 
-  const hasEnded = !!displayEndTime 
+  const hasEnded = !!displayEndTime
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
@@ -210,4 +214,57 @@ export const PATROL_SAVE_ACTIONS = {
       },
     };
   },
+};
+
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+
+export const displayScheduledStartDate = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { scheduled_start } = firstLeg;
+
+  return scheduled_start
+    ? new Date(scheduled_start)
+    : null;
+};
+
+const isActivePatrol = (currentUtc, startTime, endTime) => {
+  return currentUtc > startTime && (currentUtc < endTime || !endTime);
+};
+
+// Overdue to start = scheduled start before current date, no start date set
+const isStartOverduePatrol = (currentUtc, startTime, scheduledStart) => {
+  if (scheduledStart && !startTime) {
+    return (differenceInMinutes(currentUtc, scheduledStart) > 30);
+  } else return false;
+};
+
+export const displayPatrolDoneTime = (patrol) => {
+  const doneTime = displayEndTimeForPatrol(patrol);
+  return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
+};
+
+export const calcPatrolCardState = (patrol) => {
+  // eslint-disable-next-line default-case
+  const endTime = displayEndTimeForPatrol(patrol);
+  const currentTime = new Date();
+  // extract done calc to a utility function for card and this function
+  if (patrol.state === 'done' 
+    || (endTime && endTime.getTime() <= currentTime.getTime())) {
+    return DONE;
+  };
+  if (patrol.state === 'cancelled') {
+    return CANCELLED;
+  }
+  const scheduledStart = displayScheduledStartDate(patrol);
+  const startTime = displayStartTimeForPatrol(patrol);
+  if(isStartOverduePatrol(currentTime, startTime, scheduledStart)) {
+    return START_OVERDUE;
+  }
+  if(isActivePatrol(currentTime, startTime, endTime)) {
+    return ACTIVE;
+  } 
+  return READY_TO_START;
+
 };
