@@ -127,10 +127,10 @@ export const displayStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { start_time } } = firstLeg;
+  const { time_range: { start_time }, scheduled_start } = firstLeg;
 
-  return start_time
-    ? new Date(start_time)
+  return (start_time || scheduled_start) 
+    ? new Date((start_time || scheduled_start))
     : null;
 };
 
