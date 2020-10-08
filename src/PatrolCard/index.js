@@ -91,13 +91,13 @@ const PatrolCard = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol) return 'End';
-    return 'Start';
+    if (canEndPatrol) return 'End Patrol';
+    return 'Start Patrol';
   }, [canEndPatrol]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
-    if (canRestorePatrol) return 'Restore';
-    return 'Cancel';
+    if (canRestorePatrol) return 'Restore Patrol';
+    return 'Cancel Patrol';
   }, [canRestorePatrol]);
 
   const patrolStateTitle = useMemo(() => {
@@ -145,8 +145,8 @@ const PatrolCard = (props) => {
       </Toggle>
       <Menu ref={menuRef}>
         <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
-        <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open</Item>
-        <Item disabled={patrolIsCancelled} onClick={startTitleEdit}>Rename</Item>
+        <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open Patrol</Item>
+        <Item disabled={patrolIsCancelled} onClick={startTitleEdit}>Rename Patrol</Item>
         <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
