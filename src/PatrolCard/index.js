@@ -91,13 +91,13 @@ const PatrolCard = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol) return 'End Patrol';
-    return 'Start Patrol';
+    if (canEndPatrol) return 'End';
+    return 'Start';
   }, [canEndPatrol]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
-    if (canRestorePatrol) return 'Restore Patrol';
-    return 'Cancel Patrol';
+    if (canRestorePatrol) return 'Restore';
+    return 'Cancel';
   }, [canRestorePatrol]);
 
   const patrolStateTitle = useMemo(() => {
