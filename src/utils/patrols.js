@@ -234,22 +234,24 @@ export const displayPatrolDoneTime = (patrol) => {
 
 export const calcPatrolCardState = (patrol) => {
   // eslint-disable-next-line default-case
-  switch (patrol.state) {
-  case 'done':
+  const endTime = displayEndTimeForPatrol(patrol);
+  const currentTime = new Date();
+  // extract done calc to a utility function for card and this function
+  if (patrol.state === 'done' 
+    || (endTime && endTime.getTime() <= currentTime.getTime())) {
     return DONE;
-  case 'cancelled':
+  };
+  if (patrol.state === 'cancelled') {
     return CANCELLED;
-  case 'open':
-    const scheduledStart = displayScheduledStartDate(patrol);
-    const startTime = displayStartTimeForPatrol(patrol);
-    const endTime = displayEndTimeForPatrol(patrol);
-    const currentUtc = utcNow();
-    if(isStartOverduePatrol(currentUtc, startTime, scheduledStart)) {
-      return START_OVERDUE;
-    }
-    if(isActivePatrol(currentUtc, startTime, endTime)) {
-      return ACTIVE;
-    } 
-    return READY_TO_START;
   }
+  const scheduledStart = displayScheduledStartDate(patrol);
+  const startTime = displayStartTimeForPatrol(patrol);
+  if(isStartOverduePatrol(currentTime, startTime, scheduledStart)) {
+    return START_OVERDUE;
+  }
+  if(isActivePatrol(currentTime, startTime, endTime)) {
+    return ACTIVE;
+  } 
+  return READY_TO_START;
+
 };

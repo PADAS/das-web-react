@@ -72,8 +72,9 @@ const PatrolCard = (props) => {
   const patrolState = calcPatrolCardState(patrol);
 
   const canRestorePatrol = useMemo(() => {
-    return patrol.state !== PATROL_STATES.OPEN;
-  }, [patrol.state]);
+    return patrol.state !== PATROL_STATES.OPEN
+    || !!hasEnded;
+  }, [hasEnded, patrol.state]);
 
   const canCancelPatrol = useMemo(() => {
     return patrol.state === PATROL_STATES.OPEN &&
