@@ -101,7 +101,7 @@ const PatrolCard = (props) => {
   }, [canRestorePatrol]);
 
   const patrolStateTitle = useMemo(() => {
-    if(patrolState.state === PATROL_STATE.patrolStartEndCanBeToggled) {
+    if(patrolState.state === PATROL_STATE.DONE) {
       return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
     } 
     return patrolState.title;
