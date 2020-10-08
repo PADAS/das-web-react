@@ -92,23 +92,23 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
 };
 
 export const iconTypeForPatrol = (patrol) => {
-  const UKNOWN_TYPE = '';
+  const UNKNOWN_TYPE = '';
 
   if (patrol.icon_id) return patrol.icon_id;
 
   if (patrol.patrol_segments.length && patrol.patrol_segments[0].icon_id)
     return patrol.patrol_segments[0].icon_id;
 
-  return UKNOWN_TYPE;
+  return UNKNOWN_TYPE;
 };
 
 export const displayTitleForPatrol = (patrol) => {
-  const UKNOWN_MESSAGE = 'Unknown patrol type';
+  const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
 
   if (!patrol.patrol_segments.length
-    || !patrol.patrol_segments[0].patrol_type) return UKNOWN_MESSAGE;
+    || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
 
 
 
@@ -120,7 +120,7 @@ export const displayTitleForPatrol = (patrol) => {
 
   if (matchingType) return matchingType.display;
 
-  return UKNOWN_MESSAGE;
+  return UNKNOWN_MESSAGE;
 };
 
 export const displayStartTimeForPatrol = (patrol) => {
