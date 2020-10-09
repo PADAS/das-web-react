@@ -134,6 +134,18 @@ export const displayStartTimeForPatrol = (patrol) => {
     : null;
 };
 
+export const segmentStartTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { time_range: { start_time } } = firstLeg;
+
+  return (start_time) 
+    ? new Date(start_time)
+    : null;
+};
+
+
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
@@ -258,7 +270,7 @@ export const calcPatrolCardState = (patrol) => {
     return CANCELLED;
   }
   const scheduledStart = displayScheduledStartDate(patrol);
-  const startTime = displayStartTimeForPatrol(patrol);
+  const startTime = segmentStartTimeForPatrol(patrol);
   if(isStartOverduePatrol(currentTime, startTime, scheduledStart)) {
     return START_OVERDUE;
   }
