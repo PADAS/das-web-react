@@ -157,13 +157,12 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
+// todo - replace me
 export const currentPatrolDateQuery = () => {
-  const naive_date = new Date();
-  const utc_now = Date.UTC(naive_date.getUTCFullYear(), naive_date.getUTCMonth(), naive_date.getUTCDate(),
-    naive_date.getUTCHours(), naive_date.getUTCMinutes(), naive_date.getUTCSeconds());
+  const current_date = new Date();
 
-  const startTimeTxt = startOfDay(utc_now).toISOString();
-  const endTimeTxt = endOfDay(utc_now).toISOString();
+  const startTimeTxt = startOfDay(current_date).toISOString();
+  const endTimeTxt = endOfDay(current_date).toISOString();
 
   const timeRangeDict =  {date_range: {lower: startTimeTxt, upper: endTimeTxt}};
   const jsonEndcoded = encodeURI('filter=' + JSON.stringify(timeRangeDict));
