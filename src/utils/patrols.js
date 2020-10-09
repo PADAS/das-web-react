@@ -1,5 +1,7 @@
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
+import startOfDay from 'date-fns/start_of_day';
+import endOfDay from 'date-fns/end_of_day';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
@@ -110,8 +112,6 @@ export const displayTitleForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length
     || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
 
-
-
   const { data: { patrolTypes } } = store.getState();
   const matchingType = (patrolTypes || []).find(t =>
     (t.value === patrol.patrol_segments[0].patrol_type)
@@ -155,6 +155,19 @@ export const displayEndTimeForPatrol = (patrol) => {
   return end_time
     ? new Date(end_time)
     : null;
+};
+
+// todo - replace me
+export const currentPatrolDateQuery = () => {
+  const current_date = new Date();
+
+  const startTimeTxt = startOfDay(current_date).toISOString();
+  const endTimeTxt = endOfDay(current_date).toISOString();
+
+  const timeRangeDict =  {date_range: {lower: startTimeTxt, upper: endTimeTxt}};
+  const jsonEndcoded = encodeURI('filter=' + JSON.stringify(timeRangeDict));
+
+  return jsonEndcoded;
 };
 
 export const displayDurationForPatrol = (patrol) => {

@@ -33,6 +33,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 import { trackEvent } from './utils/analytics';
+import { currentPatrolDateQuery } from './utils/patrols';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -110,7 +111,8 @@ const App = (props) => {
         .catch((e) => {
           // 
         });
-      fetchPatrols()
+      const currentPatrolQuery = currentPatrolDateQuery();
+      fetchPatrols(currentPatrolQuery)
         .catch((e) => {
         //
         });

@@ -39,6 +39,7 @@ import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString'
 import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
+import { fetchPatrols } from '../ducks/patrols';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
