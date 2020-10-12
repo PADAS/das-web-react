@@ -1,6 +1,6 @@
 import debounce from 'lodash/debounce';
-import { buildbranch, buildnum } from '../../package.json';
 
+import { CLIENT_BUILD_VERSION } from '../constants';
 /**
  * ReactGA convenience functions.
  * 
@@ -54,5 +54,5 @@ export const setSitenameDimension = (site) => {
 };
 
 export const setClientReleaseIdentifier = () => ReactGA.set({
-  dimension4: `${buildbranch}-${buildnum}`,
+  dimension4: CLIENT_BUILD_VERSION,
 });
