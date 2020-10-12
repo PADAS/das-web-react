@@ -75,23 +75,23 @@
 
 .status-ready {
   border: 2px dashed #746d6d; 
-  background-color: $patrol-ready-bg;   //portafino
+  background-color: $patrol-ready-bg;  
   &:hover {
       background-color: darken($patrol-ready-bg, 6%);
   }
 }
 
 .status-open {
-  border: 2px solid #8a2fcf; //purple_heart
-  background-color: $patrol-active-bg; //feta
+  border: 2px solid green; 
+  background-color: $patrol-active-bg; 
   &:hover {
       background-color: darken($patrol-active-bg, 6%);
   }
 }
 
 .status-start-overdue {
-  border: 2px dashed #d20c17; //monza
-  background-color: $patrol-overdue-bg; //chablis
+  border: 2px dashed #d20c17; 
+  background-color: $patrol-overdue-bg; 
   &:hover {
       background-color: darken($patrol-overdue-bg, 6%);
   }
@@ -113,19 +113,18 @@
 
 .status-cancelled {
   border: 2px dashed #b3b3b0; //natural_gray
-  color:ccc;
-  background-color: #cacaca; //cararra
-  background: linear-gradient(to bottom right, #fff calc(50% - 1px), #ccc, #fff calc(50% + 3px) );
+  color: #777; //cararra
+  background: linear-gradient(to bottom right, #efefef calc(50% - 1px), #ccc, #efefef calc(50% + 3px) );
   &:hover {
-      background-color: darken(#f7f7f4, 6%);
+    background: linear-gradient(to bottom right, darken(#efefef, 6%) calc(50% - 1px), #ccc, darken(#efefef, 6%) calc(50% + 3px) );
   }
 }
 
 .status-done {
   border: 2px solid black; 
-  background-color: #f7f7f4; //cararra
+  background-color: #fff; 
   &:hover {
-      background-color: darken(#f7f7f4, 6%);
+      background-color: darken(#fff, 6%);
   }
 }
 
