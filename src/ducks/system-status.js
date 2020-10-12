@@ -83,7 +83,7 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_PATROL_MANAGEMENT_ENABLED,
     payload: data[FEATURE_FLAGS.PATROL_MANAGEMENT],
-  })
+  });
   dispatch({
     type: SET_ALERTS_ENABLED,
     payload: data[FEATURE_FLAGS.ALERTS],

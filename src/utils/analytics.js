@@ -1,4 +1,5 @@
 import debounce from 'lodash/debounce';
+import { buildbranch, buildnum } from '../../package.json';
 
 /**
  * ReactGA convenience functions.
@@ -46,8 +47,12 @@ export function setUserRole(role) {
   });
 }
 
-export const setSitenameDimension = (site)  =>{
+export const setSitenameDimension = (site) => {
   ReactGA.set({
     dimension3: site
   });
-}
+};
+
+export const setClientReleaseIdentifier = () => ReactGA.set({
+  dimension4: `${buildbranch}-${buildnum}`,
+});
