@@ -29,8 +29,14 @@ const AboutModal = (props) => {
   return <Fragment>
     <Body className={styles.modal}>
       <EarthRangerLogo type='vertical' />
-      <small><strong>Server version</strong>: {serverData.version}</small>
-      <small><strong>Web client version</strong>: {CLIENT_BUILD_VERSION}</small>
+      <div>
+        <p>
+          <small><strong>Server version</strong>: {serverData.version}</small>
+        </p>
+        <p>
+          <small><strong>Web client version</strong>: {CLIENT_BUILD_VERSION}</small>
+        </p>
+      </div>
       <br />
       <small>&copy;{currentYear} EarthRanger</small>
     </Body>
