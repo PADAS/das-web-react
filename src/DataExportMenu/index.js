@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -11,6 +11,7 @@ import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
+import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
@@ -86,6 +87,10 @@ const DataExportMenu = (props) => {
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
+  const onAboutClick = useCallback(() => {
+    addModal({ content: AboutModal });
+  }, [addModal]);
+
   return <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
     <Toggle as="div">
       <HamburgerMenuIcon isOpen={isOpen} />
@@ -101,6 +106,8 @@ const DataExportMenu = (props) => {
       <Divider />
       <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
+      <Divider />
+      <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>
   </Dropdown>;
 };

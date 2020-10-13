@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 
+import { buildbranch, buildnum } from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import layoutVariables from '../common/styles/_layout.scss';
@@ -15,6 +16,8 @@ export const {
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
+
+export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
 export const GA_EVENT_CATEGORIES = {
   EVENT_REPORTS: 'Event Reports',

@@ -2,6 +2,8 @@
   "name": "das-web-react",
   "version": "0.1.0",
   "private": true,
+  "buildbranch": "generated_by_build",
+  "buildnum": "also_generated_by_build",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.26",
     "@fortawesome/free-solid-svg-icons": "^5.12.0",

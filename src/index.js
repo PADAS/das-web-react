@@ -29,6 +29,8 @@ import withTracker from './WithTracker';
 import DetectOffline from './DetectOffline';
 import RequestConfigManager from './RequestConfigManager';
 
+import { setClientReleaseIdentifier } from './utils/analytics';
+
 /* LAZY LOAD THESE WITH React.Suspense and React.lazy once the server is config'd to keep old deployment chunks */
 // import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import App from './App';
@@ -43,6 +45,7 @@ dom.watch();
 
 // Initialize ReactGA with const from .env
 ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
+setClientReleaseIdentifier();
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
 export const store = createStoreWithMiddleware(reducers);
