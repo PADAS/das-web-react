@@ -83,29 +83,6 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, update)
   },
 });
 
-export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroups, update) => {
-  const { properties: { id } } = update;
-
-  let cachedSubjectUpdate;
-
-  return subjectGroups.map((group) => {
-    const { subgroups, subjects } = group;
-    return {
-      ...group,
-      subgroups: updateSubjectsInSubjectGroupsFromSocketStatusUpdate(subgroups, update),
-      subjects: subjects.map((s) => {
-        if (s.id === id) {
-          if (!cachedSubjectUpdate) {
-            cachedSubjectUpdate = updateSubjectLastPositionFromSocketStatusUpdate(s, update);
-          }
-          return { ...cachedSubjectUpdate };
-        }
-        return s;
-      }),
-    };
-  });
-};
-
 export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {
   return {
     ...mapSubjectFeatureCollection,

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
+import { getSubjectGroups } from '../selectors/subjects';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
@@ -77,8 +78,10 @@ const SubjectGroupList = (props) => {
     itemPartiallyChecked={groupIsPartiallyVisible} />;
 };
 
-const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) =>
-  ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
+const mapStateToProps = (state) => {
+  const { data: { mapLayerFilter }, view: { hiddenSubjectIDs } } = state;
+  return { subjectGroups: getSubjectGroups(state), mapLayerFilter, hiddenSubjectIDs };
+};
 
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));
 

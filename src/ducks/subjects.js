@@ -1,5 +1,5 @@
 import axios, { CancelToken } from 'axios';
-import unionBy from 'lodash/unionBy';
+import union from 'lodash/union';
 import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
@@ -112,13 +112,12 @@ export default globallyResettableReducer((state, action = {}) => {
   }
   case FETCH_MAP_SUBJECTS_SUCCESS: {
     const { payload: { data: subjects } } = action;
-    const newSubjects = subjects.map((subject) => {
-      subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
-      return subject;
-    });
+
+    const mapSubjectIDs = subjects.map(({ id }) => id);
+
     return {
       ...state,
-      subjects: unionBy(newSubjects, state.subjects, 'id'),
+      subjects: union(mapSubjectIDs, state.subjects),
     };
   }
   case SOCKET_SUBJECT_STATUS: {
@@ -147,12 +146,17 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
     return [];
   }
   if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
-    return payload;
-  }
-  if (type === SOCKET_SUBJECT_STATUS) {
-    const { payload } = action;
-    payload.properties.image = calcUrlForImage(payload.properties.image);
-    return updateSubjectsInSubjectGroupsFromSocketStatusUpdate(state, payload);
+    const replaceGroupSubjectsWithSubjectIDs = (...groups) => groups.map((group) => {
+      const { subgroups, subjects } = group;
+      return {
+        ...group,
+        subgroups: replaceGroupSubjectsWithSubjectIDs(...subgroups),
+        subjects: subjects.map(({ id }) =>  id),
+      };
+
+    });
+
+    return replaceGroupSubjectsWithSubjectIDs(...payload);
   }
   return state;
 }, []);
