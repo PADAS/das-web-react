@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -14,21 +14,19 @@ import listStyles from '../SideBar/styles.module.scss';
 const SubjectGroupList = (props) => {
   const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
 
-  const [searchText, setSearchTextState] = useState('');
-  const [subjectFilterEnabled, setSubjectFilterEnabledState] = useState(false);
-  const [groupsInList, setGroupsInList] = useState(subjectGroups);
+  const searchText = useMemo(() => mapLayerFilter.filter.text || '', [mapLayerFilter.filter.text]);
+
+  const subjectFilterEnabled = searchText.length > 0;
 
   const subjectFilterIsMatch = useCallback((subject) => {
     if (searchText.length === 0) return true;
     return (subject.name.toLowerCase().includes(searchText));
   }, [searchText]);
 
-  useEffect(() => {
-    const filteredSubjectGroups = subjectFilterEnabled ?
+  const groupsInList = useMemo(() => {
+    return subjectFilterEnabled ?
       filterSubjects(subjectGroups, subjectFilterIsMatch) :
       subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
-    
-    setGroupsInList(filteredSubjectGroups);
   }, [subjectFilterEnabled, subjectFilterIsMatch, subjectGroups]);
 
   const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
@@ -54,12 +52,6 @@ const SubjectGroupList = (props) => {
       return showSubjects(...subjectIDs);
     }
   };
-
-  useEffect(() => {
-    const filterText = mapLayerFilter.filter.text || '';
-    setSearchTextState(filterText);
-    setSubjectFilterEnabledState(filterText.length > 0);
-  }, [mapLayerFilter]);
 
   const listLevel = 0;
 

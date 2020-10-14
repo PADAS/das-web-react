@@ -1,11 +1,12 @@
 import axios, { CancelToken } from 'axios';
 import unionBy from 'lodash/unionBy';
+import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { updateSubjectLastPositionFromSocketStatusUpdate, updateSubjectsInSubjectGroupsFromSocketStatusUpdate } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate, updateSubjectsInSubjectGroupsFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -155,3 +156,52 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
   }
   return state;
 }, []);
+
+const SUBJECT_STORE_INITIAL_STATE = {};
+
+export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_STORE_INITIAL_STATE, action = {}) => {
+  const { type, payload } = action;
+
+  if (type === CLEAR_SUBJECT_DATA) {
+    return SUBJECT_STORE_INITIAL_STATE;
+  }
+
+  if (type === FETCH_MAP_SUBJECTS_SUCCESS) {
+    const { payload: { data: subjects } } = action;
+
+    const newSubjects = subjects.map((subject) => {
+      subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
+      return subject;
+    });
+
+    const asObject = newSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }) , {});
+
+    return merge({}, state, asObject);
+  }
+
+  if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
+    const subjectGroupSubjects = getUniqueSubjectGroupSubjects(...payload);
+    const asObject = subjectGroupSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }) , {});
+
+    return merge({}, state, asObject);
+  }
+
+  if (type === SOCKET_SUBJECT_STATUS) {
+    const { properties: { id } } = payload;
+
+    if (!state[id]) return state;
+
+    const updatedSubject = updateSubjectLastPositionFromSocketStatusUpdate(state[id], payload);
+
+    return {
+      ...state,
+      [id]: updatedSubject,
+    };
+  }
+
+  return state;
+});
+
+
+/* centralize subject data in the store */
+/* replaces arrays of subjects elsewhere with IDs which can be referenced to the store later */
