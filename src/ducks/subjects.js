@@ -205,7 +205,3 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
 
   return state;
 });
-
-
-/* centralize subject data in the store */
-/* replaces arrays of subjects elsewhere with IDs which can be referenced to the store later */
