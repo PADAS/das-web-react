@@ -111,9 +111,9 @@ const App = (props) => {
         .catch((e) => {
           // 
         });
-      //const currentPatrolQuery = currentPatrolDateQuery();
-      //fetchPatrols(currentPatrolQuery)
-      fetchPatrols()
+      const currentPatrolQuery = currentPatrolDateQuery();
+      fetchPatrols(currentPatrolQuery)
+      //fetchPatrols()
         .catch((e) => {
         //
         });
