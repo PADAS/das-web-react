@@ -27,6 +27,7 @@ import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
+import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -39,7 +40,6 @@ import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString'
 import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
-import { fetchPatrols } from '../ducks/patrols';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -205,6 +205,7 @@ const SideBar = (props) => {
         </Tab>
       </Tabs>
     </aside>
+    <SleepDetector onSleepDetected={loadFeedEvents} />
   </ErrorBoundary>;
 };
 
