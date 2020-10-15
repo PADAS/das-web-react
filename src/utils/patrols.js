@@ -15,6 +15,7 @@ import { getReporterById } from '../utils/events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
+import { distanceInWords } from 'date-fns';
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
@@ -251,6 +252,12 @@ const isStartOverduePatrol = (currentUtc, startTime, scheduledStart) => {
   } else return false;
 };
 
+export const displayPatrolOverdueTime = (patrol) => {
+  const startTime = displayStartTimeForPatrol(patrol);
+  const currentTime = new Date();
+  return distanceInWords(startTime, currentTime, { includeSeconds: true });
+};
+
 export const displayPatrolDoneTime = (patrol) => {
   const doneTime = displayEndTimeForPatrol(patrol);
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
@@ -279,3 +286,4 @@ export const calcPatrolCardState = (patrol) => {
   return READY_TO_START;
 
 };
+

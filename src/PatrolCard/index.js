@@ -16,7 +16,6 @@ import { PATROL_CARD_STATES } from '../constants';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
-
 const PATROL_STATES = {
   OPEN: 'open',
   DONE: 'done',
@@ -101,10 +100,21 @@ const PatrolCard = (props) => {
   }, [canRestorePatrol]);
 
   const patrolStateTitle = useMemo(() => {
-    if(patrolState.status === PATROL_STATES.DONE) {
+    if(patrolState === PATROL_CARD_STATES.DONE) {
       return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
     } 
+    if(patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+      return patrolState.title + ' ' + displayPatrolOverdueTime(patrol);
+    }
     return patrolState.title;
+  }, [patrol, patrolState]);
+
+  const patrolElapsedTime = useMemo(() => {
+    if(patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+      return '0:00';
+    } 
+    return displayDurationForPatrol(patrol);
   }, [patrol, patrolState]);
 
   const togglePatrolCancelationState = useCallback(() => {
@@ -133,6 +143,7 @@ const PatrolCard = (props) => {
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
+
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
     {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
@@ -151,7 +162,7 @@ const PatrolCard = (props) => {
       </Menu>
     </Dropdown>
       
-    <p>Time on patrol: <span>{displayDurationForPatrol(patrol)}</span></p>
+    <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
     <p>Distance covered: <span>0km</span></p>
 
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolStateTitle}</Button>
