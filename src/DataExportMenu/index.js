@@ -22,7 +22,7 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, ...rest } = props;
+  const { addModal, systemConfig: { zendeskEnabled, alerts_enabled }, eventTypes, eventFilter, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
@@ -96,7 +96,7 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
-      <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>
+      {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
