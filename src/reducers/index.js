@@ -10,7 +10,7 @@ import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
 import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
-import mapSubjectReducer, { subjectGroupsReducer } from '../ducks/subjects';
+import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
@@ -74,6 +74,7 @@ const rootReducer = combineReducers({
     patrols: patrolsReducer,
     patrolTypes: patrolTypesReducer,
     subjectGroups: subjectGroupsReducer,
+    subjectStore: subjectStoreReducer,
     systemStatus: systemStatusReducer,
     token: persistReducer(tokenPersistanceConfig, tokenReducer),
     tracks: tracksReducer,
