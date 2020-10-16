@@ -96,7 +96,7 @@ class LoginPage extends Component {
         <Control value={this.state.username} required={true} onChange={this.onInputChange} type='text' name='username' id='username' />
         <Label htmlFor='password'>Password</Label>
         <Control value={this.state.password} required={true} onChange={this.onInputChange} type='password' name='password' id='password' />
-        <Button variant='primary' type='submit'>Log in</Button>
+        <Button variant='primary' type='submit' name='submit'>Log in</Button>
         {this.state.hasError && <Alert className={styles.error} variant='danger'>
           {this.state.errorMessage}
         </Alert>}
