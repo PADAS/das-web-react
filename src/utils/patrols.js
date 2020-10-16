@@ -297,11 +297,11 @@ export const calcPatrolCardState = (patrol) => {
   if(isSegmentOverdue(segment)) {
     return START_OVERDUE;
   }
-  if(isSegmentPending(segment)) {
-    return READY_TO_START;
-  }
   if(isSegmentActive(segment)) {
     return ACTIVE;
+  }
+  if(isSegmentPending(segment)) {
+    return READY_TO_START;
   }
   return INVALID;
 };

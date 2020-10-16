@@ -22,8 +22,8 @@ const calcPatrolSegmentStatus = (patrol) => {
   if (isPatrolCancelled(patrol))return 'canceled';
   if (isSegmentFinished(firstLeg)) return 'completed';
   if (isSegmentOverdue(firstLeg)) return 'overdue';
-  if (isSegmentPending(firstLeg)) return 'pending';
   if (isSegmentActive(firstLeg)) return 'active';
+  if (isSegmentPending(firstLeg)) return 'pending';
 
   return UNKNOWN_STATUS;
 };
