@@ -91,7 +91,7 @@ class LoginPage extends Component {
      
     return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
-      <Form className={styles.form} onSubmit={this.onFormSubmit}>
+      <Form name='login' className={styles.form} onSubmit={this.onFormSubmit}>
         <Label htmlFor='username'>Username</Label>
         <Control value={this.state.username} required={true} onChange={this.onInputChange} type='text' name='username' id='username' />
         <Label htmlFor='password'>Password</Label>
