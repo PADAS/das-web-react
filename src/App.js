@@ -106,23 +106,25 @@ const App = (props) => {
       .catch((e) => {
         // 
       });
-    if (evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
-      fetchPatrolTypes()
-        .catch((e) => {
-          // 
-        });
-      const currentPatrolQuery = currentPatrolDateQuery();
-      fetchPatrols(currentPatrolQuery)
-      //fetchPatrols()
-        .catch((e) => {
-        //
-        });
-    }
     fetchAnalyzers()
       .catch((e) => {
         // 
       });
     fetchSystemStatus()
+      .then(({ patrol_enabled }) => {
+        if (patrol_enabled) {
+          fetchPatrolTypes()
+            .catch((e) => {
+              // 
+            });
+          const currentPatrolQuery = currentPatrolDateQuery();
+          fetchPatrols(currentPatrolQuery)
+          //fetchPatrols()
+            .catch((e) => {
+              //
+            });
+        }
+      })
       .catch((e) => {
         /* toast('Error fetching system status. Please refresh and try again.', {
           type: toast.TYPE.ERROR,
