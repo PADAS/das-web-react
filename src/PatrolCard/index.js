@@ -69,15 +69,8 @@ const PatrolCard = (props) => {
   , [hasEnded, hasStarted, patrol.state]);
 
   const patrolState = useMemo(() => {
-    const currState = calcPatrolCardState(patrol);
-    // if card should be done, but is still open,
-    // mark it as done. Handle with caution...
-    if (currState === PATROL_CARD_STATES.DONE
-      && patrol.state === PATROL_STATES.OPEN) {
-      onPatrolChange({ state: PATROL_STATES.DONE });
-    }
-    return currState;
-  }, [onPatrolChange, patrol]);
+    return calcPatrolCardState(patrol);
+  }, [patrol]);
 
   const canRestorePatrol = useMemo(() => {
     return patrol.state !== PATROL_STATES.OPEN
