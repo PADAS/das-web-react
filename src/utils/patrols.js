@@ -16,6 +16,7 @@ import { getReporterById } from '../utils/events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
+import { distanceInWords } from 'date-fns';
 
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -276,6 +277,12 @@ export const isSegmentFinished = (patrolSegment) => {
 
 export const  isPatrolCancelled = (patrol) => {
   return (patrol.state === 'cancelled');
+};
+
+export const displayPatrolOverdueTime = (patrol) => {
+  const startTime = displayStartTimeForPatrol(patrol);
+  const currentTime = new Date();
+  return distanceInWords(startTime, currentTime, { includeSeconds: true });
 };
 
 export const displayPatrolDoneTime = (patrol) => {
