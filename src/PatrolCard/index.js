@@ -132,13 +132,16 @@ const PatrolCard = (props) => {
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
+  const hoverTitle = useMemo(() => {
+    return patrol.serial_number + ' ' + displayTitle;
+  }, [displayTitle, patrol]);
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
     {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
       onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} 
-      title={displayTitle} />
+      title={hoverTitle} />
     <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />
