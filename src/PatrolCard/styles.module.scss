@@ -10,6 +10,9 @@
   form {
     display: initial;
   }
+  [class*=dropdown-item][class*=disabled], [class*=dropdown-item]:disabled {
+    color: darken($light-gray, 17%);
+  }
   .title {
     align-items: center;
     background: none;
