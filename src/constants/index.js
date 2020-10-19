@@ -54,6 +54,7 @@ export const PATROL_CARD_STATES = {
   DONE: {title: 'Done', status: 'done'},
   START_OVERDUE: {title: 'Start Overdue', status: 'start-overdue'},
   CANCELLED: {title: 'Cancelled', status: 'cancelled'},
+  INVALID: {title: 'Invalid Configuration', status: 'cancelled'},
 };
 
 export const MAP_ICON_SIZE = 30;

@@ -13,7 +13,6 @@ export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES
 export const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(subject.subject_subtype);
 
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
-  console.log('properties.last_voice_call_start_at', properties.last_voice_call_start_at);
   return subjectIsARadio(properties)
     && !!properties.last_voice_call_start_at 
     && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
@@ -83,29 +82,6 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, update)
     }
   },
 });
-
-export const updateSubjectsInSubjectGroupsFromSocketStatusUpdate = (subjectGroups, update) => {
-  const { properties: { id } } = update;
-
-  let cachedSubjectUpdate;
-
-  return subjectGroups.map((group) => {
-    const { subgroups, subjects } = group;
-    return {
-      ...group,
-      subgroups: updateSubjectsInSubjectGroupsFromSocketStatusUpdate(subgroups, update),
-      subjects: subjects.map((s) => {
-        if (s.id === id) {
-          if (!cachedSubjectUpdate) {
-            cachedSubjectUpdate = updateSubjectLastPositionFromSocketStatusUpdate(s, update);
-          }
-          return { ...cachedSubjectUpdate };
-        }
-        return s;
-      }),
-    };
-  });
-};
 
 export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {
   return {

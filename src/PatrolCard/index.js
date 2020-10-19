@@ -99,9 +99,9 @@ const PatrolCard = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol) return 'End Patrol';
+    if (canEndPatrol || patrolIsCancelled) return 'End Patrol';
     return 'Start Patrol';
-  }, [canEndPatrol]);
+  }, [canEndPatrol, patrolIsCancelled]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
     if (canRestorePatrol) return 'Restore Patrol';
@@ -151,6 +151,9 @@ const PatrolCard = (props) => {
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
+  const hoverTitle = useMemo(() => {
+    return patrol.serial_number + ' ' + displayTitle;
+  }, [displayTitle, patrol]);
 
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
@@ -158,7 +161,7 @@ const PatrolCard = (props) => {
     <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
       className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
       onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} 
-      title={displayTitle} />
+      title={hoverTitle} />
     <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />

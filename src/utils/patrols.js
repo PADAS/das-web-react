@@ -2,6 +2,7 @@ import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
 import startOfDay from 'date-fns/start_of_day';
 import endOfDay from 'date-fns/end_of_day';
+import addMinutes from 'date-fns/add_minutes';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
@@ -16,6 +17,8 @@ import { getReporterById } from '../utils/events';
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
+
+const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
@@ -228,7 +231,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
 
 export const displayScheduledStartDate = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
@@ -241,15 +244,39 @@ export const displayScheduledStartDate = (patrol) => {
     : null;
 };
 
-const isActivePatrol = (currentUtc, startTime, endTime) => {
-  return currentUtc > startTime && (currentUtc < endTime || !endTime);
+export const isSegmentOverdue = (patrolSegment) => {
+  const { time_range: { start_time }, scheduled_start } = patrolSegment;
+  return !start_time
+    && !!scheduled_start
+    && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
 };
 
-// Overdue to start = scheduled start before current date, no start date set
-const isStartOverduePatrol = (currentUtc, startTime, scheduledStart) => {
-  if (scheduledStart && !startTime) {
-    return (differenceInMinutes(currentUtc, scheduledStart) > 30);
-  } else return false;
+export const isSegmentPending = (patrolSegment) => {
+  const { time_range: { start_time } } = patrolSegment;
+
+  return !start_time
+  || (!!start_time && addMinutes(new Date(start_time), DELTA_FOR_OVERDUE).getTime() > new Date().getTime());
+};
+
+export const isSegmentActive = (patrolSegment) => {
+  const { time_range: { start_time, end_time } } = patrolSegment;
+  const nowTime = new Date().getTime();
+
+  return !!start_time
+    && new Date(start_time).getTime() < nowTime
+    && (
+      !end_time
+      || (!!end_time && new Date(end_time).getTime() > nowTime)
+    );   
+};
+
+export const isSegmentFinished = (patrolSegment) => {
+  const { time_range: { end_time } } = patrolSegment;
+  return !!end_time && new Date(end_time).getTime() < new Date().getTime();
+};
+
+export const  isPatrolCancelled = (patrol) => {
+  return (patrol.state === 'cancelled');
 };
 
 export const displayPatrolOverdueTime = (patrol) => {
@@ -264,26 +291,25 @@ export const displayPatrolDoneTime = (patrol) => {
 };
 
 export const calcPatrolCardState = (patrol) => {
-  // eslint-disable-next-line default-case
-  const endTime = displayEndTimeForPatrol(patrol);
-  const currentTime = new Date();
-  // extract done calc to a utility function for card and this function
-  if (patrol.state === 'done' 
-    || (endTime && endTime.getTime() <= currentTime.getTime())) {
-    return DONE;
-  };
-  if (patrol.state === 'cancelled') {
-    return CANCELLED;
+  if (isPatrolCancelled(patrol)) {
+    return CANCELLED; 
   }
-  const scheduledStart = displayScheduledStartDate(patrol);
-  const startTime = segmentStartTimeForPatrol(patrol);
-  if(isStartOverduePatrol(currentTime, startTime, scheduledStart)) {
+  const { patrol_segments } = patrol;
+  if (!patrol_segments.length) return INVALID;
+
+  const [segment]  = patrol_segments;
+  if(isSegmentFinished(segment)) {
+    return DONE;
+  }
+  if(isSegmentOverdue(segment)) {
     return START_OVERDUE;
   }
-  if(isActivePatrol(currentTime, startTime, endTime)) {
+  if(isSegmentActive(segment)) {
     return ACTIVE;
-  } 
-  return READY_TO_START;
-
+  }
+  if(isSegmentPending(segment)) {
+    return READY_TO_START;
+  }
+  return INVALID;
 };
 

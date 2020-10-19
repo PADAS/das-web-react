@@ -57,6 +57,7 @@ import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
+import SleepDetector from '../SleepDetector';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -621,6 +622,7 @@ class Map extends Component {
 
         {timeSliderActive && <TimeSlider />}
         <ReloadOnProfileChange />
+        <SleepDetector onSleepDetected={this.debouncedFetchMapData} />
       </EarthRangerMap>
     );
   }
