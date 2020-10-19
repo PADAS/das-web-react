@@ -204,4 +204,4 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
   }
 
   return state;
-});
+}, SUBJECT_STORE_INITIAL_STATE);
