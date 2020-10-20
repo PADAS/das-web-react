@@ -60,15 +60,6 @@ const userCreatableEventTypesByCategory = createSelector(
     })
 );
 
-
-export const getMapSubjectFeatureCollection = createSelector(
-  [mapSubjects, hiddenSubjectIDs, showInactiveRadios],
-  (mapSubjects, hiddenSubjectIDs, showInactiveRadios) => {
-    const mapSubjectFeatureCollection = createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)));
-    if (showInactiveRadios) return mapSubjectFeatureCollection;
-    return filterInactiveRadiosFromCollection(mapSubjectFeatureCollection);
-  });
-
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents, eventStore, getEventTypes],
   (mapEvents, eventStore, eventTypes) => createFeatureCollectionFromEvents(mapEvents

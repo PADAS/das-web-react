@@ -6,7 +6,7 @@ import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate, updateSubjectsInSubjectGroupsFromSocketStatusUpdate } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -120,20 +120,6 @@ export default globallyResettableReducer((state, action = {}) => {
       subjects: union(mapSubjectIDs, state.subjects),
     };
   }
-  case SOCKET_SUBJECT_STATUS: {
-    const { payload } = action;
-    console.log('realtime: subject update', payload);
-    payload.properties.image = calcUrlForImage(payload.properties.image);
-    return {
-      ...state,
-      subjects: state.subjects.map((subject) => {
-        if (subject.id === payload.properties.id) {
-          return updateSubjectLastPositionFromSocketStatusUpdate(subject, payload);
-        }
-        return subject;
-      }),
-    };
-  }
   default: {
     return state;
   }
@@ -191,11 +177,16 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
   }
 
   if (type === SOCKET_SUBJECT_STATUS) {
-    const { properties: { id } } = payload;
+    console.log('realtime: subject update', payload);
+
+    const cloned = { ...payload };
+    cloned.properties.image = calcUrlForImage(cloned.properties.image);
+    
+    const { properties: { id } } = cloned;
 
     if (!state[id]) return state;
 
-    const updatedSubject = updateSubjectLastPositionFromSocketStatusUpdate(state[id], payload);
+    const updatedSubject = updateSubjectLastPositionFromSocketStatusUpdate(state[id], cloned);
 
     return {
       ...state,
