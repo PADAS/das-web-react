@@ -45,6 +45,7 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
     dispatch(setZendeskConfigStatus(response));
     dispatch(setSystemConfig(response));
     dispatch(fetchSystemStatusSuccess(response));
+    return response.data.data;
   })
   .catch(error => {
     dispatch(fetchSystemStatusError(error));
