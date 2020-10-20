@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -16,11 +16,26 @@ import { trimmedVisibleTrackData } from '../selectors/tracks';
 import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
 
+
+const getIconForTrack = (track, subjectStore) => {
+  const { properties: { id, image } } = track.features[0];
+  const storeMatch = subjectStore[id];
+
+  return (
+    storeMatch
+    && storeMatch.last_position 
+    && storeMatch.last_position.properties 
+    && storeMatch.last_position.properties.image
+  ) || image;
+};
+
 const TitleElement = memo((props) => { // eslint-disable-line
-  const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, trackData, trackPointCount, track_days } = props;
+  const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, subjectStore, trackData, trackPointCount, track_days } = props;
 
   const convertTrackToSubjectDetailListItem = ({ track }) => {
-    const { properties: { title, image, id } } = track.features[0];
+    const { properties: { title, id } } = track.features[0];
+
+    const image = getIconForTrack(track, subjectStore);
 
     return <li key={id}>
       <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
@@ -60,7 +75,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
 });
 
 const TrackLegend = (props) => {
-  const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, updateTrackState } = props;
+  const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, subjectStore, updateTrackState } = props;
 
   const subjectCount = trackData.length;
   const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
@@ -75,15 +90,15 @@ const TrackLegend = (props) => {
   };
 
   if (subjectCount === 1) {
-    const { title, image } = trackData[0].track.features[0].properties;
+    const { title } = trackData[0].track.features[0].properties;
     displayTitle = `${title}`;
-    iconSrc = image;
+    iconSrc = getIconForTrack(trackData[0].track, subjectStore);
   } else {
     displayTitle = `${subjectCount} subjects`;
   }
 
   return subjectCount && <MapLegend
-    titleElement={<TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick} subjectCount={subjectCount} trackData={trackData} trackPointCount={trackPointCount} track_days={track_days} />}
+    titleElement={<TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick} subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData} trackPointCount={trackPointCount} track_days={track_days} />}
     onClose={onClose}
     settingsComponent={<TrackLengthControls />} 
   >
@@ -92,6 +107,7 @@ const TrackLegend = (props) => {
 
 const mapStatetoProps = (state) => ({
   trackData: trimmedVisibleTrackData(state),
+  subjectStore: state.data.subjectStore,
   subjectTrackState: state.view.subjectTrackState,
   trackLength: state.view.trackLength,
 });
