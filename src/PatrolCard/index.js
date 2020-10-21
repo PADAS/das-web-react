@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useMemo, useCallback, Fragmen
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
-  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, fetchLeaderForPatrol } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import format from 'date-fns/format';
@@ -15,6 +15,7 @@ import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 
 import styles from './styles.module.scss';
 import { PATROL_CARD_STATES } from '../constants';
+import patrols from '../ducks/patrols';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
@@ -143,6 +144,12 @@ const PatrolCard = (props) => {
     return format(startTime, STANDARD_DATE_FORMAT);
   }, [patrol]);
 
+  const subjectTitleForPatrol = useMemo(() => {
+    const leader = fetchLeaderForPatrol(patrol);
+    if(!leader) return '';
+    const { name } = leader;
+    return name ? name : '';
+  }, [patrol]);
 
   const patrolStatusStyle = `status-${patrolState.status}`;
 
@@ -170,6 +177,7 @@ const PatrolCard = (props) => {
         <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
+    <h4>{subjectTitleForPatrol}</h4>
     <div className={styles.statusInfo}>
       {canStartPatrol && <Fragment> 
         <p>Scheduled start: <span>{scheduledStartTime}</span></p>
