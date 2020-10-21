@@ -50,9 +50,7 @@ const PatrolCard = (props) => {
 
   const onPatrolStatusClick = useCallback((e) => console.log('clicked status'), []);
 
-  const patrolState = useMemo(() => {
-    return calcPatrolCardState(patrol);
-  }, [patrol]);
+  const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
 
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.DONE;
