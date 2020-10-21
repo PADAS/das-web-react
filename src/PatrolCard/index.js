@@ -16,7 +16,7 @@ import { PATROL_CARD_STATES } from '../constants';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
-const PATROL_STATES = {
+const PATROL_API_STATES = {
   OPEN: 'open',
   DONE: 'done',
   CANCELLED: 'cancelled',
@@ -24,15 +24,6 @@ const PATROL_STATES = {
 
 const PatrolCard = (props) => {
   const { patrol, onTitleClick, onPatrolChange } = props;
-
-  const [firstLeg] = patrol.patrol_segments;
-
-  const { time_range: { start_time, end_time } } = firstLeg;
-
-  const patrolIsCancelled = patrol.state === PATROL_STATES.CANCELLED;
-
-  const hasStarted = !!start_time && new Date(start_time).getTime() < new Date().getTime();
-  const hasEnded = !!end_time && new Date(end_time).getTime() < new Date().getTime();
 
   const [editingTitle, setTitleEditState] = useState(false);
   const menuRef = useRef(null);
@@ -57,44 +48,51 @@ const PatrolCard = (props) => {
 
   const onPatrolStatusClick = useCallback((e) => console.log('clicked status'), []);
 
-  const canStartPatrol = useMemo(() =>
-    patrol.state === PATROL_STATES.OPEN
-    && !hasStarted
-  , [hasStarted, patrol.state]);
-
-  const canEndPatrol = useMemo(() =>
-    patrol.state === PATROL_STATES.OPEN
-      && hasStarted
-      && !hasEnded
-  , [hasEnded, hasStarted, patrol.state]);
-
   const patrolState = useMemo(() => {
     return calcPatrolCardState(patrol);
   }, [patrol]);
 
+  const patrolIsDone = useMemo(() => {
+    return patrolState === PATROL_CARD_STATES.DONE;
+  }, [patrolState]);
+
+  const patrolIsCancelled = useMemo(() =>
+    patrolState === PATROL_CARD_STATES.CANCELLED
+  , [patrolState]);
+
+  const canStartPatrol = useMemo(() => {
+    return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+  } , [patrolState]);
+
+  const canEndPatrol = useMemo(() =>
+    patrolState === PATROL_CARD_STATES.ACTIVE
+  , [patrolState]);
+
   const canRestorePatrol = useMemo(() => {
-    return patrol.state !== PATROL_STATES.OPEN
-    || !!hasEnded;
-  }, [hasEnded, patrol.state]);
+    return patrolState === PATROL_CARD_STATES.DONE 
+    || patrolState === PATROL_CARD_STATES.CANCELLED;
+  }, [patrolState]);
 
   const canCancelPatrol = useMemo(() => {
-    return patrol.state === PATROL_STATES.OPEN &&
-    !hasEnded;
-  }, [hasEnded, patrol.state]);
+    return !(patrolState === PATROL_CARD_STATES.DONE
+      || patrolState === PATROL_CARD_STATES.CANCELLED);
+  }, [patrolState]);
 
   const patrolStartEndCanBeToggled = useMemo(() => {
-    return (patrol.state === PATROL_STATES.OPEN)
-      && (canStartPatrol || canEndPatrol);
-  }, [canEndPatrol, canStartPatrol, patrol.state]);
+    return (patrolState === PATROL_CARD_STATES.ACTIVE
+      || patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+  }, [patrolState]);
 
   const patrolCancelRestoreCanBeToggled = useMemo(() => {
     return canRestorePatrol || canCancelPatrol;
   }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol || patrolIsCancelled) return 'End Patrol';
+    if (canEndPatrol || patrolIsCancelled || patrolIsDone) return 'End Patrol';
     return 'Start Patrol';
-  }, [canEndPatrol, patrolIsCancelled]);
+  }, [canEndPatrol, patrolIsCancelled, patrolIsDone]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
     if (canRestorePatrol) return 'Restore Patrol';
@@ -121,17 +119,17 @@ const PatrolCard = (props) => {
 
   const togglePatrolCancelationState = useCallback(() => {
     if (canRestorePatrol) {
-      onPatrolChange({ state: PATROL_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
+      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
     } else {
-      onPatrolChange({ state: PATROL_STATES.CANCELLED });
+      onPatrolChange({ state: PATROL_API_STATES.CANCELLED });
     }
   }, [canRestorePatrol, onPatrolChange]);
 
   const togglePatrolStartStopState = useCallback(() => {
     if (canStartPatrol) {
-      onPatrolChange({ state: PATROL_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
+      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
     } else {
-      onPatrolChange({ state: PATROL_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
+      onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
     }
   }, [canStartPatrol, onPatrolChange]);
 
