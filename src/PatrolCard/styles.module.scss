@@ -53,6 +53,13 @@
       top: 0.5rem;
       cursor: pointer;
   }
+  h4 {
+      min-height: 1.0rem;
+      font-size: 0.75rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0rem;
+  }
   p {
       color: #8C8C8C;
       font-size: .5rem;
@@ -108,7 +115,6 @@
     }
   }
 }
-
 
 .status-cancelled {
   border: 2px dashed $patrol-cancelled-border; 

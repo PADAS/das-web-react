@@ -15,7 +15,6 @@ import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 
 import styles from './styles.module.scss';
 import { PATROL_CARD_STATES } from '../constants';
-import patrols from '../ducks/patrols';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
