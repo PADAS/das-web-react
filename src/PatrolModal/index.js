@@ -1,8 +1,10 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import setSeconds from 'date-fns/set_seconds';
 import isFuture from 'date-fns/is_future';
+import isPast from 'date-fns/is_past';
+import differenceInMinutes from 'date-fns/difference_in_minutes';
+
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
@@ -25,6 +27,7 @@ import ImageModal from '../ImageModal';
 
 import HeaderMenuContent from './HeaderMenuContent';
 import StatusBadge from './StatusBadge';
+import PatrolDateInput from './DateInput';
 
 // import LoadingOverlay from '../LoadingOverlay';
 
@@ -34,7 +37,6 @@ const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, Locatio
 
 const PatrolModal = (props) => {
   const { addModal, events, patrol, map, id, removeModal } = props;
-  console.log('my map', map);
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
@@ -48,9 +50,9 @@ const PatrolModal = (props) => {
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
 
-  const displayStartTime = displayStartTimeForPatrol(statePatrol);
-  const displayEndTime = displayEndTimeForPatrol(statePatrol);
-  const displayDuration = displayDurationForPatrol(statePatrol);
+  const displayStartTime = useMemo(() => displayStartTimeForPatrol(statePatrol), [statePatrol]);
+  const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
+  const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
 
@@ -101,47 +103,71 @@ const PatrolModal = (props) => {
     });
   }, [statePatrol]);
 
-  const onStartTimeChange = useCallback((val) => {
-    let start_time = null;
-    let scheduled_start = null;
+  const startTimeCommitButtonTitle = useCallback((_val, newVal) => {
+    const startDate = new Date(newVal);
 
-    if (!!val) {
-      const value = setSeconds(new Date(val), 0);
-      const isInFuture = isFuture(value);
-      const asISOString = value.toISOString();
-      
-      start_time = isInFuture ? null : asISOString;
-      scheduled_start = isInFuture ? asISOString : null;
+    if (Math.abs(
+      differenceInMinutes(
+        startDate, new Date()
+      )
+    ) < 2) {
+      return 'Start Patrol';
     }
-    
+    if (isFuture(startDate)) return 'Schedule Patrol';
+    if (isPast(startDate)) return 'Set Patrol Start';
+  }, []);
+
+  const endTimeCommitButtonTitle = useCallback((_val, newVal) => {
+    const endDate = new Date(newVal);
+
+    if (Math.abs(
+      differenceInMinutes(
+        endDate, new Date()
+      )
+    ) < 2) {
+      return 'End Patrol';
+    }
+    if (isFuture(endDate)) return 'Schedule End';
+    if (isPast(endDate)) return 'Set Patrol End';
+  }, []);
+
+  const onStartTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
-    
+    const updatedValue = new Date(value).toISOString();
+
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
         {
           ...segment,
-          scheduled_start,
+          scheduled_start: isAuto ? null : updatedValue,
           time_range: {
             ...segment.time_range,
-            start_time,
+            start_time: isAuto ? updatedValue : null,
           },
         },
       ],
     });
   }, [statePatrol]);
 
-  const onEndTimeChange = useCallback((value) => {
+  const onEndTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
+
+    const update = new Date(value).toISOString();
 
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
         {
           ...segment,
+          scheduled_end: value ?
+            (isAuto ? null : update)
+            : null,
           time_range: {
             ...segment.time_range,
-            end_time: value ? new Date(value).toISOString() : null,
+            end_time: value ?
+              (isAuto ? update : null)
+              : null,
           },
         },
       ],
@@ -316,15 +342,16 @@ const PatrolModal = (props) => {
       <section className={`${styles.timeBar} ${styles.start}`}>
         <div>
           <h6>Start</h6>
-          <DateTimePickerPopover
-            {...DATEPICKER_DEFAULT_CONFIG}
-            value={displayStartTime}
+          <PatrolDateInput
+            value={displayStartTime} 
+            calcSubmitButtonTitle={startTimeCommitButtonTitle}
+            onChange={onStartTimeChange}
             maxDate={displayEndTime || null}
-            className={!!displayStartTime ? styles.timeInput : `${styles.timeInput} ${styles.empty}`}
             showClockIcon={true}
             placement='bottom'
             placeholder='Set Start Time'
-            onChange={onStartTimeChange}  />
+            required={true}
+          />
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
       </section>
@@ -355,18 +382,15 @@ const PatrolModal = (props) => {
       <section className={`${styles.timeBar} ${styles.end}`}>
         <div>
           <h6>End</h6>
-          <DateTimePickerPopover
-            className={!!displayEndTime ? styles.timeInput : `${styles.timeInput} ${styles.empty}`}
+          <PatrolDateInput
+            value={displayEndTime} 
+            calcSubmitButtonTitle={endTimeCommitButtonTitle}
+            onChange={onEndTimeChange}
+            maxDate={null}
             showClockIcon={true}
-            {...DATEPICKER_DEFAULT_CONFIG}
-            value={displayEndTime}
             placement='top'
             placeholder='Set End Time'
-            // popoverClassName={styles.datePopover}
-            // required={true}
-            minDate={displayStartTime || DATEPICKER_DEFAULT_CONFIG.minDate}
-            maxDate={null}
-            onChange={onEndTimeChange}  />
+          />
         </div>
         <span className={displayDuration !== '0s' ? '' : styles.faded}>
           <strong>Duration:</strong> {displayDuration}
