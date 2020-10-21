@@ -1,15 +1,17 @@
-import React, { memo, useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { memo, useState, useEffect, useRef, useMemo, useCallback, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, 
+import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
   calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
+import format from 'date-fns/format';
 
 import AddReport from '../AddReport';
 import KebabMenuIcon from '../KebabMenuIcon';
 import DasIcon from '../DasIcon';
 import InlineEditable from '../InlineEditable';
+import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 
 import styles from './styles.module.scss';
 import { PATROL_CARD_STATES } from '../constants';
@@ -138,6 +140,12 @@ const PatrolCard = (props) => {
     endTitleEdit();
   }, [endTitleEdit, onPatrolChange]);
 
+  const scheduledStartTime = useMemo(() => {
+    const startTime = displayStartTimeForPatrol(patrol);
+    return format(startTime, STANDARD_DATE_FORMAT);
+  }, [patrol]);
+
+
   const patrolStatusStyle = `status-${patrolState.status}`;
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
@@ -164,9 +172,16 @@ const PatrolCard = (props) => {
         <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
-      
-    <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
-    <p>Distance covered: <span>0km</span></p>
+    <div className={styles.statusInfo}>
+      {canStartPatrol && <Fragment> 
+        <p>Scheduled start: <span>{scheduledStartTime}</span></p>
+      </Fragment>}
+      {!canStartPatrol && <Fragment> 
+        <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
+        <p>Distance covered: <span>0km</span></p>
+      </Fragment>}
+    </div>
+
 
     <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolStateTitle}</Button>
     <AddReport className={styles.addReport} showLabel={false} />
