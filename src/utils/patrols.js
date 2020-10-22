@@ -160,7 +160,7 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const fetchLeaderForPatrol = (patrol) => {
+export const getLeaderForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
@@ -285,6 +285,10 @@ export const  isPatrolCancelled = (patrol) => {
   return (patrol.state === 'cancelled');
 };
 
+export const isPatrolDone = (patrol) => {
+  return (patrol.state === 'done'); 
+};
+
 export const displayPatrolOverdueTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
@@ -299,6 +303,9 @@ export const displayPatrolDoneTime = (patrol) => {
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
+  }
+  if (isPatrolDone(patrol)) {
+    return DONE; 
   }
   const { patrol_segments } = patrol;
   if (!patrol_segments.length) return INVALID;
