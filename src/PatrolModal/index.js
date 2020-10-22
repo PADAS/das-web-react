@@ -6,6 +6,7 @@ import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
+import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
@@ -30,7 +31,7 @@ import styles from './styles.module.scss';
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { addModal, patrol, map, id, removeModal } = props;
+  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
@@ -121,6 +122,7 @@ const PatrolModal = (props) => {
 
   const onStartTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
+    updateUserPreferences({ autoStartPatrols: isAuto });
     const updatedValue = new Date(value).toISOString();
 
     setStatePatrol({
@@ -136,10 +138,12 @@ const PatrolModal = (props) => {
         },
       ],
     });
-  }, [statePatrol]);
+  }, [statePatrol, updateUserPreferences]);
 
   const onEndTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
+
+    updateUserPreferences({ autoEndPatrols: isAuto });
 
     const update = new Date(value).toISOString();
 
@@ -160,7 +164,7 @@ const PatrolModal = (props) => {
         },
       ],
     });
-  }, [statePatrol]);
+  }, [statePatrol, updateUserPreferences]);
 
   const onSelectTrackedSubject = useCallback((value) => {
     const trackedSubjectLocation = value
@@ -336,8 +340,10 @@ const PatrolModal = (props) => {
             onChange={onStartTimeChange}
             maxDate={displayEndTime || null}
             showClockIcon={true}
+            isAuto={autoStartPatrols}
             placement='bottom'
             placeholder='Set Start Time'
+            autoCheckLabel='Auto-start patrol'
             required={true}
           />
         </div>
@@ -365,8 +371,10 @@ const PatrolModal = (props) => {
             onChange={onEndTimeChange}
             maxDate={null}
             showClockIcon={true}
+            isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
+            autoCheckLabel='Auto-end patrol'
             required={true}
           />
         </div>
@@ -393,7 +401,12 @@ const PatrolModal = (props) => {
 
 };
 
-export default connect(null, { addModal, removeModal, setModalVisibilityState })(memo(PatrolModal));
+const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } } }) => ({
+  autoStartPatrols,
+  autoEndPatrols
+});
+
+export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
