@@ -390,6 +390,7 @@ const PatrolModal = (props) => {
             showClockIcon={true}
             placement='top'
             placeholder='Set End Time'
+            required={true}
           />
         </div>
         <span className={displayDuration !== '0s' ? '' : styles.faded}>

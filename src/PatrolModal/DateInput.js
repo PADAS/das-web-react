@@ -34,17 +34,11 @@ const PatrolDateInput = (props) => {
         ? setSeconds(new Date(val), 0)
         : null
     );
+  }, []);
 
-    if (!val) {
-      setTimeout(() => {
-        commitTimeChange();
-      }, 1000);
-    }
-  }, [commitTimeChange]);
-
-  const buttonTitle = useMemo(() => {
-    return calcSubmitButtonTitle(value, stateTime);
-  }, [calcSubmitButtonTitle, stateTime, value]);
+  const buttonTitle = useMemo(() =>
+    calcSubmitButtonTitle(value, stateTime)
+  , [calcSubmitButtonTitle, stateTime, value]);
 
   const timeBeingEdited = useMemo(() => new Date(stateTime).getTime() !== new Date(value).getTime(), [stateTime, value]);
 
