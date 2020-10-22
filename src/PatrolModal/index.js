@@ -5,10 +5,6 @@ import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 
-
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
-
-import { getFeedEvents } from '../selectors';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
@@ -18,8 +14,6 @@ import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatr
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
-import DateTimePickerPopover from '../DateTimePickerPopover';
-import ReportListItem from '../ReportListItem';
 import AddReport from '../AddReport';
 
 import NoteModal from '../NoteModal';
@@ -36,16 +30,10 @@ import styles from './styles.module.scss';
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { addModal, events, patrol, map, id, removeModal } = props;
+  const { addModal, patrol, map, id, removeModal } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
-
-  const eventsToShow = useMemo(() => {
-    const cloned = [...events.results];
-    cloned.length = Math.min(cloned.length, 5);
-    return cloned;
-  }, [events]);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
@@ -358,17 +346,6 @@ const PatrolModal = (props) => {
       <Body className={styles.body}>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
-            <ul>
-              {eventsToShow.map((item, index) =>
-                <ReportListItem
-                  className={styles.listItem}
-                  map={map}
-                  report={item}
-                  key={`${item.id}-${index}`}
-                  onTitleClick={() => console.log('title click')}
-                  onIconClick={() => console.log('icon click')} />
-              )}
-            </ul>
           </li>
         </ul>
         <AttachmentList
@@ -416,10 +393,7 @@ const PatrolModal = (props) => {
 
 };
 
-const mapStateToProps = (state) => ({
-  events: getFeedEvents(state),
-});
-export default connect(mapStateToProps, { addModal, removeModal, setModalVisibilityState })(memo(PatrolModal));
+export default connect(null, { addModal, removeModal, setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
