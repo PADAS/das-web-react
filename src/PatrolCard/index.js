@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useMemo, useCallback, Fragmen
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
-  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, fetchLeaderForPatrol } from '../utils/patrols';
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, getLeaderForPatrol } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import format from 'date-fns/format';
@@ -144,10 +144,8 @@ const PatrolCard = (props) => {
   }, [patrol]);
 
   const subjectTitleForPatrol = useMemo(() => {
-    const leader = fetchLeaderForPatrol(patrol);
-    if(!leader) return '';
-    const { name } = leader;
-    return name ? name : '';
+    const leader = getLeaderForPatrol(patrol);
+    return (leader && leader.name) || '' ;
   }, [patrol]);
 
   const patrolStatusStyle = `status-${patrolState.status}`;
