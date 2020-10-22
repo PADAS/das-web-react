@@ -3,7 +3,6 @@ import timeDistanceInWords from 'date-fns/distance_in_words';
 import startOfDay from 'date-fns/start_of_day';
 import endOfDay from 'date-fns/end_of_day';
 import addMinutes from 'date-fns/add_minutes';
-import differenceInMinutes from 'date-fns/difference_in_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
@@ -161,6 +160,13 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
+export const fetchLeaderForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+  const { leader }  = firstLeg;
+  return leader ? leader : null;
+};
+
 // todo - replace me
 export const currentPatrolDateQuery = () => {
   const current_date = new Date();
@@ -279,6 +285,10 @@ export const  isPatrolCancelled = (patrol) => {
   return (patrol.state === 'cancelled');
 };
 
+export const isPatrolDone = (patrol) => {
+  return (patrol.state === 'done'); 
+};
+
 export const displayPatrolOverdueTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
@@ -293,6 +303,9 @@ export const displayPatrolDoneTime = (patrol) => {
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
+  }
+  if (isPatrolDone(patrol)) {
+    return DONE; 
   }
   const { patrol_segments } = patrol;
   if (!patrol_segments.length) return INVALID;
