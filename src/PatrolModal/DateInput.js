@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/Button';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import setSeconds from 'date-fns/set_seconds';
 import isFuture from 'date-fns/is_future';
+import isPast from 'date-fns/is_past';
 
 import DateTimePickerPopover from '../DateTimePickerPopover';
 
@@ -12,7 +13,7 @@ import styles from './styles.module.scss';
 
 const PatrolDateInput = (props) => {
   const { autoCheckLabel = 'Automatic', calcSubmitButtonTitle, children,
-    isAuto = true, title, value, onChange, className, ...rest } = props;
+    isAuto = false, title, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
   const [autoChecked, setAutoChecked] = useState(isAuto);
@@ -23,7 +24,9 @@ const PatrolDateInput = (props) => {
   }, [value]);
 
   const commitTimeChange = useCallback(() => {
-    onChange(stateTime, autoChecked);
+    const isAuto = !canShowAutoCheck ? true : autoChecked;
+    
+    onChange(stateTime, isAuto);
 
     setTempPopoverProps({ popoverOpen: false });
     setTimeout(() => setTempPopoverProps({}), 1000);
