@@ -92,6 +92,7 @@ export const FEATURE_FLAGS = {
   EVENT_MATRIX: 'event_matrix_enabled',
   EULA: 'eula_enabled',
   KML_EXPORT: 'export_kml_enabled',
+  TABLEAU: 'tableau_enabled',
 };
 
 export const SOURCE_IDS = {

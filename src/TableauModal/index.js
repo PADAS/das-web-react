@@ -23,6 +23,12 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, url, c
   const DOWNLOAD_URL = `${API_URL}${url}${paramString.length ? `?${paramString}` : ''}`;
 
   useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://tableau.pamdas.org/javascripts/api/viz_v1.js";
+    script.type = 'text/javascript';
+    
+    document.body.appendChild(script);
+
     return () => {
       downloadCancelToken && downloadCancelToken.cancel();
       setDownloadState(false);
@@ -55,22 +61,20 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, url, c
     <Header closeButton>
       <Title>{title}</Title>
     </Header>
-    <Form onSubmit={onFormSubmit}>
-      {!!children &&
-        <Body>
-          {children}
-        </Body>
-      }
-    </Form>
+    {Boolean(children) &&
+      <Body>
+        {children}
+      </Body>
+    }
   </Fragment>;
 };
 
-DataExportModal.defaultProps = {
+TableauModal.defaultProps = {
   params: {},
   paramString: '',
 };
 
-DataExportModal.propTypes = {
+TableauModal.propTypes = {
   id: PropTypes.string.isRequired,
   removeModal: PropTypes.func.isRequired,
   url: PropTypes.string.isRequired,

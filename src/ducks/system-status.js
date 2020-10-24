@@ -27,6 +27,7 @@ export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
 export const SET_EULA_ENABLED = 'SET_EULA_ENABLED';
 export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
 export const SET_SITENAME = 'SET_SITENAME';
+export const SET_TABLEAU_ENABLED = 'SET_TABLEAU_ENABLED';
 
 const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS, UNKNOWN_STATUS } = STATUSES;
 
@@ -91,6 +92,10 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_EULA_ENABLED,
     payload: data[FEATURE_FLAGS.EULA],
+  });
+  dispatch({
+    type: SET_TABLEAU_ENABLED,
+    payload: data[FEATURE_FLAGS.TABLEAU],
   });
   dispatch({
     type: SET_SHOW_TRACK_DAYS,
@@ -342,6 +347,9 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
   }
   case (SET_EULA_ENABLED): {
     return { ...state, [FEATURE_FLAGS.EULA]: payload, };
+  }
+  case (SET_TABLEAU_ENABLED): {
+    return { ...state, [FEATURE_FLAGS.TABLEAU]: payload, };
   }
   case (SET_SITENAME): {
     setSitenameDimension(payload);
