@@ -13,6 +13,7 @@ import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
 import KMLExportModal from '../KMLExportModal';
+import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 import { calcEventFilterForRequest } from '../utils/events';
@@ -23,7 +24,7 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, history, location, user, userProfiles, ...rest } = props;
+  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, history, location, user, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
@@ -61,19 +62,23 @@ const DataExportMenu = (props) => {
         content: DataExportModal,
         url: 'trackingdata/export',
       },
+      ...(user?.is_superuser ? [{
+        title: 'Tableau',
+        content: TableauModal,
+        url: 'tableau',
+      }] : []),
     ]);
-  }, [props.systemConfig, eventTypes, eventFilter]);
+  }, [props.systemConfig, eventTypes, eventFilter, user]);
 
   useEffect(() => {
     fetchCurrentUser()
-      .catch((error) => {
-        history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: location.search,
-        });
-      });
-    fetchCurrentUserProfiles();
-  }, [fetchCurrentUser, fetchCurrentUserProfiles]);
+      // .catch((error) => {
+      //   history.push({
+      //     pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+      //     search: location.search,
+      //   });
+      // });
+  }, [fetchCurrentUser]);
 
   const alertModal = {
     title: 'Alerts',
@@ -125,6 +130,6 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig }, data: { eventFilter, eventTypes, user, userProfiles } }) => ({ systemConfig, eventFilter, eventTypes, user, userProfiles });
+const mapStateToProps = ({ view: { systemConfig }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, user });
 
 export default connect(mapStateToProps, { addModal })(withRouter(DataExportMenu));
