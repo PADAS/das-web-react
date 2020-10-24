@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
+import { withRouter } from 'react-router-dom';
 
-import { FEATURE_FLAGS } from '../constants';
+import { FEATURE_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
 
 
@@ -15,13 +16,14 @@ import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 import { calcEventFilterForRequest } from '../utils/events';
+import { fetchCurrentUser, fetchCurrentUserProfiles } from '../ducks/user';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, ...rest } = props;
+  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, history, location, user, userProfiles, ...rest } = props;
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
@@ -61,6 +63,17 @@ const DataExportMenu = (props) => {
       },
     ]);
   }, [props.systemConfig, eventTypes, eventFilter]);
+
+  useEffect(() => {
+    fetchCurrentUser()
+      .catch((error) => {
+        history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: location.search,
+        });
+      });
+    fetchCurrentUserProfiles();
+  }, [fetchCurrentUser, fetchCurrentUserProfiles]);
 
   const alertModal = {
     title: 'Alerts',
@@ -112,6 +125,6 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig }, data: { eventFilter, eventTypes } }) => ({ systemConfig, eventFilter, eventTypes });
+const mapStateToProps = ({ view: { systemConfig }, data: { eventFilter, eventTypes, user, userProfiles } }) => ({ systemConfig, eventFilter, eventTypes, user, userProfiles });
 
-export default connect(mapStateToProps, { addModal })(DataExportMenu);
+export default connect(mapStateToProps, { addModal })(withRouter(DataExportMenu));
