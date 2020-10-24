@@ -592,5 +592,12 @@ div.mapboxgl-popup-tip {
 .tableau-modal {
   .modal-body {
     height: 80vh;
+    width: 90vw;
+  }
+  .modal-content {
+    width: 90vw;
+  }
+  .modal-dialog {
+    margin-left: 5vw;
   }
 }

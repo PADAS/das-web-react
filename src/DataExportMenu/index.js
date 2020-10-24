@@ -71,7 +71,7 @@ const DataExportMenu = (props) => {
             <param name='embed_code_version' value='3' />
             <param name='site_root' value='' />
             <param name='name' value='SubjectBufferAnalyzerWorkbook&#47;SubjectBufferDashboard' />
-            <param name='name' value='EarthRangerEventReportsandSubjectWorkbookJUNE2020_SecurityDemo&#47;Dashboard1' />
+            {/* <param name='name' value='EarthRangerEventReportsandSubjectWorkbookJUNE2020_SecurityDemo&#47;Dashboard1' /> */}
             <param name='tabs' value='yes' />
             <param name='toolbar' value='no' />
             <param name='showAppBanner' value='false' />
