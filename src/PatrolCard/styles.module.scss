@@ -15,7 +15,7 @@
   }
   .header {
     margin-top: 0.15rem;
-    height: 2.0rem;
+    height: 1.0rem;
     background: none;
     text-align: center;
     display:flex;
@@ -25,11 +25,12 @@
         font-size: 0.875rem;
         font-weight: 500;
         text-overflow: ellipsis;
+        display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 1;
         overflow: hidden;
         margin-bottom: 0rem;
-        width: 75%;
+        width: 65%;
       }
   }
   .statusInfo {
@@ -40,12 +41,13 @@
     margin-top: 0.125rem;
   }
   svg {
+      margin-top: 0.15rem;
       height: 1.25rem;
       width: 2.0rem;
       fill: gray; 
       position: absolute;
       left: 0.375rem;
-      top: 0.6rem;
+      top: 0.2rem;
       cursor: pointer;
   }
   p {
