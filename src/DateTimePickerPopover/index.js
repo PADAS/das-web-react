@@ -73,18 +73,23 @@ const DateTimePickerPopover = (props, ref) => {
     } else {
       popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
     }
-  }, [popoverStateIsControlled, onPopoverToggle]);
+    props.onHide && props.onHide();
+  }, [props, popoverStateIsControlled, onPopoverToggle]);
 
   const handleKeyDown = useCallback((event) => {
     const { key } = event;
     const closingKeys = ['Escape', 'Enter'];
+
+    if (key === 'Enter') {
+      props.onEnter && props.onEnter();
+    }
 
     if (closingKeys.includes(key) && popoverOpen) {
       event.preventDefault();
       event.stopPropagation();
       hidePopover();
     }
-  }, [hidePopover, popoverOpen]);
+  }, [hidePopover, popoverOpen, props]);
 
   const buttonRef = useRef(null);
   const containerRef = useRef(null);
@@ -176,10 +181,11 @@ const DateTimePickerPopover = (props, ref) => {
 };
 
 const DateTimePopover = forwardRef((props, ref) => {  /* eslint-disable-line react/display-name */
-  const { placement, popoverStyles = {}, popoverClassName } = props;
+  const { children, placement, popoverStyles = {}, popoverClassName } = props;
   return <Popover ref={ref} className={`${styles.popover} ${popoverClassName}`} style={popoverStyles} placement={placement || DEFAULT_PLACEMENT}>
     <Popover.Content>
       <DateTimePicker {...props} />
+      {children}
     </Popover.Content>
   </Popover>;
 });
