@@ -14,7 +14,7 @@
     color: darken($light-gray, 17%);
   }
   .header {
-    margin-top: 0.15rem;
+    margin-top: 0.45rem;
     height: 1.0rem;
     background: none;
     text-align: center;
@@ -41,13 +41,13 @@
     margin-top: 0.125rem;
   }
   svg {
-      margin-top: 0.15rem;
+      margin-top: 0.25rem;
       height: 1.25rem;
       width: 2.0rem;
       fill: gray; 
       position: absolute;
       left: 0.375rem;
-      top: 0.2rem;
+      top: 0.19rem;
       cursor: pointer;
   }
   p {
