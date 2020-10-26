@@ -33,7 +33,7 @@ const INITIAL_REPORTS_STATE = {
   tableauDashboard: {}
 };
 
-const patrolsReducer = (state = INITIAL_REPORTS_STATE, action) => {
+const reportsReducer = (state = INITIAL_REPORTS_STATE, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_TABLEAU_DASHBOARD_START) {
@@ -63,4 +63,4 @@ const patrolsReducer = (state = INITIAL_REPORTS_STATE, action) => {
 };
 
 
-export default globallyResettableReducer(patrolsReducer, INITIAL_REPORTS_STATE);
+export default globallyResettableReducer(reportsReducer, INITIAL_REPORTS_STATE);

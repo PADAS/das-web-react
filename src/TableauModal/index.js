@@ -42,22 +42,7 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
     </Header>
     <Body>
       {isTableauDashboardDataValid() && <div class='tableauPlaceholder' style={{width: '100%', height: '100%'}}>
-        <object class='tableauViz' width='100%' height='100%' style={{display: 'none'}}>
-          <param name='host_url' value={encodeURIComponent(`${server}/`)} />
-          <param name='embed_code_version' value='3' />
-          <param name='site_root' value={site_root} />
-          <param name='name' value={name} /> 
-          <param name='ticket' value={ticket} />
-          <param name='tabs' value='yes' />
-          <param name='toolbar' value='no' />
-          <param name='showAppBanner' value='false' />
-          <param name='alerts' value='no'/>
-          <param name='dataDetails' value='no' />
-          <param name='customViews' value='no'/>
-          <param name='showShareOptions' value='false' />
-          <param name='subscriptions' value='no'/>
-          <param name='tabs' value='yes'/>
-        </object>
+        <iframe src={`${server}/trusted/${ticket}${site_root}/views/${name}?:embed=yes`} width="100%" height="100%"></iframe> 
       </div>}
     </Body>
   </Fragment>;

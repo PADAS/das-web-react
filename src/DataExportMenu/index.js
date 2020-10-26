@@ -18,7 +18,7 @@ import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 import { calcEventFilterForRequest } from '../utils/events';
-import { fetchCurrentUser, fetchCurrentUserProfiles } from '../ducks/user';
+import { fetchCurrentUser } from '../ducks/user';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
