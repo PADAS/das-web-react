@@ -46,6 +46,7 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
     dispatch(setZendeskConfigStatus(response));
     dispatch(setSystemConfig(response));
     dispatch(fetchSystemStatusSuccess(response));
+    return response.data.data;
   })
   .catch(error => {
     dispatch(fetchSystemStatusError(error));
@@ -84,7 +85,7 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_PATROL_MANAGEMENT_ENABLED,
     payload: data[FEATURE_FLAGS.PATROL_MANAGEMENT],
-  })
+  });
   dispatch({
     type: SET_ALERTS_ENABLED,
     payload: data[FEATURE_FLAGS.ALERTS],
@@ -151,8 +152,8 @@ const genericStatusReducer = (reducer, onApiResponse = (update, state) => state)
   }
   case FETCH_SYSTEM_STATUS_ERROR: {
     return {
-      ...state,
       ...genericStatusModel({
+        ...state,
         status: UNHEALTHY_STATUS,
       }),
     };
@@ -251,39 +252,39 @@ const INITIAL_REALTIME_STATUS_STATE = genericStatusModel({
 });
 const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STATUS_STATE, { type, payload }) => {
   switch (type) {
-  case (SOCKET_HEALTHY_STATUS): {
-    const timestamp = new Date();
+    case (SOCKET_HEALTHY_STATUS): {
+      const timestamp = new Date();
 
-    return {
-      ...state,
-      status: HEALTHY_STATUS,
-      timestamp,
-    };
-  }
-  case (SERVER_STATUS_CHANGE): {
-    if (payload === UNKNOWN_STATUS) {
       return {
         ...state,
-        status: UNKNOWN_STATUS,
+        status: HEALTHY_STATUS,
+        timestamp,
       };
     }
-    return state;
-  }
-  case (SOCKET_UNHEALTHY_STATUS): {
-    return {
-      ...state,
-      status: UNHEALTHY_STATUS,
-    };
-  }
-  case (SOCKET_WARNING_STATUS): {
-    return {
-      ...state,
-      status: WARNING_STATUS,
-    };
-  }
-  default: {
-    return state;
-  }
+    case (SERVER_STATUS_CHANGE): {
+      if (payload === UNKNOWN_STATUS) {
+        return {
+          ...state,
+          status: UNKNOWN_STATUS,
+        };
+      }
+      return state;
+    }
+    case (SOCKET_UNHEALTHY_STATUS): {
+      return {
+        ...state,
+        status: UNHEALTHY_STATUS,
+      };
+    }
+    case (SOCKET_WARNING_STATUS): {
+      return {
+        ...state,
+        status: WARNING_STATUS,
+      };
+    }
+    default: {
+      return state;
+    }
   }
 });
 

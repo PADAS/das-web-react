@@ -90,7 +90,7 @@ section.timeBar {
       svg[class*=clearIcon] * {
         fill: white;
       }
-      &:hover {
+      &:not(.editingDate):hover {
         svg[class*=clearIcon] {
           display: block;
         }
@@ -187,9 +187,39 @@ section.timeBar {
 }
 
 .body {
+  min-height: 12rem;
   max-height: 45vh;
 }
 
 .segmentList, segmentList ul {
   margin-bottom: 0;
+}
+
+.editingDate:not([class*=react-calendar]) {
+  > input {
+    color: yellow !important;
+    font-style: italic;
+    width: 7.5rem;
+  }
+  &::after {
+    color: yellow;
+    display: block;
+    content: "*unsaved";
+    // float: right;
+  }
+} 
+
+.dateTimePickerChildren {
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 1rem;
+  label {
+    align-items: center;
+    display: flex;
+    margin: 0;
+  }
+  [type=checkbox] {
+    margin-right: 0.5rem;
+  }
 }

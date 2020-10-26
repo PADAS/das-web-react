@@ -4,6 +4,7 @@ import { hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTr
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
 import { trackEvent } from '../utils/analytics';
+import { getSubjectGroups } from '../selectors/subjects';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
 import styles from './styles.module.scss';
@@ -36,10 +37,8 @@ const ClearAllControl = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { data: { subjectGroups } } = state;
-
   return ({
-    subjectGroups,
+    subjectGroups: getSubjectGroups(state),
   });
 };
 

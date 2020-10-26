@@ -1,23 +1,20 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import isFuture from 'date-fns/is_future';
+import isPast from 'date-fns/is_past';
+import differenceInMinutes from 'date-fns/difference_in_minutes';
 
-import timeDistanceInWords from 'date-fns/distance_in_words';
-
-import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
-
-import { getFeedEvents } from '../selectors';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
+import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { displayTitleForPatrol } from '../utils/patrols';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
+import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
-import DateTimePickerPopover from '../DateTimePickerPopover';
-import ReportListItem from '../ReportListItem';
-import TimeElapsed from '../TimeElapsed';
 import AddReport from '../AddReport';
 
 import NoteModal from '../NoteModal';
@@ -25,82 +22,36 @@ import ImageModal from '../ImageModal';
 
 import HeaderMenuContent from './HeaderMenuContent';
 import StatusBadge from './StatusBadge';
+import PatrolDateInput from './DateInput';
 
-import LoadingOverlay from '../LoadingOverlay';
+// import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
 const PatrolModal = (props) => {
-  const { addModal, events, patrol, map, /* removeModal */ } = props;
-  console.log('my map', map);
+  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
 
-  const eventsToShow = useMemo(() => {
-    const cloned = [...events.results];
-    cloned.length = Math.min(cloned.length, 5);
-    return cloned;
-  }, [events]);
-
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
 
-  const displayStartTime = useMemo(() => {
-    if (!statePatrol.patrol_segments.length) return null;
-    const [firstLeg] = statePatrol.patrol_segments;
-
-    const { start_time } = firstLeg;
-
-    return start_time
-      ?  new Date(start_time)
-      : null;
-    
-  }, [statePatrol.patrol_segments]);
-
-  const displayEndTime = useMemo(() => {
-    if (!statePatrol.patrol_segments.length) return null;
-    const [firstLeg] = statePatrol.patrol_segments;
-
-    const { end_time } = firstLeg;
-
-    return end_time
-      ?  new Date(end_time)
-      : null;
-    
-  }, [statePatrol.patrol_segments]);
+  const displayStartTime = useMemo(() => displayStartTimeForPatrol(statePatrol), [statePatrol]);
+  const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
+  const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
-
-  const displayDuration = useMemo(() => {
-    const now = new Date();
-    const nowTime = now.getTime();
-
-    const hasStarted = !!displayStartTime
-    && (displayStartTime.getTime() < nowTime);
-
-    if (!hasStarted) return '0s';
-
-    const hasEnded = !!displayEndTime 
-    && (displayEndTime.getTime() <= nowTime);
-
-    if (!hasEnded) {
-      return <TimeElapsed date={displayStartTime} />;
-    }
-
-    return timeDistanceInWords(displayStartTime, displayEndTime);
-    
-  }, [displayEndTime, displayStartTime]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
     const [firstLeg] = statePatrol.patrol_segments;
 
-    const { sources } = firstLeg;
-    if (!sources || !sources.length) return null;
-    return sources[0];
+    const { leader } = firstLeg;
+    if (!leader) return null;
+    return leader;
   }, [statePatrol.patrol_segments]);
 
   const onTitleChange = useCallback((value) => {
@@ -117,8 +68,8 @@ const PatrolModal = (props) => {
         {
           ...statePatrol.patrol_segments[0],
           start_location: value ? {
-            lng: value[0],
-            lat: value[1],
+            longitude: value[0],
+            latitude: value[1],
           } : null,
         },
       ],
@@ -133,37 +84,87 @@ const PatrolModal = (props) => {
         {
           ...statePatrol.patrol_segments[0],
           end_location: value ? {
-            lng: value[0],
-            lat: value[1],
+            longitude: value[0],
+            latitude: value[1],
           } : null,
         },
       ],
     });
   }, [statePatrol]);
 
-  const onStartTimeChange = useCallback((value) => {
-    setStatePatrol({
-      ...statePatrol,
-      patrol_segments: [
-        {
-          ...statePatrol.patrol_segments[0],
-          start_time: value ? new Date(value).toISOString() : null,
-        },
-      ],
-    });
-  }, [statePatrol]);
+  const startTimeCommitButtonTitle = useCallback((_val, newVal) => {
+    const startDate = new Date(newVal);
 
-  const onEndTimeChange = useCallback((value) => {
+    if (Math.abs(
+      differenceInMinutes(
+        startDate, new Date()
+      )
+    ) < 2) {
+      return 'Start Patrol';
+    }
+    if (isFuture(startDate)) return 'Schedule Patrol';
+    if (isPast(startDate)) return 'Set Patrol Start';
+  }, []);
+
+  const endTimeCommitButtonTitle = useCallback((_val, newVal) => {
+    const endDate = new Date(newVal);
+
+    if (Math.abs(
+      differenceInMinutes(
+        endDate, new Date()
+      )
+    ) < 2) {
+      return 'End Patrol';
+    }
+    if (isFuture(endDate)) return 'Schedule End';
+    if (isPast(endDate)) return 'Set Patrol End';
+  }, []);
+
+  const onStartTimeChange = useCallback((value, isAuto) => {
+    const [segment] = statePatrol.patrol_segments;
+    updateUserPreferences({ autoStartPatrols: isAuto });
+    const updatedValue = new Date(value).toISOString();
+
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
         {
-          ...statePatrol.patrol_segments[0],
-          end_time: value ? new Date(value).toISOString() : null,
+          ...segment,
+          scheduled_start: isAuto ? null : updatedValue,
+          time_range: {
+            ...segment.time_range,
+            start_time: isAuto ? updatedValue : null,
+          },
         },
       ],
     });
-  }, [statePatrol]);
+  }, [statePatrol, updateUserPreferences]);
+
+  const onEndTimeChange = useCallback((value, isAuto) => {
+    const [segment] = statePatrol.patrol_segments;
+
+    updateUserPreferences({ autoEndPatrols: isAuto });
+
+    const update = new Date(value).toISOString();
+
+    setStatePatrol({
+      ...statePatrol,
+      patrol_segments: [
+        {
+          ...segment,
+          scheduled_end: value ?
+            (isAuto ? null : update)
+            : null,
+          time_range: {
+            ...segment.time_range,
+            end_time: value ?
+              (isAuto ? update : null)
+              : null,
+          },
+        },
+      ],
+    });
+  }, [statePatrol, updateUserPreferences]);
 
   const onSelectTrackedSubject = useCallback((value) => {
     const trackedSubjectLocation = value
@@ -176,10 +177,10 @@ const PatrolModal = (props) => {
       patrol_segments: [
         {
           ...statePatrol.patrol_segments[0],
-          sources: value ? [value] : null,
+          leader: value ? value : null,
           start_location: !!trackedSubjectLocation ? {
-            lat: trackedSubjectLocation[1],
-            lng: trackedSubjectLocation[0],
+            latitude: trackedSubjectLocation[1],
+            longitude: trackedSubjectLocation[0],
           } : statePatrol.patrol_segments[0].start_location,
         },
       ],
@@ -198,6 +199,7 @@ const PatrolModal = (props) => {
     
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
   }, [filesToList, filesToUpload]);
+  
 
   const onSaveNote = useCallback((noteToSave) => {
     const note = { ...noteToSave };
@@ -260,7 +262,7 @@ const PatrolModal = (props) => {
     const [firstLeg] = statePatrol.patrol_segments;
 
     if (!firstLeg.start_location) return null;
-    return [firstLeg.start_location.lng, firstLeg.start_location.lat];
+    return [firstLeg.start_location.longitude, firstLeg.start_location.latitude];
   }, [statePatrol.patrol_segments]);
 
   const patrolEndLocation = useMemo(() => {
@@ -269,14 +271,48 @@ const PatrolModal = (props) => {
     const [firstLeg] = statePatrol.patrol_segments;
 
     if (!firstLeg.end_location) return null;
-    return [firstLeg.end_location.lng, firstLeg.end_location.lat];
+    return [firstLeg.end_location.longitude, firstLeg.end_location.latitude];
   }, [statePatrol.patrol_segments]);
 
   const displayPriority = useMemo(() => {
-    if (statePatrol.priority) return statePatrol.priority;
+    if (statePatrol.hasOwnProperty('priority')) return statePatrol.priority; 
     if (!!statePatrol.patrol_segments.length) return statePatrol.patrol_segments[0].priority;
     return null;
-  }, [statePatrol.patrol_segments, statePatrol.priority]);
+  }, [statePatrol]);
+
+  const onSave = useCallback(() => {
+    // const reportIsNew = !statePatrol.id;
+    let toSubmit = statePatrol;
+
+    const LOCATION_PROPS =  ['start_location', 'end_location'];
+
+    LOCATION_PROPS.forEach((prop) => {
+      if (toSubmit.hasOwnProperty(prop) && !toSubmit[prop]) {
+        toSubmit[prop] = null;
+      }
+    });
+
+    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
+
+    return executeSaveActions(actions)
+      .then((results) => {
+        removeModal(id);
+        // onSaveSuccess(results);
+        /*   if (report.is_collection && toSubmit.state) {
+          return Promise.all(report.contains
+            .map(contained => contained.related_event.id)
+            .map(id => setEventState(id, toSubmit.state)));
+        } */
+        return results;
+      })
+      .catch((error) => {
+        console.warn('failed to save new patrol', error);
+      });
+  }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+
+  const onCancel = useCallback(() => {
+    removeModal(id);
+  }, [id, removeModal]);
 
   return <EditableItem data={statePatrol}>
     <Modal>
@@ -298,34 +334,24 @@ const PatrolModal = (props) => {
       <section className={`${styles.timeBar} ${styles.start}`}>
         <div>
           <h6>Start</h6>
-          <DateTimePickerPopover
-            {...DATEPICKER_DEFAULT_CONFIG}
-            value={displayStartTime}
-            className={!!displayStartTime ? styles.timeInput : `${styles.timeInput} ${styles.empty}`}
+          <PatrolDateInput
+            value={displayStartTime} 
+            calcSubmitButtonTitle={startTimeCommitButtonTitle}
+            onChange={onStartTimeChange}
+            maxDate={displayEndTime || null}
             showClockIcon={true}
+            isAuto={autoStartPatrols}
             placement='bottom'
             placeholder='Set Start Time'
-            // required={true}
-            // popoverClassName={styles.datePopover}
-            // maxDate={}
-            onChange={onStartTimeChange}  />
+            autoCheckLabel='Auto-start patrol'
+            required={true}
+          />
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
       </section>
       <Body className={styles.body}>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
-            <ul>
-              {eventsToShow.map((item, index) =>
-                <ReportListItem
-                  className={styles.listItem}
-                  map={map}
-                  report={item}
-                  key={`${item.id}-${index}`}
-                  onTitleClick={() => console.log('title click')}
-                  onIconClick={() => console.log('icon click')} />
-              )}
-            </ul>
           </li>
         </ul>
         <AttachmentList
@@ -339,19 +365,18 @@ const PatrolModal = (props) => {
       <section className={`${styles.timeBar} ${styles.end}`}>
         <div>
           <h6>End</h6>
-          <DateTimePickerPopover
-            className={!!displayEndTime ? styles.timeInput : `${styles.timeInput} ${styles.empty}`}
+          <PatrolDateInput
+            value={displayEndTime} 
+            calcSubmitButtonTitle={endTimeCommitButtonTitle}
+            onChange={onEndTimeChange}
+            maxDate={null}
             showClockIcon={true}
-            {...DATEPICKER_DEFAULT_CONFIG}
-            value={displayEndTime}
+            isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
-            // popoverClassName={styles.datePopover}
-            // required={true}
-            minDate={displayStartTime || DATEPICKER_DEFAULT_CONFIG.minDate}
-            defaultValue={displayStartTime || null}
-            maxDate={null}
-            onChange={onEndTimeChange}  />
+            autoCheckLabel='Auto-end patrol'
+            required={true}
+          />
         </div>
         <span className={displayDuration !== '0s' ? '' : styles.faded}>
           <strong>Duration:</strong> {displayDuration}
@@ -367,9 +392,8 @@ const PatrolModal = (props) => {
         <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
       </AttachmentControls>
       <Footer
-        onCancel={() => console.log('cancel')}
-        onSave={() => console.log('save')}
-        onStateToggle={() => console.log('state toggle')}
+        onCancel={onCancel}
+        onSave={onSave}
         isActiveState={true}
       />
     </Modal>
@@ -377,10 +401,12 @@ const PatrolModal = (props) => {
 
 };
 
-const mapStateToProps = (state) => ({
-  events: getFeedEvents(state),
+const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } } }) => ({
+  autoStartPatrols,
+  autoEndPatrols
 });
-export default connect(mapStateToProps, { addModal, removeModal, setModalVisibilityState })(memo(PatrolModal));
+
+export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,

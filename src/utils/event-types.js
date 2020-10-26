@@ -43,6 +43,7 @@ export const calcIconColorByPriority = (priority) => {
 };
 
 export const mapReportTypesToCategories = eventTypes => eventTypes
+  
   .filter(reportType => reportType.category.value !== 'hidden')
   .reduce((accumulator, reportType) => {
     const cat = accumulator.find(item => item.value === reportType.category.value);
@@ -57,10 +58,19 @@ export const mapReportTypesToCategories = eventTypes => eventTypes
     }
     return accumulator;
   }, [])
-  .sort((item1, item2) => {
-    const first = typeof item1.ordernum === 'number' ? item1.ordernum : 0;
-    const second = typeof item2.ordernum === 'number' ? item2.ordernum : 0;
+  .map(cat => ({
+    ...cat,
+    types: cat.types.sort((item1, item2) => {
+      const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
+      const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
 
-    return second - first;
+      return first - second;
+    })
+  }))
+  .sort((item1, item2) => {
+    const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
+    const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
+
+    return first - second;
   })
   .filter(item => !!item.types.length);

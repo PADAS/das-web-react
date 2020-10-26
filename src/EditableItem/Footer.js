@@ -21,13 +21,17 @@ const StateButton = (props) => {
 
 const Footer = (props) => {
   const { onCancel, onSave, onStateToggle, data, isActiveState } = props;
+
+  const SaveButtonComponent = !!onStateToggle ? SplitButton : Button;
+  
   return <div className={styles.formButtons}>
     <Button type="button" onClick={onCancel} variant="secondary">Cancel</Button>
-    <SplitButton className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={onSave}>
-      <Dropdown.Item>
+    <SaveButtonComponent className={styles.saveButton} drop='down' variant='primary' type='submit' title='Save' onClick={onSave}>
+      {!onStateToggle && 'Save'}
+      {!!onStateToggle && <Dropdown.Item>
         <StateButton state={data.state} isActive={isActiveState} onStateToggle={onStateToggle} />
-      </Dropdown.Item>
-    </SplitButton>
+      </Dropdown.Item>}
+    </SaveButtonComponent>
   </div>;
 };
 
@@ -36,7 +40,7 @@ export default memo(Footer);
 Footer.propTypes = {
   onCancel: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onStateToggle: PropTypes.func.isRequired,
+  onStateToggle: PropTypes.func,
   data: PropTypes.object.isRequired,
   isActiveState: PropTypes.bool.isRequired,
 };

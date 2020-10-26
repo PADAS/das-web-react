@@ -1,5 +1,6 @@
 import debounce from 'lodash/debounce';
 
+import { CLIENT_BUILD_VERSION } from '../constants';
 /**
  * ReactGA convenience functions.
  * 
@@ -46,8 +47,12 @@ export function setUserRole(role) {
   });
 }
 
-export const setSitenameDimension = (site)  =>{
+export const setSitenameDimension = (site) => {
   ReactGA.set({
     dimension3: site
   });
-}
+};
+
+export const setClientReleaseIdentifier = () => ReactGA.set({
+  dimension4: CLIENT_BUILD_VERSION,
+});

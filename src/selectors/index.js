@@ -6,10 +6,6 @@ import bboxPolygon from '@turf/bbox-polygon';
 import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, filterInactiveRadiosFromCollection } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
-import { evaluateFeatureFlag } from '../utils/feature-flags';
-
-import { generatePatrolEventCategory } from '../fixtures/patrol_management';
-import { FEATURE_FLAGS } from '../constants';
 
 export const createSelector = createSelectorCreator(
   defaultMemoize,
@@ -29,6 +25,7 @@ const getReportSchemas = ({ data: { eventSchemas } }, { data:report }) => eventS
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
+const patrols = ({ data: { patrols } }) => patrols;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
@@ -62,15 +59,6 @@ const userCreatableEventTypesByCategory = createSelector(
       return false;
     })
 );
-
-
-export const getMapSubjectFeatureCollection = createSelector(
-  [mapSubjects, hiddenSubjectIDs, showInactiveRadios],
-  (mapSubjects, hiddenSubjectIDs, showInactiveRadios) => {
-    const mapSubjectFeatureCollection = createFeatureCollectionFromSubjects(mapSubjects.filter(item => !hiddenSubjectIDs.includes(item.id)));
-    if (showInactiveRadios) return mapSubjectFeatureCollection;
-    return filterInactiveRadiosFromCollection(mapSubjectFeatureCollection);
-  });
 
 export const getMapEventFeatureCollection = createSelector(
   [mapEvents, eventStore, getEventTypes],
@@ -183,6 +171,16 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
 export const getReportFormSchemaData = createSelector(
   [getReportSchemas],
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
+);
+
+export const getPatrols = createSelector(
+  [patrols, eventStore],
+  (patrols, eventStore) => ({
+    ...patrols,
+    results: patrols.results
+      .map(id => eventStore[id])
+      .filter(item => !!item),
+  }),
 );
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];

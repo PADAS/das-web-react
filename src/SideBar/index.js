@@ -24,8 +24,10 @@ import EventFeed from '../EventFeed';
 import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
+import PatrolFilter from '../PatrolFilter';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
+import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -36,6 +38,8 @@ import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import ErrorMessage from '../ErrorMessage';
+import PatrolList from '../PatrolList';
+import TotalReportCountString from '../EventFilter/TotalReportCountString';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -46,7 +50,7 @@ const TAB_KEYS = {
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, patrols, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -151,9 +155,12 @@ const SideBar = (props) => {
             <ErrorBoundary>
               <div className={styles.filterWrapper}>
                 <EventFilter className={styles.eventFilter}>
-                  <HeatmapToggleButton onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
+                  <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
                 </EventFilter>
-                <FriendlyEventFilterString className={styles.friendlyFilterString} />
+                <div className={styles.filterStringWrapper}>
+                  <FriendlyEventFilterString className={styles.friendlyFilterString} />
+                  <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
+                </div>
               </div>
             </ErrorBoundary>
           </DelayedUnmount>
@@ -178,6 +185,8 @@ const SideBar = (props) => {
           </ErrorBoundary>
         </Tab>
         {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+          <PatrolFilter className={styles.patrolFilter} /> 
+          <PatrolList map={map} patrols={patrols.results || []}/>
         </Tab>}
         <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
           <ErrorBoundary>
@@ -196,12 +205,15 @@ const SideBar = (props) => {
         </Tab>
       </Tabs>
     </aside>
+    <SleepDetector onSleepDetected={loadFeedEvents} />
   </ErrorBoundary>;
 };
 
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
+  patrols: state.data.patrols,
+  //patrols: getPatrols(state),
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
 });

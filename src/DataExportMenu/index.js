@@ -12,6 +12,7 @@ import DailyReportModal from '../DailyReportModal';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
+import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
 import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
@@ -26,7 +27,7 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
+  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
   const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
   const [isOpen, setOpenState] = useState(false);
 
@@ -135,11 +136,6 @@ const DataExportMenu = (props) => {
     },
   };
 
-  const onLegacyLinkClick = useCallback(() => {
-    trackEvent('Main Toolbar', 'Click Link to Legacy Web UI');
-    window.location = '/legacy/';
-  }, []);
-
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
     trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
@@ -156,12 +152,16 @@ const DataExportMenu = (props) => {
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
+  const onAboutClick = useCallback(() => {
+    addModal({ content: AboutModal });
+  }, [addModal]);
+
   return <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
     <Toggle as="div">
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
-      <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>
+      {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
@@ -172,7 +172,7 @@ const DataExportMenu = (props) => {
       <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
       <Divider />
-      <Item onClick={onLegacyLinkClick}>&laquo; Legacy Version</Item>
+      <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>
   </Dropdown>;
 };

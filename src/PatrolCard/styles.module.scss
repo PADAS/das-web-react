@@ -1,0 +1,185 @@
+@import '../common/styles/vars/colors';
+
+.patrolListItem {
+  border-radius: .75rem;
+  margin: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  position: relative;
+  text-align: center;
+  width: 48%;
+  form {
+    display: initial;
+  }
+  [class*=dropdown-item][class*=disabled], [class*=dropdown-item]:disabled {
+    color: darken($light-gray, 17%);
+  }
+  .title {
+    align-items: center;
+    background: none;
+    min-height: 2.5rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      + button {
+        display: none;
+        + button {
+          display: none;
+        }
+      }
+      &.editing {
+        margin-left: 2.5rem;
+      }
+      &.notEditing {
+        margin: 0.25rem 0;
+        padding-left: 2.25rem;
+        padding-right: 2.25rem;
+        text-decoration: none;
+      }
+  }
+  .statusInfo {
+    height: 2.0rem;
+  }
+  svg {
+      height: 1.25rem;
+      width: 2.0rem;
+      fill: gray; 
+      position: absolute;
+      left: 0.375rem;
+      top: 0.5rem;
+      cursor: pointer;
+  }
+  p {
+      color: #8C8C8C;
+      font-size: .5rem;
+      font-style: italic;
+      margin-bottom: 0.125rem;
+      span {
+          color: #646161;
+      }
+  }
+  button {
+      font-size: .5rem;
+      font-style: plain;
+      padding-top: 0rem;
+      color: #323335;
+  }
+  &:hover {
+      .addReport {
+          display: block;
+      }
+      .kebabMenu {
+          display: flex;
+      }
+  }
+}
+
+
+.status-ready {
+  border: 2px dashed $patrol-ready-border; 
+  background-color: $patrol-ready-bg;  
+  &:hover {
+      background-color: darken($patrol-ready-bg, 6%);
+  }
+}
+
+.status-open {
+  border: 2px solid $patrol-active-border; 
+  background-color: $patrol-active-bg; 
+  &:hover {
+      background-color: darken($patrol-active-bg, 6%);
+  }
+}
+
+.status-start-overdue {
+  border: 2px dashed $patrol-overdue-border; 
+  background-color: $patrol-overdue-bg; 
+  &:hover {
+      background-color: darken($patrol-overdue-bg, 6%);
+  }
+  button {
+    color: red;
+    &:hover {
+      color: darken(red, 6%);
+    }
+  }
+}
+
+
+.status-cancelled {
+  border: 2px dashed $patrol-cancelled-border; 
+  color: #777;
+  background: linear-gradient(to bottom right, $patrol-cancelled-bg calc(50% - 1px), #ccc, #efefef calc(50% + 3px) );
+  &:hover {
+    background: linear-gradient(to bottom right, darken($patrol-cancelled-bg, 6%) calc(50% - 1px), #ccc, darken(#efefef, 6%) calc(50% + 3px) );
+  }
+}
+
+.status-done {
+  border: 2px solid $patrol-done-border; 
+  background-color: $patrol-done-bg; 
+  &:hover {
+      background-color: darken(#fff, 6%);
+  }
+}
+
+.addReport, .kebabMenu {
+  display: none;
+  position: absolute;
+}
+
+.addReport {
+  bottom: 2.25rem;
+  pointer-events: none;
+  left: 0;
+  svg {
+      height: 1.5rem;
+      width: 1.5rem;
+  }
+}
+
+.kebabMenu {
+  --hamburger-menu-color: #1a2026;
+  align-items: center;
+  border-radius: 1rem;
+  height: 1.75rem;
+  justify-content: center;
+  right: 0.125rem;
+  transition: background 0.15s linear;
+  top: 0.125rem;
+  width: 1.75rem;
+  &:active {
+      background: rgba(0,0,0,0.17);
+  }
+  > button {
+    border: none;
+    outline: none;
+    background: none;
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.headerControls {
+  --button-dimensions: 1.75rem;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-left: auto;
+  width: 7rem;
+  button {
+      height: var(--button-dimensions);
+      width: var(--button-dimensions);
+  }
+  .kebabMenu {
+      --hamburger-menu-color: rgba(0, 0, 0, 0.47);
+      display: flex;
+      position: static;
+  }
+}
+

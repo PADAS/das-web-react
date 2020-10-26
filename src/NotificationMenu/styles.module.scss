@@ -5,8 +5,9 @@
   position: relative;
 }
 
-.menu {
+div.menu {
   padding: 0;
+  width: 20rem;
 }
 
 .badge {
@@ -41,6 +42,7 @@
   max-width: 22rem;
   padding: 0.5rem 1rem;
   h6 {
+    font-size: 0.9rem;
     white-space: normal;
   }
 }

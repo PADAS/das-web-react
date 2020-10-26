@@ -1,10 +1,11 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
 import { trackEvent } from '../utils/analytics';
+import { getSubjectGroups } from '../selectors/subjects';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
@@ -14,21 +15,19 @@ import listStyles from '../SideBar/styles.module.scss';
 const SubjectGroupList = (props) => {
   const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
 
-  const [searchText, setSearchTextState] = useState('');
-  const [subjectFilterEnabled, setSubjectFilterEnabledState] = useState(false);
-  const [groupsInList, setGroupsInList] = useState(subjectGroups);
+  const searchText = useMemo(() => mapLayerFilter.filter.text || '', [mapLayerFilter.filter.text]);
+
+  const subjectFilterEnabled = searchText.length > 0;
 
   const subjectFilterIsMatch = useCallback((subject) => {
     if (searchText.length === 0) return true;
     return (subject.name.toLowerCase().includes(searchText));
   }, [searchText]);
 
-  useEffect(() => {
-    const filteredSubjectGroups = subjectFilterEnabled ?
+  const groupsInList = useMemo(() => {
+    return subjectFilterEnabled ?
       filterSubjects(subjectGroups, subjectFilterIsMatch) :
       subjectGroups.filter(g => !!g.subgroups.length || !!g.subjects.length);
-    
-    setGroupsInList(filteredSubjectGroups);
   }, [subjectFilterEnabled, subjectFilterIsMatch, subjectGroups]);
 
   const groupIsFullyVisible = group => !getUniqueSubjectGroupSubjects(group).map(item => item.id).some(id => hiddenSubjectIDs.includes(id));
@@ -55,12 +54,6 @@ const SubjectGroupList = (props) => {
     }
   };
 
-  useEffect(() => {
-    const filterText = mapLayerFilter.filter.text || '';
-    setSearchTextState(filterText);
-    setSubjectFilterEnabledState(filterText.length > 0);
-  }, [mapLayerFilter]);
-
   const listLevel = 0;
 
   const itemProps = {
@@ -85,8 +78,10 @@ const SubjectGroupList = (props) => {
     itemPartiallyChecked={groupIsPartiallyVisible} />;
 };
 
-const mapStateToProps = ({ data: { subjectGroups, mapLayerFilter }, view: { hiddenSubjectIDs } }) =>
-  ({ subjectGroups, mapLayerFilter, hiddenSubjectIDs });
+const mapStateToProps = (state) => {
+  const { data: { mapLayerFilter }, view: { hiddenSubjectIDs } } = state;
+  return { subjectGroups: getSubjectGroups(state), mapLayerFilter, hiddenSubjectIDs };
+};
 
 export default connect(mapStateToProps, { hideSubjects, showSubjects })(memo(SubjectGroupList));
 

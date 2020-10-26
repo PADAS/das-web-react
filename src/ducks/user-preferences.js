@@ -13,8 +13,11 @@ export const updateUserPreferences = (preference) => ({
 const INITIAL_STATE = {
   gpsFormat: Object.values(GPS_FORMATS)[0],
   sidebarOpen: false,
+  autoStartPatrols: false,
+  autoEndPatrols: false,
   hideModals: false,
   seenSunsetWarning: false,
+  seenTrackAnnouncement: false,
 };
 
 export default (state = INITIAL_STATE, action = {}) => {
