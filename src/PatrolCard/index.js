@@ -56,7 +56,7 @@ const PatrolCard = (props) => {
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
-    || patrolState === PATROL_CARD_STATES.READY_TO_START;
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE;
   }, [patrolState]);
 
   const patrolStatusStyle = `status-${patrolState.status}`;
