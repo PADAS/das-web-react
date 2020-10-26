@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 
-import { FEATURE_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
+import { FEATURE_FLAGS } from '../constants';
 
 
 
