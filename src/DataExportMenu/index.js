@@ -17,14 +17,17 @@ import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 import { calcEventFilterForRequest } from '../utils/events';
-import { fetchCurrentUser, fetchCurrentUserProfiles } from '../ducks/user';
+import { fetchCurrentUser } from '../ducks/user';
+import { updateUserPreferences } from '../ducks/user-preferences';
+import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, history, location, user, ...rest } = props;
+  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
+  const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
@@ -89,16 +92,39 @@ const DataExportMenu = (props) => {
         },
       }] : []),
     ]);
+
+    if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && user?.is_superuser && !hasTableauNotification) {
+      addUserNotification({
+        message: 'Tableau features are now available! Click on the menu to the right and select "Tableau", to view this.',
+        onConfirm(_e, item) {
+          setHasTableauNotification(false);
+          removeUserNotification(item.id);
+          updateUserPreferences({
+            shownTableauNotification: true
+          });
+        },
+        onDismiss(_e, item) {
+          setHasTableauNotification(false);
+          removeUserNotification(item.id);
+          updateUserPreferences({
+            shownTableauNotification: true
+          });
+        },
+        confirmText: 'OK',
+      });
+
+      setHasTableauNotification(true);
+    }
   }, [props.systemConfig, eventTypes, eventFilter, user]);
 
   useEffect(() => {
     fetchCurrentUser()
-      // .catch((error) => {
-      //   history.push({
-      //     pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-      //     search: location.search,
-      //   });
-      // });
+      .catch((error) => {
+        history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: location.search,
+        });
+      });
   }, [fetchCurrentUser]);
 
   const alertModal = {
@@ -151,6 +177,6 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, user });
+const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification, user });
 
-export default connect(mapStateToProps, { addModal })(withRouter(DataExportMenu));
+export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences })(withRouter(DataExportMenu));
