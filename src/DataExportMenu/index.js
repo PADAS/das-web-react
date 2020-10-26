@@ -18,7 +18,6 @@ import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
 import { calcEventFilterForRequest } from '../utils/events';
-import { fetchCurrentUser } from '../ducks/user';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
@@ -73,16 +72,6 @@ const DataExportMenu = (props) => {
       }] : []),
     ]);
   }, [props.systemConfig, eventTypes, eventFilter, user]);
-
-  useEffect(() => {
-    fetchCurrentUser()
-      // .catch((error) => {
-      //   history.push({
-      //     pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-      //     search: location.search,
-      //   });
-      // });
-  }, [fetchCurrentUser]);
 
   const alertModal = {
     title: 'Alerts',
