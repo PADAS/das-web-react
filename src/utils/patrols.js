@@ -160,6 +160,13 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
+export const getLeaderForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+  const { leader }  = firstLeg;
+  return leader ? leader : null;
+};
+
 // todo - replace me
 export const currentPatrolDateQuery = () => {
   const current_date = new Date();

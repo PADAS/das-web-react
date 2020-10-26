@@ -1,8 +1,7 @@
-import React, { memo, useState, useEffect, useRef, useMemo, useCallback, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import Button from 'react-bootstrap/Button';
+import React, { memo, useRef, useMemo, useCallback, Fragment } from 'react';
+import PropTypes from 'prop-types'
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
-  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, getLeaderForPatrol } from '../utils/patrols';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import format from 'date-fns/format';
@@ -10,7 +9,6 @@ import format from 'date-fns/format';
 import AddReport from '../AddReport';
 import KebabMenuIcon from '../KebabMenuIcon';
 import DasIcon from '../DasIcon';
-import InlineEditable from '../InlineEditable';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 
 import styles from './styles.module.scss';
@@ -27,26 +25,7 @@ const PATROL_API_STATES = {
 const PatrolCard = (props) => {
   const { patrol, onTitleClick, onPatrolChange } = props;
 
-  const [editingTitle, setTitleEditState] = useState(false);
   const menuRef = useRef(null);
-
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (editingTitle && menuRef.current && !menuRef.current.contains(e.target)) {
-        endTitleEdit();
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);  /* eslint-disable-line react-hooks/exhaustive-deps */
-
-  const startTitleEdit = useCallback(() => {
-    setTitleEditState(true);
-  }, []);
-
-  const endTitleEdit = useCallback(() => {
-    setTitleEditState(false);
-  },[]);
 
   const onPatrolStatusClick = useCallback((e) => console.log('clicked status'), []);
 
@@ -133,32 +112,34 @@ const PatrolCard = (props) => {
     }
   }, [canStartPatrol, onPatrolChange]);
 
-  const onPatrolTitleChange = useCallback((value) => {
-    onPatrolChange({ title: value });
-    endTitleEdit();
-  }, [endTitleEdit, onPatrolChange]);
-
   const scheduledStartTime = useMemo(() => {
     const startTime = displayStartTimeForPatrol(patrol);
     return format(startTime, STANDARD_DATE_FORMAT);
   }, [patrol]);
 
+  const subjectTitleForPatrol = useMemo(() => {
+    const leader = getLeaderForPatrol(patrol);
+    return (leader && leader.name) || '' ;
+  }, [patrol]);
+
+  const displayTitle = useMemo(() => { 
+    return subjectTitleForPatrol || displayTitleForPatrol(patrol);
+  }, [patrol, subjectTitleForPatrol]);
 
   const patrolStatusStyle = `status-${patrolState.status}`;
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
-  const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
+ 
   const hoverTitle = useMemo(() => {
     return patrol.serial_number + ' ' + displayTitle;
   }, [displayTitle, patrol]);
 
 
   return <li className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
-    {patrolIconId && <DasIcon type='events' /* onClick={()=>onTitleClick(patrol)} */ iconId={patrolIconId} />}
-    <InlineEditable editing={editingTitle} value={displayTitle} onEsc={endTitleEdit}
-      className={`${styles.title} ${editingTitle ? styles.editing : styles.notEditing}`}
-      onCancel={endTitleEdit} onSave={onPatrolTitleChange} onClick={()=>onTitleClick(patrol)} 
-      title={hoverTitle} />
+    {patrolIconId && <DasIcon type='events' onClick={()=>onTitleClick(patrol)} iconId={patrolIconId} />}
+    <div className={styles.header}>
+      <h3 onClick={()=>onTitleClick(patrol)}title={hoverTitle}>{displayTitle}</h3>
+    </div>  
     <Dropdown alignRight className={styles.kebabMenu}>
       <Toggle as="button">
         <KebabMenuIcon />
@@ -166,7 +147,6 @@ const PatrolCard = (props) => {
       <Menu ref={menuRef}>
         <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
         <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open Patrol</Item>
-        <Item disabled={patrolIsCancelled} onClick={startTitleEdit}>Rename Patrol</Item>
         <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
       </Menu>
     </Dropdown>
@@ -175,13 +155,13 @@ const PatrolCard = (props) => {
         <p>Scheduled start: <span>{scheduledStartTime}</span></p>
       </Fragment>}
       {!canStartPatrol && <Fragment> 
-        <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
-        <p>Distance covered: <span>0km</span></p>
+        <div>
+          <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
+          <p>Distance covered: <span>0km</span></p>
+        </div>
       </Fragment>}
     </div>
-
-
-    <Button type="button" onClick={onPatrolStatusClick} variant="link">{patrolStateTitle}</Button>
+    <h6 onClick={onPatrolStatusClick}>{patrolStateTitle}</h6>
     <AddReport className={styles.addReport} showLabel={false} />
   </li>;
 };

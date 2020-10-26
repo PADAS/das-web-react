@@ -13,44 +13,41 @@
   [class*=dropdown-item][class*=disabled], [class*=dropdown-item]:disabled {
     color: darken($light-gray, 17%);
   }
-  .title {
-    align-items: center;
+  .header {
+    margin-top: 0.45rem;
+    height: 1.0rem;
     background: none;
-    min-height: 2.5rem;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    cursor: pointer;
-      font-size: 0.875rem;
-      font-weight: 500;
-      + button {
-        display: none;
-        + button {
-          display: none;
-        }
-      }
-      &.editing {
-        margin-left: 2.5rem;
-      }
-      &.notEditing {
-        margin: 0.25rem 0;
-        padding-left: 2.25rem;
-        padding-right: 2.25rem;
-        text-decoration: none;
+    text-align: center;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+      h3 {
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+        margin-bottom: 0rem;
+        width: 65%;
       }
   }
   .statusInfo {
-    height: 2.0rem;
+    height: 1.75rem;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.125rem;
   }
   svg {
+      margin-top: 0.25rem;
       height: 1.25rem;
       width: 2.0rem;
       fill: gray; 
       position: absolute;
       left: 0.375rem;
-      top: 0.5rem;
+      top: 0.19rem;
       cursor: pointer;
   }
   p {
@@ -62,11 +59,16 @@
           color: #646161;
       }
   }
-  button {
-      font-size: .5rem;
-      font-style: plain;
-      padding-top: 0rem;
-      color: #323335;
+  h6 {
+    color: #8C8C8C;
+    font-size: .5rem;
+    font-style: plain;
+    margin-top: 0.25rem;
+    margin-bottom: 0.125rem;
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
   }
   &:hover {
       .addReport {
@@ -77,7 +79,6 @@
       }
   }
 }
-
 
 .status-ready {
   border: 2px dashed $patrol-ready-border; 
@@ -101,14 +102,15 @@
   &:hover {
       background-color: darken($patrol-overdue-bg, 6%);
   }
-  button {
+  h6 {
     color: red;
     &:hover {
+      cursor: pointer;
+      text-decoration: underline;
       color: darken(red, 6%);
     }
   }
 }
-
 
 .status-cancelled {
   border: 2px dashed $patrol-cancelled-border; 
