@@ -96,7 +96,7 @@ const DataExportMenu = (props) => {
 
     if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && user?.is_superuser && !hasTableauNotification) {
       addUserNotification({
-        message: 'Tableau features are now available! Click on the menu to the right and select "Tableau", to view this.',
+        message: 'Checkout our new Tableau dashboard and reports which you can access from the main menu!',
         onConfirm(_e, item) {
           setHasTableauNotification(false);
           removeUserNotification(item.id);
