@@ -1,5 +1,6 @@
 import { toast } from 'react-toastify';
 
+import { buildbranch, buildnum } from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import layoutVariables from '../common/styles/_layout.scss';
@@ -15,6 +16,8 @@ export const {
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
+
+export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
 export const GA_EVENT_CATEGORIES = {
   EVENT_REPORTS: 'Event Reports',
@@ -42,6 +45,16 @@ export const STATUSES = {
   WARNING_STATUS: 'WARNING',
   UNHEALTHY_STATUS: 'UNHEALTHY',
   UNKNOWN_STATUS: 'UNKNOWN',
+};
+
+export const PATROL_CARD_STATES = {
+  SCHEDULED: {title: 'Scheduled', status: 'scheduled'},
+  READY_TO_START: {title: 'Ready to Start', status: 'ready'},
+  ACTIVE: {title: 'Active', status: 'open'},
+  DONE: {title: 'Done', status: 'done'},
+  START_OVERDUE: {title: 'Start Overdue', status: 'start-overdue'},
+  CANCELLED: {title: 'Cancelled', status: 'cancelled'},
+  INVALID: {title: 'Invalid Configuration', status: 'cancelled'},
 };
 
 export const MAP_ICON_SIZE = 30;

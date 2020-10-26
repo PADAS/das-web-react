@@ -1,63 +1,31 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo } from 'react';
 import { withFormDataContext } from '../EditableItem/context';
 
 import { ReactComponent as Chevron } from '../common/images/icons/triple-chevron.svg';
+import { isPatrolCancelled, isSegmentFinished, 
+  isSegmentOverdue, isSegmentPending, isSegmentActive} from '../utils/patrols';
 
 import styles from './styles.module.scss';
 
 
 const calcPatrolSegmentStatus = (patrol) => {
+  const UNKNOWN_STATUS = 'unknown';
+  
   const { patrol_segments } = patrol;
 
-  if (!patrol_segments.length) return 'unknown';
+  if (!patrol_segments.length) return UNKNOWN_STATUS;
 
   const [firstLeg]  = patrol_segments;
 
-  // const { start_time, end_time, scheduled_start } = patrol;
-  if (isCanceled(patrol))return 'canceled';
-  if (isFinished(firstLeg)) return 'completed';
-  if (isOverdue(firstLeg)) return 'overdue';
-  if (isPending(firstLeg)) return 'pending';
-  if (isActive(firstLeg)) return 'active';
+  if (!firstLeg.time_range) return UNKNOWN_STATUS;
 
-  return 'unknown';
-};
+  if (isPatrolCancelled(patrol))return 'canceled';
+  if (isSegmentFinished(firstLeg)) return 'completed';
+  if (isSegmentOverdue(firstLeg)) return 'overdue';
+  if (isSegmentActive(firstLeg)) return 'active';
+  if (isSegmentPending(firstLeg)) return 'pending';
 
-const isCanceled = (patrol) => patrol.state === 'canceled';
-
-const isOverdue = (patrolSegment) => {
-  const {start_time, scheduled_start } = patrolSegment;
-
-  return !start_time
-    && !!scheduled_start
-    && new Date(scheduled_start).getTime() < new Date().getTime(); 
-};
-
-const isPending = (patrolSegment) => {
-  const { start_time } = patrolSegment;
-
-  return !start_time
-  || (!!start_time && new Date(start_time).getTime() > new Date().getTime());
-};
-
-const isActive = (patrolSegment) => {
-  const { start_time, end_time } = patrolSegment;
-  const nowTime = new Date().getTime();
-
-  return !!start_time
-    && new Date(start_time).getTime() < nowTime
-    && (
-      !end_time
-      || (!!end_time && new Date(end_time).getTime() > nowTime)
-    );
-    
-};
-
-const isFinished = (patrolSegment) => {
-  const { end_time } = patrolSegment;
-
-  return !!end_time && new Date(end_time).getTime() < new Date().getTime();
-
+  return UNKNOWN_STATUS;
 };
 
 const StatusBadge = (props) => {

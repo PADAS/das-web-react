@@ -48,6 +48,16 @@
     &[class*=generic] {
       max-height: var(--half-size);
     }
+    + svg {
+      --smaller-dimensions: calc(var(--dimensions)/2);
+      left: 23%;
+      max-height: var(--smaller-dimensions);
+      top: 28%;
+      width: var(--smaller-dimensions);
+      &[class*=generic] {
+        top: 42%;
+      }
+    }
   }
 }
 

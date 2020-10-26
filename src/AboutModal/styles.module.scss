@@ -1,0 +1,10 @@
+div.modal {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  line-height: normal;
+  svg {
+    margin-bottom: 1rem;
+  }
+}

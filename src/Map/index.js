@@ -29,6 +29,8 @@ import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../u
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
+import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { updateUserPreferences } from '../ducks/user-preferences';
 
 import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
@@ -51,11 +53,11 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
-import BetaWelcomeModal from '../BetaWelcomeModal';
 // import IsochroneLayer from '../IsochroneLayer';
 import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
+import SleepDetector from '../SleepDetector';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -79,13 +81,14 @@ class Map extends Component {
     super(props);
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
-    this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
+    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapZoom = this.onMapZoom.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
+    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
@@ -102,15 +105,6 @@ class Map extends Component {
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
 
-    if (!this.props.userPreferences.seenSunsetWarning) {
-      this.props.addModal({
-        content: BetaWelcomeModal,
-        modalProps: {
-          keyboard: false,
-        },
-      });
-    }
-
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
 
     if (location) {
@@ -121,6 +115,7 @@ class Map extends Component {
       this.props.history.push(newLocation);
     }
   }
+ 
 
   get mapCenter() {
     return this.lngLatFromParams || this.props.homeMap.center;
@@ -182,7 +177,7 @@ class Map extends Component {
       this.onTrackLengthChange();
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
-      this.fetchMapData();
+      this.debouncedFetchMapData();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -245,10 +240,6 @@ class Map extends Component {
     mapEventsFetchCancelToken.cancel();
   }
 
-  onMapMoveEnd = debounce(() => {
-    this.debouncedFetchMapData();
-  });
-
   onRotationControlClick = (e) => {
     this.props.map.easeTo({
       bearing: 0,
@@ -280,7 +271,7 @@ class Map extends Component {
       });
   }
 
-  debouncedFetchMapData = debounce(this.fetchMapData, 100)
+  debouncedFetchMapData = debounce(this.fetchMapData, 500)
 
   fetchMapSubjects() {
     const args = [this.props.map];
@@ -497,7 +488,7 @@ class Map extends Component {
     window.map = map;
     
     this.props.onMapLoad(map);
-    this.onMapMoveEnd(); 
+    this.debouncedFetchMapData(); 
   }
 
   onSubjectHeatmapClose() {
@@ -552,7 +543,7 @@ class Map extends Component {
           <TimeSliderMapControl />
         </Fragment>}
         onMoveStart={this.onMapMoveStart}
-        onMoveEnd={this.onMapMoveEnd}
+        onMoveEnd={this.debouncedFetchMapData}
         onZoom={this.onMapZoom}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
@@ -631,6 +622,7 @@ class Map extends Component {
 
         {timeSliderActive && <TimeSlider />}
         <ReloadOnProfileChange />
+        <SleepDetector onSleepDetected={this.debouncedFetchMapData} />
       </EarthRangerMap>
     );
   }
@@ -672,6 +664,7 @@ const mapStatetoProps = (state, props) => {
 };
 
 export default connect(mapStatetoProps, {
+  addUserNotification,
   clearEventData,
   clearSubjectData,
   fetchBaseLayers,
@@ -679,10 +672,12 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   hidePopup,
   addModal,
+  removeUserNotification,
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
   toggleMapLockState,
+  updateUserPreferences,
   updateTrackState,
   updateHeatmapSubjects,
 }

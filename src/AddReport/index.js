@@ -19,8 +19,8 @@ import { FEATURE_FLAGS } from '../constants';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrols } = props;
+  const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
+    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
   const [selectedCategory, selectCategory] = useState(null);
 
   const patrolsEnabled = evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -31,9 +31,23 @@ const AddReport = (props) => {
   const placement = popoverPlacement || 'auto';
 
   const displayCategories = useMemo(() => {
-    if (hidePatrols || !patrolsEnabled) return eventsByCategory;
+    if (hidePatrols || !patrolsEnabled || !patrolTypes.length) return eventsByCategory;
+
+    const sortedPatrolTypes = patrolTypes
+      .filter((type) =>
+        type.hasOwnProperty('is_active')
+          ? !!type.is_active 
+          : true
+      )
+      .sort((item1, item2) => {
+        const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
+        const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
+
+        return first - second;
+      });
+
     return [
-      generatePseudoReportCategoryForPatrolTypes(patrolTypes),
+      generatePseudoReportCategoryForPatrolTypes(sortedPatrolTypes),
       ...eventsByCategory,
     ];
   }, [eventsByCategory, hidePatrols, patrolTypes, patrolsEnabled]);
@@ -87,14 +101,10 @@ const AddReport = (props) => {
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        console.log('you clicked a patrol type!');
-      }
-
-      if (isPatrol && !!patrols.results.length) {
         openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
-
         return;
       }
+
     }
     /* END PATROL_SCAFFOLD */
 
@@ -115,12 +125,6 @@ const AddReport = (props) => {
 
     return <ul className={styles.categoryMenu}>
       {eventsByCategory
-        .sort((cat, cat2) => {
-          const first = typeof cat.ordernum === 'number' ? cat.ordernum : 0;
-          const second = typeof cat2.ordernum === 'number' ? cat.ordernum : 0;
-
-          return second - first;
-        })
         .map(({ value, display }) =>
           <li key={value}>
             <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
@@ -155,7 +159,7 @@ const AddReport = (props) => {
   </Popover>
   );
 
-  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown}>
+  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
     <button title={title} className={styles.addReport} ref={targetRef}
       type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}
@@ -178,7 +182,7 @@ AddReport.defaultProps = {
   relationshipButtonDisabled: false,
   showIcon: true,
   showLabel: true,
-  title: 'Add Report',
+  title: 'Add',
   onSaveSuccess() {
 
   },

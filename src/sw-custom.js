@@ -10,8 +10,12 @@ if ('function' === typeof importScripts) {
     workbox.setConfig({ debug: false });
 
     self.addEventListener('install', (event) => {
-      self.skipWaiting();
+      event.waitUntil(self.skipWaiting());
     });
+
+    self.addEventListener('activate', function(event) {
+    event.waitUntil(self.clients.claim()); // Become available to all pages
+});
 
     workbox.core.clientsClaim();
 
@@ -19,11 +23,6 @@ if ('function' === typeof importScripts) {
       if ( event.request.url.match( '^.*(\/admin\/).*$' ) ) {
         return false;
       }
-    });
-
-    self.addEventListener('install', function (event) {
-
-        self.skipWaiting();
     });
 
     // Manual injection point for manifest files.

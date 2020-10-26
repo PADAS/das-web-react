@@ -1,11 +1,12 @@
 import axios, { CancelToken } from 'axios';
-import unionBy from 'lodash/unionBy';
+import union from 'lodash/union';
+import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
-import { updateSubjectLastPositionFromSocketStatusUpdate, updateSubjectsInSubjectGroupsFromSocketStatusUpdate } from '../utils/subjects';
+import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
 const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
@@ -111,27 +112,12 @@ export default globallyResettableReducer((state, action = {}) => {
   }
   case FETCH_MAP_SUBJECTS_SUCCESS: {
     const { payload: { data: subjects } } = action;
-    const newSubjects = subjects.map((subject) => {
-      subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
-      return subject;
-    });
+
+    const mapSubjectIDs = subjects.map(({ id }) => id);
+
     return {
       ...state,
-      subjects: unionBy(newSubjects, state.subjects, 'id'),
-    };
-  }
-  case SOCKET_SUBJECT_STATUS: {
-    const { payload } = action;
-    console.log('realtime: subject update', payload);
-    payload.properties.image = calcUrlForImage(payload.properties.image);
-    return {
-      ...state,
-      subjects: state.subjects.map((subject) => {
-        if (subject.id === payload.properties.id) {
-          return updateSubjectLastPositionFromSocketStatusUpdate(subject, payload);
-        }
-        return subject;
-      }),
+      subjects: union(mapSubjectIDs, state.subjects),
     };
   }
   default: {
@@ -146,12 +132,67 @@ export const subjectGroupsReducer = globallyResettableReducer((state, action = {
     return [];
   }
   if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
-    return payload;
-  }
-  if (type === SOCKET_SUBJECT_STATUS) {
-    const { payload } = action;
-    payload.properties.image = calcUrlForImage(payload.properties.image);
-    return updateSubjectsInSubjectGroupsFromSocketStatusUpdate(state, payload);
+    const replaceGroupSubjectsWithSubjectIDs = (...groups) => groups.map((group) => {
+      const { subgroups, subjects } = group;
+      return {
+        ...group,
+        subgroups: replaceGroupSubjectsWithSubjectIDs(...subgroups),
+        subjects: subjects.map(({ id }) =>  id),
+      };
+
+    });
+
+    return replaceGroupSubjectsWithSubjectIDs(...payload);
   }
   return state;
 }, []);
+
+const SUBJECT_STORE_INITIAL_STATE = {};
+
+export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_STORE_INITIAL_STATE, action = {}) => {
+  const { type, payload } = action;
+
+  if (type === CLEAR_SUBJECT_DATA) {
+    return SUBJECT_STORE_INITIAL_STATE;
+  }
+
+  if (type === FETCH_MAP_SUBJECTS_SUCCESS) {
+    const { payload: { data: subjects } } = action;
+
+    const newSubjects = subjects.map((subject) => {
+      subject.last_position.properties.name = subject.last_position.properties.title || subject.last_position.properties.name;
+      return subject;
+    });
+
+    const asObject = newSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }) , {});
+
+    return merge({}, state, asObject);
+  }
+
+  if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
+    const subjectGroupSubjects = getUniqueSubjectGroupSubjects(...payload);
+    const asObject = subjectGroupSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }) , {});
+
+    return merge({}, state, asObject);
+  }
+
+  if (type === SOCKET_SUBJECT_STATUS) {
+    console.log('realtime: subject update', payload);
+
+    const cloned = { ...payload };
+    cloned.properties.image = calcUrlForImage(cloned.properties.image);
+    
+    const { properties: { id } } = cloned;
+
+    if (!state[id]) return state;
+
+    const updatedSubject = updateSubjectLastPositionFromSocketStatusUpdate(state[id], cloned);
+
+    return {
+      ...state,
+      [id]: updatedSubject,
+    };
+  }
+
+  return state;
+}, SUBJECT_STORE_INITIAL_STATE);
