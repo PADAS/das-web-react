@@ -65,24 +65,6 @@ const DataExportMenu = (props) => {
       ...(evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && user?.is_superuser ? [{
         title: 'Tableau',
         content: TableauModal,
-        children: <div class='tableauPlaceholder' style={{width: '100%', height: '100%'}}>
-          <object class='tableauViz' width='100%' height='100%' style={{display: 'none'}}>
-            <param name='host_url' value='https%3A%2F%2Ftableau.pamdas.org%2F' />
-            <param name='embed_code_version' value='3' />
-            <param name='site_root' value='' />
-            <param name='name' value='SubjectBufferAnalyzerWorkbook&#47;SubjectBufferDashboard' />
-            {/* <param name='name' value='EarthRangerEventReportsandSubjectWorkbookJUNE2020_SecurityDemo&#47;Dashboard1' /> */}
-            <param name='tabs' value='yes' />
-            <param name='toolbar' value='no' />
-            <param name='showAppBanner' value='false' />
-            <param name='alerts' value='no'/>
-            <param name='dataDetails' value='no' />
-            <param name='customViews' value='no'/>
-            <param name='showShareOptions' value='false' />
-            <param name='subscriptions' value='no'/>
-            <param name='tabs' value='yes'/>
-          </object>
-        </div>,
         url: 'tableau',
         modalProps: {
           className: 'tableau-modal',
