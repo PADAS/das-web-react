@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
@@ -96,8 +96,9 @@ const DataExportMenu = (props) => {
 
     if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && user?.is_superuser && !hasTableauNotification) {
       addUserNotification({
-        message: 'Checkout our new Tableau dashboard and reports which you can access from the main menu!',
+        message: 'Check out your new Tableau dashboard, available in the main menu at the top right of your screen.',
         onConfirm(_e, item) {
+          hamburgerToggle.current.click();
           setHasTableauNotification(false);
           removeUserNotification(item.id);
           updateUserPreferences({
@@ -156,8 +157,10 @@ const DataExportMenu = (props) => {
     addModal({ content: AboutModal });
   }, [addModal]);
 
+  const hamburgerToggle = useRef();
+
   return <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
-    <Toggle as="div">
+    <Toggle as="div" ref={hamburgerToggle}>
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
