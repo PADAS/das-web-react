@@ -46,7 +46,7 @@ const PatrolFilter = (props) => {
   const { children, className, patrolFilter, reporters, updatePatrolFilter } = props;
   const { status, filter: { date_range, patrol_type: currentFilterReportTypes, leader, text } } = patrolFilter;
 
-  const patrolTypeFilterEmpty = !currentFilterReportTypes.length;
+  const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
 
   const menuContainerRef = useRef(null);
 
@@ -158,7 +158,7 @@ const PatrolFilter = (props) => {
   };
 
   useEffect(() => {
-    if (!caseInsensitiveCompare(filterText, text)) {
+    if (filterText && !caseInsensitiveCompare(filterText, text)) {
       if (!!filterText.length) {
         updatePatrolFilterDebounced.current({
           filter: { text: filterText },
@@ -172,7 +172,7 @@ const PatrolFilter = (props) => {
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!caseInsensitiveCompare(filterText, text)) {
+    if (filterText && !caseInsensitiveCompare(filterText, text)) {
       setFilterText(text);
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -6,10 +6,9 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { FEATURE_FLAGS, STATUSES } from './constants';
+import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
-import { evaluateFeatureFlag } from './utils/feature-flags';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
@@ -18,7 +17,6 @@ import { updateNetworkStatus } from './ducks/system-status';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
-import { fetchPatrols } from './ducks/patrols';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 
@@ -33,7 +31,6 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 import { trackEvent } from './utils/analytics';
-import { currentPatrolDateQuery } from './utils/patrols';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -45,7 +42,7 @@ const bindDirectMapEventing = (map) => {
 };
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrols, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -117,12 +114,6 @@ const App = (props) => {
             .catch((e) => {
               // 
             });
-          const currentPatrolQuery = currentPatrolDateQuery();
-          fetchPatrols(currentPatrolQuery)
-          //fetchPatrols()
-            .catch((e) => {
-              //
-            });
         }
       })
       .catch((e) => {
@@ -188,4 +179,4 @@ const App = (props) => {
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrols, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
+export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));

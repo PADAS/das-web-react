@@ -2,6 +2,7 @@ import axios from 'axios';
 import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
+import { calcPatrolFilterForRequest } from '../utils/patrols';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
@@ -26,9 +27,11 @@ const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
-export const fetchPatrols = (filter) => async (dispatch) => {
+export const fetchPatrols = () => async (dispatch) => {
 
-  const { data: { data: patrols } } = await axios.get(`${PATROLS_API_URL}?page_size=200&${filter}`).catch((error) => {
+  const patrolFilterParamString = calcPatrolFilterForRequest({ params: { page_size: 200 } });
+
+  const { data: { data: patrols } } = await axios.get(`${PATROLS_API_URL}?${patrolFilterParamString}`).catch((error) => {
     console.warn('error fetching patrols', error);
     dispatch({
       type: FETCH_PATROLS_ERROR,
