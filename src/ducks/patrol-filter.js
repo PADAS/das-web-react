@@ -1,5 +1,5 @@
-import isEqual from 'react-fast-compare';
-
+import { generateTodayStartTime, generateTodayEndTime } from '../utils/datetime';
+  
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
 const RESET_PATROL_FILTER = 'RESET_PATROL_FILTER';
@@ -14,15 +14,15 @@ export const updatePatrolFilter = (update) => (dispatch) => {
 
 // REDUCER
 export const INITIAL_FILTER_STATE = {
-  status: ['scheduled', 'active', 'done', 'overdue', 'cancelled'], /* FPO - as per designs */
+  //status: ['active', 'done', 'cancelled'], /* FPO - as per designs */
   filter: {
     date_range: {
-      lower: null, // generateMonthsAgoDate(1).toISOString(),
-      upper: null,
+      lower: generateTodayStartTime().toISOString(),
+      upper: generateTodayEndTime().toISOString(),
     },
-    patrol_type: [],
-    text: '',
-    leader: [],
+    // patrol_type: [],
+    // text: '',
+    // leader: [],
   },
 };
 
