@@ -1,5 +1,5 @@
 import React, { memo, useRef, useMemo, useCallback, Fragment } from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
   calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, getLeaderForPatrol } from '../utils/patrols';
 
