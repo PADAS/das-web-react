@@ -1,5 +1,9 @@
 import { get, isCancel } from 'axios';
 import toString from 'lodash/toString';
+import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
+import merge from 'lodash/merge';
 
 import bbox from '@turf/bbox';
 import buffer from '@turf/buffer';
@@ -51,3 +55,29 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
         console.warn('recursive query failure', e);
       }
     });
+
+export const cleanedUpFilterObject = (filter) =>
+  Object.entries(filter)
+    .reduce((accumulator, [key, value]) => {
+      if (isBoolean(value) || (!isNil(value) && !isEmpty(value))) {
+        accumulator[key] = value;
+      }
+      return accumulator;
+    }, {});
+
+export const objectToParamString = (obj) => {
+  const props = Object.entries(obj);
+  
+  return props.reduce((params, [key, value], _index) => {
+    if (Array.isArray(value)) {
+      value.forEach((v, i) => {
+        params.append(key, v);
+      });
+    } else if (typeof value === 'object') {
+      params.append(key, JSON.stringify(value));
+    } else {
+      params.append(key, value);
+    }
+    return params;
+  }, new URLSearchParams()).toString();
+};

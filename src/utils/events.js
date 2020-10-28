@@ -2,14 +2,13 @@ import { store } from '../';
 import { getEventReporters } from '../selectors';
 
 import isNil from 'lodash/isNil';
-import isBoolean from 'lodash/isBoolean';
-import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 import isEqual from 'react-fast-compare';
 
 import { addModal } from '../ducks/modals';
 
 import { generateMonthsAgoDate } from './datetime';
+import { objectToParamString, cleanedUpFilterObject } from './query';
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import ReportFormModal from '../ReportFormModal';
@@ -65,33 +64,6 @@ export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is
 
 export const uniqueEventIds = (value, index, self) => { 
   return self.indexOf(value) === index;
-};
-
-const cleanedUpFilterObject = (filter) =>
-  Object.entries(filter)
-    .reduce((accumulator, [key, value]) => {
-      if (isBoolean(value) || (!isNil(value) && !isEmpty(value))) {
-        accumulator[key] = value;
-      }
-      return accumulator;
-    }, {});
-
-
-const objectToParamString = (obj) => {
-  const props = Object.entries(obj);
-
-  return props.reduce((params, [key, value], _index) => {
-    if (Array.isArray(value)) {
-      value.forEach((v, i) => {
-        params.append(key, v);
-      });
-    } else if (typeof value === 'object') {
-      params.append(key, JSON.stringify(value));
-    } else {
-      params.append(key, value);
-    }
-    return params;
-  }, new URLSearchParams()).toString();
 };
 
 export const calcEventFilterForRequest = (options = {}) => {
