@@ -1,4 +1,4 @@
-import { generateTodayStartTime, generateTodayEndTime } from '../utils/datetime';
+import { startOfToday, endOfToday } from '../utils/datetime';
   
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
@@ -17,8 +17,8 @@ export const INITIAL_FILTER_STATE = {
   //status: ['active', 'done', 'cancelled'], /* FPO - as per designs */
   filter: {
     date_range: {
-      lower: generateTodayStartTime().toISOString(),
-      upper: generateTodayEndTime().toISOString(),
+      lower: startOfToday().toISOString(),
+      upper: endOfToday().toISOString(),
     },
     // patrol_type: [],
     // text: '',
