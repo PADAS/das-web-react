@@ -4,6 +4,7 @@ import subMonths from 'date-fns/sub_months';
 import subWeeks from 'date-fns/sub_weeks';
 import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
+import endOfDay from 'date-fns/end_of_day';
 import format from 'date-fns/format';
 import setSeconds from 'date-fns/set_seconds';
 import setMilliseconds from 'date-fns/set_milliseconds';
@@ -46,6 +47,9 @@ export const generateMonthsAgoDate = (monthsAgo = 1) => new Date(
     subMonths(new Date(), monthsAgo)
   )
 );
+
+export const generateTodayStartTime = () => startOfDay(new Date());
+export const generateTodayEndTime = () => endOfDay(new Date());
 
 export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
 
