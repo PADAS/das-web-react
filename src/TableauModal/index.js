@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, memo } from 'react';
+import React, { Fragment, useState, useEffect, useMemo, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
@@ -18,7 +18,7 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
   }, []);
 
   useEffect(() => {
-    if (isTableauDashboardDataValid()) {
+    if (isTableauDashboardDataValid) {
       const script = document.createElement("script");
       script.src = "https://tableau.pamdas.org/javascripts/api/viz_v1.js";
       script.type = 'text/javascript';
@@ -27,9 +27,10 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
     }
   }, [reports.tableauDashboard]);
 
-  const isTableauDashboardDataValid = () => {
-    return Boolean(reports.tableauDashboard.server);
-  }
+  const isTableauDashboardDataValid = useMemo(
+    () => Boolean(reports.tableauDashboard.server), 
+    [reports.tableauDashboard.server]
+  )
 
   const { display_url } = reports.tableauDashboard;
 
@@ -39,7 +40,7 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
       <Title>{title}</Title>
     </Header>
     <Body>
-      {isTableauDashboardDataValid() && <iframe src={display_url} width="100%" height="100%" />}
+      {isTableauDashboardDataValid && <iframe src={display_url} width="100%" height="100%" />}
     </Body>
   </Fragment>;
 };
