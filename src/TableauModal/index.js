@@ -1,71 +1,37 @@
-import React, { Fragment, useState, useEffect, memo } from 'react';
+import React, { Fragment, useState, useEffect, useMemo, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import { CancelToken } from 'axios';
-import { trackEvent } from '../utils/analytics';
 
-import { API_URL } from '../constants';
 import { removeModal } from '../ducks/modals';
-import { downloadFileFromUrl } from '../utils/download';
 import LoadingOverlay from '../LoadingOverlay';
+import { fetchTableauDashboard } from '../ducks/external-reporting';
 
 
 const { Header, Title, Body } = Modal;
 
 
-const TableauModal = ({ id, title, removeModal, params = {}, paramString, url, children }) => {
-  const [downloading, setDownloadState] = useState(false);
-  const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
-  
-  const DOWNLOAD_URL = `${API_URL}${url}${paramString.length ? `?${paramString}` : ''}`;
+const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchTableauDashboard, reports, url, children }) => {
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://tableau.pamdas.org/javascripts/api/viz_v1.js";
-    script.type = 'text/javascript';
-    
-    document.body.appendChild(script);
+    fetchTableauDashboard();
+  }, []);
 
-    return () => {
-      downloadCancelToken && downloadCancelToken.cancel();
-      setDownloadState(false);
-    };
-  }, [downloadCancelToken]);
+  const isTableauDashboardDataValid = useMemo(
+    () => Boolean(reports.tableauDashboard.server), 
+    [reports.tableauDashboard.server]
+  )
 
-  const triggerDownload = () => {
-    setDownloadState(true);
-    downloadFileFromUrl(DOWNLOAD_URL, { params }, downloadCancelToken)
-      .catch((e) => {
-        console.warn('error downloading file', e);
-      }) 
-      .then(() => {
-        removeModal(id);
-      })
-      .finally(() => {
-        setCancelToken(CancelToken.source());
-        setDownloadState(false);
-      });
-  };
-
-  const onFormSubmit = (e) => {
-    e.preventDefault();
-    triggerDownload();
-    trackEvent('Report Export', 'Click \'Export\' button');    
-  };
+  const { display_url } = reports.tableauDashboard;
 
   return <Fragment>
-    {downloading && <LoadingOverlay />}
+    {reports.isFetching && <LoadingOverlay />}
     <Header closeButton>
       <Title>{title}</Title>
     </Header>
-    {Boolean(children) &&
-      <Body>
-        {children}
-      </Body>
-    }
+    <Body>
+      {isTableauDashboardDataValid && <iframe src={display_url} title={title} width="100%" height="100%" />}
+    </Body>
   </Fragment>;
 };
 
@@ -83,5 +49,6 @@ TableauModal.propTypes = {
   paramString: PropTypes.string,
 };
 
+const mapStatetoProps = ({ data: { reports } }) => ({ reports });
 
-export default connect(null, { removeModal })(memo(TableauModal));
+export default connect(mapStatetoProps, { removeModal, fetchTableauDashboard })(memo(TableauModal));
