@@ -9,6 +9,7 @@ import AddReport from '../AddReport';
 import PatrolMenu from './PatrolMenu';
 import DasIcon from '../DasIcon';
 import Popover from './Popover';
+
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
@@ -17,10 +18,11 @@ import styles from './styles.module.scss';
 import { PATROL_CARD_STATES } from '../constants';
 
 const PatrolCard = (props) => {
-  const { container, patrol, onTitleClick, onPatrolChange } = props;
+  const { patrol, onTitleClick, onPatrolChange } = props;
 
   const menuRef = useRef(null);
   const cardRef = useRef(null);
+  const popoverRef = useRef(null);
   const stateTitleRef = useRef(null);
 
   const onPatrolStatusClick = useCallback((e) => console.log('clicked status'), []);
@@ -76,18 +78,22 @@ const PatrolCard = (props) => {
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (cardRef.current && !cardRef.current.contains(e.target)) {
+      console.log('popoverRef', popoverRef);
+      if (popoverRef.current && 
+        (!popoverRef.current.contains(e.target))) {
         setPopoverState(false);
       }
     };
-    if (popoverOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    } else {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
+    setTimeout(() => {
+      if (popoverOpen) {
+        document.addEventListener('mousedown', handleOutsideClick);
+      } else {
+        document.removeEventListener('mousedown', handleOutsideClick);
+      }
+      return () => {
+        document.removeEventListener('mousedown', handleOutsideClick);
+      };
+    });
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -110,7 +116,9 @@ const PatrolCard = (props) => {
     </div>
     <h6 ref={stateTitleRef} onClick={onPatrolStatusClick}>{patrolStateTitle}</h6>
     <AddReport className={styles.addReport} showLabel={false} />
-    <Popover isOpen={popoverOpen} container={container || cardRef} target={stateTitleRef} patrol={patrol} />
+    <Popover isOpen={popoverOpen} container={cardRef}
+      target={stateTitleRef} ref={popoverRef}
+      onPatrolChange={onPatrolChange} patrol={patrol} />
   </li>;
 };
 
