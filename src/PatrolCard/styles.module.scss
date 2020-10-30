@@ -185,3 +185,37 @@
   }
 }
 
+div.popover {
+  line-height: normal;
+  position: fixed !important;
+  margin-bottom: -12rem;
+  width: 14rem;
+  [class*=popover-body] {
+    font-size: 0.75rem;
+    text-align: center;
+  }
+  h5 {
+    color: $highlight-color;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-weight: 500;
+    padding: 0 2rem;
+  }
+  .details {
+    border-bottom: 1px solid $light-gray-border;
+    border-top: 1px solid $light-gray-border;
+    font-size: 0.65rem;
+    font-style: italic;
+    margin: 0.5rem -0.75rem 0.5rem -0.75rem;
+    padding: 0.5rem;
+    span {
+      display: block;
+      + span {
+        margin-top: 0.25rem;
+      }
+    }
+  }
+  .controls {
+    display: flex;
+  }
+}

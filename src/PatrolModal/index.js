@@ -120,9 +120,16 @@ const PatrolModal = (props) => {
     if (isPast(endDate)) return 'Set Patrol End';
   }, []);
 
+  const setAutoStart = useCallback((val) => {
+    updateUserPreferences({ autoStartPatrols: val });
+  }, [updateUserPreferences]);
+
+  const setAutoEnd = useCallback((val) => {
+    updateUserPreferences({ autoEndPatrols: val });
+  }, [updateUserPreferences]);
+
   const onStartTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
-    updateUserPreferences({ autoStartPatrols: isAuto });
     const updatedValue = new Date(value).toISOString();
 
     setStatePatrol({
@@ -138,12 +145,10 @@ const PatrolModal = (props) => {
         },
       ],
     });
-  }, [statePatrol, updateUserPreferences]);
+  }, [statePatrol]);
 
   const onEndTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
-
-    updateUserPreferences({ autoEndPatrols: isAuto });
 
     const update = new Date(value).toISOString();
 
@@ -344,6 +349,7 @@ const PatrolModal = (props) => {
             placement='bottom'
             placeholder='Set Start Time'
             autoCheckLabel='Auto-start patrol'
+            onAutoCheckToggle={setAutoStart}
             required={true}
           />
         </div>
@@ -374,6 +380,7 @@ const PatrolModal = (props) => {
             isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
+            onAutoCheckToggle={setAutoEnd}
             autoCheckLabel='Auto-end patrol'
             required={true}
           />

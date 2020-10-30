@@ -11,7 +11,7 @@ import { store } from '../';
 import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
-import { getReporterById } from '../utils/events';
+import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
@@ -164,7 +164,11 @@ export const getLeaderForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
-  return leader ? leader : null;
+  if (!leader) return null;
+
+  const { data: { subjectStore } } = store.getState();
+
+  return subjectStore[leader.id] || leader;
 };
 
 // todo - replace me

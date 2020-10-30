@@ -3,7 +3,6 @@ import Button from 'react-bootstrap/Button';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import setSeconds from 'date-fns/set_seconds';
 import isFuture from 'date-fns/is_future';
-import isPast from 'date-fns/is_past';
 
 import DateTimePickerPopover from '../DateTimePickerPopover';
 
@@ -12,25 +11,29 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolDateInput = (props) => {
-  const { autoCheckLabel = 'Automatic', calcSubmitButtonTitle, children,
+  const { autoCheckLabel = 'Automatic', onAutoCheckToggle, calcSubmitButtonTitle, children,
     isAuto = false, title, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
-  const [autoChecked, setAutoChecked] = useState(isAuto);
   const [tempPopoverProps, setTempPopoverProps] = useState({});
 
   const onHide = useCallback(() => {
     setStateTime(value);
   }, [value]);
 
+  const canShowAutoCheck = useMemo(() =>
+    Math.abs(differenceInMinutes(new Date(stateTime), new Date())) > 1
+    && isFuture(new Date(stateTime)
+    ), [stateTime]);
+
   const commitTimeChange = useCallback(() => {
-    const isAuto = !canShowAutoCheck ? true : autoChecked;
+    const auto = !canShowAutoCheck ? true : isAuto;
     
-    onChange(stateTime, isAuto);
+    onChange(stateTime, auto);
 
     setTempPopoverProps({ popoverOpen: false });
     setTimeout(() => setTempPopoverProps({}), 1000);
-  }, [autoChecked, onChange, stateTime]);
+  }, [canShowAutoCheck, isAuto, onChange, stateTime]);
 
   const onTimeChange = useCallback((val) => {
     setStateTime(
@@ -64,11 +67,6 @@ const PatrolDateInput = (props) => {
     return string;
   }, [className, timeBeingEdited, value]);
 
-  const canShowAutoCheck = useMemo(() =>
-    Math.abs(differenceInMinutes(new Date(stateTime), new Date())) > 1
-    && isFuture(new Date(stateTime)
-    ), [stateTime]);
-
   useEffect(() => {
     setStateTime(value);
   }, [value]);
@@ -85,11 +83,11 @@ const PatrolDateInput = (props) => {
       {...rest}
     >  
       <div className={styles.dateTimePickerChildren}>
-        <Button disabled={!timeBeingEdited} variant='primary' type='button' onClick={commitTimeChange}>
+        <Button variant='primary' type='button' onClick={commitTimeChange}>
           {buttonTitle}
         </Button>
         {canShowAutoCheck && <label htmlFor='autoStart'>
-          <input checked={autoChecked} onChange={() => setAutoChecked(!autoChecked)} disabled={!timeBeingEdited} type='checkbox' id='autoStart' /> {autoCheckLabel}
+          <input checked={isAuto} onChange={() => onAutoCheckToggle(!isAuto)} type='checkbox' id='autoStart' /> {autoCheckLabel}
         </label>}
       </div>
     </DateTimePickerPopover>
