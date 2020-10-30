@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 
 import { removeModal } from '../ducks/modals';
 import LoadingOverlay from '../LoadingOverlay';
-import { fetchTableauDashboard } from '../ducks/reports';
+import { fetchTableauDashboard } from '../ducks/external-reporting';
 
 
 const { Header, Title, Body } = Modal;

@@ -3,7 +3,7 @@ import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 
-const REPORTS_API_URL = `${API_URL}reports/`;
+const EXTERNAL_REPORTING_API_URL = `${API_URL}reports/`;
 
 const FETCH_TABLEAU_DASHBOARD_START = 'FETCH_TABLEAU_DASHBOARD_START';
 const FETCH_TABLEAU_DASHBOARD_SUCCESS = 'FETCH_TABLEAU_DASHBOARD_SUCCESS';
@@ -14,7 +14,7 @@ export const fetchTableauDashboard = () => async (dispatch) => {
     type: FETCH_TABLEAU_DASHBOARD_START
   });
 
-  const { data: { data } } = await axios.get(`${REPORTS_API_URL}tableau-dashboards/default`).catch((error) => {
+  const { data: { data } } = await axios.get(`${EXTERNAL_REPORTING_API_URL}tableau-dashboards/default`).catch((error) => {
     console.warn('error fetching patrols', error);
     dispatch({
       type: FETCH_TABLEAU_DASHBOARD_ERROR,
@@ -29,11 +29,11 @@ export const fetchTableauDashboard = () => async (dispatch) => {
   return data;
 };
 
-const INITIAL_REPORTS_STATE = {
+const INITIAL_EXTERNAL_REPORTING_STATE = {
   tableauDashboard: {}
 };
 
-const reportsReducer = (state = INITIAL_REPORTS_STATE, action) => {
+const externalReportingReducer = (state = INITIAL_EXTERNAL_REPORTING_STATE, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_TABLEAU_DASHBOARD_START) {
@@ -63,4 +63,4 @@ const reportsReducer = (state = INITIAL_REPORTS_STATE, action) => {
 };
 
 
-export default globallyResettableReducer(reportsReducer, INITIAL_REPORTS_STATE);
+export default globallyResettableReducer(externalReportingReducer, INITIAL_EXTERNAL_REPORTING_STATE);
