@@ -24,6 +24,8 @@ import HeaderMenuContent from './HeaderMenuContent';
 import StatusBadge from './StatusBadge';
 import PatrolDateInput from './DateInput';
 
+import PatrolDistanceCovered from '../Patrols/DistanceCovered';
+
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
@@ -388,8 +390,8 @@ const PatrolModal = (props) => {
         <span className={displayDuration !== '0s' ? '' : styles.faded}>
           <strong>Duration:</strong> {displayDuration}
         </span>
-        <span className={styles.faded}>
-          <strong>Distance:</strong> 0km
+        <span>
+          <strong>Distance:</strong> <PatrolDistanceCovered patrol={statePatrol} />
         </span>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
       </section>
