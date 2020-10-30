@@ -17,16 +17,6 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
     fetchTableauDashboard();
   }, []);
 
-  useEffect(() => {
-    if (isTableauDashboardDataValid) {
-      const script = document.createElement("script");
-      script.src = "https://tableau.pamdas.org/javascripts/api/viz_v1.js";
-      script.type = 'text/javascript';
-      
-      document.body.appendChild(script);
-    }
-  }, [reports.tableauDashboard]);
-
   const isTableauDashboardDataValid = useMemo(
     () => Boolean(reports.tableauDashboard.server), 
     [reports.tableauDashboard.server]
