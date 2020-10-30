@@ -30,7 +30,7 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
       <Title>{title}</Title>
     </Header>
     <Body>
-      {isTableauDashboardDataValid && <iframe src={display_url} width="100%" height="100%" />}
+      {isTableauDashboardDataValid && <iframe src={display_url} title={title} width="100%" height="100%" />}
     </Body>
   </Fragment>;
 };
