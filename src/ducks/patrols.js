@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
-import { calcPatrolFilterForRequest } from '../utils/patrols';
+import { calcPatrolFilterForRequest, validatePatrolAgainstCurrentPatrolFilter } from '../utils/patrols';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
@@ -25,7 +25,33 @@ const UPLOAD_PATROL_FILES_START = 'UPLOAD_PATROL_FILES_START';
 const UPLOAD_PATROL_FILES_SUCCESS = 'UPLOAD_PATROL_FILES_SUCCESS';
 const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
+const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
+const CREATE_PATROL_REALTIME = 'CREATE_PATROL_RELATIME';
+
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
+
+
+// for now, assume that a realtime update of a patrol can
+// use the same reducer as the resoults of the restful update, 
+export const socketUpdatePatrol = (payload) => (dispatch) => {
+  const { patrol } = payload;
+  console.log('>>>>>>>>>>>>', payload);
+  dispatch({
+    type: UPDATE_PATROL_REALTIME,
+    payload: patrol,
+  });
+};
+
+// likewise, assume that a realtime message to create a patrol
+// can use the same reducer
+export const socketCreatePatrol = (payload) => (dispatch) => {
+  const { patrol } = payload;
+  console.log('create patrol', payload);
+  dispatch({
+    type: CREATE_PATROL_REALTIME,
+    payload: patrol,
+  });
+};
 
 export const fetchPatrols = () => async (dispatch) => {
 
@@ -183,7 +209,7 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
     return payload;
   }
 
-  if (type === UPDATE_PATROL_SUCCESS) {
+  if (type === UPDATE_PATROL_SUCCESS || type === UPDATE_PATROL_REALTIME) {
     const match = state.results.findIndex(item => item.id === payload.id);
     if (match > -1) {
       const newResults = [...state.results];
@@ -195,6 +221,19 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
       };
     }
     return state;
+  }
+
+  if (type === CREATE_PATROL_REALTIME) {
+    const match = state.results.findIndex(item => item.id === payload.id);
+    if (match === -1) {
+      // add the patrol to patrol feed
+      const newResults = [...state.results, payload];
+      console.log()
+      return {
+        ...state,
+        results: newResults,
+      };
+    }
   }
   
   return state;

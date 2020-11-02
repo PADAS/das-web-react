@@ -321,3 +321,9 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
+export const validatePatrolAgainstCurrentPatrolFilter = (patrol) => { /* client-side filter validation -- save a round trip request after event updates */
+  const { data: { patrolFilter } } = store.getState();
+  // to do make sure its in the same date range
+  return true;
+};
+
