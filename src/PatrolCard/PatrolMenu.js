@@ -12,7 +12,7 @@ import { canStartPatrol, canEndPatrol, calcPatrolCardState } from '../utils/patr
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
 const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, onTitleClick, menuRef } = props;
+  const { patrol, onPatrolChange, onClickOpen, menuRef } = props;
 
   const patrolState = calcPatrolCardState(patrol);
 
@@ -79,7 +79,7 @@ const PatrolMenu = (props) => {
     </Toggle>
     <Menu ref={menuRef}>
       <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
-      <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open Patrol</Item>
+      <Item disabled={patrolIsCancelled} onClick={()=>onClickOpen(patrol)}>Open Patrol</Item>
       <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
     </Menu>
   </Dropdown>;

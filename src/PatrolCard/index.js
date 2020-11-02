@@ -25,8 +25,6 @@ const PatrolCard = (props) => {
   const popoverRef = useRef(null);
   const stateTitleRef = useRef(null);
 
-  const onPatrolStatusClick = useCallback((e) => console.log('clicked status'), []);
-
   const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
 
   const patrolIsCancelled = useMemo(() =>
@@ -46,7 +44,7 @@ const PatrolCard = (props) => {
   }, [patrol, patrolState]);
 
   const togglePopoverIfPossible = useCallback(() => {
-    if (!patrolIsCancelled) {
+    if (!patrolIsCancelled &&) {
       setPopoverState(!popoverOpen);
     }
   }, [patrolIsCancelled, popoverOpen]);
@@ -108,12 +106,12 @@ const PatrolCard = (props) => {
 
 
   return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
-    {patrolIconId && <DasIcon type='events' onClick={togglePopoverIfPossible} iconId={patrolIconId} />}
+    {patrolIconId && <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />}
     <div className={styles.header}>
-      <h3 onClick={togglePopoverIfPossible} title={hoverTitle}>{displayTitle}</h3>
+      <h3 onClick={onTitleClick} title={hoverTitle}>{displayTitle}</h3>
     </div>  
-    <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onTitleClick={onTitleClick} />
-    <div className={styles.statusInfo}>
+    <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onClickOpen={onTitleClick} />
+    <div className={styles.statusInfo} onClick={togglePopoverIfPossible}>
       {isScheduledPatrol && <Fragment> 
         <p>Scheduled start: <span>{scheduledStartTime}</span></p>
       </Fragment>}
@@ -124,7 +122,7 @@ const PatrolCard = (props) => {
         </div>
       </Fragment>}
     </div>
-    <h6 ref={stateTitleRef} onClick={onPatrolStatusClick}>{patrolStateTitle}</h6>
+    <h6 ref={stateTitleRef} onClick={togglePopoverIfPossible}>{patrolStateTitle}</h6>
     <AddReport className={styles.addReport} showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
       target={stateTitleRef} ref={popoverRef}
