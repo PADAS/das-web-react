@@ -185,6 +185,13 @@ export const currentPatrolDateQuery = () => {
 };
 
 export const displayDurationForPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+
+  if (patrolState === PATROL_CARD_STATES.READY_TO_START
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    return '0:00';
+  }
+  
   const now = new Date();
   const nowTime = now.getTime();
 

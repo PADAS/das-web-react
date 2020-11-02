@@ -29,6 +29,10 @@ const PatrolCard = (props) => {
 
   const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
 
+  const patrolIsCancelled = useMemo(() =>
+    patrolState === PATROL_CARD_STATES.CANCELLED
+  , [patrolState]);
+
   const [popoverOpen, setPopoverState] = useState(false);
 
   const patrolStateTitle = useMemo(() => {
@@ -41,13 +45,13 @@ const PatrolCard = (props) => {
     return patrolState.title;
   }, [patrol, patrolState]);
 
-  const patrolElapsedTime = useMemo(() => {
-    if(patrolState === PATROL_CARD_STATES.READY_TO_START
-      || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
-      return '0:00';
-    } 
-    return displayDurationForPatrol(patrol);
-  }, [patrol, patrolState]);
+  const togglePopoverIfPossible = useCallback(() => {
+    if (!patrolIsCancelled) {
+      setPopoverState(!popoverOpen);
+    }
+  }, [patrolIsCancelled, popoverOpen]);
+
+  const patrolElapsedTime = useMemo(() => displayDurationForPatrol(patrol), [patrol]);
 
   const scheduledStartTime = useMemo(() => {
     const startTime = displayStartTimeForPatrol(patrol);
@@ -96,11 +100,17 @@ const PatrolCard = (props) => {
     });
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (patrolIsCancelled) {
+      setPopoverState(false);
+    }
+  }, [patrolIsCancelled]);
+
 
   return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
-    {patrolIconId && <DasIcon type='events' onClick={()=>setPopoverState(!popoverOpen)} iconId={patrolIconId} />}
+    {patrolIconId && <DasIcon type='events' onClick={togglePopoverIfPossible} iconId={patrolIconId} />}
     <div className={styles.header}>
-      <h3 onClick={()=>setPopoverState(!popoverOpen)}title={hoverTitle}>{displayTitle}</h3>
+      <h3 onClick={togglePopoverIfPossible} title={hoverTitle}>{displayTitle}</h3>
     </div>  
     <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onTitleClick={onTitleClick} />
     <div className={styles.statusInfo}>

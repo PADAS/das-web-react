@@ -84,8 +84,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
           <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
           <LocationJumpButton showLabel={false} bypassLocationValidation={true}
             /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
-          <AddReport showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
         </div>
+        <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
 
 
         {/* buttons and stuff */}

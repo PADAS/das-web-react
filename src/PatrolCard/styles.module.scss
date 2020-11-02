@@ -40,7 +40,7 @@
     justify-content: center;
     margin-top: 0.125rem;
   }
-  svg {
+  > svg {
       margin-top: 0.25rem;
       height: 1.25rem;
       width: 2.0rem;
@@ -135,8 +135,9 @@
 }
 
 .addReport {
-  bottom: 2.25rem;
+  bottom: 0;
   pointer-events: none;
+  position: absolute;
   left: 0;
   svg {
       height: 1.5rem;
@@ -192,6 +193,16 @@ div.popover {
   [class*=popover-body] {
     font-size: 0.75rem;
     text-align: center;
+    > svg {
+      margin-top: 0.25rem;
+      height: 1.25rem;
+      width: 2.0rem;
+      fill: gray; 
+      position: absolute;
+      left: 0.375rem;
+      top: 0.19rem;
+      cursor: pointer;
+    }
   }
   &[class*=bs-popover-left] [class*=arrow]::after {
       border-left-color: white !important;
@@ -221,6 +232,17 @@ div.popover {
   .controls {
     display: flex;
     justify-content: space-evenly;
+    pointer-events: none;
+  }
+  .addButton { 
+    height: 3rem;
+    margin: auto;
+    pointer-events: none;
+    width: 3rem;
+    > button > svg {
+      height: 3rem;
+      margin: auto;
+    }
   }
 }
 
