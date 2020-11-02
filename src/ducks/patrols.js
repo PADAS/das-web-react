@@ -32,25 +32,30 @@ const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
 
 // for now, assume that a realtime update of a patrol can
-// use the same reducer as the resoults of the restful update, 
+// use the same reducer as the resoults of the restful update,
+// using the example data in the patrol management api doc 
 export const socketUpdatePatrol = (payload) => (dispatch) => {
-  const { patrol } = payload;
-  console.log('>>>>>>>>>>>>', payload);
-  dispatch({
-    type: UPDATE_PATROL_REALTIME,
-    payload: patrol,
-  });
+  const { patrol_data } = payload;
+  const { matches_current_filter } = patrol_data;
+  if (matches_current_filter) {
+    dispatch({
+      type: UPDATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
+  }
 };
 
 // likewise, assume that a realtime message to create a patrol
 // can use the same reducer
 export const socketCreatePatrol = (payload) => (dispatch) => {
-  const { patrol } = payload;
-  console.log('create patrol', payload);
-  dispatch({
-    type: CREATE_PATROL_REALTIME,
-    payload: patrol,
-  });
+  const { patrol_data } = payload;
+  const { matches_current_filter } = patrol_data;
+  if (matches_current_filter) {
+    dispatch({
+      type: CREATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
+  }
 };
 
 export const fetchPatrols = () => async (dispatch) => {
