@@ -44,7 +44,7 @@ const PatrolCard = (props) => {
   }, [patrol, patrolState]);
 
   const togglePopoverIfPossible = useCallback(() => {
-    if (!patrolIsCancelled &&) {
+    if (!patrolIsCancelled) {
       setPopoverState(!popoverOpen);
     }
   }, [patrolIsCancelled, popoverOpen]);
