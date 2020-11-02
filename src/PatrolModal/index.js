@@ -171,7 +171,7 @@ const PatrolModal = (props) => {
         },
       ],
     });
-  }, [statePatrol, updateUserPreferences]);
+  }, [statePatrol]);
 
   const onSelectTrackedSubject = useCallback((value) => {
     const trackedSubjectLocation = value

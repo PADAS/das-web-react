@@ -13,7 +13,7 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import styles from './styles.module.scss';
@@ -30,6 +30,9 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   }, [leader]);
 
   const subjectTitleForPatrol = useMemo(() => (leader && leader.name) || '', [leader]);
+
+  const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
+  const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
   const displayTitle = useMemo(() => { 
     return subjectTitleForPatrol || displayTitleForPatrol(patrol);
@@ -67,7 +70,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
           {displayTitle}
         </h5>
         <span className={styles.serial}>Patrol #{patrol.serial_number}</span>
-        <PatrolStartStopButton patrol={patrol} onPatrolChange={onPatrolChange} />
+        {(canStart || canEnd) && <PatrolStartStopButton patrol={patrol} onPatrolChange={onPatrolChange} />}
 
         <div className={styles.details}>
           {!!subjectLastVoiceCall.getTime() && <span>Radio activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}

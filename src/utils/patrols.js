@@ -304,6 +304,8 @@ export const displayPatrolDoneTime = (patrol) => {
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
+
+
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
@@ -330,3 +332,13 @@ export const calcPatrolCardState = (patrol) => {
   return INVALID;
 };
 
+export const canStartPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+};
+
+export const canEndPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return patrolState === PATROL_CARD_STATES.ACTIVE;
+};

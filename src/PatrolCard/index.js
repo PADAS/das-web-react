@@ -102,7 +102,7 @@ const PatrolCard = (props) => {
     <div className={styles.header}>
       <h3 onClick={()=>setPopoverState(!popoverOpen)}title={hoverTitle}>{displayTitle}</h3>
     </div>  
-    <PatrolMenu patrol={patrol} patrolState={patrolState} menuRef={menuRef} onPatrolChange={onPatrolChange} onTitleClick={onTitleClick} />
+    <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onTitleClick={onTitleClick} />
     <div className={styles.statusInfo}>
       {isScheduledPatrol && <Fragment> 
         <p>Scheduled start: <span>{scheduledStartTime}</span></p>
