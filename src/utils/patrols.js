@@ -107,10 +107,16 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-export const displayTitleForPatrol = (patrol) => {
+export const displayTitleForPatrol = (patrol, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
+
+  if (includeLeaderName) {
+    const leader = getLeaderForPatrol(patrol);
+
+    if (leader && leader.name) return leader.name;
+  }
 
   if (!patrol.patrol_segments.length
     || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;

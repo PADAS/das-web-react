@@ -22,14 +22,10 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
 
-  const subjectTitleForPatrol = useMemo(() => (leader && leader.name) || '', [leader]);
-
   const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
   const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
-  const displayTitle = useMemo(() => { 
-    return subjectTitleForPatrol || displayTitleForPatrol(patrol);
-  }, [patrol, subjectTitleForPatrol]);
+  const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
   const subjectLastPosition = useMemo(() => leader && leader.last_position, [leader]);
 

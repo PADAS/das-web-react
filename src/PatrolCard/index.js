@@ -67,11 +67,7 @@ const PatrolCard = (props) => {
     return format(startTime, STANDARD_DATE_FORMAT);
   }, [patrol]);
 
-  const subjectTitleForPatrol = useMemo(() => (leader && leader.name) || '', [leader]);
-
-  const displayTitle = useMemo(() => { 
-    return subjectTitleForPatrol || displayTitleForPatrol(patrol);
-  }, [patrol, subjectTitleForPatrol]);
+  const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
