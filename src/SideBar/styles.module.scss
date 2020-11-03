@@ -128,6 +128,7 @@
       }
       &[class*=is-open] {
         box-shadow: 0 2px 3px $medium-light-gray;
+        min-height: 3.3125rem;
         &::after {
           transform: rotate(-90deg);
         }
