@@ -2,7 +2,8 @@ import axios from 'axios';
 import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
-import { calcPatrolFilterForRequest, validatePatrolAgainstCurrentPatrolFilter } from '../utils/patrols';
+import { calcPatrolFilterForRequest, 
+  validatePatrolAgainstCurrentPatrolFilter } from '../utils/patrol-filter';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 

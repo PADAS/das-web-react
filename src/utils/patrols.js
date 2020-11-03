@@ -4,7 +4,6 @@ import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
-import merge from 'lodash/merge';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -15,7 +14,7 @@ import { getReporterById } from '../utils/events';
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
-import { objectToParamString } from './query';
+
 
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -313,17 +312,4 @@ export const calcPatrolCardState = (patrol) => {
   return INVALID;
 };
 
-// look to calcEventFilterForRequest as this grows
-export const calcPatrolFilterForRequest = (options = {}) => {
-  const { data: { patrolFilter } } = store.getState();
-  const { params } = options;
-  const  filterParams = merge({}, patrolFilter, params);
-  return objectToParamString(filterParams);  
-};
-
-export const validatePatrolAgainstCurrentPatrolFilter = (patrol) => { /* client-side filter validation -- save a round trip request after event updates */
-  const { data: { patrolFilter } } = store.getState();
-  // to do make sure its in the same date range
-  return true;
-};
 
