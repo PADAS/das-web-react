@@ -71,7 +71,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
         <div className={styles.controls}>
           <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
           <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
-          <LocationJumpButton showLabel={false} bypassLocationValidation={true}
+          <LocationJumpButton bypassLocationValidation={true}
             /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
         </div>
         <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
