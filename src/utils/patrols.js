@@ -4,16 +4,18 @@ import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
+import merge from 'lodash/merge';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
-import { getReporterById } from '../utils/events';
+import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
+import { objectToParamString } from './query';
 
 
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -163,10 +165,21 @@ export const getLeaderForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
-  return leader ? leader : null;
+  if (!leader) return null;
+
+  const { data: { subjectStore } } = store.getState();
+
+  return subjectStore[leader.id] || leader;
 };
 
 export const displayDurationForPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+
+  if (patrolState === PATROL_CARD_STATES.READY_TO_START
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    return '0:00';
+  }
+  
   const now = new Date();
   const nowTime = now.getTime();
 
@@ -286,6 +299,8 @@ export const displayPatrolDoneTime = (patrol) => {
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
+
+
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
@@ -312,4 +327,21 @@ export const calcPatrolCardState = (patrol) => {
   return INVALID;
 };
 
+export const canStartPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+};
+
+export const canEndPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return patrolState === PATROL_CARD_STATES.ACTIVE;
+};
+// look to calcEventFilterForRequest as this grows
+export const calcPatrolFilterForRequest = (options = {}) => {
+  const { data: { patrolFilter } } = store.getState();
+  const { params } = options;
+  const  filterParams = merge({}, patrolFilter, params);
+  return objectToParamString(filterParams);  
+};
 
