@@ -27,7 +27,10 @@ const UPLOAD_PATROL_FILES_SUCCESS = 'UPLOAD_PATROL_FILES_SUCCESS';
 const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
 const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
-const CREATE_PATROL_REALTIME = 'CREATE_PATROL_RELATIME';
+const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
+
+const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
+const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
@@ -39,10 +42,7 @@ export const socketUpdatePatrol = (payload) => (dispatch) => {
   const { patrol_data } = payload;
   const { matches_current_filter } = patrol_data;
   if (matches_current_filter) {
-    dispatch({
-      type: UPDATE_PATROL_REALTIME,
-      payload: patrol_data,
-    });
+    updatePatrolStore([patrol_data]);
   }
 };
 
@@ -58,6 +58,11 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
     });
   }
 };
+
+const updatePatrolStore = (...results) => ({
+  type: UPDATE_PATROL_STORE,
+  payload: results,
+});
 
 export const fetchPatrols = () => async (dispatch) => {
 
@@ -234,7 +239,6 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
     if (match === -1) {
       // add the patrol to patrol feed
       const newResults = [...state.results, payload];
-      console.log()
       return {
         ...state,
         results: newResults,
@@ -245,5 +249,27 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   return state;
 };
 
+// patrol store
+const INITIAL_STORE_STATE = {};
+export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
+  if (type === CLEAR_PATROL_DATA) {
+    return { ...INITIAL_STORE_STATE };
+  }
+
+  if (type === UPDATE_PATROL_STORE) {
+    const toAdd = payload.reduce((accumulator, patrol) => {
+
+      accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
+
+      return accumulator;
+    }, {});
+
+    return {
+      ...state,
+      ...toAdd,
+    };
+  }
+  return state;
+};
 
 export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
