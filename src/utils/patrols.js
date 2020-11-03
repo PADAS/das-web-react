@@ -1,11 +1,10 @@
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
-import startOfDay from 'date-fns/start_of_day';
-import endOfDay from 'date-fns/end_of_day';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
+import merge from 'lodash/merge';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -16,6 +15,7 @@ import { getReporterById } from './events';
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
+import { objectToParamString } from './query';
 
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -169,19 +169,6 @@ export const getLeaderForPatrol = (patrol) => {
   const { data: { subjectStore } } = store.getState();
 
   return subjectStore[leader.id] || leader;
-};
-
-// todo - replace me
-export const currentPatrolDateQuery = () => {
-  const current_date = new Date();
-
-  const startTimeTxt = startOfDay(current_date).toISOString();
-  const endTimeTxt = endOfDay(current_date).toISOString();
-
-  const timeRangeDict =  {date_range: {lower: startTimeTxt, upper: endTimeTxt}};
-  const jsonEndcoded = encodeURI('filter=' + JSON.stringify(timeRangeDict));
-
-  return jsonEndcoded;
 };
 
 export const displayDurationForPatrol = (patrol) => {
@@ -349,3 +336,11 @@ export const canEndPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return patrolState === PATROL_CARD_STATES.ACTIVE;
 };
+// look to calcEventFilterForRequest as this grows
+export const calcPatrolFilterForRequest = (options = {}) => {
+  const { data: { patrolFilter } } = store.getState();
+  const { params } = options;
+  const  filterParams = merge({}, patrolFilter, params);
+  return objectToParamString(filterParams);  
+};
+

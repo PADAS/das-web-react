@@ -32,6 +32,9 @@
         overflow: hidden;
         margin-bottom: 0rem;
         width: 65%;
+        &:hover {
+          cursor: pointer;
+        }
       }
   }
   .statusInfo {
