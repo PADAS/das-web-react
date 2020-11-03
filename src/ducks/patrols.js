@@ -59,6 +59,17 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
   }
 };
 
+export const socketDeletePatrol = (payload) => (dispatch) => {
+  const { patrol_data } = payload;
+  const { patrol_id, matches_current_filter } = patrol_data;
+  if (!matches_current_filter) {
+    dispatch({
+      type: REMOVE_PATROL_BY_ID,
+      payload: patrol_id,
+    });
+  }
+};
+
 const updatePatrolStore = (...results) => ({
   type: UPDATE_PATROL_STORE,
   payload: results,
@@ -244,6 +255,13 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
         results: newResults,
       };
     }
+  }
+
+  if (type === REMOVE_PATROL_BY_ID) {
+    return {
+      ...state,
+      results: state.results.filter(id => id !== payload),
+    };
   }
   
   return state;
