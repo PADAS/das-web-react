@@ -33,13 +33,12 @@
         margin-bottom: 0rem;
         width: 65%;
         &:hover {
-          cursor: pointer;
+          text-decoration: underline;
         }
       }
   }
   .statusInfo {
     align-items: center;
-    cursor: pointer;
     display:flex;
     height: 1.75rem;
     justify-content: center;
@@ -70,14 +69,13 @@
     font-style: plain;
     margin-top: 0.25rem;
     margin-bottom: 0.125rem;
-    &:hover {
-      cursor: pointer;
-      text-decoration: underline;
-    }
   }
-  h3, h6, .statusInfo {
-    &:hover {
-      text-decoration: underline;
+  &:not(.status-cancelled) {
+    h6, .statusInfo {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
   &:hover {
