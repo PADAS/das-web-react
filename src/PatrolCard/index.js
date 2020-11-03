@@ -1,9 +1,14 @@
 import React, { memo, useEffect, useRef, useMemo, useCallback, useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import format from 'date-fns/format';
+
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
   calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, getLeaderForPatrol } from '../utils/patrols';
+import { STANDARD_DATE_FORMAT } from '../utils/datetime';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 
-import format from 'date-fns/format';
+
+import { PATROL_CARD_STATES } from '../constants';
 
 import AddReport from '../AddReport';
 import PatrolMenu from './PatrolMenu';
@@ -12,10 +17,8 @@ import Popover from './Popover';
 
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
-import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 
 import styles from './styles.module.scss';
-import { PATROL_CARD_STATES } from '../constants';
 
 const PatrolCard = (props) => {
   const { patrol, onTitleClick, onPatrolChange } = props;
@@ -43,6 +46,14 @@ const PatrolCard = (props) => {
     return patrolState.title;
   }, [patrol, patrolState]);
 
+  const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
+
+  useEffect(() => {
+    if (leader && leader.id) {
+      fetchTracksIfNecessary([leader.id]);
+    }
+  }, [leader]);
+
   const togglePopoverIfPossible = useCallback(() => {
     if (!patrolIsCancelled) {
       setPopoverState(!popoverOpen);
@@ -56,10 +67,7 @@ const PatrolCard = (props) => {
     return format(startTime, STANDARD_DATE_FORMAT);
   }, [patrol]);
 
-  const subjectTitleForPatrol = useMemo(() => {
-    const leader = getLeaderForPatrol(patrol);
-    return (leader && leader.name) || '' ;
-  }, [patrol]);
+  const subjectTitleForPatrol = useMemo(() => (leader && leader.name) || '', [leader]);
 
   const displayTitle = useMemo(() => { 
     return subjectTitleForPatrol || displayTitleForPatrol(patrol);

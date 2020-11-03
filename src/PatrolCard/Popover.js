@@ -1,4 +1,4 @@
-import React, { memo, forwardRef, useMemo, useEffect } from 'react';
+import React, { memo, forwardRef, useMemo } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import PropTypes from 'prop-types';
@@ -14,7 +14,6 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolStartStopButton from './StartStopButton';
 
 import { canStartPatrol, canEndPatrol, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
-import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import styles from './styles.module.scss';
 
@@ -22,12 +21,6 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const { container, isOpen, onPatrolChange, patrol, target } = props;
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
-
-  useEffect(() => {
-    if (leader && leader.id) {
-      fetchTracksIfNecessary([leader.id]);
-    }
-  }, [leader]);
 
   const subjectTitleForPatrol = useMemo(() => (leader && leader.name) || '', [leader]);
 
