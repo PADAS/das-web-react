@@ -7,5 +7,5 @@ RUN yarn build
 
 FROM nginx:1.18.0-alpine AS SERVE
 RUN rm -R /usr/share/nginx/html
-COPY --from=BUILD /app/build/ /usr/share/nginx/html/beta
+COPY --from=BUILD /app/build/ /usr/share/nginx/html
 ADD ./prod-nginx-default.conf /etc/nginx/conf.d/default.conf
