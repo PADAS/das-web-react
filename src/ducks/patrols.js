@@ -36,8 +36,7 @@ const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
 
 // for now, assume that a realtime update of a patrol can
-// use the same reducer as the resoults of the restful update,
-// using the example data in the patrol management api doc 
+// use the same reducer as the results of the restful update
 export const socketUpdatePatrol = (payload) => (dispatch) => {
   const { patrol_data } = payload;
   const { matches_current_filter } = patrol_data;
@@ -106,7 +105,7 @@ export const createPatrol = (patrol) => (dispatch) => {
         type: CREATE_PATROL_SUCCESS,
         payload: response.data.data,
       });
-      // dispatch(updateEventStore(response.data.data));
+      // dispatch(updatePatrolStore(response.data.data));
       return response;
     })
     .catch((error) => {
@@ -133,7 +132,7 @@ export const updatePatrol = (patrol) => (dispatch) => {
       patrolResults = response.data.data;
       resp = response;
       return true;
-      // return Promise.resolve(validateReportAgainstCurrentEventFilter(eventResults));
+      // return Promise.resolve(validatePatrolAgainstCurrentPatrolFilter(patrolResults));
     })
     .then((matchesPatrolFilter) => {
       if (!matchesPatrolFilter) {
@@ -146,8 +145,8 @@ export const updatePatrol = (patrol) => (dispatch) => {
           type: UPDATE_PATROL_SUCCESS,
           payload: patrolResults,
         });
+        dispatch(updatePatrolStore(patrol));
       }
-      // dispatch(updateEventStore(eventResults));
       return resp;
     })
     .catch((error) => {
@@ -267,7 +266,7 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   return state;
 };
 
-// patrol store
+// patrol store 
 const INITIAL_STORE_STATE = {};
 export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
   if (type === CLEAR_PATROL_DATA) {
