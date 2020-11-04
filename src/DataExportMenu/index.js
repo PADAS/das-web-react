@@ -66,7 +66,7 @@ const DataExportMenu = (props) => {
         content: DataExportModal,
         url: 'trackingdata/export',
       },
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && user?.is_superuser ? [{
+      ...(evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) ? [{
         title: 'Tableau',
         content: TableauModal,
         url: 'tableau',
@@ -76,7 +76,7 @@ const DataExportMenu = (props) => {
       }] : []),
     ]);
 
-    if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && user?.is_superuser && !hasTableauNotification) {
+    if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && !hasTableauNotification) {
       addUserNotification({
         message: 'Check out your new Tableau dashboard, available in the main menu at the top right of your screen.',
         onConfirm(_e, item) {
