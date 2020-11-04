@@ -99,7 +99,7 @@ const DataExportMenu = (props) => {
 
       setHasTableauNotification(true);
     }
-  }, [props.systemConfig, eventTypes, eventFilter, user]);
+  }, [props.systemConfig, eventTypes, eventFilter]);
 
   const alertModal = {
     title: 'Alerts',
