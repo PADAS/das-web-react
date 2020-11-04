@@ -20,7 +20,7 @@ commands:
     parameters:
       target_project_slug:
         type: string
-        default: "das-web"
+        default: "das"
     steps:
       - run: 'ci-helpers/trigger-downstream.sh << parameters.target_project_slug >> ${CIRCLE_BRANCH}'
 
