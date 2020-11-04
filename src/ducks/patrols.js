@@ -36,20 +36,23 @@ const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
 
 // for now, assume that a realtime update of a patrol can
-// use the same reducer as the results of the restful update
+// use the same reducer as the results of the restful updat
 export const socketUpdatePatrol = (payload) => (dispatch) => {
-  const { patrol_data } = payload;
-  const { matches_current_filter } = patrol_data;
+  const { patrol_data, matches_current_filter } = payload;
+  console.log('patrol update', patrol_data, matches_current_filter);
   if (matches_current_filter) {
-    updatePatrolStore([patrol_data]);
+    dispatch({
+      type: UPDATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
   }
 };
 
 // likewise, assume that a realtime message to create a patrol
 // can use the same reducer
 export const socketCreatePatrol = (payload) => (dispatch) => {
-  const { patrol_data } = payload;
-  const { matches_current_filter } = patrol_data;
+  const { patrol_data, matches_current_filter } = payload;
+  console.log('patrol create', patrol_data, matches_current_filter);
   if (matches_current_filter) {
     dispatch({
       type: CREATE_PATROL_REALTIME,
@@ -59,8 +62,9 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
 };
 
 export const socketDeletePatrol = (payload) => (dispatch) => {
-  const { patrol_data } = payload;
-  const { patrol_id, matches_current_filter } = patrol_data;
+  const { patrol_data, matches_current_filter } = payload;
+  const { patrol_id } = patrol_data;
+  console.log('patrol delete', patrol_id, patrol_data, matches_current_filter);
   if (!matches_current_filter) {
     dispatch({
       type: REMOVE_PATROL_BY_ID,
