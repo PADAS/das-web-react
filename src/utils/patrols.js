@@ -18,6 +18,7 @@ import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
 import { objectToParamString } from './query';
 
+
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
