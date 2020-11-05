@@ -35,6 +35,7 @@ import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
+import externalReportingReducer from '../ducks/external-reporting';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -73,6 +74,7 @@ const rootReducer = combineReducers({
     masterRequestCancelToken: masterRequestTokenReducer,
     patrols: patrolsReducer,
     patrolTypes: patrolTypesReducer,
+    reports: externalReportingReducer,
     subjectGroups: subjectGroupsReducer,
     subjectStore: subjectStoreReducer,
     systemStatus: systemStatusReducer,

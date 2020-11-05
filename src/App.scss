@@ -589,3 +589,16 @@ div.mapboxgl-popup-tip {
     margin-top: -5rem;
   }
 }
+
+.tableau-modal {
+  .modal-body {
+    height: 80vh;
+    width: 90vw;
+  }
+  .modal-content {
+    width: 90vw;
+  }
+  .modal-dialog {
+    margin-left: 5vw;
+  }
+}
