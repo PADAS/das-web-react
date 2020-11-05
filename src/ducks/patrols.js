@@ -64,7 +64,7 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
 export const socketDeletePatrol = (payload) => (dispatch) => {
   console.log('patrol_delete', payload);
   const { patrol_id, matches_current_filter } = payload;
-  if (!matches_current_filter) {
+  if (matches_current_filter) {
     dispatch({
       type: REMOVE_PATROL_BY_ID,
       payload: patrol_id,
