@@ -75,7 +75,9 @@ const DataExportMenu = (props) => {
         },
       }] : []),
     ]);
+  }, [props.systemConfig, eventTypes, eventFilter]);
 
+  useEffect(() => {
     if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && !hasTableauNotification) {
       addUserNotification({
         message: 'Check out your new Tableau dashboard, available in the main menu at the top right of your screen.',
@@ -99,7 +101,7 @@ const DataExportMenu = (props) => {
 
       setHasTableauNotification(true);
     }
-  }, [props.systemConfig, eventTypes, eventFilter]);
+  }, [props.systemConfig]);
 
   const alertModal = {
     title: 'Alerts',
