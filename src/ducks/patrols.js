@@ -2,7 +2,8 @@ import axios from 'axios';
 import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
-import { calcPatrolFilterForRequest } from '../utils/patrols';
+import { calcPatrolFilterForRequest, 
+  validatePatrolAgainstCurrentPatrolFilter } from '../utils/patrol-filter';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
@@ -25,7 +26,56 @@ const UPLOAD_PATROL_FILES_START = 'UPLOAD_PATROL_FILES_START';
 const UPLOAD_PATROL_FILES_SUCCESS = 'UPLOAD_PATROL_FILES_SUCCESS';
 const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
+const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
+const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
+
+const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
+const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
+
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
+
+
+// for now, assume that a realtime update of a patrol can
+// use the same reducer as the results of the restful updat
+export const socketUpdatePatrol = (payload) => (dispatch) => {
+  const { patrol_data, matches_current_filter } = payload;
+  console.log('patrol update', patrol_data, matches_current_filter);
+  if (matches_current_filter) {
+    dispatch({
+      type: UPDATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
+  }
+};
+
+// likewise, assume that a realtime message to create a patrol
+// can use the same reducer
+export const socketCreatePatrol = (payload) => (dispatch) => {
+  const { patrol_data, matches_current_filter } = payload;
+  console.log('patrol create', patrol_data, matches_current_filter);
+  if (matches_current_filter) {
+    dispatch({
+      type: CREATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
+  }
+};
+
+export const socketDeletePatrol = (payload) => (dispatch) => {
+  console.log('patrol_delete', payload);
+  const { patrol_id, matches_current_filter } = payload;
+  if (matches_current_filter) {
+    dispatch({
+      type: REMOVE_PATROL_BY_ID,
+      payload: patrol_id,
+    });
+  }
+};
+
+const updatePatrolStore = (...results) => ({
+  type: UPDATE_PATROL_STORE,
+  payload: results,
+});
 
 export const fetchPatrols = () => async (dispatch) => {
 
@@ -58,7 +108,7 @@ export const createPatrol = (patrol) => (dispatch) => {
         type: CREATE_PATROL_SUCCESS,
         payload: response.data.data,
       });
-      // dispatch(updateEventStore(response.data.data));
+      // dispatch(updatePatrolStore(response.data.data));
       return response;
     })
     .catch((error) => {
@@ -85,7 +135,7 @@ export const updatePatrol = (patrol) => (dispatch) => {
       patrolResults = response.data.data;
       resp = response;
       return true;
-      // return Promise.resolve(validateReportAgainstCurrentEventFilter(eventResults));
+      // return Promise.resolve(validatePatrolAgainstCurrentPatrolFilter(patrolResults));
     })
     .then((matchesPatrolFilter) => {
       if (!matchesPatrolFilter) {
@@ -98,8 +148,8 @@ export const updatePatrol = (patrol) => (dispatch) => {
           type: UPDATE_PATROL_SUCCESS,
           payload: patrolResults,
         });
+        dispatch(updatePatrolStore(patrol));
       }
-      // dispatch(updateEventStore(eventResults));
       return resp;
     })
     .catch((error) => {
@@ -183,7 +233,7 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
     return payload;
   }
 
-  if (type === UPDATE_PATROL_SUCCESS) {
+  if (type === UPDATE_PATROL_SUCCESS || type === UPDATE_PATROL_REALTIME) {
     const match = state.results.findIndex(item => item.id === payload.id);
     if (match > -1) {
       const newResults = [...state.results];
@@ -196,9 +246,50 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
     }
     return state;
   }
+
+  if (type === CREATE_PATROL_REALTIME) {
+    const match = state.results.findIndex(item => item.id === payload.id);
+    if (match === -1) {
+      // add the patrol to patrol feed
+      const newResults = [...state.results, payload];
+      return {
+        ...state,
+        results: newResults,
+      };
+    }
+  }
+
+  if (type === REMOVE_PATROL_BY_ID) {
+    return {
+      ...state,
+      results: state.results.filter(id => id !== payload),
+    };
+  }
   
   return state;
 };
 
+// patrol store 
+const INITIAL_STORE_STATE = {};
+export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
+  if (type === CLEAR_PATROL_DATA) {
+    return { ...INITIAL_STORE_STATE };
+  }
+
+  if (type === UPDATE_PATROL_STORE) {
+    const toAdd = payload.reduce((accumulator, patrol) => {
+
+      accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
+
+      return accumulator;
+    }, {});
+
+    return {
+      ...state,
+      ...toAdd,
+    };
+  }
+  return state;
+};
 
 export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
