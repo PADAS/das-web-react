@@ -77,11 +77,13 @@
         text-decoration: underline;
       }
     }
-  }
-  &:hover {
+    &:hover {
       .addReport {
           display: block;
       }
+    }
+  }
+  &:hover {
       .kebabMenu {
           display: flex;
       }
