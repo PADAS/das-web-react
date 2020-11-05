@@ -13,44 +13,45 @@
   [class*=dropdown-item][class*=disabled], [class*=dropdown-item]:disabled {
     color: darken($light-gray, 17%);
   }
-  .title {
-    align-items: center;
+  .header {
+    margin-top: 0.45rem;
+    height: 1.0rem;
     background: none;
-    min-height: 2.5rem;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    cursor: pointer;
-      font-size: 0.875rem;
-      font-weight: 500;
-      + button {
-        display: none;
-        + button {
-          display: none;
+    text-align: center;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+      h3 {
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+        margin-bottom: 0rem;
+        width: 65%;
+        &:hover {
+          text-decoration: underline;
         }
-      }
-      &.editing {
-        margin-left: 2.5rem;
-      }
-      &.notEditing {
-        margin: 0.25rem 0;
-        padding-left: 2.25rem;
-        padding-right: 2.25rem;
-        text-decoration: none;
       }
   }
   .statusInfo {
-    height: 2.0rem;
+    align-items: center;
+    display:flex;
+    height: 1.75rem;
+    justify-content: center;
+    margin-top: 0.125rem;
   }
-  svg {
+  > svg {
+      margin-top: 0.25rem;
       height: 1.25rem;
       width: 2.0rem;
       fill: gray; 
       position: absolute;
       left: 0.375rem;
-      top: 0.5rem;
+      top: 0.19rem;
       cursor: pointer;
   }
   p {
@@ -62,11 +63,20 @@
           color: #646161;
       }
   }
-  button {
-      font-size: .5rem;
-      font-style: plain;
-      padding-top: 0rem;
-      color: #323335;
+  h6 {
+    color: #8C8C8C;
+    font-size: .5rem;
+    font-style: plain;
+    margin-top: 0.25rem;
+    margin-bottom: 0.125rem;
+  }
+  &:not(.status-cancelled) {
+    h6, .statusInfo {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
   &:hover {
       .addReport {
@@ -77,7 +87,6 @@
       }
   }
 }
-
 
 .status-ready {
   border: 2px dashed $patrol-ready-border; 
@@ -101,14 +110,15 @@
   &:hover {
       background-color: darken($patrol-overdue-bg, 6%);
   }
-  button {
+  h6 {
     color: red;
     &:hover {
+      cursor: pointer;
+      text-decoration: underline;
       color: darken(red, 6%);
     }
   }
 }
-
 
 .status-cancelled {
   border: 2px dashed $patrol-cancelled-border; 
@@ -133,8 +143,9 @@
 }
 
 .addReport {
-  bottom: 2.25rem;
+  bottom: 0;
   pointer-events: none;
+  position: absolute;
   left: 0;
   svg {
       height: 1.5rem;
@@ -183,3 +194,89 @@
   }
 }
 
+div.popover {
+  line-height: normal;
+  position: fixed !important;
+  width: 14rem;
+  [class*=popover-body] {
+    font-size: 0.75rem;
+    text-align: center;
+    > svg {
+      margin-top: 0.25rem;
+      height: 1.25rem;
+      width: 2.0rem;
+      fill: gray; 
+      position: absolute;
+      left: 0.375rem;
+      top: 0.19rem;
+      cursor: pointer;
+    }
+  }
+  &[class*=bs-popover-left] [class*=arrow]::after {
+      border-left-color: white !important;
+  }
+  h5 {
+    color: $highlight-color;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-weight: 500;
+    padding: 0 2rem;
+  }
+  .details {
+    border-bottom: 1px solid $light-gray-border;
+    border-top: 1px solid $light-gray-border;
+    font-size: 0.65rem;
+    font-style: italic;
+    margin: 0.5rem -0.75rem 0.5rem -0.75rem;
+    padding: 0.5rem;
+    > span {
+      white-space: nowrap;
+      display: block;
+      + span {
+        margin-top: 0.25rem;
+      }
+    }
+  }
+  .controls {
+    display: flex;
+    justify-content: space-evenly;
+    pointer-events: none;
+  }
+  .addButton { 
+    height: 3rem;
+    margin: auto;
+    pointer-events: none;
+    width: 3rem;
+    > button > svg {
+      height: 3rem;
+      margin: auto;
+    }
+  }
+}
+
+.startStopButton {
+  background: none;
+  border: 1px solid lighten($highlight-color, 15%);
+  border-radius: 0.5rem;
+  color: $highlight-color;
+  display: block;
+  font-size: 0.85rem;
+  margin: 0.5rem auto;
+  outline: none;
+  padding: 0.25rem 0.5rem 0.25rem 1.25rem;
+  position: relative;
+  &::before {
+    content: '■';
+    display: block;
+    position: absolute;
+    left: 0.25rem;
+  }
+  &.start {
+    &::before {
+      content: "▲";
+      left: 0.3rem;
+      top: 0.225rem;
+      transform: rotate(90deg);
+    }
+  }
+}

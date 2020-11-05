@@ -15,6 +15,7 @@ import { getFeedEvents } from '../selectors';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
+import { fetchPatrols } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { setReportHeatmapVisibility } from '../ducks/map-ui';
 import SubjectGroupList from '../SubjectGroupList';
@@ -50,7 +51,7 @@ const TAB_KEYS = {
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, eventFilter, fetchEventFeed, fetchNextEventFeedPage, map, onHandleClick, patrols, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -114,6 +115,12 @@ const SideBar = (props) => {
   useEffect(() => {
     loadFeedEvents();
   }, [eventFilter]); // eslint-disable-line
+
+  useEffect(() => {
+    if (showPatrols) {
+      fetchPatrols();
+    }
+  }, [patrolFilter]); // eslint-disable-line
 
   useEffect(() => {
     if (!sidebarOpen) {
@@ -213,12 +220,12 @@ const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
   patrols: state.data.patrols,
-  //patrols: getPatrols(state),
+  patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, setReportHeatmapVisibility })(memo(SideBar));
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility })(memo(SideBar));
 
 SideBar.propTypes = {
   events: PropTypes.shape({

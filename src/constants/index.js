@@ -57,6 +57,12 @@ export const PATROL_CARD_STATES = {
   INVALID: {title: 'Invalid Configuration', status: 'cancelled'},
 };
 
+export const PATROL_API_STATES = {
+  OPEN: 'open',
+  DONE: 'done',
+  CANCELLED: 'cancelled',
+};
+
 export const MAP_ICON_SIZE = 30;
 export const MAP_ICON_SCALE = 2;
 

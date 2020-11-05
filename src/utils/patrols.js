@@ -1,21 +1,21 @@
 import React from 'react';
 import timeDistanceInWords from 'date-fns/distance_in_words';
-import startOfDay from 'date-fns/start_of_day';
-import endOfDay from 'date-fns/end_of_day';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
+import merge from 'lodash/merge';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
-import { getReporterById } from '../utils/events';
+import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
+import { objectToParamString } from './query';
 
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -107,10 +107,16 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-export const displayTitleForPatrol = (patrol) => {
+export const displayTitleForPatrol = (patrol, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
+
+  if (includeLeaderName) {
+    const leader = getLeaderForPatrol(patrol);
+
+    if (leader && leader.name) return leader.name;
+  }
 
   if (!patrol.patrol_segments.length
     || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
@@ -160,20 +166,25 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-// todo - replace me
-export const currentPatrolDateQuery = () => {
-  const current_date = new Date();
+export const getLeaderForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+  const { leader }  = firstLeg;
+  if (!leader) return null;
 
-  const startTimeTxt = startOfDay(current_date).toISOString();
-  const endTimeTxt = endOfDay(current_date).toISOString();
+  const { data: { subjectStore } } = store.getState();
 
-  const timeRangeDict =  {date_range: {lower: startTimeTxt, upper: endTimeTxt}};
-  const jsonEndcoded = encodeURI('filter=' + JSON.stringify(timeRangeDict));
-
-  return jsonEndcoded;
+  return subjectStore[leader.id] || leader;
 };
 
 export const displayDurationForPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+
+  if (patrolState === PATROL_CARD_STATES.READY_TO_START
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    return '0:00';
+  }
+  
   const now = new Date();
   const nowTime = now.getTime();
 
@@ -293,6 +304,8 @@ export const displayPatrolDoneTime = (patrol) => {
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
+
+
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
@@ -317,5 +330,23 @@ export const calcPatrolCardState = (patrol) => {
     return READY_TO_START;
   }
   return INVALID;
+};
+
+export const canStartPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+};
+
+export const canEndPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return patrolState === PATROL_CARD_STATES.ACTIVE;
+};
+// look to calcEventFilterForRequest as this grows
+export const calcPatrolFilterForRequest = (options = {}) => {
+  const { data: { patrolFilter } } = store.getState();
+  const { params } = options;
+  const  filterParams = merge({}, patrolFilter, params);
+  return objectToParamString(filterParams);  
 };
 
