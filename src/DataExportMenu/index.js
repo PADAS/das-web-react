@@ -67,7 +67,7 @@ const DataExportMenu = (props) => {
         url: 'trackingdata/export',
       },
       ...(evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) ? [{
-        title: 'Tableau',
+        title: 'Analysis (via Tableau)',
         content: TableauModal,
         url: 'tableau',
         modalProps: {
@@ -80,7 +80,7 @@ const DataExportMenu = (props) => {
   useEffect(() => {
     if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && !hasTableauNotification) {
       addUserNotification({
-        message: 'Check out your new Tableau dashboard, available in the main menu at the top right of your screen.',
+        message: 'Check out your new analysis dashboard, available in the main menu at the top right of your screen, generously provided by Tableau.',
         onConfirm(_e, item) {
           hamburgerToggle.current.click();
           setHasTableauNotification(false);
