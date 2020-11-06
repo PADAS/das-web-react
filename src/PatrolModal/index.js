@@ -397,6 +397,7 @@ const PatrolModal = (props) => {
             isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
+            startTime={displayStartTime}
             onAutoCheckToggle={setAutoEnd}
             autoCheckLabel='Auto-end patrol'
             required={true}
