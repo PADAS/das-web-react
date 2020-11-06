@@ -1,4 +1,4 @@
-import React, { memo, forwardRef, useMemo } from 'react';
+import React, { Fragment, memo, forwardRef, useMemo } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import PropTypes from 'prop-types';
@@ -13,7 +13,9 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+
+import { PATROL_CARD_STATES } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -32,6 +34,13 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const timeOnPatrol = useMemo(() => displayDurationForPatrol(patrol), [patrol]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
+
+  const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
+
+  const isScheduledPatrol = useMemo(() => {
+    return patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE;
+  }, [patrolState]);
 
   const subjectTimeAtLastPosition = useMemo(() => new Date((subjectLastPosition
     && subjectLastPosition.properties
@@ -61,21 +70,23 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
         <span className={styles.serial}>Patrol #{patrol.serial_number}</span>
         {(canStart || canEnd) && <PatrolStartStopButton patrol={patrol} onPatrolChange={onPatrolChange} />}
 
-        <div className={styles.details}>
-          {!!subjectLastVoiceCall.getTime() && <span>Radio activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
-          {!!subjectTimeAtLastPosition.getTime() && <span>Time at current position: <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
-          <span>Time on patrol: {timeOnPatrol}</span> {/* time on patrol */}
-          <span>Distance covered: <PatrolDistanceCovered patrol={patrol} />{/* distance covered */}</span>
-        </div>
-
-        <div className={styles.controls}>
-          <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
-          <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
-          <LocationJumpButton bypassLocationValidation={true}
-            /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
-        </div>
-        <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
-
+        {!isScheduledPatrol && <Fragment>
+          <div className={styles.details}>
+            {!!subjectLastVoiceCall.getTime() && <span>Radio activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
+            {!!subjectTimeAtLastPosition.getTime() && <span>Time at current position: <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
+            <span>Time on patrol: {timeOnPatrol}</span> {/* time on patrol */}
+            <span>Distance covered: <PatrolDistanceCovered patrol={patrol} />{/* distance covered */}</span>
+          </div>
+  
+          <div className={styles.controls}>
+            <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
+            <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
+            <LocationJumpButton bypassLocationValidation={true}
+              /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
+          </div>
+          <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
+        </Fragment>
+        }
 
         {/* buttons and stuff */}
       </Popover.Content>

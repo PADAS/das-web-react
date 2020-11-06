@@ -82,6 +82,11 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     return patrol.serial_number + ' ' + displayTitle;
   }, [displayTitle, patrol]);
 
+  const onPatrolChangeFromPopover = useCallback((...args) => {
+    onPatrolChange(...args);
+    setPopoverState(false);
+  }, [onPatrolChange]);
+
   useEffect(() => {
     const handleOutsideClick = (e) => {
       console.log('popoverRef', popoverRef);
@@ -130,7 +135,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     <AddReport className={styles.addReport} showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
       target={stateTitleRef} ref={popoverRef}
-      onPatrolChange={onPatrolChange} patrol={patrol} />
+      onPatrolChange={onPatrolChangeFromPopover} patrol={patrol} />
   </li>;
 });
 
