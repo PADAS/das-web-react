@@ -5,6 +5,7 @@ import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import merge from 'lodash/merge';
+import orderBy from 'lodash/orderBy';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -351,3 +352,21 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
+export const sortPatrolCards = (patrols) => {
+  const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+  
+  const sortFunc = (patrol) => {
+    const cardState = calcPatrolCardState(patrol);
+
+    if (cardState === START_OVERDUE) return 1;
+    if (cardState === READY_TO_START) return 2;
+    if (cardState === ACTIVE) return 3;
+    if (cardState === DONE) return 4;
+    if (cardState === CANCELLED) return 5;
+    return 6;
+  };
+
+  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
+
+  return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+};
