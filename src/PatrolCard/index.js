@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useMemo, useCallback, useState, Fragment } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useMemo, useCallback, useState, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 
@@ -20,11 +20,11 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import styles from './styles.module.scss';
 
-const PatrolCard = (props) => {
-  const { patrol, onTitleClick, onPatrolChange } = props;
+const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+  const { patrol, onTitleClick, onPatrolChange, dispatch:_dispatch, ...rest } = props;
 
   const menuRef = useRef(null);
-  const cardRef = useRef(null);
+  const cardRef = useRef(ref || null);
   const popoverRef = useRef(null);
   const stateTitleRef = useRef(null);
 
@@ -82,6 +82,11 @@ const PatrolCard = (props) => {
     return patrol.serial_number + ' ' + displayTitle;
   }, [displayTitle, patrol]);
 
+  const onPatrolChangeFromPopover = useCallback((...args) => {
+    onPatrolChange(...args);
+    setPopoverState(false);
+  }, [onPatrolChange]);
+
   useEffect(() => {
     const handleOutsideClick = (e) => {
       console.log('popoverRef', popoverRef);
@@ -109,7 +114,7 @@ const PatrolCard = (props) => {
   }, [patrolIsCancelled]);
 
 
-  return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`}>
+  return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} {...rest}>
     {patrolIconId && <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />}
     <div className={styles.header}>
       <h3 onClick={onTitleClick} title={hoverTitle}>{displayTitle}</h3>
@@ -130,9 +135,9 @@ const PatrolCard = (props) => {
     <AddReport className={styles.addReport} showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
       target={stateTitleRef} ref={popoverRef}
-      onPatrolChange={onPatrolChange} patrol={patrol} />
+      onPatrolChange={onPatrolChangeFromPopover} patrol={patrol} />
   </li>;
-};
+});
 
 export default memo(PatrolCard);
 

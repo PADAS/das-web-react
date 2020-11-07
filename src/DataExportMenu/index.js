@@ -27,7 +27,7 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
+  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
   const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
   const [isOpen, setOpenState] = useState(false);
 
@@ -66,21 +66,13 @@ const DataExportMenu = (props) => {
         content: DataExportModal,
         url: 'trackingdata/export',
       },
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) ? [{
-        title: 'Tableau',
-        content: TableauModal,
-        url: 'tableau',
-        modalProps: {
-          className: 'tableau-modal',
-        },
-      }] : []),
     ]);
   }, [props.systemConfig, eventTypes, eventFilter]);
 
   useEffect(() => {
     if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && !hasTableauNotification) {
       addUserNotification({
-        message: 'Check out your new Tableau dashboard, available in the main menu at the top right of your screen.',
+        message: 'Check out your new analysis dashboard, available in the main menu at the top right of your screen, generously provided by Tableau.',
         onConfirm(_e, item) {
           hamburgerToggle.current.click();
           setHasTableauNotification(false);
@@ -102,6 +94,14 @@ const DataExportMenu = (props) => {
       setHasTableauNotification(true);
     }
   }, [props.systemConfig]);
+
+  const tableauModal = {
+    title: 'Analysis (via Tableau)',
+    content: TableauModal,
+    modalProps: {
+      className: 'tableau-modal',
+    },
+  };
 
   const alertModal = {
     title: 'Alerts',
@@ -138,6 +138,7 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
+      {!!tableau_enabled && <Item onClick={() => onModalClick(tableauModal, 'Analysis (via Tableau)')}>Analysis (via Tableau) </Item>}
       {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>

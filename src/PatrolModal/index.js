@@ -214,13 +214,22 @@ const PatrolModal = (props) => {
 
     if (noteIsNew) {
       const { originalText } = note;
-
+      
       if (originalText) {
-        updateNotesToAdd(
-          notesToAdd.map(n => n.text === originalText ? note : n)
-        );
+        const { notes } = statePatrol;
+        setStatePatrol({
+          ...statePatrol,
+          notes: notes.map(n => n.text === originalText ? note : n),
+        })
+        
       } else {
-        updateNotesToAdd([...notesToAdd, note]);
+        setStatePatrol({
+          ...statePatrol,
+          notes: [
+            ...statePatrol.notes,
+            note
+          ]
+        })
       }
       delete note.originalText;
     } else {
@@ -230,10 +239,16 @@ const PatrolModal = (props) => {
       });
     }
   }, [notesToAdd, statePatrol]);
-
+  
   const onDeleteNote = useCallback((note) => {
     const { text } = note;
-    updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
+
+    const { notes } = statePatrol;
+
+    setStatePatrol({
+      ...statePatrol,
+      notes: notes.filter(n => n.text !== text),
+    })
   }, [notesToAdd]);
 
   const onDeleteFile = useCallback((file) => {

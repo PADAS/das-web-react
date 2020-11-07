@@ -50,6 +50,7 @@ export const generateMonthsAgoDate = (monthsAgo = 1) => new Date(
 
 export const startOfToday = () => startOfDay(new Date());
 export const endOfToday = () => endOfDay(new Date());
+export const endOfTime = () => new Date(8640000000000000);
 
 export const formatEventSymbolDate = (dateString) => format(new Date(dateString), EVENT_SYMBOL_DATE_FORMAT);
 
