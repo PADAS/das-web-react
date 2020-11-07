@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, memo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
@@ -30,7 +30,7 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
       <Title>{title}</Title>
     </Header>
     <Body>
-      {isTableauDashboardDataValid && <iframe src={display_url} title={title} width="100%" height="100%" />}
+      {isTableauDashboardDataValid && !reports.isFetching && <iframe src={display_url} title={title} width="100%" height="100%" />}
     </Body>
   </Fragment>;
 };
