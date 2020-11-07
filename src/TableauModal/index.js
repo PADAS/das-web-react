@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, memo } from 'react';
+import React, { Fragment, useEffect, useMemo, memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
@@ -18,8 +18,8 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
   }, []);
 
   const isTableauDashboardDataValid = useMemo(
-    () => Boolean(reports.tableauDashboard.server), 
-    [reports.tableauDashboard.server]
+    () => Boolean(reports.tableauDashboard.display_url),
+    [reports.tableauDashboard.display_url]
   )
 
   const { display_url } = reports.tableauDashboard;
