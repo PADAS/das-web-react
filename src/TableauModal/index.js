@@ -18,8 +18,8 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
   }, []);
 
   const isTableauDashboardDataValid = useMemo(
-    () => Boolean(reports.tableauDashboard.server), 
-    [reports.tableauDashboard.server]
+    () => Boolean(reports.tableauDashboard.display_url),
+    [reports.tableauDashboard.display_url]
   )
 
   const { display_url } = reports.tableauDashboard;
@@ -30,7 +30,7 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
       <Title>{title}</Title>
     </Header>
     <Body>
-      {isTableauDashboardDataValid && <iframe src={display_url} title={title} width="100%" height="100%" />}
+      {isTableauDashboardDataValid && !reports.isFetching && <iframe src={display_url} title={title} width="100%" height="100%" />}
     </Body>
   </Fragment>;
 };
