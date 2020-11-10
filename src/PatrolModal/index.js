@@ -24,6 +24,8 @@ import HeaderMenuContent from './HeaderMenuContent';
 import StatusBadge from './StatusBadge';
 import PatrolDateInput from './DateInput';
 
+import PatrolDistanceCovered from '../Patrols/DistanceCovered';
+
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
@@ -43,7 +45,7 @@ const PatrolModal = (props) => {
   const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
-  const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
+  const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol, false), [statePatrol]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -120,9 +122,16 @@ const PatrolModal = (props) => {
     if (isPast(endDate)) return 'Set Patrol End';
   }, []);
 
+  const setAutoStart = useCallback((val) => {
+    updateUserPreferences({ autoStartPatrols: val });
+  }, [updateUserPreferences]);
+
+  const setAutoEnd = useCallback((val) => {
+    updateUserPreferences({ autoEndPatrols: val });
+  }, [updateUserPreferences]);
+
   const onStartTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
-    updateUserPreferences({ autoStartPatrols: isAuto });
     const updatedValue = new Date(value).toISOString();
 
     setStatePatrol({
@@ -138,12 +147,10 @@ const PatrolModal = (props) => {
         },
       ],
     });
-  }, [statePatrol, updateUserPreferences]);
+  }, [statePatrol]);
 
   const onEndTimeChange = useCallback((value, isAuto) => {
     const [segment] = statePatrol.patrol_segments;
-
-    updateUserPreferences({ autoEndPatrols: isAuto });
 
     const update = new Date(value).toISOString();
 
@@ -164,7 +171,7 @@ const PatrolModal = (props) => {
         },
       ],
     });
-  }, [statePatrol, updateUserPreferences]);
+  }, [statePatrol]);
 
   const onSelectTrackedSubject = useCallback((value) => {
     const trackedSubjectLocation = value
@@ -359,6 +366,7 @@ const PatrolModal = (props) => {
             placement='bottom'
             placeholder='Set Start Time'
             autoCheckLabel='Auto-start patrol'
+            onAutoCheckToggle={setAutoStart}
             required={true}
           />
         </div>
@@ -389,6 +397,7 @@ const PatrolModal = (props) => {
             isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
+            onAutoCheckToggle={setAutoEnd}
             autoCheckLabel='Auto-end patrol'
             required={true}
           />
@@ -396,8 +405,8 @@ const PatrolModal = (props) => {
         <span className={displayDuration !== '0s' ? '' : styles.faded}>
           <strong>Duration:</strong> {displayDuration}
         </span>
-        <span className={styles.faded}>
-          <strong>Distance:</strong> 0km
+        <span>
+          <strong>Distance:</strong> <PatrolDistanceCovered patrol={statePatrol} />
         </span>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
       </section>

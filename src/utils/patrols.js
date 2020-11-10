@@ -5,17 +5,19 @@ import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import merge from 'lodash/merge';
+import orderBy from 'lodash/orderBy';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
-import { getReporterById } from '../utils/events';
+import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
 import { distanceInWords } from 'date-fns';
 import { objectToParamString } from './query';
+
 
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
@@ -107,10 +109,16 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-export const displayTitleForPatrol = (patrol) => {
+export const displayTitleForPatrol = (patrol, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
+
+  if (includeLeaderName) {
+    const leader = getLeaderForPatrol(patrol);
+
+    if (leader && leader.name) return leader.name;
+  }
 
   if (!patrol.patrol_segments.length
     || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
@@ -164,10 +172,21 @@ export const getLeaderForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
-  return leader ? leader : null;
+  if (!leader) return null;
+
+  const { data: { subjectStore } } = store.getState();
+
+  return subjectStore[leader.id] || leader;
 };
 
 export const displayDurationForPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+
+  if (patrolState === PATROL_CARD_STATES.READY_TO_START
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    return '0:00';
+  }
+  
   const now = new Date();
   const nowTime = now.getTime();
 
@@ -287,6 +306,8 @@ export const displayPatrolDoneTime = (patrol) => {
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
+
+
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
@@ -313,6 +334,16 @@ export const calcPatrolCardState = (patrol) => {
   return INVALID;
 };
 
+export const canStartPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+};
+
+export const canEndPatrol = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+  return patrolState === PATROL_CARD_STATES.ACTIVE;
+};
 // look to calcEventFilterForRequest as this grows
 export const calcPatrolFilterForRequest = (options = {}) => {
   const { data: { patrolFilter } } = store.getState();
@@ -321,3 +352,21 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
+export const sortPatrolCards = (patrols) => {
+  const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+  
+  const sortFunc = (patrol) => {
+    const cardState = calcPatrolCardState(patrol);
+
+    if (cardState === START_OVERDUE) return 1;
+    if (cardState === READY_TO_START) return 2;
+    if (cardState === ACTIVE) return 3;
+    if (cardState === DONE) return 4;
+    if (cardState === CANCELLED) return 5;
+    return 6;
+  };
+
+  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
+
+  return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+};

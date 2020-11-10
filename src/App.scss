@@ -74,6 +74,7 @@ body {
 
 aside {
   .Collapsible {
+    min-height: 3.3125rem;
     width: 100%;
   }
 }
@@ -586,5 +587,18 @@ div.mapboxgl-popup-tip {
 .daily-report-modal, .kml-export-modal {
   .modal-dialog {
     margin-top: -5rem;
+  }
+}
+
+.tableau-modal {
+  .modal-body {
+    height: 80vh;
+    width: 90vw;
+  }
+  .modal-content {
+    width: 90vw;
+  }
+  .modal-dialog {
+    margin-left: 5vw;
   }
 }

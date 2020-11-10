@@ -19,7 +19,7 @@ const PatrolListTitle = (props) => {
     <div className={styles.headerControls}>
       <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
       <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
-      <LocationJumpButton showLabel={false} iconOverride={<PatrolMarkerIcon />} bypassLocationValidation={true}
+      <LocationJumpButton iconOverride={<PatrolMarkerIcon />} bypassLocationValidation={true}
         className={styles.patrolButton} onClick={onPatrolJumpClick} />
       <KebabMenuIcon className={styles.kebab} />
     </div>

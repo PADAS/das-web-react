@@ -48,7 +48,7 @@ ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
 setClientReleaseIdentifier();
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
-export const store = createStoreWithMiddleware(reducers);
+export const store = createStoreWithMiddleware(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 const persistor = persistStore(store);
 
 ReactDOM.render(

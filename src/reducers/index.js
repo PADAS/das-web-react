@@ -5,7 +5,7 @@ import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
-import patrolsReducer from '../ducks/patrols';
+import patrolsReducer, { patrolStoreReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
@@ -35,6 +35,7 @@ import userNotificationReducer from '../ducks/user-notifications';
 import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
+import externalReportingReducer from '../ducks/external-reporting';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -57,6 +58,7 @@ const rootReducer = combineReducers({
   data: combineReducers({
     baseLayers: baseLayersReducer,
     eventStore: eventStoreReducer,
+    patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
     feedIncidents: incidentFeedReducer,
     mapEvents: mapEventsReducer,
@@ -73,6 +75,7 @@ const rootReducer = combineReducers({
     masterRequestCancelToken: masterRequestTokenReducer,
     patrols: patrolsReducer,
     patrolTypes: patrolTypesReducer,
+    reports: externalReportingReducer,
     subjectGroups: subjectGroupsReducer,
     subjectStore: subjectStoreReducer,
     systemStatus: systemStatusReducer,

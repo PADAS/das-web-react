@@ -7,10 +7,14 @@ import KebabMenuIcon from '../KebabMenuIcon';
 import styles from './styles.module.scss';
 import { PATROL_CARD_STATES, PATROL_API_STATES } from '../constants';
 
+import { canStartPatrol, canEndPatrol, calcPatrolCardState } from '../utils/patrols';
+
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
 const PatrolMenu = (props) => {
-  const { patrol, patrolState, onPatrolChange, onTitleClick, menuRef } = props;
+  const { patrol, onPatrolChange, onClickOpen, menuRef } = props;
+
+  const patrolState = calcPatrolCardState(patrol);
 
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.DONE;
@@ -20,14 +24,8 @@ const PatrolMenu = (props) => {
     patrolState === PATROL_CARD_STATES.CANCELLED
   , [patrolState]);
 
-  const canStartPatrol = useMemo(() => {
-    return (patrolState === PATROL_CARD_STATES.READY_TO_START
-      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
-  } , [patrolState]);
-
-  const canEndPatrol = useMemo(() =>
-    patrolState === PATROL_CARD_STATES.ACTIVE
-  , [patrolState]);
+  const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
+  const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
   const canRestorePatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.DONE 
@@ -50,9 +48,9 @@ const PatrolMenu = (props) => {
   }, [canCancelPatrol, canRestorePatrol]);
   
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol || patrolIsCancelled || patrolIsDone) return 'End Patrol';
+    if (canEnd || patrolIsCancelled || patrolIsDone) return 'End Patrol';
     return 'Start Patrol';
-  }, [canEndPatrol, patrolIsCancelled, patrolIsDone]);
+  }, [canEnd, patrolIsCancelled, patrolIsDone]);
 
   const patrolCancelRestoreTitle = useMemo(() => {
     if (canRestorePatrol) return 'Restore Patrol';
@@ -68,12 +66,12 @@ const PatrolMenu = (props) => {
   }, [canRestorePatrol, onPatrolChange]);
 
   const togglePatrolStartStopState = useCallback(() => {
-    if (canStartPatrol) {
+    if (canStart) {
       onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
     } else {
       onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
     }
-  }, [canStartPatrol, onPatrolChange]);
+  }, [canStart, onPatrolChange]);
 
   return  <Dropdown alignRight className={styles.kebabMenu}>
     <Toggle as="button">
@@ -81,7 +79,7 @@ const PatrolMenu = (props) => {
     </Toggle>
     <Menu ref={menuRef}>
       <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
-      <Item disabled={patrolIsCancelled} onClick={()=>onTitleClick(patrol)}>Open Patrol</Item>
+      <Item disabled={patrolIsCancelled} onClick={()=>onClickOpen(patrol)}>Open Patrol</Item>
       <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
     </Menu>
   </Dropdown>;
