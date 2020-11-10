@@ -253,11 +253,10 @@
 }
 
 .attachmentList {
-  margin-left: -1rem;
   display: flex;
   flex-flow: column;
   margin-bottom: 0;
-  width: calc(100% + 2rem);
+  width: 100%;
   li {
     border-top: 1px solid $light-gray-border;
     border-bottom: 1px solid $light-gray-border;
