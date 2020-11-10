@@ -21,6 +21,7 @@ import { calcEventFilterForRequest } from '../utils/events';
 import { fetchCurrentUser } from '../ducks/user';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { isFilterModified } from '../utils/event-filter';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
@@ -47,6 +48,7 @@ const DataExportMenu = (props) => {
         content: DataExportModal,
         url: 'activity/events/export',
         paramString: calcEventFilterForRequest(),
+        children: isFilterModified(eventFilter) ? <div>Exported reports will only include those matching the filter criteria currently set in the Reports tab.</div> : null
       },
       ...(evaluateFeatureFlag(FEATURE_FLAGS.KML_EXPORT) ? [{
         title: 'Master KML',
@@ -156,5 +158,4 @@ const DataExportMenu = (props) => {
 };
 
 const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification, user });
-
 export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences })(withRouter(DataExportMenu));
