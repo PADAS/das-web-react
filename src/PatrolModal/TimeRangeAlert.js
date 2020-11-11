@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import { removeModal } from '../ducks/modals';
 import { connect } from 'react-redux';
 import styles from './styles.module.scss';
-const { Title, Body, Footer } = Modal;
+const { Header, Title, Body, Footer } = Modal;
 
 const TimeRangeAlert = (props) => {
 
@@ -17,14 +17,14 @@ const TimeRangeAlert = (props) => {
 
 
   return <Fragment>
+    <Header closeButton>
+      <Title>Invalid Patrol End Time</Title>
+    </Header>
     <Body className={styles.modal}>
       <div>
         <p>
-          <strong>Invalid Patrol End Time</strong>
-        </p>
-        <p>
-          This patrol can not be saved. The end time of a patrol must be set later than 
-          the start time. Please correct the end patrol time.
+          This patrol can not be saved. The end of a patrol must be set to a time after 
+          the patrol start time. 
         </p>
       </div>
     </Body>
