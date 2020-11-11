@@ -161,10 +161,10 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { end_time } } = firstLeg;
+  const { time_range: { end_time }, scheduled_end } = firstLeg;
 
-  return end_time
-    ? new Date(end_time)
+  return (end_time || scheduled_end)
+    ? new Date(end_time || scheduled_end)
     : null;
 };
 
