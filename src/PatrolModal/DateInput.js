@@ -71,12 +71,6 @@ const PatrolDateInput = (props) => {
     setStateTime(value);
   }, [value]);
 
-  const canSaveEndTime = useMemo(() => { 
-    if (startTime)
-      return (stateTime >= startTime);
-    return true;
-  },[stateTime, startTime]);
-
   return <div>
     <DateTimePickerPopover
       {...DATEPICKER_DEFAULT_CONFIG}
@@ -89,10 +83,10 @@ const PatrolDateInput = (props) => {
       {...rest}
     >  
       <div className={styles.dateTimePickerChildren}>
-        <Button variant='primary' type='button' disabled={!canSaveEndTime} onClick={commitTimeChange}>
+        <Button variant='primary' type='button' onClick={commitTimeChange}>
           {buttonTitle}
         </Button>
-        {canShowAutoCheck && canSaveEndTime && <label htmlFor='autoStart'>
+        {canShowAutoCheck && <label htmlFor='autoStart'>
           <input checked={isAuto} onChange={() => onAutoCheckToggle(!isAuto)} type='checkbox' id='autoStart' /> {autoCheckLabel}
         </label>}
       </div>

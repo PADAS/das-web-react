@@ -10,7 +10,8 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
+import { hasValidSegmentTime, displayStartTimeForPatrol, displayEndTimeForPatrol,
+  displayDurationForPatrol, displayTitleForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -26,12 +27,13 @@ import PatrolDateInput from './DateInput';
 
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
+import TimeRangeAlert from './TimeRangeAlert';
+
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
-
 const PatrolModal = (props) => {
   const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
@@ -220,7 +222,7 @@ const PatrolModal = (props) => {
         setStatePatrol({
           ...statePatrol,
           notes: notes.map(n => n.text === originalText ? note : n),
-        })
+        });
         
       } else {
         setStatePatrol({
@@ -229,7 +231,7 @@ const PatrolModal = (props) => {
             ...statePatrol.notes,
             note
           ]
-        })
+        });
       }
       delete note.originalText;
     } else {
@@ -313,6 +315,13 @@ const PatrolModal = (props) => {
         toSubmit[prop] = null;
       }
     });
+
+    const validTimeRange = (!!statePatrol.patrol_segments.length) 
+      && hasValidSegmentTime(statePatrol.patrol_segments[0]);
+    if (!validTimeRange) {
+      addModal({content: TimeRangeAlert});
+      return;
+    }
 
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
