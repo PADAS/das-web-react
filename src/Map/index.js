@@ -81,6 +81,7 @@ class Map extends Component {
     super(props);
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
+    this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
@@ -102,8 +103,11 @@ class Map extends Component {
     this.onRotationControlClick = this.onRotationControlClick.bind(this);
     this.unspiderfy = this.unspiderfy.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
+    this.onSleepDetected = this.onSleepDetected.bind(this);
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
+    
+    this.fetchingMapData = false;
 
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
 
@@ -119,6 +123,10 @@ class Map extends Component {
 
   get mapCenter() {
     return this.lngLatFromParams || this.props.homeMap.center;
+  }
+
+  onSleepDetected() {
+    this.debouncedFetchMapData();
   }
 
   onMapZoom = debounce((e) => {
@@ -240,6 +248,10 @@ class Map extends Component {
     mapEventsFetchCancelToken.cancel();
   }
 
+  onMapMoveEnd() {
+    this.debouncedFetchMapData();
+  }
+
   onRotationControlClick = (e) => {
     this.props.map.easeTo({
       bearing: 0,
@@ -262,13 +274,19 @@ class Map extends Component {
   }
 
   fetchMapData() {
-    return Promise.all([
-      this.fetchMapEvents(),
-      this.fetchMapSubjects(),
-    ])
-      .catch((e) => {
-        console.warn('error loading map data', e);
-      });
+    if (!this.fetchingMapData) {
+      this.fetchingMapData = true;
+      return Promise.all([
+        this.fetchMapEvents(),
+        this.fetchMapSubjects(),
+      ])
+        .catch((e) => {
+          console.warn('error loading map data', e);
+        })
+        .finally(() => {
+          this.fetchingMapData = false;
+        });
+    }
   }
 
   debouncedFetchMapData = debounce(this.fetchMapData, 500)
@@ -543,7 +561,7 @@ class Map extends Component {
           <TimeSliderMapControl />
         </Fragment>}
         onMoveStart={this.onMapMoveStart}
-        onMoveEnd={this.debouncedFetchMapData}
+        onMoveEnd={this.onMapMoveEnd}
         onZoom={this.onMapZoom}
         onClick={this.onMapClick}
         onMapLoaded={this.setMap} >
@@ -622,7 +640,7 @@ class Map extends Component {
 
         {timeSliderActive && <TimeSlider />}
         <ReloadOnProfileChange />
-        <SleepDetector onSleepDetected={this.debouncedFetchMapData} />
+        <SleepDetector onSleepDetected={this.onSleepDetected} />
       </EarthRangerMap>
     );
   }
