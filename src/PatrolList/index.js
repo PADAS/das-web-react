@@ -30,7 +30,6 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
     <PatrolCard
       ref={ref}
       onTitleClick={onTitleClick}
-      onTitleChange={onPatrolChange}
       onPatrolChange={onPatrolChange}
       patrol={patrol}
       map={map}

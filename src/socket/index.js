@@ -3,7 +3,7 @@ import isFunction from 'lodash/isFunction';
 
 import { store } from '../index';
 import { REACT_APP_DAS_HOST } from '../constants';
-import { events, SOCKET_RECOVERY_DISPATCHES } from './config';
+import { events } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
@@ -23,7 +23,7 @@ const stateManagedSocketEventHandler = (socket, type, callback) => {
   return socket.on(type, (payload) => {
     const { mid } = payload;
     if (!validateSocketIncrement(type, mid)) {
-      resetSocketStateTracking(socket);
+      resetSocketStateTracking();
     } else {
       updateSocketStateTrackerForEventType({ type, mid });
     }
@@ -48,7 +48,7 @@ export const pingSocket = (socket) => {
       pinged = false;
       socket.emit('echo', { data: 'ping' });
     } else {
-      resetSocketStateTracking(socket);
+      resetSocketStateTracking();
     }
   }, 30000);
   socket.emit('echo', { data: 'ping' });
@@ -69,11 +69,11 @@ const bindSocketEvents = (socket, store) => {
   });
   socket.on('disconnect', (msg) => {
     console.log('realtime: disconnected', msg);
-    resetSocketStateTracking(socket);
+    resetSocketStateTracking();
   });
   socket.on('connect_error', () => {
     console.log('realtime: connection error');
-    resetSocketStateTracking(socket);
+    resetSocketStateTracking();
   });
   socket.on('resp_authorization', ({ status }) => {
     if (status.code === 401) {
@@ -102,7 +102,6 @@ const bindSocketEvents = (socket, store) => {
 
 const resetSocketStateTracking = (socket) => {
   store.dispatch(resetSocketActivityState());
-  SOCKET_RECOVERY_DISPATCHES.forEach(actionCreator => store.dispatch(actionCreator()));
   return socket;
 };
 
@@ -111,7 +110,11 @@ export const unbindSocketEvents = (socket) => {
 };
 
 export default (url = SOCKET_URL) => {
-  const socket = io(url);
+  const socket = io(url, {
+    reconnectionDelay: 3000,        // how long to initially wait before attempting a new reconnection
+    reconnectionDelayMax: 150000,     // maximum amount of time to wait between reconnection attempts. Each attempt increases the reconnection delay by 2x along with a randomization factor
+    randomizationFactor: 0.25,
+  });
   socket._on = socket.on.bind(socket);
 
   socket.on = (eventName, oldFn) => {
