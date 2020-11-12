@@ -18,13 +18,13 @@ const TimeRangeAlert = (props) => {
 
   return <Fragment>
     <Header closeButton>
-      <Title>Invalid Patrol End Time</Title>
+      <Title>Invalid Patrol Times</Title>
     </Header>
     <Body className={styles.modal}>
       <div>
         <p>
-          This patrol can not be saved. The end of a patrol must be set to a time after 
-          the patrol start time. 
+          This patrol can not be saved. The end time of a patrol must be later than the 
+          start time. Please correct the start or end patrol time.
         </p>
       </div>
     </Body>
