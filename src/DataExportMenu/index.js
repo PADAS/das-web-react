@@ -48,7 +48,7 @@ const DataExportMenu = (props) => {
         content: DataExportModal,
         url: 'activity/events/export',
         paramString: calcEventFilterForRequest(),
-        children: isFilterModified(eventFilter) ? <div>Exported reports will only include those matching the filter criteria currently set in the Reports tab.</div> : null
+        children: <div>Exported reports will only include those matching the filter criteria currently set in the Reports tab.</div>
       },
       ...(evaluateFeatureFlag(FEATURE_FLAGS.KML_EXPORT) ? [{
         title: 'Master KML',
