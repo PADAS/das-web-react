@@ -28,13 +28,12 @@ export const getMapSubjectFeatureCollection = createSelector(
       .map(
         subject => {
           const subjectPatrols = getPatrolsForSubject(patrols, subject);
-          subject.is_on_patrol = Boolean(subjectPatrols.length);
+          subject.is_on_active_patrol = Boolean(subjectPatrols.length);
           return subject;
         }
       )
     
     const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
-    console.log({mapSubjectCollection});
     if (showInactiveRadios) return mapSubjectCollection;
     return filterInactiveRadiosFromCollection(mapSubjectCollection);
   });
