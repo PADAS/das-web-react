@@ -21,7 +21,6 @@ import { calcEventFilterForRequest } from '../utils/events';
 import { fetchCurrentUser } from '../ducks/user';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
-import { isFilterModified } from '../utils/event-filter';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
