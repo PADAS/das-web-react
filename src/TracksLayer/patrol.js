@@ -12,7 +12,13 @@ function PatrolMarker({location, location: { latitude, longitude }, is_patrol_en
   </Marker>
 }
 
-function PatrolLayer({trackData: { patrol_points, patrol_points: { start_location, end_location }}}) {
+function PatrolLayer({trackData: { patrol_points }}) {
+  if (!patrol_points) {
+    return <Fragment />;
+  }
+  
+  const { start_location, end_location } = patrol_points;
+
   console.log({patrol_points});
 
   return <Fragment>

@@ -60,25 +60,22 @@ export const trimmedVisibleTrackData = createSelector(
         const { features } = trackData.points;
         const subject = features[0].properties;
         const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
-        const { start_location, end_location, scheduled_start, scheduled_end } = subjectPatrol.patrol_segments[0];
+        
+        if (!subjectPatrol) {
+          return trackData
+        }
+
+        const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
 
         let patrol_points = {
-          start_location: start_location ? {
-            latitude: parseFloat(start_location[1]),
-            longitude: parseFloat(start_location[0]),
-            is_estimate: false
-          } : {
-            latitude: null,
-            longitude: null,
+          start_location: {
+            latitude: start_location ? parseFloat(start_location[1]) : null,
+            longitude: start_location ? parseFloat(start_location[0]) : null,
             is_estimate: false
           },
-          end_location: end_location ? {
-            latitude: parseFloat(end_location[1]),
-            longitude: parseFloat(end_location[0]),
-            is_estimate: false
-          } : {
-            latitude: null,
-            longitude: null,
+          end_location: {
+            latitude: end_location ? parseFloat(end_location[1]) : null,
+            longitude: end_location ? parseFloat(end_location[0]) : null,
             is_estimate: false
           }
         };
@@ -88,14 +85,14 @@ export const trimmedVisibleTrackData = createSelector(
             (feature) => {
               const { geometry: { coordinates }, properties: subject } = feature;
 
-              if (subject.time === scheduled_start) {
+              if (subject.time === start_time) {
                 patrol_points.start_location = {
                   longitude: parseFloat(coordinates[0]),
                   latitude: parseFloat(coordinates[1])
                 }
               }
 
-              if (subject.time === scheduled_end) {
+              if (subject.time === end_time) {
                 patrol_points.end_location = {
                   longitude: parseFloat(coordinates[0]),
                   latitude: parseFloat(coordinates[1])
