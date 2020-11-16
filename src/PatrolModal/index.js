@@ -251,7 +251,7 @@ const PatrolModal = (props) => {
       ...statePatrol,
       notes: notes.filter(n => n.text !== text),
     })
-  }, [notesToAdd]);
+  }, [statePatrol]);
 
   const onDeleteFile = useCallback((file) => {
     const { name } = file;

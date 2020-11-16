@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 import PatrolCard from '../PatrolCard';
 
 const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, patrol, updatePatrol, ...rest } = props;
+  const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     openModalForPatrol(patrol, map);
@@ -30,8 +30,8 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
     <PatrolCard
       ref={ref}
       onTitleClick={onTitleClick}
-      onTitleChange={onPatrolChange}
       onPatrolChange={onPatrolChange}
+      onSelfManagedStateChange={onStateUpdateFromCard}
       patrol={patrol}
       map={map}
       {...rest} />
@@ -45,6 +45,10 @@ const PatrolList = (props) => {
   // const scrollRef = useRef(null);
 
   const [listItems, setListItems] = useState(patrols);
+
+  const onStateUpdateFromCard = useCallback(() => {
+    setListItems(sortPatrolCards(patrols));
+  }, [patrols]);
 
   useEffect(() => {
     setListItems(sortPatrolCards(patrols));
@@ -61,6 +65,7 @@ const PatrolList = (props) => {
       {listItems.map((item, index) =>
         <ConnectedListItem
           patrol={item}
+          onStateUpdateFromCard={onStateUpdateFromCard}
           map={map}
           key={item.id}/>
       )}
