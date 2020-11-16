@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, useMemo, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
@@ -35,15 +35,22 @@ const timepointLayerLayout = {
 };
 
 const TrackLayer = (props) => {
-  const { map, onPointClick, trackData, showTimepoints, updateTrackInLegend, removeTrackFromLegend, dispatch:_dispatch, ...rest } = props;
+  const { id, map, onPointClick, linePaint = {}, trackData, showTimepoints, dispatch:_dispatch, ...rest } = props;
+
+  const trackLinePaint = useMemo(() => ({
+    ...trackLayerLinePaint,
+    ...linePaint,
+  }), [linePaint]);
 
   if (!trackData.track) return null;
 
   const { track:trackCollection, points:trackPointCollection } = trackData;
-  const trackId = trackCollection.features[0].properties.id;
+  const trackId = id || trackCollection.features[0].properties.id;
   
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
+
+
 
   const trackSourceConfig = {
     tolerance: 1.5,
@@ -67,7 +74,7 @@ const TrackLayer = (props) => {
     <DebouncedSource id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
 
     <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
-      paint={trackLayerLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
+      paint={trackLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
 
     {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
       onMouseEnter={onSymbolMouseEnter}
@@ -81,7 +88,6 @@ export default memo(TrackLayer);
 
 TrackLayer.defaultProps = {
   onPointClick(layer) {
-    console.log('clicked timepoint', layer);
   },
   showTimepoints: true,
 };
