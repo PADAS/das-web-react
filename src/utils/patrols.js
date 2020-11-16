@@ -179,6 +179,12 @@ export const getLeaderForPatrol = (patrol) => {
   return subjectStore[leader.id] || leader;
 };
 
+export const getPatrolsForSubject = (patrols, subject) => {
+  return patrols.filter(patrol => {
+    return getLeaderForPatrol(patrol)?.id === subject.id
+  });
+}
+
 export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 

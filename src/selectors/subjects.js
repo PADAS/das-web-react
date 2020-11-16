@@ -3,7 +3,7 @@ import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
 import { getUniqueSubjectGroupSubjects, pinMapSubjectsToVirtualPosition } from '../utils/subjects';
-import { getLeaderForPatrol } from '../utils/patrols';
+import { getPatrolsForSubject } from '../utils/patrols';
 
 const getPatrols = ({ data: { patrols: { results } }}) => results;
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
@@ -11,12 +11,6 @@ const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
-
-const getPatrolsForSubject = (patrols, subject) => {
-  return patrols.filter(patrol => {
-    return getLeaderForPatrol(patrol)?.id === subject.id
-  });
-}
 
 export const getMapSubjectFeatureCollection = createSelector(
   [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios, getPatrols],
@@ -28,6 +22,8 @@ export const getMapSubjectFeatureCollection = createSelector(
       .map(
         subject => {
           const subjectPatrols = getPatrolsForSubject(patrols, subject);
+          // console.log({subject, subjectPatrols});
+          // TODO refactor the below line to  check if any of the subjectPatrols are actually active.
           subject.is_on_active_patrol = Boolean(subjectPatrols.length);
           return subject;
         }

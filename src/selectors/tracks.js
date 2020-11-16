@@ -4,11 +4,13 @@ import subDays from 'date-fns/sub_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { getPatrolsForSubject } from '../utils/patrols';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
+const getPatrols = ({ data: { patrols: { results }} }) => results;
 
 export const getVisibleTrackIds = createSelector(
   [subjectTrackState],
@@ -48,12 +50,87 @@ const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEv
   });
 
 export const trimmedVisibleTrackData = createSelector(
-  [visibleTrackData, trackTimeEnvelope],
-  (trackData, timeEnvelope) => {
+  [visibleTrackData, trackTimeEnvelope, getPatrols],
+  (trackData, timeEnvelope, patrols) => {
     const { from, until } = timeEnvelope;
+    const trimmedTrackData = trackData
+    .map(trackData => trimTrackDataToTimeRange(trackData, from, until))
+    .map(
+      trackData => {
+        const { features } = trackData.points;
+        const subject = features[0].properties;
+        const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
+        const { start_location, end_location, scheduled_start, scheduled_end } = subjectPatrol.patrol_segments[0];
 
-    return trackData
-      .map(trackData => trimTrackDataToTimeRange(trackData, from, until));
+        let patrol_points = {
+          start_location: start_location ? {
+            latitude: parseFloat(start_location[1]),
+            longitude: parseFloat(start_location[0]),
+            is_estimate: false
+          } : {
+            latitude: null,
+            longitude: null,
+            is_estimate: false
+          },
+          end_location: end_location ? {
+            latitude: parseFloat(end_location[1]),
+            longitude: parseFloat(end_location[0]),
+            is_estimate: false
+          } : {
+            latitude: null,
+            longitude: null,
+            is_estimate: false
+          }
+        };
+
+        if ([start_location, end_location].includes(null)) {
+          trackData.points.features.map(
+            (feature) => {
+              const { geometry: { coordinates }, properties: subject } = feature;
+
+              if (subject.time === scheduled_start) {
+                patrol_points.start_location = {
+                  longitude: parseFloat(coordinates[0]),
+                  latitude: parseFloat(coordinates[1])
+                }
+              }
+
+              if (subject.time === scheduled_end) {
+                patrol_points.end_location = {
+                  longitude: parseFloat(coordinates[0]),
+                  latitude: parseFloat(coordinates[1])
+                }
+              }
+            }
+          );
+        }
+
+        if (!patrol_points.start_location.longitude) {
+          let coordinates = features[0].geometry.coordinates;
+          patrol_points.start_location = {
+            longitude: parseFloat(coordinates[0]),
+            latitude: parseFloat(coordinates[1]),
+            is_estimate: true,
+          }
+        }
+
+        if (!patrol_points.end_location.longitude) {
+          let coordinates = features[features.length - 1].geometry.coordinates;
+          patrol_points.end_location = {
+            longitude: parseFloat(coordinates[0]),
+            latitude: parseFloat(coordinates[1]),
+            is_estimate: true,
+          }
+        }
+
+        return {
+          ...trackData,
+          patrol_points
+        }
+      }
+    );
+
+    return trimmedTrackData
   },
 );
 

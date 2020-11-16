@@ -8,6 +8,7 @@ import { trimmedVisibleTrackData } from '../selectors/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
+import PatrolLayer from './patrol';
 import { trackEvent } from '../utils/analytics';
 
 const ARROW_IMG_ID = 'track_arrow';
@@ -33,7 +34,12 @@ const TracksLayer = (props) => {
 
   if (!trackData.length) return null;
 
-  return <Fragment>{trackData.map(data => <TrackLayer key={`track-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />)}</Fragment>;
+  return <Fragment>
+    {trackData.map(data => <Fragment>
+      <TrackLayer key={`track-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />
+      <PatrolLayer key={`patrol-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />
+    </Fragment>)}
+  </Fragment>;
 };
 
 const mapStateToProps = (state) => ({
