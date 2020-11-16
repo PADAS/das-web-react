@@ -47,6 +47,7 @@ const DataExportMenu = (props) => {
         content: DataExportModal,
         url: 'activity/events/export',
         paramString: calcEventFilterForRequest(),
+        children: <div>Exported reports will only include those matching the filter criteria currently set in the Reports tab.</div>
       },
       ...(evaluateFeatureFlag(FEATURE_FLAGS.KML_EXPORT) ? [{
         title: 'Master KML',
@@ -156,5 +157,4 @@ const DataExportMenu = (props) => {
 };
 
 const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification, user });
-
 export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences })(withRouter(DataExportMenu));
