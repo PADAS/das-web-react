@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 const PatrolDateInput = (props) => {
   const { autoCheckLabel = 'Automatic', onAutoCheckToggle, calcSubmitButtonTitle, children,
-    isAuto = false, title, value, onChange, className, startTime, ...rest } = props;
+    isAuto = false, title, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
   const [tempPopoverProps, setTempPopoverProps] = useState({});
