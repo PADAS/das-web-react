@@ -10,7 +10,9 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive } from '../utils/patrols';
+
+import { PATROL_CARD_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -29,6 +31,9 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
+
+const STARTED_LABEL = 'Started';
+const SCHEDULED_LABEL = 'Scheduled';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 
@@ -220,7 +225,7 @@ const PatrolModal = (props) => {
         setStatePatrol({
           ...statePatrol,
           notes: notes.map(n => n.text === originalText ? note : n),
-        })
+        });
         
       } else {
         setStatePatrol({
@@ -229,7 +234,7 @@ const PatrolModal = (props) => {
             ...statePatrol.notes,
             note
           ]
-        })
+        });
       }
       delete note.originalText;
     } else {
@@ -238,7 +243,7 @@ const PatrolModal = (props) => {
         notes: statePatrol.notes.map(n => n.id === note.id ? note : n),
       });
     }
-  }, [notesToAdd, statePatrol]);
+  }, [statePatrol]);
   
   const onDeleteNote = useCallback((note) => {
     const { text } = note;
@@ -248,7 +253,7 @@ const PatrolModal = (props) => {
     setStatePatrol({
       ...statePatrol,
       notes: notes.filter(n => n.text !== text),
-    })
+    });
   }, [statePatrol]);
 
   const onDeleteFile = useCallback((file) => {
@@ -332,6 +337,25 @@ const PatrolModal = (props) => {
       });
   }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
 
+  const startTimeLabel = useMemo(() => {
+    const [firstLeg] = statePatrol.patrol_segments;
+    
+    if (isSegmentActive(firstLeg)) return STARTED_LABEL;
+
+    const patrolState = calcPatrolCardState(statePatrol);
+
+    if (patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
+
+    return null;
+  }, [statePatrol]);
+
+  const startTimeLabelClass = useMemo(() => {
+    if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
+    if (startTimeLabel === SCHEDULED_LABEL) return styles.scheduledLabel;
+    return null;
+  }, [startTimeLabel]);
+
   const onCancel = useCallback(() => {
     removeModal(id);
   }, [id, removeModal]);
@@ -368,7 +392,10 @@ const PatrolModal = (props) => {
             autoCheckLabel='Auto-start patrol'
             onAutoCheckToggle={setAutoStart}
             required={true}
-          />
+          /> 
+          {startTimeLabel && <span className={startTimeLabelClass}>
+            {startTimeLabel}
+          </span>}
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
       </section>
