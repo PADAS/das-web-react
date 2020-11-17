@@ -13,6 +13,7 @@ import TrackLayer from './track';
 import { trackEvent } from '../utils/analytics';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS } from '../constants';
+import withMapViewConfig from '../WithMapViewConfig';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -65,8 +66,6 @@ const TracksLayer = (props) => {
     }
   };
 
-  console.log(JSON.stringify(patrolPointsSourceData))
-
   if (!trackData.length) return null;
 
   return <Fragment>
@@ -88,8 +87,10 @@ const mapStateToProps = (state) => ({
 
 
 export default connect(mapStateToProps, null)(withMap(
-  memo(TracksLayer),
+  memo(withMapViewConfig(TracksLayer)),
 ));
+
+// export default withMap(memo(withMapViewConfig(SubjectsLayer)));
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {

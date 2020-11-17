@@ -7,7 +7,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 
 import { Layer } from 'react-mapbox-gl';
 
-const LabeledSymbolLayer = (
+const LabeledPatrolSymbolLayer = (
   { before, paint, layout, textPaint, textLayout, id, map, 
     mapUserLayoutConfig, minZoom, onClick, onInit, onUnmount, 
     onMouseEnter, onMouseLeave, ...rest }
@@ -90,9 +90,9 @@ const LabeledSymbolLayer = (
   </Fragment>;
 };
 
-export default memo(withMapViewConfig(withMap(LabeledSymbolLayer)));
+export default memo(withMapViewConfig(withMap(LabeledPatrolSymbolLayer)));
 
-LabeledSymbolLayer.defaultProps = {
+LabeledPatrolSymbolLayer.defaultProps = {
   onInit() {
     return null;
   },
@@ -101,7 +101,7 @@ LabeledSymbolLayer.defaultProps = {
   },
 };
 
-LabeledSymbolLayer.propTypes = {
+LabeledPatrolSymbolLayer.propTypes = {
   sourceId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   onInit: PropTypes.func,
