@@ -270,14 +270,6 @@ export const isSegmentPending = (patrolSegment) => {
   || (!!start_time && addMinutes(new Date(start_time), DELTA_FOR_OVERDUE).getTime() > new Date().getTime());
 };
 
-export const displaySegmentStart = (patrolSegment) => {
-
-};
-
-export const displaySegmentEnd = (patrolSegment) => {
-
-};
-
 export const isSegmentActive = (patrolSegment) => {
   const { time_range: { start_time, end_time } } = patrolSegment;
   const nowTime = new Date().getTime();
