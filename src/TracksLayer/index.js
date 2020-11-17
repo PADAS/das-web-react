@@ -1,6 +1,8 @@
-import React, { memo, useCallback, useEffect, Fragment } from 'react';
+import React, { memo, useCallback, useEffect, Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
+import { Source } from 'react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
 import { addMapImage } from '../utils/map';
@@ -8,16 +10,22 @@ import { trimmedVisibleTrackData } from '../selectors/tracks';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
-import PatrolLayer from './patrol';
 import { trackEvent } from '../utils/analytics';
+import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
+import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS } from '../constants';
 
+const { SUBJECT_SYMBOLS } = LAYER_IDS;
+
+const symbolPaint = {
+  ...DEFAULT_SYMBOL_LAYOUT,
+};
 const ARROW_IMG_ID = 'track_arrow';
 
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const TracksLayer = (props) => {
-  const { map, onPointClick, showTimepoints, trackData } = props;
-
+  const { allowOverlap, map, mapUserLayoutConfig, onPointClick, showTimepoints, trackData } = props;
+  const [layerIds, setLayerIds] = useState([]);
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
@@ -25,6 +33,10 @@ const TracksLayer = (props) => {
     onPointClick(layer);
   }, [map, onPointClick]);
 
+  const layout = {
+    ...DEFAULT_SYMBOL_LAYOUT,
+    ...layoutConfig,
+  };
 
   useEffect(() => {
     if (!map.hasImage(ARROW_IMG_ID)) {
@@ -32,12 +44,40 @@ const TracksLayer = (props) => {
     }
   }, []); // eslint-disable-line
 
+  const onSymbolClick = () => {};
+
+  // console.log({trackData})
+
+  const layoutConfig = allowOverlap ? {
+    'icon-allow-overlap': true,
+    'text-allow-overlap': true,
+    ...mapUserLayoutConfig,
+  } : { ...mapUserLayoutConfig };
+
+  const patrolPointsSourceData = {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: [
+        trackData[0].patrol_points.start_location,
+        trackData[0].patrol_points.end_location
+      ]
+    }
+  };
+
+  console.log(JSON.stringify(patrolPointsSourceData))
+
   if (!trackData.length) return null;
 
   return <Fragment>
     {trackData.map(data => <Fragment>
       <TrackLayer key={`track-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />
-      <PatrolLayer key={`patrol-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />
+      {/* <PatrolLayer key={`patrol-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} /> */}
+      <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
+      <LabeledPatrolSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
+        id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
+        onInit={setLayerIds}
+      />
     </Fragment>)}
   </Fragment>;
 };

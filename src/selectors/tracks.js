@@ -68,16 +68,8 @@ export const trimmedVisibleTrackData = createSelector(
         const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
 
         let patrol_points = {
-          start_location: {
-            latitude: start_location ? parseFloat(start_location[1]) : null,
-            longitude: start_location ? parseFloat(start_location[0]) : null,
-            is_estimate: false
-          },
-          end_location: {
-            latitude: end_location ? parseFloat(end_location[1]) : null,
-            longitude: end_location ? parseFloat(end_location[0]) : null,
-            is_estimate: false
-          }
+          start_location: null,
+          end_location: null
         };
 
         if ([start_location, end_location].includes(null)) {
@@ -86,36 +78,49 @@ export const trimmedVisibleTrackData = createSelector(
               const { geometry: { coordinates }, properties: subject } = feature;
 
               if (subject.time === start_time) {
-                patrol_points.start_location = {
+                patrol_points.start_location_coords = {
                   longitude: parseFloat(coordinates[0]),
                   latitude: parseFloat(coordinates[1])
                 }
+                patrol_points.start_location = feature
               }
 
               if (subject.time === end_time) {
-                patrol_points.end_location = {
+                patrol_points.end_location_coords = {
                   longitude: parseFloat(coordinates[0]),
                   latitude: parseFloat(coordinates[1])
                 }
+                patrol_points.end_location = feature
               }
             }
           );
         }
 
-        if (!patrol_points.start_location.longitude) {
-          let coordinates = features[0].geometry.coordinates;
-          patrol_points.start_location = {
+        if (!patrol_points.start_location) {
+          const feature = features[features.length - 1];
+          let coordinates = feature.geometry.coordinates;
+          patrol_points.start_location_coords = {
             longitude: parseFloat(coordinates[0]),
             latitude: parseFloat(coordinates[1]),
             is_estimate: true,
           }
+          patrol_points.start_location = {
+            ...feature,
+            name: 'PATROL START!!!!',
+            is_estimate: true,
+          }
         }
 
-        if (!patrol_points.end_location.longitude) {
-          let coordinates = features[features.length - 1].geometry.coordinates;
-          patrol_points.end_location = {
+        if (!patrol_points.end_location) {
+          const feature = features[features.length - 1];
+          let coordinates = feature.geometry.coordinates;
+          patrol_points.end_location_coords = {
             longitude: parseFloat(coordinates[0]),
             latitude: parseFloat(coordinates[1]),
+            is_estimate: true,
+          }
+          patrol_points.end_location = {
+            ...feature,
             is_estimate: true,
           }
         }
