@@ -12,7 +12,7 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { displayStartTimeForPatrol, displayEndTimeForPatrol,
-  displayDurationForPatrol, displayTitleForPatrol } from '../utils/patrols';
+  displayDurationForPatrol, displayTitleForPatrol, patrolTimeRangeIsValid } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -317,15 +317,7 @@ const PatrolModal = (props) => {
       }
     });
 
-    let isValidTimeRange;
-
-    if (displayStartTime && !displayEndTime) {
-      isValidTimeRange = true;
-    } else if (displayStartTime && displayEndTime && isAfter(displayEndTime, displayStartTime)) {
-      isValidTimeRange = true;
-    }
-
-    if (!isValidTimeRange) {
+    if (!patrolTimeRangeIsValid(statePatrol)) {
       addModal({content: TimeRangeAlert});
       return;
     }
