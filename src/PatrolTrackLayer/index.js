@@ -1,9 +1,9 @@
-import { React, memo, useMemo } from 'react';
+import { React, memo, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { getLeaderForPatrol } from '../utils/patrols';
-import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { fetchTracksIfNecessary, trimTrackDataToTimeRange } from '../utils/tracks';
 
 import { withMap } from '../EarthRangerMap';
 import TrackLayer from '../TracksLayer/track';
@@ -13,12 +13,13 @@ const linePaint = {
 };
 
 const PatrolTrackLayer = (props) => {
-  const { map, patrol, showTrackTimepoints, tracks } = props;
+  const { map, patrol, showTrackTimepoints, trackLength, tracks } = props;
 
   const id = `patrol-${patrol.id}`;
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
   const leaderTrack = useMemo(() => leader && leader.id && tracks[leader.id], [leader, tracks]);
+
   const timeRange = useMemo(() => {
     const [firstLeg] = patrol.patrol_segments;
 
@@ -37,12 +38,18 @@ const PatrolTrackLayer = (props) => {
     data: patrolTrackData,
   }), [patrolTrackData]);
 
+  useEffect(() => {
+    if (leader && leader.id) {
+      fetchTracksIfNecessary([leader.id]);
+    }
+  }, [leader, trackLength]);
+
   if (!patrol) return null;
 
-  return <TrackLayer id={id} key={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackSourceData} />;
+  return <TrackLayer id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackSourceData} />;
 };
 
-const mapStateToProps = ({ data: { tracks }, view: { showTrackTimepoints } }) => ({ showTrackTimepoints, tracks });
+const mapStateToProps = ({ data: { tracks }, view: { showTrackTimepoints, trackLength } }) => ({ showTrackTimepoints, tracks });
 
 export default connect(mapStateToProps, null)(
   withMap(

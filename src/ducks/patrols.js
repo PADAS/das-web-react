@@ -10,24 +10,17 @@ const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
 
-const CREATE_PATROL_START = 'CREATE_PATROL_START';
 const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
-const CREATE_PATROL_ERROR = 'CREATE_PATROL_ERROR';
+// const CREATE_PATROL_ERROR = 'CREATE_PATROL_ERROR';
 
-const UPDATE_PATROL_START = 'UPDATE_PATROL_START';
-const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
-const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
+// const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
 
-const ADD_PATROL_NOTE_START = 'ADD_PATROL_NOTE_START';
 const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
-const ADD_PATROL_NOTE_ERROR = 'ADD_PATROL_NOTE_ERROR';
 
 const UPLOAD_PATROL_FILES_START = 'UPLOAD_PATROL_FILES_START';
 const UPLOAD_PATROL_FILES_SUCCESS = 'UPLOAD_PATROL_FILES_SUCCESS';
 const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
-const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
-const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
 
 const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
 const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
@@ -41,10 +34,7 @@ export const socketUpdatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
   console.log('patrol update', patrol_data, matches_current_filter);
   if (matches_current_filter) {
-    dispatch({
-      type: UPDATE_PATROL_REALTIME,
-      payload: patrol_data,
-    });
+    dispatch(updatePatrolStore(patrol_data));
   }
 };
 
@@ -54,10 +44,7 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
   console.log('patrol create', patrol_data, matches_current_filter);
   if (matches_current_filter) {
-    dispatch({
-      type: CREATE_PATROL_REALTIME,
-      payload: patrol_data,
-    });
+    dispatch(updatePatrolStore(patrol_data));
   }
 };
 
@@ -97,10 +84,6 @@ export const fetchPatrols = () => async (dispatch) => {
 };
 
 export const createPatrol = (patrol) => (dispatch) => {
-  dispatch({
-    type: CREATE_PATROL_START,
-    payload: patrol,
-  });
 
   return axios.post(PATROLS_API_URL, patrol)
     .then((response) => {
@@ -108,24 +91,20 @@ export const createPatrol = (patrol) => (dispatch) => {
         type: CREATE_PATROL_SUCCESS,
         payload: response.data.data,
       });
-      // dispatch(updatePatrolStore(response.data.data));
+      dispatch(updatePatrolStore(response.data.data));
       return response;
-    })
-    .catch((error) => {
+    });
+/*     .catch((error) => {
       dispatch({
         type: CREATE_PATROL_ERROR,
         payload: error,
       });
       return Promise.reject(error);
-    });
+    }); */
 };
 
 
 export const updatePatrol = (patrol) => (dispatch) => {
-  dispatch({
-    type: UPDATE_PATROL_START,
-    payload: patrol,
-  });
 
   let patrolResults;
   let resp;
@@ -144,28 +123,20 @@ export const updatePatrol = (patrol) => (dispatch) => {
           payload: patrol.id,
         });
       } else {
-        dispatch({
-          type: UPDATE_PATROL_SUCCESS,
-          payload: patrolResults,
-        });
-        dispatch(updatePatrolStore(patrol));
+        dispatch(updatePatrolStore(patrolResults));
       }
       return resp;
-    })
-    .catch((error) => {
+    });
+/*     .catch((error) => {
       dispatch({
         type: UPDATE_PATROL_ERROR,
         payload: error,
       });
       return Promise.reject(error);
-    });
+    }); */
 };
 
 export const addNoteToPatrol = (patrol_id, note) => (dispatch) => {
-  dispatch({
-    type: ADD_PATROL_NOTE_START,
-    payload: note,
-  });
   return axios.post(`${PATROLS_API_URL}${patrol_id}/notes/`, note)
     .then((response) => {
       dispatch({
@@ -173,14 +144,14 @@ export const addNoteToPatrol = (patrol_id, note) => (dispatch) => {
         payload: response.data.data,
       });
       return response;
-    })
-    .catch((error) => {
+    });
+/*     .catch((error) => {
       dispatch({
         type: ADD_PATROL_NOTE_ERROR,
         payload: error,
       });
       return Promise.reject(error);
-    });
+    }); */
 };
 
 
@@ -230,33 +201,9 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_PATROLS_SUCCESS) {
-    return payload;
-  }
-
-  if (type === UPDATE_PATROL_SUCCESS || type === UPDATE_PATROL_REALTIME) {
-    const match = state.results.findIndex(item => item.id === payload.id);
-    if (match > -1) {
-      const newResults = [...state.results];
-      newResults[match] = payload;
-
-      return {
-        ...state,
-        results: newResults,
-      };
-    }
-    return state;
-  }
-
-  if (type === CREATE_PATROL_REALTIME) {
-    const match = state.results.findIndex(item => item.id === payload.id);
-    if (match === -1) {
-      // add the patrol to patrol feed
-      const newResults = [...state.results, payload];
-      return {
-        ...state,
-        results: newResults,
-      };
-    }
+    return { payload,
+      results: payload.results.map(({ id }) => id),
+    };
   }
 
   if (type === REMOVE_PATROL_BY_ID) {
@@ -274,6 +221,18 @@ const INITIAL_STORE_STATE = {};
 export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload }) => {
   if (type === CLEAR_PATROL_DATA) {
     return { ...INITIAL_STORE_STATE };
+  }
+
+  if (type === FETCH_PATROLS_SUCCESS) {
+    const { results } = payload;
+    return {
+      ...state,
+      ...results.reduce((accumulator, item) => ({
+        ...accumulator,
+        [item.id]: item,
+      }), {}),
+    };
+    
   }
 
   if (type === UPDATE_PATROL_STORE) {
