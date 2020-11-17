@@ -1,4 +1,4 @@
-import { React, memo, useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -30,12 +30,12 @@ const PatrolTrackLayer = (props) => {
   const patrolTrackData = useMemo(() =>
     (leaderTrack && timeRange && timeRange.start_time)
       ?  trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time)
-      : 0
+      : null
   , [leaderTrack, timeRange]);
 
   const patrolTrackSourceData = useMemo(() => ({
     type: 'geojson',
-    data: patrolTrackData,
+    data: patrolTrackData && patrolTrackData,
   }), [patrolTrackData]);
 
   useEffect(() => {
@@ -44,9 +44,9 @@ const PatrolTrackLayer = (props) => {
     }
   }, [leader, trackLength]);
 
-  if (!patrol) return null;
+  if (!patrol || !patrolTrackData) return null;
 
-  return <TrackLayer id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackSourceData} />;
+  return <TrackLayer id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackData} />;
 };
 
 const mapStateToProps = ({ data: { tracks }, view: { showTrackTimepoints, trackLength } }) => ({ showTrackTimepoints, tracks });

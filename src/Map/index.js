@@ -64,6 +64,7 @@ import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
+import PatrolTracks from '../PatrolTracks';
 
 import './Map.scss';
 
@@ -595,6 +596,8 @@ class Map extends Component {
             {tracksAvailable && (
               <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
             )}
+
+            <PatrolTracks />
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
