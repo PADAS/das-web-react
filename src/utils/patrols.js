@@ -3,7 +3,6 @@ import timeDistanceInWords from 'date-fns/distance_in_words';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
-import { SEGMENT_TIME_VALIDATION } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
@@ -16,7 +15,7 @@ import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
-import { distanceInWords, isAfter } from 'date-fns';
+import distanceInWords from 'date-fns/distance_in_words';
 import { objectToParamString } from './query';
 
 
@@ -277,16 +276,6 @@ export const displaySegmentStart = (patrolSegment) => {
 
 export const displaySegmentEnd = (patrolSegment) => {
 
-};
-
-export const hasValidSegmentTime = (patrolSegment) => {
-  const startTime = displaySegmentStart(patrolSegment);
-  const endTime = displaySegmentEnd(patrolSegment);
-  if (startTime && endTime && isAfter(endTime, startTime))
-    return true;
-  if (startTime && !endTime)
-    return true;
-  return false
 };
 
 export const isSegmentActive = (patrolSegment) => {

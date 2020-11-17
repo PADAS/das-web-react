@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
+import isAfter from 'date-fns/is_after';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
@@ -10,7 +11,7 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { hasValidSegmentTime, displayStartTimeForPatrol, displayEndTimeForPatrol,
+import { displayStartTimeForPatrol, displayEndTimeForPatrol,
   displayDurationForPatrol, displayTitleForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
@@ -240,7 +241,7 @@ const PatrolModal = (props) => {
         notes: statePatrol.notes.map(n => n.id === note.id ? note : n),
       });
     }
-  }, [notesToAdd, statePatrol]);
+  }, [statePatrol]);
   
   const onDeleteNote = useCallback((note) => {
     const { text } = note;
@@ -250,7 +251,7 @@ const PatrolModal = (props) => {
     setStatePatrol({
       ...statePatrol,
       notes: notes.filter(n => n.text !== text),
-    })
+    });
   }, [statePatrol]);
 
   const onDeleteFile = useCallback((file) => {
@@ -316,9 +317,15 @@ const PatrolModal = (props) => {
       }
     });
 
-    const validTimeRange = (!!statePatrol.patrol_segments.length) 
-      && hasValidSegmentTime(statePatrol.patrol_segments[0]);
-    if (!validTimeRange) {
+    let isValidTimeRange;
+
+    if (displayStartTime && !displayEndTime) {
+      isValidTimeRange = true;
+    } else if (displayStartTime && displayEndTime && isAfter(displayEndTime, displayStartTime)) {
+      isValidTimeRange = true;
+    }
+
+    if (!isValidTimeRange) {
       addModal({content: TimeRangeAlert});
       return;
     }
@@ -339,7 +346,7 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.warn('failed to save new patrol', error);
       });
-  }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+  }, [addModal, displayEndTime, displayStartTime, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
 
   const onCancel = useCallback(() => {
     removeModal(id);
