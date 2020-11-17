@@ -55,7 +55,7 @@ const LabeledPatrolSymbolLayer = (
     ...textLayout,
     'icon-anchor': 'bottom',
     'icon-image': 'name-label-78-sdf',
-    'icon-size': 6,
+    'icon-size': 1,
     'icon-text-fit': 'both',
     'icon-text-fit-padding': [5,8,5,8],
     'text-anchor': 'top',

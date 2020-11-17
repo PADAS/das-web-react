@@ -12,13 +12,13 @@ import Arrow from '../common/images/icons/track-arrow.svg';
 import TrackLayer from './track';
 import { trackEvent } from '../utils/analytics';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
-import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS } from '../constants';
+import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 import withMapViewConfig from '../WithMapViewConfig';
 
-const { SUBJECT_SYMBOLS } = LAYER_IDS;
+const { PATROL_SYMBOLS } = LAYER_IDS;
 
 const symbolPaint = {
-  ...DEFAULT_SYMBOL_LAYOUT,
+  ...DEFAULT_SYMBOL_PAINT,
 };
 const ARROW_IMG_ID = 'track_arrow';
 
@@ -47,8 +47,6 @@ const TracksLayer = (props) => {
 
   const onSymbolClick = () => {};
 
-  // console.log({trackData})
-
   const layoutConfig = allowOverlap ? {
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
@@ -71,10 +69,9 @@ const TracksLayer = (props) => {
   return <Fragment>
     {trackData.map(data => <Fragment>
       <TrackLayer key={`track-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} />
-      {/* <PatrolLayer key={`patrol-layer-${data.track.features[0].properties.id}`} map={map} onPointClick={onTimepointClick} showTimepoints={showTimepoints} trackData={data} /> */}
       <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
       <LabeledPatrolSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
-        id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
+        id={PATROL_SYMBOLS} onClick={onSymbolClick}
         onInit={setLayerIds}
       />
     </Fragment>)}

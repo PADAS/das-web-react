@@ -88,6 +88,7 @@ export const LAYER_IDS = {
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_SYMBOLS: 'event_symbols',
   SUBJECT_SYMBOLS: 'subject_symbols',
+  PATROL_SYMBOLS: 'patrol_symbols',
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
   HEATMAP_LAYER: 'heatmap',

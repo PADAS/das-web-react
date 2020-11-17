@@ -49,6 +49,17 @@ const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEv
     return { from: trackLengthStartDate, until: null };
   });
 
+const makePatrolPoint = (feature, label) => {
+  return {
+    ...feature,
+    properties: {
+      ...feature.properties,
+      name: label,
+      title: label,
+    },
+  }
+};
+
 export const trimmedVisibleTrackData = createSelector(
   [visibleTrackData, trackTimeEnvelope, getPatrols],
   (trackData, timeEnvelope, patrols) => {
@@ -58,7 +69,13 @@ export const trimmedVisibleTrackData = createSelector(
     .map(
       trackData => {
         const { features } = trackData.points;
-        const subject = features[0].properties;
+        const feature = features[0];
+
+        if (!feature) {
+          return trackData;
+        }
+  
+        const subject = feature.properties;
         const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
         
         if (!subjectPatrol) {
@@ -75,54 +92,27 @@ export const trimmedVisibleTrackData = createSelector(
         if ([start_location, end_location].includes(null)) {
           trackData.points.features.map(
             (feature) => {
-              const { geometry: { coordinates }, properties: subject } = feature;
+              const { properties: { time } } = feature;
 
-              if (subject.time === start_time) {
-                patrol_points.start_location_coords = {
-                  longitude: parseFloat(coordinates[0]),
-                  latitude: parseFloat(coordinates[1])
-                }
-                patrol_points.start_location = feature
+              if (time === start_time) {
+                patrol_points.start_location = makePatrolPoint(feature, 'Patrol Start');
               }
 
-              if (subject.time === end_time) {
-                patrol_points.end_location_coords = {
-                  longitude: parseFloat(coordinates[0]),
-                  latitude: parseFloat(coordinates[1])
-                }
-                patrol_points.end_location = feature
+              if (time === end_time) {
+                patrol_points.end_location = makePatrolPoint(feature, 'Patrol End');
               }
             }
           );
         }
 
         if (!patrol_points.start_location) {
-          const feature = features[features.length - 1];
-          let coordinates = feature.geometry.coordinates;
-          patrol_points.start_location_coords = {
-            longitude: parseFloat(coordinates[0]),
-            latitude: parseFloat(coordinates[1]),
-            is_estimate: true,
-          }
-          patrol_points.start_location = {
-            ...feature,
-            name: 'PATROL START!!!!',
-            is_estimate: true,
-          }
+          const feature = features[0];
+          patrol_points.start_location = makePatrolPoint(feature, 'Patrol Start (Est.)');
         }
 
         if (!patrol_points.end_location) {
           const feature = features[features.length - 1];
-          let coordinates = feature.geometry.coordinates;
-          patrol_points.end_location_coords = {
-            longitude: parseFloat(coordinates[0]),
-            latitude: parseFloat(coordinates[1]),
-            is_estimate: true,
-          }
-          patrol_points.end_location = {
-            ...feature,
-            is_estimate: true,
-          }
+          patrol_points.end_location = makePatrolPoint(feature, 'Patrol End (Est.)');
         }
 
         return {
