@@ -73,7 +73,8 @@ const LabeledPatrolSymbolLayer = (
   const symbolLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     ...layout,
-    'text-field': '',
+    'text-field': '{ticker}',
+    'text-offset': [1.1, -1.1],
   };
 
   const symbolPaint = {

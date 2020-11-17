@@ -56,6 +56,7 @@ const makePatrolPoint = (feature, label) => {
       ...feature.properties,
       name: label,
       title: label,
+      ticker: 'P',
     },
   }
 };
