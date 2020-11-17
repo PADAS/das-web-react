@@ -14,9 +14,6 @@ const LabeledSymbolLayer = (
 ) => {
   const textLayerId = `${id}-labels`;
 
-  console.log({rest})
-
-
   const handleMouseEnter = (e) => {
     map.getCanvas().style.cursor = 'pointer';
     onMouseEnter && onMouseEnter(e);
