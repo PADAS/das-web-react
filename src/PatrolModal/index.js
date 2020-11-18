@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
-import isAfter from 'date-fns/is_after';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
@@ -11,8 +10,10 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { displayStartTimeForPatrol, displayEndTimeForPatrol,
-  displayDurationForPatrol, displayTitleForPatrol, patrolTimeRangeIsValid } from '../utils/patrols';
+
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid } from '../utils/patrols';
+
+import { PATROL_CARD_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -33,6 +34,9 @@ import TimeRangeAlert from './TimeRangeAlert';
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
+
+const STARTED_LABEL = 'Started';
+const SCHEDULED_LABEL = 'Scheduled';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
@@ -338,7 +342,26 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.warn('failed to save new patrol', error);
       });
-  }, [addModal, displayEndTime, displayStartTime, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+
+  const startTimeLabel = useMemo(() => {
+    const [firstLeg] = statePatrol.patrol_segments;
+    
+    if (isSegmentActive(firstLeg)) return STARTED_LABEL;
+
+    const patrolState = calcPatrolCardState(statePatrol);
+
+    if (patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
+
+    return null;
+  }, [statePatrol]);
+
+  const startTimeLabelClass = useMemo(() => {
+    if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
+    if (startTimeLabel === SCHEDULED_LABEL) return styles.scheduledLabel;
+    return null;
+  }, [startTimeLabel]);
 
   const onCancel = useCallback(() => {
     removeModal(id);
@@ -376,7 +399,10 @@ const PatrolModal = (props) => {
             autoCheckLabel='Auto-start patrol'
             onAutoCheckToggle={setAutoStart}
             required={true}
-          />
+          /> 
+          {startTimeLabel && <span className={startTimeLabelClass}>
+            {startTimeLabel}
+          </span>}
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
       </section>
