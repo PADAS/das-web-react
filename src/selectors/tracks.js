@@ -90,8 +90,12 @@ export const trimmedVisibleTrackData = createSelector(
         const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
 
         let patrol_points = {
-          start_location: makePatrolPoint(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude]),
-          end_location: makePatrolPoint(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude])
+          start_location: start_location 
+            ? makePatrolPoint(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude])
+            : null,
+          end_location: end_location
+            ? makePatrolPoint(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude])
+            : null,
         };
 
         if ([start_location, end_location].includes(null)) {
