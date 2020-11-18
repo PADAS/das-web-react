@@ -1,4 +1,5 @@
 import axios from 'axios';
+import merge from 'lodash/merge';
 import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
@@ -238,7 +239,7 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   if (type === UPDATE_PATROL_STORE) {
     const toAdd = payload.reduce((accumulator, patrol) => {
 
-      accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
+      accumulator[patrol.id] = merge(state[patrol.id] || {}, patrol);
 
       return accumulator;
     }, {});

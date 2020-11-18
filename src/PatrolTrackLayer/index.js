@@ -42,7 +42,7 @@ const PatrolTrackLayer = (props) => {
     if (leader && leader.id) {
       fetchTracksIfNecessary([leader.id]);
     }
-  }, [leader, trackLength]);
+  }, [leader, trackLength, timeRange]);
 
   if (!patrol || !patrolTrackData) return null;
 
