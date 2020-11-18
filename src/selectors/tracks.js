@@ -49,7 +49,7 @@ const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEv
     return { from: trackLengthStartDate, until: null };
   });
 
-const makePatrolPoint = (feature, label) => {
+const makePatrolPoint = (feature, label, coordinates=null) => {
   return {
     ...feature,
     properties: {
@@ -58,6 +58,10 @@ const makePatrolPoint = (feature, label) => {
       title: label,
       ticker: 'P',
     },
+    geometry: {
+      ...feature.geometry,
+      coordinates: coordinates || feature.geometry.coordinates
+    }
   }
 };
 
@@ -86,8 +90,8 @@ export const trimmedVisibleTrackData = createSelector(
         const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
 
         let patrol_points = {
-          start_location: null,
-          end_location: null
+          start_location: makePatrolPoint(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude]),
+          end_location: makePatrolPoint(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude])
         };
 
         if ([start_location, end_location].includes(null)) {
