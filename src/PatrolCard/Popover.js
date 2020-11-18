@@ -1,4 +1,5 @@
-import React, { Fragment, memo, forwardRef, useMemo } from 'react';
+import React, { useCallback, Fragment, memo, forwardRef, useMemo } from 'react';
+import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import PropTypes from 'prop-types';
@@ -13,14 +14,17 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import PatrolStartStopButton from './StartStopButton';
 
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { togglePatrolTrackState } from '../ducks/patrols';
+import { /* addHeatmapSubjects, removeHeatmapSubjects, */ toggleTrackState } from '../ducks/map-ui';
 
 import { PATROL_CARD_STATES } from '../constants';
 
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, onPatrolChange, patrol, target } = props;
+  const { container, isOpen, onPatrolChange, patrol, target, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
 
@@ -36,6 +40,14 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
+
+  const onTrackButtonClick = useCallback(async () => {
+    if (leader && leader.id) {
+      await fetchTracksIfNecessary([leader.id]);
+      toggleTrackState(leader.id);
+      togglePatrolTrackState(leader.id);
+    }
+  }, [leader, togglePatrolTrackState, toggleTrackState]);
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
@@ -61,7 +73,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   [leader, subjectLastPosition]);
 
   return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} rootClose>
-    <Popover {...props} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
+    <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
       <Popover.Content ref={ref}>
         {patrolIconId && <DasIcon type='events' iconId={patrolIconId} />}
         <h5>
@@ -79,8 +91,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
           </div>
   
           <div className={styles.controls}>
-            <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
-            <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
+            <HeatmapToggleButton disabled={!leader} showLabel={false} heatmapVisible={false} />
+            <TrackToggleButton disabled={!leader} showLabel={false} trackVisible={false} trackPinned={false} onClick={onTrackButtonClick} />
             <LocationJumpButton bypassLocationValidation={true}
               /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
           </div>
@@ -94,7 +106,11 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   </Overlay>; 
 });
 
-export default memo(PatrolCardPopover);
+
+
+export default connect(null, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, toggleTrackState }, null, {
+  forwardRef: true,
+})(memo(PatrolCardPopover));
 
 PatrolCardPopover.propTypes = {
   isOpen: PropTypes.bool.isRequired,

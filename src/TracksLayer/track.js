@@ -16,6 +16,7 @@ const trackLayerLinePaint = {
     ['has', 'stroke'], ['get', 'stroke'],
     'orange',
   ],
+  'line-opacity': 0.4,
   'line-width': ['step', ['zoom'], 1, 8, ['get', 'stroke-width']],
 };
 
@@ -35,14 +36,18 @@ const timepointLayerLayout = {
 };
 
 const TrackLayer = (props) => {
-  const { id, map, onPointClick, linePaint = {}, trackData, showTimepoints, dispatch:_dispatch, ...rest } = props;
+  const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, dispatch:_dispatch, ...rest } = props;
 
   const trackLinePaint = useMemo(() => ({
     ...trackLayerLinePaint,
     ...linePaint,
   }), [linePaint]);
 
-  if (!trackData.track) return null;
+  const trackLineLayout = useMemo(() => ({
+    ...trackLayerLineLayout,
+    ...lineLayout,
+  }), [lineLayout]);
+
 
   const { track:trackCollection, points:trackPointCollection } = trackData;
   const trackId = id || trackCollection.features[0].properties.id;
@@ -50,18 +55,18 @@ const TrackLayer = (props) => {
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
-
-
-  const trackSourceConfig = {
+  const trackSourceConfig = useMemo(() => ({
     tolerance: 1.5,
     type: 'geojson',
     data: trackCollection,
-  };
+  }), [trackCollection]);
 
-  const trackPointSourceConfig = {
+  const trackPointSourceConfig = useMemo(() => ({
     type: 'geojson',
     data: trackPointCollection,
-  };
+  }), [trackPointCollection]);
+  
+  if (!trackData.track) return null;
 
   const sourceId = `track-source-${trackId}`;
   const pointSourceId = `${sourceId}-points`;
@@ -74,7 +79,7 @@ const TrackLayer = (props) => {
     <DebouncedSource id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
 
     <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
-      paint={trackLinePaint} layout={trackLayerLineLayout} id={layerId} {...rest} />
+      paint={trackLinePaint} layout={trackLineLayout} id={layerId} {...rest} />
 
     {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
       onMouseEnter={onSymbolMouseEnter}

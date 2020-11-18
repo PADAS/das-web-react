@@ -1,6 +1,9 @@
 import axios from 'axios';
 import merge from 'lodash/merge';
+import uniq from 'lodash/uniq';
+
 import { API_URL } from '../constants';
+import { UPDATE_SUBJECT_TRACK_STATE } from './map-ui';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 import { calcPatrolFilterForRequest, 
@@ -27,6 +30,9 @@ const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
 const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
+
+const SHOW_PATROL_TRACK = 'SHOW_PATROL_TRACK';
+const HIDE_PATROL_TRACK = 'HIDE_PATROL_TRACK';
 
 
 // for now, assume that a realtime update of a patrol can
@@ -137,6 +143,15 @@ export const updatePatrol = (patrol) => (dispatch) => {
     }); */
 };
 
+
+export const togglePatrolTrackState = (id) => (dispatch, getState) => {
+  const { view: { patrolTrackState } } = getState();
+  dispatch({
+    type: patrolTrackState.includes(id) ? HIDE_PATROL_TRACK: SHOW_PATROL_TRACK,
+    payload: id,
+  });
+};
+
 export const addNoteToPatrol = (patrol_id, note) => (dispatch) => {
   return axios.post(`${PATROLS_API_URL}${patrol_id}/notes/`, note)
     .then((response) => {
@@ -239,7 +254,7 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   if (type === UPDATE_PATROL_STORE) {
     const toAdd = payload.reduce((accumulator, patrol) => {
 
-      accumulator[patrol.id] = merge(state[patrol.id] || {}, patrol);
+      accumulator[patrol.id] = merge({}, state[patrol.id] || {}, patrol);
 
       return accumulator;
     }, {});
@@ -253,3 +268,28 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
 };
 
 export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
+
+
+const INITIAL_PATROL_TRACKS_STATE = [];
+export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type, payload }) => {
+
+  if (type === UPDATE_SUBJECT_TRACK_STATE) {
+    const allVisibleTrackIDs = uniq(payload.visible, payload.pinned);
+    const toHide = state.filter(id => !allVisibleTrackIDs.includes(id));
+
+    return state.filter(id => !toHide.includes(id));
+  }
+  
+  if (type === SHOW_PATROL_TRACK) {
+    return [
+      ...state,
+      payload,
+    ];
+  }
+
+  if (type === HIDE_PATROL_TRACK) {
+    return state.filter(id => id !== payload);
+  }
+
+  return state;
+};

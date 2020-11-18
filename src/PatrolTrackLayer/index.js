@@ -29,14 +29,9 @@ const PatrolTrackLayer = (props) => {
   
   const patrolTrackData = useMemo(() =>
     (leaderTrack && timeRange && timeRange.start_time)
-      ?  trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time)
+      ?  trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time, true)
       : null
   , [leaderTrack, timeRange]);
-
-  const patrolTrackSourceData = useMemo(() => ({
-    type: 'geojson',
-    data: patrolTrackData && patrolTrackData,
-  }), [patrolTrackData]);
 
   useEffect(() => {
     if (leader && leader.id) {
@@ -46,7 +41,9 @@ const PatrolTrackLayer = (props) => {
 
   if (!patrol || !patrolTrackData) return null;
 
-  return <TrackLayer id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackData} />;
+  console.log('patrolTrackData', patrolTrackData);
+
+  return <TrackLayer key={id} id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackData} />;
 };
 
 const mapStateToProps = ({ data: { tracks }, view: { showTrackTimepoints, trackLength } }) => ({ showTrackTimepoints, tracks });
