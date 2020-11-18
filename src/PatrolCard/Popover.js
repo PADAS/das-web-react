@@ -45,9 +45,9 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
     if (leader && leader.id) {
       await fetchTracksIfNecessary([leader.id]);
       toggleTrackState(leader.id);
-      togglePatrolTrackState(leader.id);
+      togglePatrolTrackState(patrol.id);
     }
-  }, [leader, togglePatrolTrackState, toggleTrackState]);
+  }, [leader, patrol.id, togglePatrolTrackState, toggleTrackState]);
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 

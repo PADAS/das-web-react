@@ -9,7 +9,9 @@ import { withMap } from '../EarthRangerMap';
 import TrackLayer from '../TracksLayer/track';
 
 const linePaint = {
-  'line-width': ['step', ['zoom'], 2, 8, ['+',['get', 'stroke-width'], 1]],
+  'line-width': ['step', ['zoom'], 2, 8, ['+',['get', 'stroke-width'], 1.5]],
+  'line-offset': -0.75,
+  'line-opacity': 1,
 };
 
 const PatrolTrackLayer = (props) => {
@@ -43,7 +45,7 @@ const PatrolTrackLayer = (props) => {
 
   console.log('patrolTrackData', patrolTrackData);
 
-  return <TrackLayer key={id} id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} trackData={patrolTrackData} />;
+  return <TrackLayer key={id} id={id} linePaint={linePaint} map={map} showTimepoints={false} trackData={patrolTrackData} />;
 };
 
 const mapStateToProps = ({ data: { tracks }, view: { showTrackTimepoints, trackLength } }) => ({ showTrackTimepoints, tracks });

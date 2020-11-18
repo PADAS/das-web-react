@@ -15,13 +15,10 @@ export const getPatrolList = createSelector(
 
 export const getPatrolTrackList = createSelector(
   [getPatrolStore, getPatrolTrackState],
-  (store, patrolTrackIds) => {
-    const asEntries = Object.entries(store);
-
-    const toTrack = asEntries.filter(([_key, value]) => {
-      const leader = getLeaderForPatrol(value);
-      return leader && patrolTrackIds.includes(leader.id);
-    }).map(([, value]) => value);
-    return toTrack;
-  },
+  (store, patrolIdsToTrack) => patrolIdsToTrack
+    .map((id) => store[id])
+    .filter((patrol) => {
+      const leader = getLeaderForPatrol(patrol);
+      return !!leader;
+    })
 );

@@ -3,7 +3,6 @@ import merge from 'lodash/merge';
 import uniq from 'lodash/uniq';
 
 import { API_URL } from '../constants';
-import { UPDATE_SUBJECT_TRACK_STATE } from './map-ui';
 
 import globallyResettableReducer from '../reducers/global-resettable';
 import { calcPatrolFilterForRequest, 
@@ -272,13 +271,6 @@ export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
 
 const INITIAL_PATROL_TRACKS_STATE = [];
 export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type, payload }) => {
-
-  if (type === UPDATE_SUBJECT_TRACK_STATE) {
-    const allVisibleTrackIDs = uniq(payload.visible, payload.pinned);
-    const toHide = state.filter(id => !allVisibleTrackIDs.includes(id));
-
-    return state.filter(id => !toHide.includes(id));
-  }
   
   if (type === SHOW_PATROL_TRACK) {
     return [
