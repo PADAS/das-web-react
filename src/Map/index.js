@@ -29,6 +29,7 @@ import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../u
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
+import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
@@ -402,14 +403,17 @@ class Map extends Component {
   })
 
   hideUnpinnedTrackLayers(map, event) {
-    const { updateTrackState, subjectTrackState: { visible } } = this.props;
+    const { updatePatrolTrackState, updateTrackState, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
 
     const clickedLayerIDs = map.queryRenderedFeatures(event.point)
       .filter(({ properties }) => !!properties && properties.id)
       .map(({ properties: { id } }) => id);
 
-    return updateTrackState({
+    updateTrackState({
+      visible: visible.filter(id => clickedLayerIDs.includes(id)),
+    });
+    updatePatrolTrackState({
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
   }
@@ -597,7 +601,7 @@ class Map extends Component {
               <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
             )}
 
-            <PatrolTracks />
+            <PatrolTracks onPointClick={this.onTimepointClick} />
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
@@ -682,6 +686,7 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,
+  updatePatrolTrackState,
   updateHeatmapSubjects,
 }
 )(withSocketConnection(withMap(withRouter(Map))));

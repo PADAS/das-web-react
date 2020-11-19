@@ -16,7 +16,6 @@ const trackLayerLinePaint = {
     ['has', 'stroke'], ['get', 'stroke'],
     'orange',
   ],
-  'line-opacity': 0.4,
   'line-width': ['step', ['zoom'], 1, 8, ['get', 'stroke-width']],
 };
 
@@ -36,7 +35,7 @@ const timepointLayerLayout = {
 };
 
 const TrackLayer = (props) => {
-  const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, dispatch:_dispatch, ...rest } = props;
+  const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch:_dispatch, ...rest } = props;
 
   const trackLinePaint = useMemo(() => ({
     ...trackLayerLinePaint,
@@ -47,6 +46,8 @@ const TrackLayer = (props) => {
     ...trackLayerLineLayout,
     ...lineLayout,
   }), [lineLayout]);
+
+  const layerBefore = useMemo(() => before || SUBJECT_SYMBOLS, [before]);
 
 
   const { track:trackCollection, points:trackPointCollection } = trackData;
@@ -78,10 +79,10 @@ const TrackLayer = (props) => {
     <Source id={sourceId} geoJsonSource={trackSourceConfig} />
     <DebouncedSource id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
 
-    <Layer sourceId={sourceId} type='line' before={SUBJECT_SYMBOLS}
+    <Layer sourceId={sourceId} type='line' before={layerBefore}
       paint={trackLinePaint} layout={trackLineLayout} id={layerId} {...rest} />
 
-    {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={SUBJECT_SYMBOLS}
+    {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={layerBefore}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
       onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}

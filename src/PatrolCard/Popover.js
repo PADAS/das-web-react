@@ -24,7 +24,7 @@ import { PATROL_CARD_STATES } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, onPatrolChange, patrol, target, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
+  const { container, isOpen, onPatrolChange, patrol, patrolTrackState, target, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
 
@@ -72,6 +72,9 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   ), 
   [leader, subjectLastPosition]);
 
+  const trackPinned = useMemo(() => patrolTrackState.pinned.includes(patrol.id), [patrol.id, patrolTrackState.pinned]);
+  const trackVisible = useMemo(() => !trackPinned && patrolTrackState.visible.includes(patrol.id), [patrol.id, patrolTrackState.visible, trackPinned]);
+
   return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
       <Popover.Content ref={ref}>
@@ -92,7 +95,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   
           <div className={styles.controls}>
             <HeatmapToggleButton disabled={!leader} showLabel={false} heatmapVisible={false} />
-            <TrackToggleButton disabled={!leader} showLabel={false} trackVisible={false} trackPinned={false} onClick={onTrackButtonClick} />
+            <TrackToggleButton disabled={!leader} showLabel={false} trackVisible={trackVisible} trackPinned={trackPinned} onClick={onTrackButtonClick} />
             <LocationJumpButton bypassLocationValidation={true}
               /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
           </div>
@@ -106,9 +109,10 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   </Overlay>; 
 });
 
+const mapStateToProps = ({ view: { patrolTrackState } }) => ({ patrolTrackState });
 
 
-export default connect(null, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, toggleTrackState }, null, {
+export default connect(mapStateToProps, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, toggleTrackState }, null, {
   forwardRef: true,
 })(memo(PatrolCardPopover));
 

@@ -1,12 +1,11 @@
 import axios from 'axios';
 import merge from 'lodash/merge';
-import uniq from 'lodash/uniq';
 
 import { API_URL } from '../constants';
 
 import globallyResettableReducer from '../reducers/global-resettable';
-import { calcPatrolFilterForRequest, 
-  validatePatrolAgainstCurrentPatrolFilter } from '../utils/patrol-filter';
+import { calcPatrolFilterForRequest/* , 
+  validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
@@ -30,8 +29,7 @@ const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
-const SHOW_PATROL_TRACK = 'SHOW_PATROL_TRACK';
-const HIDE_PATROL_TRACK = 'HIDE_PATROL_TRACK';
+const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
 
 
 // for now, assume that a realtime update of a patrol can
@@ -142,15 +140,29 @@ export const updatePatrol = (patrol) => (dispatch) => {
     }); */
 };
 
+export const updatePatrolTrackState = payload => ({
+  type: UPDATE_PATROL_TRACK_STATE, payload,
+});
 
 export const togglePatrolTrackState = (id) => (dispatch, getState) => {
-  const { view: { patrolTrackState } } = getState();
-  dispatch({
-    type: patrolTrackState.includes(id) ? HIDE_PATROL_TRACK: SHOW_PATROL_TRACK,
-    payload: id,
-  });
-};
+  const { view: { patrolTrackState: { pinned, visible } } } = getState();
+  if (pinned.includes(id)) {
+    return dispatch(updatePatrolTrackState({
+      pinned: pinned.filter(item => item !== id),
+      visible: visible.filter(item => item !== id),
+    }));
+  }
+  if (visible.includes(id)) {
+    return dispatch(updatePatrolTrackState({
+      pinned: [...pinned, id],
+      visible: visible.filter(item => item !== id),
+    }));
+  }
+  return dispatch(updatePatrolTrackState({
+    visible: [...visible, id],
+  }));
 
+};
 export const addNoteToPatrol = (patrol_id, note) => (dispatch) => {
   return axios.post(`${PATROLS_API_URL}${patrol_id}/notes/`, note)
     .then((response) => {
@@ -269,18 +281,18 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
 export default globallyResettableReducer(patrolsReducer, INITIAL_PATROLS_STATE);
 
 
-const INITIAL_PATROL_TRACKS_STATE = [];
-export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type, payload }) => {
-  
-  if (type === SHOW_PATROL_TRACK) {
-    return [
-      ...state,
-      payload,
-    ];
-  }
+const INITIAL_PATROL_TRACKS_STATE = {
+  pinned: [],
+  visible: [],
+};
 
-  if (type === HIDE_PATROL_TRACK) {
-    return state.filter(id => id !== payload);
+export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type, payload }) => {
+
+  if (type === UPDATE_PATROL_TRACK_STATE) {
+    return {
+      ...state,
+      ...payload,
+    };
   }
 
   return state;

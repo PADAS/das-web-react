@@ -6,9 +6,9 @@ import { getPatrolTrackList } from '../selectors/patrols';
 import PatrolTrackLayer from '../PatrolTrackLayer';
 
 const PatrolTracks = (props) => {
-  const { patrols } = props;
+  const { patrols, dispatch:_dispatch, ...rest } = props;
 
-  return <Fragment>{patrols.map(patrol => <PatrolTrackLayer key={patrol.id} patrol={patrol} />)}</Fragment>;
+  return <Fragment>{patrols.map(patrol => <PatrolTrackLayer key={patrol.id} patrol={patrol} {...rest} />)}</Fragment>;
 
 };
 
