@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, memo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
@@ -105,13 +105,13 @@ const SideBar = (props) => {
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
 
-  const loadFeedEvents = () => {
+  const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
     return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
       .then(() => {
         setEventLoadState(false);
       });
-  };
+  }, [fetchEventFeed, optionalFeedProps]);
 
   useEffect(() => {
     loadFeedEvents();

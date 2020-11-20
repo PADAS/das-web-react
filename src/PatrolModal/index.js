@@ -10,7 +10,10 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
+
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid } from '../utils/patrols';
+
+import { PATROL_CARD_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -26,12 +29,16 @@ import PatrolDateInput from './DateInput';
 
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
+import TimeRangeAlert from './TimeRangeAlert';
+
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 
-const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
+const STARTED_LABEL = 'Started';
+const SCHEDULED_LABEL = 'Scheduled';
 
+const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
   const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
@@ -220,7 +227,7 @@ const PatrolModal = (props) => {
         setStatePatrol({
           ...statePatrol,
           notes: notes.map(n => n.text === originalText ? note : n),
-        })
+        });
         
       } else {
         setStatePatrol({
@@ -229,7 +236,7 @@ const PatrolModal = (props) => {
             ...statePatrol.notes,
             note
           ]
-        })
+        });
       }
       delete note.originalText;
     } else {
@@ -238,7 +245,7 @@ const PatrolModal = (props) => {
         notes: statePatrol.notes.map(n => n.id === note.id ? note : n),
       });
     }
-  }, [notesToAdd, statePatrol]);
+  }, [statePatrol]);
   
   const onDeleteNote = useCallback((note) => {
     const { text } = note;
@@ -248,8 +255,8 @@ const PatrolModal = (props) => {
     setStatePatrol({
       ...statePatrol,
       notes: notes.filter(n => n.text !== text),
-    })
-  }, [notesToAdd]);
+    });
+  }, [statePatrol]);
 
   const onDeleteFile = useCallback((file) => {
     const { name } = file;
@@ -314,6 +321,11 @@ const PatrolModal = (props) => {
       }
     });
 
+    if (!patrolTimeRangeIsValid(statePatrol)) {
+      addModal({content: TimeRangeAlert});
+      return;
+    }
+
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
     return executeSaveActions(actions)
@@ -330,7 +342,26 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.warn('failed to save new patrol', error);
       });
-  }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+
+  const startTimeLabel = useMemo(() => {
+    const [firstLeg] = statePatrol.patrol_segments;
+    
+    if (isSegmentActive(firstLeg)) return STARTED_LABEL;
+
+    const patrolState = calcPatrolCardState(statePatrol);
+
+    if (patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
+
+    return null;
+  }, [statePatrol]);
+
+  const startTimeLabelClass = useMemo(() => {
+    if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
+    if (startTimeLabel === SCHEDULED_LABEL) return styles.scheduledLabel;
+    return null;
+  }, [startTimeLabel]);
 
   const onCancel = useCallback(() => {
     removeModal(id);
@@ -368,7 +399,10 @@ const PatrolModal = (props) => {
             autoCheckLabel='Auto-start patrol'
             onAutoCheckToggle={setAutoStart}
             required={true}
-          />
+          /> 
+          {startTimeLabel && <span className={startTimeLabelClass}>
+            {startTimeLabel}
+          </span>}
         </div>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
       </section>
@@ -397,6 +431,7 @@ const PatrolModal = (props) => {
             isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
+            startTime={displayStartTime}
             onAutoCheckToggle={setAutoEnd}
             autoCheckLabel='Auto-end patrol'
             required={true}

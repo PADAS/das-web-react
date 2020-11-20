@@ -1,5 +1,4 @@
 import React from 'react';
-import timeDistanceInWords from 'date-fns/distance_in_words';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
@@ -15,7 +14,8 @@ import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
 import TimeElapsed from '../TimeElapsed';
-import { distanceInWords } from 'date-fns';
+import distanceInWords from 'date-fns/distance_in_words';
+import isAfter from 'date-fns/is_after';
 import { objectToParamString } from './query';
 
 
@@ -205,7 +205,7 @@ export const displayDurationForPatrol = (patrol) => {
     return <TimeElapsed date={displayStartTime} />;
   }
 
-  return timeDistanceInWords(displayStartTime, displayEndTime);
+  return distanceInWords(displayStartTime, displayEndTime);
 };
 
 export const PATROL_SAVE_ACTIONS = {
@@ -306,8 +306,6 @@ export const displayPatrolDoneTime = (patrol) => {
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
-
-
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
@@ -369,4 +367,18 @@ export const sortPatrolCards = (patrols) => {
   const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+};
+
+export const patrolTimeRangeIsValid = (patrol) => {
+  const startTime = displayStartTimeForPatrol(patrol);
+  const endTime = displayEndTimeForPatrol(patrol);
+
+  if (startTime && !endTime) {
+    return true;
+  } else if (startTime && endTime && isAfter(endTime, startTime)) {
+    return true;
+  }
+
+  return false;
+  
 };

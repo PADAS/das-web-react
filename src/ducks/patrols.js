@@ -36,7 +36,7 @@ const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
 // use the same reducer as the results of the restful updat
 export const socketUpdatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
-  console.log('patrol update', patrol_data, matches_current_filter);
+  console.log('patrol_update', patrol_data, matches_current_filter);
   if (matches_current_filter) {
     dispatch(updatePatrolStore(patrol_data));
   }
@@ -46,7 +46,7 @@ export const socketUpdatePatrol = (payload) => (dispatch) => {
 // can use the same reducer
 export const socketCreatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
-  console.log('patrol create', patrol_data, matches_current_filter);
+  console.log('patrol_create', patrol_data, matches_current_filter);
   if (matches_current_filter) {
     dispatch(updatePatrolStore(patrol_data));
   }
