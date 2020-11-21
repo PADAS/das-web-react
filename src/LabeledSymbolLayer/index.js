@@ -60,6 +60,7 @@ const LabeledSymbolLayer = (
     'text-anchor': 'top',
     ...mapUserLayoutConfig,
     'text-offset': [0, 1.1],
+    ...rest.labelLayout
   };
 
   const labelPaint = {
@@ -67,17 +68,20 @@ const LabeledSymbolLayer = (
     'icon-opacity': 0.5,
     'icon-color': '#ffffff',
     ...textPaint,
+    ...rest.labelPaint
   };
 
   const symbolLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     ...layout,
     'text-field': '',
+    ...rest.symbolLayout
   };
 
   const symbolPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     ...paint,
+    ...rest.symbolPaint
   };
 
   return id && <Fragment>
