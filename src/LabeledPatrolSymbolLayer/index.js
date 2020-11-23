@@ -16,7 +16,8 @@ function LabeledPatrolSymbolLayer(
   return <LabeledSymbolLayer 
     id={id}
     symbolLayout={symbolLayout}
-    {...rest} />;
+    {...rest} 
+  />;
 }
 
 export default memo(withMapViewConfig(withMap(LabeledPatrolSymbolLayer)));

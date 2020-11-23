@@ -40,6 +40,7 @@ import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
+import PatrolsLayer from '../PatrolsLayer'
 import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
@@ -593,7 +594,10 @@ class Map extends Component {
             {showReportHeatmap && <ReportsHeatLayer />}
 
             {tracksAvailable && (
-              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
+              <Fragment>
+                <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
+                <PatrolsLayer />
+              </Fragment>
             )}
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}

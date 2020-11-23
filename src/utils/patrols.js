@@ -376,3 +376,73 @@ export const sortPatrolCards = (patrols) => {
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
+
+export const makePatrolPointFromFeature = (feature, label, coordinates=null) => {
+  return {
+    ...feature,
+    properties: {
+      ...feature.properties,
+      name: label,
+      title: label,
+    },
+    geometry: {
+      ...feature?.geometry,
+      coordinates: coordinates || feature?.geometry?.coordinates
+    }
+  }
+};
+
+export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
+  const { features } = trackData.points;
+  const feature = features[0];
+
+  if (!feature) {
+    return trackData;
+  }
+
+  const subject = feature.properties;
+  const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
+  
+  if (!subjectPatrol) {
+    return trackData
+  }
+
+  const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
+
+  let patrol_points = {
+    start_location: start_location 
+      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude])
+      : null,
+    end_location: end_location
+      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude])
+      : null,
+  };
+
+  if ([start_location, end_location].includes(null)) {
+    trackData.points.features.map(
+      (feature) => {
+        const { properties: { time } } = feature;
+
+        if (time === start_time) {
+          patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start');
+        }
+
+        if (time === end_time) {
+          patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End');
+        }
+      }
+    );
+  }
+
+  if (!patrol_points.start_location) {
+    const feature = features[0];
+    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)');
+  }
+
+  if (!patrol_points.end_location) {
+    const feature = features[features.length - 1];
+    patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)');
+  }
+
+  return patrol_points
+}
