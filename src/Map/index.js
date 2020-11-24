@@ -22,7 +22,7 @@ import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getVisibleTrackIds } from '../selectors/tracks';
-import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning, getSubjectsOnActivePatrol } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
@@ -516,7 +516,7 @@ class Map extends Component {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
-      timeSliderState: { active: timeSliderActive } } = this.props;
+      subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
 
@@ -572,6 +572,7 @@ class Map extends Component {
               allowOverlap={timeSliderActive}
               mapImages={mapImages}
               subjects={mapSubjectFeatureCollection}
+              subjectsOnActivePatrol={subjectsOnActivePatrol}
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
@@ -660,6 +661,7 @@ const mapStatetoProps = (state, props) => {
     mapImages: state.view.mapImages,
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
+    subjectsOnActivePatrol: getSubjectsOnActivePatrol(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,

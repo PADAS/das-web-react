@@ -81,7 +81,7 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
 
       return <Fragment key={index}>
         <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
-        <LabeledPatrolSymbolLayer labelPaint={labelPaint} layout={layout} symbolPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
+        <LabeledPatrolSymbolLayer symbolLayout={null} labelPaint={labelPaint} layout={layout} symbolPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
           id={PATROL_SYMBOLS} onClick={onSymbolClick}
           onInit={setLayerIds}
         />

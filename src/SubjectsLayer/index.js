@@ -12,6 +12,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -20,7 +21,7 @@ const symbolPaint = {
 };
 
 const SubjectsLayer = (props) => {
-  const { allowOverlap, mapUserLayoutConfig, onSubjectIconClick, subjects, map, mapImages = {} } = props;
+  const { allowOverlap, mapUserLayoutConfig, onSubjectIconClick, subjects, subjectsOnActivePatrol, map, mapImages = {} } = props;
 
   const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
@@ -29,6 +30,11 @@ const SubjectsLayer = (props) => {
   const sourceData = {
     type: 'geojson',
     data: mapSubjectFeatures,
+  };
+
+  const sourceDataForActivePatrol = {
+    type: 'geojson',
+    data: subjectsOnActivePatrol,
   };
 
   const layoutConfig = allowOverlap ? {
@@ -68,6 +74,10 @@ const SubjectsLayer = (props) => {
     <LabeledSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
       onInit={setLayerIds}
+    />
+    <Source id='subjects-on-active-patrol-symbol-source' geoJsonSource={sourceDataForActivePatrol} />
+    <LabeledPatrolSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='subjects-on-active-patrol-symbol-source' type='symbol'
+      id={'subjects-on-active-patrols'}
     />
   </Fragment>;
 };
