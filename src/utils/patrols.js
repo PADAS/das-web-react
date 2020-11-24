@@ -460,10 +460,15 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
     patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)');
   }
 
-  patrol_points.are_start_and_end_locations_the_same = isEqual(
+  patrol_points.is_patrol_active = calcPatrolCardState(subjectPatrol).title === 'Active';
+  if (patrol_points.is_patrol_active) delete patrol_points.end_location
+
+  patrol_points.are_start_and_end_locations_the_same = patrol_points.end_location && isEqual(
     normalizeCoordinates(patrol_points.end_location.geometry.coordinates),
     normalizeCoordinates(patrol_points.start_location.geometry.coordinates)
   );
+
+  console.log({patrol_points})
 
   return patrol_points
 }
