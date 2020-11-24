@@ -1,4 +1,5 @@
 import React from 'react';
+import isEqual from 'react-fast-compare';
 import timeDistanceInWords from 'date-fns/distance_in_words';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
@@ -392,19 +393,29 @@ export const makePatrolPointFromFeature = (feature, label, coordinates=null) => 
   }
 };
 
+const normalizeCoordinates = (coordinates) => {
+  return coordinates.map(
+    value => parseFloat(value).toFixed(4)
+  )
+}
+
+const normalizeTime = (time) => {
+  return new Date(time);
+}
+
 export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
   const { features } = trackData.points;
   const feature = features[0];
 
   if (!feature) {
-    return trackData;
+    return null;
   }
 
   const subject = feature.properties;
   const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
   
   if (!subjectPatrol) {
-    return trackData
+    return null
   }
 
   const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
@@ -418,20 +429,30 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
       : null,
   };
 
+  const endTime = normalizeTime(end_time);
+  const startTime = normalizeTime(start_time);
+
   if ([start_location, end_location].includes(null)) {
     trackData.points.features.map(
       (feature) => {
         const { properties: { time } } = feature;
 
-        if (time === start_time) {
+        const normalizedFeatureTime = normalizeTime(time);
+
+        if (normalizedFeatureTime === startTime) {
           patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start');
         }
 
-        if (time === end_time) {
+        if (normalizedFeatureTime === endTime) {
           patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End');
         }
       }
     );
+  }
+
+  if (!patrol_points.start_location) {
+    const feature = features[features.length - 1];
+    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)');
   }
 
   if (!patrol_points.end_location) {
@@ -439,10 +460,10 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
     patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)');
   }
 
-  if (!patrol_points.start_location) {
-    const feature = features[features.length - 1];
-    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)');
-  }
+  patrol_points.are_start_and_end_locations_the_same = isEqual(
+    normalizeCoordinates(patrol_points.end_location.geometry.coordinates),
+    normalizeCoordinates(patrol_points.start_location.geometry.coordinates)
+  );
 
   return patrol_points
 }

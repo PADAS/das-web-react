@@ -4,7 +4,6 @@ import subDays from 'date-fns/sub_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
-import { getPatrolsForSubject } from '../utils/patrols';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;

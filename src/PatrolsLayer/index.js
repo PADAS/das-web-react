@@ -41,26 +41,39 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
   return <Fragment>
     {trackData.map((data, index) => {
 
-      const patrolPoints = extractPatrolPointsFromTrackData(data, patrols)
+      const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
+
+      if (!patrolPoints) return <Fragment />
+
+      const patrolPointFeatures = patrolPoints.are_start_and_end_locations_the_same ? [
+        {
+          ...patrolPoints.start_location,
+          properties: {
+            ...patrolPoints.start_location.properties,
+            title: `${patrolPoints.start_location.properties.title} & ${patrolPoints.end_location.properties.title}`
+          }
+        },
+      ] : [
+        patrolPoints.start_location,
+        patrolPoints.end_location,
+      ];
 
       const patrolPointsSourceData = {
         type: "geojson",
         data: {
           type: "FeatureCollection",
-          features: [
-            patrolPoints.start_location,
-            patrolPoints.end_location
-          ]
+          features: patrolPointFeatures
         }
       };
 
-      const labelLayout = {
-        'text-offset': [0, 3.5]
+      const labelPaint = {
+        'icon-color': patrolPoints.start_location.properties.stroke,
+        'icon-opacity': 1,
       };
 
       return <Fragment key={index}>
         <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
-        <LabeledPatrolSymbolLayer labelLayout={labelLayout} layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
+        <LabeledPatrolSymbolLayer labelPaint={labelPaint} layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
           id={PATROL_SYMBOLS} onClick={onSymbolClick}
           onInit={setLayerIds}
         />
