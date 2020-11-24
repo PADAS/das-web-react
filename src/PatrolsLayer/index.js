@@ -23,6 +23,16 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
 
   const symbolPaint = {
     ...DEFAULT_SYMBOL_PAINT,
+    'text-color': '#ffffff',
+    'text-halo-blur': 0.5,
+    'text-halo-color': 'rgba(0,0,0,0.7)',
+    'text-halo-width': 0.5,
+  };
+
+  const labelPaint = {
+    'icon-opacity': 1,
+    'text-color': '#ffffff',
+    'text-halo-color': 'rgba(0,0,0,0.7)',
   };
 
   const layoutConfig = allowOverlap ? {
@@ -66,14 +76,12 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
         }
       };
 
-      const labelPaint = {
-        'icon-color': patrolPoints.start_location.properties.stroke,
-        'icon-opacity': 1,
-      };
+      symbolPaint['text-color'] = patrolPoints.start_location.properties.stroke;
+      labelPaint['icon-color'] = patrolPoints.start_location.properties.stroke;
 
       return <Fragment key={index}>
         <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
-        <LabeledPatrolSymbolLayer labelPaint={labelPaint} layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
+        <LabeledPatrolSymbolLayer labelPaint={labelPaint} layout={layout} symbolPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
           id={PATROL_SYMBOLS} onClick={onSymbolClick}
           onInit={setLayerIds}
         />
