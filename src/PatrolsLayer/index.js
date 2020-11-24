@@ -54,9 +54,13 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
         }
       };
 
+      const labelLayout = {
+        'text-offset': [0, 3.5]
+      };
+
       return <Fragment key={index}>
         <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
-        <LabeledPatrolSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
+        <LabeledPatrolSymbolLayer labelLayout={labelLayout} layout={layout} textPaint={symbolPaint} sourceId='patrol-symbol-source' type='symbol'
           id={PATROL_SYMBOLS} onClick={onSymbolClick}
           onInit={setLayerIds}
         />

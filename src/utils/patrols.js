@@ -434,14 +434,14 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
     );
   }
 
-  if (!patrol_points.start_location) {
+  if (!patrol_points.end_location) {
     const feature = features[0];
-    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)');
+    patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)');
   }
 
-  if (!patrol_points.end_location) {
+  if (!patrol_points.start_location) {
     const feature = features[features.length - 1];
-    patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)');
+    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)');
   }
 
   return patrol_points
