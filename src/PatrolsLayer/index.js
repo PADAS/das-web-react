@@ -72,7 +72,7 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
         type: "geojson",
         data: {
           type: "FeatureCollection",
-          features: patrolPointFeatures.filter(value => value)
+          features: patrolPointFeatures.filter(value => Boolean(value))
         }
       };
 
