@@ -10,7 +10,7 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol } from '../utils/patrols';
+import { displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -46,6 +46,8 @@ const PatrolModal = (props) => {
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol, false), [statePatrol]);
+
+  const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -339,7 +341,7 @@ const PatrolModal = (props) => {
   return <EditableItem data={statePatrol}>
     <Modal>
       <Header 
-        icon={<DasIcon type='events' iconId='fence-patrol-icon' />}
+        icon={<DasIcon type='events' iconId={patrolIconId} />}
         title={displayTitle}
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
