@@ -1,6 +1,6 @@
 import { SOCKET_HEALTHY_STATUS, SOCKET_UNHEALTHY_STATUS, SOCKET_WARNING_STATUS, SOCKET_SERVICE_STATUS } from '../ducks/system-status';
-import { SOCKET_SUBJECT_STATUS, fetchMapSubjects } from '../ducks/subjects';
-import { socketEventData, fetchMapEvents } from '../ducks/events';
+import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
+import { socketEventData } from '../ducks/events';
 import { socketUpdatePatrol, socketCreatePatrol, socketDeletePatrol } from '../ducks/patrols';
 
 const SOCKET_DISPATCHES = {
@@ -20,7 +20,5 @@ const SOCKET_DISPATCHES = {
   update_patrol: [socketUpdatePatrol, SOCKET_HEALTHY_STATUS],
   delete_patrol: [socketDeletePatrol, SOCKET_HEALTHY_STATUS],
 };
-
-export const SOCKET_RECOVERY_DISPATCHES = [fetchMapSubjects, fetchMapEvents];
 
 export { SOCKET_DISPATCHES as events };

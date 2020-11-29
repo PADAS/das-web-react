@@ -21,14 +21,16 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import styles from './styles.module.scss';
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { patrol, onTitleClick, onPatrolChange, dispatch:_dispatch, ...rest } = props;
+  const { patrol, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
 
   const menuRef = useRef(null);
   const cardRef = useRef(ref || null);
   const popoverRef = useRef(null);
   const stateTitleRef = useRef(null);
 
-  const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
+  const intervalRef = useRef(null);
+
+  const [patrolState, setPatrolState] = useState(calcPatrolCardState(patrol));
 
   const patrolIsCancelled = useMemo(() =>
     patrolState === PATROL_CARD_STATES.CANCELLED
@@ -112,6 +114,25 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       setPopoverState(false);
     }
   }, [patrolIsCancelled]);
+
+  useEffect(() => {
+    window.clearInterval(intervalRef.current);
+
+    intervalRef.current = window.setInterval(() => {
+      const currentState = calcPatrolCardState(patrol);
+      if (currentState !== patrolState) {
+        setPatrolState(currentState);
+        onSelfManagedStateChange(patrol);
+      }
+    }, 3000);
+
+    return () => window.clearInterval(intervalRef.current);
+
+  }, [onSelfManagedStateChange, patrol, patrolState]);
+
+  useEffect(() => {
+    setPatrolState(calcPatrolCardState(patrol));
+  }, [patrol]);
 
 
   return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} {...rest}>
