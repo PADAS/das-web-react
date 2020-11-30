@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { getLeaderForPatrol } from '../utils/patrols';
+import { visibleTrackDataWithPatrolAwareness } from '../selectors/patrols';
 import { fetchTracksIfNecessary, trimTrackDataToTimeRange } from '../utils/tracks';
 
 import { withMap } from '../EarthRangerMap';
@@ -22,7 +23,7 @@ const PatrolTrackLayer = (props) => {
   const id = `patrol-${patrol.id}`;
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
-  const leaderTrack = useMemo(() => leader && leader.id && tracks[leader.id], [leader, tracks]);
+  const leaderTrack = useMemo(() => leader && leader.id && tracks.find(t => t.track.features[0].properties.id), [leader, tracks]);
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
@@ -55,7 +56,14 @@ const PatrolTrackLayer = (props) => {
   return <TrackLayer key={id} id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} trackData={patrolTrackData} {...rest} />;
 };
 
-const mapStateToProps = ({ data: { tracks }, view: { showTrackTimepoints, trackLength } }) => ({ showTrackTimepoints, tracks });
+const mapStateToProps = (state) => {
+  const { view: { showTrackTimepoints, trackLength } } = state;
+  return {
+    tracks: visibleTrackDataWithPatrolAwareness(state),
+    trackLength: trackLength,
+    showTrackTimepoints: showTrackTimepoints,
+  };
+};
 
 export default connect(mapStateToProps, null)(
   withMap(

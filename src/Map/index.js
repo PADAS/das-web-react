@@ -47,7 +47,7 @@ import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
-import TrackLegend from '../TrackLegend';
+import SubjectTrackLegend from '../SubjectTrackLegend';
 import EventFilter from '../EventFilter';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
@@ -607,7 +607,7 @@ class Map extends Component {
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
+              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
               <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
             </div>
@@ -616,15 +616,15 @@ class Map extends Component {
             {showReportHeatmap && <ReportsHeatLayer />}
 
             {tracksAvailable && (
-              <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
+              <Fragment>
+                <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
+                <PatrolTracks onPointClick={this.onTimepointClick} />
+              </Fragment>
             )}
-
-            <PatrolTracks onPointClick={this.onTimepointClick} />
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
 
-       
 
             {!!this.state.reportSpiderConfig.coordinates && 
               <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 

@@ -32,7 +32,12 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
   [trimmedVisibleTrackData, getPatrolTrackList],
   (trackData, patrols) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
-    const hasPatrolTrackMatch = patrols.some(p => p.patrol_segments[0].leader.id === trackSubjectId);
+    const hasPatrolTrackMatch = patrols.some(p =>
+      p.patrol_segments 
+      && !!p.patrol_segments.length 
+      && p.patrol_segments[0].leader 
+      && p.patrol_segments[0].leader.id === trackSubjectId
+    );
     return {
       ...t,
       patrolTrackShown: hasPatrolTrackMatch,
