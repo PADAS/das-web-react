@@ -21,7 +21,6 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getVisibleTrackIds } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
@@ -48,6 +47,7 @@ import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import SubjectTrackLegend from '../SubjectTrackLegend';
+import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
@@ -94,6 +94,7 @@ class Map extends Component {
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
+    this.onPatrolTrackLegendClose = this.onPatrolTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onClusterLeafClick = this.onClusterLeafClick.bind(this);
     this.onFeatureSymbolClick = this.onFeatureSymbolClick.bind(this);
@@ -525,6 +526,13 @@ class Map extends Component {
     });
   }
 
+  onPatrolTrackLegendClose() {
+    updatePatrolTrackState({
+      visible: [],
+      pinned: [],
+    });
+  }
+
   onReportMarkerDrop(location) {
     this.props.showPopup('dropped-marker', { location });
   }
@@ -537,7 +545,7 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
+      heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, patrolTrackState, subjectTrackState, showReportsOnMap, bounceEventIDs,
       timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
@@ -549,6 +557,8 @@ class Map extends Component {
 
     const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
+    const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
+    
     if (!maps.length) return null;
 
     const enableEventClustering = timeSliderActive ? false : true;
@@ -607,6 +617,7 @@ class Map extends Component {
 
             <div className='map-legends'>
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+              {patrolTracksVisible && <PatrolTrackLegend />}
               {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
               <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
@@ -615,12 +626,10 @@ class Map extends Component {
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
             {showReportHeatmap && <ReportsHeatLayer />}
 
-            {tracksAvailable && (
-              <Fragment>
-                <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
-                <PatrolTracks onPointClick={this.onTimepointClick} />
-              </Fragment>
-            )}
+            {subjectTracksVisible &&  <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
+            {}
+            
+            {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
@@ -656,7 +665,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, } = data;
-  const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
+  const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
@@ -668,6 +677,7 @@ const mapStatetoProps = (state, props) => {
     hiddenFeatureIDs,
     homeMap,
     mapIsLocked,
+    patrolTrackState,
     popup,
     eventFilter,
     subjectTrackState,
@@ -684,7 +694,6 @@ const mapStatetoProps = (state, props) => {
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
-    tracksAvailable: !!getVisibleTrackIds(state).length,
   });
 };
 

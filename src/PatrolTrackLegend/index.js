@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import TrackLegend from '../TrackLegend';
 
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { visibleTrackDataWithPatrolAwareness } from '../selectors/patrols';
+import { patrolTrackData } from '../selectors/patrols';
 
 
 const mapStateToProps = (state) => ({
   trackState: state.view.patrolTrackState,
-  trackData: visibleTrackDataWithPatrolAwareness(state),
+  trackData: patrolTrackData(state),
 });
 
 const mapDispatchToProps = dispatch => ({

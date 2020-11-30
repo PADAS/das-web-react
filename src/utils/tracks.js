@@ -171,26 +171,21 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   return Promise.all(results);
 };
 
-export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null, log = false) => {
+export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
 
   const [originalTrack] = track.features;
-  log && console.log('return original if true, (!from && !until) || !originalTrack.geometry', (!from && !until) || !originalTrack.geometry);
   if ((!from && !until) || !originalTrack.geometry) return { track, points };
 
   const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
 
   if (window.isNaN(indices.from) && window.isNaN(indices.until)) {
-    log && console.log('return original if true, window.isNaN(indices.from) && window.isNaN(indices.until)', window.isNaN(indices.from) && window.isNaN(indices.until));
     return { track, points };
   }
 
   const trackResults = cloneDeep(originalTrack);
 
-
-  log && console.log('before calling trimArrayWithEnvelopeIndices', trackResults.geometry.coordinates);
   trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
   
-  log && console.log('after calling trimArrayWithEnvelopeIndices', trackResults.geometry.coordinates);
   trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
 
   if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {

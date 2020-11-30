@@ -1,19 +1,19 @@
 import React, { memo, Fragment } from 'react';
 import { connect } from 'react-redux';
 
-import { getPatrolTrackList } from '../selectors/patrols';
+import { patrolTrackData } from '../selectors/patrols';
 
 import PatrolTrackLayer from '../PatrolTrackLayer';
 
 const PatrolTracks = (props) => {
-  const { patrols, dispatch:_dispatch, ...rest } = props;
+  const { patrolTracks, dispatch:_dispatch, ...rest } = props;
 
-  return <Fragment>{patrols.map(patrol => <PatrolTrackLayer key={patrol.id} patrol={patrol} {...rest} />)}</Fragment>;
+  return <Fragment>{patrolTracks.map(trackData => <PatrolTrackLayer key={`patrol-track-${trackData.track.features[0].properties.id}`} trackData={trackData} {...rest} />)}</Fragment>;
 
 };
 
 const mapStateToProps = (state) => ({
-  patrols: getPatrolTrackList(state),
+  patrolTracks: patrolTrackData(state),
 });
 
 export default connect(mapStateToProps, null)(memo(PatrolTracks));

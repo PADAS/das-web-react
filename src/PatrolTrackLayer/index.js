@@ -18,42 +18,18 @@ const linePaint = {
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const PatrolTrackLayer = (props) => {
-  const { map, patrol, showTrackTimepoints, trackLength, tracks, dispatch:_dispatch, onPointClick, ...rest } = props;
+  const { map, trackData, showTrackTimepoints, trackLength, tracks, dispatch:_dispatch, onPointClick, ...rest } = props;
 
-  const id = `patrol-${patrol.id}`;
-
-  const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
-  const leaderTrack = useMemo(() => leader && leader.id && tracks.find(t => t.track.features[0].properties.id), [leader, tracks]);
+  const id = useMemo(() => `patrol-track-${trackData.track.features[0].properties.id}`, [trackData.track.features]);
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
     onPointClick(layer);
   }, [map, onPointClick]);
 
-  const timeRange = useMemo(() => {
-    const [firstLeg] = patrol.patrol_segments;
+  if (!trackData || !trackData.track) return null;
 
-    return firstLeg && firstLeg.time_range;
-
-  }, [patrol.patrol_segments]);
-  
-  const patrolTrackData = useMemo(() =>
-    (leaderTrack && timeRange && timeRange.start_time)
-      ?  trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time, true)
-      : null
-  , [leaderTrack, timeRange]);
-
-  useEffect(() => {
-    if (leader && leader.id) {
-      fetchTracksIfNecessary([leader.id]);
-    }
-  }, [leader, trackLength, timeRange]);
-
-  if (!patrol || !patrolTrackData) return null;
-
-  console.log('patrolTrackData', patrolTrackData);
-
-  return <TrackLayer key={id} id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} trackData={patrolTrackData} {...rest} />;
+  return <TrackLayer key={id} id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} trackData={trackData} {...rest} />;
 };
 
 const mapStateToProps = (state) => {

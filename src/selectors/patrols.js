@@ -1,6 +1,7 @@
 import { createSelector } from './';
 import { trimmedVisibleTrackData } from './tracks';
 import { getLeaderForPatrol } from '../utils/patrols';
+import { trimTrackDataToTimeRange } from '../utils/tracks';
 import uniq from 'lodash/uniq';
 
 const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
@@ -19,12 +20,9 @@ export const getPatrolTrackList = createSelector(
   [getPatrolStore, getPatrolTrackState],
   (store, patrolIdsToTrack) => patrolIdsToTrack
     .map((id) => store[id])
-    .filter((patrol) => {
-      if (!patrol) return false;
-
-      const leader = getLeaderForPatrol(patrol);
-      return !!leader;
-    })
+    .filter((patrol) =>
+      !!patrol && !!getLeaderForPatrol(patrol)
+    )
 );
 
 
@@ -43,4 +41,23 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
       patrolTrackShown: hasPatrolTrackMatch,
     };
   }),
+);
+
+export const patrolTrackData = createSelector(
+  [visibleTrackDataWithPatrolAwareness, getPatrolTrackList],
+  (trackData, patrols) => {
+    const tracks = trackData.filter(t => !!t.patrolTrackShown);
+    
+    return patrols
+      .map((patrol) => {
+        const [firstLeg] = patrol.patrol_segments;
+        const leader = getLeaderForPatrol(patrol);
+        const timeRange = !!firstLeg && firstLeg.time_range;
+        const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id);
+
+        return leaderTrack && timeRange && timeRange.start_time && trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time);
+
+      })
+      .filter(t => !!t);
+  }
 );
