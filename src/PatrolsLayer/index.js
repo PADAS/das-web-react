@@ -11,6 +11,7 @@ import { getPatrols } from '../selectors/tracks';
 import { trimmedVisibleTrackData } from '../selectors/tracks';
 import withMapViewConfig from '../WithMapViewConfig';
 import { extractPatrolPointsFromTrackData } from '../utils/patrols';
+import { addMapImage } from '../utils/map';
 
 
 const { PATROL_SYMBOLS } = LAYER_IDS;
@@ -54,6 +55,10 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
       const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
 
       if (!patrolPoints) return <Fragment />
+      
+      if (!map.hasImage(patrolPoints.start_location.properties.image)) {
+        addMapImage({ src: patrolPoints.start_location.properties.image, id: patrolPoints.start_location.properties.image});
+      }
 
       const patrolPointFeatures = patrolPoints.are_start_and_end_locations_the_same ? [
         {
