@@ -616,10 +616,10 @@ class Map extends Component {
                 
 
             <div className='map-legends'>
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {patrolTracksVisible && <PatrolTrackLegend />}
               {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolLegendClose} />}
               <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
             </div>
 

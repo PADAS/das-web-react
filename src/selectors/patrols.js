@@ -55,9 +55,11 @@ export const patrolTrackData = createSelector(
         const timeRange = !!firstLeg && firstLeg.time_range;
         const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id);
 
-        return leaderTrack && timeRange && timeRange.start_time && trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time);
-
+        return {
+          patrol,
+          trackData: leaderTrack && timeRange && timeRange.start_time && trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time),
+        };
       })
-      .filter(t => !!t);
+      .filter(t => !!t.trackData);
   }
 );
