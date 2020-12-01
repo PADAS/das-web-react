@@ -376,11 +376,13 @@ export const sortPatrolCards = (patrols) => {
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
 
-export const makePatrolPointFromFeature = (feature, label, coordinates=null) => {
+export const makePatrolPointFromFeature = (feature, label, coordinates=null, icon_id) => {
+
   return {
     ...feature,
     properties: {
       ...feature.properties,
+      image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
       name: label,
       title: label,
     },
@@ -416,14 +418,14 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
     return null
   }
 
-  const { start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
+  const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
 
   let patrol_points = {
     start_location: start_location 
-      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude])
+      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude], icon_id)
       : null,
     end_location: end_location
-      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude])
+      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude], icon_id)
       : null,
   };
 
@@ -438,11 +440,11 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
         const normalizedFeatureTime = normalizeTime(time);
 
         if (normalizedFeatureTime === startTime) {
-          patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start');
+          patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start', null, icon_id);
         }
 
         if (normalizedFeatureTime === endTime) {
-          patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End');
+          patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End', null, icon_id);
         }
       }
     );
@@ -450,12 +452,12 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
 
   if (!patrol_points.start_location) {
     const feature = features[features.length - 1];
-    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)');
+    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)', null, icon_id);
   }
 
   if (!patrol_points.end_location) {
     const feature = features[0];
-    patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)');
+    patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)', null, icon_id);
   }
 
   patrol_points.is_patrol_active = calcPatrolCardState(subjectPatrol).title === 'Active';
