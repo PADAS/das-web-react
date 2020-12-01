@@ -4,6 +4,7 @@
 .label {
   position: relative;
   width: 50%;
+  margin-bottom: 0;
 
   .nullMessage {
     align-items: center;
@@ -53,9 +54,14 @@
 .dateSelectorWrapper {
   align-items: baseline;
   display: flex;
-  margin: 0.5rem 0 1rem;
+  margin: 0rem 0 1rem;
   padding: 0 1rem;
   width: 100%;
+}
+
+.dateSelectorWrapperInline {
+  @extend .dateSelectorWrapper;
+  align-items: center;
 }
 
 .dateRangeArrow {

@@ -100,6 +100,7 @@ section.timeBar {
     &[class*=empty] {
       background: white;
       max-width: 9rem;
+      display: flex;
       svg * {
         stroke: $light-blue;
       }
