@@ -414,6 +414,7 @@ const PatrolModal = (props) => {
           </li>
         </ul>
         <AttachmentList
+          className={styles.attachments}
           files={filesToList}
           notes={notesToList}
           onClickFile={onClickFile}

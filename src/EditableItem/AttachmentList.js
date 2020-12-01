@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 
 
 const AttachmentList = (props) => {
-  const { files, notes, onDeleteFile, onDeleteNote, onClickFile, onClickNote } = props;
+  const { className = '', files, notes, onDeleteFile, onDeleteNote, onClickFile, onClickNote } = props;
   const hasItems = !!(files.length || notes.length);
 
   const ListItemForNote = (note) => {
@@ -45,7 +45,7 @@ const AttachmentList = (props) => {
   };
 
   return hasItems &&
-    <ul className={styles.attachmentList}>
+    <ul className={`${styles.attachmentList} ${className}`}>
       {files.map(ListItemForFile)}
       {notes.map(ListItemForNote)}
     </ul>;
