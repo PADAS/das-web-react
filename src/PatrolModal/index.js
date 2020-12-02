@@ -11,7 +11,7 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -53,6 +53,8 @@ const PatrolModal = (props) => {
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol, false), [statePatrol]);
+
+  const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -370,7 +372,7 @@ const PatrolModal = (props) => {
   return <EditableItem data={statePatrol}>
     <Modal>
       <Header 
-        icon={<DasIcon type='events' iconId='fence-patrol-icon' />}
+        icon={<DasIcon type='events' iconId={patrolIconId} />}
         title={displayTitle}
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
@@ -412,6 +414,7 @@ const PatrolModal = (props) => {
           </li>
         </ul>
         <AttachmentList
+          className={styles.attachments}
           files={filesToList}
           notes={notesToList}
           onClickFile={onClickFile}
