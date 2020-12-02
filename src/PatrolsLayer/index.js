@@ -57,7 +57,7 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
       if (!patrolPoints) return <Fragment />
       
       if (!map.hasImage(patrolPoints.start_location.properties.image)) {
-        addMapImage({ src: patrolPoints.start_location.properties.image, id: patrolPoints.start_location.properties.image});
+        addMapImage({ src: patrolPoints.start_location.properties.image});
       }
 
       const patrolPointFeatures = patrolPoints.are_start_and_end_locations_the_same ? [
