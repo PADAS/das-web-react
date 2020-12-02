@@ -72,10 +72,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
         {!isScheduledPatrol && <Fragment>
           <div className={styles.details}>
-            {!!subjectLastVoiceCall.getTime() && <span>Radio activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
-            {!!subjectTimeAtLastPosition.getTime() && <span>Time at current position: <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
-            <span>Time on patrol: {timeOnPatrol}</span> {/* time on patrol */}
-            <span>Distance covered: <PatrolDistanceCovered patrol={patrol} />{/* distance covered */}</span>
+            {!!subjectLastVoiceCall.getTime() && <span>Mic activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
+            {!!subjectTimeAtLastPosition.getTime() && <span>Time since last movement (est.): <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
           </div>
   
           <div className={styles.controls}>
