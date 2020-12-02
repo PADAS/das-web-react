@@ -6,8 +6,9 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
 import MapLegend from '../MapLegend';
+import DasIcon from '../DasIcon';
 
-import { displayTitleForPatrol } from '../utils/patrols';
+import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { patrolTrackData } from '../selectors/patrols';
@@ -18,12 +19,12 @@ import styles from '../TrackLegend/styles.module.scss';
 
 
 const TitleElement = memo((props) => { // eslint-disable-line
-  const { coverageLength, displayTitle, iconSrc, patrolData, patrolFilter, onRemovePatrolClick } = props;
+  const { coverageLength, displayTitle, iconId, patrolData, patrolFilter, onRemovePatrolClick } = props;
 
   const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData }) => {
     const title = displayTitleForPatrol(patrol);
     
-    const { properties: { image } } = trackData.track.features[0];
+    const iconId = iconTypeForPatrol(patrol);
     const { id } = patrol;
 
     const { filter: { date_range } } = patrolFilter;
@@ -33,20 +34,20 @@ const TitleElement = memo((props) => { // eslint-disable-line
     const trackLength = `${length(trimmed.track).toFixed(2)}km`;
 
     return <li key={id}>
-      <img className={styles.icon} src={image} alt={`Icon for ${title}`} />
+      <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
       <div>
         <span>{title}</span>
         <small>{trackLength} coverage today</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemovePatrolClick}>remove</Button>
     </li>;
-  }, [onRemovePatrolClick]);
+  }, [onRemovePatrolClick, patrolFilter]);
 
   return <div className={styles.titleWrapper}>
+    {iconId && <DasIcon type='events' iconId={iconId} className={styles.svgIcon} />}
     <div className={styles.innerTitleWrapper}>
       <h6>
         {displayTitle}
-        {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
         {patrolData.length > 1 && <OverlayTrigger trigger="click" rootClose placement="right" overlay={
           <Popover className={styles.popover} id="track-details">
             <ul>
@@ -66,7 +67,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
 
 const PatrolTrackLegend = (props) => {
-  const { dispatch:_dispatch, onClose, patrolData, patrolFilter, updateTrackState, trackState, ...rest } = props;
+  const { dispatch:_dispatch, patrolData, patrolFilter, updateTrackState, trackState, ...rest } = props;
 
   const hasData = !!patrolData.length;
   const isMulti = patrolData.length > 1;
@@ -78,10 +79,10 @@ const PatrolTrackLegend = (props) => {
     return `${patrolData.length} patrols`;
   }, [hasData, isMulti, patrolData]);
 
-  const iconSrc = useMemo(() => {
+  const iconId = useMemo(() => {
     if (isMulti || !hasData) return null;
 
-    return patrolData[0].trackData.track.features[0].properties.image;
+    return iconTypeForPatrol(patrolData[0].patrol);
   }, [hasData, isMulti, patrolData]);
 
   const coverageLength = useMemo(() => {
@@ -104,8 +105,8 @@ const PatrolTrackLegend = (props) => {
   return hasData ? <MapLegend
     {...rest}
     titleElement={
-      <TitleElement displayTitle={displayTitle} iconSrc={iconSrc} patrolData={patrolData} patrolFilter={patrolFilter}
-        onRemovePatrolClick={onRemovePatrolClick} onClose={onClose} coverageLength={coverageLength} />
+      <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData} patrolFilter={patrolFilter}
+        onRemovePatrolClick={onRemovePatrolClick} coverageLength={coverageLength} />
     } /> : null;
 };
 

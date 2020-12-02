@@ -527,6 +527,7 @@ class Map extends Component {
   }
 
   onPatrolTrackLegendClose() {
+    const { updatePatrolTrackState } = this.props;
     updatePatrolTrackState({
       visible: [],
       pinned: [],
@@ -619,7 +620,7 @@ class Map extends Component {
               {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolLegendClose} />}
+              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
               <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
             </div>
 
