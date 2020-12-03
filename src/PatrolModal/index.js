@@ -11,7 +11,7 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, displayPatrolSegmentId } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -55,6 +55,8 @@ const PatrolModal = (props) => {
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol, false), [statePatrol]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
+
+  const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -451,7 +453,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
+        <AddReport map={map} hidePatrols={true} patrolSegmentId={patrolSegmentId} onSaveSuccess={(...args) => console.log('report saved', args)} />
       </AttachmentControls>
       <Footer
         onCancel={onCancel}

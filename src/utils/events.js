@@ -141,7 +141,7 @@ export const openModalForReport = (report, map, config = {}) => {
     }));
 };
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data, patrol_segment_id = null) => {
 
   const location = data && data.location;
 
@@ -153,6 +153,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   
   return {
     event_type,
+    patrol_segment_id,
     icon_id,
     is_collection: false,
     location,

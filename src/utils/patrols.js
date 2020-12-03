@@ -256,6 +256,13 @@ export const displayScheduledStartDate = (patrol) => {
     : null;
 };
 
+export const displayPatrolSegmentId = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+  const { id } = firstLeg;
+  return id || null;
+};
+
 export const isSegmentOverdue = (patrolSegment) => {
   const { time_range: { start_time }, scheduled_start } = patrolSegment;
   return !start_time
