@@ -4,7 +4,7 @@ import { getLeaderForPatrol } from '../utils/patrols';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 import uniq from 'lodash/uniq';
 
-const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
+export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
 const getPatrolTrackState = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
 

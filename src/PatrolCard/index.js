@@ -38,6 +38,8 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const [popoverOpen, setPopoverState] = useState(false);
 
+  const onPopoverHide = useCallback(() => setPopoverState(false), []);
+
   const patrolStateTitle = useMemo(() => {
     if(patrolState === PATROL_CARD_STATES.DONE) {
       return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
@@ -155,7 +157,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     <h6 ref={stateTitleRef} onClick={togglePopoverIfPossible}>{patrolStateTitle}</h6>
     <AddReport className={styles.addReport} showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
-      target={stateTitleRef} ref={popoverRef}
+      target={stateTitleRef} ref={popoverRef} onHide={onPopoverHide}
       onPatrolChange={onPatrolChangeFromPopover} patrol={patrol} />
   </li>;
 });

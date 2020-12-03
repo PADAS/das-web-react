@@ -4,12 +4,20 @@ import subDays from 'date-fns/sub_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { getLeaderForPatrol } from '../utils/patrols';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
-const getPatrolTrackIds = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
+const getPatrolTrackIds = ({ view: { patrolTrackState }, data: { patrolStore } }) => uniq(
+  [...patrolTrackState.visible, ...patrolTrackState.pinned]
+    .map(patrolId => patrolStore[patrolId])
+    .filter(p => !!p)
+    .map(p => getLeaderForPatrol(p))
+    .filter(leader => !!leader)
+    .map(({ id }) => id),
+);
 
 export const getVisibleTrackIds = createSelector(
   [subjectTrackState],

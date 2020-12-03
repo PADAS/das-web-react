@@ -18,6 +18,7 @@ import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
+import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
@@ -429,11 +430,13 @@ class Map extends Component {
       .filter(({ properties }) => !!properties && properties.id)
       .map(({ properties: { id } }) => id);
 
+    const matchingPatrolIds = clickedLayerIDs.reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], []).map(({ id }) => id);
+
     updateTrackState({
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
     updatePatrolTrackState({
-      visible: visible.filter(id => clickedLayerIDs.includes(id)),
+      visible: visible.filter(id => matchingPatrolIds.includes(id)),
     });
   }
   onCloseReportHeatmap() {

@@ -1,10 +1,8 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import { uuid } from '../utils/string';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
-import { getLeaderForPatrol } from '../utils/patrols';
 import { visibleTrackDataWithPatrolAwareness } from '../selectors/patrols';
-import { fetchTracksIfNecessary, trimTrackDataToTimeRange } from '../utils/tracks';
 
 import { withMap } from '../EarthRangerMap';
 import TrackLayer from '../TracksLayer/track';
@@ -20,7 +18,8 @@ const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item
 const PatrolTrackLayer = (props) => {
   const { map, trackData, showTrackTimepoints, trackLength, tracks, dispatch:_dispatch, onPointClick, ...rest } = props;
 
-  const id = useMemo(() => `patrol-track-${trackData.track.features[0].properties.id}`, [trackData.track.features]);
+  const uniqueId = useMemo(() => uuid(), []);
+  const id = useMemo(() => `patrol-track-${uniqueId}-${trackData.track.features[0].properties.id}`, [trackData.track.features, uniqueId]);
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
