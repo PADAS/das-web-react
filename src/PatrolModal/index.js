@@ -19,6 +19,7 @@ import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
 import AddReport from '../AddReport';
+import ReportListItem from '../ReportListItem';
 
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
@@ -44,6 +45,7 @@ const PatrolModal = (props) => {
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
+  const [patrolReports, setPatrolReports] = useState([]);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
@@ -413,6 +415,17 @@ const PatrolModal = (props) => {
       <Body className={styles.body}>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
+            <ul>
+              {patrolReports.map((item, index) =>
+                <ReportListItem
+                  className={styles.listItem}
+                  map={map}
+                  report={item}
+                  key={`${item.id}-${index}`}
+                  onTitleClick={() => console.log('title click')}
+                  onIconClick={() => console.log('icon click')} />
+              )}
+            </ul>
           </li>
         </ul>
         <AttachmentList
