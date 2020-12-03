@@ -9,11 +9,10 @@ import LocationJumpButton from '../LocationJumpButton';
 import DasIcon from '../DasIcon';
 import AddReport from '../AddReport';
 import TimeAgo from '../TimeAgo';
-import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -30,8 +29,6 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
   const subjectLastPosition = useMemo(() => leader && leader.last_position, [leader]);
-
-  const timeOnPatrol = useMemo(() => displayDurationForPatrol(patrol), [patrol]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
