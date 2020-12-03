@@ -466,7 +466,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        <AddReport map={map} hidePatrols={true} patrolSegmentId={patrolSegmentId} onSaveSuccess={(...args) => console.log('report saved', args)} />
+        {patrolSegmentId && <AddReport map={map} hidePatrols={true} patrolSegmentId={patrolSegmentId} onSaveSuccess={(...reportData) => console.log('report saved', ...reportData, reportData[0])} />}
       </AttachmentControls>
       <Footer
         onCancel={onCancel}
