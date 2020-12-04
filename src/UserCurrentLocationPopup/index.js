@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import TimeAgo from '../TimeAgo';
-import { Popup } from 'react-mapbox-gl';
+import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import isEqual from 'react-fast-compare';
 
 import AR from '../AddReport';

@@ -1,6 +1,6 @@
 import React, { Fragment, memo } from 'react';
 import { point } from '@turf/helpers';
-import { Source, Layer } from 'react-mapbox-gl';
+import { Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 
 import { SYMBOL_ICON_SIZE_EXPRESSION } from '../constants';
 

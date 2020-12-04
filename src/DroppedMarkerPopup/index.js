@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Popup } from 'react-mapbox-gl';
+import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 
 import { hidePopup } from '../ducks/popup';
 

@@ -1,5 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import { Layer, Source } from 'react-mapbox-gl';
+import { Layer, Source } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 
 import { TILE_LAYER_SOURCE_TYPES, LAYER_IDS } from '../constants';
 

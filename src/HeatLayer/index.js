@@ -1,7 +1,7 @@
 import React, { memo, Fragment, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Layer, Source } from 'react-mapbox-gl';
+import { Layer, Source } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import centroid from '@turf/centroid';
 
 import { LAYER_IDS, MAX_ZOOM } from '../constants';

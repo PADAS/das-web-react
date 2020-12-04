@@ -1,6 +1,6 @@
 import React, { memo, Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
+import { Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';

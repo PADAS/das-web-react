@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
-import { Image } from 'react-mapbox-gl';
+import { Image } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import { connect } from 'react-redux';
 
 const MapImagesLayer = (props) => {

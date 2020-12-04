@@ -1,6 +1,6 @@
 import React, { Fragment, memo, useRef, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import { uuid } from '../utils/string';
 
 import { trackEvent } from '../utils/analytics';

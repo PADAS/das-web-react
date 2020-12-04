@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'react-mapbox-gl';
+import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import GpsFormatToggle from '../GpsFormatToggle';
 
 

@@ -1,6 +1,6 @@
 import React, { memo, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
+import { Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';

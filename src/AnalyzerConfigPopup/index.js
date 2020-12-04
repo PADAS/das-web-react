@@ -1,5 +1,5 @@
 import React from 'react';
-import { Popup } from 'react-mapbox-gl';
+import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import { connect } from 'react-redux';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';

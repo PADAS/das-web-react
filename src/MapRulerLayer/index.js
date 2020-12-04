@@ -1,5 +1,5 @@
 import React, { memo, Fragment, useMemo } from 'react';
-import { Popup, Source, Layer } from 'react-mapbox-gl';
+import { Popup, Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
 import { lineString } from '@turf/helpers';
 import length from '@turf/length';
 import lineSegment from '@turf/line-segment';
