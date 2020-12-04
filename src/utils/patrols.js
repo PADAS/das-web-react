@@ -6,6 +6,7 @@ import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
+import { point } from '@turf/helpers';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -376,22 +377,17 @@ export const sortPatrolCards = (patrols) => {
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
 
-export const makePatrolPointFromFeature = (feature, label, coordinates=null, icon_id) => {
+export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) => {
 
-  return {
-    ...feature,
-    properties: {
-      ...feature.properties,
-      image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
-      name: label,
-      title: label,
-    },
-    geometry: {
-      ...feature?.geometry,
-      coordinates: coordinates || feature?.geometry?.coordinates
-    }
-  }
-};
+  const properties = {
+    stroke,
+    image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
+    name: label,
+    title: label,
+  };
+
+  return point(coordinates, properties);
+}
 
 const normalizeCoordinates = (coordinates) => {
   return coordinates.map(
@@ -422,10 +418,10 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
 
   let patrol_points = {
     start_location: start_location 
-      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol Start', [start_location.longitude, start_location.latitude], icon_id)
+      ? makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, feature.properties.stroke)
       : null,
     end_location: end_location
-      ? makePatrolPointFromFeature(trackData.points.features[0], 'Patrol End', [end_location.longitude, end_location.latitude], icon_id)
+      ? makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, feature.properties.stroke)
       : null,
   };
 
@@ -435,29 +431,30 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
   if ([start_location, end_location].includes(null)) {
     trackData.points.features.forEach(
       (feature) => {
-        const { properties: { time } } = feature;
+        const { properties: { stroke, time }, geometry: { coordinates: [longitude, latitude] } } = feature;
 
         const normalizedFeatureTime = normalizeTime(time);
 
         if (normalizedFeatureTime === startTime) {
-          patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start', null, icon_id);
+          patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [longitude, latitude], icon_id, stroke);
         }
 
         if (normalizedFeatureTime === endTime) {
-          patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End', null, icon_id);
+          // patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End', null, icon_id);
+          patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [longitude, latitude], icon_id, stroke);
         }
       }
     );
   }
 
   if (!patrol_points.start_location) {
-    const feature = features[features.length - 1];
-    patrol_points.start_location = makePatrolPointFromFeature(feature, 'Patrol Start (Est.)', null, icon_id);
+    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
+    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
   if (!patrol_points.end_location) {
-    const feature = features[0];
-    patrol_points.end_location = makePatrolPointFromFeature(feature, 'Patrol End (Est.)', null, icon_id);
+    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[0];
+    patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
   patrol_points.is_patrol_active = calcPatrolCardState(subjectPatrol).title === 'Active';
@@ -467,8 +464,6 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
     normalizeCoordinates(patrol_points.end_location.geometry.coordinates),
     normalizeCoordinates(patrol_points.start_location.geometry.coordinates)
   );
-
-  console.log({patrol_points})
 
   return patrol_points
 }
