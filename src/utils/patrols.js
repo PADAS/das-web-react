@@ -379,9 +379,9 @@ export const sortPatrolCards = (patrols) => {
 export const makePatrolPointFromFeature = (feature, label, coordinates=null, icon_id) => {
 
   return {
-    // ...feature,
+    ...feature,
     properties: {
-      // ...feature.properties,
+      ...feature.properties,
       image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
       name: label,
       title: label,
@@ -433,7 +433,7 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
   const startTime = normalizeTime(start_time);
 
   if ([start_location, end_location].includes(null)) {
-    trackData.points.features.map(
+    trackData.points.features.forEach(
       (feature) => {
         const { properties: { time } } = feature;
 
