@@ -45,7 +45,7 @@ const PatrolModal = (props) => {
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
-  const [patrolReports, setPatrolReports] = useState([]);
+  const [addedReports, setAddedReports] = useState([]);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
@@ -219,8 +219,12 @@ const PatrolModal = (props) => {
     
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
   }, [filesToList, filesToUpload]);
-  
 
+  const onAddReport = useCallback((reportData) => {
+    const { data: { data } } = reportData[0];
+    setAddedReports([...addedReports, data]);
+  }, [addedReports]);
+  
   const onSaveNote = useCallback((noteToSave) => {
     const note = { ...noteToSave };
     const noteIsNew = !note.id;
@@ -416,7 +420,7 @@ const PatrolModal = (props) => {
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
             <ul>
-              {patrolReports.map((item, index) =>
+              {addedReports.map((item, index) =>
                 <ReportListItem
                   className={styles.listItem}
                   map={map}
@@ -466,7 +470,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId && <AddReport map={map} hidePatrols={true} patrolSegmentId={patrolSegmentId} onSaveSuccess={(...reportData) => console.log('report saved', ...reportData, reportData[0])} />}
+        {patrolSegmentId &&<AddReport map={map} hidePatrols={true} patrolSegmentId={patrolSegmentId} onSaveSuccess={onAddReport} />}
       </AttachmentControls>
       <Footer
         onCancel={onCancel}
