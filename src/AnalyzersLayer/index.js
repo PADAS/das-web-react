@@ -1,5 +1,5 @@
 import React, { memo, Fragment } from 'react';
-import { Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 
 import withMapViewConfig from '../WithMapViewConfig';
 

@@ -379,9 +379,9 @@ export const sortPatrolCards = (patrols) => {
 export const makePatrolPointFromFeature = (feature, label, coordinates=null, icon_id) => {
 
   return {
-    ...feature,
+    // ...feature,
     properties: {
-      ...feature.properties,
+      // ...feature.properties,
       image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
       name: label,
       title: label,

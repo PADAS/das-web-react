@@ -1,6 +1,6 @@
 import React, { memo, Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Popup } from 'react-mapbox-gl';
 import format from 'date-fns/format';
 
 import TimeAgo from '../TimeAgo';

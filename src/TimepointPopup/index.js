@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Popup } from 'react-mapbox-gl';
 
 import AddReport from '../AddReport';
 import DateTime from '../DateTime';

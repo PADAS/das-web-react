@@ -1,6 +1,6 @@
 import React, { Fragment, memo, useEffect, useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
 import concave from '@turf/concave';
 import buffer from '@turf/buffer';

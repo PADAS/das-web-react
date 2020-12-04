@@ -5,7 +5,7 @@ import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
-import { Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Layer } from 'react-mapbox-gl';
 
 const LabeledSymbolLayer = (
   { before, paint, layout, textPaint, textLayout, id, map, 

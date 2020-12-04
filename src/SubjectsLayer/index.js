@@ -1,6 +1,6 @@
 import React, { memo, Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Source } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Source } from 'react-mapbox-gl';
 import { featureCollection } from '@turf/helpers';
 
 import { calcImgIdFromUrlForMapImages } from '../utils/img';

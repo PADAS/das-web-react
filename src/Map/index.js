@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { RotationControl } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
@@ -40,7 +40,7 @@ import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
-import PatrolsLayer from '../PatrolStartStopLayer'
+import PatrolStartStopLayer from '../PatrolStartStopLayer'
 import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
@@ -615,7 +615,7 @@ class Map extends Component {
             {tracksAvailable && (
               <Fragment>
                 <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
-                <PatrolsLayer />
+                <PatrolStartStopLayer />
               </Fragment>
             )}
 

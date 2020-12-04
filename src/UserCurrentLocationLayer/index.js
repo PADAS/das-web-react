@@ -1,7 +1,7 @@
 import React, { memo, Fragment, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Source, Layer } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
 import booleanContains from '@turf/boolean-contains';
 

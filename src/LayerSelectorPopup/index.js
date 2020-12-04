@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Popup } from 'react-mapbox-gl';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';

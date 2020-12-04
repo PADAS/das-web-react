@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useRef, Fragment, useCallback, useMemo } from 'react';
-import { Popup } from '../PatrolStartStopLayer/node_modules/react-mapbox-gl';
+import { Popup } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
