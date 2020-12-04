@@ -38,7 +38,7 @@ const PatrolAwareTrackToggleButton = (props) => {
       return;
     }
     if (subjectTrackPinned && patrolTrackVisible) {
-      togglePatrolTrackState(leader.id);
+      togglePatrolTrackState(patrol.id);
     }
     if (patrolTrackPinned && subjectTrackVisible) {
       toggleTrackState(leader.id);
