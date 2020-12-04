@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState } from 'react';
+import React, { Fragment, memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Source } from 'react-mapbox-gl';
@@ -18,6 +18,18 @@ const { PATROL_SYMBOLS } = LAYER_IDS;
 
 const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
 
+  useEffect(() => {
+    trackData.map((data, index) => {
+      const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
+
+      if (!patrolPoints) return <Fragment />
+      
+      if (!map.hasImage(patrolPoints.start_location.properties.image)) {
+        addMapImage({ src: patrolPoints.start_location.properties.image});
+      }
+    });
+  }, [trackData]);
+  
   const [ layerIds, setLayerIds ] = useState(null);
 
   if (!trackData.length) return null;
