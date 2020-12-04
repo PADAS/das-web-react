@@ -5,6 +5,7 @@ import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
+import { default as TimeAgo } from 'react-timeago';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -13,7 +14,6 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
-import TimeElapsed from '../TimeElapsed';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
 import { objectToParamString } from './query';
@@ -212,7 +212,8 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    return <TimeElapsed date={displayStartTime} />;
+    const formatter = (val, unit, _suffix) => `${val} ${unit}${val > 1 ? 's' : ''}`;
+    return <TimeAgo date={displayStartTime} formatter={formatter} />;
   }
 
   return distanceInWords(displayStartTime, displayEndTime);

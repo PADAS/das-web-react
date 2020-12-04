@@ -25,11 +25,14 @@ const UPLOAD_PATROL_FILES_ERROR = 'UPLOAD_PATROL_FILES_ERROR';
 
 
 const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
-const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
 const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
+
+const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
+const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
+const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
 
 
 // for now, assume that a realtime update of a patrol can
@@ -38,7 +41,10 @@ export const socketUpdatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
   console.log('patrol_update', patrol_data, matches_current_filter);
   if (matches_current_filter) {
-    dispatch(updatePatrolStore(patrol_data));
+    dispatch({
+      type: UPDATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
   }
 };
 
@@ -48,7 +54,10 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
   const { patrol_data, matches_current_filter } = payload;
   console.log('patrol_create', patrol_data, matches_current_filter);
   if (matches_current_filter) {
-    dispatch(updatePatrolStore(patrol_data));
+    dispatch({
+      type: CREATE_PATROL_REALTIME,
+      payload: patrol_data,
+    });
   }
 };
 
@@ -62,11 +71,6 @@ export const socketDeletePatrol = (payload) => (dispatch) => {
     });
   }
 };
-
-const updatePatrolStore = (...results) => ({
-  type: UPDATE_PATROL_STORE,
-  payload: results,
-});
 
 export const fetchPatrols = () => async (dispatch) => {
 
@@ -95,7 +99,6 @@ export const createPatrol = (patrol) => (dispatch) => {
         type: CREATE_PATROL_SUCCESS,
         payload: response.data.data,
       });
-      dispatch(updatePatrolStore(response.data.data));
       return response;
     });
 /*     .catch((error) => {
@@ -127,7 +130,10 @@ export const updatePatrol = (patrol) => (dispatch) => {
           payload: patrol.id,
         });
       } else {
-        dispatch(updatePatrolStore(patrolResults));
+        dispatch({
+          type: UPDATE_PATROL_SUCCESS,
+          payload: patrolResults,
+        });
       }
       return resp;
     });
@@ -228,9 +234,22 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_PATROLS_SUCCESS) {
-    return { payload,
-      results: payload.results.map(({ id }) => id),
+    return {
+      ...payload,
+      results: payload.results.map(p => p.id),
     };
+  }
+  
+
+  if (type === CREATE_PATROL_REALTIME) {
+    const match = state.results.includes(payload.id);
+
+    if (!match) {
+      return {
+        ...state,
+        results: [payload.id, ...state.results],
+      };
+    }
   }
 
   if (type === REMOVE_PATROL_BY_ID) {
@@ -251,29 +270,28 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   }
 
   if (type === FETCH_PATROLS_SUCCESS) {
-    const { results } = payload;
-    return {
-      ...state,
-      ...results.reduce((accumulator, item) => ({
-        ...accumulator,
-        [item.id]: item,
-      }), {}),
-    };
-    
+    return merge({}, state, payload.results.reduce((accumulator, patrol) => ({
+      ...accumulator,
+      [patrol.id]: patrol,
+    }), {}));
   }
 
-  if (type === UPDATE_PATROL_STORE) {
-    const toAdd = payload.reduce((accumulator, patrol) => {
 
-      accumulator[patrol.id] = merge({}, state[patrol.id] || {}, patrol);
-
-      return accumulator;
-    }, {});
-
+  if (type === (UPDATE_PATROL_SUCCESS || UPDATE_PATROL_REALTIME || CREATE_PATROL_REALTIME)) {
     return {
       ...state,
-      ...toAdd,
+      [payload.id]: {
+        ...state[payload.id],
+        ...payload,
+      },
     };
+  }
+
+  if (type === REMOVE_PATROL_BY_ID) {
+    const newState = { ...state };
+    delete newState[payload];
+
+    return newState;
   }
   return state;
 };

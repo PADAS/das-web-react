@@ -3,7 +3,7 @@ import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 
-import { createFeatureCollectionFromSubjects, createFeatureCollectionFromEvents, filterInactiveRadiosFromCollection } from '../utils/map';
+import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
 
@@ -13,9 +13,6 @@ export const createSelector = createSelectorCreator(
 );
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
-const mapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
-const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
-const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const feedEvents = ({ data: { feedEvents } }) => feedEvents;
 const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
@@ -25,7 +22,6 @@ const getReportSchemas = ({ data: { eventSchemas } }, { data:report }) => eventS
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
-const patrols = ({ data: { patrols } }) => patrols;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
 export const featureSets = ({ data: { featureSets } }) => featureSets.data;
@@ -171,16 +167,6 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
 export const getReportFormSchemaData = createSelector(
   [getReportSchemas],
   ({ schema, uiSchema }) => ({ schema, uiSchema }),
-);
-
-export const getPatrols = createSelector(
-  [patrols, eventStore],
-  (patrols, eventStore) => ({
-    ...patrols,
-    results: patrols.results
-      .map(id => eventStore[id])
-      .filter(item => !!item),
-  }),
 );
 
 const symbolFeatureTypes = ['Point', 'MultiPoint'];

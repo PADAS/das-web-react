@@ -106,7 +106,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
       });
     }
 
-  }, [leader, patrol.id, patrolTrackState, subjectTrackState, updatePatrolTrackState, updateTrackState]);
+  }, [leader, onHide, patrol.id, patrolTrackState, subjectTrackState, updatePatrolTrackState, updateTrackState]);
 
   return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onHide={onOverlayClose} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
