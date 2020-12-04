@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 
+import merge from 'lodash/merge';
+
 import globallyResettableReducer from '../reducers/global-resettable';
 import { calcPatrolFilterForRequest, 
-  validatePatrolAgainstCurrentPatrolFilter } from '../utils/patrol-filter';
+  /* validatePatrolAgainstCurrentPatrolFilter  */} from '../utils/patrol-filter';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 
@@ -30,7 +32,6 @@ const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
 const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
 
 const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
-const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
@@ -72,11 +73,6 @@ export const socketDeletePatrol = (payload) => (dispatch) => {
   }
 };
 
-const updatePatrolStore = (...results) => ({
-  type: UPDATE_PATROL_STORE,
-  payload: results,
-});
-
 export const fetchPatrols = () => async (dispatch) => {
 
   const patrolFilterParamString = calcPatrolFilterForRequest({ params: { page_size: 200 } });
@@ -108,7 +104,6 @@ export const createPatrol = (patrol) => (dispatch) => {
         type: CREATE_PATROL_SUCCESS,
         payload: response.data.data,
       });
-      // dispatch(updatePatrolStore(response.data.data));
       return response;
     })
     .catch((error) => {
@@ -148,7 +143,6 @@ export const updatePatrol = (patrol) => (dispatch) => {
           type: UPDATE_PATROL_SUCCESS,
           payload: patrolResults,
         });
-        dispatch(updatePatrolStore(patrol));
       }
       return resp;
     })
@@ -230,31 +224,20 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
   const { type, payload } = action;
 
   if (type === FETCH_PATROLS_SUCCESS) {
-    return payload;
+    return {
+      ...payload,
+      results: payload.results.map(p => p.id),
+    };
   }
-
-  if (type === UPDATE_PATROL_SUCCESS || type === UPDATE_PATROL_REALTIME) {
-    const match = state.results.findIndex(item => item.id === payload.id);
-    if (match > -1) {
-      const newResults = [...state.results];
-      newResults[match] = payload;
-
-      return {
-        ...state,
-        results: newResults,
-      };
-    }
-    return state;
-  }
+  
 
   if (type === CREATE_PATROL_REALTIME) {
-    const match = state.results.findIndex(item => item.id === payload.id);
-    if (match === -1) {
-      // add the patrol to patrol feed
-      const newResults = [...state.results, payload];
+    const match = state.results.includes(payload.id);
+
+    if (!match) {
       return {
         ...state,
-        results: newResults,
+        results: [payload.id, ...state.results],
       };
     }
   }
@@ -276,18 +259,29 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
     return { ...INITIAL_STORE_STATE };
   }
 
-  if (type === UPDATE_PATROL_STORE) {
-    const toAdd = payload.reduce((accumulator, patrol) => {
+  if (type === FETCH_PATROLS_SUCCESS) {
+    return merge({}, state, payload.results.reduce((accumulator, patrol) => ({
+      ...accumulator,
+      [patrol.id]: patrol,
+    }), {}));
+  }
 
-      accumulator[patrol.id] = { ...state[patrol.id], ...patrol };
 
-      return accumulator;
-    }, {});
-
+  if (type === (UPDATE_PATROL_SUCCESS || UPDATE_PATROL_REALTIME || CREATE_PATROL_REALTIME)) {
     return {
       ...state,
-      ...toAdd,
+      [payload.id]: {
+        ...state[payload.id],
+        ...payload,
+      },
     };
+  }
+
+  if (type === REMOVE_PATROL_BY_ID) {
+    const newState = { ...state };
+    delete newState[payload];
+
+    return newState;
   }
   return state;
 };
