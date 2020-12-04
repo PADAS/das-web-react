@@ -1,11 +1,11 @@
 import React from 'react';
-import timeDistanceInWords from 'date-fns/distance_in_words';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
+import { default as TimeAgo } from 'react-timeago';
 
 import { store } from '../';
 import { addModal } from '../ducks/modals';
@@ -14,8 +14,8 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 import { getReporterById } from './events';
 
 import PatrolModal from '../PatrolModal';
-import TimeElapsed from '../TimeElapsed';
-import { distanceInWords } from 'date-fns';
+import distanceInWords from 'date-fns/distance_in_words';
+import isAfter from 'date-fns/is_after';
 import { objectToParamString } from './query';
 
 
@@ -202,10 +202,11 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    return <TimeElapsed date={displayStartTime} />;
+    const formatter = (val, unit, _suffix) => `${val} ${unit}${val > 1 ? 's' : ''}`;
+    return <TimeAgo date={displayStartTime} formatter={formatter} />;
   }
 
-  return timeDistanceInWords(displayStartTime, displayEndTime);
+  return distanceInWords(displayStartTime, displayEndTime);
 };
 
 export const PATROL_SAVE_ACTIONS = {
@@ -306,8 +307,6 @@ export const displayPatrolDoneTime = (patrol) => {
   return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
 };
 
-
-
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED; 
@@ -369,4 +368,18 @@ export const sortPatrolCards = (patrols) => {
   const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+};
+
+export const patrolTimeRangeIsValid = (patrol) => {
+  const startTime = displayStartTimeForPatrol(patrol);
+  const endTime = displayEndTimeForPatrol(patrol);
+
+  if (startTime && !endTime) {
+    return true;
+  } else if (startTime && endTime && isAfter(endTime, startTime)) {
+    return true;
+  }
+
+  return false;
+  
 };

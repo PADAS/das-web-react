@@ -10,7 +10,8 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive } from '../utils/patrols';
+
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -28,6 +29,8 @@ import PatrolDateInput from './DateInput';
 
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
+import TimeRangeAlert from './TimeRangeAlert';
+
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
@@ -36,7 +39,6 @@ const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
-
 const PatrolModal = (props) => {
   const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
@@ -51,6 +53,8 @@ const PatrolModal = (props) => {
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol, false), [statePatrol]);
+
+  const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -319,6 +323,11 @@ const PatrolModal = (props) => {
       }
     });
 
+    if (!patrolTimeRangeIsValid(statePatrol)) {
+      addModal({content: TimeRangeAlert});
+      return;
+    }
+
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
     return executeSaveActions(actions)
@@ -335,7 +344,7 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.warn('failed to save new patrol', error);
       });
-  }, [filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
 
   const startTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -363,7 +372,7 @@ const PatrolModal = (props) => {
   return <EditableItem data={statePatrol}>
     <Modal>
       <Header 
-        icon={<DasIcon type='events' iconId='fence-patrol-icon' />}
+        icon={<DasIcon type='events' iconId={patrolIconId} />}
         title={displayTitle}
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
@@ -405,6 +414,7 @@ const PatrolModal = (props) => {
           </li>
         </ul>
         <AttachmentList
+          className={styles.attachments}
           files={filesToList}
           notes={notesToList}
           onClickFile={onClickFile}
@@ -424,6 +434,7 @@ const PatrolModal = (props) => {
             isAuto={autoEndPatrols}
             placement='top'
             placeholder='Set End Time'
+            startTime={displayStartTime}
             onAutoCheckToggle={setAutoEnd}
             autoCheckLabel='Auto-end patrol'
             required={true}
