@@ -82,7 +82,7 @@ const SubjectControls = (props) => {
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
     {showTrackButton && <TrackToggleButton loading={loadingTracks} 
-      onButtonClick={onTrackButtonClick} trackVisible={tracksVisible} 
+      onClick={onTrackButtonClick} trackVisible={tracksVisible} 
       trackPinned={tracksPinned} />}
     {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} 
       onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}

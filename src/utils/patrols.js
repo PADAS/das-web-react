@@ -179,6 +179,16 @@ export const getLeaderForPatrol = (patrol) => {
   return subjectStore[leader.id] || leader;
 };
 
+export const getPatrolsForLeaderId = (leaderId) => {
+  const { data: { patrolStore } } = store.getState();
+
+  return Object.values(patrolStore).filter(patrol => 
+    !!patrol.patrol_segments.length
+    &&  !!patrol.patrol_segments[0].leader
+    && patrol.patrol_segments[0].leader.id === leaderId
+  );
+};
+
 export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
