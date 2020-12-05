@@ -12,6 +12,7 @@ import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
+import { patrolListFromStore } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
@@ -219,7 +220,7 @@ const SideBar = (props) => {
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
-  patrols: state.data.patrols,
+  patrols: patrolListFromStore(state),
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,

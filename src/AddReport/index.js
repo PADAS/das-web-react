@@ -8,6 +8,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { patrolListFromStore } from '../selectors/patrols';
 import { trackEvent } from '../utils/analytics';
 import { openModalForPatrol, generatePseudoReportCategoryForPatrolTypes, createNewPatrolForPatrolType } from '../utils/patrols';
 import { evaluateFeatureFlag } from '../utils/feature-flags';
@@ -175,7 +176,7 @@ const AddReport = (props) => {
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
   patrolTypes: state.data.patrolTypes,
-  patrols: state.data.patrols,
+  patrols: patrolListFromStore(state),
 });
 export default connect(mapStateToProps, null)(memo(AddReport));
 
