@@ -399,6 +399,8 @@ const normalizeTime = (time) => {
   return new Date(time);
 }
 
+
+// TODO refactor function to extract track from patrol.
 export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
   const { features } = trackData.points;
   const feature = features[0];
