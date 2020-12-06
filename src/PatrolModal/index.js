@@ -11,7 +11,7 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, displayPatrolSegmentId } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, displayPatrolSegmentId, getReportsForPatrol } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -35,6 +35,8 @@ import TimeRangeAlert from './TimeRangeAlert';
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
+import { add } from 'lodash-es';
+import { openModalForReport } from '../utils/events';
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
@@ -59,6 +61,8 @@ const PatrolModal = (props) => {
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
+
+  const patrolReports= useMemo(() => getReportsForPatrol(patrol), [patrol]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -336,6 +340,16 @@ const PatrolModal = (props) => {
       return;
     }
 
+    // just assign added reports to inital segment id for now
+    addedReports.forEach((report) => {
+      report.patrol_segment_id = patrolSegmentId;
+      const reportAction = generateSaveActionsForReportLikeObject(report, 'report', [], []); 
+      executeSaveActions(reportAction)
+        .catch((error) => {
+          console.warn('failed to attach report to patrol segment', error);
+        });
+    });
+
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
     return executeSaveActions(actions)
@@ -420,14 +434,14 @@ const PatrolModal = (props) => {
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
             <ul>
-              {addedReports.map((item, index) =>
+              {[...patrolReports, ...addedReports].map((item, index) =>
                 <ReportListItem
                   className={styles.listItem}
                   map={map}
                   report={item}
                   key={`${item.id}-${index}`}
-                  onTitleClick={() => console.log('title click')}
-                  onIconClick={() => console.log('icon click')} />
+                  onTitleClick={() => openModalForReport(item, map)}
+                  onIconClick={() => openModalForReport(item, map)} />
               )}
             </ul>
           </li>
@@ -470,7 +484,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId &&<AddReport map={map} hidePatrols={true} patrolSegmentId={patrolSegmentId} onSaveSuccess={onAddReport} />}
+        {patrolSegmentId &&<AddReport map={map} hidePatrols={true} onSaveSuccess={onAddReport} />}
       </AttachmentControls>
       <Footer
         onCancel={onCancel}

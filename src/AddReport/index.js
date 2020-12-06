@@ -21,7 +21,7 @@ import styles from './styles.module.scss';
 
 const AddReport = (props) => {
   const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect, patrolSegmentId} = props;
+    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
 
   const [selectedCategory, selectCategory] = useState(null);
 
@@ -110,7 +110,7 @@ const AddReport = (props) => {
     }
     /* END PATROL_SCAFFOLD */
 
-    const newReport = createNewReportForEventType(reportType, reportData, patrolSegmentId);
+    const newReport = createNewReportForEventType(reportType, reportData);
     
     openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols  });
     setPopoverState(false);
