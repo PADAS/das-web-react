@@ -45,13 +45,7 @@ const EditableItemHeader = (props) => {
 
   const updateTime = useMemo(() => {
     return data.updated_at || data.created_at || data.updates[data.updates.length - 1].time;
-  }, [data.updated_at, data.created_at, data.updates])
-
-  /*  const onTitleChangeCancel = () => {
-    trackEvent('Event Report', 'Cancel Change Report Title');
-  }; */
-
-  console.log('AAAAAA', {data});
+  }, [data.updated_at, data.created_at, data.updates]);
 
   const handleEscapePress = (event) => {
     const { key } = event;
