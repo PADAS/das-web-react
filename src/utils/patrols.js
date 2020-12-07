@@ -411,26 +411,12 @@ const normalizeTime = (time) => {
 
 
 // TODO refactor function to extract track from patrol.
-export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
-  console.log({patrols: JSON.stringify(patrols)});
+export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segments: [firstLeg] }, trackData}) => {
 
-  return
+  const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
   const { features } = trackData.points;
-  const feature = features[0];
-
-  if (!feature) {
-    return null;
-  }
-
-  const subject = feature.properties;
-  const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
-  
-  if (!subjectPatrol) {
-    return null
-  }
-
-  const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = subjectPatrol.patrol_segments[0];
+  const feature = trackData.points.features[0];
 
   let patrol_points = {
     start_location: start_location 
@@ -445,7 +431,7 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
   const startTime = normalizeTime(start_time);
 
   if (start_location === null) {
-    const startLocationTrackPoint = trackData.points.features.find(
+    const startLocationTrackPoint = features.find(
       ({ properties: { time } }) => {
         const normalizedFeatureTime = normalizeTime(time);
         return normalizedFeatureTime === startTime;
@@ -459,7 +445,7 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
   }
 
   if (end_location === null) {
-    const endLocationTrackPoint = trackData.points.features.find(
+    const endLocationTrackPoint = features.find(
       ({ properties: { time } }) => {
         const normalizedFeatureTime = normalizeTime(time);
         return normalizedFeatureTime === endTime;
@@ -471,7 +457,6 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
       patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [longitude, latitude], icon_id, stroke);
     }
   }
-  
 
   if (!patrol_points.start_location) {
     // TODO refactor this to pick closest in time to start_time
@@ -485,7 +470,7 @@ export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
     patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
-  patrol_points.is_patrol_active = calcPatrolCardState(subjectPatrol).title === PATROL_CARD_STATES.ACTIVE;
+  patrol_points.is_patrol_active = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
   if (patrol_points.is_patrol_active) delete patrol_points.end_location
 
   patrol_points.are_start_and_end_locations_the_same = patrol_points.end_location && booleanEqual(

@@ -633,7 +633,7 @@ class Map extends Component {
             {showReportHeatmap && <ReportsHeatLayer />}
 
             {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
-            {<PatrolStartStopLayer />}
+            {patrolTracksVisible && <PatrolStartStopLayer />}
             
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 

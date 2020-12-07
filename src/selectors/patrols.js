@@ -19,7 +19,6 @@ export const getPatrolList = createSelector(
 export const getPatrolTrackList = createSelector(
   [getPatrolStore, getPatrolTrackState],
   (store, patrolIdsToTrack) => {
-    console.log({patrolIdsToTrack});
     return patrolIdsToTrack
       .map((id) => store[id])
       .filter((patrol) => !!patrol && !!getLeaderForPatrol(patrol))

@@ -3,7 +3,7 @@ import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
 import { getUniqueSubjectGroupSubjects, pinMapSubjectsToVirtualPosition } from '../utils/subjects';
-import { calcPatrolCardState, getPatrolsForSubject } from '../utils/patrols';
+import { calcPatrolCardState, getPatrolsForLeaderId, getPatrolsForSubject } from '../utils/patrols';
 
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -25,6 +25,23 @@ export const getMapSubjectFeatureCollection = createSelector(
     return filterInactiveRadiosFromCollection(mapSubjectCollection);
   });
 
+export const getMapSubjectFeatureCollectionWithActivePatrols = createSelector(
+  [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
+  (mapSubjects, subjectStore, hiddenSubjectIDs, showInactiveRadios) => {
+    const fromStore = mapSubjects
+      .filter(id => !hiddenSubjectIDs.includes(id))
+      .map(id => subjectStore[id])
+      .filter(item => !!item)
+      .map(subject => {
+        subject.ticker = Boolean(getPatrolsForLeaderId(subject.id).length) ? 'P' : '';
+        return subject
+      })
+    
+    const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
+    if (showInactiveRadios) return mapSubjectCollection;
+    return filterInactiveRadiosFromCollection(mapSubjectCollection);
+  }
+);
 
 export const getSubjectGroups = createSelector(
   [subjectGroups, getSubjectStore],
@@ -51,7 +68,7 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, tracks, getTimeSliderState],
+  [getMapSubjectFeatureCollectionWithActivePatrols, tracks, getTimeSliderState],
   (mapSubjectFeatureCollection, tracks, timeSliderState) => {
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {
