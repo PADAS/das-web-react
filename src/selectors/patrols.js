@@ -18,11 +18,12 @@ export const getPatrolList = createSelector(
 
 export const getPatrolTrackList = createSelector(
   [getPatrolStore, getPatrolTrackState],
-  (store, patrolIdsToTrack) => patrolIdsToTrack
-    .map((id) => store[id])
-    .filter((patrol) =>
-      !!patrol && !!getLeaderForPatrol(patrol)
-    )
+  (store, patrolIdsToTrack) => {
+    console.log({patrolIdsToTrack});
+    return patrolIdsToTrack
+      .map((id) => store[id])
+      .filter((patrol) => !!patrol && !!getLeaderForPatrol(patrol))
+  }
 );
 
 
@@ -47,6 +48,8 @@ export const patrolTrackData = createSelector(
   [visibleTrackDataWithPatrolAwareness, getPatrolTrackList],
   (trackData, patrols) => {
     const tracks = trackData.filter(t => !!t.patrolTrackShown);
+
+    console.log({tracks});
     
     return patrols
       .map((patrol) => {

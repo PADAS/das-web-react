@@ -171,7 +171,7 @@ export const displayEndTimeForPatrol = (patrol) => {
 };
 
 export const getLeaderForPatrol = (patrol) => {
-  if (!patrol.patrol_segments.length) return null;
+  if (!patrol.patrol_segments?.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
   if (!leader) return null;
@@ -412,6 +412,10 @@ const normalizeTime = (time) => {
 
 // TODO refactor function to extract track from patrol.
 export const extractPatrolPointsFromTrackData = (trackData, patrols) => {
+  console.log({patrols: JSON.stringify(patrols)});
+
+  return
+
   const { features } = trackData.points;
   const feature = features[0];
 

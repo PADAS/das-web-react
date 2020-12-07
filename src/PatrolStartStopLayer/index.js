@@ -12,6 +12,7 @@ import { trimmedVisibleTrackData } from '../selectors/tracks';
 import withMapViewConfig from '../WithMapViewConfig';
 import { extractPatrolPointsFromTrackData } from '../utils/patrols';
 import { addMapImage } from '../utils/map';
+import { patrolTrackData } from '../selectors/patrols';
 
 
 const { PATROL_SYMBOLS } = LAYER_IDS;
@@ -19,6 +20,8 @@ const { PATROL_SYMBOLS } = LAYER_IDS;
 const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
 
   useEffect(() => {
+    return;
+
     trackData.map((data, index) => {
       const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
 
@@ -28,6 +31,10 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
         addMapImage({ src: patrolPoints.start_location.properties.image});
       }
     });
+  }, [trackData]);
+
+  useEffect(() => {
+    console.log({trackData});
   }, [trackData]);
   
   const [ layerIds, setLayerIds ] = useState(null);
@@ -110,7 +117,8 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
 
 const mapStateToProps = (state) => ({
   patrols: getPatrols(state),
-  trackData: trimmedVisibleTrackData(state),
+  // trackData: trimmedVisibleTrackData(state),
+  trackData: patrolTrackData(state)
 });
 
 
