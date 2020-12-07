@@ -8,9 +8,9 @@ import { trimTrackDataToTimeRange } from '../utils/tracks';
 
 
 const PatrolDistanceCovered = (props) => {
-  const { patrol, tracks } = props;
+  const { patrol, subjectStore, tracks } = props;
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
+  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
   const leaderTrack = useMemo(() => leader && leader.id && tracks[leader.id], [leader, tracks]);
   const timeRange = useMemo(() => {
     const [firstLeg] = patrol.patrol_segments;
@@ -33,7 +33,8 @@ const PatrolDistanceCovered = (props) => {
   
 };
 
-const mapStateToProps = ({ data: { tracks } }) => ({
+const mapStateToProps = ({ data: { tracks, subjectStore } }) => ({
+  subjectStore,
   tracks,
 });
 

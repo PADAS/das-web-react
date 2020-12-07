@@ -21,7 +21,7 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import styles from './styles.module.scss';
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { patrol, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
+  const { patrol, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
 
   const menuRef = useRef(null);
   const cardRef = useRef(ref || null);
@@ -50,7 +50,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     return patrolState.title;
   }, [patrol, patrolState]);
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
+  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
 
   useEffect(() => {
     if (leader && leader.id) {
@@ -71,7 +71,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     return format(startTime, STANDARD_DATE_FORMAT);
   }, [patrol]);
 
-  const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
+  const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 

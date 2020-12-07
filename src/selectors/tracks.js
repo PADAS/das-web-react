@@ -10,11 +10,11 @@ const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
-const getPatrolTrackIds = ({ view: { patrolTrackState }, data: { patrolStore } }) => uniq(
+const getPatrolTrackIds = ({ view: { patrolTrackState }, data: { patrolStore, subjectStore } }) => uniq(
   [...patrolTrackState.visible, ...patrolTrackState.pinned]
     .map(patrolId => patrolStore[patrolId])
     .filter(p => !!p)
-    .map(p => getLeaderForPatrol(p))
+    .map(p => getLeaderForPatrol(p, subjectStore))
     .filter(leader => !!leader)
     .map(({ id }) => id),
 );

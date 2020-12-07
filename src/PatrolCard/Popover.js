@@ -25,16 +25,17 @@ import { PATROL_CARD_STATES } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, map, onHide, onPatrolChange, patrol, patrolTrackState, subjectTrackState, target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
+  const { container, isOpen, map, onHide, onPatrolChange, patrol, patrolTrackState, subjectTrackState, subjectStore,
+    target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
+  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
 
   const leaderLastPositionCoordinates = useMemo(() => !!leader && leader.last_position && leader.last_position.geometry && leader.last_position.geometry.coordinates, [leader]);
 
   const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
   const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
-  const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
+  const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
   const subjectLastPosition = useMemo(() => leader && leader.last_position, [leader]);
 
@@ -141,7 +142,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   </Overlay>; 
 });
 
-const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
+const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState }, data: { subjectStore } }) => ({ patrolTrackState, subjectTrackState, subjectStore });
 
 
 export default connect(mapStateToProps, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, updatePatrolTrackState, updateTrackState, toggleTrackState }, null, {
