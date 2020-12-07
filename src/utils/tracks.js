@@ -185,6 +185,7 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
   const trackResults = cloneDeep(originalTrack);
 
   trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
+  
   trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
 
   if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {

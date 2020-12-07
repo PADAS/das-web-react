@@ -7,7 +7,6 @@ import styles from './styles.module.scss';
 
 const MouseMarkerPopup = (props) => {
   const { location, ...rest } = props;
-  console.log('location', location);
   const popupCoords = location && validateLngLat(location.lng, location.lat) ? [location.lng, location.lat] : null;
   const popupOffset = [-8, 0];
   const popupAnchorPosition = 'right';
