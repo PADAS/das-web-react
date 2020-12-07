@@ -6,6 +6,16 @@
   max-width: 1.25rem;
 }
 
+.svgIcon {
+  @extend .icon;
+  fill: gray;
+  margin-right: 0.5rem;
+  max-height: 1.5rem;
+  max-width: unset;
+  width: 2rem;
+  position: relative;
+}
+
 .titleWrapper {
   align-items: flex-start;
   display: flex;
@@ -32,7 +42,8 @@
 
 .popover {
   padding: 0.5rem;
-  width: 14rem;
+  max-width: 18rem;
+  min-width: 14rem;
   ul {
     list-style-type: none;
     margin: 0;

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import { MapContext } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
@@ -12,6 +13,7 @@ import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
+import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
@@ -151,75 +153,77 @@ const SideBar = (props) => {
   if (!map) return null;
 
   return <ErrorBoundary>
-    <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
-      <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-      <div className={styles.addReportContainer}>
-        <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
-      </div>
-      <Tabs activeKey={activeTab} onSelect={onTabsSelect} className={styles.tabBar}>
-        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
-          <DelayedUnmount isMounted={sidebarOpen}>
-            <ErrorBoundary>
-              <div className={styles.filterWrapper}>
-                <EventFilter className={styles.eventFilter}>
-                  <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
-                </EventFilter>
-                <div className={styles.filterStringWrapper}>
-                  <FriendlyEventFilterString className={styles.friendlyFilterString} />
-                  <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
+    <MapContext.Provider value={map}>
+      <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+        <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
+        <div className={styles.addReportContainer}>
+          <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
+        </div>
+        <Tabs activeKey={activeTab} onSelect={onTabsSelect} className={styles.tabBar}>
+          <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
+            <DelayedUnmount isMounted={sidebarOpen}>
+              <ErrorBoundary>
+                <div className={styles.filterWrapper}>
+                  <EventFilter className={styles.eventFilter}>
+                    <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
+                  </EventFilter>
+                  <div className={styles.filterStringWrapper}>
+                    <FriendlyEventFilterString className={styles.friendlyFilterString} />
+                    <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
+                  </div>
                 </div>
+              </ErrorBoundary>
+            </DelayedUnmount>
+            <ErrorBoundary>
+              {!!events.error && <div className={styles.feedError}>
+                <ErrorMessage message='Could not load reports. Please try again.' details={events.error} />
+                <Button type='button' variant='primary' onClick={loadFeedEvents}>
+                  <RefreshIcon />
+                Try again
+                </Button>
+              </div>}
+              {!events.error && <EventFeed
+                className={styles.sidebarEventFeed}
+                hasMore={!!events.next}
+                map={map}
+                loading={loadingEvents}
+                events={feedEvents}
+                onScroll={onScroll}
+                onTitleClick={onEventTitleClick}
+              />
+              }
+            </ErrorBoundary>
+          </Tab>
+          {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+            <PatrolFilter className={styles.patrolFilter} /> 
+            <PatrolList map={map} patrols={patrols.results || []}/>
+          </Tab>}
+          <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
+            <ErrorBoundary>
+              <MapLayerFilter />
+              <div className={styles.mapLayers}>
+                <ReportMapControl />
+                <SubjectGroupList map={map} />
+                <FeatureLayerList map={map} />
+                <AnalyzerLayerList map={map} />
+                <div className={styles.noItems}>No items to display.</div>
+              </div>
+              <div className={styles.mapLayerFooter}>
+                <ClearAllControl map={map} />
               </div>
             </ErrorBoundary>
-          </DelayedUnmount>
-          <ErrorBoundary>
-            {!!events.error && <div className={styles.feedError}>
-              <ErrorMessage message='Could not load reports. Please try again.' details={events.error} />
-              <Button type='button' variant='primary' onClick={loadFeedEvents}>
-                <RefreshIcon />
-                Try again
-              </Button>
-            </div>}
-            {!events.error && <EventFeed
-              className={styles.sidebarEventFeed}
-              hasMore={!!events.next}
-              map={map}
-              loading={loadingEvents}
-              events={feedEvents}
-              onScroll={onScroll}
-              onTitleClick={onEventTitleClick}
-            />
-            }
-          </ErrorBoundary>
-        </Tab>
-        {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
-          <PatrolFilter className={styles.patrolFilter} /> 
-          <PatrolList map={map} patrols={patrols.results || []}/>
-        </Tab>}
-        <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
-          <ErrorBoundary>
-            <MapLayerFilter />
-            <div className={styles.mapLayers}>
-              <ReportMapControl />
-              <SubjectGroupList map={map} />
-              <FeatureLayerList map={map} />
-              <AnalyzerLayerList map={map} />
-              <div className={styles.noItems}>No items to display.</div>
-            </div>
-            <div className={styles.mapLayerFooter}>
-              <ClearAllControl map={map} />
-            </div>
-          </ErrorBoundary>
-        </Tab>
-      </Tabs>
-    </aside>
-    <SleepDetector onSleepDetected={loadFeedEvents} />
+          </Tab>
+        </Tabs>
+      </aside>
+      <SleepDetector onSleepDetected={loadFeedEvents} />
+    </MapContext.Provider>
   </ErrorBoundary>;
 };
 
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
-  patrols: state.data.patrols,
+  patrols: getPatrolList(state),
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,

@@ -49,6 +49,10 @@ h4 {
   }
 }
 
+.attachments {
+  padding: 0 1rem;
+}
+
 section.timeBar {
   align-items: center;
   background: $light-blue;
@@ -100,6 +104,7 @@ section.timeBar {
     &[class*=empty] {
       background: white;
       max-width: 9rem;
+      display: flex;
       svg * {
         stroke: $light-blue;
       }

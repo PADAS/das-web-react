@@ -178,7 +178,6 @@ const EventsLayer = (props) => {
   }, [clusterGeometryIsSet, map]);
   
   const onClusterMouseLeave = useCallback(() => {
-    // console.log('mouse leave, should be clearing the polygon');
     setClusterBufferPolygon(featureCollection([]));
   }, []);
 

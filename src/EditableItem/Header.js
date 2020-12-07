@@ -43,11 +43,9 @@ const EditableItemHeader = (props) => {
     return titleProp || data.title;
   }, [data.title, titleProp]);
 
-  /*  const onTitleChangeCancel = () => {
-    trackEvent('Event Report', 'Cancel Change Report Title');
-  }; */
-  
-  const updateTime = data.updated_at || data.created_at;
+  const updateTime = useMemo(() => {
+    return data.updated_at || data.created_at || data.updates[data.updates.length - 1].time;
+  }, [data.updated_at, data.created_at, data.updates]);
 
   const handleEscapePress = (event) => {
     const { key } = event;

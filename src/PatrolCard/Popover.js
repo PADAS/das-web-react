@@ -1,28 +1,35 @@
-import React, { Fragment, memo, forwardRef, useMemo } from 'react';
+import React, { useCallback, Fragment, memo, forwardRef, useMemo } from 'react';
+import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import PropTypes from 'prop-types';
+import uniq from 'lodash/uniq';
 
 import HeatmapToggleButton from '../HeatmapToggleButton';
-import TrackToggleButton from '../TrackToggleButton';
+import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
 import DasIcon from '../DasIcon';
 import AddReport from '../AddReport';
 import TimeAgo from '../TimeAgo';
-import PatrolDistanceCovered from '../Patrols/DistanceCovered';
+
+import { withMap } from '../EarthRangerMap';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
+import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
 import { PATROL_CARD_STATES } from '../constants';
 
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, onPatrolChange, patrol, target } = props;
+  const { container, isOpen, map, onHide, onPatrolChange, patrol, patrolTrackState, subjectTrackState, target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
   const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
+
+  const leaderLastPositionCoordinates = useMemo(() => !!leader && leader.last_position && leader.last_position.geometry && leader.last_position.geometry.coordinates, [leader]);
 
   const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
   const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
@@ -30,8 +37,6 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol), [patrol]);
 
   const subjectLastPosition = useMemo(() => leader && leader.last_position, [leader]);
-
-  const timeOnPatrol = useMemo(() => displayDurationForPatrol(patrol), [patrol]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
@@ -60,8 +65,51 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   ), 
   [leader, subjectLastPosition]);
 
-  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} rootClose>
-    <Popover {...props} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
+  const onOverlayOpen = useCallback(() => {
+    if (!leader) return;
+
+    const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
+    const leaderTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
+      
+    if (patrolTrackHidden) {
+      togglePatrolTrackState(patrol.id);
+    }
+      
+    if (leaderTrackHidden) {
+      toggleTrackState(leader.id);
+    }
+
+  }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
+
+
+  const onOverlayClose = useCallback(() => {
+    if (!leader) return;
+
+    onHide();
+
+    const patrolTrackIsPinned = patrolTrackState.pinned.includes(patrol.id);
+    const subjectTrackIsPinned = subjectTrackState.pinned.includes(leader.id);
+    
+    if (patrolTrackIsPinned && subjectTrackIsPinned) return;
+
+    if (!patrolTrackIsPinned) {
+      updatePatrolTrackState({
+        ...patrolTrackState,
+        visible: patrolTrackState.visible.filter(id => id !== patrol.id),
+      });
+    }
+
+    if (!subjectTrackIsPinned) {
+      updateTrackState({
+        ...subjectTrackState,
+        visible: subjectTrackState.visible.filter(id => id !== leader.id),
+      });
+    }
+
+  }, [leader, onHide, patrol.id, patrolTrackState, subjectTrackState, updatePatrolTrackState, updateTrackState]);
+
+  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onHide={onOverlayClose} rootClose>
+    <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
       <Popover.Content ref={ref}>
         {patrolIconId && <DasIcon type='events' iconId={patrolIconId} />}
         <h5>
@@ -72,17 +120,14 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
         {!isScheduledPatrol && <Fragment>
           <div className={styles.details}>
-            {!!subjectLastVoiceCall.getTime() && <span>Radio activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
-            {!!subjectTimeAtLastPosition.getTime() && <span>Time at current position: <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
-            <span>Time on patrol: {timeOnPatrol}</span> {/* time on patrol */}
-            <span>Distance covered: <PatrolDistanceCovered patrol={patrol} />{/* distance covered */}</span>
+            {!!subjectLastVoiceCall.getTime() && <span>Mic activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
+            {!!subjectTimeAtLastPosition.getTime() && <span>Time since last movement (est.): <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
           </div>
   
           <div className={styles.controls}>
-            <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
-            <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
-            <LocationJumpButton bypassLocationValidation={true}
-              /* className={styles.patrolButton} onClick={onPatrolJumpClick} */ />
+            <HeatmapToggleButton disabled={!leader} showLabel={false} heatmapVisible={false} />
+            <PatrolAwareTrackToggleButton patrol={patrol} showLabel={false} />
+            {!!leaderLastPositionCoordinates && <LocationJumpButton bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
           </div>
           <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
         </Fragment>
@@ -94,7 +139,12 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   </Overlay>; 
 });
 
-export default memo(PatrolCardPopover);
+const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
+
+
+export default connect(mapStateToProps, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, updatePatrolTrackState, updateTrackState, toggleTrackState }, null, {
+  forwardRef: true,
+})(withMap(memo(PatrolCardPopover)));
 
 PatrolCardPopover.propTypes = {
   isOpen: PropTypes.bool.isRequired,

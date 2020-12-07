@@ -18,10 +18,10 @@ import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
+import { getPatrolsForLeaderId } from '../utils/patrols';
 import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
-import { getVisibleTrackIds } from '../selectors/tracks';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning, getSubjectsOnActivePatrol } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
@@ -29,6 +29,7 @@ import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../u
 import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
+import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
@@ -47,7 +48,8 @@ import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
-import TrackLegend from '../TrackLegend';
+import SubjectTrackLegend from '../SubjectTrackLegend';
+import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
@@ -65,6 +67,7 @@ import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
+import PatrolTracks from '../PatrolTracks';
 
 import './Map.scss';
 
@@ -93,6 +96,7 @@ class Map extends Component {
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
     this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
+    this.onPatrolTrackLegendClose = this.onPatrolTrackLegendClose.bind(this);
     this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
     this.onClusterLeafClick = this.onClusterLeafClick.bind(this);
     this.onFeatureSymbolClick = this.onFeatureSymbolClick.bind(this);
@@ -420,15 +424,20 @@ class Map extends Component {
   })
 
   hideUnpinnedTrackLayers(map, event) {
-    const { updateTrackState, subjectTrackState: { visible } } = this.props;
+    const { updatePatrolTrackState, updateTrackState, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
 
     const clickedLayerIDs = map.queryRenderedFeatures(event.point)
       .filter(({ properties }) => !!properties && properties.id)
       .map(({ properties: { id } }) => id);
 
-    return updateTrackState({
+    const matchingPatrolIds = clickedLayerIDs.reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], []).map(({ id }) => id);
+
+    updateTrackState({
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
+    });
+    updatePatrolTrackState({
+      visible: visible.filter(id => matchingPatrolIds.includes(id)),
     });
   }
   onCloseReportHeatmap() {
@@ -521,6 +530,14 @@ class Map extends Component {
     });
   }
 
+  onPatrolTrackLegendClose() {
+    const { updatePatrolTrackState } = this.props;
+    updatePatrolTrackState({
+      visible: [],
+      pinned: [],
+    });
+  }
+
   onReportMarkerDrop(location) {
     this.props.showPopup('dropped-marker', { location });
   }
@@ -534,7 +551,7 @@ class Map extends Component {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
-      subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
+      patrolTrackState, subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
 
@@ -545,6 +562,8 @@ class Map extends Component {
 
     const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
+    const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
+    
     if (!maps.length) return null;
 
     const enableEventClustering = timeSliderActive ? false : true;
@@ -603,26 +622,24 @@ class Map extends Component {
                 
 
             <div className='map-legends'>
+              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {subjectTracksVisible && <TrackLegend onClose={this.onTrackLegendClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
               <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
             {showReportHeatmap && <ReportsHeatLayer />}
 
-            {tracksAvailable && (
-              <Fragment>
-                <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />
-                <PatrolStartStopLayer />
-              </Fragment>
-            )}
+            {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
+            {subjectTracksVisible && <PatrolStartStopLayer />}
+            
+            {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
 
-       
 
             {!!this.state.reportSpiderConfig.coordinates && 
               <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 
@@ -654,7 +671,7 @@ class Map extends Component {
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, } = data;
-  const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
+  const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
@@ -666,6 +683,7 @@ const mapStatetoProps = (state, props) => {
     hiddenFeatureIDs,
     homeMap,
     mapIsLocked,
+    patrolTrackState,
     popup,
     eventFilter,
     subjectTrackState,
@@ -683,7 +701,6 @@ const mapStatetoProps = (state, props) => {
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
-    tracksAvailable: !!getVisibleTrackIds(state).length,
   });
 };
 
@@ -703,6 +720,7 @@ export default connect(mapStatetoProps, {
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,
+  updatePatrolTrackState,
   updateHeatmapSubjects,
 }
 )(withSocketConnection(withMap(withRouter(Map))));
