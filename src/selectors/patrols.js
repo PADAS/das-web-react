@@ -47,8 +47,6 @@ export const patrolTrackData = createSelector(
   [visibleTrackDataWithPatrolAwareness, getPatrolTrackList],
   (trackData, patrols) => {
     const tracks = trackData.filter(t => !!t.patrolTrackShown);
-
-    console.log({tracks});
     
     return patrols
       .map((patrol) => {

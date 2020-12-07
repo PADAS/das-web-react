@@ -3,7 +3,7 @@ import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
 import { getUniqueSubjectGroupSubjects, pinMapSubjectsToVirtualPosition } from '../utils/subjects';
-import { calcPatrolCardState, getPatrolsForLeaderId, getPatrolsForSubject } from '../utils/patrols';
+import { calcPatrolCardState, getActivePatrolsForLeaderId, getPatrolsForLeaderId, getPatrolsForSubject } from '../utils/patrols';
 
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -33,7 +33,7 @@ export const getMapSubjectFeatureCollectionWithActivePatrols = createSelector(
       .map(id => subjectStore[id])
       .filter(item => !!item)
       .map(subject => {
-        subject.ticker = Boolean(getPatrolsForLeaderId(subject.id).length) ? 'P' : '';
+        subject.ticker = Boolean(getActivePatrolsForLeaderId(subject.id).length) ? 'P' : '';
         return subject
       })
     

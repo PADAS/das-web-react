@@ -18,10 +18,9 @@ import { patrolTrackData } from '../selectors/patrols';
 const { PATROL_SYMBOLS } = LAYER_IDS;
 
 const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
+  const [trackPatrolPoints, setTrackPatrolPoints] = useState([]);
 
   useEffect(() => {
-    return;
-
     trackData.map((data, index) => {
       const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
 
@@ -30,11 +29,12 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
       if (!map.hasImage(patrolPoints.start_location.properties.image)) {
         addMapImage({ src: patrolPoints.start_location.properties.image});
       }
-    });
-  }, [trackData]);
 
-  useEffect(() => {
-    console.log({trackData});
+      setTrackPatrolPoints([
+        ...trackPatrolPoints,
+        patrolPoints
+      ]);
+    });
   }, [trackData]);
   
   const [ layerIds, setLayerIds ] = useState(null);
@@ -69,16 +69,7 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
   const onSymbolClick = () => {};
 
   return <Fragment>
-    {trackData.map((data, index) => {
-
-      const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
-
-      if (!patrolPoints) return <Fragment />
-      
-      if (!map.hasImage(patrolPoints.start_location.properties.image)) {
-        addMapImage({ src: patrolPoints.start_location.properties.image});
-      }
-
+    {trackPatrolPoints.map((patrolPoints, index) => {
       const patrolPointFeatures = patrolPoints.are_start_and_end_locations_the_same ? [
         {
           ...patrolPoints.start_location,

@@ -195,6 +195,16 @@ export const getPatrolsForLeaderId = (leaderId) => {
     && patrol.patrol_segments[0].leader.id === leaderId
   );
 };
+export const getActivePatrolsForLeaderId = (leaderId) => {
+  const patrols = getPatrolsForLeaderId(leaderId);
+  const activePatrols = patrols.filter(
+    item => {
+      return calcPatrolCardState(item) === PATROL_CARD_STATES.ACTIVE
+    }
+  );
+
+  return activePatrols;
+};
 
 export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
