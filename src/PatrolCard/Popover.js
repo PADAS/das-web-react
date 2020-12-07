@@ -57,6 +57,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   ), 
   [leader, subjectLastPosition]);
 
+  const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
+
   return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} rootClose>
     <Popover {...props} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
       <Popover.Content ref={ref}>
@@ -68,10 +70,10 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
         {(canStart || canEnd) && <PatrolStartStopButton patrol={patrol} onPatrolChange={onPatrolChange} />}
 
         {!isScheduledPatrol && <Fragment>
-          <div className={styles.details}>
+          {!!hasDetails && <div className={styles.details}>
             {!!subjectLastVoiceCall.getTime() && <span>Mic activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
             {!!subjectTimeAtLastPosition.getTime() && <span>Time since last movement (est.): <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
-          </div>
+          </div>}
   
           <div className={styles.controls}>
             <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
