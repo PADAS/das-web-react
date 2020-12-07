@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -10,8 +11,6 @@ import { ReactComponent as InfoIcon } from '../common/images/icons/information.s
 import TrackToggleButton from '../TrackToggleButton';
 
 import { updateTrackState } from '../ducks/map-ui';
-
-import { trimmedVisibleTrackData } from '../selectors/tracks';
 
 import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
@@ -78,8 +77,20 @@ const TrackLegend = (props) => {
   const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, subjectStore, updateTrackState } = props;
 
   const subjectCount = trackData.length;
-  const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
-  let displayTitle, iconSrc;
+  const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
+
+  const displayTitle = useMemo(() => {
+    if (subjectCount !== 1) {
+      return `${subjectCount} subjects`;
+    }
+    
+    return trackData[0].track.features[0].properties.title;
+  }, [subjectCount, trackData]);
+
+  const iconSrc = useMemo(() => {
+    if (subjectCount !== 1) return null;
+    return getIconForTrack(trackData[0].track, subjectStore);
+  }, [subjectCount, subjectStore, trackData]);
 
   const onRemoveTrackClick = ({ target: { value: id } }) => {
     trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
@@ -89,16 +100,14 @@ const TrackLegend = (props) => {
     });
   };
 
-  if (subjectCount === 1) {
-    const { title } = trackData[0].track.features[0].properties;
-    displayTitle = `${title}`;
-    iconSrc = getIconForTrack(trackData[0].track, subjectStore);
-  } else {
-    displayTitle = `${subjectCount} subjects`;
-  }
+  
 
   return subjectCount && <MapLegend
-    titleElement={<TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick} subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData} trackPointCount={trackPointCount} track_days={track_days} />}
+    titleElement={
+      <TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick}
+        subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData} 
+        trackPointCount={trackPointCount} track_days={track_days} />
+    }
     onClose={onClose}
     settingsComponent={<TrackLengthControls />} 
   >
@@ -106,10 +115,13 @@ const TrackLegend = (props) => {
 };
 
 const mapStatetoProps = (state) => ({
-  trackData: trimmedVisibleTrackData(state),
   subjectStore: state.data.subjectStore,
-  subjectTrackState: state.view.subjectTrackState,
   trackLength: state.view.trackLength,
 });
 
 export default connect(mapStatetoProps, { updateTrackState })(memo(TrackLegend));
+
+TrackLegend.propTypes = {
+  trackData: PropTypes.array.isRequired,
+  subjectTrackState: PropTypes.object.isRequired,
+};

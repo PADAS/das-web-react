@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, memo } from 'react'; /* eslint-disable-line no-unused-vars */
 import PropTypes from 'prop-types';
 
-const DEFAULT_INTERVAL = 60000;
+const DEFAULT_INTERVAL = 240000;
 const DEFAULT_TOLERANCE = 2000;
 
 const SleepDetector = (props) => {
