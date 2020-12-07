@@ -366,7 +366,7 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.warn('failed to save new patrol', error);
       });
-  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol, addedReports, patrolSegmentId]);
 
   const startTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
