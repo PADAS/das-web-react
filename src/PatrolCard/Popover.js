@@ -127,7 +127,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
           <div className={styles.controls}>
             <HeatmapToggleButton disabled={!leader} showLabel={false} heatmapVisible={false} />
             <PatrolAwareTrackToggleButton patrol={patrol} showLabel={false} />
-            <LocationJumpButton disabled={!leaderLastPositionCoordinates} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />
+            {!!leaderLastPositionCoordinates && <LocationJumpButton bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
           </div>
           <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
         </Fragment>
