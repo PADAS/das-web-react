@@ -64,6 +64,8 @@ const PatrolModal = (props) => {
 
   const patrolReports= useMemo(() => getReportsForPatrol(patrol), [patrol]);
 
+  const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
+
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
     const [firstLeg] = statePatrol.patrol_segments;
@@ -434,7 +436,7 @@ const PatrolModal = (props) => {
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
             <ul>
-              {[...patrolReports, ...addedReports].map((item, index) =>
+              {allPatrolReports.map((item, index) =>
                 <ReportListItem
                   className={styles.listItem}
                   map={map}
