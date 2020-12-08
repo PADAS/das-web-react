@@ -420,7 +420,6 @@ const normalizeTime = (time) => {
 }
 
 
-// TODO refactor function to extract track from patrol.
 export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segments: [firstLeg] }, trackData}) => {
 
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
@@ -428,11 +427,13 @@ export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segme
   const { features } = trackData.points;
   const feature = trackData.points.features[0];
 
+  const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
+
   let patrol_points = {
     start_location: start_location 
       ? makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, feature.properties.stroke)
       : null,
-    end_location: end_location
+    end_location: end_location && !isPatrolActive
       ? makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, feature.properties.stroke)
       : null,
   };
@@ -454,7 +455,7 @@ export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segme
     }
   }
 
-  if (end_location === null) {
+  if (end_location === null && !isPatrolActive) {
     const endLocationTrackPoint = features.find(
       ({ properties: { time } }) => {
         const normalizedFeatureTime = normalizeTime(time);
@@ -474,14 +475,11 @@ export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segme
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
-  if (!patrol_points.end_location) {
+  if (!patrol_points.end_location && !isPatrolActive) {
     // TODO refactor this to pick closest in time to end_time?
     const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[0];
     patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
   }
-
-  patrol_points.is_patrol_active = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
-  if (patrol_points.is_patrol_active) delete patrol_points.end_location
 
   patrol_points.are_start_and_end_locations_the_same = patrol_points.end_location && booleanEqual(
     point(patrol_points.end_location.geometry.coordinates),
@@ -490,6 +488,7 @@ export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segme
 
   return patrol_points
 }
+
 export const patrolTimeRangeIsValid = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const endTime = displayEndTimeForPatrol(patrol);
