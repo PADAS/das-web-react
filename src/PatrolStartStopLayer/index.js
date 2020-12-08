@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useState } from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Source } from 'react-mapbox-gl';
@@ -8,7 +8,6 @@ import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../const
 import { withMap } from '../EarthRangerMap';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import { getPatrols } from '../selectors/tracks';
-import { trimmedVisibleTrackData } from '../selectors/tracks';
 import withMapViewConfig from '../WithMapViewConfig';
 import { extractPatrolPointsFromTrackData } from '../utils/patrols';
 import { addMapImage } from '../utils/map';
@@ -17,27 +16,22 @@ import { patrolTrackData } from '../selectors/patrols';
 
 const { PATROL_SYMBOLS } = LAYER_IDS;
 
-const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
-  const [trackPatrolPoints, setTrackPatrolPoints] = useState([]);
+const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
+  const trackPatrolPoints = useMemo(() => trackData.map(data => {
+    const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
+
+    if (!patrolPoints) return null;
+
+    return patrolPoints;
+  }).filter(item => !!item), [trackData]);
 
   useEffect(() => {
-    trackData.map((data, index) => {
-      const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
+    const patrolPoints = Boolean(trackPatrolPoints?.length) ? trackPatrolPoints[trackPatrolPoints.length - 1] : null;
 
-      console.log({patrolPoints});
-
-      if (!patrolPoints) return <Fragment />
-      
-      if (!map.hasImage(patrolPoints.start_location.properties.image)) {
-        addMapImage({ src: patrolPoints.start_location.properties.image});
-      }
-
-      setTrackPatrolPoints([
-        ...trackPatrolPoints,
-        patrolPoints
-      ]);
-    });
-  }, [trackData]);
+    if (patrolPoints && !map.hasImage(patrolPoints.start_location.properties.image)) {
+      addMapImage({ src: patrolPoints.start_location.properties.image});
+    }
+  }, [map, trackPatrolPoints]);
   
   const [ layerIds, setLayerIds ] = useState(null);
 
@@ -110,23 +104,22 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
 
 const mapStateToProps = (state) => ({
   patrols: getPatrols(state),
-  // trackData: trimmedVisibleTrackData(state),
   trackData: patrolTrackData(state)
 });
 
 
 export default connect(mapStateToProps, null)(withMap(
-  memo(withMapViewConfig(PatrolLayer)),
+  memo(withMapViewConfig(PatrolStartStopLayer)),
 ));
 
-PatrolLayer.defaultProps = {
+PatrolStartStopLayer.defaultProps = {
   onPointClick(layer) {
     console.log('clicked timepoint', layer);
   },
   showTimepoints: true,
 };
 
-PatrolLayer.propTypes = {
+PatrolStartStopLayer.propTypes = {
   map: PropTypes.object.isRequired,
   onPointClick: PropTypes.func,
   showTimepoints: PropTypes.bool,
