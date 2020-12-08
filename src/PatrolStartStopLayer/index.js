@@ -24,6 +24,8 @@ const PatrolLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, pat
     trackData.map((data, index) => {
       const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
 
+      console.log({patrolPoints});
+
       if (!patrolPoints) return <Fragment />
       
       if (!map.hasImage(patrolPoints.start_location.properties.image)) {
