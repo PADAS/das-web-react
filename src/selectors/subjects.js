@@ -24,23 +24,16 @@ export const getMapSubjectFeatureCollection = createSelector(
     return filterInactiveRadiosFromCollection(mapSubjectCollection);
   });
 
-export const getMapSubjectFeatureCollectionWithActivePatrols = createSelector(
-  [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
-  (mapSubjects, subjectStore, hiddenSubjectIDs, showInactiveRadios) => {
-    const fromStore = mapSubjects
-      .filter(id => !hiddenSubjectIDs.includes(id))
-      .map(id => subjectStore[id])
-      .filter(item => !!item)
-      .map(subject => {
-        subject.ticker = Boolean(getActivePatrolsForLeaderId(subject.id).length) ? 'P' : '';
-        return subject
+export const getMapSubjectFeatureCollectionWithActivePatrols = (mapSubjects) => {
+  return {
+    ...mapSubjects,
+    features: mapSubjects.features
+      .map(feature => {
+        feature.properties.ticker = Boolean(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+        return feature
       })
-    
-    const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
-    if (showInactiveRadios) return mapSubjectCollection;
-    return filterInactiveRadiosFromCollection(mapSubjectCollection);
-  }
-);
+  };
+};
 
 export const getSubjectGroups = createSelector(
   [subjectGroups, getSubjectStore],
@@ -67,12 +60,14 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollectionWithActivePatrols, tracks, getTimeSliderState],
+  [getMapSubjectFeatureCollection, tracks, getTimeSliderState],
   (mapSubjectFeatureCollection, tracks, timeSliderState) => {
+    const mapSubjectFeatureCollection_ = getMapSubjectFeatureCollectionWithActivePatrols(mapSubjectFeatureCollection);
+
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {
-      return mapSubjectFeatureCollection;
+      return mapSubjectFeatureCollection_;
     }
-    return pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection, tracks, virtualDate);
+    return pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection_, tracks, virtualDate);
   },
 );
