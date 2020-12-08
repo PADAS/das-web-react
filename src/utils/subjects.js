@@ -2,6 +2,7 @@ import uniqBy from 'lodash/uniqBy';
 import differenceInSeconds from 'date-fns/difference_in_seconds';
 
 import { findTimeEnvelopeIndices } from './tracks';
+import { getActivePatrolsForLeaderId } from './patrols';
 
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
@@ -168,4 +169,15 @@ const filterSubjectsHelper = (s, isMatch) => {
     };
   } 
   return newS;
+};
+
+export const markSubjectFeaturesWithActivePatrols = (mapSubjects) => {
+  return {
+    ...mapSubjects,
+    features: mapSubjects.features
+      .map(feature => {
+        feature.properties.ticker = Boolean(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+        return feature
+      })
+  };
 };

@@ -2,8 +2,7 @@ import { createSelector, getTimeSliderState } from './';
 import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
-import { pinMapSubjectsToVirtualPosition } from '../utils/subjects';
-import { getActivePatrolsForLeaderId } from '../utils/patrols';
+import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols } from '../utils/subjects';
 
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
@@ -23,17 +22,6 @@ export const getMapSubjectFeatureCollection = createSelector(
     if (showInactiveRadios) return mapSubjectCollection;
     return filterInactiveRadiosFromCollection(mapSubjectCollection);
   });
-
-export const getMapSubjectFeatureCollectionWithActivePatrols = (mapSubjects) => {
-  return {
-    ...mapSubjects,
-    features: mapSubjects.features
-      .map(feature => {
-        feature.properties.ticker = Boolean(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
-        return feature
-      })
-  };
-};
 
 export const getSubjectGroups = createSelector(
   [subjectGroups, getSubjectStore],
@@ -62,7 +50,7 @@ export const allSubjects = createSelector(
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
   [getMapSubjectFeatureCollection, tracks, getTimeSliderState],
   (mapSubjectFeatureCollection, tracks, timeSliderState) => {
-    const mapSubjectFeatureCollection_ = getMapSubjectFeatureCollectionWithActivePatrols(mapSubjectFeatureCollection);
+    const mapSubjectFeatureCollection_ = markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection);
 
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {
