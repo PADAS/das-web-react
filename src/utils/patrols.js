@@ -483,7 +483,7 @@ export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segme
     point(patrol_points.start_location.geometry.coordinates)
   );
 
-  if (!end_location && !start_location) return null;
+  if (!patrol_points.end_location && !patrol_points.start_location) return null;
 
   return patrol_points
 }
