@@ -65,6 +65,10 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   ), 
   [leader, subjectLastPosition]);
 
+  const onAddReport = useCallback((report) => {
+    console.log('Added report', report);
+  }, []);
+
   const onOverlayOpen = useCallback(() => {
     if (!leader) return;
 
@@ -129,7 +133,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
             <PatrolAwareTrackToggleButton patrol={patrol} showLabel={false} />
             <LocationJumpButton disabled={!leaderLastPositionCoordinates} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />
           </div>
-          <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
+          <AddReport className={styles.addButton} map={map} showPatrol={false} showLabel={false} onSaveSuccess={onAddReport} />
         </Fragment>
         }
 
