@@ -2,14 +2,13 @@ import { createSelector, getTimeSliderState } from './';
 import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
-import { getUniqueSubjectGroupSubjects, pinMapSubjectsToVirtualPosition } from '../utils/subjects';
-import { calcPatrolCardState, getActivePatrolsForLeaderId, getPatrolsForLeaderId, getPatrolsForSubject } from '../utils/patrols';
+import { pinMapSubjectsToVirtualPosition } from '../utils/subjects';
+import { getActivePatrolsForLeaderId } from '../utils/patrols';
 
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
-const getPatrols =  ({ data: { patrols: { results } } }) => results;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 
 export const getMapSubjectFeatureCollection = createSelector(
@@ -75,31 +74,5 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
       return mapSubjectFeatureCollection;
     }
     return pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection, tracks, virtualDate);
-  },
-);
-
-const filterSubjectFeatureCollectionToActivePatrols = (subjectFeatureCollection, patrols) => {
-  return {
-    type: 'FeatureCollection',
-    features: subjectFeatureCollection.features.filter(
-      ({properties: subject}) => {
-        const subjectPatrol = getPatrolsForSubject(patrols, subject)[0];
-        return subjectPatrol && calcPatrolCardState(subjectPatrol).title === 'Active';
-      }
-    ),
-  };
-};
-
-export const getSubjectsOnActivePatrol = createSelector(
-  [getMapSubjectFeatureCollection, tracks, getTimeSliderState, getPatrols],
-  (mapSubjectFeatureCollection, tracks, timeSliderState, patrols) => {
-    const { active: timeSliderActive, virtualDate } = timeSliderState;
-    if (!timeSliderActive) {
-      return filterSubjectFeatureCollectionToActivePatrols(mapSubjectFeatureCollection, patrols);
-    }
-    return filterSubjectFeatureCollectionToActivePatrols(
-      pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection, tracks, virtualDate),
-      patrols
-    );
   },
 );

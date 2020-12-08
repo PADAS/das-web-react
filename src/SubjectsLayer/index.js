@@ -21,7 +21,7 @@ const symbolPaint = {
 };
 
 const SubjectsLayer = (props) => {
-  const { allowOverlap, mapUserLayoutConfig, onSubjectIconClick, subjects, subjectsOnActivePatrol, map, mapImages = {} } = props;
+  const { allowOverlap, mapUserLayoutConfig, onSubjectIconClick, subjects, map, mapImages = {} } = props;
 
   const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));

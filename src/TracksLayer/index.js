@@ -49,7 +49,7 @@ const mapStateToProps = (state) => ({
 
 
 export default connect(mapStateToProps, null)(withMap(
-  memo(withMapViewConfig(TracksLayer)),
+  memo(TracksLayer),
 ));
 
 // export default withMap(memo(withMapViewConfig(SubjectsLayer)));
