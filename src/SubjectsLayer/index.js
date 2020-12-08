@@ -32,11 +32,6 @@ const SubjectsLayer = (props) => {
     data: mapSubjectFeatures,
   };
 
-  const sourceDataForActivePatrol = {
-    type: 'geojson',
-    data: subjectsOnActivePatrol,
-  };
-
   const layoutConfig = allowOverlap ? {
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
