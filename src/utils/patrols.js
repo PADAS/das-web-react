@@ -416,8 +416,6 @@ const normalizeTime = (time) => {
 
 
 export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segments: [firstLeg] }, trackData}) => {
-  console.log({trackData});
-
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
   const { features } = trackData.points;
