@@ -8,7 +8,7 @@ import Button from 'react-bootstrap/Button';
 import MapLegend from '../MapLegend';
 import DasIcon from '../DasIcon';
 
-import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { displayTitleForPatrol, getLeaderForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { patrolTrackData } from '../selectors/patrols';
@@ -19,10 +19,13 @@ import styles from '../TrackLegend/styles.module.scss';
 
 
 const TitleElement = memo((props) => { // eslint-disable-line
-  const { coverageLength, displayTitle, iconId, patrolData, patrolFilter, onRemovePatrolClick } = props;
+  const { coverageLength, displayTitle, iconId, patrolData, subjectStore, patrolFilter, onRemovePatrolClick } = props;
 
   const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData }) => {
-    const title = displayTitleForPatrol(patrol);
+    const title = displayTitleForPatrol(
+      patrol,
+      getLeaderForPatrol(patrol, subjectStore)
+    );
     
     const iconId = iconTypeForPatrol(patrol);
     const { id } = patrol;
@@ -41,7 +44,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
       </div>
       <Button variant="secondary" value={id} onClick={onRemovePatrolClick}>remove</Button>
     </li>;
-  }, [onRemovePatrolClick, patrolFilter]);
+  }, [onRemovePatrolClick, patrolFilter, subjectStore]);
 
   return <div className={styles.titleWrapper}>
     {iconId && <DasIcon type='events' iconId={iconId} className={styles.svgIcon} />}
@@ -67,17 +70,20 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
 
 const PatrolTrackLegend = (props) => {
-  const { dispatch:_dispatch, patrolData, patrolFilter, updateTrackState, trackState, ...rest } = props;
+  const { dispatch:_dispatch, patrolData, patrolFilter, updateTrackState, subjectStore, trackState, ...rest } = props;
 
   const hasData = !!patrolData.length;
   const isMulti = patrolData.length > 1;
 
   const displayTitle = useMemo(() => {
     if (!hasData) return null;
-    if (!isMulti) return `Patrol: ${displayTitleForPatrol(patrolData[0].patrol)}`;
+    if (!isMulti) return `Patrol: ${displayTitleForPatrol(
+      patrolData[0].patrol,
+      getLeaderForPatrol(patrolData[0].patrol, subjectStore)
+    )}`;
 
     return `${patrolData.length} patrols`;
-  }, [hasData, isMulti, patrolData]);
+  }, [hasData, isMulti, patrolData, subjectStore]);
 
   const iconId = useMemo(() => {
     if (isMulti || !hasData) return null;
@@ -105,7 +111,7 @@ const PatrolTrackLegend = (props) => {
   return hasData ? <MapLegend
     {...rest}
     titleElement={
-      <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData} patrolFilter={patrolFilter}
+      <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData} subjectStore={subjectStore} patrolFilter={patrolFilter}
         onRemovePatrolClick={onRemovePatrolClick} coverageLength={coverageLength} />
     } /> : null;
 };
@@ -113,6 +119,7 @@ const PatrolTrackLegend = (props) => {
 const mapStateToProps = (state) => ({
   trackState: state.view.patrolTrackState,
   patrolData: patrolTrackData(state),
+  subjectStore: state.data.subjectStore,
   patrolFilter: state.data.patrolFilter,
 });
 
