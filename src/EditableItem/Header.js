@@ -44,7 +44,12 @@ const EditableItemHeader = (props) => {
   }, [data.title, titleProp]);
 
   const updateTime = useMemo(() => {
-    return data.updated_at || data.created_at || data.updates[data.updates.length - 1].time;
+    if (data.updates?.length) {
+      const [latestUpdate] = data.updates;
+      return latestUpdate.time;
+    }
+
+    return data.updated_at || data.created_at;
   }, [data.updated_at, data.created_at, data.updates]);
 
   const handleEscapePress = (event) => {

@@ -1,4 +1,5 @@
 import { createSelector } from './';
+import { getSubjectStore } from './subjects';
 import { trimmedVisibleTrackData } from './tracks';
 import { getLeaderForPatrol } from '../utils/patrols';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
@@ -17,12 +18,12 @@ export const getPatrolList = createSelector(
 );
 
 export const getPatrolTrackList = createSelector(
-  [getPatrolStore, getPatrolTrackState],
-  (store, patrolIdsToTrack) => {
-    return patrolIdsToTrack
-      .map((id) => store[id])
-      .filter((patrol) => !!patrol && !!getLeaderForPatrol(patrol))
-  }
+  [getPatrolStore, getPatrolTrackState, getSubjectStore],
+  (store, patrolIdsToTrack, subjectStore) => patrolIdsToTrack
+    .map((id) => store[id])
+    .filter((patrol) =>
+      !!patrol && !!getLeaderForPatrol(patrol, subjectStore)
+    )
 );
 
 
@@ -44,14 +45,14 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
 );
 
 export const patrolTrackData = createSelector(
-  [visibleTrackDataWithPatrolAwareness, getPatrolTrackList],
-  (trackData, patrols) => {
+  [visibleTrackDataWithPatrolAwareness, getPatrolTrackList, getSubjectStore],
+  (trackData, patrols, subjectStore) => {
     const tracks = trackData.filter(t => !!t.patrolTrackShown);
     
     return patrols
       .map((patrol) => {
         const [firstLeg] = patrol.patrol_segments;
-        const leader = getLeaderForPatrol(patrol);
+        const leader = getLeaderForPatrol(patrol, subjectStore);
         const timeRange = !!firstLeg && firstLeg.time_range;
         const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id);
 

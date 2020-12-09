@@ -7,7 +7,7 @@ import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols }
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
-const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
+export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 
 export const getMapSubjectFeatureCollection = createSelector(

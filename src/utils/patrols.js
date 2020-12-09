@@ -111,15 +111,13 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-export const displayTitleForPatrol = (patrol, includeLeaderName = true) => {
+export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
 
-  if (includeLeaderName) {
-    const leader = getLeaderForPatrol(patrol);
-
-    if (leader && leader.name) return leader.name;
+  if (includeLeaderName && leader && leader.name) {
+    return leader.name;
   }
 
   if (!patrol.patrol_segments.length
@@ -170,22 +168,20 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getLeaderForPatrol = (patrol) => {
-  if (!patrol.patrol_segments?.length) return null;
+export const getLeaderForPatrol = (patrol, subjectStore) => {
+  if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
   if (!leader) return null;
-
-  const { data: { subjectStore } } = store.getState();
 
   return subjectStore[leader.id] || leader;
 };
 
 export const getPatrolsForSubject = (patrols, subject) => {
   return patrols.filter(patrol => {
-    return getLeaderForPatrol(patrol)?.id === subject.id
+    return getLeaderForPatrol(patrol)?.id === subject.id;
   });
-}
+};
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
@@ -199,7 +195,7 @@ export const getActivePatrolsForLeaderId = (leaderId) => {
   const patrols = getPatrolsForLeaderId(leaderId);
   const activePatrols = patrols.filter(
     item => {
-      return calcPatrolCardState(item) === PATROL_CARD_STATES.ACTIVE
+      return calcPatrolCardState(item) === PATROL_CARD_STATES.ACTIVE;
     }
   );
 
@@ -378,7 +374,7 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
-export const sortPatrolCards = (patrols) => {
+export const sortPatrolCards = (patrols, subjectStore) => {
   const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
@@ -392,7 +388,7 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
+  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol, getLeaderForPatrol(patrol, subjectStore)).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
@@ -407,7 +403,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) 
   };
 
   return point(coordinates, properties);
-}
+};
 
 
 export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
@@ -483,8 +479,8 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
 
   if (!patrol_points.end_location && !patrol_points.start_location) return null;
 
-  return patrol_points
-}
+  return patrol_points;
+};
 
 export const patrolTimeRangeIsValid = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);

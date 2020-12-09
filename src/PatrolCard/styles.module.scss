@@ -238,6 +238,13 @@ div.popover {
         margin-top: 0.25rem;
       }
     }
+    &:empty { 
+      padding: 0;
+      border-top: none;
+    }
+  }
+  button + .controls {
+    margin-top: 1rem;
   }
   .controls {
     display: flex;
