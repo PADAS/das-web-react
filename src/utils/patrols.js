@@ -412,15 +412,16 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) 
 
 export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   const { patrol_segments: [firstLeg] } = patrol;
-  const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
+  const { icon_id, leader: { additional: { rgb } }, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
   const { features } = trackData.points;
   const feature = trackData.points.features[0];
 
   if (!feature) return null;
+  const fallbackStroke = rgb ? `rgb(${rgb})` : DEFAULT_STROKE;
 
   const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
-  const stroke = feature.properties.stroke || DEFAULT_STROKE;
+  const stroke = feature.properties.stroke || fallbackStroke;
 
   let patrol_points = {
     start_location: start_location 
@@ -444,7 +445,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
 
     if (startLocationTrackPoint) {
       const { properties, geometry: { coordinates: [longitude, latitude] } } = startLocationTrackPoint;
-      const stroke = properties.stroke || DEFAULT_STROKE;
+      const stroke = properties.stroke || fallbackStroke;
       patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [longitude, latitude], icon_id, stroke);
     }
   }
@@ -459,20 +460,20 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
 
     if (endLocationTrackPoint) {
       const { properties, geometry: { coordinates: [longitude, latitude] } } = endLocationTrackPoint;
-      const stroke = properties.stroke || DEFAULT_STROKE;
+      const stroke = properties.stroke || fallbackStroke;
       patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [longitude, latitude], icon_id, stroke);
     }
   }
 
   if (features.length && !patrol_points.start_location) {
     const { properties, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
-    const stroke = properties.stroke || DEFAULT_STROKE;
+    const stroke = properties.stroke || fallbackStroke;
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
   if (features.length && !patrol_points.end_location && !isPatrolActive && end_time) {
     const { properties, geometry: { coordinates: [longitude, latitude] } } = features[0];
-    const stroke = properties.stroke || DEFAULT_STROKE;
+    const stroke = properties.stroke || fallbackStroke;
     patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
