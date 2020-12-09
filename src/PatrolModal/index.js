@@ -9,6 +9,7 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
+import { addEventToSegment } from '../ducks/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, displayPatrolSegmentId, getReportsForPatrol } from '../utils/patrols';
@@ -343,13 +344,9 @@ const PatrolModal = (props) => {
     }
 
     // just assign added reports to inital segment id for now
-    addedReports.forEach((report) => {
-      report.patrol_segment_id = patrolSegmentId;
-      const reportAction = generateSaveActionsForReportLikeObject(report, 'report', [], []); 
-      executeSaveActions(reportAction)
-        .catch((error) => {
-          console.warn('failed to attach report to patrol segment', error);
-        });
+    addedReports.forEach(async (report) => {
+      const resp = await addEventToSegment(report.id, patrolSegmentId);
+      console.log(resp);
     });
 
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
