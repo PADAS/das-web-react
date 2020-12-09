@@ -65,3 +65,7 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
+
+export const normalizeTime = (time) => {
+  return new Date(time);
+}
