@@ -88,3 +88,7 @@
 .patrolButton {
   @include patrolJumpButton;
 }
+
+.loadingOverlay {
+  background: none;
+}

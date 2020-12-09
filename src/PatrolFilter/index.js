@@ -14,7 +14,7 @@ import { caseInsensitiveCompare } from '../utils/string';
 
 import { reportedBy } from '../selectors';
 
-import EventFilterDateRangeSelector from '../EventFilter/DateRange';
+import PatrolFilterDateRangeSelector from '../PatrolFilter/DateRange';
 import ReportedBySelect from '../ReportedBySelect';
 import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
@@ -187,7 +187,7 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <EventFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
+      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
     </Popover.Content>
   </Popover>;
 

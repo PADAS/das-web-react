@@ -1,4 +1,4 @@
-import { startOfToday, endOfToday } from '../utils/datetime';
+import { startOfToday } from '../utils/datetime';
 import merge from 'lodash/merge';
   
 // ACTIONS
@@ -19,7 +19,7 @@ export const INITIAL_FILTER_STATE = {
   filter: {
     date_range: {
       lower: startOfToday().toISOString(),
-      upper: endOfToday().toISOString(),
+      upper: null,
     },
     // patrol_type: [],
     // text: '',
