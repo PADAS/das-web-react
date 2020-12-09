@@ -1,28 +1,28 @@
 import React, { memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 
-import { updateEventFilter } from '../ducks/event-filter';
+import { updatePatrolFilter } from '../ducks/patrol-filter';
 import { trackEvent } from '../utils/analytics';
 
 import FeedDateFilter from '../FeedDateFilter';
 
 const EventFilterDateRangeSelector = (props) => {
-  const { eventFilter, updateFilter } = props;
+  const { patrolFilter, updateFilter } = props;
   
   const afterClickPreset = useCallback((label) => {
-    trackEvent('Event Filter', 'Select Date Range Preset', `Date Range: ${label}`);
+    trackEvent('Patrol Filter', 'Select Date Range Preset', `Date Range: ${label}`);
   }, []);
 
   const afterEndChange = useCallback(() => {
-    trackEvent('Event Filter', 'Change End Date Filter');
+    trackEvent('Patrol Filter', 'Change End Date Filter');
   }, []);
 
   const afterStartChange = useCallback(() => {
-    trackEvent('Event Filter', 'Change Start Date Filter');
+    trackEvent('Patrol Filter', 'Change Start Date Filter');
   }, []);
 
   return <FeedDateFilter 
-    filterData={eventFilter}
+    filterData={patrolFilter}
     afterClickPreset={afterClickPreset}
     afterEndChange={afterEndChange}
     afterStartChange={afterStartChange}
@@ -31,10 +31,10 @@ const EventFilterDateRangeSelector = (props) => {
 
 };
 
-const mapStatetoProps = ({ data: { eventFilter } }) => ({ eventFilter });
+const mapStatetoProps = ({ data: { patrolFilter } }) => ({ patrolFilter });
 
 const mapDispatchToProps = dispatch => ({
-  updateFilter: filter => dispatch(updateEventFilter(filter)),
+  updateFilter: filter => dispatch(updatePatrolFilter(filter)),
 });
 
 export default connect(mapStatetoProps, mapDispatchToProps)(memo(EventFilterDateRangeSelector));

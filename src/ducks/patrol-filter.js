@@ -1,4 +1,5 @@
 import { startOfToday, endOfToday } from '../utils/datetime';
+import merge from 'lodash/merge';
   
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
@@ -30,13 +31,7 @@ const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
   const { type, payload } = action;
 
   if (type === UPDATE_PATROL_FILTER) {
-    const updated = {
-      ...state, ...payload, filter: {
-        ...state.filter,
-        ...payload.filter,
-      }
-    };
-    return updated;
+    return merge({}, state, payload);
   }
 
   if (type === RESET_PATROL_FILTER) {

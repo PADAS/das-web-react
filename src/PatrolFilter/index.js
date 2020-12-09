@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -58,15 +58,16 @@ const PatrolFilter = (props) => {
 
   const filterModified = !patrolTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
 
-  const selectedReporters = patrolFilter.filter.leader && !!patrolFilter.filter.leader.length ?
+  const selectedReporters = useMemo(() =>
+    patrolFilter.filter.leader && !!patrolFilter.filter.leader.length
+      ? patrolFilter.filter.leader
+        .map(id =>
+          reporters.find(r => r.id === id)
+        ).filter(item => !!item)
+      : []
+  , [patrolFilter.filter.leader, reporters]);
 
-    patrolFilter.filter.leader
-      .map(id =>
-        reporters.find(r => r.id === id)
-      ).filter(item => !!item)
-    : [];
-
-  const onReportedByChange = (values) => {
+  const onReportedByChange = useCallback((values) => {
     const hasValue = values && !!values.length;
     
     if (hasValue) {
@@ -83,19 +84,19 @@ const PatrolFilter = (props) => {
       });
     }
     trackEvent('Patrol Filter', `${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
-  };
+  }, [updatePatrolFilter]);
 
   const updatePatrolFilterDebounced = useRef(debounce(function (update) {
     updatePatrolFilter(update);
   }, 200));
   
 
-  const onStateSelect = ({ value }) => {
+  const onStateSelect = useCallback(({ value }) => {
     updatePatrolFilter({ status: value });
     trackEvent('Patrol Filter', `Select '${value}' State Filter`);
-  };
+  }, [updatePatrolFilter]);
 
-  const resetPopoverFilters = () => {
+  const resetPopoverFilters = useCallback(() => {
     updatePatrolFilter({
       status: INITIAL_FILTER_STATE.status,
       filter: {
@@ -104,9 +105,9 @@ const PatrolFilter = (props) => {
       },
     });
     trackEvent('Patrol Filter', 'Click Reset All Filters');
-  };
+  }, [updatePatrolFilter]);
 
-  const clearDateRange = (e) => {
+  const clearDateRange = useCallback((e) => {
     e.stopPropagation();
     updatePatrolFilter({
       filter: {
@@ -114,19 +115,19 @@ const PatrolFilter = (props) => {
       },
     });
     trackEvent('Patrol Filter', 'Click Reset Date Range Filter');
-  };
+  }, [updatePatrolFilter]);
 
-  const resetStateFilter = (e) => {
+  const resetStateFilter = useCallback((e) => {
     e.stopPropagation();
     updatePatrolFilter({ status: INITIAL_FILTER_STATE.status });
     trackEvent('Patrol Filter', 'Click Reset State Filter');
-  };
+  }, [updatePatrolFilter]);
 
-  const resetReportedByFilter = (e) => {
+  const resetReportedByFilter = useCallback((e) => {
     e.stopPropagation();
     updatePatrolFilter({ filter: { leader: INITIAL_FILTER_STATE.filter.leader } });
     trackEvent('Patrol Filter', 'Click Reset Reported By Filter');
-  };
+  }, [updatePatrolFilter]);
 
   const StateSelector = () => <ul className={styles.stateList}>
     {PATROL_STATUS_CHOICES.map(choice =>
@@ -138,24 +139,24 @@ const PatrolFilter = (props) => {
       </li>)}
   </ul>;
 
-  const onDateFilterIconClicked = (e) => {
+  const onDateFilterIconClicked = useCallback((e) => {
     trackEvent('Reports', 'Dates Icon Clicked');
-  };
+  }, []);
 
-  const onPatrolFilterIconClicked = (e) => {
+  const onPatrolFilterIconClicked = useCallback((e) => {
     trackEvent('Reports', 'Filters Icon Clicked');
-  };
+  }, []);
 
-  const onSearchChange = ({ target: { value } }) => {
+  const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
     trackEvent('Patrol Filter', 'Change Search Text Filter');
-  };
+  }, []);
 
-  const onSearchClear = (e) => {
+  const onSearchClear = useCallback((e) => {
     e.stopPropagation();
     setFilterText('');
     trackEvent('Patrol Filter', 'Clear Search Text Filter');
-  };
+  }, []);
 
   useEffect(() => {
     if (filterText && !caseInsensitiveCompare(filterText, text)) {
