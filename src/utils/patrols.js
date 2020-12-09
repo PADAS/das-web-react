@@ -19,9 +19,8 @@ import PatrolModal from '../PatrolModal';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
 import { objectToParamString } from './query';
-import { trimTrackDataToTimeRange } from './tracks';
 
-
+const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
@@ -421,13 +420,14 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   if (!feature) return null;
 
   const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
+  const stroke = feature.properties.stroke || DEFAULT_STROKE;
 
   let patrol_points = {
     start_location: start_location 
-      ? makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, feature.properties.stroke)
+      ? makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke)
       : null,
     end_location: end_location && !isPatrolActive
-      ? makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, feature.properties.stroke)
+      ? makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke)
       : null,
   };
 
@@ -443,7 +443,8 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
     );
 
     if (startLocationTrackPoint) {
-      const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = startLocationTrackPoint;
+      const { properties, geometry: { coordinates: [longitude, latitude] } } = startLocationTrackPoint;
+      const stroke = properties.stroke || DEFAULT_STROKE;
       patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [longitude, latitude], icon_id, stroke);
     }
   }
@@ -457,18 +458,21 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
     );
 
     if (endLocationTrackPoint) {
-      const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = endLocationTrackPoint;
+      const { properties, geometry: { coordinates: [longitude, latitude] } } = endLocationTrackPoint;
+      const stroke = properties.stroke || DEFAULT_STROKE;
       patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [longitude, latitude], icon_id, stroke);
     }
   }
 
   if (features.length && !patrol_points.start_location) {
-    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
+    const { properties, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
+    const stroke = properties.stroke || DEFAULT_STROKE;
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
   if (features.length && !patrol_points.end_location && !isPatrolActive && end_time) {
-    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[0];
+    const { properties, geometry: { coordinates: [longitude, latitude] } } = features[0];
+    const stroke = properties.stroke || DEFAULT_STROKE;
     patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
