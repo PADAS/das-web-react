@@ -2,7 +2,7 @@ import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
-import { SHORT_TIME_FORMAT } from '../utils/datetime';
+import { SHORT_TIME_FORMAT, normalizeTime } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
@@ -410,12 +410,9 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) 
   return point(coordinates, properties);
 }
 
-const normalizeTime = (time) => {
-  return new Date(time);
-}
 
-
-export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segments: [firstLeg] }, trackData}) => {
+export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
+  const { patrol_segments: [firstLeg] } = patrol;
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
   const { features } = trackData.points;
@@ -463,16 +460,13 @@ export const extractPatrolPointsFromTrackData = ({patrol, patrol: { patrol_segme
     }
   }
 
-  const trimmed = trimTrackDataToTimeRange(trackData, start_time, end_time);
-  const trimmedFeatures = trimmed.points.features;
-
-  if (trimmedFeatures.length && !patrol_points.start_location) {
-    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = trimmedFeatures[trimmedFeatures.length - 1];
+  if (features.length && !patrol_points.start_location) {
+    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
   }
 
-  if (trimmedFeatures.length && !patrol_points.end_location && !isPatrolActive && end_time) {
-    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = trimmedFeatures[0];
+  if (features.length && !patrol_points.end_location && !isPatrolActive && end_time) {
+    const { properties: { stroke }, geometry: { coordinates: [longitude, latitude] } } = features[0];
     patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
   }
 

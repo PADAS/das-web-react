@@ -19,6 +19,7 @@ const { PATROL_SYMBOLS } = LAYER_IDS;
 const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
   const trackPatrolPoints = useMemo(() => trackData.map(data => {
     const patrolPoints = extractPatrolPointsFromTrackData(data, patrols);
+    console.log({patrolPoints});
 
     if (!patrolPoints) return null;
 
