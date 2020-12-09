@@ -418,6 +418,8 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   const { features } = trackData.points;
   const feature = trackData.points.features[0];
 
+  if (!feature) return null;
+
   const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
 
   let patrol_points = {
