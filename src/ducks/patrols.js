@@ -110,7 +110,7 @@ export const createPatrol = (patrol) => (dispatch) => {
     }); */
 };
 
-export const addEventToSegment = (segment_id, event_id) => (_dispatch) => 
+export const addEventToSegment = (segment_id, event_id) => 
   axios.post(`${PATROLS_API_URL}segments/${segment_id}/events/${event_id}`, {});
 
 export const updatePatrol = (patrol) => (dispatch) => {
