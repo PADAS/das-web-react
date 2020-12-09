@@ -10,6 +10,7 @@ import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
 import { trackEvent } from '../utils/analytics';
+import withMapViewConfig from '../WithMapViewConfig';
 
 const ARROW_IMG_ID = 'track_arrow';
 
@@ -17,7 +18,6 @@ const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item
 
 const TracksLayer = (props) => {
   const { map, onPointClick, patrolTrackState, showTimepoints, trackData } = props;
-
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
@@ -51,6 +51,8 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, null)(withMap(
   memo(TracksLayer),
 ));
+
+// export default withMap(memo(withMapViewConfig(SubjectsLayer)));
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {

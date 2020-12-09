@@ -2,28 +2,26 @@ import { createSelector, getTimeSliderState } from './';
 import { tracks } from './tracks';
 
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
-import { getUniqueSubjectGroupSubjects, pinMapSubjectsToVirtualPosition } from '../utils/subjects';
+import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols } from '../utils/subjects';
 
 const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
-const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
+export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 
 export const getMapSubjectFeatureCollection = createSelector(
   [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
   (mapSubjects, subjectStore, hiddenSubjectIDs, showInactiveRadios) => {
-
     const fromStore = mapSubjects
       .filter(id => !hiddenSubjectIDs.includes(id))
       .map(id => subjectStore[id])
-      .filter(item => !!item);
+      .filter(item => !!item)
     
     const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
     if (showInactiveRadios) return mapSubjectCollection;
     return filterInactiveRadiosFromCollection(mapSubjectCollection);
   });
-
 
 export const getSubjectGroups = createSelector(
   [subjectGroups, getSubjectStore],
@@ -52,11 +50,12 @@ export const allSubjects = createSelector(
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
   [getMapSubjectFeatureCollection, tracks, getTimeSliderState],
   (mapSubjectFeatureCollection, tracks, timeSliderState) => {
+    const mapSubjectFeatureCollection_ = markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection);
+
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {
-      return mapSubjectFeatureCollection;
+      return mapSubjectFeatureCollection_;
     }
-    return pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection, tracks, virtualDate);
+    return pinMapSubjectsToVirtualPosition(mapSubjectFeatureCollection_, tracks, virtualDate);
   },
 );
-
