@@ -189,6 +189,12 @@ export const getPatrolsForLeaderId = (leaderId) => {
   );
 };
 
+export const getSegmentUpdatesHistory = (segment) => {
+  if (!segment) return [];
+  const { updates }  = segment;
+  return updates || [];
+};
+
 export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 

@@ -311,6 +311,13 @@ const PatrolModal = (props) => {
     return null;
   }, [statePatrol]);
 
+  const allPatrolHistory = useMemo(() => {
+    const topLevelUpdate = statePatrol.updates || [];
+    const [firstLeg] = statePatrol.patrol_segments;
+    const allUpdates = [...topLevelUpdate, ...firstLeg.updates];
+    return [...new Set(allUpdates)];
+  }, [statePatrol]);
+
   const onSave = useCallback(() => {
     // const reportIsNew = !statePatrol.id;
     let toSubmit = statePatrol;
@@ -368,6 +375,10 @@ const PatrolModal = (props) => {
   const onCancel = useCallback(() => {
     removeModal(id);
   }, [id, removeModal]);
+
+  statePatrol.updates = allPatrolHistory;
+
+  console.log('allHistory', statePatrol.updates);
 
   return <EditableItem data={statePatrol}>
     <Modal>
