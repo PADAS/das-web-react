@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
+import uniq from 'lodash/uniq';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -312,11 +313,20 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const allPatrolHistory = useMemo(() => {
-    const topLevelUpdate = statePatrol.updates || [];
+    // when patrol is not saved yet
+    if (!statePatrol.updates) return [];
+    const topLevelUpdate = statePatrol.updates;
     const [firstLeg] = statePatrol.patrol_segments;
-    const allUpdates = [...topLevelUpdate, ...firstLeg.updates];
-    return [...new Set(allUpdates)];
+    const { updates: segmentUpdates } = firstLeg || [];
+    const { updates: noteUpdates }  = statePatrol.notes || [];
+    const allUpdates = [...topLevelUpdate, ...segmentUpdates];
+    console.log(allUpdates);
+    return uniq(allUpdates);
   }, [statePatrol]);
+
+  const patrolHistoryWrapper = useMemo(() => {
+    return({...statePatrol, updates: allPatrolHistory});
+  }, [statePatrol, allPatrolHistory]);
 
   const onSave = useCallback(() => {
     // const reportIsNew = !statePatrol.id;
@@ -376,11 +386,7 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  statePatrol.updates = allPatrolHistory;
-
-  console.log('allHistory', statePatrol.updates);
-
-  return <EditableItem data={statePatrol}>
+  return <EditableItem data={patrolHistoryWrapper}>
     <Modal>
       <Header 
         icon={<DasIcon type='events' iconId={patrolIconId} />}
