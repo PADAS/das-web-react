@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 import PatrolCard from '../PatrolCard';
 
 const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
+  const { map, onStateUpdateFromCard, patrol, subjectStore, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     openModalForPatrol(patrol, map);
@@ -33,27 +33,28 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
       onPatrolChange={onPatrolChange}
       onSelfManagedStateChange={onStateUpdateFromCard}
       patrol={patrol}
+      subjectStore={subjectStore}
       map={map}
       {...rest} />
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
+const mapStateToProps = ({ data: { subjectStore } }) => ({ subjectStore });
+const ConnectedListItem = connect(mapStateToProps, { updatePatrol })(PatrolListItem);
 
 const PatrolList = (props) => {
-  const { map, patrols = [], loading } = props;
+  const { map, patrols = [], subjectStore, loading } = props;
   // const scrollRef = useRef(null);
 
   const [listItems, setListItems] = useState(patrols);
 
   const onStateUpdateFromCard = useCallback(() => {
-    setListItems(sortPatrolCards(patrols));
-  }, [patrols]);
+    setListItems(sortPatrolCards(patrols, subjectStore));
+  }, [patrols, subjectStore]);
 
   useEffect(() => {
-    setListItems(sortPatrolCards(patrols));
-
-  }, [patrols]);
+    setListItems(sortPatrolCards(patrols, subjectStore));
+  }, [patrols, subjectStore]);
 
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
@@ -74,7 +75,9 @@ const PatrolList = (props) => {
   </Fragment>;
 };
 
-export default memo(PatrolList);
+const mapStateToListProps = ({ data: { subjectStore } }) => ({ subjectStore });
+
+export default connect(mapStateToListProps, null)(memo(PatrolList));
 
 PatrolList.propTypes = {
   patrols: PropTypes.array,

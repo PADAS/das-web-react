@@ -52,8 +52,6 @@ const PatrolModal = (props) => {
   const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
-  const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol, false), [statePatrol]);
-
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const displayTrackingSubject = useMemo(() => {
@@ -64,6 +62,8 @@ const PatrolModal = (props) => {
     if (!leader) return null;
     return leader;
   }, [statePatrol.patrol_segments]);
+
+  const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
 
   const onTitleChange = useCallback((value) => {
     setStatePatrol({

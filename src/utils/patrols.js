@@ -109,15 +109,13 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-export const displayTitleForPatrol = (patrol, includeLeaderName = true) => {
+export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
 
-  if (includeLeaderName) {
-    const leader = getLeaderForPatrol(patrol);
-
-    if (leader && leader.name) return leader.name;
+  if (includeLeaderName && leader && leader.name) {
+    return leader.name;
   }
 
   if (!patrol.patrol_segments.length
@@ -168,13 +166,11 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getLeaderForPatrol = (patrol) => {
+export const getLeaderForPatrol = (patrol, subjectStore) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
   if (!leader) return null;
-
-  const { data: { subjectStore } } = store.getState();
 
   return subjectStore[leader.id] || leader;
 };
@@ -361,7 +357,7 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
-export const sortPatrolCards = (patrols) => {
+export const sortPatrolCards = (patrols, subjectStore) => {
   const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
@@ -375,7 +371,7 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
+  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol, getLeaderForPatrol(patrol, subjectStore)).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };

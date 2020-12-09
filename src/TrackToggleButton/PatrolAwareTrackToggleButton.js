@@ -10,9 +10,9 @@ import TrackToggleButton from './';
 
 
 const PatrolAwareTrackToggleButton = (props) => {
-  const { dispatch:_dispatch, patrol, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
+  const { dispatch:_dispatch, patrol, subjectStore, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol), [patrol]);
+  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
 
   const patrolTrackPinned = useMemo(() => patrolTrackState.pinned.includes(patrol.id), [patrol.id, patrolTrackState.pinned]);
   const patrolTrackVisible = useMemo(() => !patrolTrackPinned && patrolTrackState.visible.includes(patrol.id), [patrol.id, patrolTrackPinned, patrolTrackState.visible]);
@@ -55,6 +55,6 @@ const PatrolAwareTrackToggleButton = (props) => {
 };
 
 
-const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
+const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState }, data: { subjectStore } }) => ({ patrolTrackState, subjectStore, subjectTrackState });
 
 export default connect(mapStateToProps, { togglePatrolTrackState, toggleTrackState })(memo(PatrolAwareTrackToggleButton));
