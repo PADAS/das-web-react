@@ -85,7 +85,7 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
   
 
   if (isSameDay(lowerDate, upperDate)) {
-    const titleDateFormatString = `MMMM D${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
+    const titleDateFormatString = `D MMMM${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
     const detailsDateFormatString = 'HH:mm';
 
     returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)}`;
@@ -93,19 +93,19 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
 
   } else if (isSameMonth(lowerDate, upperDate)) {
     const titleDateFormatString = `MMMM${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
-    const detailsDateFormatString = 'MMM D HH:mm';
+    const detailsDateFormatString = 'D MMM HH:mm';
 
     returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} ${format(lowerDate, 'D')}-${format(upperDate, 'D')}`;
     returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
   } else if (rangeIsWithinCurrentYear) {
     const titleDateFormatString = 'MMMM';
-    const detailsDateFormatString = 'MMM D HH:mm';
+    const detailsDateFormatString = 'D MMM HH:mm';
 
     returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} - ${format(upperDate, titleDateFormatString)}`;
     returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
   } else {
     const titleDateFormatString = 'MMM YYYY';
-    const detailsDateFormatString = 'MMM D \'YY HH:mm';
+    const detailsDateFormatString = 'D MMM \'YY HH:mm';
 
     returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} - ${format(upperDate, titleDateFormatString)}`;
     returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
