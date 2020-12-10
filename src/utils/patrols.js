@@ -2,7 +2,7 @@ import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
-import { SHORT_TIME_FORMAT, normalizeTime } from '../utils/datetime';
+import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
@@ -427,13 +427,13 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
       : null,
   };
 
-  const endTime = normalizeTime(end_time);
-  const startTime = normalizeTime(start_time);
+  const endTime = normalizeDate(end_time);
+  const startTime = normalizeDate(start_time);
 
   if (start_location === null) {
     const startLocationTrackPoint = features.find(
       ({ properties: { time } }) => {
-        const normalizedFeatureTime = normalizeTime(time);
+        const normalizedFeatureTime = normalizeDate(time);
         return normalizedFeatureTime === startTime;
       }
     );
@@ -448,7 +448,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   if (end_location === null && !isPatrolActive) {
     const endLocationTrackPoint = features.find(
       ({ properties: { time } }) => {
-        const normalizedFeatureTime = normalizeTime(time);
+        const normalizedFeatureTime = normalizeDate(time);
         return normalizedFeatureTime === endTime;
       }
     );

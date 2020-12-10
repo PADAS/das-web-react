@@ -1,8 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
-import isEqual from 'lodash/isEqual';
 
-import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { calcPatrolListTitleFromFilter, isDateFilterModified } from '../utils/patrol-filter';
 
 import KebabMenuIcon from '../KebabMenuIcon';
 import HeatmapToggleButton from '../HeatmapToggleButton';
@@ -13,14 +12,15 @@ import { ReactComponent as PatrolMarkerIcon } from '../common/images/icons/multi
 import styles from './styles.module.scss';
 
 const PatrolListTitle = (props) => {
-  const { onPatrolJumpClick, patrolFilter: { filter: { date_range } } } = props;
+  const { onPatrolJumpClick, patrolFilter } = props;
   
-  const dateRangeModified = useMemo(() => !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range), [date_range]);
+  const dateRangeModified = useMemo(() => isDateFilterModified(patrolFilter), [patrolFilter]);
+  const textContext = useMemo(() => calcPatrolListTitleFromFilter(patrolFilter), [patrolFilter]);
 
   return <div className={`${styles.listHeader} ${dateRangeModified ? styles.modified : ''}`}>
     <div>
-      <h3>Current Patrols</h3>
-      <h6>00:00 to now</h6>
+      <h3>{textContext.title}</h3>
+      <h6>{textContext.details}</h6>
     </div>
     <div className={styles.headerControls}>
       <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
@@ -35,13 +35,8 @@ const PatrolListTitle = (props) => {
 const mapStateToProps = ({ data: { patrolFilter } }) => ({ patrolFilter });
 
 export default connect(mapStateToProps, null)(memo(PatrolListTitle));
-
-
-const calcPatrolListTitleFromFilter = ({ filter: { date_range: { lower, upper } } }) => {
-  
-};
 /* 
-const whatever = `MMM D ${isCurrentYear ? '' : 'YYYY'}`;
+const whatever = `MMM D ${isThisYear ? '' : 'YYYY'}`;
 
 const isToday
 const isYesterday
