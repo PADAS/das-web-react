@@ -7,7 +7,7 @@ import { trackEvent } from '../utils/analytics';
 import FeedDateFilter from '../FeedDateFilter';
 
 const EventFilterDateRangeSelector = (props) => {
-  const { eventFilter, updateFilter } = props;
+  const { eventFilter, updateEventFilter } = props;
   
   const afterClickPreset = useCallback((label) => {
     trackEvent('Event Filter', 'Select Date Range Preset', `Date Range: ${label}`);
@@ -26,15 +26,11 @@ const EventFilterDateRangeSelector = (props) => {
     afterClickPreset={afterClickPreset}
     afterEndChange={afterEndChange}
     afterStartChange={afterStartChange}
-    updateFilter={updateFilter}
+    updateFilter={updateEventFilter}
   />;
 
 };
 
 const mapStatetoProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
-const mapDispatchToProps = dispatch => ({
-  updateFilter: filter => dispatch(updateEventFilter(filter)),
-});
-
-export default connect(mapStatetoProps, mapDispatchToProps)(memo(EventFilterDateRangeSelector));
+export default connect(mapStatetoProps, { updateEventFilter })(memo(EventFilterDateRangeSelector));
