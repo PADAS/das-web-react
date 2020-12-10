@@ -2,17 +2,17 @@ import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import { calcPatrolListTitleFromFilter, isDateFilterModified } from '../utils/patrol-filter';
-
+/* 
 import KebabMenuIcon from '../KebabMenuIcon';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import TrackToggleButton from '../TrackToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
-import { ReactComponent as PatrolMarkerIcon } from '../common/images/icons/multi-patrol-marker.svg';
+import { ReactComponent as PatrolMarkerIcon } from '../common/images/icons/multi-patrol-marker.svg'; */
 
 import styles from './styles.module.scss';
 
 const PatrolListTitle = (props) => {
-  const { onPatrolJumpClick, patrolFilter } = props;
+  const { /* onPatrolJumpClick */ patrolFilter } = props;
   
   const dateRangeModified = useMemo(() => isDateFilterModified(patrolFilter), [patrolFilter]);
   const textContext = useMemo(() => calcPatrolListTitleFromFilter(patrolFilter), [patrolFilter]);

@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 
 
 const FeedDateFilter = (props) => {
-  const { children, filterData, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
+  const { children, nullUpperOverride = null, filterData, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
 
   const { filter: { date_range } } = filterData;
 
@@ -23,17 +23,21 @@ const FeedDateFilter = (props) => {
       filter: {
         date_range: {
           lower,
-          upper,
+          upper: upper === null ? nullUpperOverride : upper,
         },
       },
     });
     afterClickPreset && afterClickPreset(label);
-  }, [afterClickPreset, updateFilter]);
+  }, [afterClickPreset, nullUpperOverride, updateFilter]);
 
   const onEndDateChange = useCallback((val) => {
     const dateRangeUpdate = {
       ...filterData.filter.date_range,
-      upper: dateIsValid(val) ? val.toISOString() : null,
+      upper: dateIsValid(val)
+        ? val.toISOString()
+        : val === null 
+          ? nullUpperOverride 
+          : val,
     };
     updateFilter({
       filter: {
@@ -41,7 +45,7 @@ const FeedDateFilter = (props) => {
       },
     });
     afterEndChange && afterEndChange(dateRangeUpdate);
-  }, [filterData.filter.date_range, afterEndChange, updateFilter]);
+  }, [filterData.filter.date_range, nullUpperOverride, updateFilter, afterEndChange]);
 
 
   const onStartDateChange = useCallback((val) => {

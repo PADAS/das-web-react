@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 
-import { updatePatrolFilter } from '../ducks/patrol-filter';
+import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { trackEvent } from '../utils/analytics';
 
 import FeedDateFilter from '../FeedDateFilter';
@@ -27,6 +27,8 @@ const EventFilterDateRangeSelector = (props) => {
     afterEndChange={afterEndChange}
     afterStartChange={afterStartChange}
     updateFilter={updatePatrolFilter}
+    requireEnd={true}
+    nullUpperOverride={INITIAL_FILTER_STATE.filter.date_range.upper}
   />;
 
 };

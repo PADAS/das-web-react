@@ -8,6 +8,7 @@ import endOfDay from 'date-fns/end_of_day';
 import format from 'date-fns/format';
 import setSeconds from 'date-fns/set_seconds';
 import setMilliseconds from 'date-fns/set_milliseconds';
+import isFuture from 'date-fns/is_future';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
@@ -22,7 +23,10 @@ export const calcFriendlyDurationString = (from, until) => {
 
   if (!from) return `1 month ago until ${distanceInWords(startOfDay(until), new Date())} ago`;
 
-  return `${distanceInWords(startOfDay(from), new Date())} ago until ${distanceInWords(startOfDay(until), new Date())} ago`;
+  const untilIsFuture = isFuture(until);
+  const untilDate = untilIsFuture ? new Date(until) : startOfDay(new Date(until));
+
+  return `${distanceInWords(startOfDay(from), new Date())} ago until ${distanceInWords(untilDate, new Date())}${untilIsFuture ? ' from now' : ' ago'}`;
 };
 
 export const SHORT_TIME_FORMAT = 'HH:mm';
@@ -68,4 +72,4 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
 
 export const normalizeDate = (time) => {
   return new Date(time);
-}
+};

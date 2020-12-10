@@ -19,7 +19,7 @@ export const INITIAL_FILTER_STATE = {
   filter: {
     date_range: {
       lower: startOfToday().toISOString(),
-      upper: null,
+      upper: endOfToday().toISOString(),
     },
     // patrol_type: [],
     // text: '',
