@@ -54,7 +54,7 @@ export const patrolTrackData = createSelector(
         const [firstLeg] = patrol.patrol_segments;
         const leader = getLeaderForPatrol(patrol, subjectStore);
         const timeRange = !!firstLeg && firstLeg.time_range;
-        const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id);
+        const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id === leader.id);
 
         return {
           patrol,

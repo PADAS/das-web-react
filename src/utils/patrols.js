@@ -432,8 +432,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
     const firstTrackPoint = features[features.length - 1];
     const firstTrackPointMatchesStartTime = normalizeTime(firstTrackPoint.properties.time) === startTime;
 
-    const { properties, geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
-    const stroke = properties.stroke || DEFAULT_STROKE;
+    const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
     patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
   }
@@ -446,8 +445,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
       const lastTrackPoint = features[0];
       const lastTrackPointMatchesEndTime = normalizeTime(lastTrackPoint.properties.time) === endTime;
 
-      const { properties, geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
-      const stroke = properties.stroke || DEFAULT_STROKE;
+      const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
       patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
     }
@@ -502,7 +500,7 @@ export const drawLinesBetweenPatrolTrackAndPatrolPoints = (patrolPoints, trackDa
 
   if (!asArray.length) return null;
 
-  return multiLineString(asArray);
+  return multiLineString(asArray, { stroke: start_location.properties.stroke });
 
 };
 

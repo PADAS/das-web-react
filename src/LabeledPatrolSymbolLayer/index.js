@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 import { withMap } from '../EarthRangerMap';
-import LabeledSymbolLayer from "../LabeledSymbolLayer";
+import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
 
 
@@ -15,7 +15,7 @@ function LabeledPatrolSymbolLayer(
 
   return <LabeledSymbolLayer 
     id={id}
-    symbolLayout={symbolLayout}
+    layout={symbolLayout}
     {...rest} 
   />;
 }

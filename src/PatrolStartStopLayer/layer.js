@@ -2,12 +2,11 @@ import React, { Fragment, memo, useMemo, useState } from 'react';
 
 import { Source, Layer } from 'react-mapbox-gl';
 
-import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
+import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import { withMap } from '../EarthRangerMap';
+import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
-
-const { PATROL_SYMBOLS } = LAYER_IDS;
 
 const linePaint = {
   'line-color': [
@@ -45,6 +44,8 @@ const StartStopLayer = (props) => {
   const { allowOverlap, key, data: { points, lines }, map, mapUserLayoutConfig, ...rest } = props;
 
   const [ layerIds, setLayerIds ] = useState(null);
+  const [instanceId] = useState(uuid());
+  const layerId = `patrol-start-stop-layer-${instanceId}`;
 
   const layoutConfig = allowOverlap ? {
     'icon-allow-overlap': true,
@@ -56,6 +57,8 @@ const StartStopLayer = (props) => {
     ...DEFAULT_SYMBOL_LAYOUT,
     ...layoutConfig,
   };
+
+  const sourceId = `patrol-symbol-source-${instanceId}`;
 
   const patrolPointFeatures = useMemo(() => {
     return [
@@ -74,17 +77,17 @@ const StartStopLayer = (props) => {
     };
   }, [patrolPointFeatures]);
 
-  const layerSymbolPoint = { ...symbolPaint, 'text-color':  points.start_location.properties.stroke };
-  const layerLabelPaint = { ...labelPaint, 'icon-color': points.start_location.properties.stroke };
+  const layerSymbolPaint = { ...symbolPaint, 'text-color':  ['get', 'stroke'] };
+  const layerLabelPaint = { ...labelPaint, 'icon-color': ['get', 'stroke'] };
 
-  const layerLinePaint = { ...linePaint, 'line-color': points.start_location.properties.stroke };
+  const layerLinePaint = { ...linePaint, 'line-color': ['get', 'stroke'] };
 
-  return <Fragment key={key}>
-    <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
-    <LabeledPatrolSymbolLayer labelPaint={layerLabelPaint} layout={layout} symbolPaint={layerSymbolPoint} sourceId='patrol-symbol-source' type='symbol'
-      id={PATROL_SYMBOLS} onInit={setLayerIds} filter={['==', ['geometry-type'], 'Point']}  {...rest}
+  return <Fragment key={`${key}-${instanceId}`}>
+    <Source id={sourceId} geoJsonSource={patrolPointsSourceData} />
+    <LabeledPatrolSymbolLayer textPaint={layerLabelPaint} layout={layout} paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
+      id={layerId} onInit={setLayerIds} filter={['==', ['geometry-type'], 'Point']}  {...rest}
     />
-    <Layer sourceId='patrol-symbol-source' type='line' paint={layerLinePaint} layout={lineLayout} />
+    <Layer sourceId={sourceId} id={`${layerId}-lines`} type='line' paint={layerLinePaint} layout={lineLayout} />
   </Fragment>;
 };
 
