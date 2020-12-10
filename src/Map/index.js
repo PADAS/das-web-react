@@ -41,6 +41,7 @@ import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
 import TrackLayers from '../TracksLayer';
+import PatrolStartStopLayer from '../PatrolStartStopLayer'
 import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
@@ -549,8 +550,8 @@ class Map extends Component {
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, patrolTrackState, subjectTrackState, showReportsOnMap, bounceEventIDs,
-      timeSliderState: { active: timeSliderActive } } = this.props;
+      heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs, tracksAvailable,
+      patrolTrackState, subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
 
@@ -608,6 +609,7 @@ class Map extends Component {
               allowOverlap={timeSliderActive}
               mapImages={mapImages}
               subjects={mapSubjectFeatureCollection}
+              subjectsOnActivePatrol={subjectsOnActivePatrol}
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
@@ -630,8 +632,8 @@ class Map extends Component {
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
             {showReportHeatmap && <ReportsHeatLayer />}
 
-            {subjectTracksVisible &&  <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
-            {}
+            {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
+            {patrolTracksVisible && <PatrolStartStopLayer />}
             
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 

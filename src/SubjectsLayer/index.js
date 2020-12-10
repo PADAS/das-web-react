@@ -12,6 +12,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -63,9 +64,14 @@ const SubjectsLayer = (props) => {
     ...layoutConfig,
   };
 
+  const symbolLayout = {
+    'text-field': '{ticker}',
+    'text-offset': [1.1, -1.1],
+  };
+
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <LabeledSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
+    <LabeledPatrolSymbolLayer symbolLayout={symbolLayout} layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
       onInit={setLayerIds}
     />
