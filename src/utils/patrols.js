@@ -6,7 +6,7 @@ import { SHORT_TIME_FORMAT, normalizeTime } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
-import { point } from '@turf/helpers';
+import { point, multiLineString } from '@turf/helpers';
 import { default as TimeAgo } from 'react-timeago';
 
 import { store } from '../';
@@ -397,7 +397,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) 
 
   const properties = {
     stroke,
-    image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
+    image: `${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
     name: label,
     title: label,
   };
@@ -411,75 +411,99 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
   const { features } = trackData.points;
-  const feature = trackData.points.features[0];
 
-  if (!feature) return null;
+  if (!features.length) return null;
 
-  const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
-  const stroke = feature.properties.stroke || DEFAULT_STROKE;
+  const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE.title;
+  const stroke = features[0].properties.stroke || DEFAULT_STROKE;
 
   let patrol_points = {
-    start_location: start_location 
-      ? makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke)
-      : null,
-    end_location: end_location && !isPatrolActive
-      ? makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke)
-      : null,
+    start_location: null,
+    end_location: null,
   };
 
   const endTime = normalizeTime(end_time);
   const startTime = normalizeTime(start_time);
 
-  if (start_location === null) {
-    const startLocationTrackPoint = features.find(
-      ({ properties: { time } }) => {
-        const normalizedFeatureTime = normalizeTime(time);
-        return normalizedFeatureTime === startTime;
-      }
-    );
+  if (start_location) {
+    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke);
 
-    if (startLocationTrackPoint) {
-      const { properties, geometry: { coordinates: [longitude, latitude] } } = startLocationTrackPoint;
+  } else {
+    const firstTrackPoint = features[features.length - 1];
+    const firstTrackPointMatchesStartTime = normalizeTime(firstTrackPoint.properties.time) === startTime;
+
+    const { properties, geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
+    const stroke = properties.stroke || DEFAULT_STROKE;
+
+    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
+  }
+
+  if (!isPatrolActive) {
+    if (end_location) {
+      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke);
+
+    } else {
+      const lastTrackPoint = features[0];
+      const lastTrackPointMatchesEndTime = normalizeTime(lastTrackPoint.properties.time) === endTime;
+
+      const { properties, geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
       const stroke = properties.stroke || DEFAULT_STROKE;
-      patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [longitude, latitude], icon_id, stroke);
+
+      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
     }
   }
 
-  if (end_location === null && !isPatrolActive) {
-    const endLocationTrackPoint = features.find(
-      ({ properties: { time } }) => {
-        const normalizedFeatureTime = normalizeTime(time);
-        return normalizedFeatureTime === endTime;
-      }
-    );
-
-    if (endLocationTrackPoint) {
-      const { properties, geometry: { coordinates: [longitude, latitude] } } = endLocationTrackPoint;
-      const stroke = properties.stroke || DEFAULT_STROKE;
-      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [longitude, latitude], icon_id, stroke);
-    }
-  }
-
-  if (features.length && !patrol_points.start_location) {
-    const { properties, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
-    const stroke = properties.stroke || DEFAULT_STROKE;
-    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
-  }
-
-  if (features.length && !patrol_points.end_location && !isPatrolActive && end_time) {
-    const { properties, geometry: { coordinates: [longitude, latitude] } } = features[0];
-    const stroke = properties.stroke || DEFAULT_STROKE;
-    patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
-  }
-
-  patrol_points.are_start_and_end_locations_the_same = patrol_points.end_location && booleanEqual(
-    point(patrol_points.end_location.geometry.coordinates),
-    point(patrol_points.start_location.geometry.coordinates)
-  );
+  if (!!patrol_points.end_location 
+    && booleanEqual(
+      point(patrol_points.end_location.geometry.coordinates),
+      point(patrol_points.start_location.geometry.coordinates)
+    )) {
+    patrol_points.start_location.properties.title += ` & ${patrol_points.end_location.properties.title}`;
+    delete patrol_points.end_location;
+  };
 
   if (!patrol_points.end_location && !patrol_points.start_location) return null;
 
   return patrol_points;
+};
+
+export const drawLinesBetweenPatrolTrackAndPatrolPoints = (patrolPoints, trackData) => {
+  if (!patrolPoints || !trackData) return null;
+  
+  const { end_location, start_location } = patrolPoints;
+  const { points: { features } } = trackData;
+
+  if (!end_location && !start_location) return null;
+  if (!features || !features.length) return null;
+
+  const earliestTrackPoint = features[features.length - 1];
+  const latestTrackPoint = features[0];
+
+  const lineCoords = {
+    startLineCoords: null,
+    endLineCoords: null,
+  };
+
+  if (!!end_location && !booleanEqual(
+    point(end_location.geometry.coordinates),
+    point(latestTrackPoint.geometry.coordinates)
+  )) {
+    lineCoords.endLineCoords = [end_location.geometry.coordinates, latestTrackPoint.geometry.coordinates];
+  }
+
+  if (!!start_location && !booleanEqual(
+    point(start_location.geometry.coordinates),
+    point(earliestTrackPoint.geometry.coordinates)
+  )) {
+    lineCoords.startLineCoords = [start_location.geometry.coordinates, earliestTrackPoint.geometry.coordinates];
+  }
+
+  const asArray = Object.values(lineCoords).filter(val => !!val);
+
+  if (!asArray.length) return null;
+
+  return multiLineString(asArray);
+
 };
 
 export const patrolTimeRangeIsValid = (patrol) => {
