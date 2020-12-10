@@ -2,9 +2,11 @@ import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
-import { SHORT_TIME_FORMAT } from '../utils/datetime';
+import { SHORT_TIME_FORMAT, normalizeTime } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
+import booleanEqual from '@turf/boolean-equal';
+import { point } from '@turf/helpers';
 import { default as TimeAgo } from 'react-timeago';
 
 import { store } from '../';
@@ -18,7 +20,7 @@ import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
 import { objectToParamString } from './query';
 
-
+const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
@@ -109,15 +111,13 @@ export const iconTypeForPatrol = (patrol) => {
   return UNKNOWN_TYPE;
 };
 
-export const displayTitleForPatrol = (patrol, includeLeaderName = true) => {
+export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
   if (patrol.title) return patrol.title;
 
-  if (includeLeaderName) {
-    const leader = getLeaderForPatrol(patrol);
-
-    if (leader && leader.name) return leader.name;
+  if (includeLeaderName && leader && leader.name) {
+    return leader.name;
   }
 
   if (!patrol.patrol_segments.length
@@ -168,17 +168,20 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getLeaderForPatrol = (patrol) => {
+export const getLeaderForPatrol = (patrol, subjectStore) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
   if (!leader) return null;
 
-  const { data: { subjectStore } } = store.getState();
-
   return subjectStore[leader.id] || leader;
 };
 
+export const getPatrolsForSubject = (patrols, subject) => {
+  return patrols.filter(patrol => {
+    return getLeaderForPatrol(patrol)?.id === subject.id;
+  });
+};
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
@@ -187,6 +190,16 @@ export const getPatrolsForLeaderId = (leaderId) => {
     &&  !!patrol.patrol_segments[0].leader
     && patrol.patrol_segments[0].leader.id === leaderId
   );
+};
+export const getActivePatrolsForLeaderId = (leaderId) => {
+  const patrols = getPatrolsForLeaderId(leaderId);
+  const activePatrols = patrols.filter(
+    item => {
+      return calcPatrolCardState(item) === PATROL_CARD_STATES.ACTIVE;
+    }
+  );
+
+  return activePatrols;
 };
 
 export const getSegmentUpdatesHistory = (segment) => {
@@ -367,7 +380,7 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
-export const sortPatrolCards = (patrols) => {
+export const sortPatrolCards = (patrols, subjectStore) => {
   const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
@@ -381,9 +394,98 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol).toLowerCase();
+  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol, getLeaderForPatrol(patrol, subjectStore)).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+};
+
+export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) => {
+
+  const properties = {
+    stroke,
+    image: `https://develop.pamdas.org/static/sprite-src/${icon_id}.svg`,
+    name: label,
+    title: label,
+  };
+
+  return point(coordinates, properties);
+};
+
+
+export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
+  const { patrol_segments: [firstLeg] } = patrol;
+  const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
+
+  const { features } = trackData.points;
+  const feature = trackData.points.features[0];
+
+  if (!feature) return null;
+
+  const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE;
+  const stroke = feature.properties.stroke || DEFAULT_STROKE;
+
+  let patrol_points = {
+    start_location: start_location 
+      ? makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke)
+      : null,
+    end_location: end_location && !isPatrolActive
+      ? makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke)
+      : null,
+  };
+
+  const endTime = normalizeTime(end_time);
+  const startTime = normalizeTime(start_time);
+
+  if (start_location === null) {
+    const startLocationTrackPoint = features.find(
+      ({ properties: { time } }) => {
+        const normalizedFeatureTime = normalizeTime(time);
+        return normalizedFeatureTime === startTime;
+      }
+    );
+
+    if (startLocationTrackPoint) {
+      const { properties, geometry: { coordinates: [longitude, latitude] } } = startLocationTrackPoint;
+      const stroke = properties.stroke || DEFAULT_STROKE;
+      patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [longitude, latitude], icon_id, stroke);
+    }
+  }
+
+  if (end_location === null && !isPatrolActive) {
+    const endLocationTrackPoint = features.find(
+      ({ properties: { time } }) => {
+        const normalizedFeatureTime = normalizeTime(time);
+        return normalizedFeatureTime === endTime;
+      }
+    );
+
+    if (endLocationTrackPoint) {
+      const { properties, geometry: { coordinates: [longitude, latitude] } } = endLocationTrackPoint;
+      const stroke = properties.stroke || DEFAULT_STROKE;
+      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [longitude, latitude], icon_id, stroke);
+    }
+  }
+
+  if (features.length && !patrol_points.start_location) {
+    const { properties, geometry: { coordinates: [longitude, latitude] } } = features[features.length - 1];
+    const stroke = properties.stroke || DEFAULT_STROKE;
+    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start (Est.)', [longitude, latitude], icon_id, stroke);
+  }
+
+  if (features.length && !patrol_points.end_location && !isPatrolActive && end_time) {
+    const { properties, geometry: { coordinates: [longitude, latitude] } } = features[0];
+    const stroke = properties.stroke || DEFAULT_STROKE;
+    patrol_points.end_location = makePatrolPointFromFeature('Patrol End (Est.)', [longitude, latitude], icon_id, stroke);
+  }
+
+  patrol_points.are_start_and_end_locations_the_same = patrol_points.end_location && booleanEqual(
+    point(patrol_points.end_location.geometry.coordinates),
+    point(patrol_points.start_location.geometry.coordinates)
+  );
+
+  if (!patrol_points.end_location && !patrol_points.start_location) return null;
+
+  return patrol_points;
 };
 
 export const patrolTimeRangeIsValid = (patrol) => {

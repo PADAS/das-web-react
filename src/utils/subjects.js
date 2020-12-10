@@ -2,6 +2,7 @@ import uniqBy from 'lodash/uniqBy';
 import differenceInSeconds from 'date-fns/difference_in_seconds';
 
 import { findTimeEnvelopeIndices } from './tracks';
+import { getActivePatrolsForLeaderId } from './patrols';
 
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
@@ -72,16 +73,30 @@ export const getSubjectLastPositionCoordinates = subject => {
     : subject.geometry ? subject.geometry.coordinates : null;
 };
 
-export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, update) => ({
-  ...subject,
-  last_position: {
-    ...subject.last_position, ...update, properties: {
-      ...subject.last_position.properties,
-      ...update.properties,
-      radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
-    }
-  },
-});
+export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {
+  const update = { ...updateObj };
+
+  delete update.trace_id;
+  delete update.mid;
+
+  return {
+    ...subject,
+    last_position_date: update.properties.coordinateProperties.time,
+    last_position_status: {
+      ...subject.last_position_status,
+      last_voice_call_start_at: update.properties.last_voice_call_start_at,
+      radio_state_at: update.properties.radio_state_at,
+      radio_state: update.properties.state || subject.last_position.radio_state,
+    },
+    last_position: {
+      ...subject.last_position, ...update, properties: {
+        ...subject.last_position.properties,
+        ...update.properties,
+        radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
+      }
+    },
+  };
+};
 
 export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {
   return {
@@ -168,4 +183,15 @@ const filterSubjectsHelper = (s, isMatch) => {
     };
   } 
   return newS;
+};
+
+export const markSubjectFeaturesWithActivePatrols = (mapSubjects) => {
+  return {
+    ...mapSubjects,
+    features: mapSubjects.features
+      .map(feature => {
+        feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+        return feature
+      })
+  };
 };
