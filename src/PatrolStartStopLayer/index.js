@@ -13,19 +13,21 @@ import StartStopLayer from './layer';
 
 
 const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
-  const patrolStartStopData = useMemo(() => trackData.map(data => {
-    const points = extractPatrolPointsFromTrackData(data, patrols);
+  const patrolStartStopData = useMemo(() => trackData
+    .map(data => {
+      const points = extractPatrolPointsFromTrackData(data, patrols);
 
-    if (!points) return null;
+      if (!points) return null;
 
-    const lines = drawLinesBetweenPatrolTrackAndPatrolPoints(points, data.trackData);
+      const lines = drawLinesBetweenPatrolTrackAndPatrolPoints(points, data.trackData);
 
-    return {
-      points,
-      lines,
-    };
-
-  }).filter(item => !!item), [patrols, trackData]);
+      return {
+        points,
+        lines,
+      };
+    })
+    .filter(v => !!v)
+  , [patrols, trackData]);
 
   useEffect(() => {
     const toAdd = patrolStartStopData.reduce((accumulator, item) => {

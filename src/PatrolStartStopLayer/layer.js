@@ -82,7 +82,7 @@ const StartStopLayer = (props) => {
   return <Fragment key={key}>
     <Source id='patrol-symbol-source' geoJsonSource={patrolPointsSourceData} />
     <LabeledPatrolSymbolLayer labelPaint={layerLabelPaint} layout={layout} symbolPaint={layerSymbolPoint} sourceId='patrol-symbol-source' type='symbol'
-      id={PATROL_SYMBOLS} onInit={setLayerIds} {...rest}
+      id={PATROL_SYMBOLS} onInit={setLayerIds} filter={['==', ['geometry-type'], 'Point']}  {...rest}
     />
     <Layer sourceId='patrol-symbol-source' type='line' paint={layerLinePaint} layout={lineLayout} />
   </Fragment>;
