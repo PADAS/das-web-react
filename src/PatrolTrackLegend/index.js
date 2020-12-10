@@ -38,7 +38,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
     return <li key={id}>
       <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
-      <div>
+      <div className={styles.listItemDetails}>
         <span>{title}</span>
         <small>{trackLength} coverage today</small>
       </div>
