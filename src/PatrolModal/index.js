@@ -5,6 +5,7 @@ import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import uniq from 'lodash/uniq';
+import orderBy from 'lodash/orderBy';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -312,21 +313,37 @@ const PatrolModal = (props) => {
     return null;
   }, [statePatrol]);
 
-  const allPatrolHistory = useMemo(() => {
+  const allPatrolUpdateHistory = useMemo(() => {
     // when patrol is not saved yet
     if (!statePatrol.updates) return [];
     const topLevelUpdate = statePatrol.updates;
     const [firstLeg] = statePatrol.patrol_segments;
-    const { updates: segmentUpdates } = firstLeg || [];
-    const { updates: noteUpdates }  = statePatrol.notes || [];
-    const allUpdates = [...topLevelUpdate, ...segmentUpdates];
-    console.log(allUpdates);
-    return uniq(allUpdates);
+    const { updates: segmentUpdates } = firstLeg;
+    let noteUpdates = [];
+    const notes = statePatrol.notes;
+    if (notes.length) {
+      notes.forEach( (note) => {
+        if (note.updates?.length) {
+          noteUpdates = [...noteUpdates, ...note.updates];
+        }
+      });
+    }
+    let fileUpdates = [];
+    const files  = statePatrol.files;
+    if (files.length) {
+      files.forEach( (file) => {
+        if (file.updates?.length) {
+          fileUpdates = [...noteUpdates, ...file.updates];
+        }
+      });
+    }
+    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
+    return orderBy(allUpdates, ['time'],['asc']);
   }, [statePatrol]);
 
   const patrolHistoryWrapper = useMemo(() => {
-    return({...statePatrol, updates: allPatrolHistory});
-  }, [statePatrol, allPatrolHistory]);
+    return({...statePatrol, updates: allPatrolUpdateHistory});
+  }, [statePatrol, allPatrolUpdateHistory]);
 
   const onSave = useCallback(() => {
     // const reportIsNew = !statePatrol.id;
@@ -468,7 +485,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
+        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.info('report saved', args)} />
       </AttachmentControls>
       <Footer
         onCancel={onCancel}
