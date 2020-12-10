@@ -1,4 +1,4 @@
-import { startOfToday } from '../utils/datetime';
+import { endOfToday, startOfToday } from '../utils/datetime';
 import merge from 'lodash/merge';
   
 // ACTIONS

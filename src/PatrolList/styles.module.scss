@@ -28,6 +28,10 @@
         font-size: 0.75rem;
         margin: 0;
     }
+    &.modified {
+        background: lighten($highlight-color, 15%);
+        color: white;
+    }
 }
 
 .patrolRow {
