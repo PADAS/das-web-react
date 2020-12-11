@@ -156,7 +156,6 @@ export const segmentStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
@@ -191,6 +190,7 @@ export const getPatrolsForLeaderId = (leaderId) => {
     && patrol.patrol_segments[0].leader.id === leaderId
   );
 };
+
 export const getActivePatrolsForLeaderId = (leaderId) => {
   const patrols = getPatrolsForLeaderId(leaderId);
   const activePatrols = patrols.filter(
@@ -202,10 +202,14 @@ export const getActivePatrolsForLeaderId = (leaderId) => {
   return activePatrols;
 };
 
-export const getSegmentUpdatesHistory = (segment) => {
-  if (!segment) return [];
-  const { updates }  = segment;
-  return updates || [];
+export const extractAttachmentUpdates = (collection) => {
+  const extractedUpdates = 
+    collection.reduce((accumulator, { updates }) =>
+      updates 
+        ? [...accumulator, ...updates] 
+        : accumulator, []
+    );
+  return extractedUpdates;
 };
 
 export const displayDurationForPatrol = (patrol) => {

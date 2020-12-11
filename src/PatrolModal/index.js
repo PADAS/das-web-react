@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
-import uniq from 'lodash/uniq';
 import orderBy from 'lodash/orderBy';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
@@ -13,7 +12,8 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
+  isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -319,24 +319,8 @@ const PatrolModal = (props) => {
     const topLevelUpdate = statePatrol.updates;
     const [firstLeg] = statePatrol.patrol_segments;
     const { updates: segmentUpdates } = firstLeg;
-    let noteUpdates = [];
-    const notes = statePatrol.notes;
-    if (notes.length) {
-      notes.forEach( (note) => {
-        if (note.updates?.length) {
-          noteUpdates = [...noteUpdates, ...note.updates];
-        }
-      });
-    }
-    let fileUpdates = [];
-    const files  = statePatrol.files;
-    if (files.length) {
-      files.forEach( (file) => {
-        if (file.updates?.length) {
-          fileUpdates = [...noteUpdates, ...file.updates];
-        }
-      });
-    }
+    const noteUpdates = extractAttachmentUpdates(statePatrol.notes);
+    const fileUpdates = extractAttachmentUpdates(statePatrol.files);
     const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
     return orderBy(allUpdates, ['time'],['asc']);
   }, [statePatrol]);
