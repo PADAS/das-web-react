@@ -9,7 +9,6 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
-import LabeledSymbolLayer from '../LabeledSymbolLayer';
 
 import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';

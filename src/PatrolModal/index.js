@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
+import orderBy from 'lodash/orderBy';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -11,7 +12,8 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
+  isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -311,6 +313,22 @@ const PatrolModal = (props) => {
     return null;
   }, [statePatrol]);
 
+  const allPatrolUpdateHistory = useMemo(() => {
+    // when patrol is not saved yet
+    if (!statePatrol.updates) return [];
+    const topLevelUpdate = statePatrol.updates;
+    const [firstLeg] = statePatrol.patrol_segments;
+    const { updates: segmentUpdates } = firstLeg;
+    const noteUpdates = extractAttachmentUpdates(statePatrol.notes);
+    const fileUpdates = extractAttachmentUpdates(statePatrol.files);
+    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
+    return orderBy(allUpdates, ['time'],['asc']);
+  }, [statePatrol]);
+
+  const patrolWithFlattenedHistory = useMemo(() => {
+    return({...statePatrol, updates: allPatrolUpdateHistory});
+  }, [statePatrol, allPatrolUpdateHistory]);
+
   const onSave = useCallback(() => {
     // const reportIsNew = !statePatrol.id;
     let toSubmit = statePatrol;
@@ -369,7 +387,7 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  return <EditableItem data={statePatrol}>
+  return <EditableItem data={patrolWithFlattenedHistory}>
     <Modal>
       <Header 
         icon={<DasIcon type='events' iconId={patrolIconId} />}
@@ -451,7 +469,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.log('report saved', args)} />
+        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.info('report saved', args)} />
       </AttachmentControls>
       <Footer
         onCancel={onCancel}
