@@ -325,7 +325,7 @@ const PatrolModal = (props) => {
     return orderBy(allUpdates, ['time'],['asc']);
   }, [statePatrol]);
 
-  const patrolHistoryWrapper = useMemo(() => {
+  const patrolWithFlattenedHistory = useMemo(() => {
     return({...statePatrol, updates: allPatrolUpdateHistory});
   }, [statePatrol, allPatrolUpdateHistory]);
 
@@ -387,7 +387,7 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  return <EditableItem data={patrolHistoryWrapper}>
+  return <EditableItem data={patrolWithFlattenedHistory}>
     <Modal>
       <Header 
         icon={<DasIcon type='events' iconId={patrolIconId} />}
