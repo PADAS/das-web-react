@@ -337,7 +337,11 @@ const PatrolModal = (props) => {
     const noteUpdates = extractAttachmentUpdates(statePatrol.notes);
     const fileUpdates = extractAttachmentUpdates(statePatrol.files);
     const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
-    return orderBy(allUpdates, ['time'],['asc']);
+
+    return orderBy(allUpdates, [
+      function(item) {
+        return new Date(item.time);
+      }],['desc']);
   }, [statePatrol]);
 
   const patrolWithFlattenedHistory = useMemo(() => {
