@@ -8,6 +8,7 @@ import { calcPatrolFilterForRequest/* ,
   validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
+const PATROL_SEGMENT_API_URL = `${API_URL}patrols/segments/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
@@ -110,8 +111,13 @@ export const createPatrol = (patrol) => (dispatch) => {
     }); */
 };
 
-export const addEventToSegment = (segment_id, event_id) => 
-  axios.post(`${PATROLS_API_URL}segments/${segment_id}/events/${event_id}`, {});
+// https://develop.pamdas.org/api/v1.0/activity/patrols/segments/98a671e9-1d2e-4d47-809c-383c0fb4087c/events/7878f61f-0958-47c6-ac58-d78ff64fc820
+// https://develop.pamdas.org/api/v1.0/activity/patrols/segments/7878f61f-0958-47c6-ac58-d78ff64fc820/events/26abf16e-0286-4310-8247-6e3bbd7366b8
+
+
+
+export const addEventToSegment = (segment_id, event_id, event) => 
+  axios.post(`${PATROLS_API_URL}segments/${segment_id}/events/${event_id}/`, event);
 
 export const updatePatrol = (patrol) => (dispatch) => {
 

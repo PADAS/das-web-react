@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
+import orderBy from 'lodash/orderBy';
 
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -12,7 +13,8 @@ import { downloadFileFromUrl } from '../utils/download';
 import { addEventToSegment } from '../ducks/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, displayPatrolSegmentId, getReportsForPatrol } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, 
+  iconTypeForPatrol, displayPatrolSegmentId, getReportsForPatrol, extractAttachmentUpdates  } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -326,6 +328,22 @@ const PatrolModal = (props) => {
     return null;
   }, [statePatrol]);
 
+  const allPatrolUpdateHistory = useMemo(() => {
+    // when patrol is not saved yet
+    if (!statePatrol.updates) return [];
+    const topLevelUpdate = statePatrol.updates;
+    const [firstLeg] = statePatrol.patrol_segments;
+    const { updates: segmentUpdates } = firstLeg;
+    const noteUpdates = extractAttachmentUpdates(statePatrol.notes);
+    const fileUpdates = extractAttachmentUpdates(statePatrol.files);
+    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
+    return orderBy(allUpdates, ['time'],['asc']);
+  }, [statePatrol]);
+
+  const patrolWithFlattenedHistory = useMemo(() => {
+    return({...statePatrol, updates: allPatrolUpdateHistory});
+  }, [statePatrol, allPatrolUpdateHistory]);
+
   const onSave = useCallback(() => {
     // const reportIsNew = !statePatrol.id;
     let toSubmit = statePatrol;
@@ -345,7 +363,8 @@ const PatrolModal = (props) => {
 
     // just assign added reports to inital segment id for now
     addedReports.forEach(async (report) => {
-      const resp = await addEventToSegment(report.id, patrolSegmentId);
+      console.log('posting event', report);
+      const resp = await addEventToSegment(patrolSegmentId, report.id, report);
       console.log(resp);
     });
 
@@ -390,7 +409,7 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  return <EditableItem data={statePatrol}>
+  return <EditableItem data={patrolWithFlattenedHistory}>
     <Modal>
       <Header 
         icon={<DasIcon type='events' iconId={patrolIconId} />}
