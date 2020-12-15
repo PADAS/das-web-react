@@ -2,7 +2,7 @@ import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
-import { SHORT_TIME_FORMAT, normalizeTime } from '../utils/datetime';
+import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
@@ -432,15 +432,15 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
     end_location: null,
   };
 
-  const endTime = normalizeTime(end_time);
-  const startTime = normalizeTime(start_time);
+  const endTime = normalizeDate(end_time);
+  const startTime = normalizeDate(start_time);
 
   if (start_location) {
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke);
 
   } else {
     const firstTrackPoint = features[features.length - 1];
-    const firstTrackPointMatchesStartTime = normalizeTime(firstTrackPoint.properties.time) === startTime;
+    const firstTrackPointMatchesStartTime = normalizeDate(firstTrackPoint.properties.time) === startTime;
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
@@ -453,7 +453,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
 
     } else {
       const lastTrackPoint = features[0];
-      const lastTrackPointMatchesEndTime = normalizeTime(lastTrackPoint.properties.time) === endTime;
+      const lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
