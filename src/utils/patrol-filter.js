@@ -95,7 +95,7 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
     const titleDateFormatString = `MMMM${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
     const detailsDateFormatString = 'D MMM HH:mm';
 
-    returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} ${format(lowerDate, 'D')}-${format(upperDate, 'D')}`;
+    returnValue.title = `Patrols: ${format(lowerDate, 'D')}-${format(upperDate, 'D')} ${format(lowerDate, titleDateFormatString)}`;
     returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
   } else if (rangeIsWithinCurrentYear) {
     const titleDateFormatString = 'MMMM';
