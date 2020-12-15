@@ -4,6 +4,7 @@ import differenceInSeconds from 'date-fns/difference_in_seconds';
 import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
 
+
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
@@ -185,13 +186,11 @@ const filterSubjectsHelper = (s, isMatch) => {
   return newS;
 };
 
-export const markSubjectFeaturesWithActivePatrols = (mapSubjects) => {
-  return {
-    ...mapSubjects,
-    features: mapSubjects.features
-      .map(feature => {
-        feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
-        return feature
-      })
-  };
-};
+export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
+  ...mapSubjects,
+  features: mapSubjects.features
+    .map(feature => {
+      feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+      return feature;
+    })
+});

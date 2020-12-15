@@ -2,7 +2,7 @@ import React, { Fragment, memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 
-import { evaluateFeatureFlag } from '../utils/feature-flags';
+import { useFeatureFlag } from '../hooks';
 import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
@@ -32,8 +32,9 @@ const EulaProtectedRoute = (props) => {
       });
   }, [fetchCurrentUser]); /* eslint-disable-line */
 
+  const eulaEnabled = useFeatureFlag(FEATURE_FLAGS.EULA);
+
   useEffect(() => {
-    const eulaEnabled = evaluateFeatureFlag(FEATURE_FLAGS.EULA);
     // null check to distinguish from eulaEnabled = false
     if (user.id && !(eulaEnabled == null)) {
       const accepted = user.hasOwnProperty('accepted_eula') 
@@ -42,7 +43,7 @@ const EulaProtectedRoute = (props) => {
       const ignoreEula = (eulaEnabled === false);
       setEulaAccepted(accepted || ignoreEula);
     }
-  }, [user]);
+  }, [eulaEnabled, user]);
 
   return <Fragment>
     {!eulaAccepted && <Redirect to={{
