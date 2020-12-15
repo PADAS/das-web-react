@@ -2,14 +2,14 @@ import React, { memo } from 'react';
 
 import { withMap } from '../EarthRangerMap';
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
-import withMapViewConfig from '../WithMapViewConfig';
 
+import withMapViewConfig from '../WithMapViewConfig';
 
 function LabeledPatrolSymbolLayer(
   { layout, id, ...rest }
 ) {
   const symbolLayout = {
-    'text-field': 'P',
+    'text-field': '{ticker}',
     'text-offset': [1.1, -1.1],
   };
 

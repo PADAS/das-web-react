@@ -7,6 +7,7 @@ import { withMap } from '../EarthRangerMap';
 import { getPatrols } from '../selectors/tracks';
 import { drawLinesBetweenPatrolTrackAndPatrolPoints, extractPatrolPointsFromTrackData } from '../utils/patrols';
 import { addMapImage } from '../utils/map';
+import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { patrolTrackData } from '../selectors/patrols';
 
 import StartStopLayer from './layer';
@@ -33,7 +34,13 @@ const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointC
     const toAdd = patrolStartStopData.reduce((accumulator, item) => {
       const { points: { start_location } } = item;
 
-      if (start_location && map.hasImage(start_location.properties.image)) return accumulator;
+      const image = start_location?.properties?.image;
+      const imgHeight = start_location?.properties?.height;
+      const imgWidth = start_location?.properties?.imgWidth;
+
+      if (start_location
+        && map.hasImage(calcImgIdFromUrlForMapImages(image, imgWidth, imgHeight))
+      ) return accumulator;
       return [...accumulator, start_location.properties.image];
     }, []);
 

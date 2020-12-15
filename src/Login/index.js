@@ -7,7 +7,6 @@ import Alert from 'react-bootstrap/Alert';
 
 import { postAuth, clearAuth } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
-import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
@@ -84,10 +83,9 @@ class LoginPage extends Component {
 
 
   render() {
-    const { eula_url } = this.props.eula;
+    const {systemConfig, eula: { eula_url } } = this.props;
 
-    const eulaEnabled = evaluateFeatureFlag(FEATURE_FLAGS.EULA);
-
+    const eulaEnabled = systemConfig?.[FEATURE_FLAGS.EULA];
      
     return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
@@ -108,6 +106,6 @@ class LoginPage extends Component {
   }
 }
 
-const mapStateToProps = ({ data: { eula, token } }) => ({ eula, token });
+const mapStateToProps = ({ data: { eula, token }, view: { systemConfig } }) => ({ eula, token, systemConfig });
 
 export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(withRouter(LoginPage)));

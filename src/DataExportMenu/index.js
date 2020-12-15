@@ -16,7 +16,7 @@ import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
 import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
-import { evaluateFeatureFlag } from '../utils/feature-flags';
+import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/events';
 import { fetchCurrentUser } from '../ducks/user';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -33,9 +33,13 @@ const DataExportMenu = (props) => {
 
   const [modals, setModals] = useState([]);
 
+  const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
+  const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
+  const tableauEnabled = useFeatureFlag(FEATURE_FLAGS.TABLEAU);
+
   useEffect(() => {
     setModals([
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.DAILY_REPORT)? [{
+      ...(dailyReportEnabled ? [{
         title: 'Daily Report',
         content: DailyReportModal,
         modalProps: {
@@ -49,7 +53,7 @@ const DataExportMenu = (props) => {
         paramString: calcEventFilterForRequest(),
         children: <div>Exported reports will only include those matching the filter criteria currently set in the Reports tab.</div>
       },
-      ...(evaluateFeatureFlag(FEATURE_FLAGS.KML_EXPORT) ? [{
+      ...(kmlExportEnabled ? [{
         title: 'Master KML',
         content: KMLExportModal,
         url: 'subjects/kml/root',
@@ -68,10 +72,10 @@ const DataExportMenu = (props) => {
         url: 'trackingdata/export',
       },
     ]);
-  }, [props.systemConfig, eventTypes, eventFilter]);
+  }, [props.systemConfig, eventTypes, eventFilter, dailyReportEnabled, kmlExportEnabled]);
 
   useEffect(() => {
-    if (evaluateFeatureFlag(FEATURE_FLAGS.TABLEAU) && !hasTableauNotification) {
+    if (tableauEnabled && !hasTableauNotification) {
       addUserNotification({
         message: 'Check out your new analysis dashboard, available in the main menu at the top right of your screen, generously provided by Tableau.',
         onConfirm(_e, item) {
@@ -94,7 +98,7 @@ const DataExportMenu = (props) => {
 
       setHasTableauNotification(true);
     }
-  }, [props.systemConfig]);
+  }, [addUserNotification, hasTableauNotification, props.systemConfig, removeUserNotification, tableauEnabled, updateUserPreferences]);
 
   const tableauModal = {
     title: 'Analysis (via Tableau)',
