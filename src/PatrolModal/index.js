@@ -10,7 +10,7 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { addEventToSegment } from '../ducks/patrols';
+import { addSegmentToEvent } from '../ducks/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, isSegmentActive, patrolTimeRangeIsValid, 
@@ -38,7 +38,6 @@ import TimeRangeAlert from './TimeRangeAlert';
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
-import { add } from 'lodash-es';
 import { openModalForReport } from '../utils/events';
 
 const STARTED_LABEL = 'Started';
@@ -230,6 +229,7 @@ const PatrolModal = (props) => {
   }, [filesToList, filesToUpload]);
 
   const onAddReport = useCallback((reportData) => {
+    console.log('add report', reportData);
     const { data: { data } } = reportData[0];
     setAddedReports([...addedReports, data]);
   }, [addedReports]);
@@ -368,7 +368,7 @@ const PatrolModal = (props) => {
     // just assign added reports to inital segment id for now
     addedReports.forEach(async (report) => {
       console.log('posting event', report);
-      const resp = await addEventToSegment(patrolSegmentId, report.id, report);
+      const resp = await addSegmentToEvent(patrolSegmentId, report.id,);
       console.log(resp);
     });
 

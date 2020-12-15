@@ -115,10 +115,6 @@ export const createPatrol = (patrol) => (dispatch) => {
 // https://develop.pamdas.org/api/v1.0/activity/patrols/segments/7878f61f-0958-47c6-ac58-d78ff64fc820/events/26abf16e-0286-4310-8247-6e3bbd7366b8
 
 
-
-export const addEventToSegment = (segment_id, event_id, event) => 
-  axios.post(`${PATROLS_API_URL}segments/${segment_id}/events/${event_id}/`, event);
-
 export const updatePatrol = (patrol) => (dispatch) => {
 
   let patrolResults;

@@ -276,6 +276,17 @@ export const setEventState = (id, state) => (dispatch) => {
     });
 };
 
+export const addSegmentToEvent = (segment_id, event_id, event) => {
+  const segmentPayload = { patrol_segment_ids: [segment_id] };
+  axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
+    .then(function (response) {
+      console.log('add segment response', response);
+    })
+    .catch(function (error) {
+      console.log('add segment error', error);
+    });
+};
+
 export const uploadEventFile = (event_id, file, onUploadProgress = (event) => console.log('report file upload update', event)) => (dispatch) => {
   const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
 
