@@ -1,16 +1,11 @@
 import { useState, useEffect } from 'react';
 
-import { evaluateFeatureFlag } from '../utils/feature-flags';
+import { useSelector } from 'react-redux';
 
-const useFeatureFlag = (flag) => {
-  const [visible, setVisibility] = useState(evaluateFeatureFlag(flag));
-
-  useEffect(() => {
-    setVisibility(evaluateFeatureFlag(flag));
-  }, [flag]);
-
-  return visible;
-};
+const useFeatureFlag = flag => 
+  useSelector(state =>
+    !!state?.view?.systemConfig?.[flag]
+  );
 
 const useMatchMedia = (matchMediaDef) => {
   const isClient = typeof window === 'object';
