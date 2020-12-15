@@ -13,7 +13,7 @@ import DateRangeSelectionString from './DateRangeSelectionString';
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
-  const { startDate, endDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
+  const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
     startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
     children, placement, ...rest } = props;
@@ -22,6 +22,8 @@ const DateRangeSelector = (props) => {
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
 
   const endDateDayClicked = useRef(false);
+
+  const hasEndMaxDate = typeof endMaxDate !== 'undefined';
 
   const handleEndDateChange = (val) => {
     if (endDateDayClicked.current) {
@@ -51,7 +53,7 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePickerPopover placement={placement} onClickDay={handleEndDateDayClick} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={maxDate} value={endDate} onChange={handleEndDateChange} />
+          <DateTimePickerPopover placement={placement} onClickDay={handleEndDateDayClick} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={hasEndMaxDate ? endMaxDate : maxDate} value={endDate} onChange={handleEndDateChange} />
         </span>
       </label>
     </div>

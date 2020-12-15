@@ -28,6 +28,7 @@ const EventFilterDateRangeSelector = (props) => {
     afterStartChange={afterStartChange}
     updateFilter={updatePatrolFilter}
     requireEnd={true}
+    endMaxDate={null}
     nullUpperOverride={INITIAL_FILTER_STATE.filter.date_range.upper}
   />;
 
