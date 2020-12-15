@@ -3,10 +3,7 @@ import differenceInSeconds from 'date-fns/difference_in_seconds';
 
 import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
-import { evaluateFeatureFlag } from '../utils/feature-flags';
-import { FEATURE_FLAGS } from '../constants';
 
-const patrolEnabled = evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
 
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
@@ -189,14 +186,11 @@ const filterSubjectsHelper = (s, isMatch) => {
   return newS;
 };
 
-export const markSubjectFeaturesWithActivePatrols = (mapSubjects) => {
-  if (!patrolEnabled) return mapSubjects;
-  return {
-    ...mapSubjects,
-    features: mapSubjects.features
-      .map(feature => {
-        feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
-        return feature
-      })
-  };
-};
+export const markSubjectFeaturesWithActivePatrols = mapSubjects => ({
+  ...mapSubjects,
+  features: mapSubjects.features
+    .map(feature => {
+      feature.properties.ticker = !!(getActivePatrolsForLeaderId(feature.properties.id).length) ? 'P' : '';
+      return feature;
+    })
+});
