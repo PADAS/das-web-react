@@ -1,6 +1,7 @@
 import { createSelector, getTimeSliderState } from './';
 import { tracks } from './tracks';
 
+import { FEATURE_FLAGS } from '../constants';
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
 import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols } from '../utils/subjects';
 
@@ -9,6 +10,7 @@ const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
+const getSystemConfig = ({ view: { systemConfig } }) => systemConfig;
 
 export const getMapSubjectFeatureCollection = createSelector(
   [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
@@ -16,7 +18,7 @@ export const getMapSubjectFeatureCollection = createSelector(
     const fromStore = mapSubjects
       .filter(id => !hiddenSubjectIDs.includes(id))
       .map(id => subjectStore[id])
-      .filter(item => !!item)
+      .filter(item => !!item);
     
     const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
     if (showInactiveRadios) return mapSubjectCollection;
@@ -48,9 +50,10 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, tracks, getTimeSliderState],
-  (mapSubjectFeatureCollection, tracks, timeSliderState) => {
-    const mapSubjectFeatureCollection_ = markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection);
+  [getMapSubjectFeatureCollection, getSystemConfig, tracks, getTimeSliderState],
+  (mapSubjectFeatureCollection, systemConfig, tracks, timeSliderState) => {
+    const patrolsEnabled = !!systemConfig?.[FEATURE_FLAGS.PATROL_MANAGEMENT];
+    const mapSubjectFeatureCollection_ = patrolsEnabled ? markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection) : mapSubjectFeatureCollection;
 
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) {

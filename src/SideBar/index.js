@@ -56,6 +56,7 @@ const SideBar = (props) => {
   const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
+  const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
 
@@ -119,9 +120,15 @@ const SideBar = (props) => {
   }, [eventFilter]); // eslint-disable-line
 
   useEffect(() => {
-    if (showPatrols) {
-      fetchPatrols();
-    }
+    const loadPatrolData = async () => {
+      if (showPatrols) {
+        setPatrolLoadState(true);
+        await fetchPatrols();
+        setPatrolLoadState(false);
+      }
+    };
+
+    loadPatrolData();
   }, [patrolFilter]); // eslint-disable-line
 
   useEffect(() => {
@@ -196,7 +203,7 @@ const SideBar = (props) => {
           </Tab>
           {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
             <PatrolFilter className={styles.patrolFilter} /> 
-            <PatrolList map={map} patrols={patrols.results || []}/>
+            <PatrolList map={map} patrols={patrols.results || []} loading={loadingPatrols}/>
           </Tab>}
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
             <ErrorBoundary>

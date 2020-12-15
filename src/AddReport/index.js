@@ -6,12 +6,12 @@ import Overlay from 'react-bootstrap/Overlay';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
+import { useFeatureFlag } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { getPatrolList } from '../selectors/patrols';
 import { trackEvent } from '../utils/analytics';
 import { openModalForPatrol, generatePseudoReportCategoryForPatrolTypes, createNewPatrolForPatrolType } from '../utils/patrols';
-import { evaluateFeatureFlag } from '../utils/feature-flags';
 
 import EventTypeListItem from '../EventTypeListItem';
 
@@ -25,7 +25,7 @@ const AddReport = (props) => {
 
   const [selectedCategory, selectCategory] = useState(null);
 
-  const patrolsEnabled = evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolsEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);
@@ -99,7 +99,7 @@ const AddReport = (props) => {
     trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
 
     /* PATROL_SCAFFOLD */
-    if (evaluateFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT)) {
+    if (patrolsEnabled) {
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {

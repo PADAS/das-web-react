@@ -63,14 +63,9 @@ const SubjectsLayer = (props) => {
     ...layoutConfig,
   };
 
-  const symbolLayout = {
-    'text-field': '{ticker}',
-    'text-offset': [1.1, -1.1],
-  };
-
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <LabeledPatrolSymbolLayer symbolLayout={symbolLayout} layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
+    <LabeledPatrolSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
       onInit={setLayerIds}
     />

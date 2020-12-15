@@ -285,7 +285,9 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   }
 
 
-  if (type === (UPDATE_PATROL_SUCCESS || UPDATE_PATROL_REALTIME || CREATE_PATROL_REALTIME)) {
+  if (type === UPDATE_PATROL_SUCCESS 
+    || type === UPDATE_PATROL_REALTIME
+    || type ===CREATE_PATROL_REALTIME) {
     return {
       ...state,
       [payload.id]: {
