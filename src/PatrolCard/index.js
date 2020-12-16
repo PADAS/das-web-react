@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
-  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, getLeaderForPatrol } from '../utils/patrols';
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
@@ -21,7 +21,9 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import styles from './styles.module.scss';
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { patrol, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
+  const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
+
+  const { patrol, leader, trackData } = patrolData;
 
   const menuRef = useRef(null);
   const cardRef = useRef(ref || null);
@@ -49,8 +51,6 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     }
     return patrolState.title;
   }, [patrol, patrolState]);
-
-  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
 
   useEffect(() => {
     if (leader && leader.id) {
@@ -150,7 +150,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       {!isScheduledPatrol && <Fragment> 
         <div>
           <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
-          <p>Distance covered: <span><PatrolDistanceCovered patrol={patrol} /></span></p>
+          <p>Distance covered: <span><PatrolDistanceCovered trackData={trackData} /></span></p>
         </div>
       </Fragment>}
     </div>
@@ -158,7 +158,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     <AddReport className={styles.addReport} showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
       target={stateTitleRef} ref={popoverRef} onHide={onPopoverHide}
-      onPatrolChange={onPatrolChangeFromPopover} patrol={patrol} />
+      onPatrolChange={onPatrolChangeFromPopover} patrolData={patrolData} />
   </li>;
 });
 

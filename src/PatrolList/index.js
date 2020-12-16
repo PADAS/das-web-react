@@ -13,48 +13,46 @@ import styles from './styles.module.scss';
 import PatrolCard from '../PatrolCard';
 
 const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onStateUpdateFromCard, patrol, subjectStore, updatePatrol, ...rest } = props;
+  const { map, onStateUpdateFromCard, patrolData, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
-    openModalForPatrol(patrol, map);
-  }, [map, patrol]);
+    openModalForPatrol(patrolData.patrol, map);
+  }, [map, patrolData.patrol]);
 
   const onPatrolChange = useCallback((value) => {
-    const merged = merge(patrol, value);
+    const merged = merge(patrolData.patrol, value);
     
     delete merged.updates;
     updatePatrol(merged);
-  }, [patrol, updatePatrol]);
+  }, [patrolData.patrol, updatePatrol]);
 
-  return <Flipped flipId={patrol.id}>
+  return <Flipped flipId={patrolData.patrol.id}>
     <PatrolCard
       ref={ref}
       onTitleClick={onTitleClick}
       onPatrolChange={onPatrolChange}
       onSelfManagedStateChange={onStateUpdateFromCard}
-      patrol={patrol}
-      subjectStore={subjectStore}
+      patrolData={patrolData}
       map={map}
       {...rest} />
   </Flipped>;
 });
 
-const mapStateToProps = ({ data: { subjectStore } }) => ({ subjectStore });
-const ConnectedListItem = connect(mapStateToProps, { updatePatrol })(PatrolListItem);
+const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
 
 const PatrolList = (props) => {
-  const { map, patrols = [], subjectStore, loading } = props;
+  const { map, patrolData = [], loading } = props;
   // const scrollRef = useRef(null);
 
-  const [listItems, setListItems] = useState(patrols);
+  const [listItems, setListItems] = useState(patrolData);
 
   const onStateUpdateFromCard = useCallback(() => {
-    setListItems(sortPatrolCards(patrols, subjectStore));
-  }, [patrols, subjectStore]);
+    setListItems(sortPatrolCards(patrolData));
+  }, [patrolData]);
 
   useEffect(() => {
-    setListItems(sortPatrolCards(patrols, subjectStore));
-  }, [patrols, subjectStore]);
+    setListItems(sortPatrolCards(patrolData));
+  }, [patrolData]);
 
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
@@ -65,7 +63,7 @@ const PatrolList = (props) => {
 
       {listItems.map((item, index) =>
         <ConnectedListItem
-          patrol={item}
+          patrolData={item}
           onStateUpdateFromCard={onStateUpdateFromCard}
           map={map}
           key={item.id}/>
@@ -75,9 +73,7 @@ const PatrolList = (props) => {
   </Fragment>;
 };
 
-const mapStateToListProps = ({ data: { subjectStore } }) => ({ subjectStore });
-
-export default connect(mapStateToListProps, null)(memo(PatrolList));
+export default memo(PatrolList);
 
 PatrolList.propTypes = {
   patrols: PropTypes.array,

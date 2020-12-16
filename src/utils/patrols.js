@@ -176,11 +176,6 @@ export const getLeaderForPatrol = (patrol, subjectStore) => {
   return subjectStore[leader.id] || leader;
 };
 
-export const getPatrolsForSubject = (patrols, subject) => {
-  return patrols.filter(patrol => {
-    return getLeaderForPatrol(patrol)?.id === subject.id;
-  });
-};
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
@@ -384,10 +379,10 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
-export const sortPatrolCards = (patrols, subjectStore) => {
+export const sortPatrolCards = (patrolData) => {
   const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
-  const sortFunc = (patrol) => {
+  const sortFunc = ({ patrol }) => {
     const cardState = calcPatrolCardState(patrol);
 
     if (cardState === START_OVERDUE) return 1;
@@ -398,9 +393,9 @@ export const sortPatrolCards = (patrols, subjectStore) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol, getLeaderForPatrol(patrol, subjectStore)).toLowerCase();
+  const patrolDisplayTitleFunc = ({ patrol, leader }) => displayTitleForPatrol(patrol, leader).toLowerCase();
 
-  return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+  return orderBy(patrolData, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
 
 export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) => {

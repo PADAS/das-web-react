@@ -16,7 +16,7 @@ import { withMap } from '../EarthRangerMap';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol,calcPatrolCardState, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
@@ -25,10 +25,10 @@ import { PATROL_CARD_STATES } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, map, onHide, onPatrolChange, patrol, patrolTrackState, subjectTrackState, subjectStore,
+  const { container, isOpen, map, onHide, onPatrolChange, patrolData, patrolTrackState, subjectTrackState,
     target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
+  const { leader, patrol } = patrolData;
 
   const leaderLastPositionCoordinates = useMemo(() => !!leader && leader.last_position && leader.last_position.geometry && leader.last_position.geometry.coordinates, [leader]);
 
@@ -129,7 +129,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   
           <div className={styles.controls}>
             <HeatmapToggleButton disabled={!leader} showLabel={false} heatmapVisible={false} />
-            <PatrolAwareTrackToggleButton patrol={patrol} showLabel={false} />
+            <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />
             {!!leaderLastPositionCoordinates && <LocationJumpButton bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
           </div>
           <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
@@ -142,7 +142,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   </Overlay>; 
 });
 
-const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState }, data: { subjectStore } }) => ({ patrolTrackState, subjectTrackState, subjectStore });
+const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
 
 
 export default connect(mapStateToProps, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, updatePatrolTrackState, updateTrackState, toggleTrackState }, null, {

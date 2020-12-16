@@ -1,13 +1,14 @@
 import { createSelector } from './';
 import { getSubjectStore } from './subjects';
-import { trimmedVisibleTrackData } from './tracks';
+import { trimmedVisibleTrackData, trackTimeEnvelope, tracks } from './tracks';
 import { getLeaderForPatrol } from '../utils/patrols';
-import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../utils/tracks';
 import uniq from 'lodash/uniq';
 
 export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
 const getPatrolTrackState = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
+
 
 export const getPatrolList = createSelector(
   [getPatrolStore, getPatrols],
@@ -17,21 +18,52 @@ export const getPatrolList = createSelector(
   })
 );
 
-export const getPatrolTrackList = createSelector(
-  [getPatrolStore, getPatrolTrackState, getSubjectStore],
-  (store, patrolIdsToTrack, subjectStore) => patrolIdsToTrack
-    .map((id) => store[id])
-    .filter((patrol) =>
-      !!patrol && !!getLeaderForPatrol(patrol, subjectStore)
-    )
+export const getAllPatrolsWithTrackData = createSelector(
+  [tracks, getPatrolList, getSubjectStore, trackTimeEnvelope],
+  (tracks, patrols, subjectStore, trackTimeEnvelope) => {
+    const { from, until } = trackTimeEnvelope;
+
+    return patrols.results
+      .map((patrol) => {
+        const leader = getLeaderForPatrol(patrol, subjectStore);
+        const trackData = !!leader && tracks[leader.id];
+
+        const [firstLeg] = patrol.patrol_segments;
+        const timeRange = !!firstLeg && firstLeg.time_range;
+
+        const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
+
+        const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(
+          trimTrackDataToTimeRange(trackData, from, until),
+          timeRange.start_time, timeRange.end_time,
+        );
+
+        return {
+          patrol,
+          trackData: trimmed || null,
+          leader: leader || null,
+        };
+      });
+  }
 );
 
+export const patrolTrackData = createSelector(
+  [getPatrolTrackState, getAllPatrolsWithTrackData],
+  (patrolTrackIds, patrolsWithTrackData) => {
+    return patrolsWithTrackData
+      .filter(({ patrol: { id }, trackData }) =>
+        !!trackData && patrolTrackIds.some(pid =>
+          pid === id
+        )
+      );
+  }
+);
 
 export const visibleTrackDataWithPatrolAwareness = createSelector(
-  [trimmedVisibleTrackData, getPatrolTrackList],
-  (trackData, patrols) => trackData.map((t) => {
+  [trimmedVisibleTrackData, patrolTrackData],
+  (trackData, patrolTrackData) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
-    const hasPatrolTrackMatch = patrols.some(p =>
+    const hasPatrolTrackMatch = patrolTrackData.some(({ patrol:p }) =>
       p.patrol_segments 
       && !!p.patrol_segments.length 
       && p.patrol_segments[0].leader 
@@ -42,25 +74,4 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
       patrolTrackShown: hasPatrolTrackMatch,
     };
   }),
-);
-
-export const patrolTrackData = createSelector(
-  [visibleTrackDataWithPatrolAwareness, getPatrolTrackList, getSubjectStore],
-  (trackData, patrols, subjectStore) => {
-    const tracks = trackData.filter(t => !!t.patrolTrackShown);
-    
-    return patrols
-      .map((patrol) => {
-        const [firstLeg] = patrol.patrol_segments;
-        const leader = getLeaderForPatrol(patrol, subjectStore);
-        const timeRange = !!firstLeg && firstLeg.time_range;
-        const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id === leader.id);
-
-        return {
-          patrol,
-          trackData: leaderTrack && timeRange && timeRange.start_time && trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time),
-        };
-      })
-      .filter(t => !!t.trackData);
-  }
 );

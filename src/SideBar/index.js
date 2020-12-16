@@ -13,7 +13,7 @@ import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
-import { getPatrolList } from '../selectors/patrols';
+import { getAllPatrolsWithTrackData } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
@@ -53,7 +53,7 @@ const TAB_KEYS = {
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, patrolData, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
@@ -203,7 +203,7 @@ const SideBar = (props) => {
           </Tab>
           {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
             <PatrolFilter className={styles.patrolFilter} /> 
-            <PatrolList map={map} patrols={patrols.results || []} loading={loadingPatrols}/>
+            <PatrolList map={map} patrolData={patrolData} loading={loadingPatrols}/>
           </Tab>}
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
             <ErrorBoundary>
@@ -230,7 +230,7 @@ const SideBar = (props) => {
 const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
   eventFilter: state.data.eventFilter,
-  patrols: getPatrolList(state),
+  patrolData: getAllPatrolsWithTrackData(state),
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
