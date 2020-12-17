@@ -77,13 +77,7 @@ const StartStopLayer = (props) => {
 
       if (timeSliderActiveWithVirtualDate && isAfter(endDate, new Date(timeSliderState.virtualDate))) {
         delete points.end_location;
-      } else if (!timeSliderActiveWithVirtualDate && isAfter(endDate, new Date(trackTimeEnvelope.until))) {
-        delete points.end_location;
-      }
-
-      const endTimeThreshold = timeSliderActiveWithVirtualDate ? new Date(timeSliderState.virtualDate) : new Date(trackTimeEnvelope.from);
-
-      if (isAfter(new Date(points.end_location.properties.time), endTimeThreshold)) {
+      } else if (!timeSliderActiveWithVirtualDate && !!trackTimeEnvelope.until && isAfter(endDate, new Date(trackTimeEnvelope.until))) {
         delete points.end_location;
       }
     }
