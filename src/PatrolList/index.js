@@ -13,26 +13,26 @@ import styles from './styles.module.scss';
 import PatrolCard from '../PatrolCard';
 
 const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onStateUpdateFromCard, patrolData, updatePatrol, ...rest } = props;
+  const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
-    openModalForPatrol(patrolData.patrol, map);
-  }, [map, patrolData.patrol]);
+    openModalForPatrol(patrol, map);
+  }, [map, patrol]);
 
   const onPatrolChange = useCallback((value) => {
-    const merged = merge(patrolData.patrol, value);
+    const merged = merge(patrol, value);
     
     delete merged.updates;
     updatePatrol(merged);
-  }, [patrolData.patrol, updatePatrol]);
+  }, [patrol, updatePatrol]);
 
-  return <Flipped flipId={patrolData.patrol.id}>
+  return <Flipped flipId={patrol.id}>
     <PatrolCard
       ref={ref}
       onTitleClick={onTitleClick}
       onPatrolChange={onPatrolChange}
       onSelfManagedStateChange={onStateUpdateFromCard}
-      patrolData={patrolData}
+      patrol={patrol}
       map={map}
       {...rest} />
   </Flipped>;
@@ -41,18 +41,18 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
 const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
 
 const PatrolList = (props) => {
-  const { map, patrolData = [], loading } = props;
+  const { map, patrols = [], loading } = props;
   // const scrollRef = useRef(null);
 
-  const [listItems, setListItems] = useState(patrolData);
+  const [listItems, setListItems] = useState(patrols);
 
   const onStateUpdateFromCard = useCallback(() => {
-    setListItems(sortPatrolCards(patrolData));
-  }, [patrolData]);
+    setListItems(sortPatrolCards(patrols));
+  }, [patrols]);
 
   useEffect(() => {
-    setListItems(sortPatrolCards(patrolData));
-  }, [patrolData]);
+    setListItems(sortPatrolCards(patrols));
+  }, [patrols]);
 
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
@@ -63,7 +63,7 @@ const PatrolList = (props) => {
 
       {listItems.map((item, index) =>
         <ConnectedListItem
-          patrolData={item}
+          patrol={item}
           onStateUpdateFromCard={onStateUpdateFromCard}
           map={map}
           key={item.id}/>

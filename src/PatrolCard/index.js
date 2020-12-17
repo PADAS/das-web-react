@@ -1,4 +1,5 @@
 import React, { forwardRef, memo, useEffect, useRef, useMemo, useCallback, useState, Fragment } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 
@@ -6,6 +7,7 @@ import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, dis
   calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { fetchTracksIfNecessary } from '../utils/tracks';
+import { createPatrolDataSelector } from '../selectors/patrols';
 
 
 import { PATROL_CARD_STATES } from '../constants';
@@ -93,7 +95,6 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      console.log('popoverRef', popoverRef);
       if (popoverRef.current && 
         (!popoverRef.current.contains(e.target))) {
         setPopoverState(false);
@@ -162,7 +163,17 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   </li>;
 });
 
-export default memo(PatrolCard);
+const makeMapStateToProps = () => {
+  const getDataForPatrolFromProps = createPatrolDataSelector();
+  const mapStateToProps = (state, props) => {
+    return {
+      patrolData: getDataForPatrolFromProps(state, props),
+    };
+  };
+  return mapStateToProps;
+};
+
+export default connect(makeMapStateToProps, null)(memo(PatrolCard));
 
 PatrolCard.propTypes = {
   patrol: PropTypes.object.isRequired,

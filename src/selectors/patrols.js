@@ -1,5 +1,6 @@
-import { createSelector } from './';
+import { createSelector, createEqualitySelector } from './';
 import { getSubjectStore } from './subjects';
+import isEqual from 'react-fast-compare';
 import { trimmedVisibleTrackData, trackTimeEnvelope, tracks } from './tracks';
 import { getLeaderForPatrol } from '../utils/patrols';
 import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../utils/tracks';
@@ -7,6 +8,13 @@ import uniq from 'lodash/uniq';
 
 export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
+const getPatrolFromProps = (state, { patrol }) => patrol;
+const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
+  !!patrol.patrol_segments 
+  && !!patrol.patrol_segments.length 
+  && !!patrol.patrol_segments[0].leader
+  && tracks[patrol.patrol_segments[0].leader.id];
+const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
 const getPatrolTrackState = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
 
 
@@ -19,13 +27,13 @@ export const getPatrolList = createSelector(
 );
 
 export const getAllPatrolsWithTrackData = createSelector(
-  [tracks, getPatrolList, getSubjectStore, trackTimeEnvelope],
-  (tracks, patrols, subjectStore, trackTimeEnvelope) => {
+  [tracks, getPatrolList, trackTimeEnvelope],
+  (tracks, patrols, trackTimeEnvelope) => {
     const { from, until } = trackTimeEnvelope;
 
     return patrols.results
       .map((patrol) => {
-        const leader = getLeaderForPatrol(patrol, subjectStore);
+        const { leader } = patrol;
         const trackData = !!leader && tracks[leader.id];
 
         const [firstLeg] = patrol.patrol_segments;
@@ -47,6 +55,28 @@ export const getAllPatrolsWithTrackData = createSelector(
   }
 );
 
+export const createPatrolDataSelector = () => createEqualitySelector(
+  [getPatrolFromProps, getLeaderForPatrolFromProps,  getTrackForPatrolFromProps],
+  (patrol, leader, trackData) => {
+    const [firstLeg] = patrol.patrol_segments;
+    const timeRange = !!firstLeg && firstLeg.time_range;
+    const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
+
+    const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange.start_time, timeRange.end_time);
+
+    const results = {
+      patrol,
+      leader,
+      trackData: trimmed || null,
+    };
+
+    console.log(`updating for ${patrol.id}`);
+
+
+    return results;
+  },
+);
+
 export const patrolTrackData = createSelector(
   [getPatrolTrackState, getAllPatrolsWithTrackData],
   (patrolTrackIds, patrolsWithTrackData) => {
@@ -58,6 +88,14 @@ export const patrolTrackData = createSelector(
       );
   }
 );
+
+export const patrolsWithTrackShown = createSelector(
+  [getPatrolTrackState, getPatrolStore],
+  (patrolTrackState, patrolStore) => patrolTrackState
+    .map(id => patrolStore[id])
+    .filter(p => !!p)
+);
+
 
 export const visibleTrackDataWithPatrolAwareness = createSelector(
   [trimmedVisibleTrackData, patrolTrackData],
@@ -75,3 +113,6 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
     };
   }),
 );
+
+
+// patrol, trackForPatrol, subjectStore, trackTimeEnvelope

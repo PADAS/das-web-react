@@ -379,10 +379,10 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
-export const sortPatrolCards = (patrolData) => {
+export const sortPatrolCards = (patrol) => {
   const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
-  const sortFunc = ({ patrol }) => {
+  const sortFunc = (patrol) => {
     const cardState = calcPatrolCardState(patrol);
 
     if (cardState === START_OVERDUE) return 1;
@@ -393,9 +393,9 @@ export const sortPatrolCards = (patrolData) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = ({ patrol, leader }) => displayTitleForPatrol(patrol, leader).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol.leader).toLowerCase();
 
-  return orderBy(patrolData, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
+  return orderBy(patrol, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
 
 export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) => {
