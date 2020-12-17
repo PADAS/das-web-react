@@ -6,6 +6,7 @@ import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
 
 import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
 
 import { store } from '../index';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
@@ -231,8 +232,19 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
   }; */
 };
 
-export const addSocketStatusUpdateToTrack = (tracks, update) => {
+export const addSocketStatusUpdateToTrack = (tracks, newData) => {
   const { track, points } = tracks;
+
+  const update = { ...newData };
+
+  delete update.mid;
+  delete update.trace_id;
+
+  console.log('my update properties were this', update.properties);
+
+  update.properties = merge({}, points.features[0].properties, update.properties);
+
+  console.log('my update properties are now this', update.properties);
 
   const [trackFeature] = track.features;
 
