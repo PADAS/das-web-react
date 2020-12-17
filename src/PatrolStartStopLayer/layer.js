@@ -56,6 +56,8 @@ const StartStopLayer = (props) => {
   const layerId = `patrol-start-stop-layer-${instanceId}`;
 
   const patrolStartStopData = useMemo(() => {
+    if (!patrolData.trackData) return null;
+    
     const points = extractPatrolPointsFromTrackData(patrolData);
 
     const timeSliderActiveWithVirtualDate = (timeSliderState.active && timeSliderState.virtualDate);
@@ -139,7 +141,7 @@ const StartStopLayer = (props) => {
     };
   }, [patrolPointFeatures]);
 
-  if (!patrolData.trackData && patrolPointFeatures) return null;
+  if (!patrolStartStopData) return null;
 
   const layerSymbolPaint = { ...symbolPaint, 'text-color':  ['get', 'stroke'] };
   const layerLabelPaint = { ...labelPaint, 'icon-color': ['get', 'stroke'] };
