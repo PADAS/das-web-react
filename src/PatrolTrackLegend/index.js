@@ -11,7 +11,7 @@ import DasIcon from '../DasIcon';
 import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { patrolTrackData } from '../selectors/patrols';
+import { visibleTrackedPatrolData } from '../selectors/patrols';
 
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
@@ -32,9 +32,9 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
     const { filter: { date_range } } = patrolFilter;
 
-    const trimmed = trimTrackDataToTimeRange(trackData, date_range.lower, date_range.upper);
+    const trimmed = !!trackData && trimTrackDataToTimeRange(trackData, date_range.lower, date_range.upper);
 
-    const trackLength = `${length(trimmed.track).toFixed(2)}km`;
+    const trackLength = `${trimmed ? length(trimmed.track).toFixed(2): 0.00}km`;
 
     return <li key={id}>
       <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
@@ -92,14 +92,16 @@ const PatrolTrackLegend = (props) => {
   }, [hasData, isMulti, patrolData]);
 
   const coverageLength = useMemo(() => {
+    if (!hasData) return '0km';
+    
     const { filter: { date_range } } = patrolFilter;
     return `${patrolData
       .reduce((accumulator, { trackData }) => {
-        const trimmed = trimTrackDataToTimeRange(trackData,  date_range.lower, date_range.upper);
+        const trimmed = !!trackData && trimTrackDataToTimeRange(trackData,  date_range.lower, date_range.upper);
         
-        return accumulator + parseFloat(length(trimmed.track));
+        return accumulator + trimmed ? parseFloat(length(trimmed.track)): 0;
       }, 0).toFixed(2)}km`;
-  }, [patrolData, patrolFilter]);
+  }, [hasData, patrolData, patrolFilter]);
 
   const onRemovePatrolClick = useCallback(({ target: { value: id } }) => {
     updateTrackState({
@@ -118,8 +120,7 @@ const PatrolTrackLegend = (props) => {
 
 const mapStateToProps = (state) => ({
   trackState: state.view.patrolTrackState,
-  patrolData: patrolTrackData(state),
-  subjectStore: state.data.subjectStore,
+  patrolData: visibleTrackedPatrolData(state),
   patrolFilter: state.data.patrolFilter,
 });
 

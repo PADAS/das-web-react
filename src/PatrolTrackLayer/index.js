@@ -1,10 +1,13 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
 import { createPatrolDataSelector } from '../selectors/patrols';
+import { trimTrackDataToTimeRange } from '../utils/tracks';
 
 import { withMap } from '../EarthRangerMap';
 import TrackLayer from '../TracksLayer/track';
+
 
 const linePaint = {
   'line-width': ['step', ['zoom'], 2, 8, ['+',['get', 'stroke-width'], 1.5]],
@@ -15,9 +18,9 @@ const linePaint = {
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const PatrolTrackLayer = (props) => {
-  const { map, patrolData: { trackData, patrol }, showTrackTimepoints, tracks, dispatch:_dispatch, onPointClick, ...rest } = props;
+  const { map, patrolData: { trackData, patrol }, showTrackTimepoints, trackTimeEnvelope, tracks, dispatch:_dispatch, onPointClick, ...rest } = props;
 
-  const id = useMemo(() => `patrol-track-${patrol.id}`, [patrol.id]);
+  const trimmedTrackData = useMemo(() => !!trackData && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until), [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]);
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
@@ -26,7 +29,7 @@ const PatrolTrackLayer = (props) => {
 
   if (!trackData || !trackData.track) return null;
 
-  return <TrackLayer id={id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} trackData={trackData} {...rest} />;
+  return <TrackLayer id={patrol.id} linePaint={linePaint} map={map} showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} trackData={trimmedTrackData} {...rest} />;
 };
 
 const makeMapStateToProps = () => {

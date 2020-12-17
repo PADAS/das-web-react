@@ -398,13 +398,14 @@ export const sortPatrolCards = (patrol) => {
   return orderBy(patrol, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
 
-export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) => {
+export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
 
   const properties = {
     stroke,
     image: `${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
     name: label,
     title: label,
+    time: time,
   };
 
   return point(coordinates, properties);
@@ -431,7 +432,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   const startTime = normalizeDate(start_time);
 
   if (start_location) {
-    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke);
+    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
 
   } else {
     const firstTrackPoint = features[features.length - 1];
@@ -439,12 +440,12 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
-    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
+    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, firstTrackPoint.properties.time);
   }
 
   if (!isPatrolActive) {
     if (end_location) {
-      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke);
+      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke, end_time);
 
     } else {
       const lastTrackPoint = features[0];
@@ -452,7 +453,7 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
-      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
+      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, lastTrackPoint.properties.time);
     }
   }
 
