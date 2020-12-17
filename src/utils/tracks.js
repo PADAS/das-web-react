@@ -240,11 +240,7 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
   delete update.mid;
   delete update.trace_id;
 
-  console.log('my update properties were this', update.properties);
-
   update.properties = merge({}, points.features[0].properties, update.properties);
-
-  console.log('my update properties are now this', update.properties);
 
   const [trackFeature] = track.features;
 
