@@ -28,23 +28,23 @@ export const getPatrolList = createSelector(
   })
 );
 
+const assemblePatrolDataForPatrol = (patrol, leader, trackData) => {
+  const [firstLeg] = patrol.patrol_segments;
+  const timeRange = !!firstLeg && firstLeg.time_range;
+  const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
+
+  const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange.start_time, timeRange.end_time);
+
+  return {
+    patrol,
+    leader,
+    trackData: trimmed || null,
+  };
+};
+
 export const createPatrolDataSelector = () => createEqualitySelector(
   [getPatrolFromProps, getLeaderForPatrolFromProps,  getTrackForPatrolFromProps],
-  (patrol, leader, trackData) => {
-    const [firstLeg] = patrol.patrol_segments;
-    const timeRange = !!firstLeg && firstLeg.time_range;
-    const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
-
-    const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange.start_time, timeRange.end_time);
-
-    const results = {
-      patrol,
-      leader,
-      trackData: trimmed || null,
-    };
-
-    return results;
-  },
+  assemblePatrolDataForPatrol,
 );
 
 export const patrolsWithTrackShown = createSelector(
@@ -63,22 +63,9 @@ export const visibleTrackedPatrolData = createSelector(
     return patrols
       .map((patrol) => {
         const leader = getLeaderForPatrol(patrol, subjectStore);
-        const trackData = !!leader && tracks[leader.id];
+        const trimmedTrackData = !!leader && !!tracks[leader.id] && trimTrackDataToTimeRange(tracks[leader.id], from, until);
 
-        const [firstLeg] = patrol.patrol_segments;
-        const timeRange = !!firstLeg && firstLeg.time_range;
-
-        const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
-
-        const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(
-          trackData, max(new Date(timeRange.start_time), new Date(from)), min(new Date(timeRange.end_time), new Date(until))
-        );
-
-        return {
-          patrol,
-          trackData: trimmed || null,
-          leader: leader || null,
-        };
+        return assemblePatrolDataForPatrol(patrol, leader, trimmedTrackData);
       });
   }
 );
