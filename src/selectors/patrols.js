@@ -63,9 +63,9 @@ export const visibleTrackedPatrolData = createSelector(
     return patrols
       .map((patrol) => {
         const leader = getLeaderForPatrol(patrol, subjectStore);
-        const trimmedTrackData = !!leader && !!tracks[leader.id] && trimTrackDataToTimeRange(tracks[leader.id], from, until);
+        const trackData = !!leader && tracks[leader.id];
 
-        return assemblePatrolDataForPatrol(patrol, leader, trimmedTrackData);
+        return assemblePatrolDataForPatrol(patrol, leader, trackData);
       });
   }
 );
