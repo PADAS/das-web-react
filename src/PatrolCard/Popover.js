@@ -69,16 +69,15 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
 
   const onOverlayOpen = useCallback(() => {
-    if (!leader) return;
 
     const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
-    const leaderTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
+    const leaderTrackHidden = !leader || !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
       
     if (patrolTrackHidden) {
       togglePatrolTrackState(patrol.id);
     }
       
-    if (leaderTrackHidden) {
+    if (leaderTrackHidden && !!leader) {
       toggleTrackState(leader.id);
     }
 

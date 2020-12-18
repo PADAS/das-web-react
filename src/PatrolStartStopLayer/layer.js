@@ -56,8 +56,6 @@ const StartStopLayer = (props) => {
   const layerId = `patrol-start-stop-layer-${instanceId}`;
 
   const patrolStartStopData = useMemo(() => {
-    if (!patrolData.trackData) return null;
-    
     const points = extractPatrolPointsFromTrackData(patrolData);
 
     const timeSliderActiveWithVirtualDate = (timeSliderState.active && timeSliderState.virtualDate);
@@ -69,8 +67,6 @@ const StartStopLayer = (props) => {
       const startDate = new Date(points.start_location.properties.time);
       if (timeSliderActiveWithVirtualDate && isAfter(startDate, new Date(timeSliderState.virtualDate))) {
         delete points.start_location;
-      } else if (!timeSliderActiveWithVirtualDate && isAfter(new Date(trackTimeEnvelope.from), startDate)) {
-        delete points.start_location;
       }
     }
     if (points.end_location
@@ -78,8 +74,6 @@ const StartStopLayer = (props) => {
       const endDate = new Date(points.end_location.properties.time);
 
       if (timeSliderActiveWithVirtualDate && isAfter(endDate, new Date(timeSliderState.virtualDate))) {
-        delete points.end_location;
-      } else if (!timeSliderActiveWithVirtualDate && !!trackTimeEnvelope.until && isAfter(endDate, new Date(trackTimeEnvelope.until))) {
         delete points.end_location;
       }
     }
@@ -92,7 +86,7 @@ const StartStopLayer = (props) => {
       points,
       lines,
     };
-  } , [patrolData, timeSliderState.active, timeSliderState.virtualDate, trackTimeEnvelope.from, trackTimeEnvelope.until]);
+  } , [patrolData, timeSliderState.active, timeSliderState.virtualDate]);
 
   useEffect(() => {
     if (patrolStartStopData) {

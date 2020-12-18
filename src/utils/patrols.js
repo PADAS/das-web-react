@@ -412,16 +412,22 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
 };
 
 
-export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
+export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }) => {
   const { patrol_segments: [firstLeg] } = patrol;
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
-  const { features } = trackData.points;
+  const hasFeatures = !!trackData && !!trackData.points && !!trackData.points.features.length;
 
-  if (!features.length) return null;
+  const features = hasFeatures && trackData.points.features;
 
   const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE.title;
-  const stroke = features[0].properties.stroke || DEFAULT_STROKE;
+  const stroke = hasFeatures
+    ? features[0].properties.stroke
+    : (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`);
+  
+  const pointColor = stroke || DEFAULT_STROKE;
+
+  
 
   let patrol_points = {
     start_location: null,
@@ -432,28 +438,28 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   const startTime = normalizeDate(start_time);
 
   if (start_location) {
-    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
+    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, pointColor, start_time);
 
-  } else {
+  } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
     const firstTrackPointMatchesStartTime = normalizeDate(firstTrackPoint.properties.time) === startTime;
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
-    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, firstTrackPoint.properties.time);
+    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, pointColor, firstTrackPoint.properties.time);
   }
 
   if (!isPatrolActive) {
     if (end_location) {
-      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke, end_time);
+      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, pointColor, end_time);
 
-    } else {
+    } else if (hasFeatures) {
       const lastTrackPoint = features[0];
       const lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
-      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke, lastTrackPoint.properties.time);
+      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, pointColor, lastTrackPoint.properties.time);
     }
   }
 
