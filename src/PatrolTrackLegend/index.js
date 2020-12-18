@@ -35,7 +35,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
       <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
       <div className={styles.listItemDetails}>
         <span>{title}</span>
-        <small>{trackLength} coverage today</small>
+        <small>{trackLength} coverage</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemovePatrolClick}>remove</Button>
     </li>;
@@ -91,7 +91,8 @@ const PatrolTrackLegend = (props) => {
     
     return `${patrolData
       .reduce((accumulator, { trackData }) => {
-        return accumulator + trackData ? parseFloat(length(trackData.track)): 0;
+        if (!trackData) return accumulator;
+        return accumulator + parseFloat(length(trackData.track));
       }, 0).toFixed(2)}km`;
   }, [hasData, patrolData]);
 
