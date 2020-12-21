@@ -23,7 +23,7 @@ const EventFilterDateRangeSelector = (props) => {
 
   return <FeedDateFilter 
     filterData={patrolFilter}
-    defaultFriendlyString='Current Patrols'
+    defaultFriendlyString='Showing Current Patrols'
     defaultRange={INITIAL_FILTER_STATE.filter.date_range}
     afterClickPreset={afterClickPreset}
     afterEndChange={afterEndChange}
