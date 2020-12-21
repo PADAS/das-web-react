@@ -14,8 +14,8 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
-    startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets,
-    startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
+    startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
+    defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
     children, placement, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
@@ -38,7 +38,14 @@ const DateRangeSelector = (props) => {
   };
 
   return <div className={className || ''}>
-    <div  className={styles.currentSelectedRange}><DateRangeSelectionString className={styles.rangeString} startDate={startDate} endDate={endDate} /></div>
+    <div  className={styles.currentSelectedRange}>
+      { (!!isAtDefault && !!defaultFriendlyString)
+        ? <span className={styles.rangeString}>
+          <strong>{defaultFriendlyString}</strong>
+        </span>
+        : <DateRangeSelectionString className={styles.rangeString} startDate={startDate} endDate={endDate} />
+      }
+    </div>
     <div className={startDateLabel ? styles.dateSelectorWrapper : styles.dateSelectorWrapperInline}>
       <label className={styles.label}>
         {startDateLabel && <span>{startDateLabel}</span>}
