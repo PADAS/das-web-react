@@ -123,7 +123,7 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
 };
 
 export const openModalForReport = (report, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols } = config;
+  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport = false } = config;
 
   return store.dispatch(
     addModal({
@@ -131,6 +131,7 @@ export const openModalForReport = (report, map, config = {}) => {
       report,
       relationshipButtonDisabled,
       hidePatrols,
+      isPatrolReport,
       map,
       onSaveSuccess,
       onSaveError,
@@ -304,4 +305,14 @@ export const validateReportAgainstCurrentEventFilter = (report) => { /* client-s
     && reportMatchesDateFilter()
     && reportMatchesTextFiter()
     && reportMatchesEventTypeFilter();
+};
+
+export const getReportsForIncident= (collection) => {
+  const reports = 
+    collection.reduce((accumulator, { events }) =>
+      events 
+        ? [...accumulator, ...events] 
+        : accumulator, []
+    );
+  return reports;
 };

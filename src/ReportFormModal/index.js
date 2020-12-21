@@ -70,6 +70,8 @@ const ReportFormModal = (props) => {
         schema={schemas.schema}
         onSaveError={onSaveError}
         onSaveSuccess={onSaveSuccess}
+        hidePatrols={props.hidePatrols}
+        isPatrolReport={props.isPatrolReport}
         relationshipButtonDisabled={relationshipButtonDisabled}
         map={map}
       />

@@ -229,8 +229,9 @@ const PatrolModal = (props) => {
   }, [filesToList, filesToUpload]);
 
   const onAddReport = useCallback((reportData) => {
-    console.log('add report', reportData);
-    const { data: { data } } = reportData[0];
+    // report form has different payloads resp for incidents and reports
+    const report = reportData.length ? reportData[0] : reportData;
+    const { data: { data } } = report;
     setAddedReports([...addedReports, data]);
   }, [addedReports]);
   
@@ -506,7 +507,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId &&<AddReport map={map} hidePatrols={true} onSaveSuccess={onAddReport} />}
+        {patrolSegmentId &&<AddReport map={map} hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
       </AttachmentControls>
       <Footer
         onCancel={onCancel}

@@ -277,7 +277,7 @@ export const setEventState = (id, state) => (dispatch) => {
 };
 
 export const addSegmentToEvent = (segment_id, event_id, event) => {
-  const segmentPayload = { patrol_segment_ids: [segment_id] };
+  const segmentPayload = { patrol_segments: [segment_id] };
   axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
     .then(function (response) {
       console.log('add segment response', response);

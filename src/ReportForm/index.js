@@ -395,7 +395,8 @@ const ReportForm = (props) => {
         .then(async ([{ data: { data: thisReport } }]) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
-            return fetchEvent(thisReport.id).then(({ data: { data } }) => {
+            return fetchEvent(thisReport.id).then((results) => {
+              const { data: { data } } = results;
               openModalForReport(data, map);
               removeModal();
             });
@@ -404,7 +405,9 @@ const ReportForm = (props) => {
               createNewIncidentCollection(/* { priority: Math.max(thisReport.priority, newReport.priority) } */)
             );
             await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
-            return fetchEvent(incidentID).then(({ data: { data } }) => {
+            return fetchEvent(incidentID).then((results) => {
+              if(props.isPatrolReport) onSaveSuccess(results);
+              const { data: { data } } = results;
               openModalForReport(data, map);
               removeModal();
             });
@@ -487,6 +490,7 @@ const ReportForm = (props) => {
         onGoToCollection={goToParentCollection}
         relationshipButtonDisabled={disableAddReport}
         hidePatrols={props.hidePatrols}
+        isPatrolReport={props.isPatrolReport}
         onNewReportSaved={onReportAdded}
       />
 

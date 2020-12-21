@@ -20,7 +20,7 @@ import { FEATURE_FLAGS } from '../constants';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, reportData, eventsByCategory, map, popoverPlacement,
+  const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, isPatrolReport, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
 
   const [selectedCategory, selectCategory] = useState(null);
@@ -112,7 +112,7 @@ const AddReport = (props) => {
 
     const newReport = createNewReportForEventType(reportType, reportData);
     
-    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols  });
+    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport  });
     setPopoverState(false);
   };
 
