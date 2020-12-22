@@ -376,6 +376,7 @@ const PatrolModal = (props) => {
     const patrolState = calcPatrolCardState(statePatrol);
 
     if (patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.SCHEDULED 
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
 
     return null;

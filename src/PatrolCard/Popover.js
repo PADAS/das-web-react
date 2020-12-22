@@ -45,6 +45,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
   }, [patrolState]);
 

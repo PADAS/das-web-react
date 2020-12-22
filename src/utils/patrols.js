@@ -219,6 +219,7 @@ export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
   if (patrolState === PATROL_CARD_STATES.READY_TO_START
+    || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
     return '0:00';
   }
@@ -280,7 +281,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID, SCHEDULED } = PATROL_CARD_STATES;
 
 export const displayScheduledStartDate = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
@@ -338,26 +339,34 @@ export const displayPatrolOverdueTime = (patrol) => {
   return distanceInWords(startTime, currentTime, { includeSeconds: true });
 };
 
-export const displayPatrolDoneTime = (patrol) => {
-  const doneTime = displayEndTimeForPatrol(patrol);
+const formatPatrolCardStateTitleDate = (date) => {
   const otherYearFormat = 'D MMM \'YY HH:mm';
   const defaultFormat = 'D MMM HH:mm';
 
-  if (!doneTime) return '';
+  if (!date) return '';
 
-  if (isToday(doneTime)) {
-    return format(doneTime, SHORT_TIME_FORMAT);
+  if (isToday(date)) {
+    return format(date, SHORT_TIME_FORMAT);
   }
 
-  if (!isThisYear(doneTime)) {
-    return format(doneTime, otherYearFormat);
+  if (!isThisYear(date)) {
+    return format(date, otherYearFormat);
   }
 
-  console.log('default format time', format(doneTime, defaultFormat));
+  console.log('default format time', format(date, defaultFormat));
 
-  return format(doneTime, defaultFormat);
-
+  return format(date, defaultFormat);
 };
+
+export const displayPatrolStartTime = patrol =>
+  formatPatrolCardStateTitleDate(
+    displayStartTimeForPatrol(patrol)
+  );
+
+export const displayPatrolDoneTime = patrol =>
+  formatPatrolCardStateTitleDate(
+    displayEndTimeForPatrol(patrol)
+  );
 
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
@@ -380,7 +389,8 @@ export const calcPatrolCardState = (patrol) => {
     return ACTIVE;
   }
   if(isSegmentPending(segment)) {
-    return READY_TO_START;
+    const happensToday = isToday(displayStartTimeForPatrol(patrol));
+    return happensToday ? READY_TO_START : SCHEDULED;
   }
   return INVALID;
 };
@@ -388,6 +398,7 @@ export const calcPatrolCardState = (patrol) => {
 export const canStartPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || PATROL_CARD_STATES.SCHEDULED
       || patrolState === PATROL_CARD_STATES.START_OVERDUE);
 };
 
@@ -404,13 +415,13 @@ export const calcPatrolFilterForRequest = (options = {}) => {
 };
 
 export const sortPatrolCards = (patrols, subjectStore) => {
-  const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+  const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
     const cardState = calcPatrolCardState(patrol);
 
     if (cardState === START_OVERDUE) return 1;
-    if (cardState === READY_TO_START) return 2;
+    if (cardState === READY_TO_START || cardState === SCHEDULED) return 2;
     if (cardState === ACTIVE) return 3;
     if (cardState === DONE) return 4;
     if (cardState === CANCELLED) return 5;
