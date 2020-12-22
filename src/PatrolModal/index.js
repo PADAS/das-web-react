@@ -405,7 +405,7 @@ const PatrolModal = (props) => {
       <div className={styles.topControls}>
         <label>
           Tracking:
-          <ReportedBySelect className={styles.reportedBySelect} placeHolder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
+          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
         </label>
       </div>
       <section className={`${styles.timeBar} ${styles.start}`}>

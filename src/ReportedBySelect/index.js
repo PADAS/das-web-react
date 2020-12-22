@@ -90,7 +90,7 @@ const ReportedBySelect = (props) => {
     isMulti={isMulti}
     onChange={onChange}
     options={options}
-    placeholder={placeHolder}
+    placeholder={props.placeholder}
     styles={selectStyles}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
@@ -109,7 +109,7 @@ ReportedBySelect.defaultProps = {
   value: null,
   isMulti: false,
   numberOfRecentRadiosToShow: 5,
-  placeHolder: 'Reported By...',
+  placeholder: 'Reported By...',
 };
 
 
