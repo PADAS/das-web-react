@@ -1,5 +1,8 @@
 import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
+import isToday from 'date-fns/is_today';
+import isThisMonth from 'date-fns/is_this_month';
+import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
@@ -337,7 +340,23 @@ export const displayPatrolOverdueTime = (patrol) => {
 
 export const displayPatrolDoneTime = (patrol) => {
   const doneTime = displayEndTimeForPatrol(patrol);
-  return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
+  const otherYearFormat = 'D MMM \'YY HH:mm';
+  const defaultFormat = 'D MMM HH:mm';
+
+  if (!doneTime) return '';
+
+  if (isToday(doneTime)) {
+    return format(doneTime, SHORT_TIME_FORMAT);
+  }
+
+  if (!isThisYear(doneTime)) {
+    return format(doneTime, otherYearFormat);
+  }
+
+  console.log('default format time', format(doneTime, defaultFormat));
+
+  return format(doneTime, defaultFormat);
+
 };
 
 export const calcPatrolCardState = (patrol) => {
