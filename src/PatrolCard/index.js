@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
-  calcPatrolCardState, displayPatrolDoneTime, getLeaderForPatrol } from '../utils/patrols';
+  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime, getLeaderForPatrol } from '../utils/patrols';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
@@ -44,6 +44,9 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     if(patrolState === PATROL_CARD_STATES.DONE) {
       return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
     } 
+    if(patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+      return patrolState.title + ' ' + displayPatrolOverdueTime(patrol);
+    }
     return patrolState.title;
   }, [patrol, patrolState]);
 
