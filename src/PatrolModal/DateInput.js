@@ -71,27 +71,26 @@ const PatrolDateInput = (props) => {
     setStateTime(value);
   }, [value]);
 
-  return <div>
-    <DateTimePickerPopover
-      {...DATEPICKER_DEFAULT_CONFIG}
-      value={stateTime} 
-      className={timeClassName} 
-      {...tempPopoverProps} 
-      onHide={onHide} 
-      onEnter={commitTimeChange}
-      onChange={onTimeChange}
-      {...rest}
-    >  
-      <div className={styles.dateTimePickerChildren}>
-        <Button variant='primary' type='button' onClick={commitTimeChange}>
-          {buttonTitle}
-        </Button>
-        {canShowAutoCheck && <label htmlFor='autoStart'>
-          <input checked={isAuto} onChange={() => onAutoCheckToggle(!isAuto)} type='checkbox' id='autoStart' /> {autoCheckLabel}
-        </label>}
-      </div>
-    </DateTimePickerPopover>
-  </div>;
+  return <DateTimePickerPopover
+    {...DATEPICKER_DEFAULT_CONFIG}
+    value={stateTime} 
+    className={timeClassName} 
+    {...tempPopoverProps} 
+    onHide={onHide} 
+    onEnter={commitTimeChange}
+    onChange={onTimeChange}
+    {...rest}
+  >  
+    <div className={styles.dateTimePickerChildren}>
+      <Button variant='primary' type='button' onClick={commitTimeChange}>
+        {buttonTitle}
+      </Button>
+      {canShowAutoCheck && <label htmlFor='autoStart'>
+        <input checked={isAuto} onChange={() => onAutoCheckToggle(!isAuto)} type='checkbox' id='autoStart' /> {autoCheckLabel}
+      </label>}
+    </div>
+  </DateTimePickerPopover>;
+ 
 };
 
 export default memo(PatrolDateInput);

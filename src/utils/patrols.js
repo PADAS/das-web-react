@@ -279,7 +279,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, END_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
 
 export const isSegmentOverdue = (patrolSegment) => {
   const { time_range: { start_time }, scheduled_start } = patrolSegment;
@@ -366,9 +366,6 @@ export const calcPatrolCardState = (patrol) => {
   if(isSegmentOverdue(segment)) {
     return START_OVERDUE;
   }
-  if (isSegmentOverdueToEnd(segment)) {
-    return END_OVERDUE;
-  }
   if(isSegmentActive(segment)) {
     return ACTIVE;
   }
@@ -397,12 +394,12 @@ export const calcPatrolFilterForRequest = (options = {}) => {
 };
 
 export const sortPatrolCards = (patrols, subjectStore) => {
-  const { READY_TO_START, ACTIVE, DONE, END_OVERDUE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+  const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
     const cardState = calcPatrolCardState(patrol);
 
-    if ((cardState === START_OVERDUE) || (cardState === END_OVERDUE)) return 1;
+    if (cardState === START_OVERDUE) return 1;
     if (cardState === READY_TO_START) return 2;
     if (cardState === ACTIVE) return 3;
     if (cardState === DONE) return 4;
