@@ -160,10 +160,12 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { end_time } } = firstLeg;
+  const { scheduled_end, time_range: { end_time } } = firstLeg;
 
-  return end_time
-    ? new Date(end_time)
+  const value = end_time || scheduled_end;
+
+  return value
+    ? new Date(value)
     : null;
 };
 
@@ -277,18 +279,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
-
-export const displayScheduledStartDate = (patrol) => {
-  if (!patrol.patrol_segments.length) return null;
-  const [firstLeg] = patrol.patrol_segments;
-
-  const { scheduled_start } = firstLeg;
-
-  return scheduled_start
-    ? new Date(scheduled_start)
-    : null;
-};
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, END_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
 
 export const isSegmentOverdue = (patrolSegment) => {
   const { time_range: { start_time }, scheduled_start } = patrolSegment;
@@ -297,6 +288,12 @@ export const isSegmentOverdue = (patrolSegment) => {
     && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
 };
 
+export const isSegmentOverdueToEnd = (patrolSegment) => {
+  const { time_range: { end_time }, scheduled_end } = patrolSegment;
+  return !end_time
+    && !!scheduled_end
+    && addMinutes(new Date(scheduled_end).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
+};
 export const isSegmentPending = (patrolSegment) => {
   const { time_range: { start_time } } = patrolSegment;
 
@@ -321,6 +318,12 @@ export const isSegmentFinished = (patrolSegment) => {
   return !!end_time && new Date(end_time).getTime() < new Date().getTime();
 };
 
+export const isSegmentEndScheduled = (patrolSegment) => {
+  const { time_range: { end_time }, scheduled_end } = patrolSegment;
+  return !end_time && !!scheduled_end;
+};
+
+
 export const  isPatrolCancelled = (patrol) => {
   return (patrol.state === 'cancelled');
 };
@@ -329,10 +332,16 @@ export const isPatrolDone = (patrol) => {
   return (patrol.state === 'done'); 
 };
 
-export const displayPatrolOverdueTime = (patrol) => {
+export const displayPatrolStartOverdueTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
   return distanceInWords(startTime, currentTime, { includeSeconds: true });
+};
+
+export const displayPatrolEndOverdueTime = (patrol) => {
+  const endTime = displayEndTimeForPatrol(patrol);
+  const currentTime = new Date();
+  return distanceInWords(currentTime, endTime, { includeSeconds: true });
 };
 
 export const displayPatrolDoneTime = (patrol) => {
@@ -356,6 +365,9 @@ export const calcPatrolCardState = (patrol) => {
   }
   if(isSegmentOverdue(segment)) {
     return START_OVERDUE;
+  }
+  if (isSegmentOverdueToEnd(segment)) {
+    return END_OVERDUE;
   }
   if(isSegmentActive(segment)) {
     return ACTIVE;
@@ -385,12 +397,12 @@ export const calcPatrolFilterForRequest = (options = {}) => {
 };
 
 export const sortPatrolCards = (patrols, subjectStore) => {
-  const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+  const { READY_TO_START, ACTIVE, DONE, END_OVERDUE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
     const cardState = calcPatrolCardState(patrol);
 
-    if (cardState === START_OVERDUE) return 1;
+    if ((cardState === START_OVERDUE) || (cardState === END_OVERDUE)) return 1;
     if (cardState === READY_TO_START) return 2;
     if (cardState === ACTIVE) return 3;
     if (cardState === DONE) return 4;
