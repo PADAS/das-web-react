@@ -1,5 +1,6 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
+import isEqual from 'react-fast-compare';
 import { dateIsValid } from '../utils/datetime';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
@@ -9,7 +10,7 @@ import styles from './styles.module.scss';
 
 
 const FeedDateFilter = (props) => {
-  const { children, nullUpperOverride = null, filterData, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
+  const { children, defaultRange, nullUpperOverride = null, filterData, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
 
   const { filter: { date_range } } = filterData;
 
@@ -17,6 +18,8 @@ const FeedDateFilter = (props) => {
 
   const hasLower = !isNil(lower);
   const hasUpper = !isNil(upper);
+
+  const isAtDefault = useMemo(() => !!defaultRange && isEqual(defaultRange, filterData.filter.date_range), [defaultRange, filterData.filter.date_range]);
 
   const onClickDateRangePreset = useCallback(({ lower, upper }, label) => {
     updateFilter({
@@ -67,6 +70,7 @@ const FeedDateFilter = (props) => {
   return <DateRangeSelector
     className={styles.dateSelect}
     popoverClassName={popoverClassName || ''}
+    isAtDefault={isAtDefault}
     placement={props.placement || 'auto'}
     endDate={hasUpper ? new Date(upper) : upper}
     endDateNullMessage={endDateNullMessage}
