@@ -338,7 +338,8 @@ const PatrolModal = (props) => {
     const { updates: segmentUpdates } = firstLeg;
     const noteUpdates = extractAttachmentUpdates(statePatrol.notes);
     const fileUpdates = extractAttachmentUpdates(statePatrol.files);
-    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
+    const eventUpdates = extractAttachmentUpdates(firstLeg.events);
+    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates, ...eventUpdates];
 
     return orderBy(allUpdates, [
       function(item) {
@@ -369,7 +370,6 @@ const PatrolModal = (props) => {
 
     // just assign added reports to inital segment id for now
     addedReports.forEach(async (report) => {
-      console.log('posting event', report);
       const resp = await addSegmentToEvent(patrolSegmentId, report.id,);
       console.log(resp);
     });
