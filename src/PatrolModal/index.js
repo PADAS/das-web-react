@@ -13,7 +13,7 @@ import { downloadFileFromUrl } from '../utils/download';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
+  isSegmentActive, isSegmentEndScheduled, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -376,7 +376,20 @@ const PatrolModal = (props) => {
     const patrolState = calcPatrolCardState(statePatrol);
 
     if (patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.SCHEDULED 
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
+
+    return null;
+  }, [statePatrol]);
+
+  const endTimeLabel = useMemo(() => {
+    const [firstLeg] = statePatrol.patrol_segments;
+
+    const endScheduled = isSegmentEndScheduled(firstLeg);
+
+    if (endScheduled) {
+      return SCHEDULED_LABEL;
+    } 
 
     return null;
   }, [statePatrol]);
@@ -405,7 +418,7 @@ const PatrolModal = (props) => {
       <div className={styles.topControls}>
         <label>
           Tracking:
-          <ReportedBySelect className={styles.reportedBySelect} value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
+          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
         </label>
       </div>
       <section className={`${styles.timeBar} ${styles.start}`}>
@@ -461,6 +474,9 @@ const PatrolModal = (props) => {
             autoCheckLabel='Auto-end patrol'
             required={true}
           />
+          {endTimeLabel && <span className={styles.scheduledLabel}>
+            {endTimeLabel}
+          </span>}
         </div>
         <span className={displayDuration !== '0s' ? '' : styles.faded}>
           <strong>Duration:</strong> {displayDuration}

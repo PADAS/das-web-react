@@ -12,7 +12,7 @@ import { allSubjects } from '../selectors/subjects';
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className } = props;
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder } = props;
 
   const [recentRadios, setRecentRadios] = useState([]);
   const [allReporters, setAllReporters] = useState([]);
@@ -90,7 +90,7 @@ const ReportedBySelect = (props) => {
     isMulti={isMulti}
     onChange={onChange}
     options={options}
-    placeholder='Reported By...'
+    placeholder={placeholder}
     styles={selectStyles}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
@@ -109,6 +109,7 @@ ReportedBySelect.defaultProps = {
   value: null,
   isMulti: false,
   numberOfRecentRadiosToShow: 5,
+  placeholder: 'Reported By...',
 };
 
 

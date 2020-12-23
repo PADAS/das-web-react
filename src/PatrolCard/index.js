@@ -1,11 +1,9 @@
 import React, { forwardRef, memo, useEffect, useRef, useMemo, useCallback, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import format from 'date-fns/format';
 
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol, displayStartTimeForPatrol,
-  calcPatrolCardState, displayPatrolDoneTime, displayPatrolOverdueTime } from '../utils/patrols';
-import { STANDARD_DATE_FORMAT } from '../utils/datetime';
+import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
+  calcPatrolCardState, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime, getLeaderForPatrol } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { createPatrolDataSelector } from '../selectors/patrols';
 
@@ -46,10 +44,10 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const patrolStateTitle = useMemo(() => {
     if(patrolState === PATROL_CARD_STATES.DONE) {
-      return patrolState.title + ' ' + displayPatrolDoneTime(patrol);
+      return patrolState.title + ' ' + patrolStateDetailsEndTime(patrol);
     } 
     if(patrolState === PATROL_CARD_STATES.START_OVERDUE) {
-      return patrolState.title + ' ' + displayPatrolOverdueTime(patrol);
+      return patrolState.title + ' ' + patrolStateDetailsOverdueStartTime(patrol);
     }
     return patrolState.title;
   }, [patrol, patrolState]);
@@ -69,14 +67,14 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   const patrolElapsedTime = useMemo(() => displayDurationForPatrol(patrol), [patrol]);
 
   const scheduledStartTime = useMemo(() => {
-    const startTime = displayStartTimeForPatrol(patrol);
-    return format(startTime, STANDARD_DATE_FORMAT);
+    return patrolStateDetailsStartTime(patrol);
   }, [patrol]);
 
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
   }, [patrolState]);
 

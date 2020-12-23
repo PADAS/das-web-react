@@ -40,6 +40,7 @@ const PatrolMenu = (props) => {
   const patrolStartEndCanBeToggled = useMemo(() => {
     return (patrolState === PATROL_CARD_STATES.ACTIVE
       || patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.SCHEDULED
       || patrolState === PATROL_CARD_STATES.START_OVERDUE);
   }, [patrolState]);
 
