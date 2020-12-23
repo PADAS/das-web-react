@@ -168,10 +168,12 @@ export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
-  const { time_range: { end_time } } = firstLeg;
+  const { scheduled_end, time_range: { end_time } } = firstLeg;
 
-  return end_time
-    ? new Date(end_time)
+  const value = end_time || scheduled_end;
+
+  return value
+    ? new Date(value)
     : null;
 };
 
@@ -305,7 +307,6 @@ export const displayPatrolSegmentId = (patrol) => {
   const { id } = firstLeg;
   return id || null;
 };
-
 export const isSegmentOverdue = (patrolSegment) => {
   const { time_range: { start_time }, scheduled_start } = patrolSegment;
   return !start_time
@@ -313,6 +314,12 @@ export const isSegmentOverdue = (patrolSegment) => {
     && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
 };
 
+export const isSegmentOverdueToEnd = (patrolSegment) => {
+  const { time_range: { end_time }, scheduled_end } = patrolSegment;
+  return !end_time
+    && !!scheduled_end
+    && addMinutes(new Date(scheduled_end).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
+};
 export const isSegmentPending = (patrolSegment) => {
   const { time_range: { start_time } } = patrolSegment;
 
@@ -337,6 +344,12 @@ export const isSegmentFinished = (patrolSegment) => {
   return !!end_time && new Date(end_time).getTime() < new Date().getTime();
 };
 
+export const isSegmentEndScheduled = (patrolSegment) => {
+  const { time_range: { end_time }, scheduled_end } = patrolSegment;
+  return !end_time && !!scheduled_end;
+};
+
+
 export const  isPatrolCancelled = (patrol) => {
   return (patrol.state === 'cancelled');
 };
@@ -345,10 +358,16 @@ export const isPatrolDone = (patrol) => {
   return (patrol.state === 'done'); 
 };
 
-export const displayPatrolOverdueTime = (patrol) => {
+export const displayPatrolStartOverdueTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
   return distanceInWords(startTime, currentTime, { includeSeconds: true });
+};
+
+export const displayPatrolEndOverdueTime = (patrol) => {
+  const endTime = displayEndTimeForPatrol(patrol);
+  const currentTime = new Date();
+  return distanceInWords(currentTime, endTime, { includeSeconds: true });
 };
 
 export const displayPatrolDoneTime = (patrol) => {

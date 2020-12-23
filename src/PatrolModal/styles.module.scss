@@ -217,9 +217,11 @@ section.timeBar {
   }
   &::after {
     color: yellow;
-    display: block;
+    display: inline;
     content: "*unsaved";
-    // float: right;
+  }
+  + .scheduledLabel {
+    display: none;
   }
 } 
 
