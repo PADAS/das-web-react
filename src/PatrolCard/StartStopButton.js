@@ -21,6 +21,7 @@ const PatrolStartStopButton = (props) => {
 
   const canStartPatrol = useMemo(() => {
     return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.SCHEDULED
       || patrolState === PATROL_CARD_STATES.START_OVERDUE);
   } , [patrolState]);
 
