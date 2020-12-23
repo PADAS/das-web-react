@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
-  calcPatrolCardState, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime, getLeaderForPatrol } from '../utils/patrols';
+  calcPatrolCardState, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { createPatrolDataSelector } from '../selectors/patrols';
 

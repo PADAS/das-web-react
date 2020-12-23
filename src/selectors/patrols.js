@@ -1,7 +1,5 @@
 import { createSelector, createEqualitySelector } from './';
 import { getSubjectStore } from './subjects';
-import min from 'date-fns/min';
-import max from 'date-fns/max';
 
 import { trimmedVisibleTrackData, trackTimeEnvelope, tracks } from './tracks';
 import { getLeaderForPatrol } from '../utils/patrols';
@@ -10,7 +8,7 @@ import uniq from 'lodash/uniq';
 
 export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
-const getPatrolFromProps = (state, { patrol }) => patrol;
+const getPatrolFromProps = (_state, { patrol }) => patrol;
 const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
   !!patrol.patrol_segments 
   && !!patrol.patrol_segments.length 
@@ -58,7 +56,6 @@ export const patrolsWithTrackShown = createSelector(
 export const visibleTrackedPatrolData = createSelector(
   [tracks, patrolsWithTrackShown, trackTimeEnvelope, getSubjectStore],
   (tracks, patrols, trackTimeEnvelope, subjectStore) => {
-    const { from, until } = trackTimeEnvelope;
 
     return patrols
       .map((patrol) => {

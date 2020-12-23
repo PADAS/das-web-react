@@ -6,6 +6,7 @@ import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import orderBy from 'lodash/orderBy';
 
+import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
@@ -482,7 +483,7 @@ const PatrolModal = (props) => {
           <strong>Duration:</strong> {displayDuration}
         </span>
         <span>
-          <strong>Distance:</strong> <PatrolDistanceCovered patrol={statePatrol} />
+          <strong>Distance:</strong> <ConnectedDistanceCovered patrol={statePatrol} />
         </span>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
       </section>
@@ -505,6 +506,18 @@ const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEnd
   autoStartPatrols,
   autoEndPatrols
 });
+
+const makeMapStateToProps = () => {
+  const getDataForPatrolFromProps = createPatrolDataSelector();
+  const mapStateToProps = (state, props) => {
+    return {
+      patrolData: getDataForPatrolFromProps(state, props),
+    };
+  };
+  return mapStateToProps;
+};
+ 
+const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props) => <PatrolDistanceCovered trackData={props.patrolData.trackData} />)); /* eslint-disable-line react/display-name */
 
 export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
 
