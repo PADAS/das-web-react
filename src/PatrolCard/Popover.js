@@ -64,10 +64,6 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   ), 
   [leader, subjectLastPosition]);
 
-  const onAddReport = useCallback((report) => {
-    //console.log('Added report', report);
-  }, []);
-
   const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
 
   const onOverlayOpen = useCallback(() => {

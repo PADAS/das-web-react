@@ -395,8 +395,7 @@ const ReportForm = (props) => {
         .then(async ([{ data: { data: thisReport } }]) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
-            return fetchEvent(thisReport.id).then((results) => {
-              const { data: { data } } = results;
+            return fetchEvent(thisReport.id).then(({ data: { data } }) => {
               openModalForReport(data, map);
               removeModal();
             });
@@ -490,7 +489,6 @@ const ReportForm = (props) => {
         onGoToCollection={goToParentCollection}
         relationshipButtonDisabled={disableAddReport}
         hidePatrols={props.hidePatrols}
-        isPatrolReport={props.isPatrolReport}
         onNewReportSaved={onReportAdded}
       />
 

@@ -8,7 +8,6 @@ import { calcPatrolFilterForRequest/* ,
   validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
 const PATROLS_API_URL = `${API_URL}activity/patrols/`;
-const PATROL_SEGMENT_API_URL = `${API_URL}patrols/segments/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
