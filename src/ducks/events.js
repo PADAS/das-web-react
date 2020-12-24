@@ -10,7 +10,7 @@ import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, 
 
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
-const EVENT_API_URL = `${API_URL}activity/event/`;
+export const EVENT_API_URL = `${API_URL}activity/event/`;
 
 // actions
 const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';
@@ -273,17 +273,6 @@ export const setEventState = (id, state) => (dispatch) => {
         payload: error,
       });
       return Promise.reject(error);
-    });
-};
-
-export const addSegmentToEvent = (segment_id, event_id, event) => {
-  const segmentPayload = { patrol_segments: [segment_id] };
-  axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
-    .then(function (response) {
-      console.log('add segment response', response);
-    })
-    .catch(function (error) {
-      console.log('add segment error', error);
     });
 };
 

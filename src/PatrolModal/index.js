@@ -10,7 +10,7 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { addSegmentToEvent } from '../ducks/events';
+import { addSegmentToEvent } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
