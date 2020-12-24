@@ -110,10 +110,6 @@ export const createPatrol = (patrol) => (dispatch) => {
     }); */
 };
 
-// https://develop.pamdas.org/api/v1.0/activity/patrols/segments/98a671e9-1d2e-4d47-809c-383c0fb4087c/events/7878f61f-0958-47c6-ac58-d78ff64fc820
-// https://develop.pamdas.org/api/v1.0/activity/patrols/segments/7878f61f-0958-47c6-ac58-d78ff64fc820/events/26abf16e-0286-4310-8247-6e3bbd7366b8
-
-
 export const updatePatrol = (patrol) => (dispatch) => {
 
   let patrolResults;

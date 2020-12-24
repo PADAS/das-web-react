@@ -290,17 +290,6 @@ export const PATROL_SAVE_ACTIONS = {
 
 const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
 
-export const displayScheduledStartDate = (patrol) => {
-  if (!patrol.patrol_segments.length) return null;
-  const [firstLeg] = patrol.patrol_segments;
-
-  const { scheduled_start } = firstLeg;
-
-  return scheduled_start
-    ? new Date(scheduled_start)
-    : null;
-};
-
 export const displayPatrolSegmentId = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;

@@ -306,13 +306,3 @@ export const validateReportAgainstCurrentEventFilter = (report) => { /* client-s
     && reportMatchesTextFiter()
     && reportMatchesEventTypeFilter();
 };
-
-export const getReportsForIncident= (collection) => {
-  const reports = 
-    collection.reduce((accumulator, { events }) =>
-      events 
-        ? [...accumulator, ...events] 
-        : accumulator, []
-    );
-  return reports;
-};
