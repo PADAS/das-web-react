@@ -183,6 +183,20 @@ export const getPatrolsForSubject = (patrols, subject) => {
   });
 };
 
+export const getReportIdsForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return [];
+  // this is only grabbibng the first segment for now
+  const [firstLeg] = patrol.patrol_segments;
+  const { events } = firstLeg;
+  const eventIds = 
+    events.reduce((accumulator, { id }) =>
+      id 
+        ? [...accumulator, id] 
+        : accumulator, []
+    );
+  return eventIds || [];
+};
+
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 

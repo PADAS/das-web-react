@@ -14,7 +14,7 @@ import { addSegmentToEvent } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 
 import { PATROL_CARD_STATES } from '../constants';
@@ -64,6 +64,8 @@ const PatrolModal = (props) => {
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
   const patrolReports= useMemo(() => getReportsForPatrol(patrol), [patrol]);
+
+  const patrolReportIds= useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
 
   const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
 
