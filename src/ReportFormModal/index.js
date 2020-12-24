@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 
 const ReportFormModal = (props) => {
   const { report, id:modalId, eventSchemas, eventStore, onSaveError, onSaveSuccess, fetchEventTypeSchema,
-    removeModal, fetchEvent, relationshipButtonDisabled, map } = props;
+    removeModal, fetchEvent, relationshipButtonDisabled, map, hidePatrols, isPatrolReport} = props;
 
   const { id: report_id, event_type } = report;
 
@@ -70,8 +70,8 @@ const ReportFormModal = (props) => {
         schema={schemas.schema}
         onSaveError={onSaveError}
         onSaveSuccess={onSaveSuccess}
-        hidePatrols={props.hidePatrols}
-        isPatrolReport={props.isPatrolReport}
+        hidePatrols={hidePatrols}
+        isPatrolReport={isPatrolReport}
         relationshipButtonDisabled={relationshipButtonDisabled}
         map={map}
       />
