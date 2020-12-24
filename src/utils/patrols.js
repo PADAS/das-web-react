@@ -1,5 +1,7 @@
 import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
+import isToday from 'date-fns/is_today';
+import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
@@ -145,17 +147,6 @@ export const displayStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const segmentStartTimeForPatrol = (patrol) => {
-  if (!patrol.patrol_segments.length) return null;
-  const [firstLeg] = patrol.patrol_segments;
-
-  const { time_range: { start_time } } = firstLeg;
-
-  return (start_time) 
-    ? new Date(start_time)
-    : null;
-};
-
 export const getReportsForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   // this is only grabbibng the first segment for now
@@ -227,6 +218,7 @@ export const displayDurationForPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
   if (patrolState === PATROL_CARD_STATES.READY_TO_START
+    || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
     return '0:00';
   }
@@ -288,7 +280,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID} = PATROL_CARD_STATES;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID, SCHEDULED } = PATROL_CARD_STATES;
 
 export const displayPatrolSegmentId = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
@@ -347,22 +339,43 @@ export const isPatrolDone = (patrol) => {
   return (patrol.state === 'done'); 
 };
 
-export const displayPatrolStartOverdueTime = (patrol) => {
+export const patrolStateDetailsOverdueStartTime = (patrol) => {
   const startTime = displayStartTimeForPatrol(patrol);
   const currentTime = new Date();
   return distanceInWords(startTime, currentTime, { includeSeconds: true });
 };
 
+const formatPatrolCardStateTitleDate = (date) => {
+  const otherYearFormat = 'D MMM \'YY HH:mm';
+  const defaultFormat = 'D MMM HH:mm';
+
+  if (!date) return '';
+
+  if (isToday(date)) {
+    return format(date, SHORT_TIME_FORMAT);
+  }
+
+  if (!isThisYear(date)) {
+    return format(date, otherYearFormat);
+  }
+
+  return format(date, defaultFormat);
+};
 export const displayPatrolEndOverdueTime = (patrol) => {
   const endTime = displayEndTimeForPatrol(patrol);
   const currentTime = new Date();
   return distanceInWords(currentTime, endTime, { includeSeconds: true });
 };
 
-export const displayPatrolDoneTime = (patrol) => {
-  const doneTime = displayEndTimeForPatrol(patrol);
-  return doneTime ? format(doneTime, SHORT_TIME_FORMAT) : '';
-};
+export const patrolStateDetailsStartTime = patrol =>
+  formatPatrolCardStateTitleDate(
+    displayStartTimeForPatrol(patrol)
+  );
+
+export const patrolStateDetailsEndTime = patrol =>
+  formatPatrolCardStateTitleDate(
+    displayEndTimeForPatrol(patrol)
+  );
 
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
@@ -385,7 +398,8 @@ export const calcPatrolCardState = (patrol) => {
     return ACTIVE;
   }
   if(isSegmentPending(segment)) {
-    return READY_TO_START;
+    const happensToday = isToday(displayStartTimeForPatrol(patrol));
+    return happensToday ? READY_TO_START : SCHEDULED;
   }
   return INVALID;
 };
@@ -393,6 +407,7 @@ export const calcPatrolCardState = (patrol) => {
 export const canStartPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || PATROL_CARD_STATES.SCHEDULED
       || patrolState === PATROL_CARD_STATES.START_OVERDUE);
 };
 
@@ -409,13 +424,13 @@ export const calcPatrolFilterForRequest = (options = {}) => {
 };
 
 export const sortPatrolCards = (patrols, subjectStore) => {
-  const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+  const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
     const cardState = calcPatrolCardState(patrol);
 
     if (cardState === START_OVERDUE) return 1;
-    if (cardState === READY_TO_START) return 2;
+    if (cardState === READY_TO_START || cardState === SCHEDULED) return 2;
     if (cardState === ACTIVE) return 3;
     if (cardState === DONE) return 4;
     if (cardState === CANCELLED) return 5;

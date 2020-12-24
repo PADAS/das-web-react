@@ -400,6 +400,7 @@ const PatrolModal = (props) => {
     const patrolState = calcPatrolCardState(statePatrol);
 
     if (patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.SCHEDULED 
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
 
     return null;
@@ -441,7 +442,7 @@ const PatrolModal = (props) => {
       <div className={styles.topControls}>
         <label>
           Tracking:
-          <ReportedBySelect className={styles.reportedBySelect} value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
+          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
         </label>
       </div>
       <section className={`${styles.timeBar} ${styles.start}`}>

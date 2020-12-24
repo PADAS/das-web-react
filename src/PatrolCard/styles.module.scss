@@ -90,7 +90,7 @@
   }
 }
 
-.status-ready {
+.status-ready, .status-scheduled {
   border: 2px dashed $patrol-ready-border; 
   background-color: $patrol-ready-bg;  
   &:hover {
