@@ -39,6 +39,8 @@ const UserMenu = (props) => {
             )}
           <Divider />
         </Fragment>}
+      <Item id="ot-sdk-btn" class="ot-sdk-show-settings">Cookie Settings</Item>
+      {/* <button id="ot-sdk-btn" class="ot-sdk-show-settings">Cookie Settings</button> */}
       <Item onClick={onLogOutItemClick}>Log out</Item>
     </Menu>
   </Dropdown>;
