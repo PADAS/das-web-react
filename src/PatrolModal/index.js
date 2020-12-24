@@ -14,7 +14,8 @@ import { addSegmentToEvent } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 
 import { PATROL_CARD_STATES } from '../constants';
@@ -46,7 +47,7 @@ const SCHEDULED_LABEL = 'Scheduled';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
-  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
+  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
@@ -63,9 +64,19 @@ const PatrolModal = (props) => {
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReports= useMemo(() => getReportsForPatrol(patrol), [patrol]);
-
   const patrolReportIds= useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
+
+  const patrolReports= useMemo(() => {
+    const currReports = getReportsForPatrol(patrol);
+    const syncedReports = currReports.map( (report) => {
+      // if there is no entry for this event, add it to the store
+      if (!eventStore[report.id]) {
+        eventStore[report.id] = report;
+        return report;
+      } else return eventStore[report.id];
+    });
+    return syncedReports;
+  }, [patrol]);
 
   const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
 
@@ -77,6 +88,7 @@ const PatrolModal = (props) => {
     if (!leader) return null;
     return leader;
   }, [statePatrol.patrol_segments]);
+
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
 
@@ -538,9 +550,10 @@ const PatrolModal = (props) => {
 
 };
 
-const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } } }) => ({
+const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } }, data: { eventStore } }) => ({
   autoStartPatrols,
-  autoEndPatrols
+  autoEndPatrols,
+  eventStore
 });
 
 export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
