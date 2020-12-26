@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import { store } from '../';
 import { getEventReporters } from '../selectors';
 
@@ -12,6 +14,7 @@ import { objectToParamString, cleanedUpFilterObject } from './query';
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import ReportFormModal from '../ReportFormModal';
+import { EVENT_API_URL } from '../ducks/events';
 
 export const eventTypeTitleForEvent = (event) => {
   const { data: { eventTypes } } = store.getState();
@@ -123,7 +126,7 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
 };
 
 export const openModalForReport = (report, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols } = config;
+  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport = false } = config;
 
   return store.dispatch(
     addModal({
@@ -131,6 +134,7 @@ export const openModalForReport = (report, map, config = {}) => {
       report,
       relationshipButtonDisabled,
       hidePatrols,
+      isPatrolReport,
       map,
       onSaveSuccess,
       onSaveError,
@@ -141,7 +145,7 @@ export const openModalForReport = (report, map, config = {}) => {
     }));
 };
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data, patrol_segment_id = null) => {
 
   const location = data && data.location;
 
@@ -153,6 +157,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   
   return {
     event_type,
+    patrol_segment_id,
     icon_id,
     is_collection: false,
     location,
@@ -303,4 +308,15 @@ export const validateReportAgainstCurrentEventFilter = (report) => { /* client-s
     && reportMatchesDateFilter()
     && reportMatchesTextFiter()
     && reportMatchesEventTypeFilter();
+};
+
+export const addSegmentToEvent = (segment_id, event_id, event) => {
+  const segmentPayload = { patrol_segments: [segment_id] };
+  axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
+    .then(function (response) {
+      console.log('add segment response', response);
+    })
+    .catch(function (error) {
+      console.log('add segment error', error);
+    });
 };
