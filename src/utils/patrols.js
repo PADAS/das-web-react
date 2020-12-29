@@ -189,7 +189,7 @@ export const getReportIdsForPatrol = (patrol) => {
   const [firstLeg] = patrol.patrol_segments;
   const { events } = firstLeg;
   const eventIds = 
-    events.reduce((accumulator, { id }) =>
+    events?.reduce((accumulator, { id }) =>
       id 
         ? [...accumulator, id] 
         : accumulator, []
