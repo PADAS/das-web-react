@@ -56,12 +56,18 @@ const FeedDateFilter = (props) => {
   const startDateNullMessage = useMemo(() => hasLower ? `${distanceInWordsToNow(new Date(lower))} ago` : null, [hasLower, lower]);
   const endDateNullMessage = 'Now';
 
+  const endDate = hasUpper ?
+    new Date(upper)
+    : nullUpperOverride
+      ? new Date(nullUpperOverride)
+      : upper;
+
   return <DateRangeSelector
     className={styles.dateSelect}
     popoverClassName={popoverClassName || ''}
     isAtDefault={isAtDefault}
     placement={props.placement || 'auto'}
-    endDate={hasUpper ? new Date(upper) : upper}
+    endDate={endDate}
     endDateNullMessage={endDateNullMessage}
     onClickDateRangePreset={onClickDateRangePreset}
     onEndDateChange={onEndDateChange}
