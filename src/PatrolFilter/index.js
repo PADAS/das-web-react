@@ -9,6 +9,7 @@ import debounce from 'lodash/debounce';
 import uniq from 'lodash/uniq';
 
 import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
 
@@ -43,7 +44,7 @@ const PATROL_STATUS_CHOICES = [
 ];
 
 const PatrolFilter = (props) => {
-  const { children, className, patrolFilter, reporters, updatePatrolFilter } = props;
+  const { children, className, patrolFilter, reporters, resetGlobalDateRange, updatePatrolFilter } = props;
   const { status, filter: { date_range, patrol_type: currentFilterReportTypes, leader, text } } = patrolFilter;
 
   const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
@@ -109,13 +110,9 @@ const PatrolFilter = (props) => {
 
   const clearDateRange = useCallback((e) => {
     e.stopPropagation();
-    updatePatrolFilter({
-      filter: {
-        date_range: INITIAL_FILTER_STATE.filter.date_range,
-      },
-    });
+    resetGlobalDateRange();
     trackEvent('Patrol Filter', 'Click Reset Date Range Filter');
-  }, [updatePatrolFilter]);
+  }, [resetGlobalDateRange]);
 
   const resetStateFilter = useCallback((e) => {
     e.stopPropagation();
@@ -181,7 +178,7 @@ const PatrolFilter = (props) => {
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
-        <ClockIcon />Patrol Date Range
+        <ClockIcon />Date Range
         <Button type="button" variant='light' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
@@ -243,4 +240,4 @@ const mapStateToProps = (state) =>
     reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));
+export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter })(memo(PatrolFilter));
