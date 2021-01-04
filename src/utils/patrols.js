@@ -8,7 +8,8 @@ import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
-import { point, multiLineString } from '@turf/helpers';
+import bbox from '@turf/bbox';
+import { featureCollection, point, multiLineString } from '@turf/helpers';
 import { default as TimeAgo } from 'react-timeago';
 
 import { store } from '../';
@@ -580,3 +581,29 @@ export const patrolTimeRangeIsValid = (patrol) => {
   return false;
   
 };
+
+const getBoundsForPatrol = ((patrolData) => {
+  const { leader, trackData, patrol } = patrolData;
+  
+  const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
+  if (!hasSegments) return null;
+
+  const [firstLeg] = patrol.patrol_segments;
+  
+  const hasEvents = !!firstLeg.events && !!firstLeg.events.length;
+  const hasLeaderPosition = !!leader && !!leader.last_position;
+
+  const patrolEvents = hasEvents && featureCollection(firstLeg.events.map(({ geojson }) => geojson));
+  const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
+  const patrolTrack = trackData;
+
+  const collectionData = [patrolEvents, patrolLeaderPosition, patrolTrack]
+    .filter(item => !!item);
+
+  
+  if (!collectionData.length) return null;
+
+  return bbox(
+    featureCollection(collectionData),
+  );
+});
