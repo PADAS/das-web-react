@@ -11,10 +11,13 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
+import { addSegmentToEvent } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, isSegmentEndScheduled, patrolTimeRangeIsValid, iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
+
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -22,6 +25,7 @@ import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
 import ReportedBySelect from '../ReportedBySelect';
 import AddReport from '../AddReport';
+import ReportListItem from '../ReportListItem';
 
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
@@ -37,16 +41,18 @@ import TimeRangeAlert from './TimeRangeAlert';
 // import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
+import { openModalForReport } from '../utils/events';
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
-  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols } = props;
+  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
+  const [addedReports, setAddedReports] = useState([]);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
@@ -57,6 +63,24 @@ const PatrolModal = (props) => {
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
+  const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
+
+  const patrolReportIds= useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
+
+  const patrolReports= useMemo(() => {
+    const currReports = getReportsForPatrol(patrol);
+    const syncedReports = currReports.map( (report) => {
+      // if there is no entry for this event, add it to the store
+      if (!eventStore[report.id]) {
+        eventStore[report.id] = report;
+        return report;
+      } else return eventStore[report.id];
+    });
+    return syncedReports;
+  }, [patrol]);
+
+  const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
+
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
     const [firstLeg] = statePatrol.patrol_segments;
@@ -65,6 +89,7 @@ const PatrolModal = (props) => {
     if (!leader) return null;
     return leader;
   }, [statePatrol.patrol_segments]);
+
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
 
@@ -218,8 +243,14 @@ const PatrolModal = (props) => {
     
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
   }, [filesToList, filesToUpload]);
-  
 
+  const onAddReport = useCallback((reportData) => {
+    // report form has different payloads resp for incidents and reports
+    const report = reportData.length ? reportData[0] : reportData;
+    const { data: { data } } = report;
+    setAddedReports([...addedReports, data]);
+  }, [addedReports]);
+  
   const onSaveNote = useCallback((noteToSave) => {
     const note = { ...noteToSave };
     const noteIsNew = !note.id;
@@ -322,7 +353,8 @@ const PatrolModal = (props) => {
     const { updates: segmentUpdates } = firstLeg;
     const noteUpdates = extractAttachmentUpdates(statePatrol.notes);
     const fileUpdates = extractAttachmentUpdates(statePatrol.files);
-    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates];
+    const eventUpdates = extractAttachmentUpdates(firstLeg.events);
+    const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates, ...eventUpdates];
 
     return orderBy(allUpdates, [
       function(item) {
@@ -351,6 +383,12 @@ const PatrolModal = (props) => {
       return;
     }
 
+    // just assign added reports to inital segment id for now
+    addedReports.forEach(async (report) => {
+      const resp = await addSegmentToEvent(patrolSegmentId, report.id,);
+      console.log(resp);
+    });
+
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
     return executeSaveActions(actions)
@@ -367,7 +405,7 @@ const PatrolModal = (props) => {
       .catch((error) => {
         console.warn('failed to save new patrol', error);
       });
-  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol]);
+  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol, addedReports, patrolSegmentId]);
 
   const startTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -447,6 +485,17 @@ const PatrolModal = (props) => {
       <Body className={styles.body}>
         <ul className={styles.segmentList}>
           <li className={styles.segment}>
+            <ul>
+              {allPatrolReports.map((item, index) =>
+                <ReportListItem
+                  className={styles.listItem}
+                  map={map}
+                  report={item}
+                  key={`${item.id}-${index}`}
+                  onTitleClick={() => openModalForReport(item, map)}
+                  onIconClick={() => openModalForReport(item, map)} />
+              )}
+            </ul>
           </li>
         </ul>
         <AttachmentList
@@ -490,7 +539,7 @@ const PatrolModal = (props) => {
       <AttachmentControls
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        <AddReport map={map} hidePatrols={true} onSaveSuccess={(...args) => console.info('report saved', args)} />
+        {patrolSegmentId &&<AddReport map={map} hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
       </AttachmentControls>
       <Footer
         onCancel={onCancel}
@@ -502,9 +551,10 @@ const PatrolModal = (props) => {
 
 };
 
-const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } } }) => ({
+const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } }, data: { eventStore } }) => ({
   autoStartPatrols,
-  autoEndPatrols
+  autoEndPatrols,
+  eventStore
 });
 
 const makeMapStateToProps = () => {

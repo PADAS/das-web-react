@@ -147,6 +147,14 @@ export const displayStartTimeForPatrol = (patrol) => {
     : null;
 };
 
+export const getReportsForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  // this is only grabbibng the first segment for now
+  const [firstLeg] = patrol.patrol_segments;
+  const { events } = firstLeg;
+  return events || [];
+};
+
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
@@ -167,6 +175,26 @@ export const getLeaderForPatrol = (patrol, subjectStore) => {
   if (!leader) return null;
 
   return subjectStore[leader.id] || leader;
+};
+
+export const getPatrolsForSubject = (patrols, subject) => {
+  return patrols.filter(patrol => {
+    return getLeaderForPatrol(patrol)?.id === subject.id;
+  });
+};
+
+export const getReportIdsForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return [];
+  // this is only grabbibng the first segment for now
+  const [firstLeg] = patrol.patrol_segments;
+  const { events } = firstLeg;
+  const eventIds = 
+    events?.reduce((accumulator, { id }) =>
+      id 
+        ? [...accumulator, id] 
+        : accumulator, []
+    );
+  return eventIds || [];
 };
 
 export const getPatrolsForLeaderId = (leaderId) => {
@@ -268,6 +296,12 @@ export const PATROL_SAVE_ACTIONS = {
 
 const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID, SCHEDULED } = PATROL_CARD_STATES;
 
+export const displayPatrolSegmentId = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+  const { id } = firstLeg;
+  return id || null;
+};
 export const isSegmentOverdue = (patrolSegment) => {
   const { time_range: { start_time }, scheduled_start } = patrolSegment;
   return !start_time
