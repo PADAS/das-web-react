@@ -23,7 +23,7 @@ const UserMenu = (props) => {
   };
 
   return <Fragment>
-    <button hidden id="ot-sdk-btn" class="ot-sdk-show-settings" ref={cookieSettingsRef}>Cookie Settings</button>
+    <button hidden id="ot-sdk-btn" class="ot-sdk-show-settings" ref={cookieSettingsRef} />
     <Dropdown alignRight className={styles.menu} {...rest} onToggle={onDropdownToggle}>
       <Toggle>
         <UserIcon className={styles.icon} /><span className={styles.username}>{displayUser.username}</span>
