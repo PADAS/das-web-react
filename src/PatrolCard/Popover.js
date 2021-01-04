@@ -14,7 +14,8 @@ import { withMap } from '../EarthRangerMap';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol,calcPatrolCardState, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol,calcPatrolCardState, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
@@ -82,6 +83,10 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
 
+  const onLocationClick = useCallback(() => {
+    const bounds = getBoundsForPatrol(patrolData);
+    fitMapBoundsForAnalyzer(map, bounds);
+  }, [map, patrolData]);
 
   const onOverlayClose = useCallback(() => {
     if (!leader) return;
@@ -127,7 +132,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   
           <div className={styles.controls}>
             <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />
-            {!!leaderLastPositionCoordinates && <LocationJumpButton bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
+            {!!leaderLastPositionCoordinates && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
           </div>
         </Fragment>
         }

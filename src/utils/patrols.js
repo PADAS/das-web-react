@@ -589,7 +589,7 @@ export const patrolTimeRangeIsValid = (patrol) => {
   
 };
 
-const getBoundsForPatrol = ((patrolData) => {
+export const getBoundsForPatrol = ((patrolData) => {
   const { leader, trackData, patrol } = patrolData;
   
   const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
@@ -600,11 +600,11 @@ const getBoundsForPatrol = ((patrolData) => {
   const hasEvents = !!firstLeg.events && !!firstLeg.events.length;
   const hasLeaderPosition = !!leader && !!leader.last_position;
 
-  const patrolEvents = hasEvents && featureCollection(firstLeg.events.map(({ geojson }) => geojson));
+  const patrolEvents = hasEvents && firstLeg.events.map(({ geojson }) => geojson);
   const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
-  const patrolTrack = trackData;
+  const patrolTrack = !!trackData && trackData.track;
 
-  const collectionData = [patrolEvents, patrolLeaderPosition, patrolTrack]
+  const collectionData = [...patrolEvents, patrolLeaderPosition, ...patrolTrack.features]
     .filter(item => !!item);
 
   
