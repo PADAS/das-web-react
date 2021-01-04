@@ -67,12 +67,12 @@ const PatrolMenu = (props) => {
   }, [canRestorePatrol, onPatrolChange]);
 
   const togglePatrolStartStopState = useCallback(() => {
-    if (canStart) {
-      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
-    } else {
+    if (canEnd) {
       onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
+    } else {
+      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
     }
-  }, [canStart, onPatrolChange]);
+  }, [canEnd, onPatrolChange]);
 
   return  <Dropdown alignRight className={styles.kebabMenu}>
     <Toggle as="button">
