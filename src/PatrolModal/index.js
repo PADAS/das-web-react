@@ -480,10 +480,10 @@ const PatrolModal = (props) => {
           </span>}
         </div>
         <span className={displayDuration !== '0s' ? '' : styles.faded}>
-          <strong>Duration:</strong> {displayDuration}
+          <strong>Duration:</strong> <span className={styles.patrolDetail}>{displayDuration}</span>
         </span>
         <span>
-          <strong>Distance:</strong> <ConnectedDistanceCovered patrol={statePatrol} />
+          <strong>Distance:</strong> <span className={styles.patrolDetail}><ConnectedDistanceCovered patrol={statePatrol} /></span>
         </span>
         <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
       </section>
