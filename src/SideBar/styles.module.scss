@@ -323,6 +323,7 @@
 
 .patrolFilter {
   [class*=popoverTrigger]:first-of-type {
-    pointer-events: none;
+    margin-left: 4rem;
+    margin-top: 0.5rem;
   }
 }
