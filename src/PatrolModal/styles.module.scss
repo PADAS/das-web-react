@@ -45,7 +45,7 @@ $container-padding: 1rem;
 
 h4 {
   > span.statusBadge {
-    margin-left: auto;
+    margin-left: 6.0rem;
   }
 }
 
@@ -217,9 +217,11 @@ section.timeBar {
   }
   &::after {
     color: yellow;
-    display: block;
+    display: inline;
     content: "*unsaved";
-    // float: right;
+  }
+  + .scheduledLabel {
+    display: none;
   }
 } 
 

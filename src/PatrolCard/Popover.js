@@ -5,11 +5,9 @@ import Overlay from 'react-bootstrap/Overlay';
 import PropTypes from 'prop-types';
 import uniq from 'lodash/uniq';
 
-import HeatmapToggleButton from '../HeatmapToggleButton';
 import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 import LocationJumpButton from '../LocationJumpButton';
 import DasIcon from '../DasIcon';
-import AddReport from '../AddReport';
 import TimeAgo from '../TimeAgo';
 
 import { withMap } from '../EarthRangerMap';
@@ -45,6 +43,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
+    || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
   }, [patrolState]);
 
@@ -128,11 +127,9 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
           </div>}
   
           <div className={styles.controls}>
-            <HeatmapToggleButton disabled={!leader} showLabel={false} heatmapVisible={false} />
             <PatrolAwareTrackToggleButton patrol={patrol} showLabel={false} />
             {!!leaderLastPositionCoordinates && <LocationJumpButton bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
           </div>
-          <AddReport className={styles.addButton} showLabel={false} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
         </Fragment>
         }
 

@@ -10,7 +10,7 @@ import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, 
 
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;
-const EVENT_API_URL = `${API_URL}activity/event/`;
+export const EVENT_API_URL = `${API_URL}activity/event/`;
 
 // actions
 const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';

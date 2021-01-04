@@ -110,7 +110,6 @@ export const createPatrol = (patrol) => (dispatch) => {
     }); */
 };
 
-
 export const updatePatrol = (patrol) => (dispatch) => {
 
   let patrolResults;
