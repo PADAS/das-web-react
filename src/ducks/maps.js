@@ -1,5 +1,5 @@
 import axios from 'axios';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 
 import { API_URL } from '../constants';
 export const MAPS_API_URL = `${API_URL}maps/`;

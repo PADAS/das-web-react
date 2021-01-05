@@ -14,7 +14,8 @@ import { withMap } from '../EarthRangerMap';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol,calcPatrolCardState, getLeaderForPatrol, displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol,calcPatrolCardState, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
@@ -23,10 +24,10 @@ import { PATROL_CARD_STATES } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, map, onHide, onPatrolChange, patrol, patrolTrackState, subjectTrackState, subjectStore,
+  const { container, isOpen, map, onHide, onPatrolChange, patrolData, patrolTrackState, subjectTrackState,
     target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
+  const { leader, patrol } = patrolData;
 
   const leaderLastPositionCoordinates = useMemo(() => !!leader && leader.last_position && leader.last_position.geometry && leader.last_position.geometry.coordinates, [leader]);
 
@@ -68,21 +69,24 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
 
   const onOverlayOpen = useCallback(() => {
-    if (!leader) return;
 
     const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
-    const leaderTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
+    const leaderTrackHidden = !leader || !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
       
     if (patrolTrackHidden) {
       togglePatrolTrackState(patrol.id);
     }
       
-    if (leaderTrackHidden) {
+    if (leaderTrackHidden && !!leader) {
       toggleTrackState(leader.id);
     }
 
   }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
 
+  const onLocationClick = useCallback(() => {
+    const bounds = getBoundsForPatrol(patrolData);
+    fitMapBoundsForAnalyzer(map, bounds);
+  }, [map, patrolData]);
 
   const onOverlayClose = useCallback(() => {
     if (!leader) return;
@@ -127,8 +131,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
           </div>}
   
           <div className={styles.controls}>
-            <PatrolAwareTrackToggleButton patrol={patrol} showLabel={false} />
-            {!!leaderLastPositionCoordinates && <LocationJumpButton bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
+            <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />
+            {!!leaderLastPositionCoordinates && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
           </div>
         </Fragment>
         }
@@ -139,7 +143,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   </Overlay>; 
 });
 
-const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState }, data: { subjectStore } }) => ({ patrolTrackState, subjectTrackState, subjectStore });
+const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
 
 
 export default connect(mapStateToProps, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, updatePatrolTrackState, updateTrackState, toggleTrackState }, null, {
