@@ -279,7 +279,7 @@ const PatrolModal = (props) => {
         });
         
       } else {
-        setStatePatrol({
+        setStatePatrol({ 
           ...statePatrol,
           notes: [
             ...statePatrol.notes,
@@ -505,8 +505,8 @@ const PatrolModal = (props) => {
                   map={map}
                   report={item}
                   key={`${item.id}-${index}`}
-                  onTitleClick={() => openModalForReport(item, map, {hidePatrols: true, isPatrolReport: true, onSaveSuccess: onAddReport} )}
-                  onIconClick={() => openModalForReport(item, map, {hidePatrols: true, isPatrolReport: true, onSaveSuccess: onAddReport} )} />
+                  onTitleClick={() => openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} )}
+                  onIconClick={() => openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} )} />
               )}
             </ul>
           </li>

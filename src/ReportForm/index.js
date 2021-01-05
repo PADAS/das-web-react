@@ -488,7 +488,7 @@ const ReportForm = (props) => {
         isCollectionChild={eventBelongsToCollection(report)}
         onGoToCollection={goToParentCollection}
         relationshipButtonDisabled={disableAddReport}
-        hidePatrols={props.hidePatrols}
+        hidePatrols={true}
         onNewReportSaved={onReportAdded}
       />
 
