@@ -64,8 +64,6 @@ const PatrolModal = (props) => {
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReportIds= useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
-
   const patrolReports= useMemo(() => {
     const currReports = getReportsForPatrol(patrol);
     const syncedReports = currReports.map( (report) => {
@@ -78,7 +76,20 @@ const PatrolModal = (props) => {
     return syncedReports;
   }, [patrol]);
 
-  const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
+  const allPatrolReports = useMemo(() => {
+    // don't show the contained reports
+    const allReports = [... new Set([...addedReports, ...patrolReports])];
+    const topLevelReports = allReports.filter(report => !report.is_contained_in?.length);
+    return topLevelReports;
+  }, [addedReports, patrolReports]);
+
+  const allPatrolReportIds= useMemo(() => {
+    const reportIds = allPatrolReports?.reduce((accumulator, { id }) =>
+    id ? [...accumulator, id] 
+      : accumulator, []
+    );
+    return reportIds || [];
+  }, [allPatrolReports]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -247,7 +258,10 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
-    setAddedReports([...addedReports, data]);
+    // dedupe collections
+    if(data?.id && !allPatrolReportIds.includes(data.id)) {
+      setAddedReports([...addedReports, data]);
+    }
   }, [addedReports]);
   
   const onSaveNote = useCallback((noteToSave) => {
@@ -491,8 +505,8 @@ const PatrolModal = (props) => {
                   map={map}
                   report={item}
                   key={`${item.id}-${index}`}
-                  onTitleClick={() => openModalForReport(item, map)}
-                  onIconClick={() => openModalForReport(item, map)} />
+                  onTitleClick={() => openModalForReport(item, map, {hidePatrols: true, isPatrolReport: true, onSaveSuccess: onAddReport} )}
+                  onIconClick={() => openModalForReport(item, map, {hidePatrols: true, isPatrolReport: true, onSaveSuccess: onAddReport} )} />
               )}
             </ul>
           </li>
