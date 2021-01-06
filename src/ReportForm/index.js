@@ -42,7 +42,7 @@ const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
 
   const formRef = useRef(null);
   const reportedBySelectPortalRef = useRef(null);
