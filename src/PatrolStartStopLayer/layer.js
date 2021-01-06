@@ -160,23 +160,5 @@ const mapStateToProps = (state, props) => ({
   timeSliderState: getTimeSliderState(state),
 });
 
-/* const mapStateToProps = (state, props) => {
-  leader: getLeaderForPatrolFromProps(state, props),
-  rawTrack: getTrackForPatrolFromProps(state, props),
-}
-
-  const patrolData = assemblePatrolDataForPatrol(patrol, leader, rawTrack);
-
-  const { indices } = patrolData.trackData;
-
-  if (indices) {
-
-  }
-
-const trimmedTrackData = useMemo(() => !!trackData && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until), [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]);
-
- */
-
-
 export default connect(mapStateToProps, null)(withMap(
   memo(withMapViewConfig(StartStopLayer))));
