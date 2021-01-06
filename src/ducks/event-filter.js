@@ -1,8 +1,20 @@
+import merge from 'lodash/merge';
+
 import { generateMonthsAgoDate } from '../utils/datetime';
 import globallyResettableReducer from '../reducers/global-resettable';
+import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
 
 // ACTIONS
 const UPDATE_EVENT_FILTER = 'UPDATE_EVENT_FILTER';
+
+const defaultDateRange = {
+  lower: generateMonthsAgoDate(1).toISOString(),
+  upper: null,
+};
+
+const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(
+  defaultDateRange
+);
 
 // ACTION CREATORS
 export const updateEventFilter = update => (dispatch) => {
@@ -18,10 +30,7 @@ export const INITIAL_FILTER_STATE = {
   include_related_events: true,
   state: ['active', 'new'],
   filter: {
-    date_range: {
-      lower: generateMonthsAgoDate(1).toISOString(),
-      upper: null,
-    },
+    date_range: defaultDateRange,
     event_type: [],
     event_category: [],
     text: '',
@@ -34,19 +43,18 @@ export const INITIAL_FILTER_STATE = {
 const eventFilterReducer = (state, action) => {
   const { type, payload } = action;
 
-  switch (type) {
-  case (UPDATE_EVENT_FILTER): {
-    return {
-      ...state, ...payload, filter: {
-        ...state.filter,
-        ...payload.filter,
+  if (type === UPDATE_EVENT_FILTER) {
+    return merge({}, state, payload);
+  }
+
+  if (type === UPDATE_DATE_RANGE || type === RESET_DATE_RANGE) {
+    return merge({}, state, {
+      filter: {
+        date_range: dateRangeReducer(state, action),
       }
-    };
+    });
   }
-  default: {
-    return state;
-  }
-  }
+  return state;
 };
 
 export default globallyResettableReducer(eventFilterReducer, INITIAL_FILTER_STATE);

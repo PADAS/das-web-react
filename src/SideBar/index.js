@@ -203,7 +203,7 @@ const SideBar = (props) => {
           </Tab>
           {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
             <PatrolFilter className={styles.patrolFilter} /> 
-            <PatrolList map={map} patrols={patrols.results || []} loading={loadingPatrols}/>
+            <PatrolList map={map} patrols={patrols.results} loading={loadingPatrols}/>
           </Tab>}
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
             <ErrorBoundary>

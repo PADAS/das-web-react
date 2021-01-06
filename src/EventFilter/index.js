@@ -11,6 +11,7 @@ import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
 
@@ -29,7 +30,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import styles from './styles.module.scss';
 
 const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, reporters, updateEventFilter } = props;
+  const { children, className, eventFilter, eventTypes, reporters, resetGlobalDateRange, updateEventFilter } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -166,11 +167,7 @@ const EventFilter = (props) => {
 
   const clearDateRange = (e) => {
     e.stopPropagation();
-    updateEventFilter({
-      filter: {
-        date_range: INITIAL_FILTER_STATE.filter.date_range,
-      },
-    });
+    resetGlobalDateRange();
     trackEvent('Event Filter', 'Click Reset Date Range Filter');
   };
 
@@ -244,7 +241,7 @@ const EventFilter = (props) => {
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
-        <ClockIcon />Report Date Range
+        <ClockIcon />Date Range
         <Button type="button" variant='light' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
@@ -327,4 +324,4 @@ const mapStateToProps = (state) =>
     reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { updateEventFilter })(memo(EventFilter));
+export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));

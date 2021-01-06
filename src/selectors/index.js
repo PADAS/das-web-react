@@ -2,6 +2,7 @@
 import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
+import isEqual from 'react-fast-compare';
 
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
@@ -10,6 +11,11 @@ import { mapReportTypesToCategories } from '../utils/event-types';
 export const createSelector = createSelectorCreator(
   defaultMemoize,
   // isEqual,
+);
+
+export const createEqualitySelector = createSelectorCreator(
+  defaultMemoize,
+  isEqual,
 );
 
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;

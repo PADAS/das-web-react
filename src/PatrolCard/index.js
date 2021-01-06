@@ -1,9 +1,11 @@
 import React, { forwardRef, memo, useEffect, useRef, useMemo, useCallback, useState, Fragment } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
-  calcPatrolCardState, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime, getLeaderForPatrol } from '../utils/patrols';
+  calcPatrolCardState, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
+import { createPatrolDataSelector } from '../selectors/patrols';
 
 
 import { PATROL_CARD_STATES } from '../constants';
@@ -19,7 +21,9 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import styles from './styles.module.scss';
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { patrol, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
+  const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
+
+  const { patrol, leader, trackData } = patrolData;
 
   const menuRef = useRef(null);
   const cardRef = useRef(ref || null);
@@ -47,8 +51,6 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     }
     return patrolState.title;
   }, [patrol, patrolState]);
-
-  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
 
   useEffect(() => {
     if (leader && leader.id) {
@@ -91,7 +93,6 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      console.log('popoverRef', popoverRef);
       if (popoverRef.current && 
         (!popoverRef.current.contains(e.target))) {
         setPopoverState(false);
@@ -148,7 +149,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       {!isScheduledPatrol && <Fragment> 
         <div>
           <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
-          <p>Distance covered: <span><PatrolDistanceCovered patrol={patrol} /></span></p>
+          <p>Distance covered: <span><PatrolDistanceCovered trackData={trackData} /></span></p>
         </div>
       </Fragment>}
     </div>
@@ -156,11 +157,21 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     <AddReport className={styles.addReport} showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
       target={stateTitleRef} ref={popoverRef} onHide={onPopoverHide}
-      onPatrolChange={onPatrolChangeFromPopover} patrol={patrol} />
+      onPatrolChange={onPatrolChangeFromPopover} patrolData={patrolData} />
   </li>;
 });
 
-export default memo(PatrolCard);
+const makeMapStateToProps = () => {
+  const getDataForPatrolFromProps = createPatrolDataSelector();
+  const mapStateToProps = (state, props) => {
+    return {
+      patrolData: getDataForPatrolFromProps(state, props),
+    };
+  };
+  return mapStateToProps;
+};
+
+export default connect(makeMapStateToProps, null)(memo(PatrolCard));
 
 PatrolCard.propTypes = {
   patrol: PropTypes.object.isRequired,

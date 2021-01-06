@@ -1,66 +1,25 @@
-import React, { Fragment, memo, useEffect, useMemo } from 'react';
+import React, { Fragment, memo } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 
 import { withMap } from '../EarthRangerMap';
-import { getPatrols } from '../selectors/tracks';
-import { drawLinesBetweenPatrolTrackAndPatrolPoints, extractPatrolPointsFromTrackData } from '../utils/patrols';
-import { addMapImage } from '../utils/map';
-import { calcImgIdFromUrlForMapImages } from '../utils/img';
-import { patrolTrackData } from '../selectors/patrols';
+import { patrolsWithTrackShown } from '../selectors/patrols';
 
 import StartStopLayer from './layer';
 
 
 const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
-  const patrolStartStopData = useMemo(() => trackData
-    .map(data => {
-      const points = extractPatrolPointsFromTrackData(data, patrols);
-
-      if (!points) return null;
-
-      const lines = drawLinesBetweenPatrolTrackAndPatrolPoints(points, data.trackData);
-
-      return {
-        points,
-        lines,
-      };
-    })
-    .filter(v => !!v)
-  , [patrols, trackData]);
-
-  useEffect(() => {
-    const toAdd = patrolStartStopData.reduce((accumulator, item) => {
-      const { points: { start_location } } = item;
-
-      const image = start_location?.properties?.image;
-      const imgHeight = start_location?.properties?.height;
-      const imgWidth = start_location?.properties?.imgWidth;
-
-      if (start_location
-        && map.hasImage(calcImgIdFromUrlForMapImages(image, imgWidth, imgHeight))
-      ) return accumulator;
-      return [...accumulator, start_location.properties.image];
-    }, []);
-
-    toAdd.forEach(item =>  addMapImage({ src: item }));
-
-  }, [map, patrolStartStopData]);
-  
-  if (!patrolStartStopData.length) return null;
-
   const onSymbolClick = () => {};
 
   return <Fragment>
-    {patrolStartStopData.map((data, index) => <StartStopLayer key={index} data={data} onSymbolClick={onSymbolClick} />)}
+    {patrols.map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
   </Fragment>;
 
 };
 
 const mapStateToProps = (state) => ({
-  patrols: getPatrols(state),
-  trackData: patrolTrackData(state)
+  patrols: patrolsWithTrackShown(state),
 });
 
 

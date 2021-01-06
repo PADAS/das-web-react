@@ -1,13 +1,22 @@
-import { createSelector } from './';
+import { createSelector, createEqualitySelector } from './';
 import { getSubjectStore } from './subjects';
-import { trimmedVisibleTrackData } from './tracks';
+
+import { trimmedVisibleTrackData, trackTimeEnvelope, tracks } from './tracks';
 import { getLeaderForPatrol } from '../utils/patrols';
-import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../utils/tracks';
 import uniq from 'lodash/uniq';
 
 export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
+const getPatrolFromProps = (_state, { patrol }) => patrol;
+const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
+  !!patrol.patrol_segments 
+  && !!patrol.patrol_segments.length 
+  && !!patrol.patrol_segments[0].leader
+  && tracks[patrol.patrol_segments[0].leader.id];
+const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
 const getPatrolTrackState = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
+
 
 export const getPatrolList = createSelector(
   [getPatrolStore, getPatrols],
@@ -17,21 +26,52 @@ export const getPatrolList = createSelector(
   })
 );
 
-export const getPatrolTrackList = createSelector(
-  [getPatrolStore, getPatrolTrackState, getSubjectStore],
-  (store, patrolIdsToTrack, subjectStore) => patrolIdsToTrack
-    .map((id) => store[id])
-    .filter((patrol) =>
-      !!patrol && !!getLeaderForPatrol(patrol, subjectStore)
-    )
+const assemblePatrolDataForPatrol = (patrol, leader, trackData) => {
+  const [firstLeg] = patrol.patrol_segments;
+  const timeRange = !!firstLeg && firstLeg.time_range;
+  const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
+
+  const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange.start_time, timeRange.end_time);
+
+  return {
+    patrol,
+    leader,
+    trackData: trimmed || null,
+  };
+};
+
+export const createPatrolDataSelector = () => createEqualitySelector(
+  [getPatrolFromProps, getLeaderForPatrolFromProps,  getTrackForPatrolFromProps],
+  assemblePatrolDataForPatrol,
+);
+
+export const patrolsWithTrackShown = createSelector(
+  [getPatrolTrackState, getPatrolStore],
+  (patrolTrackState, patrolStore) => patrolTrackState
+    .map(id => patrolStore[id])
+    .filter(p => !!p)
 );
 
 
+export const visibleTrackedPatrolData = createSelector(
+  [tracks, patrolsWithTrackShown, trackTimeEnvelope, getSubjectStore],
+  (tracks, patrols, trackTimeEnvelope, subjectStore) => {
+
+    return patrols
+      .map((patrol) => {
+        const leader = getLeaderForPatrol(patrol, subjectStore);
+        const trackData = !!leader && tracks[leader.id];
+
+        return assemblePatrolDataForPatrol(patrol, leader, trackData);
+      });
+  }
+);
+
 export const visibleTrackDataWithPatrolAwareness = createSelector(
-  [trimmedVisibleTrackData, getPatrolTrackList],
-  (trackData, patrols) => trackData.map((t) => {
+  [trimmedVisibleTrackData, patrolsWithTrackShown],
+  (trackData, patrolsWithTrackShown) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
-    const hasPatrolTrackMatch = patrols.some(p =>
+    const hasPatrolTrackMatch = patrolsWithTrackShown.some(p =>
       p.patrol_segments 
       && !!p.patrol_segments.length 
       && p.patrol_segments[0].leader 
@@ -44,23 +84,5 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
   }),
 );
 
-export const patrolTrackData = createSelector(
-  [visibleTrackDataWithPatrolAwareness, getPatrolTrackList, getSubjectStore],
-  (trackData, patrols, subjectStore) => {
-    const tracks = trackData.filter(t => !!t.patrolTrackShown);
-    
-    return patrols
-      .map((patrol) => {
-        const [firstLeg] = patrol.patrol_segments;
-        const leader = getLeaderForPatrol(patrol, subjectStore);
-        const timeRange = !!firstLeg && firstLeg.time_range;
-        const leaderTrack = leader && leader.id && tracks.find(t => t.track.features[0].properties.id === leader.id);
 
-        return {
-          patrol,
-          trackData: leaderTrack && timeRange && timeRange.start_time && trimTrackDataToTimeRange(leaderTrack, timeRange.start_time, timeRange.end_time),
-        };
-      })
-      .filter(t => !!t.trackData);
-  }
-);
+// patrol, trackForPatrol, subjectStore, trackTimeEnvelope
