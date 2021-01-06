@@ -95,7 +95,7 @@ const DateTimePickerPopover = (props, ref) => {
   const containerRef = useRef(null);
 
   const onClickClearIcon = useCallback(() => {
-    !!onChange && onChange('');
+    !!onChange && onChange(null);
   }, [onChange]);
 
   useEffect(() => {

@@ -9,7 +9,8 @@ import isEqual from 'react-fast-compare';
 
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
-import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
+import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
@@ -20,7 +21,7 @@ import styles from './styles.module.scss';
 const { Title, Content } = Popover;
 
 const TimeSlider = (props) => {
-  const { sidebarOpen, timeSliderState, since, until, clearVirtualDate, setVirtualDate, updateEventFilter } = props;
+  const { sidebarOpen, timeSliderState, since, until, clearVirtualDate, setVirtualDate, resetGlobalDateRange } = props;
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
   const handleTextRef = useRef(null);
   const leftPopoverTrigger = useRef(null);
@@ -39,11 +40,7 @@ const TimeSlider = (props) => {
 
   const clearDateRange = (e) => {
     e.stopPropagation();
-    updateEventFilter({
-      filter: {
-        date_range: INITIAL_FILTER_STATE.filter.date_range,
-      },
-    });
+    resetGlobalDateRange();
     onDateChange();
   };
 
@@ -139,4 +136,4 @@ const mapStatetoProps = ({ view: { timeSliderState, userPreferences: { sidebarOp
   until: date_range.upper,
 });
 
-export default connect(mapStatetoProps, { clearVirtualDate, setVirtualDate, updateEventFilter })(memo(TimeSlider));
+export default connect(mapStatetoProps, { clearVirtualDate, resetGlobalDateRange, setVirtualDate })(memo(TimeSlider));

@@ -1,13 +1,15 @@
 import React, { memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 
-import { updateEventFilter } from '../ducks/event-filter';
+import { updateGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 
 import FeedDateFilter from '../FeedDateFilter';
 
 const EventFilterDateRangeSelector = (props) => {
-  const { eventFilter, updateEventFilter } = props;
+  const { eventFilter, updateGlobalDateRange } = props;
+
+  const { filter: { date_range:dateRange } } = eventFilter;
   
   const afterClickPreset = useCallback((label) => {
     trackEvent('Event Filter', 'Select Date Range Preset', `Date Range: ${label}`);
@@ -22,15 +24,15 @@ const EventFilterDateRangeSelector = (props) => {
   }, []);
 
   return <FeedDateFilter 
-    filterData={eventFilter}
+    dateRange={dateRange}
     afterClickPreset={afterClickPreset}
     afterEndChange={afterEndChange}
     afterStartChange={afterStartChange}
-    updateFilter={updateEventFilter}
+    updateFilter={updateGlobalDateRange}
   />;
 
 };
 
 const mapStatetoProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
-export default connect(mapStatetoProps, { updateEventFilter })(memo(EventFilterDateRangeSelector));
+export default connect(mapStatetoProps, { updateGlobalDateRange })(memo(EventFilterDateRangeSelector));
