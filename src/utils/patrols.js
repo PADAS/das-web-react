@@ -6,6 +6,7 @@ import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
+import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
@@ -604,7 +605,7 @@ export const getBoundsForPatrol = ((patrolData) => {
   const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
   const patrolTrack = !!trackData && trackData.track;
 
-  const collectionData = [...patrolEvents, patrolLeaderPosition, ...patrolTrack.features]
+  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features)
     .filter(item => !!item);
 
   
