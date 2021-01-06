@@ -88,7 +88,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
 
   const onLocationClick = useCallback(() => {
-    trackEvent('Patrol Card', 'Jump to location from patrol card popover');
+    trackEvent('Patrol Card', 'Click "jump to location" from patrol card popover');
     
     const bounds = getBoundsForPatrol(patrolData);
     fitMapBoundsForAnalyzer(map, bounds);
