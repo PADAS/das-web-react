@@ -10,12 +10,14 @@ import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DateTime from '../DateTime';
 
-// import { trackEvent } from '../utils/analytics';
+import CustomPropTypes from '../proptypes';
+
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const { /* addModal,  */children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
+  const { /* addModal,  */analyticsMetadata, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
 
   const data = useContext(FormDataContext);
   
@@ -65,12 +67,14 @@ const EditableItemHeader = (props) => {
   
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen);
-    // trackEvent(eventOrIncidentReport, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu`);
+    afterMenuToggle && afterMenuToggle(!headerPopoverOpen);
+    !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
+  
 
   const onHistoryClick = () => {
     setHistoryPopoverState(!historyPopoverOpen);
-    // trackEvent(eventOrIncidentReport, `${historyPopoverOpen?'Close':'Open'} Report History`);
+    !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${historyPopoverOpen?'Close':'Open'} Report History${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
 
   const HistoryLink = data.updates && <Fragment>
@@ -131,6 +135,8 @@ const EditableItemHeader = (props) => {
 export default memo(EditableItemHeader);
 
 EditableItemHeader.propTypes = {
+  analyticsMetadata: CustomPropTypes.analyticsMetaData,
+  afterMenuToggle: PropTypes.func,
   data: PropTypes.object,
   title: PropTypes.string,
   onTitleChange: PropTypes.func.isRequired,

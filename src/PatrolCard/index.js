@@ -7,6 +7,7 @@ import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { createPatrolDataSelector } from '../selectors/patrols';
 
+import { trackEvent } from '../utils/analytics';
 
 import { PATROL_CARD_STATES } from '../constants';
 
@@ -154,7 +155,12 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       </Fragment>}
     </div>
     <h6 ref={stateTitleRef} onClick={togglePopoverIfPossible}>{patrolStateTitle}</h6>
-    <AddReport className={styles.addReport} showLabel={false} />
+    <AddReport className={styles.addReport} 
+      analyticsMetadata={{
+        category: 'Feed',
+        location: 'patrol card popover',
+      }}
+      showLabel={false} />
     <Popover isOpen={popoverOpen} container={cardRef}
       target={stateTitleRef} ref={popoverRef} onHide={onPopoverHide}
       onPatrolChange={onPatrolChangeFromPopover} patrolData={patrolData} />

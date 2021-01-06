@@ -23,12 +23,18 @@ const DroppedMarkerPopup = ({ data: { location }, id, hidePopup, ...rest }) => {
   return <Popup className={styles.popup} anchor='bottom' offset={[0, -26]} coordinates={coords} id='dropped-marker-popup' {...rest}>
     <GpsFormatToggle lng={location.lng} lat={location.lat} />
     <hr ref={containerRef} />
-    <AddReport showLabel={false} reportData={{
-      location: {
-        latitude: location.lat,
-        longitude: location.lng,
-      }
-    }} onSaveSuccess={onComplete} onSaveError={onComplete} />
+    <AddReport showLabel={false} 
+      analyticsMetadata={{
+        category: 'Map Interaction',
+        location: 'dropped marker on map',
+      }}
+      reportData={{
+        location: {
+          latitude: location.lat,
+          longitude: location.lng,
+        }
+     
+      }} onSaveSuccess={onComplete} onSaveError={onComplete} />
   </Popup>;
 };
 

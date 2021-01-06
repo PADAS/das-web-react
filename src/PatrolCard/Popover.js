@@ -12,6 +12,8 @@ import TimeAgo from '../TimeAgo';
 
 import { withMap } from '../EarthRangerMap';
 
+import { trackEvent } from '../utils/analytics';
+
 import PatrolStartStopButton from './StartStopButton';
 
 import { canStartPatrol, canEndPatrol,calcPatrolCardState, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
@@ -70,6 +72,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const onOverlayOpen = useCallback(() => {
 
+    trackEvent('Patrol Card', 'Open patrol card popover');
+
     const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
     const leaderTrackHidden = !leader || !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
       
@@ -84,11 +88,15 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
 
   const onLocationClick = useCallback(() => {
+    trackEvent('Patrol Card', 'Jump to location from patrol card popover');
+    
     const bounds = getBoundsForPatrol(patrolData);
     fitMapBoundsForAnalyzer(map, bounds);
   }, [map, patrolData]);
 
   const onOverlayClose = useCallback(() => {
+    trackEvent('Patrol Card', 'Close patrol card popover');
+    
     if (!leader) return;
 
     onHide();

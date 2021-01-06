@@ -2,11 +2,16 @@ import React, { memo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+
 import { convertFileListToArray } from '../utils/file';
 import { addModal } from '../ducks/modals';
 // import { trackEvent } from '../utils/analytics';
 
+import CustomPropTypes from '../proptypes';
+
 import NoteModal from '../NoteModal';
+
+import { trackEvent } from '../utils/analytics';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
@@ -19,8 +24,10 @@ const AttachmentButton = memo(({ title, icon: Icon, ...rest }) => <button title=
 </button>);  
 
 const AttachmentControls = (props) => {
-  const { addModal, children, allowMultipleFiles, onAddFiles,
+  const { addModal, analyticsMetadata, children, allowMultipleFiles, onAddFiles,
     onSaveNote, } = props;
+
+  const hasAnalytics = !!analyticsMetadata;
 
   const [draggingFiles, setFileDragState] = useState(false);
   const fileInputRef = useRef(null);
@@ -41,11 +48,11 @@ const AttachmentControls = (props) => {
   const openFileDialog = (e) => {
     e.preventDefault();
     fileInputRef.current.click();
-    // trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Click 'Add Attachment' button");
+    hasAnalytics && trackEvent(`${analyticsMetadata.category}`, `Click 'Add Attachment' button${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
 
   const onFileDrop = (event) => {
-    // trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Drag'n'Drop Attachment");
+    hasAnalytics && trackEvent(`${analyticsMetadata.category}`, `Drag and drop attachment${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
 
     event.preventDefault();
     const { dataTransfer: { files } } = event;
@@ -63,7 +70,7 @@ const AttachmentControls = (props) => {
   };
 
   const startAddNote = () => {
-    // trackEvent(`${isCollection? 'Incident': 'Event'} Report`, "Click 'Add Note' button");
+    hasAnalytics && trackEvent(`${analyticsMetadata.category}`, `lick 'Add Note' button${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
     addModal({
       content: NoteModal,
       note: {
@@ -103,7 +110,13 @@ AttachmentControls.defaultProps = {
 };
 
 AttachmentControls.propTypes = {
+  analyticsMetaData: CustomPropTypes.analyticsMetadata,
   allowMultipleFiles: PropTypes.bool,
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
 };
+
+/* analyticsMetadata: {
+    category: 'Feed',
+    location: null,
+  } */

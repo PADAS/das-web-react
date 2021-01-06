@@ -5,6 +5,8 @@ import isEqual from 'react-fast-compare';
 import { togglePatrolTrackState } from '../ducks/patrols';
 import { toggleTrackState } from '../ducks/map-ui';
 
+import { trackEvent } from '../utils/analytics';
+
 import TrackToggleButton from './';
 
 const PatrolAwareTrackToggleButton = (props) => {
@@ -25,18 +27,27 @@ const PatrolAwareTrackToggleButton = (props) => {
   const subjectToggleStates = useMemo(() => [subjectTrackPinned, subjectTrackVisible, subjectTrackHidden], [subjectTrackHidden, subjectTrackPinned, subjectTrackVisible]);
 
   const onTrackButtonClick = useCallback(() => {
+    const nextPatrolTrackStateIfToggled = patrolTrackPinned
+      ? 'hidden'
+      : patrolTrackHidden
+        ? 'visible'
+        : 'pinned';
+    
     if (!leader) return;
     if (isEqual(patrolToggleStates, subjectToggleStates)) {
       toggleTrackState(leader.id);
       togglePatrolTrackState(patrol.id);
+      trackEvent('Patrol Card', `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`);
       return;
     }
     if (!patrolTrackHidden && subjectTrackHidden) {
       togglePatrolTrackState(patrol.id);
+      trackEvent('Patrol Card', `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`);
       return;
     }
     if (subjectTrackPinned && patrolTrackVisible) {
       togglePatrolTrackState(patrol.id);
+      trackEvent('Patrol Card', `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`);
     }
     if (patrolTrackPinned && subjectTrackVisible) {
       toggleTrackState(leader.id);

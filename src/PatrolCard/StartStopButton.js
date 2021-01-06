@@ -4,6 +4,8 @@ import { calcPatrolCardState } from '../utils/patrols';
 
 import { PATROL_CARD_STATES, PATROL_API_STATES } from '../constants';
 
+import { trackEvent } from '../utils/analytics';
+
 import styles from './styles.module.scss';
 
 const PatrolStartStopButton = (props) => {
@@ -37,6 +39,8 @@ const PatrolStartStopButton = (props) => {
   const isStop = patrolStartStopTitle === 'End Patrol';
 
   const togglePatrolStartStopState = useCallback(() => {
+    trackEvent('Patrol Card', `${canStartPatrol ? 'Start' : 'End'} patrol from patrol card popover`);
+    
     if (canStartPatrol) {
       onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
     } else {

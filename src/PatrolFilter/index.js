@@ -137,7 +137,7 @@ const PatrolFilter = (props) => {
   </ul>; */
 
   const onDateFilterIconClicked = useCallback((e) => {
-    trackEvent('Reports', 'Dates Icon Clicked');
+    trackEvent('Patrol Filter', 'Date Filter Popover Toggled');
   }, []);
 
   /*   const onPatrolFilterIconClicked = useCallback((e) => {
@@ -220,8 +220,8 @@ const PatrolFilter = (props) => {
         </span>
       </OverlayTrigger> */}
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
-          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
+        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`} onClick={onDateFilterIconClicked}>
+          <ClockIcon className={styles.clockIcon} />
           <span>Dates</span>
         </span>
       </OverlayTrigger>
