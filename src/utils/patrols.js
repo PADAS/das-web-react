@@ -68,6 +68,7 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
   };
 };
 
+
 export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, default_priority: priority = 0 }, data) => {
   const location = data && data.location;
   const reportedById = data && data.reportedById;
@@ -149,6 +150,17 @@ export const displayStartTimeForPatrol = (patrol) => {
     : null;
 };
 
+const actualStartTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { time_range: { start_time } } = firstLeg;
+
+  return start_time
+    ? new Date(start_time)
+    : null;
+};
+
 export const getReportsForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   // this is only grabbibng the first segment for now
@@ -164,6 +176,19 @@ export const displayEndTimeForPatrol = (patrol) => {
   const { scheduled_end, time_range: { end_time } } = firstLeg;
 
   const value = end_time || scheduled_end;
+
+  return value
+    ? new Date(value)
+    : null;
+};
+
+const actualEndTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { time_range: { end_time } } = firstLeg;
+
+  const value = end_time;
 
   return value
     ? new Date(value)
@@ -242,8 +267,8 @@ export const displayDurationForPatrol = (patrol) => {
   const now = new Date();
   const nowTime = now.getTime();
 
-  const displayStartTime = displayStartTimeForPatrol(patrol);
-  const displayEndTime = displayEndTimeForPatrol(patrol);
+  const displayStartTime = actualStartTimeForPatrol(patrol);
+  const displayEndTime = actualEndTimeForPatrol(patrol);
 
   const hasStarted = !!displayStartTime
     && (displayStartTime.getTime() < nowTime);
