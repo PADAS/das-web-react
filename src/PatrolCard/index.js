@@ -136,6 +136,12 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     setPatrolState(calcPatrolCardState(patrol));
   }, [patrol]);
 
+  useEffect(() => {
+    if (!!popoverOpen) {
+      trackEvent('Patrol Card', 'Open patrol card popover');
+    }
+  }, [popoverOpen]);
+
 
   return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} {...rest}>
     {patrolIconId && <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />}

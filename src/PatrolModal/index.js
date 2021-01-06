@@ -21,7 +21,7 @@ import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, 
 import { trackEvent } from '../utils/analytics';
 
 
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_CARD_STATES, REPORT_PRIORITIES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -246,7 +246,9 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onPrioritySelect = useCallback((priority) => {
-    trackEvent('Patrol Modal', 'Set patrol priority');
+    const valueTitle = REPORT_PRIORITIES.find(item => item.value === priority).display;
+    
+    trackEvent('Patrol Modal', 'Set patrol priority', valueTitle);
     
     setStatePatrol({
       ...statePatrol,

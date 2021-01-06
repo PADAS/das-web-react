@@ -74,7 +74,7 @@ const EditableItemHeader = (props) => {
 
   const onHistoryClick = () => {
     setHistoryPopoverState(!historyPopoverOpen);
-    !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${historyPopoverOpen?'Close':'Open'} Report History${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
+    !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${historyPopoverOpen?'Close':'Open'} History${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
 
   const HistoryLink = data.updates && <Fragment>

@@ -9,6 +9,8 @@ import PatrolListTitle from './Title';
 import { openModalForPatrol, sortPatrolCards } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
+import { trackEvent } from '../utils/analytics';
+
 import styles from './styles.module.scss';
 import PatrolCard from '../PatrolCard';
 
@@ -16,6 +18,7 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
   const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
+    trackEvent('Patrol Card', 'Click patrol card to open patrol modal');
     openModalForPatrol(patrol, map);
   }, [map, patrol]);
 
