@@ -8,7 +8,7 @@ import { getActivePatrolsForLeaderId } from './patrols';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
-const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
+export const RECENT_RADIO_DECAY_THRESHOLD = (30 * 60); // 30 minutes
 
 export const subjectIsARadio = subject => RADIO_SUBTYPES.includes(subject.subject_subtype);
 export const subjectIsAFixedPositionRadio = subject => STATIONARY_RADIO_SUBTYPES.includes(subject.subject_subtype);
@@ -35,14 +35,16 @@ const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   return -1;
 };
 
+export const radioHasRecentActivity = (radio) => {
+  const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(radio);
+
+  return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
+};
+
 export const calcRecentRadiosFromSubjects = (...subjects) => {
   const recentRadios = subjects
     .filter(subjectIsARadio)
-    .filter((subject) => {
-      const elapsedSeconds = calcElapsedTimeSinceSubjectRadioActivity(subject);
-
-      return (elapsedSeconds >= 0) && (elapsedSeconds < RECENT_RADIO_DECAY_THRESHOLD);
-    })
+    .filter(radioHasRecentActivity)
     .sort((a, b) => calcElapsedTimeSinceSubjectRadioActivity(a) - calcElapsedTimeSinceSubjectRadioActivity(b));
 
   return recentRadios;
