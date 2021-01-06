@@ -18,7 +18,7 @@ import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, 
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
-  import { trackEvent } from '../utils/analytics';
+import { trackEvent } from '../utils/analytics';
 
 
 import { PATROL_CARD_STATES } from '../constants';
@@ -476,9 +476,10 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  const afterMenuToggle = useCallback((isOpen) =>{
-    trackEvent('Patrol Modal', `${isOpen ? 'Open' : 'Close'} patrol modal hamburger menu`);
-  }, []);
+  const onReportListItemClick = useCallback((item) => {
+    trackEvent('Patrol Modal', `Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
+    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
+  }, [map, onAddReport]);
 
   return <EditableItem data={patrolWithFlattenedHistory}>
     <Modal>
@@ -533,8 +534,7 @@ const PatrolModal = (props) => {
                   map={map}
                   report={item}
                   key={`${item.id}-${index}`}
-                  onTitleClick={() => openModalForReport(item, map)}
-                  onIconClick={() => openModalForReport(item, map)} />
+                  onTitleClick={onReportListItemClick} />
               )}
             </ul>
           </li>
