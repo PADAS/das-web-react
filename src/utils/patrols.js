@@ -368,7 +368,9 @@ export const isSegmentFinished = (patrolSegment) => {
 
 export const isSegmentEndScheduled = (patrolSegment) => {
   const { time_range: { end_time }, scheduled_end } = patrolSegment;
-  return !end_time && !!scheduled_end;
+  const time = end_time || scheduled_end;
+
+  return !!time && normalizeDate(time).getTime() > new Date().getTime();
 };
 
 
