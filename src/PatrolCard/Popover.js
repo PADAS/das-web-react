@@ -16,7 +16,7 @@ import { trackEvent } from '../utils/analytics';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol,calcPatrolCardState, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
@@ -26,7 +26,7 @@ import { PATROL_CARD_STATES } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, map, onHide, onPatrolChange, patrolData, patrolTrackState, subjectTrackState,
+  const { container, isOpen, map, onHide, onPatrolChange, patrolData, patrolState, patrolTrackState, subjectTrackState,
     target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
   const { leader, patrol } = patrolData;
@@ -41,8 +41,6 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const subjectLastPosition = useMemo(() => leader && leader.last_position, [leader]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
-
-  const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
 
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
