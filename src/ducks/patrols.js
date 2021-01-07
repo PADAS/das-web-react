@@ -45,6 +45,11 @@ export const socketUpdatePatrol = (payload) => (dispatch) => {
       type: UPDATE_PATROL_REALTIME,
       payload: patrol_data,
     });
+  } else {
+    dispatch({
+      type: REMOVE_PATROL_BY_ID,
+      payload: patrol_data.id,
+    });
   }
 };
 
@@ -57,6 +62,11 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
     dispatch({
       type: CREATE_PATROL_REALTIME,
       payload: patrol_data,
+    });
+  } else {
+    dispatch({
+      type: REMOVE_PATROL_BY_ID,
+      payload: patrol_data.id,
     });
   }
 };
