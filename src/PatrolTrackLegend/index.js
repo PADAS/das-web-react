@@ -8,10 +8,9 @@ import Button from 'react-bootstrap/Button';
 import MapLegend from '../MapLegend';
 import DasIcon from '../DasIcon';
 
-import { displayTitleForPatrol, getLeaderForPatrol, iconTypeForPatrol } from '../utils/patrols';
-import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { patrolTrackData } from '../selectors/patrols';
+import { visibleTrackedPatrolData } from '../selectors/patrols';
 
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
@@ -19,32 +18,28 @@ import styles from '../TrackLegend/styles.module.scss';
 
 
 const TitleElement = memo((props) => { // eslint-disable-line
-  const { coverageLength, displayTitle, iconId, patrolData, subjectStore, patrolFilter, onRemovePatrolClick } = props;
+  const { coverageLength, displayTitle, iconId, patrolData, onRemovePatrolClick } = props;
 
-  const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData }) => {
+  const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData, leader }) => {
     const title = displayTitleForPatrol(
       patrol,
-      getLeaderForPatrol(patrol, subjectStore)
+      leader,
     );
     
     const iconId = iconTypeForPatrol(patrol);
     const { id } = patrol;
 
-    const { filter: { date_range } } = patrolFilter;
-
-    const trimmed = trimTrackDataToTimeRange(trackData, date_range.lower, date_range.upper);
-
-    const trackLength = `${length(trimmed.track).toFixed(2)}km`;
+    const trackLength = `${trackData ? length(trackData.track).toFixed(2): 0.00}km`;
 
     return <li key={id}>
       <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
       <div className={styles.listItemDetails}>
         <span>{title}</span>
-        <small>{trackLength} coverage today</small>
+        <small>{trackLength} coverage</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemovePatrolClick}>remove</Button>
     </li>;
-  }, [onRemovePatrolClick, patrolFilter, subjectStore]);
+  }, [onRemovePatrolClick]);
 
   return <div className={styles.titleWrapper}>
     {iconId && <DasIcon type='events' iconId={iconId} className={styles.svgIcon} />}
@@ -63,14 +58,14 @@ const TitleElement = memo((props) => { // eslint-disable-line
           </button>
         </OverlayTrigger>}
       </h6>
-      <span>{coverageLength} coverage today</span>
+      <span>{coverageLength} coverage</span>
     </div>
   </div>;
 });
 
 
 const PatrolTrackLegend = (props) => {
-  const { dispatch:_dispatch, patrolData, patrolFilter, updateTrackState, subjectStore, trackState, ...rest } = props;
+  const { dispatch:_dispatch, patrolData, updateTrackState, trackState, ...rest } = props;
 
   const hasData = !!patrolData.length;
   const isMulti = patrolData.length > 1;
@@ -79,11 +74,11 @@ const PatrolTrackLegend = (props) => {
     if (!hasData) return null;
     if (!isMulti) return `Patrol: ${displayTitleForPatrol(
       patrolData[0].patrol,
-      getLeaderForPatrol(patrolData[0].patrol, subjectStore)
+      patrolData[0].leader,
     )}`;
 
     return `${patrolData.length} patrols`;
-  }, [hasData, isMulti, patrolData, subjectStore]);
+  }, [hasData, isMulti, patrolData]);
 
   const iconId = useMemo(() => {
     if (isMulti || !hasData) return null;
@@ -92,14 +87,14 @@ const PatrolTrackLegend = (props) => {
   }, [hasData, isMulti, patrolData]);
 
   const coverageLength = useMemo(() => {
-    const { filter: { date_range } } = patrolFilter;
+    if (!hasData) return '0km';
+    
     return `${patrolData
       .reduce((accumulator, { trackData }) => {
-        const trimmed = trimTrackDataToTimeRange(trackData,  date_range.lower, date_range.upper);
-        
-        return accumulator + parseFloat(length(trimmed.track));
+        if (!trackData) return accumulator;
+        return accumulator + parseFloat(length(trackData.track));
       }, 0).toFixed(2)}km`;
-  }, [patrolData, patrolFilter]);
+  }, [hasData, patrolData]);
 
   const onRemovePatrolClick = useCallback(({ target: { value: id } }) => {
     updateTrackState({
@@ -111,16 +106,14 @@ const PatrolTrackLegend = (props) => {
   return hasData ? <MapLegend
     {...rest}
     titleElement={
-      <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData} subjectStore={subjectStore} patrolFilter={patrolFilter}
+      <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData}
         onRemovePatrolClick={onRemovePatrolClick} coverageLength={coverageLength} />
     } /> : null;
 };
 
 const mapStateToProps = (state) => ({
   trackState: state.view.patrolTrackState,
-  patrolData: patrolTrackData(state),
-  subjectStore: state.data.subjectStore,
-  patrolFilter: state.data.patrolFilter,
+  patrolData: visibleTrackedPatrolData(state),
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { ReactMapboxGlSpiderifier } from 'react-mapbox-gl-spiderifier';
-import isEqual from 'lodash/isEqual';
+import isEqual from 'react-fast-compare';
 
 import SpideredReportMarker from '../SpideredReportMarker';
 

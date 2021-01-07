@@ -10,69 +10,64 @@ import styles from './styles.module.scss';
 
 
 const FeedDateFilter = (props) => {
-  const { children, defaultRange, nullUpperOverride = null, filterData, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
+  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
 
-  const { filter: { date_range } } = filterData;
 
-  const { lower, upper } = date_range;
+  const { lower, upper } = dateRange;
 
   const hasLower = !isNil(lower);
   const hasUpper = !isNil(upper);
 
-  const isAtDefault = useMemo(() => !!defaultRange && isEqual(defaultRange, filterData.filter.date_range), [defaultRange, filterData.filter.date_range]);
+  const isAtDefault = useMemo(() => !!defaultRange && isEqual(defaultRange, dateRange), [defaultRange, dateRange]);
 
   const onClickDateRangePreset = useCallback(({ lower, upper }, label) => {
-    updateFilter({
-      filter: {
-        date_range: {
-          lower,
-          upper: upper === null ? nullUpperOverride : upper,
-        },
-      },
-    });
+    const dateRangeUpdate = {
+      lower,
+      upper: upper === null ? nullUpperOverride : upper,
+    };
+    
+    updateFilter(dateRangeUpdate);
     afterClickPreset && afterClickPreset(label);
   }, [afterClickPreset, nullUpperOverride, updateFilter]);
 
   const onEndDateChange = useCallback((val) => {
     const dateRangeUpdate = {
-      ...filterData.filter.date_range,
+      ...dateRange,
       upper: dateIsValid(val)
         ? val.toISOString()
         : val === null 
           ? nullUpperOverride 
           : val,
     };
-    updateFilter({
-      filter: {
-        date_range: dateRangeUpdate,
-      },
-    });
+    updateFilter(dateRangeUpdate);
     afterEndChange && afterEndChange(dateRangeUpdate);
-  }, [filterData.filter.date_range, nullUpperOverride, updateFilter, afterEndChange]);
+  }, [dateRange, nullUpperOverride, updateFilter, afterEndChange]);
 
 
   const onStartDateChange = useCallback((val) => {
     const dateRangeUpdate = {
-      ...filterData.filter.date_range,
+      ...dateRange,
       lower: dateIsValid(val) ? val.toISOString() : null,
     };
-    updateFilter({
-      filter: {
-        date_range: dateRangeUpdate,
-      },
-    });
+    updateFilter(dateRangeUpdate);
     afterStartChange && afterStartChange(dateRangeUpdate);
-  }, [filterData.filter.date_range, afterStartChange, updateFilter]);
+  }, [afterStartChange, dateRange, updateFilter]);
 
   const startDateNullMessage = useMemo(() => hasLower ? `${distanceInWordsToNow(new Date(lower))} ago` : null, [hasLower, lower]);
   const endDateNullMessage = 'Now';
+
+  const endDate = hasUpper ?
+    new Date(upper)
+    : nullUpperOverride
+      ? new Date(nullUpperOverride)
+      : upper;
 
   return <DateRangeSelector
     className={styles.dateSelect}
     popoverClassName={popoverClassName || ''}
     isAtDefault={isAtDefault}
     placement={props.placement || 'auto'}
-    endDate={hasUpper ? new Date(upper) : upper}
+    endDate={endDate}
     endDateNullMessage={endDateNullMessage}
     onClickDateRangePreset={onClickDateRangePreset}
     onEndDateChange={onEndDateChange}

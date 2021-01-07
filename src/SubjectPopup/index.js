@@ -54,7 +54,12 @@ const SubjectPopup = (props) => {
           {/* @TODO FIX ME TO USE THE RIGHT DATA */}
           <TrackLength className={styles.trackLength} trackId={properties.id} />
           <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
-          <AddReport className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
+          <AddReport 
+            analyticsMetadata={{
+              category: 'Map Interaction',
+              location: 'subject popover',
+            }}
+            className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
         </Fragment>
       )}
     </Popup>

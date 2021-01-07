@@ -6,10 +6,10 @@ import Overlay from 'react-bootstrap/Overlay';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
+import CustomPropTypes from '../proptypes';
 import { useFeatureFlag } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
-import { getPatrolList } from '../selectors/patrols';
 import { trackEvent } from '../utils/analytics';
 import { openModalForPatrol, generatePseudoReportCategoryForPatrolTypes, createNewPatrolForPatrolType } from '../utils/patrols';
 
@@ -20,7 +20,7 @@ import { FEATURE_FLAGS } from '../constants';
 import styles from './styles.module.scss';
 
 const AddReport = (props) => {
-  const { className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, isPatrolReport, reportData, eventsByCategory, map, popoverPlacement,
+  const { analyticsMetadata, className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, isPatrolReport, reportData, eventsByCategory, map, popoverPlacement,
     showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
 
   const [selectedCategory, selectCategory] = useState(null);
@@ -61,8 +61,8 @@ const AddReport = (props) => {
       clickSideEffect(e);
     }
     setPopoverState(!popoverOpen);
-    trackEvent('Feed', 'Click \'Add Report\' button');
-  }, [clickSideEffect, popoverOpen]);
+    trackEvent(analyticsMetadata.category, `Click 'Add Report' button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
+  }, [analyticsMetadata.category, analyticsMetadata.location, clickSideEffect, popoverOpen]);
 
   const handleKeyDown = useCallback((event) => {
     const { key } = event;
@@ -96,7 +96,7 @@ const AddReport = (props) => {
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startEditNewReport = (reportType) => {
-    trackEvent('Feed', `Click Add '${reportType.display}' Report button`);
+    trackEvent(analyticsMetadata.category, `Click Add '${reportType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
 
     /* PATROL_SCAFFOLD */
     if (patrolsEnabled) {
@@ -118,7 +118,7 @@ const AddReport = (props) => {
 
   const onCategoryClick = (category) => {
     selectCategory(category);
-    trackEvent('Feed', `Click '${category}' Category option`);
+    trackEvent(analyticsMetadata.category, `Click '${category}' Category option${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
   };
 
 
@@ -176,11 +176,14 @@ const AddReport = (props) => {
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
   patrolTypes: state.data.patrolTypes,
-  patrols: getPatrolList(state),
 });
 export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
+  analyticsMetadata: {
+    category: 'Feed',
+    location: null,
+  },
   relationshipButtonDisabled: false,
   showIcon: true,
   showLabel: true,
@@ -195,6 +198,7 @@ AddReport.defaultProps = {
 };
 
 AddReport.propTypes = {
+  analyticsMetaData: CustomPropTypes.analyticsMetadata,
   relationshipButtonDisabled: PropTypes.bool,
   hidePatrols: PropTypes.bool,
   map: PropTypes.object.isRequired,

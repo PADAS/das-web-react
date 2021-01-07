@@ -9,6 +9,7 @@ import debounce from 'lodash/debounce';
 // import uniq from 'lodash/uniq';
 
 import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
 
@@ -43,7 +44,7 @@ import styles from '../EventFilter/styles.module.scss';
 ]; */
 
 const PatrolFilter = (props) => {
-  const { children, className, patrolFilter, /* reporters, */ updatePatrolFilter } = props;
+  const { children, className, patrolFilter, /* reporters, */ resetGlobalDateRange, updatePatrolFilter } = props;
   const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text } } = patrolFilter;
 
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
@@ -109,15 +110,11 @@ const PatrolFilter = (props) => {
 
   const clearDateRange = useCallback((e) => {
     e.stopPropagation();
-    updatePatrolFilter({
-      filter: {
-        date_range: INITIAL_FILTER_STATE.filter.date_range,
-      },
-    });
+    resetGlobalDateRange();
     trackEvent('Patrol Filter', 'Click Reset Date Range Filter');
-  }, [updatePatrolFilter]);
-  /* 
-  const resetStateFilter = useCallback((e) => {
+  }, [resetGlobalDateRange]);
+
+  /* const resetStateFilter = useCallback((e) => {
     e.stopPropagation();
     updatePatrolFilter({ status: INITIAL_FILTER_STATE.status });
     trackEvent('Patrol Filter', 'Click Reset State Filter');
@@ -140,7 +137,7 @@ const PatrolFilter = (props) => {
   </ul>; */
 
   const onDateFilterIconClicked = useCallback((e) => {
-    trackEvent('Reports', 'Dates Icon Clicked');
+    trackEvent('Patrol Filter', 'Date Filter Popover Toggled');
   }, []);
 
   /*   const onPatrolFilterIconClicked = useCallback((e) => {
@@ -181,7 +178,7 @@ const PatrolFilter = (props) => {
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
-        <ClockIcon />Patrol Date Range
+        <ClockIcon />Date Range
         <Button type="button" variant='light' size='sm'
           onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
       </div>
@@ -223,8 +220,8 @@ const PatrolFilter = (props) => {
         </span>
       </OverlayTrigger> */}
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
-          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
+        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`} onClick={onDateFilterIconClicked}>
+          <ClockIcon className={styles.clockIcon} />
           <span>Dates</span>
         </span>
       </OverlayTrigger>
@@ -243,4 +240,4 @@ const mapStateToProps = (state) =>
     // reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));
+export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter })(memo(PatrolFilter));

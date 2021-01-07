@@ -6,9 +6,11 @@ import format from 'date-fns/format';
 import { PATROL_CARD_STATES } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
+import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import booleanEqual from '@turf/boolean-equal';
-import { point, multiLineString } from '@turf/helpers';
+import bbox from '@turf/bbox';
+import { featureCollection, point, multiLineString } from '@turf/helpers';
 import { default as TimeAgo } from 'react-timeago';
 
 import { store } from '../';
@@ -65,6 +67,7 @@ export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
     })),
   };
 };
+
 
 export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, default_priority: priority = 0 }, data) => {
   const location = data && data.location;
@@ -147,6 +150,17 @@ export const displayStartTimeForPatrol = (patrol) => {
     : null;
 };
 
+const actualStartTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { time_range: { start_time } } = firstLeg;
+
+  return start_time
+    ? new Date(start_time)
+    : null;
+};
+
 export const getReportsForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   // this is only grabbibng the first segment for now
@@ -162,6 +176,19 @@ export const displayEndTimeForPatrol = (patrol) => {
   const { scheduled_end, time_range: { end_time } } = firstLeg;
 
   const value = end_time || scheduled_end;
+
+  return value
+    ? new Date(value)
+    : null;
+};
+
+const actualEndTimeForPatrol = (patrol) => {
+  if (!patrol.patrol_segments.length) return null;
+  const [firstLeg] = patrol.patrol_segments;
+
+  const { time_range: { end_time } } = firstLeg;
+
+  const value = end_time;
 
   return value
     ? new Date(value)
@@ -240,8 +267,8 @@ export const displayDurationForPatrol = (patrol) => {
   const now = new Date();
   const nowTime = now.getTime();
 
-  const displayStartTime = displayStartTimeForPatrol(patrol);
-  const displayEndTime = displayEndTimeForPatrol(patrol);
+  const displayStartTime = actualStartTimeForPatrol(patrol);
+  const displayEndTime = actualEndTimeForPatrol(patrol);
 
   const hasStarted = !!displayStartTime
     && (displayStartTime.getTime() < nowTime);
@@ -437,7 +464,7 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   return objectToParamString(filterParams);  
 };
 
-export const sortPatrolCards = (patrols, subjectStore) => {
+export const sortPatrolCards = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
   
   const sortFunc = (patrol) => {
@@ -451,34 +478,41 @@ export const sortPatrolCards = (patrols, subjectStore) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = patrol => displayTitleForPatrol(patrol, getLeaderForPatrol(patrol, subjectStore)).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol.leader).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
 
-export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke) => {
+export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, time) => {
 
   const properties = {
     stroke,
     image: `${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
     name: label,
     title: label,
+    time: time,
   };
 
   return point(coordinates, properties);
 };
 
 
-export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
+export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }) => {
   const { patrol_segments: [firstLeg] } = patrol;
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
-  const { features } = trackData.points;
+  const hasFeatures = !!trackData && !!trackData.points && !!trackData.points.features.length;
 
-  if (!features.length) return null;
+  const features = hasFeatures && trackData.points.features;
 
   const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE.title;
-  const stroke = features[0].properties.stroke || DEFAULT_STROKE;
+  const stroke = hasFeatures
+    ? features[0].properties.stroke
+    : (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`);
+  
+  const pointColor = stroke || DEFAULT_STROKE;
+
+  
 
   let patrol_points = {
     start_location: null,
@@ -489,28 +523,28 @@ export const extractPatrolPointsFromTrackData = ({ patrol, trackData }) => {
   const startTime = normalizeDate(start_time);
 
   if (start_location) {
-    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke);
+    patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, pointColor, start_time);
 
-  } else {
+  } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
     const firstTrackPointMatchesStartTime = normalizeDate(firstTrackPoint.properties.time) === startTime;
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
-    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
+    patrol_points.start_location = makePatrolPointFromFeature(`Patrol Start${firstTrackPointMatchesStartTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, pointColor, firstTrackPoint.properties.time);
   }
 
   if (!isPatrolActive) {
     if (end_location) {
-      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, stroke);
+      patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, pointColor, end_time);
 
-    } else {
+    } else if (hasFeatures) {
       const lastTrackPoint = features[0];
       const lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 
-      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, stroke);
+      patrol_points.end_location = makePatrolPointFromFeature(`Patrol End${lastTrackPointMatchesEndTime ? '' : ' (Est)'}`, [longitude, latitude], icon_id, pointColor, lastTrackPoint.properties.time);
     }
   }
 
@@ -580,3 +614,29 @@ export const patrolTimeRangeIsValid = (patrol) => {
   return false;
   
 };
+
+export const getBoundsForPatrol = ((patrolData) => {
+  const { leader, trackData, patrol } = patrolData;
+  
+  const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
+  if (!hasSegments) return null;
+
+  const [firstLeg] = patrol.patrol_segments;
+  
+  const hasEvents = !!firstLeg.events && !!firstLeg.events.length;
+  const hasLeaderPosition = !!leader && !!leader.last_position;
+
+  const patrolEvents = hasEvents && firstLeg.events.map(({ geojson }) => geojson);
+  const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
+  const patrolTrack = !!trackData && trackData.track;
+
+  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features)
+    .filter(item => !!item);
+
+  
+  if (!collectionData.length) return null;
+
+  return bbox(
+    featureCollection(collectionData),
+  );
+});

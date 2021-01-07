@@ -2,17 +2,17 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
-import { getLeaderForPatrol } from '../utils/patrols';
 import { togglePatrolTrackState } from '../ducks/patrols';
 import { toggleTrackState } from '../ducks/map-ui';
 
+import { trackEvent } from '../utils/analytics';
+
 import TrackToggleButton from './';
 
-
 const PatrolAwareTrackToggleButton = (props) => {
-  const { dispatch:_dispatch, patrol, subjectStore, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
+  const { dispatch:_dispatch, patrolData, subjectStore, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
 
-  const leader = useMemo(() => getLeaderForPatrol(patrol, subjectStore), [patrol, subjectStore]);
+  const { patrol, leader } = patrolData;
 
   const patrolTrackPinned = useMemo(() => patrolTrackState.pinned.includes(patrol.id), [patrol.id, patrolTrackState.pinned]);
   const patrolTrackVisible = useMemo(() => !patrolTrackPinned && patrolTrackState.visible.includes(patrol.id), [patrol.id, patrolTrackPinned, patrolTrackState.visible]);
@@ -27,18 +27,27 @@ const PatrolAwareTrackToggleButton = (props) => {
   const subjectToggleStates = useMemo(() => [subjectTrackPinned, subjectTrackVisible, subjectTrackHidden], [subjectTrackHidden, subjectTrackPinned, subjectTrackVisible]);
 
   const onTrackButtonClick = useCallback(() => {
+    const nextPatrolTrackStateIfToggled = patrolTrackPinned
+      ? 'hidden'
+      : patrolTrackHidden
+        ? 'visible'
+        : 'pinned';
+    
     if (!leader) return;
     if (isEqual(patrolToggleStates, subjectToggleStates)) {
       toggleTrackState(leader.id);
       togglePatrolTrackState(patrol.id);
+      trackEvent('Patrol Card', `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`);
       return;
     }
     if (!patrolTrackHidden && subjectTrackHidden) {
       togglePatrolTrackState(patrol.id);
+      trackEvent('Patrol Card', `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`);
       return;
     }
     if (subjectTrackPinned && patrolTrackVisible) {
       togglePatrolTrackState(patrol.id);
+      trackEvent('Patrol Card', `Toggle patrol track state to ${nextPatrolTrackStateIfToggled} from patrol card popover`);
     }
     if (patrolTrackPinned && subjectTrackVisible) {
       toggleTrackState(leader.id);
