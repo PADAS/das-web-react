@@ -115,8 +115,3 @@ AttachmentControls.propTypes = {
   onAddFiles: PropTypes.func.isRequired,
   onSaveNote: PropTypes.func.isRequired,
 };
-
-/* analyticsMetadata: {
-    category: 'Feed',
-    location: null,
-  } */
