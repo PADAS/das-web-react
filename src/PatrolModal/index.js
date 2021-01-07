@@ -92,11 +92,7 @@ const PatrolModal = (props) => {
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
-    const reportIds = allPatrolReports?.reduce((accumulator, { id }) =>
-    id ? [...accumulator, id] 
-      : accumulator, []
-    );
-    return reportIds || [];
+    return (allPatrolReports || []).map(({ id }) => id)
   }, [allPatrolReports]);
 
   const displayTrackingSubject = useMemo(() => {
