@@ -11,11 +11,11 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { addSegmentToEvent } from '../utils/events';
+import { addSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 
@@ -78,9 +78,13 @@ const PatrolModal = (props) => {
   }, [patrol]);
 
   const allPatrolReports = useMemo(() => {
-    // don't show the contained reports
+    // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
-    const topLevelReports = allReports.filter(report => !report.is_contained_in?.length);
+    const incidents = allReports.filter(report => report.is_collection);
+    const idsArray = incidents.map( (incident) => getEventIdsForCollection(incident));
+    const incidentIds = idsArray.flat(2).filter(item => item !== undefined);
+    const topLevelReports = allReports.filter(report => 
+      !report.is_contained_in?.length && !incidentIds.includes(report.id));
     return topLevelReports;
   }, [addedReports, patrolReports]);
 
@@ -259,10 +263,8 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
-    // dedupe collections
-    if(!allPatrolReportIds.includes(data.id)) {
-      setAddedReports([...addedReports, data]);
-    }
+    setAddedReports([...addedReports, data]);
+
   }, [addedReports]);
   
   const onSaveNote = useCallback((noteToSave) => {
