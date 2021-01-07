@@ -143,7 +143,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   }, [popoverOpen]);
 
 
-  return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} key={`${props.key}-${patrolState}`} {...rest}>
+  return <li ref={cardRef} className={`${styles.patrolListItem} ${styles[patrolStatusStyle]}`} {...rest}>
     {patrolIconId && <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />}
     <div className={styles.header}>
       <h3 onClick={onTitleClick} title={hoverTitle}>{displayTitle}</h3>
@@ -183,7 +183,7 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps, null)(PatrolCard);
+export default connect(makeMapStateToProps, null)(memo(PatrolCard));
 
 PatrolCard.propTypes = {
   patrol: PropTypes.object.isRequired,
