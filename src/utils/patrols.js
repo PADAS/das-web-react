@@ -471,10 +471,11 @@ export const sortPatrolCards = (patrols) => {
     const cardState = calcPatrolCardState(patrol);
 
     if (cardState === START_OVERDUE) return 1;
-    if (cardState === READY_TO_START || cardState === SCHEDULED) return 2;
+    if (cardState === READY_TO_START) return 2;
     if (cardState === ACTIVE) return 3;
-    if (cardState === DONE) return 4;
-    if (cardState === CANCELLED) return 5;
+    if (cardState === SCHEDULED) return 4;
+    if (cardState === DONE) return 5;
+    if (cardState === CANCELLED) return 6;
     return 6;
   };
 
