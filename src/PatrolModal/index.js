@@ -67,8 +67,6 @@ const PatrolModal = (props) => {
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReportIds= useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
-
   const patrolReports= useMemo(() => {
     const currReports = getReportsForPatrol(patrol);
     const syncedReports = currReports.map( (report) => {
@@ -81,7 +79,16 @@ const PatrolModal = (props) => {
     return syncedReports;
   }, [eventStore, patrol]);
 
-  const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
+  const allPatrolReports = useMemo(() => {
+    // don't show the contained reports
+    const allReports = [...addedReports, ...patrolReports];
+    const topLevelReports = allReports.filter(report => !report.is_contained_in?.length);
+    return topLevelReports;
+  }, [addedReports, patrolReports]);
+
+  const allPatrolReportIds = useMemo(() => {
+    return (allPatrolReports || []).map(({ id }) => id);
+  }, [allPatrolReports]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -269,7 +276,10 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
-    setAddedReports([...addedReports, data]);
+    // dedupe collections
+    if(!allPatrolReportIds.includes(data.id)) {
+      setAddedReports([...addedReports, data]);
+    }
   }, [addedReports]);
   
   const onSaveNote = useCallback((noteToSave) => {
@@ -290,7 +300,7 @@ const PatrolModal = (props) => {
         });
         
       } else {
-        setStatePatrol({
+        setStatePatrol({ 
           ...statePatrol,
           notes: [
             ...statePatrol.notes,
