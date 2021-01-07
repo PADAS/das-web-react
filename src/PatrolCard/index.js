@@ -65,7 +65,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     }
   }, [patrolIsCancelled, popoverOpen]);
 
-  const patrolElapsedTime = useMemo(() => displayDurationForPatrol(patrol), [patrol]);
+  const patrolElapsedTime = useMemo(() => !!patrolState && displayDurationForPatrol(patrol), [patrol, patrolState]);
 
   const scheduledStartTime = useMemo(() => {
     return patrolStateDetailsStartTime(patrol);
@@ -167,7 +167,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
         location: 'patrol card popover',
       }}
       showLabel={false} />
-    <Popover isOpen={popoverOpen} container={cardRef}
+    <Popover isOpen={popoverOpen} container={cardRef} patrolState={patrolState}
       target={stateTitleRef} ref={popoverRef} onHide={onPopoverHide}
       onPatrolChange={onPatrolChangeFromPopover} patrolData={patrolData} />
   </li>;
