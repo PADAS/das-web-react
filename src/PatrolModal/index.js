@@ -83,8 +83,9 @@ const PatrolModal = (props) => {
     // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
     const incidents = allReports.filter(report => report.is_collection);
-    const idsArray = incidents.map( (incident) => getEventIdsForCollection(incident));
-    const incidentIds = idsArray.flat(2).filter(item => item !== undefined);
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[])
+    // const idsArray = incidents.map( (incident) => getEventIdsForCollection(incident));
+    // const incidentIds = idsArray.flat(2).filter(item => item !== undefined);
     const topLevelReports = allReports.filter(report => 
       !report.is_contained_in?.length && !incidentIds.includes(report.id));
     return topLevelReports;
