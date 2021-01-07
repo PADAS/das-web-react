@@ -81,12 +81,12 @@ const PatrolModal = (props) => {
 
   const allPatrolReports = useMemo(() => {
     // don't show the contained reports
-    const allReports = [... new Set([...addedReports, ...patrolReports])];
+    const allReports = [...addedReports, ...patrolReports];
     const topLevelReports = allReports.filter(report => !report.is_contained_in?.length);
     return topLevelReports;
   }, [addedReports, patrolReports]);
 
-  const allPatrolReportIds= useMemo(() => {
+  const allPatrolReportIds = useMemo(() => {
     const reportIds = allPatrolReports?.reduce((accumulator, { id }) =>
     id ? [...accumulator, id] 
       : accumulator, []
@@ -281,7 +281,7 @@ const PatrolModal = (props) => {
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
     // dedupe collections
-    if(data?.id && !allPatrolReportIds.includes(data.id)) {
+    if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
   }, [addedReports]);
