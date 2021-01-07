@@ -25,7 +25,10 @@ export default class TimepointPopup extends PureComponent {
         {properties.time && <DateTime date={properties.time} />}
         <GpsFormatToggle lng={locationObject.longitude} lat={locationObject.latitude} />
         <hr />
-        <AddReport reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
+        <AddReport  analyticsMetadata={{
+          category: 'Map Interaction',
+          location: 'track timepoint',
+        }} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
       </Popup>
     );
   }

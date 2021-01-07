@@ -249,12 +249,17 @@ const PointPopup = (props) => {
           <strong>Distance from start:</strong> {distanceFromStart}
         </p>
       </Fragment>}
-      <AddReport reportData={{
-        location: {
-          latitude: point[1],
-          longitude: point[0],
-        }
-      }} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
+      <AddReport 
+        analyticsMetadata={{
+          category: 'Map Interaction',
+          location: 'map ruler popup',
+        }}
+        reportData={{
+          location: {
+            latitude: point[1],
+            longitude: point[0],
+          }
+        }} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
     </Fragment>}
     {
       drawing && <p onClick={onClickFinish} className={styles.finishButton}>

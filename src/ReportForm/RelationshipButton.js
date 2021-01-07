@@ -10,7 +10,12 @@ const RelationshipButton = (props) => {
   const { relationshipButtonDisabled, hidePatrols, onNewReportSaved, isCollectionChild, onGoToCollection, map } = props;
 
   return !relationshipButtonDisabled && <Fragment>
-    {!isCollectionChild && <AddReport map={map} hidePatrols={hidePatrols} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
+    {!isCollectionChild && <AddReport 
+      analyticsMetadata={{
+        category: 'Report Modal',
+        location: 'report modal',
+      }}
+      map={map} hidePatrols={hidePatrols} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
     {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
 
   </Fragment>;
