@@ -70,7 +70,7 @@ const AttachmentControls = (props) => {
   };
 
   const startAddNote = () => {
-    hasAnalytics && trackEvent(`${analyticsMetadata.category}`, `lick 'Add Note' button${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
+    hasAnalytics && trackEvent(`${analyticsMetadata.category}`, `Click 'Add Note' button${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
     addModal({
       content: NoteModal,
       note: {
