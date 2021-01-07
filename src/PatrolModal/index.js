@@ -279,8 +279,10 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
-    setAddedReports([...addedReports, data]);
-
+    // dedupe collections
+    if(!allPatrolReportIds.includes(data.id)) {
+      setAddedReports([...addedReports, data]);
+    }
   }, [addedReports]);
   
   const onSaveNote = useCallback((noteToSave) => {
