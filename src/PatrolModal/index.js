@@ -552,12 +552,8 @@ const PatrolModal = (props) => {
                   map={map}
                   report={item}
                   key={`${item.id}-${index}`}
-<<<<<<< HEAD
                   onTitleClick={() => openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} )}
                   onIconClick={() => openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} )} />
-=======
-                  onTitleClick={onReportListItemClick} />
->>>>>>> b10c763445274bcae4da972c3c107343c4a17500
               )}
             </ul>
           </li>
