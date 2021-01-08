@@ -10,8 +10,7 @@ import styles from './styles.module.scss';
 
 
 const FeedDateFilter = (props) => {
-  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, popoverClassName, ...rest } = props;
-
+  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, ...rest } = props;
 
   const { lower, upper } = dateRange;
 
@@ -66,7 +65,7 @@ const FeedDateFilter = (props) => {
     className={styles.dateSelect}
     popoverClassName={popoverClassName || ''}
     isAtDefault={isAtDefault}
-    placement={props.placement || 'auto'}
+    placement={placement || 'auto'}
     endDate={endDate}
     endDateNullMessage={endDateNullMessage}
     onClickDateRangePreset={onClickDateRangePreset}
