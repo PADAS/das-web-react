@@ -11,11 +11,11 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { addSegmentToEvent } from '../utils/events';
+import { addSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { trackEvent } from '../utils/analytics';
@@ -80,9 +80,12 @@ const PatrolModal = (props) => {
   }, [eventStore, patrol]);
 
   const allPatrolReports = useMemo(() => {
-    // don't show the contained reports
+    // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
-    const topLevelReports = allReports.filter(report => !report.is_contained_in?.length);
+    const incidents = allReports.filter(report => report.is_collection);
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[])
+    const topLevelReports = allReports.filter(report => 
+      !report.is_contained_in?.length && !incidentIds.includes(report.id));
     return topLevelReports;
   }, [addedReports, patrolReports]);
 
