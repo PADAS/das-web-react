@@ -11,11 +11,12 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolDateInput = (props) => {
-  const { autoCheckLabel = 'Automatic', onAutoCheckToggle, calcSubmitButtonTitle, children,
+  const { autoCheckLabel = 'Automatic', defaultValue, onAutoCheckToggle, calcSubmitButtonTitle, children,
     isAuto = false, title, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
   const [tempPopoverProps, setTempPopoverProps] = useState({});
+
 
   const onHide = useCallback(() => {
     setStateTime(value);
@@ -71,13 +72,27 @@ const PatrolDateInput = (props) => {
     setStateTime(value);
   }, [value]);
 
+  const onPopoverOpened = useCallback(() => {
+    if (!value && !!defaultValue) {
+      setStateTime(defaultValue);
+    }
+  }, [defaultValue, value]);
+
+  const onPopoverClosed = useCallback(() => {
+    if (!value) {
+      setStateTime(value);
+    }
+  }, [value]);
+
   return <DateTimePickerPopover
     {...DATEPICKER_DEFAULT_CONFIG}
     value={stateTime} 
     className={timeClassName} 
     {...tempPopoverProps} 
     onHide={onHide} 
-    onEnter={commitTimeChange}
+    onEnterKeyPress={commitTimeChange}
+    onPopoverClosed={onPopoverClosed}
+    onPopoverOpened={onPopoverOpened}
     onChange={onTimeChange}
     {...rest}
   >  

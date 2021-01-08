@@ -20,7 +20,7 @@ const DEFAULT_PLACEMENT = 'bottom';
 const BLANK_VALUE = '____-__-__ __:__';
 
 const DateTimePickerPopover = (props, ref) => {
-  const { className = '', popperConfig = {}, inputClassName = '', placeholder = '', onPopoverToggle, minDate, maxDate, onChange, required, value, placement, showClockIcon = false } = props;
+  const { className = '', popperConfig = {}, inputClassName = '', placeholder = '', onPopoverToggle, onPopoverClosed, onPopoverOpened, minDate, maxDate, onChange, required, value, placement, showClockIcon = false } = props;
   const popoverStateIsControlled = props.hasOwnProperty('popoverOpen');
 
   const [popoverOpen, setPopoverState] = useState(popoverStateIsControlled ? props.popoverOpen : false);
@@ -73,15 +73,16 @@ const DateTimePickerPopover = (props, ref) => {
     } else {
       popoverStateIsControlled ? onPopoverToggle(false) : setPopoverState(false);
     }
+    onPopoverClosed && onPopoverClosed();
     props.onHide && props.onHide();
-  }, [props, popoverStateIsControlled, onPopoverToggle]);
+  }, [onPopoverClosed, props, popoverStateIsControlled, onPopoverToggle]);
 
   const handleKeyDown = useCallback((event) => {
     const { key } = event;
     const closingKeys = ['Escape', 'Enter'];
 
     if (key === 'Enter') {
-      props.onEnter && props.onEnter();
+      props.onEnterKeyPress && props.onEnterKeyPress();
     }
 
     if (closingKeys.includes(key) && popoverOpen) {
@@ -173,7 +174,7 @@ const DateTimePickerPopover = (props, ref) => {
     {showClockIcon && <ClockIcon className={styles.clockIcon} />}
     <InputMask type='text' value={inputValue} mask="9999-99-99 99:99" placeholder={placeholder || BLANK_VALUE} onClick={onInputClick} onChange={onInputChange} onBlur={onInputBlur} ref={buttonRef} className={`${styles.input} ${!isValid ? styles.invalid : ''} ${inputClassName}`} />
     {canShowClearButton && <ClearIcon onClick={onClickClearIcon} className={styles.clearIcon} />}
-    <Overlay popperConfig={popperConfig} show={popoverOpen} placement={placement || DEFAULT_PLACEMENT} {...optionalProps} rootClose onHide={hidePopover} target={buttonRef.current} container={containerRef.current}>
+    <Overlay popperConfig={popperConfig} show={popoverOpen} placement={placement || DEFAULT_PLACEMENT} {...optionalProps} rootClose onHide={hidePopover} onEnter={onPopoverOpened} target={buttonRef.current} container={containerRef.current}>
       <DateTimePopover {...props}  />
     </Overlay>
   </div>;
