@@ -212,7 +212,7 @@ export  const fetchTracksIfNecessary = (ids, config) => {
     };
 
     const handleFetch = () => {
-      if (!trackData && !trackFetchState[id]) {
+      if (!trackFetchState[id]) {
         return buildRequest();
       }
 
@@ -236,6 +236,7 @@ export  const fetchTracksIfNecessary = (ids, config) => {
         trackFetchState[id].cancelToken.cancel();
         return buildRequest();
       }
+
 
     };
 
