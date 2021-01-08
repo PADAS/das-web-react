@@ -285,7 +285,7 @@ const PatrolModal = (props) => {
 
         update.patrol_segments[0].start_location = null;
         update.patrol_segments[0].time_range = {
-          start_time: null,
+          start_time: new Date().toISOString(),
         };
       }
     }
@@ -559,7 +559,7 @@ const PatrolModal = (props) => {
         <div>
           <h6>Start</h6>
           <PatrolDateInput
-            value={displayStartTime} 
+            value={displayStartTime}
             calcSubmitButtonTitle={startTimeCommitButtonTitle}
             onChange={onStartTimeChange}
             maxDate={displayEndTime || null}
@@ -606,6 +606,7 @@ const PatrolModal = (props) => {
           <h6>End</h6>
           <PatrolDateInput
             value={displayEndTime} 
+            defaultValue={new Date()}
             calcSubmitButtonTitle={endTimeCommitButtonTitle}
             onChange={onEndTimeChange}
             maxDate={null}
