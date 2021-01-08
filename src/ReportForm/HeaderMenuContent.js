@@ -12,7 +12,7 @@ import { withFormDataContext } from '../EditableItem/context';
 import styles from './styles.module.scss';
 
 const ReportHeaderPopover = (props, ref) => {
-  const { data, onPrioritySelect, onStartAddToIncident, ...rest } = props;
+  const { data, onPrioritySelect, onStartAddToIncident, isPatrolReport, ...rest } = props;
   const eventOrIncidentReport = `${data.is_collection? 'Incident' : 'Event'} Report`;  
 
   const linkToReport = useCallback(() => {
@@ -25,7 +25,7 @@ const ReportHeaderPopover = (props, ref) => {
   }, [data]);
 
   const reportBelongsToCollection = !!data.is_contained_in && !!data.is_contained_in.length;
-  const canAddToIncident = !data.is_collection && !reportBelongsToCollection;
+  const canAddToIncident = !isPatrolReport && !data.is_collection && !reportBelongsToCollection;
   const hasExternalLink = (!!data.external_source && !!data.external_source.url);
 
   return <Popover {...rest} ref={ref} className={styles.headerPopover}> {/* eslint-disable-line react/display-name */}
@@ -53,6 +53,10 @@ const ReportHeaderPopover = (props, ref) => {
 };
 
 export default memo(withFormDataContext(forwardRef(ReportHeaderPopover)));
+
+ReportHeaderPopover.defaultProps = {
+  isPatrolReport: false,
+};
 
 ReportHeaderPopover.propTypes = {
   data: PropTypes.object.isRequired,

@@ -283,6 +283,7 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
       ...points,
       features: trimArrayWithEnvelopeIndices(points.features, indices),
     },
+    indices,
     ...rest,
   };
 

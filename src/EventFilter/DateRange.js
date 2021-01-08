@@ -7,7 +7,7 @@ import { trackEvent } from '../utils/analytics';
 import FeedDateFilter from '../FeedDateFilter';
 
 const EventFilterDateRangeSelector = (props) => {
-  const { eventFilter, updateGlobalDateRange } = props;
+  const { eventFilter, updateGlobalDateRange, placement, popoverClassName } = props;
 
   const { filter: { date_range:dateRange } } = eventFilter;
   
@@ -25,6 +25,8 @@ const EventFilterDateRangeSelector = (props) => {
 
   return <FeedDateFilter 
     dateRange={dateRange}
+    placement={placement}
+    popoverClassName={popoverClassName}
     afterClickPreset={afterClickPreset}
     afterEndChange={afterEndChange}
     afterStartChange={afterStartChange}

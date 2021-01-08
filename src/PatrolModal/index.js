@@ -11,7 +11,7 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { addSegmentToEvent } from '../utils/events';
+import { addSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
@@ -70,9 +70,7 @@ const PatrolModal = (props) => {
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReportIds = useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
-
-  const patrolReports= useMemo(() => {
+  const patrolReports = useMemo(() => {
     const currReports = getReportsForPatrol(patrol);
     const syncedReports = currReports.map( (report) => {
       // if there is no entry for this event, add it to the store
@@ -84,7 +82,19 @@ const PatrolModal = (props) => {
     return syncedReports;
   }, [eventStore, patrol]);
 
-  const allPatrolReports = useMemo(() => [...addedReports, ...patrolReports], [addedReports, patrolReports]);
+  const allPatrolReports = useMemo(() => {
+    // don't show the contained reports, which are also bound to the segment
+    const allReports = [...addedReports, ...patrolReports];
+    const incidents = allReports.filter(report => report.is_collection);
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
+    const topLevelReports = allReports.filter(report => 
+      !report.is_contained_in?.length && !incidentIds.includes(report.id));
+    return topLevelReports;
+  }, [addedReports, patrolReports]);
+
+  const allPatrolReportIds = useMemo(() => {
+    return (allPatrolReports || []).map(({ id }) => id);
+  }, [allPatrolReports]);
 
   const displayTrackingSubject = useMemo(() => {
     if (!statePatrol.patrol_segments.length) return null;
@@ -286,8 +296,11 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
-    setAddedReports([...addedReports, data]);
-  }, [addedReports]);
+    // dedupe collections
+    if(!allPatrolReportIds.includes(data.id)) {
+      setAddedReports([...addedReports, data]);
+    }
+  }, [addedReports, allPatrolReportIds]);
   
   const onSaveNote = useCallback((noteToSave) => {
     
@@ -307,7 +320,7 @@ const PatrolModal = (props) => {
         });
         
       } else {
-        setStatePatrol({
+        setStatePatrol({ 
           ...statePatrol,
           notes: [
             ...statePatrol.notes,
