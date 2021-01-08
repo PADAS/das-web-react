@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
@@ -12,9 +12,10 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { addSegmentToEvent } from '../utils/events';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
@@ -61,13 +62,15 @@ const PatrolModal = (props) => {
 
   const displayStartTime = useMemo(() => displayStartTimeForPatrol(statePatrol), [statePatrol]);
   const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
+  const actualStartTime = useMemo(() => actualStartTimeForPatrol(statePatrol), [statePatrol]);
+  const actualEndTime = useMemo(() => actualEndTimeForPatrol(statePatrol), [statePatrol]);
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReportIds= useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
+  const patrolReportIds = useMemo(() => getReportIdsForPatrol(patrol), [patrol]);
 
   const patrolReports= useMemo(() => {
     const currReports = getReportsForPatrol(patrol);
@@ -91,6 +94,20 @@ const PatrolModal = (props) => {
     if (!leader) return null;
     return leader;
   }, [statePatrol.patrol_segments]);
+
+  const debouncedTrackFetch = useRef(null);
+
+  useEffect(() => {
+    if (displayTrackingSubject && displayTrackingSubject.id) {
+      window.clearTimeout(debouncedTrackFetch.current);
+      debouncedTrackFetch.current = setTimeout(() => {
+        fetchTracksIfNecessary([displayTrackingSubject.id], {
+          optionalDateBoundaries: { since: actualStartTime, until: actualEndTime },
+        });
+      }, 150);
+      return () => window.clearTimeout(debouncedTrackFetch.current);
+    }
+  }, [actualEndTime, actualStartTime, displayTrackingSubject]);
 
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);

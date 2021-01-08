@@ -1,4 +1,4 @@
-import axios, { CancelToken } from 'axios';
+import axios, { CancelToken, isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 
 import globallyResettableReducer from '../reducers/global-resettable';
@@ -9,7 +9,6 @@ import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints } f
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
 // actions
-export const FETCH_TRACKS = 'FETCH_TRACKS';
 export const FETCH_TRACKS_SUCCESS = 'FETCH_TRACKS_SUCCESS';
 export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
@@ -23,14 +22,12 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
       const responses = await Promise.all(ids.map(id => axios.get(TRACKS_API_URL(id), { params: dateParams, cancelToken: cancelToken.token })));
 
       const results = responses.reduce((accumulator, response, index) => {
-        /* THE BELOW IS THE SECRET SAUCE FOR SIGNIFICANTLY INCREASING THE EFFICIENCY OF TRACK DATA 
-          COMBINED WITH THE INDICE TRIMMING BY INDEX THIS SHOULD BE ORDERS OF MAGNITUDE FASTER FOR SUBJECT POSITION AND TRACK DATA
-        */
         const asPoints = convertTrackFeatureCollectionToPoints(response.data.data);
 
         accumulator[ids[index]] = {
           track: response.data.data,
           points: asPoints,
+          fetchedDateRange: dateParams,
         };
 
         return accumulator;
@@ -38,7 +35,10 @@ export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...i
 
       dispatch(fetchTracksSuccess(results));
     } catch (error) {
-      dispatch(fetchTracksError(error));
+      if (!isCancel(error)) {
+        console.warn('error fetching tracks', error);
+        dispatch(fetchTracksError(error));
+      }
     }
   };
 };

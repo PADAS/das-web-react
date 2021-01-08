@@ -150,7 +150,7 @@ export const displayStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-const actualStartTimeForPatrol = (patrol) => {
+export const actualStartTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
@@ -182,7 +182,7 @@ export const displayEndTimeForPatrol = (patrol) => {
     : null;
 };
 
-const actualEndTimeForPatrol = (patrol) => {
+export const actualEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
 
