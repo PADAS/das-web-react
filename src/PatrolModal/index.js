@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
 import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
+import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 
 import { createPatrolDataSelector } from '../selectors/patrols';
@@ -13,6 +14,7 @@ import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../ut
 import { downloadFileFromUrl } from '../utils/download';
 import { addSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
+import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
@@ -250,26 +252,45 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onSelectTrackedSubject = useCallback((value) => {
-    const trackedSubjectLocation = value
-      && value.last_position 
-      && value.last_position.geometry 
-      && value.last_position.geometry.coordinates;
+    const patrolIsNew = !statePatrol.id;
+    
+    trackEvent('Patrol Modal', `${value ? 'Set' : 'Unset'} patrol tracked subject`);
 
-    trackEvent('Patrol Modal', 'Set patrol tracked subject');
-
-    setStatePatrol({
-      ...statePatrol,
+    const update = {
       patrol_segments: [
         {
-          ...statePatrol.patrol_segments[0],
-          leader: value ? value : null,
-          start_location: !!trackedSubjectLocation ? {
-            latitude: trackedSubjectLocation[1],
-            longitude: trackedSubjectLocation[0],
-          } : statePatrol.patrol_segments[0].start_location,
+          leader: value || null,
         },
       ],
-    });
+    };
+
+    if (patrolIsNew) {
+      const trackedSubjectLocation = value?.last_position?.geometry?.coordinates;
+      const trackedSubjectLocationTime = value?.last_position?.properties?.coordinateProperties?.time;
+
+      if (radioHasRecentActivity(value)
+        && subjectIsARadio(value)
+        && !!trackedSubjectLocation
+        && !!trackedSubjectLocationTime) {
+
+        update.patrol_segments[0].start_location = {
+          latitude: trackedSubjectLocation[1],
+          longitude: trackedSubjectLocation[0],
+        };
+
+        update.patrol_segments[0].time_range = {
+          start_time: trackedSubjectLocationTime,
+        };
+      } else if (!value) {
+
+        update.patrol_segments[0].start_location = null;
+        update.patrol_segments[0].time_range = {
+          start_time: null,
+        };
+      }
+    }
+
+    setStatePatrol(merge({}, statePatrol, update));
   }, [statePatrol]);
 
   const onPrioritySelect = useCallback((priority) => {
