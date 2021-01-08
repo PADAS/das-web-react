@@ -8,11 +8,11 @@ import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import { withMap } from '../EarthRangerMap';
-import { createPatrolDataSelector } from '../selectors/patrols';
-import { trackTimeEnvelope } from '../selectors/tracks';
-import { getTimeSliderState } from '../selectors';
+import { assemblePatrolDataForPatrol, getTrackForPatrolFromProps, getLeaderForPatrolFromProps } from '../selectors/patrols';
 import { drawLinesBetweenPatrolTrackAndPatrolPoints, extractPatrolPointsFromTrackData } from '../utils/patrols';
 import { uuid } from '../utils/string';
+import { trackTimeEnvelope } from '../selectors/tracks';
+import { getTimeSliderState } from '../selectors';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
 
@@ -49,14 +49,16 @@ const labelPaint = {
 
 
 const StartStopLayer = (props) => {
-  const { allowOverlap, key, patrolData, map, mapUserLayoutConfig, timeSliderState, trackTimeEnvelope, ...rest } = props;
+  const { allowOverlap, key, patrol, leader, rawTrack, map, mapUserLayoutConfig, timeSliderState, trackTimeEnvelope, ...rest } = props;
 
   const [ layerIds, setLayerIds ] = useState(null);
   const [instanceId] = useState(uuid());
   const layerId = `patrol-start-stop-layer-${instanceId}`;
 
+  const patrolData = useMemo(() => assemblePatrolDataForPatrol(patrol, leader, rawTrack), [leader, patrol, rawTrack]);
+
   const patrolStartStopData = useMemo(() => {
-    const points = extractPatrolPointsFromTrackData(patrolData);
+    const points = extractPatrolPointsFromTrackData(patrolData, rawTrack);
 
     const timeSliderActiveWithVirtualDate = (timeSliderState.active && timeSliderState.virtualDate);
 
@@ -86,7 +88,7 @@ const StartStopLayer = (props) => {
       points,
       lines,
     };
-  } , [patrolData, timeSliderState.active, timeSliderState.virtualDate]);
+  } , [patrolData, rawTrack, timeSliderState.active, timeSliderState.virtualDate]);
 
   useEffect(() => {
     if (patrolStartStopData) {
@@ -151,19 +153,12 @@ const StartStopLayer = (props) => {
   </Fragment>;
 };
 
-const makeMapStateToProps = () => {
-  const getDataForPatrolFromProps = createPatrolDataSelector();
-  const mapStateToProps = (state, props) => {
-    return {
-      patrolData: getDataForPatrolFromProps(state, props),
-      trackTimeEnvelope: trackTimeEnvelope(state),
-      timeSliderState: getTimeSliderState(state),
-    };
-  };
-  return mapStateToProps;
-};
+const mapStateToProps = (state, props) => ({
+  leader: getLeaderForPatrolFromProps(state, props),
+  rawTrack: getTrackForPatrolFromProps(state, props),
+  trackTimeEnvelope: trackTimeEnvelope(state),
+  timeSliderState: getTimeSliderState(state),
+});
 
-
-
-export default connect(makeMapStateToProps, null)(withMap(
+export default connect(mapStateToProps, null)(withMap(
   memo(withMapViewConfig(StartStopLayer))));

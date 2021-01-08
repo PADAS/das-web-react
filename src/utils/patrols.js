@@ -8,6 +8,7 @@ import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
+import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
@@ -500,7 +501,7 @@ export const makePatrolPointFromFeature = (label, coordinates, icon_id, stroke, 
 };
 
 
-export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }) => {
+export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, rawTrack) => {
   const { patrol_segments: [firstLeg] } = patrol;
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
@@ -508,7 +509,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }) 
 
   const features = hasFeatures && trackData.points.features;
 
-  const isPatrolActive = calcPatrolCardState(patrol).title === PATROL_CARD_STATES.ACTIVE.title;
+  const isPatrolActive = calcPatrolCardState(patrol) === PATROL_CARD_STATES.ACTIVE;
   const stroke = hasFeatures
     ? features[0].properties.stroke
     : (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`);
@@ -542,8 +543,30 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }) 
       patrol_points.end_location = makePatrolPointFromFeature('Patrol End', [end_location.longitude, end_location.latitude], icon_id, pointColor, end_time);
 
     } else if (hasFeatures) {
-      const lastTrackPoint = features[0];
-      const lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
+      let lastTrackPoint = features[0];
+      let lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
+
+      if (!lastTrackPointMatchesEndTime
+        && !!trackData.indices 
+        && !isUndefined(trackData.indices.until)
+        && trackData.indices.until > 0) {
+        const nextPointAfterTrimmedData = rawTrack.points.features[trackData.indices.until - 1];
+
+        if (nextPointAfterTrimmedData) {
+
+          const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && normalizeDate(nextPointAfterTrimmedData.properties.properties) === endTime;
+          const timeDiffFromLastPatrolTrackPoint = Math.abs(normalizeDate(lastTrackPoint.properties.time).getTime() - endTime.getTime());
+          console.log({ timeDiffFromLastPatrolTrackPoint });
+          const timeDiffFromNextPoint = Math.abs(normalizeDate(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
+          console.log({ timeDiffFromNextPoint });
+
+          if (nextPointMatchesEndTime
+          || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
+            lastTrackPoint = nextPointAfterTrimmedData;
+            lastTrackPointMatchesEndTime = normalizeDate(nextPointAfterTrimmedData.properties.time) === endTime;
+          }
+        }
+      }
 
       const { geometry: { coordinates: [longitude, latitude] } } = lastTrackPoint;
 

@@ -9,12 +9,12 @@ import uniq from 'lodash/uniq';
 export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
 const getPatrolFromProps = (_state, { patrol }) => patrol;
-const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
+export const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
   !!patrol.patrol_segments 
   && !!patrol.patrol_segments.length 
   && !!patrol.patrol_segments[0].leader
   && tracks[patrol.patrol_segments[0].leader.id];
-const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
+export const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
 const getPatrolTrackState = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
 
 
@@ -26,7 +26,7 @@ export const getPatrolList = createSelector(
   })
 );
 
-const assemblePatrolDataForPatrol = (patrol, leader, trackData) => {
+export const assemblePatrolDataForPatrol = (patrol, leader, trackData) => {
   const [firstLeg] = patrol.patrol_segments;
   const timeRange = !!firstLeg && firstLeg.time_range;
   const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData.track, timeRange.start_time, timeRange.end_time);
