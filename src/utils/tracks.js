@@ -1,4 +1,5 @@
 import isEqual from 'react-fast-compare';
+import { CancelToken } from 'axios';
 import explode from '@turf/explode';
 import bearing from '@turf/bearing';
 import { featureCollection }  from '@turf/helpers';
@@ -128,26 +129,51 @@ export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   return results;
 };
 
-export const trackHasDataWithinTimeRange = (track, since = null, until = null) => {
+export const trackHasDataWithinTimeRange = (trackData, since = null, until = null) => {
   if (!since && !until) return true;
+
+  const { fetchedDateRange, track } = trackData;
+
   const [first] = track.features[0].properties.coordinateProperties.times;
   const last = track.features[0].properties.coordinateProperties.times[track.features[0].properties.coordinateProperties.times.length - 1];
-  if (since && (new Date(last) - new Date(since) > 0)) {
+
+
+  if (
+    since 
+    && new Date(since).getTime() < new Date(
+      Math.min(
+        new Date(fetchedDateRange.since).getTime(),
+        new Date(first).getTime(),
+      )
+    ).getTime()
+  ) {
     return false;
   }
-  if (until && (new Date(first) - new Date(until) < 0)) {
+
+  if (
+    until 
+    && new Date(until).getTime() > new Date(
+      Math.max(
+        new Date(fetchedDateRange.until).getTime(),
+        new Date(last).getTime(),
+      )
+    ).getTime()) {
     return false;
   }
   return true;
 };
 
-export  const fetchTracksIfNecessary = (ids, cancelToken) => {
+const trackFetchState = {};
+export  const fetchTracksIfNecessary = (ids, config) => {
+  const optionalDateBoundaries = config?.optionalDateBoundaries;
   const { data: { tracks, virtualDate, eventFilter }, view: { trackLength, timeSliderState } } = store.getState();
 
+  
   const { active:timeSliderActive } = timeSliderState;
   
   const results = ids.map((id) => {
     let dateRange;
+
     const { length, origin:trackLengthOrigin } = trackLength;
     const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
 
@@ -157,22 +183,76 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
 
-    if (!tracks[id]) {
-      return store.dispatch(fetchTracks(dateRange, cancelToken, id));
+    /* use optional date boundaries to further expand the lower and upper limits of the track request, if necessary, to have maximum necessary data coverage */
+    if (!!optionalDateBoundaries) {
+      if (!!optionalDateBoundaries.since && !!dateRange.since) {
+        dateRange.since = new Date(Math.min(new Date(optionalDateBoundaries.since).getTime(), new Date(dateRange.since).getTime())).toISOString();
+      }
+
+      if (!!optionalDateBoundaries.until && !!dateRange.until) {
+        dateRange.until = new Date(Math.max(new Date(optionalDateBoundaries.until).getTime(), new Date(dateRange.until).getTime())).toISOString();
+      }
     }
-    
-    const { track } = tracks[id];
-  
-    if (!trackHasDataWithinTimeRange(track, dateRange.since, dateRange.until)) {
-      return store.dispatch(fetchTracks(dateRange, cancelToken, id));
+
+    const trackData = tracks[id];
+
+    const buildRequest = () => {
+      const cancelToken = CancelToken.source();
+
+      const request = store.dispatch(fetchTracks(dateRange, cancelToken, id))
+        .finally(() => delete trackFetchState[id]);
+      
+      trackFetchState[id] = {
+        cancelToken,
+        dateRange,
+        request,
+      };
+
+      return request;
+    };
+
+    const handleFetch = () => {
+      if (!trackFetchState[id]) {
+        return buildRequest();
+      }
+
+      let shouldCancelPriorRequest = false;
+
+      const ongoingRequest = trackFetchState[id];
+      const oldRange = ongoingRequest?.dateRange;
+
+      if (!!oldRange?.since && !!dateRange.since) {
+        if (new Date(dateRange.since).getTime() < new Date(oldRange.since).getTime()) {
+          shouldCancelPriorRequest = true;
+        }
+      } else if (!!oldRange?.until) {
+        if (!dateRange.until
+        || new Date(dateRange.until).getTime() > new Date(oldRange.until).getTime()) {
+          shouldCancelPriorRequest = true;
+        }
+      }
+
+      if (shouldCancelPriorRequest) {
+        trackFetchState[id].cancelToken.cancel();
+        return buildRequest();
+      }
+
+
+    };
+
+    if (!trackData
+    || !trackHasDataWithinTimeRange(trackData, dateRange.since, dateRange.until)) {
+      return handleFetch();
     }
-    return Promise.resolve(track);
+    return trackData;
   });
 
   return Promise.all(results);
 };
 
-export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
+export const trimTrackDataToTimeRange = (trackData, from = null, until = null) => {
+
+  const { track, points, ...rest } = trackData;
 
   const [originalTrack] = track.features;
   if ((!from && !until) || !originalTrack.geometry) return { track, points };
@@ -205,6 +285,7 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
       features: trimArrayWithEnvelopeIndices(points.features, indices),
     },
     indices,
+    ...rest,
   };
 
 /*   return {
@@ -234,7 +315,7 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
 };
 
 export const addSocketStatusUpdateToTrack = (tracks, newData) => {
-  const { track, points } = tracks;
+  const { track, points, ...rest } = tracks;
 
   const update = { ...newData };
 
@@ -261,7 +342,7 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
     updatedPoints.features[1].properties.bearing = bearing(updatedPoints.features[1].geometry.coordinates, updatedPoints.features[0].geometry.coordinates);
   
     return {
-      track: updatedTrack, points: updatedPoints,
+      track: updatedTrack, points: updatedPoints, ...rest,
     };
   }
   return tracks;

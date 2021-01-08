@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
@@ -12,10 +12,11 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { addSegmentToEvent, getEventIdsForCollection } from '../utils/events';
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
-import { calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { trackEvent } from '../utils/analytics';
@@ -61,13 +62,15 @@ const PatrolModal = (props) => {
 
   const displayStartTime = useMemo(() => displayStartTimeForPatrol(statePatrol), [statePatrol]);
   const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
+  const actualStartTime = useMemo(() => actualStartTimeForPatrol(statePatrol), [statePatrol]);
+  const actualEndTime = useMemo(() => actualEndTimeForPatrol(statePatrol), [statePatrol]);
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReports= useMemo(() => {
+  const patrolReports = useMemo(() => {
     const currReports = getReportsForPatrol(patrol);
     const syncedReports = currReports.map( (report) => {
       // if there is no entry for this event, add it to the store
@@ -83,7 +86,7 @@ const PatrolModal = (props) => {
     // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
     const incidents = allReports.filter(report => report.is_collection);
-    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[])
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
       !report.is_contained_in?.length && !incidentIds.includes(report.id));
     return topLevelReports;
@@ -101,6 +104,20 @@ const PatrolModal = (props) => {
     if (!leader) return null;
     return leader;
   }, [statePatrol.patrol_segments]);
+
+  const debouncedTrackFetch = useRef(null);
+
+  useEffect(() => {
+    if (displayTrackingSubject && displayTrackingSubject.id) {
+      window.clearTimeout(debouncedTrackFetch.current);
+      debouncedTrackFetch.current = setTimeout(() => {
+        fetchTracksIfNecessary([displayTrackingSubject.id], {
+          optionalDateBoundaries: { since: actualStartTime, until: actualEndTime },
+        });
+      }, 150);
+      return () => window.clearTimeout(debouncedTrackFetch.current);
+    }
+  }, [actualEndTime, actualStartTime, displayTrackingSubject]);
 
 
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
@@ -283,7 +300,7 @@ const PatrolModal = (props) => {
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
-  }, [addedReports]);
+  }, [addedReports, allPatrolReportIds]);
   
   const onSaveNote = useCallback((noteToSave) => {
     

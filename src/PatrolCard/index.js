@@ -2,7 +2,7 @@ import React, { forwardRef, memo, useEffect, useRef, useMemo, useCallback, useSt
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
   calcPatrolCardState, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { createPatrolDataSelector } from '../selectors/patrols';
@@ -39,6 +39,9 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     patrolState === PATROL_CARD_STATES.CANCELLED
   , [patrolState]);
 
+  const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
+  const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);
+
   const [popoverOpen, setPopoverState] = useState(false);
 
   const onPopoverHide = useCallback(() => setPopoverState(false), []);
@@ -53,11 +56,19 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     return patrolState.title;
   }, [patrol, patrolState]);
 
+  const debouncedTrackFetch = useRef(null);
+
   useEffect(() => {
     if (leader && leader.id) {
-      fetchTracksIfNecessary([leader.id]);
+      window.clearTimeout(debouncedTrackFetch.current);
+      debouncedTrackFetch.current = setTimeout(() => {
+        fetchTracksIfNecessary([leader.id], {
+          optionalDateBoundaries: { since: actualStartTime, until: actualEndTime }
+        });
+      }, 150);
+      return () => window.clearTimeout(debouncedTrackFetch.current);
     }
-  }, [leader]);
+  }, [actualEndTime, actualStartTime, leader]);
 
   const togglePopoverIfPossible = useCallback(() => {
     if (!patrolIsCancelled) {

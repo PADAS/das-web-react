@@ -328,7 +328,7 @@ class Map extends Component {
     this.resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
       .filter(({ last_position_date }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-      .map(({ id }) => id), this.trackRequestCancelToken);
+      .map(({ id }) => id));
   }
 
   fetchMapEvents() {
@@ -544,7 +544,7 @@ class Map extends Component {
 
   onTrackLengthChange() {
     this.resetTrackRequestCancelToken();
-    fetchTracksIfNecessary(uniq([...this.props.subjectTrackState.visible, ...this.props.subjectTrackState.pinned, ...this.props.heatmapSubjectIDs]), this.trackRequestCancelToken);
+    fetchTracksIfNecessary(uniq([...this.props.subjectTrackState.visible, ...this.props.subjectTrackState.pinned, ...this.props.heatmapSubjectIDs]));
   }
 
   render() {
