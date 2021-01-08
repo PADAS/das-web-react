@@ -35,7 +35,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
       <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
       <div className={styles.listItemDetails}>
         <span>{title}</span>
-        <small>{trackLength} coverage</small>
+        <small>{trackLength} covered</small>
       </div>
       <Button variant="secondary" value={id} onClick={onRemovePatrolClick}>remove</Button>
     </li>;
@@ -58,7 +58,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
           </button>
         </OverlayTrigger>}
       </h6>
-      <span>{coverageLength} coverage</span>
+      <span>{coverageLength} covered</span>
     </div>
   </div>;
 });
