@@ -172,7 +172,7 @@ export  const fetchTracksIfNecessary = (ids, cancelToken) => {
   return Promise.all(results);
 };
 
-export const trimTrackDataToTimeRange = ({ track, points }, from = null, until = null) => {
+export const trimTrackDataToTimeRange = ({ track, points, ...rest }, from = null, until = null) => {
 
   const [originalTrack] = track.features;
   if ((!from && !until) || !originalTrack.geometry) return { track, points };
@@ -205,6 +205,7 @@ export const trimTrackDataToTimeRange = ({ track, points }, from = null, until =
       features: trimArrayWithEnvelopeIndices(points.features, indices),
     },
     indices,
+    ...rest,
   };
 
 /*   return {
