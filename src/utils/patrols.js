@@ -451,7 +451,7 @@ export const calcPatrolCardState = (patrol) => {
 export const canStartPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return (patrolState === PATROL_CARD_STATES.READY_TO_START
-      || PATROL_CARD_STATES.SCHEDULED
+      || patrolState === PATROL_CARD_STATES.SCHEDULED
       || patrolState === PATROL_CARD_STATES.START_OVERDUE);
 };
 

@@ -42,6 +42,8 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
+  const isActivePatrol = useMemo(() => patrolState === PATROL_CARD_STATES.ACTIVE, [patrolState]);
+
   const isScheduledPatrol = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.READY_TO_START 
     || patrolState === PATROL_CARD_STATES.SCHEDULED
@@ -111,18 +113,19 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
         <span className={styles.serial}>Patrol #{patrol.serial_number}</span>
         {(canStart || canEnd) && <PatrolStartStopButton patrol={patrol} onPatrolChange={onPatrolChange} />}
 
-        {!isScheduledPatrol && <Fragment>
+        {isActivePatrol && <Fragment>
           {!!hasDetails && <div className={styles.details}>
             {!!subjectLastVoiceCall.getTime() && <span>Mic activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
             {!!subjectTimeAtLastPosition.getTime() && <span>Time since last movement (est.): <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
           </div>}
   
-          <div className={styles.controls}>
-            <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />
-            {!!leaderLastPositionCoordinates && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
-          </div>
         </Fragment>
         }
+
+        {!isScheduledPatrol && <div className={styles.controls}>
+          <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />
+          {!!leaderLastPositionCoordinates && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
+        </div>}
 
         {/* buttons and stuff */}
       </Popover.Content>

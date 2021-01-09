@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, memo } from 'react';
 
-import { calcPatrolCardState } from '../utils/patrols';
+import { calcPatrolCardState, canStartPatrol, canEndPatrol } from '../utils/patrols';
 
 import { PATROL_CARD_STATES, PATROL_API_STATES } from '../constants';
 
@@ -21,32 +21,25 @@ const PatrolStartStopButton = (props) => {
     patrolState === PATROL_CARD_STATES.CANCELLED
   , [patrolState]);
 
-  const canStartPatrol = useMemo(() => {
-    return (patrolState === PATROL_CARD_STATES.READY_TO_START
-      || patrolState === PATROL_CARD_STATES.SCHEDULED
-      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
-  } , [patrolState]);
-
-  const canEndPatrol = useMemo(() =>
-    patrolState === PATROL_CARD_STATES.ACTIVE
-  , [patrolState]);
+  const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
+  const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
   const patrolStartStopTitle = useMemo(() => {
-    if (canEndPatrol || patrolIsCancelled || patrolIsDone) return 'End Patrol';
+    if (canEnd || patrolIsCancelled || patrolIsDone) return 'End Patrol';
     return 'Start Patrol';
-  }, [canEndPatrol, patrolIsCancelled, patrolIsDone]);
+  }, [canEnd, patrolIsCancelled, patrolIsDone]);
 
   const isStop = patrolStartStopTitle === 'End Patrol';
 
   const togglePatrolStartStopState = useCallback(() => {
-    trackEvent('Patrol Card', `${canStartPatrol ? 'Start' : 'End'} patrol from patrol card popover`);
+    trackEvent('Patrol Card', `${canStart ? 'Start' : 'End'} patrol from patrol card popover`);
     
-    if (canStartPatrol) {
-      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
-    } else {
+    if (canEnd) {
       onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
+    } else {
+      onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
     }
-  }, [canStartPatrol, onPatrolChange]);
+  }, [canEnd, canStart, onPatrolChange]);
 
   return <button className={`${styles.startStopButton} ${isStop ? styles.stop : styles.start}`} type='button' onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</button>;
 };
