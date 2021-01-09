@@ -99,26 +99,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
     onHide();
 
-    const patrolTrackIsPinned = patrolTrackState.pinned.includes(patrol.id);
-    const subjectTrackIsPinned = subjectTrackState.pinned.includes(leader.id);
-    
-    if (patrolTrackIsPinned && subjectTrackIsPinned) return;
-
-    if (!patrolTrackIsPinned) {
-      updatePatrolTrackState({
-        ...patrolTrackState,
-        visible: patrolTrackState.visible.filter(id => id !== patrol.id),
-      });
-    }
-
-    if (!subjectTrackIsPinned) {
-      updateTrackState({
-        ...subjectTrackState,
-        visible: subjectTrackState.visible.filter(id => id !== leader.id),
-      });
-    }
-
-  }, [leader, onHide, patrol.id, patrolTrackState, subjectTrackState, updatePatrolTrackState, updateTrackState]);
+  }, [leader, onHide]);
 
   return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onHide={onOverlayClose} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
