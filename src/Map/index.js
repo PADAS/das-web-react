@@ -424,7 +424,7 @@ class Map extends Component {
   })
 
   hideUnpinnedTrackLayers(map, event) {
-    const { updatePatrolTrackState, updateTrackState, subjectTrackState: { visible } } = this.props;
+    const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible:visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
 
     const clickedLayerIDs = map.queryRenderedFeatures(event.point)
@@ -437,7 +437,7 @@ class Map extends Component {
       visible: visible.filter(id => clickedLayerIDs.includes(id)),
     });
     updatePatrolTrackState({
-      visible: visible.filter(id => matchingPatrolIds.includes(id)),
+      visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)),
     });
   }
   onCloseReportHeatmap() {
