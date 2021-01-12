@@ -55,7 +55,6 @@ const eventFilterReducer = (state, action) => {
   if (type === UPDATE_DATE_RANGE || type === RESET_DATE_RANGE) {
     return {
       ...state,
-      ...payload,
       filter: {
         ...state.filter,
         date_range: dateRangeReducer(state, action),
