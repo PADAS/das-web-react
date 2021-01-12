@@ -1,4 +1,4 @@
-import React, { useCallback, Fragment, memo, forwardRef, useMemo } from 'react';
+import React, { useCallback, useEffect, Fragment, memo, forwardRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
@@ -103,7 +103,32 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   }, [leader, onHide]);
 
-  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onHide={onOverlayClose} rootClose>
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { key } = event;
+      if (key === 'Escape') {
+        console.log('Escape clicked');
+        onOverlayClose();
+      }
+    };
+    const handleOutsideClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        console.log('Clicked outside of popover');
+        onOverlayClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  
+  }, [isOpen]); // eslint-disable-line
+
+  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
       <Popover.Content ref={ref}>
         {patrolIconId && <DasIcon type='events' iconId={patrolIconId} />}
