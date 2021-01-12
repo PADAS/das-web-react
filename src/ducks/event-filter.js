@@ -1,5 +1,3 @@
-import merge from 'lodash/merge';
-
 import { generateMonthsAgoDate } from '../utils/datetime';
 import globallyResettableReducer from '../reducers/global-resettable';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
@@ -44,15 +42,24 @@ const eventFilterReducer = (state, action) => {
   const { type, payload } = action;
 
   if (type === UPDATE_EVENT_FILTER) {
-    return merge({}, state, payload);
+    return {
+      ...state,
+      ...payload,
+      filter: {
+        ...state.filter,
+        ...payload.filter,
+      }
+    };
   }
 
   if (type === UPDATE_DATE_RANGE || type === RESET_DATE_RANGE) {
-    return merge({}, state, {
+    return {
+      ...state,
       filter: {
+        ...state.filter,
         date_range: dateRangeReducer(state, action),
       }
-    });
+    };
   }
   return state;
 };

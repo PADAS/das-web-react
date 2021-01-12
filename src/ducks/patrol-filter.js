@@ -38,15 +38,24 @@ const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
   const { type, payload } = action;
 
   if (type === UPDATE_PATROL_FILTER) {
-    return merge({}, state, payload);
+    return {
+      ...state,
+      ...payload,
+      filter: {
+        ...state.filter,
+        ...payload.filter,
+      },
+    };
   }
 
   if (type === UPDATE_DATE_RANGE || type === RESET_DATE_RANGE) {
-    return merge({}, state, {
+    return {
+      ...state,
       filter: {
+        ...state.filter,
         date_range: dateRangeReducer(state, action),
-      }
-    });
+      },
+    };
   }
 
   if (type === RESET_PATROL_FILTER) {
