@@ -101,7 +101,7 @@ const DataExportMenu = (props) => {
   }, [addUserNotification, hasTableauNotification, props.systemConfig, removeUserNotification, tableauEnabled, updateUserPreferences]);
 
   const tableauModal = {
-    title: 'Analysis (via Tableau)',
+    title: 'powered by Tableau',
     content: TableauModal,
     modalProps: {
       className: 'tableau-modal',
