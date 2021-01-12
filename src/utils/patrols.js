@@ -510,13 +510,10 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
   const features = hasFeatures && trackData.points.features;
 
   const isPatrolActive = calcPatrolCardState(patrol) === PATROL_CARD_STATES.ACTIVE;
-  const stroke = hasFeatures
-    ? features[0].properties.stroke
-    : (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`);
-  
-  const pointColor = stroke || DEFAULT_STROKE;
-
-  
+  const stroke = features?.[0]?.properties?.stroke
+    || leader?.last_position?.properties?.stroke
+    || (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`)
+    || DEFAULT_STROKE;
 
   let patrol_points = {
     start_location: null,
