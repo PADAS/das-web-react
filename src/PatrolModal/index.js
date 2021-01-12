@@ -43,7 +43,7 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import TimeRangeAlert from './TimeRangeAlert';
 
-// import LoadingOverlay from '../LoadingOverlay';
+import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
@@ -58,6 +58,7 @@ const PatrolModal = (props) => {
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [notesToAdd, updateNotesToAdd] = useState([]);
   const [addedReports, setAddedReports] = useState([]);
+  const [isSaving, setSaveState] = useState(false);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
   const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
@@ -448,6 +449,7 @@ const PatrolModal = (props) => {
   }, [statePatrol, allPatrolUpdateHistory]);
 
   const onSave = useCallback(() => {
+    setSaveState(true);
     trackEvent('Patrol Modal', `Click "save" button for ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
 
     let toSubmit = statePatrol;
@@ -488,6 +490,9 @@ const PatrolModal = (props) => {
       .catch((error) => {
         trackEvent('Patrol Modal', `Error saving ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
         console.warn('failed to save new patrol', error);
+      })
+      .finally(() => {
+        setSaveState(false);
       });
   }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol, addedReports, patrolSegmentId]);
 
@@ -536,6 +541,7 @@ const PatrolModal = (props) => {
 
   return <EditableItem data={patrolWithFlattenedHistory}>
     <Modal>
+      {isSaving && <LoadingOverlay className={styles.savingOverlay} message='Saving Patrol...' />}
       <Header
         analyticsMetadata={{
           category: 'Patrol Modal',
@@ -646,6 +652,7 @@ const PatrolModal = (props) => {
           hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
       </AttachmentControls>
       <Footer
+        saveDisabled={isSaving}
         onCancel={onCancel}
         onSave={onSave}
         isActiveState={true}
