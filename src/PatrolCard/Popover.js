@@ -103,7 +103,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   // }, [leader, onHide]);
 
-  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onHide={onOverlayClose} rootClose>
+  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
       <Popover.Content ref={ref}>
         {patrolIconId && <DasIcon type='events' iconId={patrolIconId} />}
