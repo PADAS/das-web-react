@@ -82,6 +82,9 @@ const TrackLegend = (props) => {
   const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
 
   const displayTitle = useMemo(() => {
+    if (!subjectCount) {
+      return null;
+    }
     if (subjectCount !== 1) {
       return `${subjectCount} subjects`;
     }
@@ -90,7 +93,7 @@ const TrackLegend = (props) => {
   }, [subjectCount, trackData]);
 
   const iconSrc = useMemo(() => {
-    if (subjectCount !== 1) return null;
+    if (!subjectCount || subjectCount !== 1) return null;
     return getIconForTrack(trackData[0].track, subjectStore);
   }, [subjectCount, subjectStore, trackData]);
 
