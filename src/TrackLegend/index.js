@@ -5,6 +5,8 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
+import uniq from 'lodash/uniq';
+
 import MapLegend from '../MapLegend';
 import TrackLengthControls from '../TrackLengthControls';
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
@@ -74,9 +76,9 @@ const TitleElement = memo((props) => { // eslint-disable-line
 });
 
 const TrackLegend = (props) => {
-  const { trackData, trackLength: { length:track_days }, onClose, subjectTrackState, subjectStore, updateTrackState } = props;
+  const { trackData, trackLength: { length:track_days }, onClose, trackState, subjectStore, updateTrackState } = props;
 
-  const subjectCount = trackData.length;
+  const subjectCount = uniq([...trackState.visible, ...trackState.pinned]).length;
   const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
 
   const displayTitle = useMemo(() => {
@@ -95,8 +97,8 @@ const TrackLegend = (props) => {
   const onRemoveTrackClick = ({ target: { value: id } }) => {
     trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
     updateTrackState({
-      pinned: subjectTrackState.pinned.filter(item => item !== id),
-      visible: subjectTrackState.visible.filter(item => item !== id),
+      pinned: trackState.pinned.filter(item => item !== id),
+      visible: trackState.visible.filter(item => item !== id),
     });
   };
 
@@ -123,5 +125,5 @@ export default connect(mapStatetoProps, { updateTrackState })(memo(TrackLegend))
 
 TrackLegend.propTypes = {
   trackData: PropTypes.array.isRequired,
-  subjectTrackState: PropTypes.object.isRequired,
+  trackState: PropTypes.object.isRequired,
 };
