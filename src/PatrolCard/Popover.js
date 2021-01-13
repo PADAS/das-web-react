@@ -108,13 +108,13 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
       const { key } = event;
       if (key === 'Escape') {
         console.log('Escape clicked');
-        onOverlayClose();
+        onHide();
       }
     };
     const handleOutsideClick = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
         console.log('Clicked outside of popover');
-        onOverlayClose();
+        onHide();
       }
     };
     if (isOpen) {
