@@ -94,14 +94,14 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
     fitMapBoundsForAnalyzer(map, bounds);
   }, [map, patrolData]);
 
-  const onOverlayClose = useCallback(() => {
-    trackEvent('Patrol Card', 'Close patrol card popover');
+  // const onOverlayClose = useCallback(() => {
+  //   trackEvent('Patrol Card', 'Close patrol card popover');
     
-    if (!leader) return;
+  //   if (!leader) return;
 
-    onHide();
+  //   onHide();
 
-  }, [leader, onHide]);
+  // }, [leader, onHide]);
 
   return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onHide={onOverlayClose} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
