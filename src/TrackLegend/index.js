@@ -80,9 +80,10 @@ const TrackLegend = (props) => {
 
   const subjectCount = uniq([...trackState.visible, ...trackState.pinned]).length;
   const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
+  const hasTrackData = !!trackData.length;
 
   const displayTitle = useMemo(() => {
-    if (!subjectCount) {
+    if (!subjectCount || !hasTrackData) {
       return null;
     }
     if (subjectCount !== 1) {
@@ -90,12 +91,12 @@ const TrackLegend = (props) => {
     }
     
     return trackData[0].track.features[0].properties.title;
-  }, [subjectCount, trackData]);
+  }, [hasTrackData, subjectCount, trackData]);
 
   const iconSrc = useMemo(() => {
-    if (!subjectCount || subjectCount !== 1) return null;
+    if (!subjectCount || !hasTrackData ||  subjectCount !== 1) return null;
     return getIconForTrack(trackData[0].track, subjectStore);
-  }, [subjectCount, subjectStore, trackData]);
+  }, [hasTrackData, subjectCount, subjectStore, trackData]);
 
   const onRemoveTrackClick = ({ target: { value: id } }) => {
     trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
@@ -105,9 +106,7 @@ const TrackLegend = (props) => {
     });
   };
 
-  
-
-  return subjectCount && <MapLegend
+  return !!subjectCount && hasTrackData && <MapLegend
     titleElement={
       <TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick}
         subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData} 
