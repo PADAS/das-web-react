@@ -6,15 +6,17 @@ export const redo = (namespace) => ({
   type: `REDO_${namespace}`,
 });
 
+export const calcInitialUndoableState = (reducer) => ({
+  past: [],
+  current: reducer(undefined, {}),
+  future: []
+});
+
 const undoableReducer = (reducer, namespace) => {
-  const initialState = {
-    past: [],
-    present: reducer(undefined, {}),
-    future: []
-  };
+  const initialState = calcInitialUndoableState(reducer);
 
   return (state = initialState, action) => {
-    const { past, present, future } = state;
+    const { past, current, future } = state;
 
 
     if (action.type ===  `UNDO_${namespace}`) {
@@ -22,8 +24,8 @@ const undoableReducer = (reducer, namespace) => {
       const newPast = past.slice(0, past.length - 1);
       return {
         past: newPast,
-        present: previous,
-        future: [present, ...future]
+        current: previous,
+        future: [current, ...future]
       };
     }
 
@@ -31,21 +33,21 @@ const undoableReducer = (reducer, namespace) => {
       const next = future[0];
       const newFuture = future.slice(1);
       return {
-        past: [...past, present],
-        present: next,
+        past: [...past, current],
+        current: next,
         future: newFuture
       };
     }
 
-    const newPresent = reducer(present, action);
+    const newPresent = reducer(current, action);
 
-    if (present === newPresent) {
+    if (current === newPresent) {
       return state;
     }
 
     return {
-      past: [...past, present],
-      present: newPresent,
+      past: [...past, current],
+      current: newPresent,
       future: []
     };
   };

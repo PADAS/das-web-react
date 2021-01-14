@@ -7,8 +7,9 @@ import Tab from 'react-bootstrap/Tab';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
+import isUndefined from 'lodash/isUndefined';
 
-import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
+import { BREAKPOINTS, FEATURE_FLAGS, SIDEBAR_STATE_REDUCER_NAMESPACE } from '../constants';
 import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
@@ -32,6 +33,7 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
 import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
+import undoable, { calcInitialUndoableState } from '../reducers/undoable';
 
 import styles from './styles.module.scss';
 
@@ -58,7 +60,9 @@ const setActiveTab = (tab) => ({
 });
 
 const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
-  if (action.type === SET_TAB) return action.payload;
+  if (action.type === SET_TAB) {
+    return action.payload;
+  }
   return state;
 };
 
@@ -70,7 +74,7 @@ const SideBar = (props) => {
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
-  const [activeTab, dispatch] = useReducer(activeTabReducer);
+  const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
@@ -144,10 +148,19 @@ const SideBar = (props) => {
   }, [patrolFilter]); // eslint-disable-line
 
   useEffect(() => {
-    if (!sidebarOpen) {
-      setActiveTab(TAB_KEYS.REPORTS);
+    if (!isUndefined(sidebarOpen)) {
+      if (!sidebarOpen) {
+        if (activeTab.current !== TAB_KEYS.REPORTS) {
+          dispatch(setActiveTab(TAB_KEYS.REPORTS));
+        }
+      } else {
+        const previousTab = activeTab.past[activeTab.past.length - 1];
+        if (previousTab && previousTab !== TAB_KEYS.REPORTS) {
+          dispatch(setActiveTab(previousTab));
+        }
+      }
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
   const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
@@ -171,6 +184,8 @@ const SideBar = (props) => {
 
   if (!map) return null;
 
+  const selectedTab = !!activeTab && activeTab.current;
+
   return <ErrorBoundary>
     <MapContext.Provider value={map}>
       <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
@@ -178,7 +193,7 @@ const SideBar = (props) => {
         <div className={styles.addReportContainer}>
           <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
         </div>
-        <Tabs activeKey={activeTab} onSelect={onTabsSelect} className={styles.tabBar}>
+        <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
           <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
             <DelayedUnmount isMounted={sidebarOpen}>
               <ErrorBoundary>
