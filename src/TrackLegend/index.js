@@ -89,11 +89,11 @@ const TrackLegend = (props) => {
       return `${subjectCount} subjects`;
     }
     
-    return trackData[0].track.features[0].properties.title;
+    return trackData[0]?.track.features[0].properties.title || '';
   }, [subjectCount, trackData]);
 
   const iconSrc = useMemo(() => {
-    if (!subjectCount || subjectCount !== 1) return null;
+    if (!subjectCount || subjectCount !== 1 || !trackData[0]) return null;
     return getIconForTrack(trackData[0].track, subjectStore);
   }, [subjectCount, subjectStore, trackData]);
 
