@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState, memo } from 'react';
 import { MapContext } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -50,6 +50,18 @@ const TAB_KEYS = {
   PATROLS: 'patrols',
 };
 
+const SET_TAB = 'SET_TAB';
+
+const setActiveTab = (tab) => ({
+  type: 'SET_TAB',
+  payload: tab,
+});
+
+const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
+  if (action.type === SET_TAB) return action.payload;
+  return state;
+};
+
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
@@ -58,7 +70,7 @@ const SideBar = (props) => {
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
-  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+  const [activeTab, dispatch] = useReducer(activeTabReducer);
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
@@ -98,7 +110,7 @@ const SideBar = (props) => {
   };
 
   const onTabsSelect = (eventKey) => {
-    setActiveTab(eventKey);
+    dispatch(setActiveTab(eventKey));
     let tabTitles = {
       [TAB_KEYS.REPORTS]: 'Reports',
       [TAB_KEYS.LAYERS]: 'Map Layers',

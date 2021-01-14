@@ -47,11 +47,13 @@ const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-lin
 }));
 
 const LocationSelectorInput = (props) => {
-  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, gpsFormat, showUserLocation } = props;
+  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
+
+  const sidebarOpenBeforeGpsSelectStart = useRef(null);
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
 
@@ -77,12 +79,16 @@ const LocationSelectorInput = (props) => {
   }, []);  /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const onLocationSelectFromMapStart = useCallback(() => {
+    sidebarOpenBeforeGpsSelectStart.current = !!sidebarOpen;
     setModalVisibilityState(false);
     updateUserPreferences({ sidebarOpen: false });
-  }, [setModalVisibilityState, updateUserPreferences]);
+  }, [setModalVisibilityState, sidebarOpen, updateUserPreferences]);
   
   const onLocationSelectFromMapCancel = () => {
     setModalVisibilityState(true);
+    if (!sidebarOpenBeforeGpsSelectStart.current) {
+      updateUserPreferences({ sidebarOpen: true });
+    }
   };
 
   const onGeoLocationStart = () => {
@@ -100,7 +106,10 @@ const LocationSelectorInput = (props) => {
     onLocationChange([lng, lat]);
     setModalVisibilityState(true);
     hideGpsPopover();
-  }, [hideGpsPopover, onLocationChange, setModalVisibilityState]);
+    if (sidebarOpenBeforeGpsSelectStart.current) {
+      updateUserPreferences({ sidebarOpen: true });
+    }
+  }, [hideGpsPopover, onLocationChange, setModalVisibilityState, updateUserPreferences]);
 
   const handleEscapePress = useCallback((event) => {
     const { key } = event;
@@ -149,7 +158,7 @@ const LocationSelectorInput = (props) => {
   </label>;
 };
 
-const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat } } }) => ({
+const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat, sidebarOpen } } }) => ({
   gpsFormat,
   showUserLocation,
 });
