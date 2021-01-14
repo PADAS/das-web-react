@@ -260,5 +260,3 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
   '/admin',
   '/admin/',
 ];
-
-export const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';

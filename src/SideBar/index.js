@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useState, memo } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState, memo } from 'react';
 import { MapContext } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -9,7 +9,7 @@ import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
-import { BREAKPOINTS, FEATURE_FLAGS, SIDEBAR_STATE_REDUCER_NAMESPACE } from '../constants';
+import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
 import { useMatchMedia, useFeatureFlag } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
@@ -33,7 +33,7 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
 import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
-import undoable, { calcInitialUndoableState } from '../reducers/undoable';
+import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 
 import styles from './styles.module.scss';
 
@@ -58,6 +58,8 @@ const setActiveTab = (tab) => ({
   type: 'SET_TAB',
   payload: tab,
 });
+
+const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
 const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
   if (action.type === SET_TAB) {
@@ -90,6 +92,8 @@ const SideBar = (props) => {
     }
     return value;
   }, [eventFilter]);
+
+  const activeTabPreClose = useRef(null);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
@@ -150,13 +154,11 @@ const SideBar = (props) => {
   useEffect(() => {
     if (!isUndefined(sidebarOpen)) {
       if (!sidebarOpen) {
-        if (activeTab.current !== TAB_KEYS.REPORTS) {
-          dispatch(setActiveTab(TAB_KEYS.REPORTS));
-        }
+        activeTabPreClose.current = activeTab.current;
+        dispatch(setActiveTab(TAB_KEYS.REPORTS));
       } else {
-        const previousTab = activeTab.past[activeTab.past.length - 1];
-        if (previousTab && previousTab !== TAB_KEYS.REPORTS) {
-          dispatch(setActiveTab(previousTab));
+        if ( activeTabPreClose.current !== TAB_KEYS.REPORTS) {
+          dispatch(undo(SIDEBAR_STATE_REDUCER_NAMESPACE));
         }
       }
     }
