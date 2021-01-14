@@ -104,20 +104,31 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   }, [onPatrolChange]);
 
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { key } = event;
+      if (key === 'Escape') {
+        setPopoverState(false);
+        trackEvent('Patrol Card', 'Close patrol card popover (escape key)');
+      }
+    };
     const handleOutsideClick = (e) => {
       if (popoverRef.current && 
         (!popoverRef.current.contains(e.target))) {
         setPopoverState(false);
+        trackEvent('Patrol Card', 'Close patrol card popover (outside click)');
       }
     };
     setTimeout(() => {
       if (popoverOpen) {
         document.addEventListener('mousedown', handleOutsideClick);
+        document.addEventListener('keydown', handleKeyDown);
       } else {
         document.removeEventListener('mousedown', handleOutsideClick);
+        document.removeEventListener('keydown', handleKeyDown);
       }
       return () => {
         document.removeEventListener('mousedown', handleOutsideClick);
+        document.removeEventListener('keydown', handleKeyDown);
       };
     });
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
