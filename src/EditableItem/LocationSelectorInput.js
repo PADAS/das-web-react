@@ -47,11 +47,13 @@ const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-lin
 }));
 
 const LocationSelectorInput = (props) => {
-  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, gpsFormat, showUserLocation } = props;
+  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
   const popoverContentRef = useRef(null);
+
+  const sidebarOpenBeforeGpsSelectStart = useRef(null);
 
   const [gpsPopoverOpen, setGpsPopoverState] = useState(false);
 
@@ -77,11 +79,16 @@ const LocationSelectorInput = (props) => {
   }, []);  /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const onLocationSelectFromMapStart = useCallback(() => {
+    sidebarOpenBeforeGpsSelectStart.current = !!sidebarOpen;
     setModalVisibilityState(false);
     updateUserPreferences({ sidebarOpen: false });
-  }, [setModalVisibilityState, updateUserPreferences]);
+  }, [setModalVisibilityState, sidebarOpen, updateUserPreferences]);
   
   const onLocationSelectFromMapCancel = () => {
+    if (sidebarOpenBeforeGpsSelectStart.current) {
+      updateUserPreferences({ sidebarOpen: true });
+    }
+
     setModalVisibilityState(true);
   };
 
@@ -96,11 +103,15 @@ const LocationSelectorInput = (props) => {
   }, [hideGpsPopover, onLocationChange, setModalVisibilityState]);
 
   const onLocationSelectFromMap = useCallback((event) => {
+    if (sidebarOpenBeforeGpsSelectStart.current) {
+      updateUserPreferences({ sidebarOpen: true });
+    }
+
     const { lngLat: { lat, lng } } = event;
     onLocationChange([lng, lat]);
     setModalVisibilityState(true);
     hideGpsPopover();
-  }, [hideGpsPopover, onLocationChange, setModalVisibilityState]);
+  }, [hideGpsPopover, onLocationChange, setModalVisibilityState, updateUserPreferences]);
 
   const handleEscapePress = useCallback((event) => {
     const { key } = event;
@@ -149,12 +160,18 @@ const LocationSelectorInput = (props) => {
   </label>;
 };
 
-const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat } } }) => ({
+const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat, sidebarOpen } } }) => ({
   gpsFormat,
   showUserLocation,
+  sidebarOpen,
 });
 
-export default debounceRender(connect(mapStateToProps, { setModalVisibilityState, updateUserPreferences })(memo(LocationSelectorInput)));
+const mapDispatchToProps = (dispatch) => ({
+  setModalVisibilityState: (state) => dispatch(setModalVisibilityState(state)),
+  updateUserPreferences: (preference) => dispatch(updateUserPreferences(preference)),
+});
+
+export default debounceRender(connect(mapStateToProps, mapDispatchToProps)(memo(LocationSelectorInput)));
 
 LocationSelectorInput.defaultProps = {
   label: 'Location:',
