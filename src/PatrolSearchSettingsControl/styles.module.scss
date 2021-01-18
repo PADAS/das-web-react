@@ -1,0 +1,22 @@
+
+@mixin buttonOpacity {
+  opacity: 0.75;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.gearButton {
+  @include buttonOpacity;
+  svg {
+    height: 1.75rem;
+    width: 1.75rem;
+    fill: #333;
+  }
+}
+
+.radio {
+  input[type="radio"]{
+    margin-right: 0.5rem;
+  };
+}

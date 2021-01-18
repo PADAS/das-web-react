@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 
 import DateTimePickerPopover from '../DateTimePickerPopover';
+import PatrolSearchSettingsControl from '../PatrolSearchSettingsControl';
 
 import styles from './styles.module.scss';
 import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
@@ -24,6 +25,10 @@ const DateRangeSelector = (props) => {
   const endDateDayClicked = useRef(false);
 
   const hasEndMaxDate = typeof endMaxDate !== 'undefined';
+
+  const onSearchSettingsButtonClick = (e) => {
+    console.log('clicked searchsettings');
+  };
 
   const handleEndDateChange = (val) => {
     if (endDateDayClicked.current) {
@@ -90,6 +95,7 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
+      <PatrolSearchSettingsControl className={styles.settingsButton} />
     </div>}
   </div>;
 };

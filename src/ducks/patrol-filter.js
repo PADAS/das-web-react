@@ -1,5 +1,4 @@
 import { endOfToday, startOfToday } from '../utils/datetime';
-import merge from 'lodash/merge';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
 
 const defaultDateRange = {
@@ -14,11 +13,19 @@ const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
 const RESET_PATROL_FILTER = 'RESET_PATROL_FILTER';
+const FILTER_INCLUDES_PATROL_STARTS = 'FILTER_INCLUDES_PATROL_STARTS';
 
 // ACTION CREATORS
 export const updatePatrolFilter = (update) => (dispatch) => {
   dispatch({
     type: UPDATE_PATROL_FILTER,
+    payload: update,
+  });
+};
+
+export const setFilterIncludesStarts = (update) => (dispatch) => {
+  dispatch({
+    type: FILTER_INCLUDES_PATROL_STARTS,
     payload: update,
   });
 };
@@ -32,6 +39,16 @@ export const INITIAL_FILTER_STATE = {
     // text: '',
     // leader: [],
   },
+};
+
+export const patrolFilterSettingsReducer = (state = false, action) => {
+  const { type, payload } = action;
+
+  if (type === FILTER_INCLUDES_PATROL_STARTS) {
+    return payload;
+  }
+
+  return state;
 };
 
 const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {

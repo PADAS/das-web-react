@@ -20,8 +20,11 @@ export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INI
 
 export const calcPatrolFilterForRequest = (options = {}) => {
   const { data: { patrolFilter } } = store.getState();
+  const { data: { filterIncludesPatrolStarts } } = store.getState();
   const { params } = options;
+  params.include_patrol_starts = filterIncludesPatrolStarts;
   const  filterParams = merge({}, patrolFilter, params);
+  console.log('filterParams>>>>>>>>>>>>', filterParams);
   return objectToParamString(filterParams);  
 };
 
