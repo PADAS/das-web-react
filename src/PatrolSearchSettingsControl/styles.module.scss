@@ -9,14 +9,20 @@
 .gearButton {
   @include buttonOpacity;
   svg {
-    height: 1.75rem;
-    width: 1.75rem;
+    height: 1.25rem;
+    width: 1.25rem;
     fill: #333;
   }
+  position: absolute;
+  right: .75rem;
+  bottom: .0rem;
 }
 
-.radio {
+.filterOption {
   input[type="radio"]{
     margin-right: 0.5rem;
   };
+  span {
+
+  }
 }

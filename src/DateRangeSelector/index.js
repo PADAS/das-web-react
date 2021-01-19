@@ -17,7 +17,7 @@ const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
     defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
-    children, placement, ...rest } = props;
+    children, placement, showPatrolSearchSettings, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -95,7 +95,7 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
-      <PatrolSearchSettingsControl className={styles.settingsButton} />
+      {showPatrolSearchSettings && <PatrolSearchSettingsControl className={styles.settingsButton} />}
     </div>}
   </div>;
 };

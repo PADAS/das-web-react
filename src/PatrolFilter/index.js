@@ -184,7 +184,7 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
+      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel='' showPatrolSearchSettings={true} />
     </Popover.Content>
   </Popover>;
 
