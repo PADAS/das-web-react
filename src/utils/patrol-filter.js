@@ -72,7 +72,7 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
   if (!dateRangeModified) {
     return {
       title: 'Current Patrols',
-      details: '00:00 to now',
+      details: '00:00 to 23:59',
     };
   }
 

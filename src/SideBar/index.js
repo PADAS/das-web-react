@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState, memo } from 'react';
 import { MapContext } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -7,6 +7,7 @@ import Tab from 'react-bootstrap/Tab';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
+import isUndefined from 'lodash/isUndefined';
 
 import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
 import { useMatchMedia, useFeatureFlag } from '../hooks';
@@ -32,6 +33,7 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
 import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
+import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 
 import styles from './styles.module.scss';
 
@@ -50,6 +52,22 @@ const TAB_KEYS = {
   PATROLS: 'patrols',
 };
 
+const SET_TAB = 'SET_TAB';
+
+const setActiveTab = (tab) => ({
+  type: 'SET_TAB',
+  payload: tab,
+});
+
+const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
+
+const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
+  if (action.type === SET_TAB) {
+    return action.payload;
+  }
+  return state;
+};
+
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
@@ -58,7 +76,7 @@ const SideBar = (props) => {
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
-  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+  const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
 
   const onScroll = () => fetchNextEventFeedPage(events.next);
 
@@ -74,6 +92,8 @@ const SideBar = (props) => {
     }
     return value;
   }, [eventFilter]);
+
+  const activeTabPreClose = useRef(null);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
@@ -98,7 +118,7 @@ const SideBar = (props) => {
   };
 
   const onTabsSelect = (eventKey) => {
-    setActiveTab(eventKey);
+    dispatch(setActiveTab(eventKey));
     let tabTitles = {
       [TAB_KEYS.REPORTS]: 'Reports',
       [TAB_KEYS.LAYERS]: 'Map Layers',
@@ -132,10 +152,17 @@ const SideBar = (props) => {
   }, [patrolFilter]); // eslint-disable-line
 
   useEffect(() => {
-    if (!sidebarOpen) {
-      setActiveTab(TAB_KEYS.REPORTS);
+    if (!isUndefined(sidebarOpen)) {
+      if (!sidebarOpen) {
+        activeTabPreClose.current = activeTab.current;
+        dispatch(setActiveTab(TAB_KEYS.REPORTS));
+      } else {
+        if ( activeTabPreClose.current !== TAB_KEYS.REPORTS) {
+          dispatch(undo(SIDEBAR_STATE_REDUCER_NAMESPACE));
+        }
+      }
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
   const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
@@ -159,6 +186,8 @@ const SideBar = (props) => {
 
   if (!map) return null;
 
+  const selectedTab = !!activeTab && activeTab.current;
+
   return <ErrorBoundary>
     <MapContext.Provider value={map}>
       <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
@@ -166,7 +195,7 @@ const SideBar = (props) => {
         <div className={styles.addReportContainer}>
           <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
         </div>
-        <Tabs activeKey={activeTab} onSelect={onTabsSelect} className={styles.tabBar}>
+        <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
           <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
             <DelayedUnmount isMounted={sidebarOpen}>
               <ErrorBoundary>
