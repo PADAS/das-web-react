@@ -22,7 +22,7 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import styles from './styles.module.scss';
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, dispatch:_dispatch, ...rest } = props;
+  const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, pickingLocationOnMap, dispatch:_dispatch, ...rest } = props;
 
   const { patrol, leader, trackData } = patrolData;
 
@@ -116,12 +116,13 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   }, [hidePopover]);
 
   const handleOutsideClick = useCallback((e) => {
-    if (popoverRef.current && 
-        (!popoverRef.current.contains(e.target))) {
+    if (popoverRef.current
+    && (!popoverRef.current.contains(e.target))
+    && !pickingLocationOnMap) {
       setPopoverState(false);
       hidePopover('outside click');
     }
-  }, [hidePopover]);
+  }, [hidePopover, pickingLocationOnMap]);
 
   useEffect(() => {
     if (popoverOpen) {
@@ -201,6 +202,7 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, props) => {
     return {
       patrolData: getDataForPatrolFromProps(state, props),
+      pickingLocationOnMap: state?.view?.userPreferences?.pickingLocationOnMap,
     };
   };
   return mapStateToProps;
