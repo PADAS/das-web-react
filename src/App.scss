@@ -125,6 +125,10 @@ aside {
   .modal-dialog {
     max-width: 46rem;
   }
+  &.readonly .modal-content > *:not([class*=formButtons]) {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 
 .json-schema-checkbox-wrapper {

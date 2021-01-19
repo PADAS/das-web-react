@@ -9,8 +9,8 @@ import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
-import { BREAKPOINTS, FEATURE_FLAGS } from '../constants';
-import { useMatchMedia, useFeatureFlag } from '../hooks';
+import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
@@ -167,7 +167,10 @@ const SideBar = (props) => {
   const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
   const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
 
-  const showPatrols = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+
+  const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'

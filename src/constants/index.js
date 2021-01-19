@@ -260,3 +260,16 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
   '/admin',
   '/admin/',
 ];
+
+export const PERMISSION_KEYS = {
+  PATROLS: 'patrol',
+  PATROL_TYPES: 'patroltype',
+};
+
+
+export const PERMISSIONS = {
+  CREATE: 'add',
+  READ: 'view',
+  UPDATE: 'change',
+  DELETE: 'delete',
+};

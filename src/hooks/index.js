@@ -7,6 +7,16 @@ const useFeatureFlag = flag =>
     !!state?.view?.systemConfig?.[flag]
   );
 
+const usePermissions = (permissionKey, ...permissions) =>  {
+  const permissionSet = useSelector(state => {
+    return state?.data?.user?.permissions?.[0]?.[permissionKey]; // some funk here with a redundant object-inside-array formatting, to be cleaned up on the API
+  }
+  )
+  || [];
+
+  return permissions.every(item => permissionSet.includes(item));
+};
+
 const useMatchMedia = (matchMediaDef) => {
   const isClient = typeof window === 'object';
 
@@ -30,6 +40,7 @@ const useMatchMedia = (matchMediaDef) => {
 
 export {
   useFeatureFlag,
+  usePermissions,
   useMatchMedia,
 };
 
