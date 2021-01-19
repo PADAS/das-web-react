@@ -103,35 +103,36 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     setPopoverState(false);
   }, [onPatrolChange]);
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      const { key } = event;
-      if (key === 'Escape') {
-        setPopoverState(false);
-        trackEvent('Patrol Card', 'Close patrol card popover (escape key)');
-      }
-    };
-    const handleOutsideClick = (e) => {
-      if (popoverRef.current && 
+  const hidePopover = useCallback((provenance) => {
+    setPopoverState(false);
+    trackEvent('Patrol Card', `Close patrol card popover${provenance ? ` (${provenance})` : ''}`);
+  }, []);
+
+  const handleKeyDown = useCallback((event) => {
+    const { key } = event;
+    if (key === 'Escape') {
+      hidePopover('escape key');
+    }
+  }, [hidePopover]);
+
+  const handleOutsideClick = useCallback((e) => {
+    if (popoverRef.current && 
         (!popoverRef.current.contains(e.target))) {
-        setPopoverState(false);
-        trackEvent('Patrol Card', 'Close patrol card popover (outside click)');
-      }
+      setPopoverState(false);
+      hidePopover('outside click');
+    }
+  }, [hidePopover]);
+
+  useEffect(() => {
+    if (popoverOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-    setTimeout(() => {
-      if (popoverOpen) {
-        document.addEventListener('mousedown', handleOutsideClick);
-        document.addEventListener('keydown', handleKeyDown);
-      } else {
-        document.removeEventListener('mousedown', handleOutsideClick);
-        document.removeEventListener('keydown', handleKeyDown);
-      }
-      return () => {
-        document.removeEventListener('mousedown', handleOutsideClick);
-        document.removeEventListener('keydown', handleKeyDown);
-      };
-    });
-  }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [handleKeyDown, handleOutsideClick, hidePopover, popoverOpen]); 
 
   useEffect(() => {
     if (patrolIsCancelled) {
@@ -183,7 +184,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       </Fragment>}
     </div>
     <h6 ref={stateTitleRef} onClick={togglePopoverIfPossible}>{patrolStateTitle}</h6>
-{/*     <AddReport className={styles.addReport} 
+    {/*     <AddReport className={styles.addReport} 
       analyticsMetadata={{
         category: 'Feed',
         location: 'patrol card popover',

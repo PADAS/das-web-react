@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useRef, useState, useEffect } from 'react';
+import React, { Fragment, forwardRef, memo, useRef, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
@@ -23,7 +23,7 @@ const MapboxMap = ReactMapboxGl({
 });
 
 export function withMap(Component) {
-  return props => <MapContext.Consumer>{map => <Component map={map} {...props} />}</MapContext.Consumer>; // eslint-disable-line react/display-name
+  return forwardRef((props, ref) => <MapContext.Consumer>{map => <Component map={map} {...props} ref={ref} />}</MapContext.Consumer>); // eslint-disable-line react/display-name
 };
 
 const EarthRangerMap = (props) => {
