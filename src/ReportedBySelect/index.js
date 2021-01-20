@@ -78,7 +78,7 @@ const ReportedBySelect = (props) => {
       && (data.last_voice_call_start_at || data.last_position_date);
 
     return (
-      <div className={styles.option} >
+      <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`} >
         <components.Option {...props}>
           <span>{getOptionLabel(data)}</span>
           {isRecent &&
