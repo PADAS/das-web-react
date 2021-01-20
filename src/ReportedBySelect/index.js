@@ -15,7 +15,6 @@ const ReportedBySelect = (props) => {
   const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder } = props;
 
   const [recentRadios, setRecentRadios] = useState([]);
-  const [allReporters, setAllReporters] = useState([]);
 
   useEffect(() => {
     setRecentRadios(
@@ -23,10 +22,6 @@ const ReportedBySelect = (props) => {
         .splice(0, numberOfRecentRadiosToShow)
     );
   }, [numberOfRecentRadiosToShow, subjects]);
-
-  useEffect(() => {
-    setAllReporters([...reporters]);
-  }, [reporters]);
 
 
   const optionalProps = {};
@@ -52,14 +47,16 @@ const ReportedBySelect = (props) => {
     },
     {
       label: 'All',
-      options: allReporters,
+      options: reporters || [],
     },
   ];
 
-  const getOptionLabel = ({ name, content_type, first_name, last_name }) =>
-    content_type === 'accounts.user' 
+  const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
+    if (hidden) return '*** Unknown ***';
+    return content_type === 'accounts.user' 
       ? `${first_name} ${last_name}` 
       : name;
+  };
 
   const getOptionValue = ({ id }) => id;
 

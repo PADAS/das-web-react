@@ -9,7 +9,7 @@ const useFeatureFlag = flag =>
 
 const usePermissions = (permissionKey, ...permissions) =>  {
   const permissionSet = useSelector(state => {
-    return state?.data?.user?.permissions?.[permissionKey]; // some funk here with a redundant object-inside-array formatting, to be cleaned up on the API
+    return state?.data?.user?.permissions?.[permissionKey];
   }
   )
   || [];

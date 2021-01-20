@@ -7,7 +7,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import CustomPropTypes from '../proptypes';
-import { useFeatureFlag } from '../hooks';
+import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
@@ -15,7 +15,7 @@ import { openModalForPatrol, generatePseudoReportCategoryForPatrolTypes, createN
 
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS } from '../constants';
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -25,7 +25,11 @@ const AddReport = (props) => {
 
   const [selectedCategory, selectCategory] = useState(null);
 
-  const patrolsEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+
+  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
+
+  const patrolsEnabled = !!patrolFlagEnabled && !!hasPatrolWritePermissions;
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);

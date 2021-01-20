@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { usePermissions } from '../hooks';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
@@ -18,13 +19,13 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, getReportIdsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { trackEvent } from '../utils/analytics';
 
 
-import { PATROL_CARD_STATES, REPORT_PRIORITIES } from '../constants';
+import { PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -68,6 +69,7 @@ const PatrolModal = (props) => {
   const actualStartTime = useMemo(() => actualStartTimeForPatrol(statePatrol), [statePatrol]);
   const actualEndTime = useMemo(() => actualEndTimeForPatrol(statePatrol), [statePatrol]);
   const displayDuration = useMemo(() => displayDurationForPatrol(statePatrol), [statePatrol]);
+  const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
@@ -539,6 +541,8 @@ const PatrolModal = (props) => {
     openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
   }, [map, onAddReport]);
 
+  const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
+
   return <EditableItem data={patrolWithFlattenedHistory}>
     <Modal>
       {isSaving && <LoadingOverlay className={styles.savingOverlay} message='Saving Patrol...' />}
@@ -652,7 +656,8 @@ const PatrolModal = (props) => {
           hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
       </AttachmentControls>
       <Footer
-        saveDisabled={isSaving}
+        cancelTitle={canEditPatrol ? undefined : 'Close'}
+        saveDisabled={saveButtonDisabled}
         onCancel={onCancel}
         onSave={onSave}
         isActiveState={true}
