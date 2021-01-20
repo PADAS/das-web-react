@@ -65,7 +65,7 @@ const rootReducer = combineReducers({
     eula: eulaReducer,
     eventFilter: eventFilterReducer,
     patrolFilter: patrolFilterReducer,
-    filterIncludesPatrolStarts: patrolFilterSettingsReducer,
+    patrolsOverlapFilter: patrolFilterSettingsReducer,
     eventSchemas: eventSchemaReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistanceConfig, featuresReducer),

@@ -5,17 +5,16 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
-import { setFilterIncludesStarts } from '../ducks/patrol-filter';
+import { setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 
 const PatrolSearchSettingsControl = (props) => {
-  const { filterIncludesPatrolStarts, setFilterIncludesStarts } = props;
+  const { patrolsOverlapFilter, setPatrolFilterAllowsOverlap } = props;
   const formRef = useRef(null);
 
   const handleOptionChange = (e) => {
-    console.log('clicked', e.currentTarget.value);
     e.preventDefault();
     e.stopPropagation();
-    setFilterIncludesStarts(e.currentTarget.value === 'start_dates');
+    setPatrolFilterAllowsOverlap(e.currentTarget.value === 'overlap_dates');
   };
 
   const popover = (
@@ -26,7 +25,7 @@ const PatrolSearchSettingsControl = (props) => {
             <input
               type="radio"
               value="start_dates"
-              checked={filterIncludesPatrolStarts}
+              checked={!patrolsOverlapFilter}
               onChange={handleOptionChange}
             />
             <span>Include patrols starting within date range</span>
@@ -37,7 +36,7 @@ const PatrolSearchSettingsControl = (props) => {
             <input
               type="radio"
               value="overlap_dates"
-              checked={!filterIncludesPatrolStarts}
+              checked={patrolsOverlapFilter}
               onChange={handleOptionChange}
             />
             <span>Include patrols whose start to end date range overlaps with date range </span>
@@ -59,11 +58,11 @@ const PatrolSearchSettingsControl = (props) => {
   </OverlayTrigger>;
 };
 
-const mapStateToProps = ({ data: { filterIncludesPatrolStarts } }) => {
-  return {filterIncludesPatrolStarts};
+const mapStateToProps = ({ data: { patrolsOverlapFilter } }) => {
+  return {patrolsOverlapFilter};
 };
 
-export default connect(mapStateToProps, {setFilterIncludesStarts})(memo(PatrolSearchSettingsControl));
+export default connect(mapStateToProps, {setPatrolFilterAllowsOverlap})(memo(PatrolSearchSettingsControl));
 
 PatrolSearchSettingsControl.defaultProps = {
   defaultSearchSetting: 'start_dates',

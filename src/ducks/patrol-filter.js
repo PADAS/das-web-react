@@ -12,8 +12,8 @@ const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(
   
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
-const RESET_PATROL_FILTER = 'RESET_PATROL_FILTER';
-const FILTER_INCLUDES_PATROL_STARTS = 'FILTER_INCLUDES_PATROL_STARTS';
+const RESET_PATROL_FILTER = 'RESET_PAROL_FILTER';
+const ALLOW_PATROL_FILTER_OVERLAP = 'ALLOW_PATROL_FILTER_OVERLAP';
 
 // ACTION CREATORS
 export const updatePatrolFilter = (update) => (dispatch) => {
@@ -23,9 +23,9 @@ export const updatePatrolFilter = (update) => (dispatch) => {
   });
 };
 
-export const setFilterIncludesStarts = (update) => (dispatch) => {
+export const setPatrolFilterAllowsOverlap = (update) => (dispatch) => {
   dispatch({
-    type: FILTER_INCLUDES_PATROL_STARTS,
+    type: ALLOW_PATROL_FILTER_OVERLAP,
     payload: update,
   });
 };
@@ -44,7 +44,7 @@ export const INITIAL_FILTER_STATE = {
 export const patrolFilterSettingsReducer = (state = false, action) => {
   const { type, payload } = action;
 
-  if (type === FILTER_INCLUDES_PATROL_STARTS) {
+  if (type === ALLOW_PATROL_FILTER_OVERLAP) {
     return payload;
   }
 
