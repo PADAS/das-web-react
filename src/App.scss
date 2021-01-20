@@ -143,7 +143,7 @@ aside {
       cursor: default;
       &::before {
         color: $light-font-color;
-        content: 'You only have permission to view patrols, any may not edit them.';
+        content: 'You only have permission to view patrols, and may not edit them.';
         display: block;
         font-style: italic;
         padding: 1rem;
