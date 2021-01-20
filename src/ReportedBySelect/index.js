@@ -44,7 +44,11 @@ const ReportedBySelect = (props) => {
         );
     }
 
-    return value.hidden ? value : reporters.find(reporter => reporter.id === value.id);
+    return !!value
+      ? value.hidden 
+        ? value 
+        : reporters.find(reporter => reporter.id === value.id)
+      : null;
 
   }, [isMulti, reporters, value]);
 
