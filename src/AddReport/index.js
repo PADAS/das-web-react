@@ -165,7 +165,7 @@ const AddReport = (props) => {
   </Popover>
   );
 
-  return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
+  return hasEventCategories && <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
     <button title={title} className={styles.addReport} ref={targetRef}
       type='button' onClick={onButtonClick}>
       {showIcon && <AddButtonIcon />}

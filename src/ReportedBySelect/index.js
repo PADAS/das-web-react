@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
@@ -34,11 +34,19 @@ const ReportedBySelect = (props) => {
     selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
   };
 
-  const selected = isMulti
-    ? !!value && !!value.length &&
-        value.map(item => reporters.find(reporter => reporter.id === item.id))
-          .filter(item => !!item)
-    : !!value && !!value.id && reporters.find(reporter => reporter.id === value.id);
+  const selected = useMemo(() => {
+    if (isMulti) {
+      !!value && !!value.length &&
+        value.map(item =>
+          item.hidden
+            ? item
+            : reporters.find(reporter => reporter.id === item.id)
+        );
+    }
+
+    return value.hidden ? value : reporters.find(reporter => reporter.id === value.id);
+
+  }, [isMulti, reporters, value]);
 
   const options = [
     {
@@ -52,13 +60,16 @@ const ReportedBySelect = (props) => {
   ];
 
   const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
-    if (hidden) return '*** Unknown ***';
+    if (hidden) return 'UNKNOWN';
     return content_type === 'accounts.user' 
       ? `${first_name} ${last_name}` 
       : name;
   };
 
-  const getOptionValue = ({ id }) => id;
+  const getOptionValue = ({ hidden, id }) => {
+    if (hidden) return 'hidden';
+    return id;
+  };
 
   const Option = (props) => {
     const { data } = props;
