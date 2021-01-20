@@ -129,6 +129,9 @@ aside {
     cursor: not-allowed;
     > *:not([class*=formButtons]) {
       pointer-events: none;
+      [class*=empty] {
+        opacity: 0;
+      }
     }
     > [class*=formButtons], > [class*=formHeader] [class*=history] {
       pointer-events: all;
