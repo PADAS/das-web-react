@@ -133,8 +133,11 @@ aside {
         opacity: 0;
       }
     }
-    > [class*=formButtons], > [class*=formHeader] [class*=history] {
+    > [class*=formButtons], > [class*=formHeader] [class*=history], [class*=locationAnchor]:not([class*=empty]), [class*=gpsPopover] [class*=choices] {
       pointer-events: all;
+    }
+    [class*=gpsPopover] [class*=locationButtons] {
+      display: none;
     }
     > [class*=attachmentControls] {
       display: none;
