@@ -64,7 +64,7 @@ const ReportedBySelect = (props) => {
   ];
 
   const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
-    if (hidden) return 'UNKNOWN';
+    if (hidden) return 'RESTRICTED';
     return content_type === 'accounts.user' 
       ? `${first_name} ${last_name}` 
       : name;
