@@ -1,6 +1,6 @@
 import React, { useRef, memo } from 'react';
 import { connect } from 'react-redux';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { Overlay, Popover } from 'react-bootstrap';
 
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { trackEvent } from '../utils/analytics';
@@ -8,7 +8,7 @@ import styles from './styles.module.scss';
 import { setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 
 const PatrolSearchSettingsControl = (props) => {
-  const { patrolsOverlapFilter, setPatrolFilterAllowsOverlap } = props;
+  const { patrolsOverlapFilter, setPatrolFilterAllowsOverlap, isOpen, target, container } = props;
   const formRef = useRef(null);
 
   const handleOptionChange = (e) => {
@@ -50,12 +50,13 @@ const PatrolSearchSettingsControl = (props) => {
     trackEvent('Map Interaction', 'Clicked Patrol Search Settings button');
   };
 
-  return <OverlayTrigger trigger="click" placement="bottom" rootClose={false} overlay={popover}>
-    <button type='button' className={styles.gearButton} ref={formRef}
+  return <Overlay show={isOpen} target={target.current} placement='bottom' container={container.current} rootClose>
+    {popover}
+    {/* <button type='button' className={styles.gearButton} ref={formRef}
       onClick={onButtonClick}>
       <GearIcon />
-    </button>
-  </OverlayTrigger>;
+    </button> */}
+  </Overlay>;
 };
 
 const mapStateToProps = ({ data: { patrolsOverlapFilter } }) => {

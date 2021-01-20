@@ -23,6 +23,7 @@ const DateRangeSelector = (props) => {
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
 
   const endDateDayClicked = useRef(false);
+  const settingsRef = useRef(false);
 
   const hasEndMaxDate = typeof endMaxDate !== 'undefined';
 
@@ -95,7 +96,13 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
-      {showPatrolSearchSettings && <PatrolSearchSettingsControl className={styles.settingsButton} />}
+      {showPatrolSearchSettings && <Fragment>
+        <button type='button' className={styles.gearButton} ref={formRef}
+          onClick={onButtonClick}>
+          <GearIcon />
+        </button>
+          <PatrolSearchSettingsControl container={settingsRef} className={styles.settingsButton} />
+        </Fragment>}
     </div>}
   </div>;
 };

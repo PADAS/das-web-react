@@ -49,7 +49,14 @@ const PatrolFilter = (props) => {
 
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
 
-  const menuContainerRef = useRef(null);
+  const containerRef = useRef(null);
+  
+  const [settingsPopoverOpen, setSettingsPopoverState] = useState(false);
+
+  const onSettingsPopoverHide = useCallback(() => setSettingsPopoverState(false), []);
+  const toggleSettingsPopover = useCallback(() => {
+      setSettingsPopoverState(!settingsPopoverOpen);
+  }, [settingsPopoverOpen]);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
@@ -184,7 +191,7 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel='' showPatrolSearchSettings={true} />
+      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel='' showPatrolSearchSettings={true} container={containerRef} onSettingsClick={toggleSettingsPopover}/>
     </Popover.Content>
   </Popover>;
 
@@ -212,7 +219,7 @@ const PatrolFilter = (props) => {
   // </Popover>;
 
   return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
-    <div className={styles.controls}  ref={menuContainerRef}>
+    <div className={styles.controls}  ref={containerRef}>
       {/* <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
           <FilterIcon className={styles.filterIcon} onClick={onPatrolFilterIconClicked} />
