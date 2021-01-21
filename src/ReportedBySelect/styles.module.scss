@@ -9,6 +9,10 @@
       color: white;
     }
   }
+  &.hidden {
+    color: $light-font-color;
+    font-style: italic;
+  }
 }
 
 

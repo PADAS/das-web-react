@@ -3,7 +3,7 @@ import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import concat from 'lodash/concat';
@@ -31,6 +31,12 @@ const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
 
+  const state = store.getState();
+
+  const patrolPermissions = state?.data?.user?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+
+  const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
+
   return store.dispatch(
     addModal({
       content: PatrolModal,
@@ -40,7 +46,7 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
       onSaveError,
       relationshipButtonDisabled,
       modalProps: {
-        className: 'patrol-form-modal',
+        className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
         // keyboard: false,
       },
     }));

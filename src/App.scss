@@ -125,6 +125,41 @@ aside {
   .modal-dialog {
     max-width: 46rem;
   }
+  &.readonly .modal-content > [class*=wrapper] {
+    cursor: not-allowed;
+    > *:not([class*=formButtons]) {
+      pointer-events: none;
+      [class*=empty] {
+        opacity: 0;
+      }
+    }
+    > [class*=formButtons], > [class*=formHeader] [class*=history], [class*=locationAnchor]:not([class*=empty]), [class*=gpsPopover] [class*=choices] {
+      pointer-events: all;
+    }
+    [class*=gpsPopover] [class*=locationButtons] {
+      display: none;
+    }
+    > [class*=attachmentControls] {
+      display: none;
+    }
+    > [class*=formHeader] [class*=history] {
+      cursor: pointer;
+    }
+    > [class*=formButtons] {
+      cursor: default;
+      &::before {
+        color: $light-font-color;
+        content: 'You only have permission to view patrols, and may not edit them.';
+        display: block;
+        font-style: italic;
+        padding: 1rem;
+        width: 100%;
+      }
+      [class*=saveButton] {
+        display: none;
+      }
+    }
+  }
 }
 
 .json-schema-checkbox-wrapper {
