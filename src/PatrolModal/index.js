@@ -57,12 +57,10 @@ const PatrolModal = (props) => {
   const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
-  const [notesToAdd, updateNotesToAdd] = useState([]);
   const [addedReports, setAddedReports] = useState([]);
   const [isSaving, setSaveState] = useState(false);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
-  const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
 
   const displayStartTime = useMemo(() => displayStartTimeForPatrol(statePatrol), [statePatrol]);
   const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
@@ -475,18 +473,13 @@ const PatrolModal = (props) => {
       console.log(resp);
     });
 
-    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
+    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', [], filesToUpload);
 
     return executeSaveActions(actions)
       .then((results) => {
         trackEvent('Patrol Modal', `Saved ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
         removeModal(id);
-        // onSaveSuccess(results);
-        /*   if (report.is_collection && toSubmit.state) {
-          return Promise.all(report.contains
-            .map(contained => contained.related_event.id)
-            .map(id => setEventState(id, toSubmit.state)));
-        } */
+
         return results;
       })
       .catch((error) => {
@@ -496,7 +489,7 @@ const PatrolModal = (props) => {
       .finally(() => {
         setSaveState(false);
       });
-  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol, addedReports, patrolSegmentId]);
+  }, [addModal, filesToUpload, id, removeModal, statePatrol, addedReports, patrolSegmentId]);
 
   const startTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -605,7 +598,7 @@ const PatrolModal = (props) => {
         <AttachmentList
           className={styles.attachments}
           files={filesToList}
-          notes={notesToList}
+          notes={statePatrol.notes}
           onClickFile={onClickFile}
           onClickNote={startEditNote}
           onDeleteNote={onDeleteNote}
@@ -653,7 +646,12 @@ const PatrolModal = (props) => {
             category: 'Patrol Modal',
             location: 'patrol modal',
           }}
-          hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
+          formProps={{
+            hidePatrols: true,
+            onSaveSuccess: onAddReport,
+            isPatrolReport: true,
+          }}
+        />}
       </AttachmentControls>
       <Footer
         cancelTitle={canEditPatrol ? undefined : 'Close'}

@@ -132,6 +132,10 @@ const DataExportMenu = (props) => {
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
+  const onDoTheThing = useCallback(() => {
+    console.log('the thing is being done, my lord');
+  }, []);
+
   const onAboutClick = useCallback(() => {
     addModal({ content: AboutModal });
   }, [addModal]);
@@ -154,6 +158,7 @@ const DataExportMenu = (props) => {
       <Divider />
       <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
+      <Item onClick={onDoTheThing}>Do The Thing</Item>
       <Divider />
       <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>

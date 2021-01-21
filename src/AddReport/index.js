@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
@@ -19,46 +21,107 @@ import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import styles from './styles.module.scss';
 
+const TAB_KEYS = {
+  REPORTS: 'reports',
+  PATROLS: 'patrols',
+};
+
+const CategoryList = (props) => {
+  const { eventsByCategory, selectedCategory, onCategoryClick } = props;
+
+  return <ul className={styles.categoryMenu}>
+    {eventsByCategory
+      .map((category) => {
+        const { value, display } = category;
+        return <li key={value}>
+          <button type='button' className={value === selectedCategory.value ? styles.activeCategory : ''}
+            onClick={() => onCategoryClick(category)}>{display}</button>
+        </li>;
+      }
+      )}
+  </ul>;
+};
+
+const ReportTypeList = (props) => {
+  const { reportTypes, onClickReportType } = props;
+
+  const createListItem = (reportType) => {
+    return <li key={reportType.id}>
+      <button type='button' onClick={() => onClickReportType(reportType)}>
+        <EventTypeListItem {...reportType} />
+      </button>
+    </li>;
+  };
+
+  return !!reportTypes.length && <ul className={styles.reportTypeMenu}>
+    {reportTypes.map(createListItem)}
+  </ul>;
+};
+
+const MemoizedReportTypeList = memo(ReportTypeList);
+const MemoizedCategoryList = memo(CategoryList);
+
+const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+  const { eventsByCategory, selectedCategory, onCategoryClick, onClickReportType, patrolsEnabled } = props;
+
+  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+
+
+  return <Popover {...props} ref={ref} className={styles.popover}> 
+    <Popover.Content>
+      <Tabs activeKey={activeTab} onSelect={setActiveTab} className={styles.tabBar}>
+        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
+          <MemoizedCategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
+          <MemoizedReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
+        </Tab>
+        {patrolsEnabled && <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Patrol">
+        </Tab>}
+      </Tabs>
+    </Popover.Content>
+  </Popover>;
+});
+
+const MemoizedAddReportPopover = memo(AddReportPopover);
+
+
 const AddReport = (props) => {
-  const { analyticsMetadata, className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, isPatrolReport, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
+  const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
+    map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
+
+  const { hidePatrols } = formProps;
 
   const [selectedCategory, selectCategory] = useState(null);
-
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
 
-  const patrolsEnabled = !!patrolFlagEnabled && !!hasPatrolWritePermissions;
+  
+
+  const patrolsEnabled = !!patrolFlagEnabled
+    && !!hasPatrolWritePermissions 
+    && !!patrolTypes.length 
+    && !hidePatrols;
 
   const targetRef = useRef(null);
   const containerRef = useRef(null);
+
   const [popoverOpen, setPopoverState] = useState(false);
-  const placement = popoverPlacement || 'auto';
 
-  const displayCategories = useMemo(() => {
-    if (hidePatrols || !patrolsEnabled || !patrolTypes.length) return eventsByCategory;
+  const sortedPatrolTypes = useMemo(() => patrolTypes
+    .filter((type) =>
+      type.hasOwnProperty('is_active')
+        ? !!type.is_active 
+        : true
+    )
+    .sort((item1, item2) => {
+      const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
+      const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
 
-    const sortedPatrolTypes = patrolTypes
-      .filter((type) =>
-        type.hasOwnProperty('is_active')
-          ? !!type.is_active 
-          : true
-      )
-      .sort((item1, item2) => {
-        const first = typeof item1.ordernum === 'number' ? item1.ordernum : 1000;
-        const second = typeof item2.ordernum === 'number' ? item2.ordernum : 1000;
+      return first - second;
+    })
+  , [patrolTypes]);
 
-        return first - second;
-      });
-
-    return [
-      generatePseudoReportCategoryForPatrolTypes(sortedPatrolTypes),
-      ...eventsByCategory,
-    ];
-  }, [eventsByCategory, hidePatrols, patrolTypes, patrolsEnabled]);
-
-  const hasEventCategories = !!displayCategories.length;
+  const hasEventCategories = !!eventsByCategory.length;
 
   const onButtonClick = useCallback((e) => {
     if (clickSideEffect) {
@@ -79,9 +142,9 @@ const AddReport = (props) => {
 
   useEffect(() => {
     if (hasEventCategories && !selectedCategory) {
-      selectCategory(displayCategories[0].value);
+      selectCategory(eventsByCategory[0]);
     }
-  }, [hasEventCategories, displayCategories, selectedCategory]);
+  }, [hasEventCategories, selectedCategory, eventsByCategory]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -91,15 +154,13 @@ const AddReport = (props) => {
     };
     if (popoverOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
-    } else {
-      document.removeEventListener('mousedown', handleOutsideClick);
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const startEditNewReport = (reportType) => {
+  const startEditNewReport = useCallback((reportType) => {
     trackEvent(analyticsMetadata.category, `Click Add '${reportType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
 
     /* PATROL_SCAFFOLD */
@@ -116,54 +177,14 @@ const AddReport = (props) => {
 
     const newReport = createNewReportForEventType(reportType, reportData);
     
-    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport  });
+    openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  };
+  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
-  const onCategoryClick = (category) => {
+  const onCategoryClick = useCallback((category) => {
     selectCategory(category);
     trackEvent(analyticsMetadata.category, `Click '${category}' Category option${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
-  };
-
-
-  const CategoryList = (props) => {
-    const { eventsByCategory, selectedCategory, onCategoryClick } = props;
-
-    return <ul className={styles.categoryMenu}>
-      {eventsByCategory
-        .map(({ value, display }) =>
-          <li key={value}>
-            <button type='button' className={value === selectedCategory ? styles.activeCategory : ''}
-              onClick={() => onCategoryClick(value)}>{display}</button>
-          </li>
-        )}
-    </ul>;
-  };
-
-  const ReportTypeList = (props) => {
-    const { eventsByCategory, selectedCategory } = props;
-
-    const createListItem = (reportType) => {
-      return <li key={reportType.id}>
-        <button type='button' onClick={() => startEditNewReport(reportType)}>
-          <EventTypeListItem {...reportType} />
-        </button>
-      </li>;
-    };
-
-    return hasEventCategories && <ul className={styles.reportTypeMenu}>
-      {eventsByCategory.find(({ value: c }) => c === selectedCategory).types.map(createListItem)}
-    </ul>;
-  };
-
-  const AddReportPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.popover}> {/* eslint-disable-line react/display-name */}
-    <Popover.Title>{title}</Popover.Title>
-    <Popover.Content>
-      <CategoryList eventsByCategory={displayCategories} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
-      <ReportTypeList eventsByCategory={displayCategories} selectedCategory={selectedCategory} />
-    </Popover.Content>
-  </Popover>
-  );
+  }, [analyticsMetadata.category, analyticsMetadata.location]);
 
   return hasEventCategories && <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
     <button title={title} className={styles.addReport} ref={targetRef}
@@ -171,8 +192,9 @@ const AddReport = (props) => {
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>{title}</span>}
     </button>
-    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={placement}>
-      <AddReportPopover />
+    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
+      <MemoizedAddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory}
+        onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} />
     </Overlay>
   </div>;
 };
@@ -188,28 +210,36 @@ AddReport.defaultProps = {
     category: 'Feed',
     location: null,
   },
-  relationshipButtonDisabled: false,
   showIcon: true,
   showLabel: true,
   title: 'Add',
-  onSaveSuccess() {
+  formProps: {
+    hidePatrols: false,
+    isPatrolReport: false,
+    relationshipButtonDisabled: false,
+    onSaveSuccess() {
 
-  },
-  onSaveError() {
-
+    },
+    onSaveError() {
+    },
   },
   reportData: {},
 };
 
 AddReport.propTypes = {
   analyticsMetaData: CustomPropTypes.analyticsMetadata,
-  relationshipButtonDisabled: PropTypes.bool,
-  hidePatrols: PropTypes.bool,
   map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
   title: PropTypes.string,
+  patrolTypes: PropTypes.array,
+  popoverPlacement: PropTypes.string,
   reportData: PropTypes.object,
-  onSaveSuccess: PropTypes.func,
-  onSaveError: PropTypes.func,
+  formProps: PropTypes.shape({
+    relationshipButtonDisabled: PropTypes.bool,
+    onSaveSuccess: PropTypes.func,
+    onSaveError: PropTypes.func,
+    hidePatrols: PropTypes.bool,
+    isPatrolReport: PropTypes.bool,
+  }),
 };
