@@ -15,6 +15,5 @@ const PatrolDistanceCovered = (props) => {
 export default memo(PatrolDistanceCovered);
 
 PatrolDistanceCovered.propTypes = {
-  tracks: PropTypes.object.isRequired,
-  patrol: PropTypes.object.isRequired,
+  trackData: PropTypes.object,
 };

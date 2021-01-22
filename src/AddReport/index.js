@@ -58,21 +58,18 @@ const ReportTypeList = (props) => {
   </ul>;
 };
 
-const MemoizedReportTypeList = memo(ReportTypeList);
-const MemoizedCategoryList = memo(CategoryList);
-
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { eventsByCategory, selectedCategory, onCategoryClick, onClickReportType, patrolsEnabled } = props;
+  const { eventsByCategory, selectedCategory, onCategoryClick, onClickReportType, patrolsEnabled, ...rest } = props;
 
   const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
 
 
-  return <Popover {...props} ref={ref} className={styles.popover}> 
+  return <Popover {...rest} ref={ref} className={styles.popover}> 
     <Popover.Content>
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className={styles.tabBar}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
-          <MemoizedCategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
-          <MemoizedReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
+          <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
+          <ReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
         </Tab>
         {patrolsEnabled && <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Patrol">
         </Tab>}
@@ -80,8 +77,6 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
     </Popover.Content>
   </Popover>;
 });
-
-const MemoizedAddReportPopover = memo(AddReportPopover);
 
 
 const AddReport = (props) => {
@@ -193,7 +188,7 @@ const AddReport = (props) => {
       {showLabel && <span>{title}</span>}
     </button>
     <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
-      <MemoizedAddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory}
+      <AddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} placement={popoverPlacement}
         onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} />
     </Overlay>
   </div>;
