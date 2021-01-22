@@ -51,12 +51,12 @@ const PatrolFilter = (props) => {
 
   const containerRef = useRef(null);
   
-  const [settingsPopoverOpen, setSettingsPopoverState] = useState(false);
+  const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 
-  const onSettingsPopoverHide = useCallback(() => setSettingsPopoverState(false), []);
-  const toggleSettingsPopover = useCallback(() => {
-      setSettingsPopoverState(!settingsPopoverOpen);
-  }, [settingsPopoverOpen]);
+  const toggleFilterSettingsPopover = useCallback(() => {
+    console.log('Settings click');
+    setFilterSettingsPopoverState(!filterSettingsOpen);
+  }, [filterSettingsOpen]);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
@@ -191,7 +191,7 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel='' showPatrolSearchSettings={true} container={containerRef} onSettingsClick={toggleSettingsPopover}/>
+      <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' endDateLabel='' startDateLabel='' showFilterSettings={true} container={containerRef} onSettingsButtonClick={toggleFilterSettingsPopover}/>
     </Popover.Content>
   </Popover>;
 

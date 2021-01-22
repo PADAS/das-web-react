@@ -1,12 +1,13 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useCallback, useRef, useState, Fragment } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 
 import DateTimePickerPopover from '../DateTimePickerPopover';
-import PatrolSearchSettingsControl from '../PatrolSearchSettingsControl';
+import PatrolFilterSettingsControl from '../PatrolFilterSettingsControl';
 
 import styles from './styles.module.scss';
+import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { generateMonthsAgoDate, generateDaysAgoDate, generateWeeksAgoDate } from '../utils/datetime';
 
 import DateRangeSelectionString from './DateRangeSelectionString';
@@ -17,19 +18,23 @@ const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
     defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
-    children, placement, showPatrolSearchSettings, ...rest } = props;
+    children, placement, showFilterSettings, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
 
   const endDateDayClicked = useRef(false);
-  const settingsRef = useRef(false);
+  const settingsButtonRef = useRef(null);
+  const popoverRef = useRef(null);
+  const containerRef = useRef(null)
+
+  const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
+
+  const toggleFilterSettingsPopover = useCallback(() => {
+    setFilterSettingsPopoverState(!filterSettingsOpen);
+  }, [filterSettingsOpen]);
 
   const hasEndMaxDate = typeof endMaxDate !== 'undefined';
-
-  const onSearchSettingsButtonClick = (e) => {
-    console.log('clicked searchsettings');
-  };
 
   const handleEndDateChange = (val) => {
     if (endDateDayClicked.current) {
@@ -43,7 +48,7 @@ const DateRangeSelector = (props) => {
     endDateDayClicked.current = true;
   };
 
-  return <div className={className || ''}>
+  return <div className={className || '' } ref={containerRef}>
     <div  className={styles.currentSelectedRange}>
       { (!!isAtDefault && !!defaultFriendlyString)
         ? <span className={styles.rangeString}>
@@ -96,12 +101,14 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
-      {showPatrolSearchSettings && <Fragment>
-        <button type='button' className={styles.gearButton} ref={formRef}
-          onClick={onButtonClick}>
+      {showFilterSettings && <Fragment>
+        <button type='button' className={styles.gearButton} ref={settingsButtonRef
+    }
+          onClick={toggleFilterSettingsPopover}>
           <GearIcon />
         </button>
-          <PatrolSearchSettingsControl container={settingsRef} className={styles.settingsButton} />
+          <PatrolFilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef
+      } container={containerRef} />
         </Fragment>}
     </div>}
   </div>;

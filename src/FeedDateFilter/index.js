@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 
 
 const FeedDateFilter = (props) => {
-  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, showPatrolSearchSettings, ...rest } = props;
+  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, showFilterSettings, onSettingsButtonClicked, filterSettingsOpen, container, ...rest } = props;
 
   const { lower, upper } = dateRange;
 
@@ -74,7 +74,7 @@ const FeedDateFilter = (props) => {
     showPresets={true}
     startDate={hasLower ? new Date(lower) : lower}
     startDateNullMessage={startDateNullMessage}
-    showPatrolSearchSettings={showPatrolSearchSettings}
+    showFilterSettings={showFilterSettings}
     {...rest} >
     {children}
   </DateRangeSelector>;
