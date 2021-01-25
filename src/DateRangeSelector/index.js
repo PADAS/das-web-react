@@ -107,8 +107,7 @@ const DateRangeSelector = (props) => {
           onClick={toggleFilterSettingsPopover}>
           <GearIcon />
         </button>
-          <PatrolFilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef
-      } container={containerRef} />
+          <PatrolFilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
         </Fragment>}
     </div>}
   </div>;
