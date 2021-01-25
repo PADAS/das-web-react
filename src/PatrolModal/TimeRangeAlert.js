@@ -9,11 +9,10 @@ const { Header, Title, Body, Footer } = Modal;
 
 const TimeRangeAlert = (props) => {
 
-  const { id, removeModal, onSaveCancelled } = props;
+  const { id, removeModal } = props;
 
   const onClickDone = useCallback(() => {
     removeModal(id);
-    onSaveCancelled();
   }, [id, removeModal]);
 
 
