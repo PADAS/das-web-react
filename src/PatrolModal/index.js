@@ -450,6 +450,8 @@ const PatrolModal = (props) => {
     return({...statePatrol, updates: allPatrolUpdateHistory});
   }, [statePatrol, allPatrolUpdateHistory]);
 
+  const onSaveCancelled = useCallback(() => setSaveState(false));
+
   const onSave = useCallback(() => {
     setSaveState(true);
     trackEvent('Patrol Modal', `Click "save" button for ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
@@ -465,7 +467,7 @@ const PatrolModal = (props) => {
     });
 
     if (!patrolTimeRangeIsValid(statePatrol)) {
-      addModal({content: TimeRangeAlert});
+      addModal({content: TimeRangeAlert, onSaveCancelled: onSaveCancelled});
       return;
     }
 
