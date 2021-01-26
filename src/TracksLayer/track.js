@@ -86,9 +86,7 @@ const TrackLayer = (props) => {
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
       filter={
-        [ 'all',
-          ['>', ['get', 'index'], 0],
-        ]
+        ['>', ['get', 'index'], 0]
       }
       onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}
 

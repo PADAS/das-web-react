@@ -271,30 +271,6 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
     ...rest,
   };
 
-/*   return {
-    ...featureCollection,
-    features: featureCollection.features.map((feature) => {
-      const envelope = findTimeEnvelopeIndices(feature.properties.coordinateProperties.times, from, until);
-    
-      if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
-        return feature;
-      }
-
-      const results = cloneDeep(feature);
-      
-      results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
-      results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
-
-      // if there are no results, return the oldest-known position as the only track point
-      if (!results.geometry.coordinates.length && feature.geometry.coordinates.length) {
-        const lastIndex = feature.geometry.coordinates.length - 1;
-        results.geometry.coordinates = [feature.geometry.coordinates[lastIndex]];
-        results.properties.coordinateProperties.times = [results.properties.coordinateProperties.times[lastIndex]];
-      }
-          
-      return results;
-    }),
-  }; */
 };
 
 export const addSocketStatusUpdateToTrack = (tracks, newData) => {
@@ -324,17 +300,19 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
     updatedPoints.features.unshift(update);
     updatedPoints.features[1].properties.bearing = bearing(updatedPoints.features[1].geometry.coordinates, updatedPoints.features[0].geometry.coordinates);
 
-    const pointsWithIndex = updatedPoints.map((point, index) => ({
-      ...point,
-      properties: {
-        ...point.properties,
-        index,
-      },
-    })
-    );
+    const withPointIndex = {
+      ...updatedPoints,
+      features: updatedPoints.features.map((point, index) => ({
+        ...point,
+        properties: {
+          ...point.properties,
+          index,
+        },
+      }))
+    };
   
     return {
-      track: updatedTrack, points: pointsWithIndex, ...rest,
+      track: updatedTrack, points: withPointIndex, ...rest,
     };
   }
   return tracks;
