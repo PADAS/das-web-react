@@ -19,13 +19,13 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { trackEvent } from '../utils/analytics';
 
 
-import { PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -460,7 +460,13 @@ const PatrolModal = (props) => {
     setSaveState(true);
     trackEvent('Patrol Modal', `Click "save" button for ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
 
-    let toSubmit = statePatrol;
+    let toSubmit = {...statePatrol};
+
+    if(patrolShouldBeMarkedDone(statePatrol)){
+      toSubmit.state=PATROL_API_STATES.DONE;
+    } else if (patrolShouldBeMarkedOpen(statePatrol)) {
+      toSubmit.state=PATROL_API_STATES.OPEN;
+    }
 
     const LOCATION_PROPS =  ['start_location', 'end_location'];
 
