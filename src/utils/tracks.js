@@ -25,7 +25,6 @@ export const convertTrackFeatureCollectionToPoints = feature => {
 
     const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
 
-    const hasEqualNeighbor = neighboringPointFeatureIsEqualWithNoBearing(item, index, collection);
 
     return {
       ...returnValue,
@@ -34,7 +33,6 @@ export const convertTrackFeatureCollectionToPoints = feature => {
         time: coordinateProperties.times[index],
         bearing: measuredBearing,
         index,
-        neighboringPointFeatureIsEqualWithNoBearing: hasEqualNeighbor,
       },
     };
   };
@@ -325,22 +323,19 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
 
     updatedPoints.features.unshift(update);
     updatedPoints.features[1].properties.bearing = bearing(updatedPoints.features[1].geometry.coordinates, updatedPoints.features[0].geometry.coordinates);
+
+    const pointsWithIndex = updatedPoints.map((point, index) => ({
+      ...point,
+      properties: {
+        ...point.properties,
+        index,
+      },
+    })
+    );
   
     return {
-      track: updatedTrack, points: updatedPoints, ...rest,
+      track: updatedTrack, points: pointsWithIndex, ...rest,
     };
   }
   return tracks;
-};
-
-export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, collection) => {
-  if (feature.properties.bearing !== 0) return false;
-
-  const next = collection[index + 1];
-  const previous = collection[index - 1];
-
-  if (!next && !previous) return false;
-
-  return (next && isEqual(feature.geometry.coordinates, next.geometry.coordinates) // eslint-disable-line no-mixed-operators
-    || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
 };
