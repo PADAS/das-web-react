@@ -13,24 +13,6 @@ import { store } from '../index';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 
-/* tracks come in a variety of linestring formats, which we explode into points to generate timepoint layers and heatmap data.
-   as such, the exploded version of a track can have duplicate entries ("connection points" between lines), causing strange side effects. the nature of the duplicates
-   are dependent on the track source, so this utility function takes a fairly naive but effective approach to de-duping.
-*/
-export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, collection) => {
-  if (feature.properties.bearing !== 0) return false;
-
-  const next = collection[index + 1];
-  const previous = collection[index - 1];
-
-  if (!next && !previous) return false;
-
-  return (next && isEqual(feature.geometry.coordinates, next.geometry.coordinates) // eslint-disable-line no-mixed-operators
-    || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
-};
-
-
-
 export const convertTrackFeatureCollectionToPoints = feature => {
   if (!feature.features.length) return featureCollection([]);
 
@@ -43,20 +25,21 @@ export const convertTrackFeatureCollectionToPoints = feature => {
 
     const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
 
+
     return {
       ...returnValue,
       properties: {
         ...restProperties,
         time: coordinateProperties.times[index],
         bearing: measuredBearing,
+        index,
       },
     };
   };
 
 
   pointFeatureCollection.features = pointFeatureCollection.features
-    .map(addTimeAndBearingToPointFeature)
-    .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
+    .map(addTimeAndBearingToPointFeature);
 
   return pointFeatureCollection;
 };
@@ -288,30 +271,6 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
     ...rest,
   };
 
-/*   return {
-    ...featureCollection,
-    features: featureCollection.features.map((feature) => {
-      const envelope = findTimeEnvelopeIndices(feature.properties.coordinateProperties.times, from, until);
-    
-      if (window.isNaN(envelope.from) && window.isNaN(envelope.until)) {
-        return feature;
-      }
-
-      const results = cloneDeep(feature);
-      
-      results.geometry.coordinates = trimArrayWithEnvelopeIndices(results.geometry.coordinates, envelope);
-      results.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(results.properties.coordinateProperties.times, envelope);
-
-      // if there are no results, return the oldest-known position as the only track point
-      if (!results.geometry.coordinates.length && feature.geometry.coordinates.length) {
-        const lastIndex = feature.geometry.coordinates.length - 1;
-        results.geometry.coordinates = [feature.geometry.coordinates[lastIndex]];
-        results.properties.coordinateProperties.times = [results.properties.coordinateProperties.times[lastIndex]];
-      }
-          
-      return results;
-    }),
-  }; */
 };
 
 export const addSocketStatusUpdateToTrack = (tracks, newData) => {
@@ -340,9 +299,20 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
 
     updatedPoints.features.unshift(update);
     updatedPoints.features[1].properties.bearing = bearing(updatedPoints.features[1].geometry.coordinates, updatedPoints.features[0].geometry.coordinates);
+
+    const withPointIndex = {
+      ...updatedPoints,
+      features: updatedPoints.features.map((point, index) => ({
+        ...point,
+        properties: {
+          ...point.properties,
+          index,
+        },
+      }))
+    };
   
     return {
-      track: updatedTrack, points: updatedPoints, ...rest,
+      track: updatedTrack, points: withPointIndex, ...rest,
     };
   }
   return tracks;
