@@ -234,9 +234,11 @@ const PatrolModal = (props) => {
     const [segment] = statePatrol.patrol_segments;
 
     const update = new Date(value).toISOString();
+    const doneState = isPast(update) ? {state: 'done'} : {};
 
     setStatePatrol({
       ...statePatrol,
+      ...doneState,
       patrol_segments: [
         {
           ...segment,
