@@ -644,6 +644,15 @@ export const patrolTimeRangeIsValid = (patrol) => {
   
 };
 
+export const patrolCanBeMarkedDone = (patrol) => {
+  const isOpen = (patrol.state === 'open');
+  const endTime = displayEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isOpen && endTime && now.getTime() > endTime.getTime();
+
+};
+
 export const getBoundsForPatrol = ((patrolData) => {
   const { leader, trackData, patrol } = patrolData;
   

@@ -19,7 +19,7 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
-  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, 
+  isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolCanBeMarkedDone,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { trackEvent } from '../utils/analytics';
@@ -234,11 +234,10 @@ const PatrolModal = (props) => {
     const [segment] = statePatrol.patrol_segments;
 
     const update = new Date(value).toISOString();
-    const doneState = isPast(update) ? {state: 'done'} : {};
+
 
     setStatePatrol({
       ...statePatrol,
-      ...doneState,
       patrol_segments: [
         {
           ...segment,
@@ -457,6 +456,13 @@ const PatrolModal = (props) => {
     if (!patrolTimeRangeIsValid(statePatrol)) {
       addModal({content: TimeRangeAlert});
       return;
+    }
+
+    if(patrolCanBeMarkedDone(statePatrol)) {
+      const doneState = {state: 'done'};
+      setStatePatrol({
+        ...statePatrol,
+        ...doneState});
     }
 
     setSaveState(true);
