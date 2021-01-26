@@ -3,7 +3,7 @@ import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import concat from 'lodash/concat';
@@ -31,6 +31,12 @@ const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
 
+  const state = store.getState();
+
+  const patrolPermissions = state?.data?.user?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+
+  const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
+
   return store.dispatch(
     addModal({
       content: PatrolModal,
@@ -40,7 +46,7 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
       onSaveError,
       relationshipButtonDisabled,
       modalProps: {
-        className: 'patrol-form-modal',
+        className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
         // keyboard: false,
       },
     }));
@@ -371,7 +377,7 @@ export const isSegmentEndScheduled = (patrolSegment) => {
   const { time_range: { end_time }, scheduled_end } = patrolSegment;
   const time = end_time || scheduled_end;
 
-  return !!time && normalizeDate(time).getTime() > new Date().getTime();
+  return !!time && new Date(time).getTime() > new Date().getTime();
 };
 
 
@@ -520,15 +526,15 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     end_location: null,
   };
 
-  const endTime = normalizeDate(end_time);
-  const startTime = normalizeDate(start_time);
+  const endTime = new Date(end_time);
+  const startTime = new Date(start_time);
 
   if (start_location) {
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
 
   } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
-    const firstTrackPointMatchesStartTime = normalizeDate(firstTrackPoint.properties.time) === startTime;
+    const firstTrackPointMatchesStartTime = new Date(firstTrackPoint.properties.time).getTime() === startTime.getTime();
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
@@ -541,7 +547,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
     } else if (hasFeatures) {
       let lastTrackPoint = features[0];
-      let lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
+      let lastTrackPointMatchesEndTime = new Date(lastTrackPoint.properties.time).getTime() === endTime.getTime();
 
       if (!lastTrackPointMatchesEndTime
         && !!trackData.indices 
@@ -551,16 +557,16 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
         if (nextPointAfterTrimmedData) {
 
-          const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && normalizeDate(nextPointAfterTrimmedData.properties.properties) === endTime;
-          const timeDiffFromLastPatrolTrackPoint = Math.abs(normalizeDate(lastTrackPoint.properties.time).getTime() - endTime.getTime());
+          const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && new Date(nextPointAfterTrimmedData.properties.properties).getTime() === endTime.getTime();
+          const timeDiffFromLastPatrolTrackPoint = Math.abs(new Date(lastTrackPoint.properties.time).getTime() - endTime.getTime());
           console.log({ timeDiffFromLastPatrolTrackPoint });
-          const timeDiffFromNextPoint = Math.abs(normalizeDate(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
+          const timeDiffFromNextPoint = Math.abs(new Date(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
           console.log({ timeDiffFromNextPoint });
 
           if (nextPointMatchesEndTime
           || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
             lastTrackPoint = nextPointAfterTrimmedData;
-            lastTrackPointMatchesEndTime = normalizeDate(nextPointAfterTrimmedData.properties.time) === endTime;
+            lastTrackPointMatchesEndTime = new Date(nextPointAfterTrimmedData.properties.time).getTime() === endTime.getTime();
           }
         }
       }
@@ -636,6 +642,25 @@ export const patrolTimeRangeIsValid = (patrol) => {
 
   return false;
   
+};
+
+
+
+export const patrolShouldBeMarkedOpen = (patrol) => {
+  const isDone = (patrol.state === PATROL_API_STATES.DONE);
+  const endTime = actualEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isDone && endTime && (now.getTime() < endTime.getTime());
+};
+
+export const patrolShouldBeMarkedDone = (patrol) => {
+  const isOpen = (patrol.state === PATROL_API_STATES.OPEN);
+  const endTime = actualEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isOpen && endTime && (now.getTime() > endTime.getTime());
+
 };
 
 export const getBoundsForPatrol = ((patrolData) => {

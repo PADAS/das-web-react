@@ -26,7 +26,7 @@ import { PATROL_CARD_STATES } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { container, isOpen, map, onHide, onPatrolChange, patrolData, patrolState, patrolTrackState, subjectTrackState,
+  const { container, isOpen, map, onPatrolChange, patrolData, patrolState, patrolTrackState, subjectTrackState,
     target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
   const { leader, patrol } = patrolData;
@@ -87,6 +87,17 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
 
+  const onOverlayClose = useCallback(() => {
+    const patrolTrackVisible = patrolTrackState.visible.includes(patrol.id);
+
+    if (patrolTrackVisible) {
+      updatePatrolTrackState({
+        ...patrolTrackState,
+        visible: patrolTrackState.visible.filter(id => id !== patrol.id),
+      });
+    }
+  }, [patrol.id, patrolTrackState, updatePatrolTrackState]);
+
   const onLocationClick = useCallback(() => {
     trackEvent('Patrol Card', 'Click "jump to location" from patrol card popover');
     
@@ -94,9 +105,9 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
     fitMapBoundsForAnalyzer(map, bounds);
   }, [map, patrolData]);
 
-  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} rootClose>
+  return <Overlay show={isOpen} target={target.current} placement='auto' flip='true' container={container.current} onEntered={onOverlayOpen} onExited={onOverlayClose} rootClose>
     <Popover {...rest} placement='left' className={styles.popover}> {/* eslint-disable-line react/display-name */}
-      <Popover.Content ref={ref}>
+      <Popover.Content  ref={ref}>
         {patrolIconId && <DasIcon type='events' iconId={patrolIconId} />}
         <h5>
           {displayTitle}
@@ -127,9 +138,9 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
 
 
-export default connect(mapStateToProps, { /* addHeatmapSubjects, removeHeatmapSubjects, */ togglePatrolTrackState, updatePatrolTrackState, updateTrackState, toggleTrackState }, null, {
+export default connect(mapStateToProps, { togglePatrolTrackState, updatePatrolTrackState, updateTrackState, toggleTrackState }, null, {
   forwardRef: true,
-})(withMap(memo(PatrolCardPopover)));
+})(withMap(PatrolCardPopover));
 
 PatrolCardPopover.propTypes = {
   isOpen: PropTypes.bool.isRequired,
