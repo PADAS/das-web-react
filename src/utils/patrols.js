@@ -3,7 +3,7 @@ import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
 import merge from 'lodash/merge';
 import concat from 'lodash/concat';
@@ -642,6 +642,25 @@ export const patrolTimeRangeIsValid = (patrol) => {
 
   return false;
   
+};
+
+
+
+export const patrolShouldBeMarkedOpen = (patrol) => {
+  const isDone = (patrol.state === PATROL_API_STATES.DONE);
+  const endTime = actualEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isDone && endTime && (now.getTime() < endTime.getTime());
+};
+
+export const patrolShouldBeMarkedDone = (patrol) => {
+  const isOpen = (patrol.state === PATROL_API_STATES.OPEN);
+  const endTime = actualEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isOpen && endTime && (now.getTime() > endTime.getTime());
+
 };
 
 export const getBoundsForPatrol = ((patrolData) => {
