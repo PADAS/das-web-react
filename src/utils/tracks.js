@@ -31,6 +31,7 @@ export const convertTrackFeatureCollectionToPoints = feature => {
         ...restProperties,
         time: coordinateProperties.times[index],
         bearing: measuredBearing,
+        index,
       },
     };
   };
