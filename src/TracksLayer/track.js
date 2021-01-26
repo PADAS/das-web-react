@@ -34,6 +34,14 @@ const timepointLayerLayout = {
   'icon-rotation-alignment': 'map',
 };
 
+const timepointLayerPaint = {
+  'icon-opacity':[
+    'case',
+    ['==', ['get', 'index'], 0], 0,
+    1,
+  ],
+};
+
 const TrackLayer = (props) => {
   const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch:_dispatch, ...rest } = props;
 
@@ -85,10 +93,7 @@ const TrackLayer = (props) => {
     {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={layerBefore}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
-      filter={
-        ['>', ['get', 'index'], 0]
-      }
-      onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}
+      onClick={onPointClick} layout={timepointLayerLayout} paint={timepointLayerPaint} id={pointLayerId} {...rest} />}
 
   </Fragment>;
 };
