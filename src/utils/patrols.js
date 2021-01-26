@@ -649,7 +649,7 @@ export const patrolCanBeMarkedDone = (patrol) => {
   const endTime = displayEndTimeForPatrol(patrol);
   const now = new Date();
 
-  return isOpen && endTime && now.getTime() > endTime.getTime();
+  return isOpen && endTime && (now.getTime() > endTime.getTime());
 
 };
 

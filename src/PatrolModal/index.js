@@ -458,17 +458,15 @@ const PatrolModal = (props) => {
       return;
     }
 
-    if(patrolCanBeMarkedDone(statePatrol)) {
-      const doneState = {state: 'done'};
-      setStatePatrol({
-        ...statePatrol,
-        ...doneState});
-    }
-
     setSaveState(true);
     trackEvent('Patrol Modal', `Click "save" button for ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
 
     let toSubmit = statePatrol;
+
+    const shouldMarkClose = patrolCanBeMarkedDone(statePatrol);
+    if(shouldMarkClose) {
+      toSubmit.state='done';
+    }
 
     const LOCATION_PROPS =  ['start_location', 'end_location'];
 
