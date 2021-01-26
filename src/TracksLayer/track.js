@@ -88,7 +88,7 @@ const TrackLayer = (props) => {
       filter={
         [ 'all',
           ['>', ['get', 'index'], 0],
-          ['get', 'neighboringPointFeatureIsEqualWithNoBearing'],
+          ['!', 'get', 'neighboringPointFeatureIsEqualWithNoBearing'],
         ]
       }
       onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}
