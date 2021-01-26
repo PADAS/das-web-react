@@ -235,7 +235,6 @@ const PatrolModal = (props) => {
 
     const update = new Date(value).toISOString();
 
-
     setStatePatrol({
       ...statePatrol,
       patrol_segments: [
