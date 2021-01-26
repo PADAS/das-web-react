@@ -85,6 +85,7 @@ const TrackLayer = (props) => {
     {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={layerBefore}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
+      filter={['>', ['get', 'bearing'], 0]}
       onClick={onPointClick} layout={timepointLayerLayout} id={pointLayerId} {...rest} />}
 
   </Fragment>;

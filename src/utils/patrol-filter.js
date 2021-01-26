@@ -4,7 +4,6 @@ import isSameDay from 'date-fns/is_same_day';
 import isSameMonth from 'date-fns/is_same_month';
 import format from 'date-fns/format';
 import isThisYear from 'date-fns/is_this_year';
-import { normalizeDate } from '../utils/datetime';
 
 import { displayEndTimeForPatrol, displayStartTimeForPatrol, isPatrolCancelled } from './patrols';
 import { objectToParamString } from './query';
@@ -73,8 +72,8 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
     };
   }
 
-  const lowerDate = normalizeDate(lower);
-  const upperDate = normalizeDate(upper || new Date());
+  const lowerDate = new Date(lower);
+  const upperDate = new Date(upper || new Date());
 
   const returnValue = {
     title: null,

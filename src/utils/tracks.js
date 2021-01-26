@@ -13,24 +13,6 @@ import { store } from '../index';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 
-/* tracks come in a variety of linestring formats, which we explode into points to generate timepoint layers and heatmap data.
-   as such, the exploded version of a track can have duplicate entries ("connection points" between lines), causing strange side effects. the nature of the duplicates
-   are dependent on the track source, so this utility function takes a fairly naive but effective approach to de-duping.
-*/
-export const neighboringPointFeatureIsEqualWithNoBearing = (feature, index, collection) => {
-  if (feature.properties.bearing !== 0) return false;
-
-  const next = collection[index + 1];
-  const previous = collection[index - 1];
-
-  if (!next && !previous) return false;
-
-  return (next && isEqual(feature.geometry.coordinates, next.geometry.coordinates) // eslint-disable-line no-mixed-operators
-    || previous && isEqual(feature.geometry.coordinates, previous.geometry.coordinates)); // eslint-disable-line no-mixed-operators
-};
-
-
-
 export const convertTrackFeatureCollectionToPoints = feature => {
   if (!feature.features.length) return featureCollection([]);
 
@@ -55,8 +37,7 @@ export const convertTrackFeatureCollectionToPoints = feature => {
 
 
   pointFeatureCollection.features = pointFeatureCollection.features
-    .map(addTimeAndBearingToPointFeature)
-    .filter((feature, index, collection) => !neighboringPointFeatureIsEqualWithNoBearing(feature, index, collection));
+    .map(addTimeAndBearingToPointFeature);
 
   return pointFeatureCollection;
 };
