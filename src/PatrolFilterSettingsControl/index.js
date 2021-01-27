@@ -1,15 +1,46 @@
-import React, { forwardRef, useRef, memo } from 'react';
+import React, { forwardRef, useCallback, useEffect, memo } from 'react';
 import { connect } from 'react-redux';
 import { Overlay, Popover } from 'react-bootstrap';
 import styles from './styles.module.scss';
 import { setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 
 const PatrolFilterSettingsControl = forwardRef((props, ref) => {
-  const { patrolsOverlapFilter, setPatrolFilterAllowsOverlap, isOpen, target, container, popoverClassName } = props;
+  const { patrolsOverlapFilter, setPatrolFilterAllowsOverlap, isOpen, target, container } = props;
 
   const handleOptionChange = (e) => {
     setPatrolFilterAllowsOverlap(e.currentTarget.value === 'overlap_dates');
   };
+
+  const handleKeyDown = useCallback((e) => {
+    console.log('handleKeypress>>>>>>', e);
+    e.stopPropagation();
+    e.preventDefault();
+    const { key } = e;
+    if (key === 'Escape') {
+      console.log('escape key');
+    }
+    e.preventDefault();
+  }, [isOpen]);
+
+  const handleOutsideClick = useCallback((e) => {
+    console.log('handleClick>>>>>>', e);
+    e.stopPropagation();
+    e.preventDefault();
+    if (container.current && (!container.current.contains(e.target))) {
+      console.log('outside click');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown, handleOutsideClick, isOpen]); 
 
   return <div ref={ref}>
     <Overlay show={isOpen} target={target.current} container={container.current} placement='bottom' >

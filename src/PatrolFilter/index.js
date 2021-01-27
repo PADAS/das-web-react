@@ -23,6 +23,7 @@ import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from '../EventFilter/styles.module.scss';
+import PatrolFilterSettingsControl from '../PatrolFilterSettingsControl';
 
 /* const PATROL_STATUS_CHOICES = [
   { value: 'cancelled', 
@@ -182,6 +183,10 @@ const PatrolFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // const filterSettings = <PatrolFilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} 
+  //                         target={settingsButtonRef} container={containerRef} popoverClassName={`${styles.datePopover} 
+  //                         ${popoverClassName || ''}`} />
+
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
@@ -191,7 +196,9 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' endDateLabel='' startDateLabel='' showFilterSettings={true} container={containerRef} onSettingsButtonClick={toggleFilterSettingsPopover}/>
+      <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' 
+        endDateLabel='' startDateLabel='' showFilterSettings={true} container={containerRef} 
+        onSettingsButtonClick={toggleFilterSettingsPopover}/>
     </Popover.Content>
   </Popover>;
 
