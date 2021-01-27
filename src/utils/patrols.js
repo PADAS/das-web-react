@@ -686,3 +686,10 @@ export const getBoundsForPatrol = ((patrolData) => {
     featureCollection(collectionData),
   );
 });
+
+export const patrolShouldBeMeasured = (patrol) => {
+  const measurablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
+  const patrolState = calcPatrolCardState(patrol);
+
+  return measurablePatrolStates.includes(patrolState);
+};

@@ -1,6 +1,7 @@
 import React, { memo, Fragment } from 'react';
 import { connect } from 'react-redux';
 
+import { patrolShouldBeMeasured } from '../utils/patrols';
 import { patrolsWithTrackShown } from '../selectors/patrols';
 import { trackTimeEnvelope } from '../selectors/tracks';
 
@@ -11,6 +12,7 @@ const PatrolTracks = (props) => {
 
   return <Fragment>
     {patrols
+      .filter(patrolShouldBeMeasured)
       .map((patrol, index) =>
         <PatrolTrackLayer key={`patrol-track-${patrol.id}-${index}`} patrol={patrol} trackTimeEnvelope={trackTimeEnvelope} {...rest} />
       )

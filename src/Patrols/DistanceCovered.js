@@ -1,18 +1,28 @@
 import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
+
+import { patrolShouldBeMeasured } from '../utils/patrols';
+
 import length from '@turf/length';
 
 const PatrolDistanceCovered = ({ patrolsData  = []}) => {
+  
   const patrolTrackLength = useMemo(() =>
-    patrolsData.reduce((accumulator, patrolData) => {
-      const { trackData, startStopGeometries } = patrolData;
+    patrolsData
+      .filter(({ patrol }) => !!patrolShouldBeMeasured(patrol))
+      .reduce((accumulator, patrolData) => {
+        const { trackData, patrol, startStopGeometries } = patrolData;
 
-      const lineLength = startStopGeometries?.lines ? length(startStopGeometries.lines) : 0;
-      const trackLength = trackData?.track ? length(trackData.track) : 0;
+        if (!patrolShouldBeMeasured(patrol)) {
+          return 0;
+        }
 
-      return accumulator + lineLength + trackLength;
+        const lineLength = startStopGeometries?.lines ? length(startStopGeometries.lines) : 0;
+        const trackLength = trackData?.track ? length(trackData.track) : 0;
 
-    }, 0), 
+        return accumulator + lineLength + trackLength;
+
+      }, 0), 
   [patrolsData]);
 
   return `${patrolTrackLength ? patrolTrackLength.toFixed(2) : 0}km`;
