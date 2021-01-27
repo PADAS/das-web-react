@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 
 import MapLegend from '../MapLegend';
 import DasIcon from '../DasIcon';
+import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
 import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { updatePatrolTrackState } from '../ducks/patrols';
@@ -58,7 +59,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
           </button>
         </OverlayTrigger>}
       </h6>
-      <span>{coverageLength} covered</span>
+      <span><PatrolDistanceCovered patrolsData={patrolData} /></span>
     </div>
   </div>;
 });
@@ -86,16 +87,6 @@ const PatrolTrackLegend = (props) => {
     return iconTypeForPatrol(patrolData[0].patrol);
   }, [hasData, isMulti, patrolData]);
 
-  const coverageLength = useMemo(() => {
-    if (!hasData) return '0km';
-    
-    return `${patrolData
-      .reduce((accumulator, { trackData }) => {
-        if (!trackData) return accumulator;
-        return accumulator + parseFloat(length(trackData.track));
-      }, 0).toFixed(2)}km`;
-  }, [hasData, patrolData]);
-
   const onRemovePatrolClick = useCallback(({ target: { value: id } }) => {
     updateTrackState({
       visible: trackState.visible.filter(val => val !== id),
@@ -107,7 +98,7 @@ const PatrolTrackLegend = (props) => {
     {...rest}
     titleElement={
       <TitleElement displayTitle={displayTitle} iconId={iconId} patrolData={patrolData}
-        onRemovePatrolClick={onRemovePatrolClick} coverageLength={coverageLength} />
+        onRemovePatrolClick={onRemovePatrolClick} />
     } /> : null;
 };
 

@@ -559,9 +559,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
           const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && new Date(nextPointAfterTrimmedData.properties.properties).getTime() === endTime.getTime();
           const timeDiffFromLastPatrolTrackPoint = Math.abs(new Date(lastTrackPoint.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromLastPatrolTrackPoint });
           const timeDiffFromNextPoint = Math.abs(new Date(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromNextPoint });
 
           if (nextPointMatchesEndTime
           || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
