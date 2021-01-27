@@ -59,7 +59,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
           </button>
         </OverlayTrigger>}
       </h6>
-      <span><PatrolDistanceCovered patrolsData={patrolData} /></span>
+      <span><PatrolDistanceCovered patrolsData={patrolData} /> covered</span>
     </div>
   </div>;
 });
