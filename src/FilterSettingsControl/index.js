@@ -5,14 +5,14 @@ import styles from './styles.module.scss';
 import { setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 
 const FilterSettingsControl = forwardRef((props, ref) => {
-  const { isOpen, target, container, children } = props;
+  const { isOpen, hideFilterSettings, target, container, children } = props;
 
   const handleKeyDown = useCallback((e) => {
     e.stopPropagation();
     e.preventDefault();
     const { key } = e;
     if (key === 'Escape') {
-      console.log('escape key');
+      hideFilterSettings();
     }
     e.preventDefault();
   }, [isOpen]);
@@ -21,7 +21,7 @@ const FilterSettingsControl = forwardRef((props, ref) => {
     e.stopPropagation();
     e.preventDefault();
     if (container.current && (!container.current.contains(e.target))) {
-      console.log('outside click');
+      hideFilterSettings();
     }
   }, [isOpen]);
 

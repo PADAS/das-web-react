@@ -30,6 +30,10 @@ const DateRangeSelector = (props) => {
 
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 
+  const hideFilterSettings = () => {
+    setFilterSettingsPopoverState(false);
+  };
+
   const toggleFilterSettingsPopover = useCallback(() => {
     setFilterSettingsPopoverState(!filterSettingsOpen);
   }, [filterSettingsOpen]);
@@ -106,7 +110,7 @@ const DateRangeSelector = (props) => {
           onClick={toggleFilterSettingsPopover}>
           <GearIcon />
         </button>
-          <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} 
+          <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
             container={containerRef} children={children} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
         </Fragment>}
     </div>}
