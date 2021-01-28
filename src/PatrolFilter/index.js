@@ -8,7 +8,7 @@ import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 // import uniq from 'lodash/uniq';
 
-import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
+import { updatePatrolFilter, INITIAL_FILTER_STATE, setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
@@ -16,6 +16,7 @@ import { caseInsensitiveCompare } from '../utils/string';
 // import { reportedBy } from '../selectors';
 
 import PatrolFilterDateRangeSelector from '../PatrolFilter/DateRange';
+import PatrolFilterSettings from '../PatrolFilter/PatrolFilterSettings';
 // import ReportedBySelect from '../ReportedBySelect';
 /* import SearchBar from '../SearchBar';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg'; */
@@ -23,7 +24,6 @@ import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from '../EventFilter/styles.module.scss';
-import PatrolFilterSettingsControl from '../PatrolFilterSettingsControl';
 
 /* const PATROL_STATUS_CHOICES = [
   { value: 'cancelled', 
@@ -45,7 +45,7 @@ import PatrolFilterSettingsControl from '../PatrolFilterSettingsControl';
 ]; */
 
 const PatrolFilter = (props) => {
-  const { children, className, patrolFilter, /* reporters, */ resetGlobalDateRange, updatePatrolFilter } = props;
+  const { children, className, patrolFilter, patrolsOverlapFilter,/* reporters, */ setPatrolFilterAllowsOverlap, resetGlobalDateRange, updatePatrolFilter } = props;
   const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text } } = patrolFilter;
 
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
@@ -55,9 +55,12 @@ const PatrolFilter = (props) => {
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 
   const toggleFilterSettingsPopover = useCallback(() => {
-    console.log('Settings click');
     setFilterSettingsPopoverState(!filterSettingsOpen);
   }, [filterSettingsOpen]);
+
+  const onFilterSettingsOptionChange = useCallback((e) => {
+    setPatrolFilterAllowsOverlap(e.currentTarget.value === 'overlap_dates');
+  });
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
@@ -183,9 +186,12 @@ const PatrolFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // const filterSettings = <PatrolFilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} 
+  // const filterSettings = <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} 
   //                         target={settingsButtonRef} container={containerRef} popoverClassName={`${styles.datePopover} 
   //                         ${popoverClassName || ''}`} />
+
+  
+  const filterSettings = <PatrolFilterSettings handleFilterOptionChange={onFilterSettingsOptionChange} />;
 
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
@@ -197,7 +203,7 @@ const PatrolFilter = (props) => {
     </Popover.Title>
     <Popover.Content>
       <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' 
-        endDateLabel='' startDateLabel='' showFilterSettings={true} container={containerRef} 
+        endDateLabel='' startDateLabel='' showFilterSettings={true} container={containerRef} children={filterSettings}
         onSettingsButtonClick={toggleFilterSettingsPopover}/>
     </Popover.Content>
   </Popover>;
@@ -251,7 +257,8 @@ const mapStateToProps = (state) =>
   ({
     patrolFilter: state.data.patrolFilter,
     patrolTypes: state.data.patrolTypes,
+    patrolsOverlapFilter: state.data.patrolsOverlapFilter,
     // reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter })(memo(PatrolFilter));
+export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter, setPatrolFilterAllowsOverlap })(memo(PatrolFilter));

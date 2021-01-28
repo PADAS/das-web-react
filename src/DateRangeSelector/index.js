@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 
 import DateTimePickerPopover from '../DateTimePickerPopover';
-import PatrolFilterSettingsControl from '../PatrolFilterSettingsControl';
+import FilterSettingsControl from '../FilterSettingsControl';
 
 import styles from './styles.module.scss';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
@@ -66,7 +66,6 @@ const DateRangeSelector = (props) => {
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
-      {children}
       <label className={styles.label}>
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
@@ -107,7 +106,8 @@ const DateRangeSelector = (props) => {
           onClick={toggleFilterSettingsPopover}>
           <GearIcon />
         </button>
-          <PatrolFilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
+          <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} 
+            container={containerRef} children={children} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
         </Fragment>}
     </div>}
   </div>;

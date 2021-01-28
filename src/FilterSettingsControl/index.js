@@ -4,15 +4,10 @@ import { Overlay, Popover } from 'react-bootstrap';
 import styles from './styles.module.scss';
 import { setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 
-const PatrolFilterSettingsControl = forwardRef((props, ref) => {
-  const { patrolsOverlapFilter, setPatrolFilterAllowsOverlap, isOpen, target, container } = props;
-
-  const handleOptionChange = (e) => {
-    setPatrolFilterAllowsOverlap(e.currentTarget.value === 'overlap_dates');
-  };
+const FilterSettingsControl = forwardRef((props, ref) => {
+  const { isOpen, target, container, children } = props;
 
   const handleKeyDown = useCallback((e) => {
-    console.log('handleKeypress>>>>>>', e);
     e.stopPropagation();
     e.preventDefault();
     const { key } = e;
@@ -23,7 +18,6 @@ const PatrolFilterSettingsControl = forwardRef((props, ref) => {
   }, [isOpen]);
 
   const handleOutsideClick = useCallback((e) => {
-    console.log('handleClick>>>>>>', e);
     e.stopPropagation();
     e.preventDefault();
     if (container.current && (!container.current.contains(e.target))) {
@@ -46,32 +40,7 @@ const PatrolFilterSettingsControl = forwardRef((props, ref) => {
     <Overlay show={isOpen} target={target.current} container={container.current} placement='bottom' >
     <Popover id="patrol-filter-settings" className={styles.popover} title="Patrol Filter Settings">
       <Popover.Content ref={ref}>
-        <div className={styles.filterSelection}>
-          <fieldset>
-            <form>
-              <div>
-                <span>
-                  <input
-                    type="radio"
-                    value="start_dates"
-                    checked={!patrolsOverlapFilter}
-                    onChange={handleOptionChange}
-                  /><label forHtml="start_dates">Include patrols starting within date range</label>
-                </span>
-              </div>
-              <div>
-                <span>
-                  <input
-                    type="radio"
-                    value="overlap_dates"
-                    checked={patrolsOverlapFilter}
-                    onChange={handleOptionChange}
-                  /><label htmlFor="overlap_dates">Include patrols whose start to end date range overlaps with date range </label>
-                </span>
-              </div>
-            </form>
-          </fieldset>
-        </div>
+        {children} 
       </Popover.Content>
     </Popover>
   </Overlay>
@@ -82,8 +51,8 @@ const mapStateToProps = ({ data: { patrolsOverlapFilter } }) => {
   return {patrolsOverlapFilter};
 };
 
-export default connect(mapStateToProps, {setPatrolFilterAllowsOverlap})(memo(PatrolFilterSettingsControl));
+export default connect(mapStateToProps, {setPatrolFilterAllowsOverlap})(memo(FilterSettingsControl));
 
-PatrolFilterSettingsControl.defaultProps = {
+FilterSettingsControl.defaultProps = {
   defaultSearchSetting: 'start_dates',
 };

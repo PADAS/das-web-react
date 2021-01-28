@@ -1,0 +1,8 @@
+div.popover {
+  position: fixed !important;
+  width: 14.0rem;
+  [class*=popover-body] {
+    padding: 0.25rem;
+  }
+}
+
