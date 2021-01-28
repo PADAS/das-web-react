@@ -690,7 +690,7 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
  
-const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props) => <PatrolDistanceCovered trackData={props.patrolData.trackData} />)); /* eslint-disable-line react/display-name */
+const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props) => <PatrolDistanceCovered patrolsData={[props.patrolData]} />)); /* eslint-disable-line react/display-name */
 
 export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
 
