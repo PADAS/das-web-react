@@ -7,8 +7,8 @@ const PatrolFilterSettings = (props) => {
   const { handleFilterOptionChange, patrolsOverlapFilter } = props;
 
   return <div className={styles.filterSelection}>
-          <fieldset>
-            <form>
+          <form>
+            <fieldset>
               <div>
                 <span>
                   <input
@@ -29,8 +29,8 @@ const PatrolFilterSettings = (props) => {
                   /><label htmlFor="overlap_dates">Include patrols whose start to end date range overlaps with date range </label>
                 </span>
               </div>
-            </form>
-          </fieldset>
+            </fieldset>
+          </form>
         </div>;
 };
 
