@@ -18,7 +18,7 @@ const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
     defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
-    children, placement, showFilterSettings, ...rest } = props;
+    children, placement, filterSettings, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -70,6 +70,7 @@ const DateRangeSelector = (props) => {
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
+      {children}
       <label className={styles.label}>
         {endDateLabel && <span>{endDateLabel}</span>}
         <span>
@@ -104,14 +105,16 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
-      {showFilterSettings && <Fragment>
+      {!!filterSettings && <Fragment>
         <button type='button' className={styles.gearButton} ref={settingsButtonRef
     }
           onClick={toggleFilterSettingsPopover}>
           <GearIcon />
         </button>
           <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
-            container={containerRef} children={children} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
+            container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
+            {filterSettings}
+          </FilterSettingsControl> 
         </Fragment>}
     </div>}
   </div>;

@@ -8,7 +8,7 @@ import { trackEvent } from '../utils/analytics';
 import FeedDateFilter from '../FeedDateFilter';
 
 const EventFilterDateRangeSelector = (props) => {
-  const { patrolFilter, updateGlobalDateRange, placement, showFilterSettings, children } = props;
+  const { patrolFilter, updateGlobalDateRange, placement, filterSettings } = props;
 
   const { filter: { date_range:dateRange } } = patrolFilter;
   
@@ -36,8 +36,7 @@ const EventFilterDateRangeSelector = (props) => {
     requireEnd={true}
     endMaxDate={null}
     nullUpperOverride={INITIAL_FILTER_STATE.filter.date_range.upper}
-    showFilterSettings={showFilterSettings}
-    children={children}
+    filterSettings={filterSettings}
   />;
 
 };

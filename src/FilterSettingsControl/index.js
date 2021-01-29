@@ -36,7 +36,7 @@ const FilterSettingsControl = forwardRef((props, ref) => {
     };
   }, [handleKeyDown, handleOutsideClick, isOpen]); 
 
-  return <div ref={ref}>
+  return <div>
     <Overlay show={isOpen} target={target.current} container={container.current} placement='bottom' >
     <Popover id="patrol-filter-settings" className={styles.popover} title="Patrol Filter Settings">
       <Popover.Content ref={ref}>
