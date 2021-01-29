@@ -11,11 +11,7 @@ const PatrolDistanceCovered = ({ patrolsData  = []}) => {
     patrolsData
       .filter(({ patrol }) => !!patrolShouldBeMeasured(patrol))
       .reduce((accumulator, patrolData) => {
-        const { trackData, patrol, startStopGeometries } = patrolData;
-
-        if (!patrolShouldBeMeasured(patrol)) {
-          return 0;
-        }
+        const { trackData, startStopGeometries } = patrolData;
 
         const lineLength = startStopGeometries?.lines ? length(startStopGeometries.lines) : 0;
         const trackLength = trackData?.track ? length(trackData.track) : 0;
