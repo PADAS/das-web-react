@@ -41,7 +41,7 @@ const ACTIVE_STATES = ['active', 'new'];
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 
 const ReportForm = (props) => {
-  const { eventTypes, map, data: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
+  const { eventTypes, map, data: originalReport, removeModal, onSaveSuccess, onSaveError, onIncidentSaveSuccess, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
 
   const formRef = useRef(null);
@@ -405,7 +405,7 @@ const ReportForm = (props) => {
             );
             await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
             return fetchEvent(incidentID).then((results) => {
-              if(isPatrolReport) onSaveSuccess(results);
+              onIncidentSaveSuccess && onIncidentSaveSuccess(results);
               const { data: { data } } = results;
               openModalForReport(data, map);
               removeModal();

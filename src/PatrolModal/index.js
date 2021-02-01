@@ -320,6 +320,10 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
+
+    // patch the report to include the segment id
+    addSegmentToEvent(patrolSegmentId, report.id,);
+ 
     // dedupe collections
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
@@ -476,12 +480,6 @@ const PatrolModal = (props) => {
       }
     });
 
-    // just assign added reports to inital segment id for now
-    addedReports.forEach(async (report) => {
-      const resp = await addSegmentToEvent(patrolSegmentId, report.id,);
-      console.log(resp);
-    });
-
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
 
     return executeSaveActions(actions)
@@ -545,7 +543,7 @@ const PatrolModal = (props) => {
 
   const onReportListItemClick = useCallback((item) => {
     trackEvent('Patrol Modal', `Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
-    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
+    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport, onIncidentSaveSuccess: onAddReport} );
   }, [map, onAddReport]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
@@ -660,7 +658,7 @@ const PatrolModal = (props) => {
             category: 'Patrol Modal',
             location: 'patrol modal',
           }}
-          hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
+          hidePatrols={true} onSaveSuccess={onAddReport} onIncidentSaveSuccess={onAddReport} isPatrolReport={true} />}
       </AttachmentControls>
       <Footer
         cancelTitle={canEditPatrol ? undefined : 'Close'}
