@@ -94,7 +94,11 @@ const PatrolModal = (props) => {
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
       !report.is_contained_in?.length && !incidentIds.includes(report.id));
-    return topLevelReports;
+
+    return orderBy(topLevelReports, [
+      function(item) {
+        return new Date(item.updated_at);
+      }],['desc']);
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
