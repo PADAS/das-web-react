@@ -42,7 +42,8 @@ const InlineEditable = (props) => {
     onCancel && onCancel();
   };
 
-  const save = useCallback(async () => {
+  const save = useCallback(async (e) => {
+    e.preventDefault();
     await onSave(value);
   }, [onSave, value]);
 
