@@ -19,10 +19,11 @@ import { trackEvent } from '../utils/analytics';
 import listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
+  lazyRender: true,
   transitionTime: 1,
 };
 
-const TriggerComponent = (props) => { // eslint-disable-line react/display-name
+const TriggerComponent = memo((props) => { // eslint-disable-line react/display-name
   const { listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle } = props;
   return <div className={listStyles.trigger}>
     {listLevel === 0 && <h5>{name}</h5>}
@@ -32,7 +33,7 @@ const TriggerComponent = (props) => { // eslint-disable-line react/display-name
       heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
       onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
   </div>;
-};
+});
 
 const ContentComponent = (props) => {
   const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
