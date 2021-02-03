@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import { withMap } from '../EarthRangerMap';
 import { patrolsWithTrackShown } from '../selectors/patrols';
+import { patrolShouldBeMeasured } from '../utils/patrols';
 
 import StartStopLayer from './layer';
 
@@ -13,7 +14,9 @@ const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointC
   const onSymbolClick = () => {};
 
   return <Fragment>
-    {patrols.map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
+    {patrols
+      .filter(patrolShouldBeMeasured)
+      .map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
   </Fragment>;
 
 };

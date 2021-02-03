@@ -488,7 +488,7 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol.leader, true).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments[0]?.leader).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
@@ -559,9 +559,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
           const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && new Date(nextPointAfterTrimmedData.properties.properties).getTime() === endTime.getTime();
           const timeDiffFromLastPatrolTrackPoint = Math.abs(new Date(lastTrackPoint.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromLastPatrolTrackPoint });
           const timeDiffFromNextPoint = Math.abs(new Date(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromNextPoint });
 
           if (nextPointMatchesEndTime
           || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
@@ -688,3 +686,10 @@ export const getBoundsForPatrol = ((patrolData) => {
     featureCollection(collectionData),
   );
 });
+
+export const patrolShouldBeMeasured = (patrol) => {
+  const measurablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
+  const patrolState = calcPatrolCardState(patrol);
+
+  return measurablePatrolStates.includes(patrolState);
+};

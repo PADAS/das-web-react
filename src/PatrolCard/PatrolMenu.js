@@ -1,15 +1,15 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
-
 import Dropdown from 'react-bootstrap/Dropdown';
 
+import { PATROL_CARD_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
-import styles from './styles.module.scss';
-import { PATROL_CARD_STATES, PATROL_API_STATES } from '../constants';
 
 import { trackEvent } from '../utils/analytics';
-
 import { canStartPatrol, canEndPatrol, calcPatrolCardState } from '../utils/patrols';
+
+import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
@@ -17,6 +17,8 @@ const PatrolMenu = (props) => {
   const { patrol, onPatrolChange, onClickOpen, menuRef } = props;
 
   const patrolState = calcPatrolCardState(patrol);
+
+  const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
 
   const patrolIsDone = useMemo(() => {
     return patrolState === PATROL_CARD_STATES.DONE;
@@ -26,7 +28,6 @@ const PatrolMenu = (props) => {
     patrolState === PATROL_CARD_STATES.CANCELLED
   , [patrolState]);
 
-  const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);
   const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
   const canRestorePatrol = useMemo(() => {
@@ -85,9 +86,9 @@ const PatrolMenu = (props) => {
       <KebabMenuIcon />
     </Toggle>
     <Menu ref={menuRef}>
-      <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>
+      {canEditPatrol && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
       <Item disabled={patrolIsCancelled} onClick={()=>onClickOpen(patrol)}>Open Patrol</Item>
-      <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>
+      {canEditPatrol && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
     </Menu>
   </Dropdown>;
 };
