@@ -5,7 +5,7 @@ import { createSelector, createEqualitySelector, getTimeSliderState } from './';
 import { getSubjectStore } from './subjects';
 
 import { trimmedVisibleTrackData, tracks } from './tracks';
-import { getLeaderForPatrol, extractPatrolPointsFromTrackData, drawLinesBetweenPatrolTrackAndPatrolPoints } from '../utils/patrols';
+import { getLeaderForPatrol, extractPatrolPointsFromTrackData, drawLinesBetweenPatrolTrackAndPatrolPoints, patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { trackHasDataWithinTimeRange, trimTrackDataToTimeRange } from '../utils/tracks';
 
 export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
@@ -31,7 +31,7 @@ export const getPatrolList = createSelector(
 export const assemblePatrolDataForPatrol = (patrol, leader, trackData, timeSliderState) => {
   const [firstLeg] = patrol.patrol_segments;
   const timeRange = !!firstLeg && firstLeg.time_range;
-  const hasTrackDataWithinPatrolWindow = !!trackData && trackHasDataWithinTimeRange(trackData, timeRange.start_time, timeRange.end_time);
+  const hasTrackDataWithinPatrolWindow = !!trackData && patrolStateAllowsTrackDisplay(patrol) && trackHasDataWithinTimeRange(trackData, timeRange.start_time, timeRange.end_time);
 
   const trimmed = !!hasTrackDataWithinPatrolWindow && trimTrackDataToTimeRange(trackData, timeRange.start_time, timeRange.end_time);
 
@@ -41,7 +41,7 @@ export const assemblePatrolDataForPatrol = (patrol, leader, trackData, timeSlide
 
   return {
     ...patrolData,
-    startStopGeometries: generatePatrolStartStopData(patrolData, trackData, timeSliderState),
+    startStopGeometries: patrolData.trackData ? generatePatrolStartStopData(patrolData, trackData, timeSliderState) : null,
   };
 };
 
@@ -88,6 +88,7 @@ export const patrolsWithTrackShown = createSelector(
   (patrolTrackState, patrolStore) => patrolTrackState
     .map(id => patrolStore[id])
     .filter(p => !!p)
+    .filter(patrolStateAllowsTrackDisplay)
 );
 
 
