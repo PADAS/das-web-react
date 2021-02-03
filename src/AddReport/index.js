@@ -21,7 +21,7 @@ import styles from './styles.module.scss';
 
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', relationshipButtonDisabled, hidePatrols, patrolTypes, isPatrolReport, reportData, eventsByCategory, map, popoverPlacement,
-    showLabel, showIcon, title, onSaveSuccess, onIncidentSaveSuccess, onSaveError, clickSideEffect } = props;
+    showLabel, showIcon, title, onSaveSuccess, onSaveError, clickSideEffect } = props;
 
   const [selectedCategory, selectCategory] = useState(null);
 
@@ -116,7 +116,7 @@ const AddReport = (props) => {
 
     const newReport = createNewReportForEventType(reportType, reportData);
     
-    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, onIncidentSaveSuccess, relationshipButtonDisabled, hidePatrols, isPatrolReport  });
+    openModalForReport(newReport, map, { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport  });
     setPopoverState(false);
   };
 
@@ -212,5 +212,4 @@ AddReport.propTypes = {
   reportData: PropTypes.object,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
-  onIncidentSaveSuccess: PropTypes.func
 };

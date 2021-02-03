@@ -96,7 +96,7 @@ const PatrolModal = (props) => {
       !report.is_contained_in?.length && !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
-      function(item) {
+      (item) => {
         return new Date(item.updated_at);
       }],['desc']);
   }, [addedReports, patrolReports]);
@@ -326,7 +326,7 @@ const PatrolModal = (props) => {
     const { data: { data } } = report;
 
     // patch the report to include the segment id
-    addSegmentToEvent(patrolSegmentId, report.id,);
+    addSegmentToEvent(patrolSegmentId, data.id,);
  
     // dedupe collections
     if(!allPatrolReportIds.includes(data.id)) {
@@ -449,7 +449,7 @@ const PatrolModal = (props) => {
     const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates, ...eventUpdates];
 
     return orderBy(allUpdates, [
-      function(item) {
+      (item) => {
         return new Date(item.time);
       }],['desc']);
   }, [statePatrol]);
@@ -547,7 +547,7 @@ const PatrolModal = (props) => {
 
   const onReportListItemClick = useCallback((item) => {
     trackEvent('Patrol Modal', `Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
-    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport, onIncidentSaveSuccess: onAddReport} );
+    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
   }, [map, onAddReport]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
@@ -662,7 +662,7 @@ const PatrolModal = (props) => {
             category: 'Patrol Modal',
             location: 'patrol modal',
           }}
-          hidePatrols={true} onSaveSuccess={onAddReport} onIncidentSaveSuccess={onAddReport} isPatrolReport={true} />}
+          hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
       </AttachmentControls>
       <Footer
         cancelTitle={canEditPatrol ? undefined : 'Close'}
