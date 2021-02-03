@@ -465,13 +465,6 @@ export const canEndPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return patrolState === PATROL_CARD_STATES.ACTIVE;
 };
-// look to calcEventFilterForRequest as this grows
-export const calcPatrolFilterForRequest = (options = {}) => {
-  const { data: { patrolFilter } } = store.getState();
-  const { params } = options;
-  const  filterParams = merge({}, patrolFilter, params);
-  return objectToParamString(filterParams);  
-};
 
 export const sortPatrolCards = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;

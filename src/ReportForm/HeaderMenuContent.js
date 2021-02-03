@@ -12,7 +12,7 @@ import { withFormDataContext } from '../EditableItem/context';
 import styles from './styles.module.scss';
 
 const ReportHeaderPopover = (props, ref) => {
-  const { data, onPrioritySelect, onStartAddToIncident, isPatrolReport, ...rest } = props;
+  const { data, onPrioritySelect, onStartAddToIncident, onStartAddToPatrol, isPatrolReport, ...rest } = props;
   const eventOrIncidentReport = `${data.is_collection? 'Incident' : 'Event'} Report`;  
 
   const linkToReport = useCallback(() => {
@@ -40,6 +40,9 @@ const ReportHeaderPopover = (props, ref) => {
         </Button>
       </Fragment>
       }
+      {!isPatrolReport && <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToPatrol}>
+          Add to Patrol
+      </Button>}
       {hasExternalLink && <Fragment> 
         <hr />
         <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>

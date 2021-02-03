@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -24,6 +24,7 @@ import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
+import WithSocketContext, { SocketContext } from './withSocketConnection';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 //  import ErrorBoundary from './ErrorBoundary';
@@ -46,6 +47,8 @@ const App = (props) => {
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
+
+  const socket = useContext(SocketContext);
 
   const resizeInt = useRef(null);
   const mapInterval = useRef(null);
@@ -152,29 +155,31 @@ const App = (props) => {
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
-    <PrintTitle />
-    <Nav map={map} />
-    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+  return <WithSocketContext>
+    <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+      <PrintTitle />
+      <Nav map={map} />
+      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
-      {/* <ErrorBoundary> */}
-      <Map map={map} onMapLoad={onMapHasLoaded} pickingLocationOnMap={pickingLocationOnMap} />
-      {/* </ErrorBoundary> */}
-      {/* <ErrorBoundary> */}
-      {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-      {/* </ErrorBoundary> */}
-      <ModalRenderer map={map} />
+        {/* <ErrorBoundary> */}
+        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+        {/* </ErrorBoundary> */}
+        {/* <ErrorBoundary> */}
+        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        {/* </ErrorBoundary> */}
+        <ModalRenderer map={map} />
+      </div>
+      <div style={{
+        display: 'none',
+        height: 0,
+        width: 0,
+      }}>
+        <ReportTypeIconSprite id="reportTypeIconSprite" />
+        <EarthRangerLogoSprite />
+      </div>
+      <ServiceWorkerWatcher />
     </div>
-    <div style={{
-      display: 'none',
-      height: 0,
-      width: 0,
-    }}>
-      <ReportTypeIconSprite id="reportTypeIconSprite" />
-      <EarthRangerLogoSprite />
-    </div>
-    <ServiceWorkerWatcher />
-  </div>;
+  </WithSocketContext>;
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });

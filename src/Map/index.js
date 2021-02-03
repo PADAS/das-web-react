@@ -35,7 +35,6 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 
 import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
-import withSocketConnection from '../withSocketConnection';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
@@ -722,7 +721,7 @@ export default connect(mapStatetoProps, {
   updatePatrolTrackState,
   updateHeatmapSubjects,
 }
-)(withSocketConnection(withMap(withRouter(Map))));
+)(withMap(withRouter(Map)));
 
 // secret code burial ground
 // for future reference and potential experiments

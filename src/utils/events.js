@@ -5,6 +5,7 @@ import { getEventReporters } from '../selectors';
 
 import isNil from 'lodash/isNil';
 import merge from 'lodash/merge';
+import isObject from 'lodash/isObject';
 import isEqual from 'react-fast-compare';
 
 import { addModal } from '../ducks/modals';
@@ -16,14 +17,18 @@ import { EVENT_STATE_CHOICES } from '../constants';
 import ReportFormModal from '../ReportFormModal';
 import { EVENT_API_URL } from '../ducks/events';
 
-export const eventTypeTitleForEvent = (event) => {
-  const { data: { eventTypes } } = store.getState();
-  const matchingType = (eventTypes || []).find(t => t.value === event.event_type);
+export const eventTypeTitleForEvent = (event, eventTypes = []) => {
+  const isPatrol = !!event?.patrol_segments?.length && isObject(event.patrol_segments[0]);
+
+  const matchingType = eventTypes.find(t => (t.value) ===
+    (isPatrol ? event.patrol_segments[0].patrol_type : event.event_type)
+  );
+
 
   if (matchingType) return matchingType.display;
   if (event.event_type) return event.event_type;
 
-  return 'Unknown event type';
+  return `Unknown ${isPatrol ? 'patrol' : 'event'} type`;
 };
 
 export const getReporterById = (id) => {
@@ -32,10 +37,10 @@ export const getReporterById = (id) => {
   return reporters.find(r => r.id === id);
 };
 
-export const displayTitleForEvent = (event) => {
+export const displayTitleForEvent = (event, eventTypes) => {
   if (event.title) return event.title;
 
-  return eventTypeTitleForEvent(event);
+  return eventTypeTitleForEvent(event, eventTypes);
 };
 
 export const getCoordinatesForEvent = evt => evt.geojson
