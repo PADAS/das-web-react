@@ -13,6 +13,7 @@ const PatrolFilterSettings = (props) => {
                 <span>
                   <input
                     type="radio"
+                    id="start_dates"
                     value="start_dates"
                     checked={!patrolsOverlapFilter}
                     onChange={handleFilterOptionChange}
@@ -23,6 +24,7 @@ const PatrolFilterSettings = (props) => {
                 <span>
                   <input
                     type="radio"
+                    id="overlap_dates"
                     value="overlap_dates"
                     checked={patrolsOverlapFilter}
                     onChange={handleFilterOptionChange}

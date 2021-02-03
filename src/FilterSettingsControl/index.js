@@ -2,7 +2,6 @@ import React, { forwardRef, useCallback, useEffect, memo } from 'react';
 import { connect } from 'react-redux';
 import { Overlay, Popover } from 'react-bootstrap';
 import styles from './styles.module.scss';
-import { setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
 
 const FilterSettingsControl = forwardRef((props, ref) => {
   const { isOpen, hideFilterSettings, target, container, children } = props;
@@ -47,11 +46,8 @@ const FilterSettingsControl = forwardRef((props, ref) => {
   </div>;
 });
 
-const mapStateToProps = ({ data: { patrolsOverlapFilter } }) => {
-  return {patrolsOverlapFilter};
-};
 
-export default connect(mapStateToProps, {setPatrolFilterAllowsOverlap})(memo(FilterSettingsControl));
+export default (memo(FilterSettingsControl));
 
 FilterSettingsControl.defaultProps = {
   defaultSearchSetting: 'start_dates',
