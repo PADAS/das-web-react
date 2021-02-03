@@ -27,6 +27,7 @@ import RelationshipButton from './RelationshipButton';
 import EditableItem from '../EditableItem';
 import HeaderMenuContent from './HeaderMenuContent';
 import AddToIncidentModal from './AddToIncidentModal';
+import AddToPatrolModal from './AddToPatrolModal';
 
 import { withFormDataContext } from '../EditableItem/context';
 
@@ -57,7 +58,7 @@ const ReportForm = (props) => {
 
   const { is_collection } = report;
 
-  const reportTitle = displayTitleForEvent(report);
+  const reportTitle = displayTitleForEvent(report, eventTypes);
   const reportTypeTitle = eventTypeTitleForEvent(report);
 
   const isActive = reportIsActive(report.state);
@@ -380,6 +381,18 @@ const ReportForm = (props) => {
     });
   }, [addEventToIncident, fetchEvent, is_collection, map, removeModal, saveChanges]);
 
+  const onAddToPatrol = useCallback(async (patrolId) => {
+    const [{ data: { data: thisReport } }] = await saveChanges();
+    // await addEventToPatrol(thisReport.id, patrolId);
+
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add To Incident\' button');
+
+    // return fetchPatrol(patrolId).then(({ data: { data } }) => {
+    // openModalForReport(data, map);
+    removeModal();
+    // });
+  }, [is_collection, removeModal, saveChanges]);
+
   const onStartAddToIncident = useCallback(() => {
     // trackEvent(eventOrIncidentReport, 'Click \'Add to Incident\'');
     addModal({
@@ -388,6 +401,13 @@ const ReportForm = (props) => {
       onAddToExistingIncident,
     });
   }, [addModal, onAddToExistingIncident, onAddToNewIncident]);
+
+  const onStartAddToPatrol = useCallback(() => {
+    addModal({
+      content: AddToPatrolModal,
+      onAddToPatrol,
+    });
+  }, [addModal, onAddToPatrol]);
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
@@ -433,7 +453,7 @@ const ReportForm = (props) => {
 
     <EditableItem.Header 
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} isPatrolReport={isPatrolReport}  />}
+      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 

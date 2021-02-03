@@ -6,6 +6,8 @@ import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 
+import { displayEventTypes } from '../selectors/events';
+
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, 
   displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
@@ -15,7 +17,7 @@ import { jumpToLocation } from '../utils/map';
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { eventTypes, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, priority = null, displayTime = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -27,6 +29,7 @@ const ReportListItem = (props) => {
 
 
   const displayPriority = useMemo(() => {
+    if (priority) return priority;
     if (!!report.priority) return report.priority;
 
     if (report.is_collection) {
@@ -41,9 +44,9 @@ const ReportListItem = (props) => {
     }
 
     return report.priority;
-  }, [eventTypes, report]);
+  }, [eventTypes, priority, report]);
 
-  const displayTitle = displayTitleForEvent(report);
+  const displayTitle = displayTitleForEvent(report, eventTypes);
 
   const bounceIDs = report.is_collection ? getEventIdsForCollection(report) : [report.id];
 
@@ -67,9 +70,9 @@ const ReportListItem = (props) => {
       <EventIcon report={report} />
     </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
-    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEvent(report)}</button>
+    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEvent(report, eventTypes)}</button>
     <span className={styles.date}>
-      <DateTime date={report.updated_at || report.time} />
+      <DateTime date={displayTime || report.updated_at || report.time} />
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
     </span>
     {coordinates && !!coordinates.length && showJumpButton &&
@@ -79,7 +82,7 @@ const ReportListItem = (props) => {
   </li>;
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
 export default connect(mapStateToProps, { setBounceEventIDs })(memo(ReportListItem));
 
 ReportListItem.defaultProps = {

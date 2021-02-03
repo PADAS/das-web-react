@@ -58,10 +58,6 @@ export const pingSocket = (socket) => {
 const bindSocketEvents = (socket, store) => {
   let eventsBound = false;
 
-  socket.on('*', (msg) => {
-    console.log('wildcard bitches', msg);
-  });
-
   socket.on('connect', () => {
     console.log('realtime: connected');
     store.dispatch({ type: SOCKET_HEALTHY_STATUS });
@@ -109,7 +105,7 @@ export const unbindSocketEvents = (socket) => {
   socket.removeAllListeners();
 };
 
-export default (url = SOCKET_URL) => {
+const createSocket = (url = SOCKET_URL) => {
   const socket = io(url, {
     reconnectionDelay: 3000,        // how long to initially wait before attempting a new reconnection
     reconnectionDelayMax: 150000,     // maximum amount of time to wait between reconnection attempts. Each attempt increases the reconnection delay by 2x along with a randomization factor
@@ -132,3 +128,5 @@ export default (url = SOCKET_URL) => {
   bindSocketEvents(socket, store);
   return socket;
 };
+
+export default createSocket;
