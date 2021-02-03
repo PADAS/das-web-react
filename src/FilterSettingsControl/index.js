@@ -1,5 +1,4 @@
 import React, { forwardRef, useCallback, useEffect, memo } from 'react';
-import { connect } from 'react-redux';
 import { Overlay, Popover } from 'react-bootstrap';
 import styles from './styles.module.scss';
 
