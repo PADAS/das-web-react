@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
+import distanceInWords from 'date-fns/distance_in_words';
+import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
 import uniq from 'lodash/uniq';
 
@@ -13,6 +15,7 @@ import { ReactComponent as InfoIcon } from '../common/images/icons/information.s
 import TrackToggleButton from '../TrackToggleButton';
 
 import { updateTrackState } from '../ducks/map-ui';
+import { trackTimeEnvelope } from '../selectors/tracks';
 
 import styles from './styles.module.scss';
 import { trackEvent } from '../utils/analytics';
@@ -31,7 +34,7 @@ const getIconForTrack = (track, subjectStore) => {
 };
 
 const TitleElement = memo((props) => { // eslint-disable-line
-  const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, subjectStore, trackData, trackPointCount, track_days } = props;
+  const { displayTitle, iconSrc, onRemoveTrackClick, subjectCount, subjectStore, trackData, trackPointCount, trackDuration } = props;
 
   const convertTrackToSubjectDetailListItem = ({ track }) => {
     const { properties: { title, id } } = track.features[0];
@@ -70,13 +73,13 @@ const TitleElement = memo((props) => { // eslint-disable-line
       </button>
     </OverlayTrigger>}
       </h6>
-      <span>{trackPointCount} points over {track_days} day{track_days > 1 ? 's' :''}</span>
+      <span>{trackPointCount} points over {trackDuration}</span>
     </div>
   </div>;
 });
 
 const TrackLegend = (props) => {
-  const { trackData, trackLength: { length:track_days }, onClose, trackState, subjectStore, updateTrackState } = props;
+  const { trackData, onClose, trackState, subjectStore, updateTrackState, trackTimeEnvelope } = props;
 
   const subjectCount = uniq([...trackState.visible, ...trackState.pinned]).length;
   const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
@@ -92,6 +95,12 @@ const TrackLegend = (props) => {
     
     return trackData[0].track.features[0].properties.title;
   }, [hasTrackData, subjectCount, trackData]);
+
+  const displayTrackLength = useMemo(() => {
+    const { from, until } = trackTimeEnvelope;
+    if (!until) return distanceInWordsToNow(new Date(from));
+    return distanceInWords(new Date(from), new Date(until));
+  }, [trackTimeEnvelope]);
 
   const iconSrc = useMemo(() => {
     if (!subjectCount || !hasTrackData ||  subjectCount !== 1) return null;
@@ -110,7 +119,7 @@ const TrackLegend = (props) => {
     titleElement={
       <TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick}
         subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData} 
-        trackPointCount={trackPointCount} track_days={track_days} />
+        trackPointCount={trackPointCount} trackDuration={displayTrackLength} />
     }
     onClose={onClose}
     settingsComponent={<TrackLengthControls />} 
@@ -120,6 +129,7 @@ const TrackLegend = (props) => {
 
 const mapStatetoProps = (state) => ({
   subjectStore: state.data.subjectStore,
+  trackTimeEnvelope: trackTimeEnvelope(state),
   trackLength: state.view.trackLength,
 });
 
