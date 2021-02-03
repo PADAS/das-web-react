@@ -35,20 +35,11 @@ export const INITIAL_FILTER_STATE = {
   //status: ['active', 'done', 'cancelled'], /* FPO - as per designs */
   filter: {
     date_range: defaultDateRange,
+    overlap: false,
     // patrol_type: [],
     // text: '',
     // leader: [],
   },
-};
-
-export const patrolFilterSettingsReducer = (state = false, action) => {
-  const { type, payload } = action;
-
-  if (type === ALLOW_PATROL_FILTER_OVERLAP) {
-    return payload;
-  }
-
-  return state;
 };
 
 const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
@@ -70,10 +61,19 @@ const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
       ...state,
       filter: {
         ...state.filter,
-        date_range: dateRangeReducer(state, action),
+        filter_: dateRangeReducer(state, action),
       },
     };
   }
+
+  if (type === ALLOW_PATROL_FILTER_OVERLAP)
+    return {
+      ...state,
+      filter: {
+        ...state.filter,
+        overlap: payload,
+      },
+    };
 
   if (type === RESET_PATROL_FILTER) {
     return { ...payload };

@@ -2,6 +2,7 @@ import React, { forwardRef, useCallback, useEffect, memo } from 'react';
 import { Overlay, Popover } from 'react-bootstrap';
 import styles from './styles.module.scss';
 
+// eslint-disable-next-line react/display-name
 const FilterSettingsControl = forwardRef((props, ref) => {
   const { isOpen, hideFilterSettings, target, container, children } = props;
 
@@ -13,7 +14,7 @@ const FilterSettingsControl = forwardRef((props, ref) => {
       hideFilterSettings();
     }
     e.preventDefault();
-  }, [isOpen]);
+  }, [hideFilterSettings]);
 
   const handleOutsideClick = useCallback((e) => {
     e.stopPropagation();
@@ -21,7 +22,7 @@ const FilterSettingsControl = forwardRef((props, ref) => {
     if (container.current && (!container.current.contains(e.target))) {
       hideFilterSettings();
     }
-  }, [isOpen]);
+  }, [container, hideFilterSettings]);
 
   useEffect(() => {
     if (isOpen) {
@@ -36,12 +37,12 @@ const FilterSettingsControl = forwardRef((props, ref) => {
 
   return <div>
     <Overlay show={isOpen} target={target.current} container={container.current} placement='bottom' >
-    <Popover id="patrol-filter-settings" className={styles.popover} title="Patrol Filter Settings">
-      <Popover.Content ref={ref}>
-        {children} 
-      </Popover.Content>
-    </Popover>
-  </Overlay>
+      <Popover id="patrol-filter-settings" className={styles.popover} title="Patrol Filter Settings">
+        <Popover.Content ref={ref}>
+          {children} 
+        </Popover.Content>
+      </Popover>
+    </Overlay>
   </div>;
 });
 
