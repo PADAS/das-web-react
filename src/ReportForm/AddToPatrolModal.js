@@ -12,7 +12,7 @@ import uniq from 'lodash/uniq';
 import { PATROL_CARD_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
 import { trackEvent } from '../utils/analytics';
-import { calcPatrolCardState, patrolShouldBeMeasured } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, patrolShouldBeMeasured } from '../utils/patrols';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
 import LoadingOverlay from '../LoadingOverlay';
@@ -176,12 +176,14 @@ const AddToPatrolModal = (props) => {
               const cardState = calcPatrolCardState(patrol);
   
               const priority = cardState === PATROL_CARD_STATES.ACTIVE ? 100 : 0;
+              const title = displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader);
               
               return <ReportListItem
                 className={styles.listItem}
                 showJumpButton={false}
                 report={patrol}
                 key={`${id}-${index}`}
+                title={title}
                 priority={priority}
                 displayTime={patrol.patrol_segments[0].time_range.start_time}
                 onTitleClick={onClickPatrol}

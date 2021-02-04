@@ -150,7 +150,7 @@ export const openModalForReport = (report, map, config = {}) => {
     }));
 };
 
-export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data, patrol_segment_id = null) => {
+export const createNewReportForEventType = ({ value: event_type, icon_id, default_priority: priority = 0 }, data) => {
 
   const location = data && data.location;
 
@@ -162,7 +162,6 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   
   return {
     event_type,
-    patrol_segment_id,
     icon_id,
     is_collection: false,
     location,
@@ -317,7 +316,7 @@ export const validateReportAgainstCurrentEventFilter = (report) => { /* client-s
 
 export const addPatrolSegmentToEvent = (segment_id, event_id, event) => {
   const segmentPayload = { patrol_segments: [segment_id] };
-  axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
+  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
     .then(function (response) {
       console.log('add segment response', response);
     })

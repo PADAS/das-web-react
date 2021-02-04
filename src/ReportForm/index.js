@@ -390,7 +390,7 @@ const ReportForm = (props) => {
 
     if (!patrolSegmentId) return;
     const [{ data: { data: thisReport } }] = await saveChanges();
-    addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
+    await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Add ${is_collection?'Incident':'Event'} to Patrol`);
 
