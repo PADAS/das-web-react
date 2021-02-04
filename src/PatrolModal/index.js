@@ -96,7 +96,11 @@ const PatrolModal = (props) => {
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
       !report.is_contained_in?.length && !incidentIds.includes(report.id));
-    return topLevelReports;
+
+    return orderBy(topLevelReports, [
+      (item) => {
+        return new Date(item.updated_at);
+      }],['desc']);
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
@@ -322,6 +326,10 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
+
+    // patch the report to include the segment id
+    addSegmentToEvent(patrolSegmentId, data.id,);
+ 
     // dedupe collections
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
@@ -443,7 +451,7 @@ const PatrolModal = (props) => {
     const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates, ...eventUpdates];
 
     return orderBy(allUpdates, [
-      function(item) {
+      (item) => {
         return new Date(item.time);
       }],['desc']);
   }, [statePatrol]);
@@ -476,12 +484,6 @@ const PatrolModal = (props) => {
       if (toSubmit.hasOwnProperty(prop) && !toSubmit[prop]) {
         toSubmit[prop] = null;
       }
-    });
-
-    // just assign added reports to inital segment id for now
-    addedReports.forEach(async (report) => {
-      const resp = await addSegmentToEvent(patrolSegmentId, report.id,);
-      console.log(resp);
     });
 
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);

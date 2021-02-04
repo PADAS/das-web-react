@@ -405,7 +405,7 @@ const ReportForm = (props) => {
             );
             await Promise.all([thisReport.id, newReport.id].map(id => addEventToIncident(id, incidentID)));
             return fetchEvent(incidentID).then((results) => {
-              if(isPatrolReport) onSaveSuccess(results);
+              onSaveSuccess(results);
               const { data: { data } } = results;
               openModalForReport(data, map);
               removeModal();
