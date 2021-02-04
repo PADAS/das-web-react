@@ -51,6 +51,8 @@ import { openModalForReport } from '../utils/events';
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
+const AUTO_START_LABEL = 'Auto Start';
+const AUTO_END_LABEL = 'Auto End';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
@@ -514,7 +516,9 @@ const PatrolModal = (props) => {
 
     if (patrolState === PATROL_CARD_STATES.READY_TO_START 
     || patrolState === PATROL_CARD_STATES.SCHEDULED 
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+      return (autoStartPatrols) ? AUTO_START_LABEL : SCHEDULED_LABEL;
+    }
 
     return null;
   }, [statePatrol]);
@@ -524,16 +528,20 @@ const PatrolModal = (props) => {
 
     const endScheduled = isSegmentEndScheduled(firstLeg);
 
+    if (endScheduled && autoEndPatrols) {
+      return AUTO_END_LABEL;
+    }
+
     if (endScheduled) {
       return SCHEDULED_LABEL;
-    } 
-
+    }
+ 
     return null;
   }, [statePatrol]);
 
   const startTimeLabelClass = useMemo(() => {
     if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
-    if (startTimeLabel === SCHEDULED_LABEL) return styles.scheduledLabel;
+    if (startTimeLabel === SCHEDULED_LABEL || startTimeLabel === AUTO_START_LABEL) return styles.scheduledLabel;
     return null;
   }, [startTimeLabel]);
 
