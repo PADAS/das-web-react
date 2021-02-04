@@ -17,7 +17,7 @@ import { jumpToLocation } from '../utils/map';
 import styles from './styles.module.scss';
 
 const ReportListItem = (props) => {
-  const { eventTypes, priority = null, displayTime = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, priority = null, displayTime = null, title = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -46,7 +46,7 @@ const ReportListItem = (props) => {
     return report.priority;
   }, [eventTypes, priority, report]);
 
-  const displayTitle = displayTitleForEvent(report, eventTypes);
+  const displayTitle = title || displayTitleForEvent(report, eventTypes);
 
   const bounceIDs = report.is_collection ? getEventIdsForCollection(report) : [report.id];
 
@@ -70,7 +70,7 @@ const ReportListItem = (props) => {
       <EventIcon report={report} />
     </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
-    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitleForEvent(report, eventTypes)}</button>
+    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitle}</button>
     <span className={styles.date}>
       <DateTime date={displayTime || report.updated_at || report.time} />
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
