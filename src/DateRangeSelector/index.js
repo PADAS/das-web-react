@@ -26,7 +26,7 @@ const DateRangeSelector = (props) => {
   const endDateDayClicked = useRef(false);
   const settingsButtonRef = useRef(null);
   const popoverRef = useRef(null);
-  const containerRef = useRef(null)
+  const containerRef = useRef(null);
 
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 
@@ -105,17 +105,17 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
-      {!!filterSettings && <Fragment>
-        <button type='button' className={styles.gearButton} ref={settingsButtonRef
-    }
-          onClick={toggleFilterSettingsPopover}>
-          <GearIcon />
-        </button>
-          <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
-            container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
-            {filterSettings}
-          </FilterSettingsControl> 
-        </Fragment>}
+    </div>}
+    {!!filterSettings && <div>
+      <button type='button' className={styles.gearButton} ref={settingsButtonRef
+      }
+      onClick={toggleFilterSettingsPopover}>
+        <GearIcon />
+      </button>
+      <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
+        container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
+        {filterSettings}
+      </FilterSettingsControl> 
     </div>}
   </div>;
 };

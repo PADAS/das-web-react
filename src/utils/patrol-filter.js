@@ -19,10 +19,10 @@ export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INI
 
 export const calcPatrolFilterForRequest = (options = {}) => {
   const { data: { patrolFilter } } = store.getState();
-  const { data: { patrolsOverlapFilter } } = store.getState();
+  const { filter: { overlap }} = patrolFilter;
   const { params } = options;
   // only apply current filter settings if it is modified, otherwise allow overlap
-  params.patrols_overlap_daterange = isDateFilterModified(patrolFilter) ? patrolsOverlapFilter : true;
+  params.patrols_overlap_daterange = isDateFilterModified(patrolFilter) ? overlap : true;
   console.log('filter params', params);
   const  filterParams = merge({}, patrolFilter, params);
   return objectToParamString(filterParams);  

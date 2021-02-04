@@ -51,8 +51,6 @@ const PatrolFilter = (props) => {
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
 
   const containerRef = useRef(null);
-
-  console.log('>>>>>patrol_filter', patrolFilter, overlap);
   
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 
@@ -62,8 +60,7 @@ const PatrolFilter = (props) => {
 
   const onFilterSettingsOptionChange = useCallback((e) => {
     const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
-    const overlapEntry = {overlap: patrolOverlap};
-    updatePatrolFilter(...patrolFilter, overlapEntry);
+    updatePatrolFilter({ filter: { date_range, overlap: patrolOverlap}});
   });
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
