@@ -53,7 +53,7 @@ const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
       ...state,
       filter: {
         ...state.filter,
-        filter_: dateRangeReducer(state, action),
+        date_range: dateRangeReducer(state, action),
       },
     };
   }

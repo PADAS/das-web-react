@@ -103,5 +103,8 @@
   bottom: 0.5rem;
   z-index: 100;
   border: none;
-  outline: none;
+  &:hover, &:focus {
+    border: none;
+    outline: none;
+  }
 }
