@@ -1,20 +1,22 @@
-import React, { createContext, useEffect, useRef } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import createSocket, { unbindSocketEvents } from '../socket';
 
 const SocketContext = createContext(null);
 
 const WithSocketContext = (props) => { // eslint-disable-line react/display-name
   const { children } = props;
-  const socket = useRef(null);
+
+  const [websocket, setWebsocket] = useState(null);
+
   useEffect(() => {
-    socket.current = createSocket();
+    const socket = createSocket();
+    setWebsocket(socket);
     return () => {
-      unbindSocketEvents(socket.current);
-      socket.current.disconnect();
+      unbindSocketEvents(socket);
     };
   }, []);
 
-  return <SocketContext.Provider value={socket.current}>
+  return !!websocket && <SocketContext.Provider value={websocket}>
     {children}
   </SocketContext.Provider>;
 };

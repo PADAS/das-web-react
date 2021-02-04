@@ -104,6 +104,19 @@ const addReportToPatrol = (reportId, patrol) => {
 
 };
 
+export const fetchPatrol = id => dispatch => axios.get(`${PATROLS_API_URL}${id}`)
+  .then((response) => {
+    const patrol = response.data.data;
+    dispatch({
+      type: UPDATE_PATROL_SUCCESS,
+      payload: patrol,
+    });
+    return response;
+  })
+  .catch((error) => {
+    console.warn('error fetching patrol', error);
+  });
+
 export const fetchPatrols = () => async (dispatch) => {
 
   const patrolFilterParamString = calcPatrolFilterForRequest({ params: { page_size: 200 } });

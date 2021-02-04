@@ -8,7 +8,6 @@ import Modal from 'react-bootstrap/Modal';
 import InfiniteScroll from 'react-infinite-scroller';
 import uniq from 'lodash/uniq';
 
-import { SocketContext } from '../withSocketConnection';
 
 import { PATROL_CARD_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
@@ -20,6 +19,9 @@ import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
 import { INITIAL_PATROLS_STATE, PATROLS_API_URL, fetchPatrolsSuccess } from '../ducks/patrols';
+
+import { SocketContext } from '../withSocketConnection';
+
 
 import styles from './styles.module.scss';
 

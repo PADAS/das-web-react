@@ -6,7 +6,8 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { openModalForPatrol } from '../utils/patrols';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
@@ -14,6 +15,7 @@ import { trackEvent } from '../utils/analytics';
 
 import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
+import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 
 import EventIcon from '../EventIcon';
@@ -42,7 +44,7 @@ const ACTIVE_STATES = ['active', 'new'];
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 
 const ReportForm = (props) => {
-  const { eventTypes, map, data: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
+  const { eventTypes, map, data: originalReport, fetchPatrol, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
 
   const formRef = useRef(null);
@@ -381,17 +383,22 @@ const ReportForm = (props) => {
     });
   }, [addEventToIncident, fetchEvent, is_collection, map, removeModal, saveChanges]);
 
-  const onAddToPatrol = useCallback(async (patrolId) => {
+  const onAddToPatrol = useCallback(async (patrol) => {
+    console.log({ patrol });
+    const patrolId = patrol.id;
+    const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
+
+    if (!patrolSegmentId) return;
     const [{ data: { data: thisReport } }] = await saveChanges();
-    // await addEventToPatrol(thisReport.id, patrolId);
+    addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add To Incident\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Add ${is_collection?'Incident':'Event'} to Patrol`);
 
-    // return fetchPatrol(patrolId).then(({ data: { data } }) => {
-    // openModalForReport(data, map);
-    removeModal();
-    // });
-  }, [is_collection, removeModal, saveChanges]);
+    return fetchPatrol(patrolId).then(({ data: { data } }) => {
+      openModalForPatrol(data, map);
+      removeModal();
+    });
+  }, [fetchPatrol, is_collection, map, removeModal, saveChanges]);
 
   const onStartAddToIncident = useCallback(() => {
     // trackEvent(eventOrIncidentReport, 'Click \'Add to Incident\'');
@@ -533,6 +540,7 @@ export default memo(
         addEventToIncident: (...args) => addEventToIncident(...args),
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
+        fetchPatrol: id => fetchPatrol(id),
       }
     )
     (ReportForm)
