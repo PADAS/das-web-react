@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useContext, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -42,17 +42,17 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
+
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
 
-  const socket = useContext(SocketContext);
-
   const resizeInt = useRef(null);
   const mapInterval = useRef(null);
 
+  const socket = useContext(SocketContext);
 
   const resizeInterval = useCallback((map) => {
     clearInterval(resizeInt.current);
@@ -154,34 +154,39 @@ const App = (props) => {
     }
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
-  return <WithSocketContext>
-    <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
-      <PrintTitle />
-      <Nav map={map} />
-      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+    <PrintTitle />
+    <Nav map={map} />
+    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
-        {/* <ErrorBoundary> */}
-        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {/* </ErrorBoundary> */}
-        {/* <ErrorBoundary> */}
-        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-        {/* </ErrorBoundary> */}
-        <ModalRenderer map={map} />
-      </div>
-      <div style={{
-        display: 'none',
-        height: 0,
-        width: 0,
-      }}>
-        <ReportTypeIconSprite id="reportTypeIconSprite" />
-        <EarthRangerLogoSprite />
-      </div>
-      <ServiceWorkerWatcher />
+      {/* <ErrorBoundary> */}
+      <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+      {/* </ErrorBoundary> */}
+      {/* <ErrorBoundary> */}
+      {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+      {/* </ErrorBoundary> */}
+      <ModalRenderer map={map} />
     </div>
-  </WithSocketContext>;
+    <div style={{
+      display: 'none',
+      height: 0,
+      width: 0,
+    }}>
+      <ReportTypeIconSprite id="reportTypeIconSprite" />
+      <EarthRangerLogoSprite />
+    </div>
+    <ServiceWorkerWatcher />
+  </div>;
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });
+const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
+const AppWithSocketContext = (props) => <WithSocketContext>
+  <ConnectedApp />
+</WithSocketContext>;
+
+
+
+
+export default AppWithSocketContext;
