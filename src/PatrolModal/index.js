@@ -100,7 +100,7 @@ const PatrolModal = (props) => {
     return orderBy(topLevelReports, [
       (item) => {
         return new Date(item.updated_at);
-      }],['desc']);
+      }],['acs']);
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
