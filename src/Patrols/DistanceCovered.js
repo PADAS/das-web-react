@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { patrolShouldBeMeasured } from '../utils/patrols';
+import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 
 import length from '@turf/length';
 
@@ -9,7 +9,7 @@ const PatrolDistanceCovered = ({ patrolsData  = []}) => {
   
   const patrolTrackLength = useMemo(() =>
     patrolsData
-      .filter(({ patrol }) => !!patrolShouldBeMeasured(patrol))
+      .filter(({ patrol }) => !!patrolStateAllowsTrackDisplay(patrol))
       .reduce((accumulator, patrolData) => {
         const { trackData, startStopGeometries } = patrolData;
 

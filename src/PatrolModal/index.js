@@ -51,6 +51,8 @@ import { openModalForReport } from '../utils/events';
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
+const AUTO_START_LABEL = 'Auto Start';
+const AUTO_END_LABEL = 'Auto End';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
@@ -94,7 +96,11 @@ const PatrolModal = (props) => {
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
       !report.is_contained_in?.length && !incidentIds.includes(report.id));
-    return topLevelReports;
+
+    return orderBy(topLevelReports, [
+      (item) => {
+        return new Date(item.updated_at);
+      }],['acs']);
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
@@ -320,6 +326,10 @@ const PatrolModal = (props) => {
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
+
+    // patch the report to include the segment id
+    addSegmentToEvent(patrolSegmentId, data.id,);
+ 
     // dedupe collections
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
@@ -429,6 +439,16 @@ const PatrolModal = (props) => {
     return null;
   }, [statePatrol]);
 
+  const displayAutoStart = useMemo(() => {
+    const { time_range: { start_time }} = statePatrol.patrol_segments[0];
+    return(!!start_time);
+  }, [statePatrol]);
+
+  const displayAutoEnd = useMemo(() => {
+    const { time_range: { end_time }}  = statePatrol.patrol_segments[0];
+    return(!!end_time);
+  }, [statePatrol]);
+
   const allPatrolUpdateHistory = useMemo(() => {
     // when patrol is not saved yet
     if (!statePatrol.updates) return [];
@@ -441,7 +461,7 @@ const PatrolModal = (props) => {
     const allUpdates = [...topLevelUpdate, ...segmentUpdates, ...noteUpdates, ...fileUpdates, ...eventUpdates];
 
     return orderBy(allUpdates, [
-      function(item) {
+      (item) => {
         return new Date(item.time);
       }],['desc']);
   }, [statePatrol]);
@@ -477,7 +497,7 @@ const PatrolModal = (props) => {
     });
 
     // just assign added reports to inital segment id for now
-    addedReports.forEach(async (report) => {
+    addedReports.forEach((report) => {
       addPatrolSegmentToEvent(patrolSegmentId, report.id);
     });
 
@@ -513,7 +533,9 @@ const PatrolModal = (props) => {
 
     if (patrolState === PATROL_CARD_STATES.READY_TO_START 
     || patrolState === PATROL_CARD_STATES.SCHEDULED 
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE) return SCHEDULED_LABEL;
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+      return (displayAutoStart ? AUTO_START_LABEL : SCHEDULED_LABEL);
+    }
 
     return null;
   }, [statePatrol]);
@@ -523,16 +545,20 @@ const PatrolModal = (props) => {
 
     const endScheduled = isSegmentEndScheduled(firstLeg);
 
+    if (displayAutoEnd) {
+      return AUTO_END_LABEL;
+    }
+
     if (endScheduled) {
       return SCHEDULED_LABEL;
-    } 
-
+    }
+ 
     return null;
   }, [statePatrol]);
 
   const startTimeLabelClass = useMemo(() => {
     if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
-    if (startTimeLabel === SCHEDULED_LABEL) return styles.scheduledLabel;
+    if (startTimeLabel === SCHEDULED_LABEL || startTimeLabel === AUTO_START_LABEL) return styles.scheduledLabel;
     return null;
   }, [startTimeLabel]);
 

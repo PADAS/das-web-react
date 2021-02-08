@@ -481,7 +481,7 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol.leader).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments[0]?.leader).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
@@ -680,9 +680,9 @@ export const getBoundsForPatrol = ((patrolData) => {
   );
 });
 
-export const patrolShouldBeMeasured = (patrol) => {
-  const measurablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
+export const patrolStateAllowsTrackDisplay = (patrol) => {
+  const vizualizablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
   const patrolState = calcPatrolCardState(patrol);
 
-  return measurablePatrolStates.includes(patrolState);
+  return vizualizablePatrolStates.includes(patrolState);
 };

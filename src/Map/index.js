@@ -153,7 +153,7 @@ class Map extends Component {
   componentDidMount() {
     this.props.fetchBaseLayers();
     if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-      this.setTrackLengthToEventFilterRange();
+      this.setTrackLengthToEventFilterLowerValue();
     }
   }
 
@@ -178,12 +178,12 @@ class Map extends Component {
       this.props.socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
       this.debouncedFetchMapData();
       if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
-        && !isEqual(prev.eventFilter.filter.date_range, this.props.eventFilter.filter.date_range)) {
-        this.setTrackLengthToEventFilterRange();
+        && !isEqual(prev.eventFilter.filter.date_range.lower, this.props.eventFilter.filter.date_range.lower)) {
+        this.setTrackLengthToEventFilterLowerValue();
       }
     }
     if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-      this.setTrackLengthToEventFilterRange();
+      this.setTrackLengthToEventFilterLowerValue();
     }
     if (!isEqual(prev.trackLength, this.props.trackLength)) {
       this.onTrackLengthChange();
@@ -236,9 +236,9 @@ class Map extends Component {
     });
   }
 
-  setTrackLengthToEventFilterRange() {
+  setTrackLengthToEventFilterLowerValue() {
     this.props.setTrackLength(differenceInCalendarDays(
-      this.props.eventFilter.filter.date_range.upper || new Date(),
+      new Date(),
       this.props.eventFilter.filter.date_range.lower,
     ));
   }
