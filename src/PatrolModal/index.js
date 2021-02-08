@@ -439,6 +439,16 @@ const PatrolModal = (props) => {
     return null;
   }, [statePatrol]);
 
+  const displayAutoStart = useMemo(() => {
+    const { time_range: { start_time }} = statePatrol.patrol_segments[0];
+    return(!!start_time);
+  }, [statePatrol]);
+
+  const displayAutoEnd = useMemo(() => {
+    const { time_range: { end_time }}  = statePatrol.patrol_segments[0];
+    return(!!end_time);
+  }, [statePatrol]);
+
   const allPatrolUpdateHistory = useMemo(() => {
     // when patrol is not saved yet
     if (!statePatrol.updates) return [];
@@ -519,7 +529,7 @@ const PatrolModal = (props) => {
     if (patrolState === PATROL_CARD_STATES.READY_TO_START 
     || patrolState === PATROL_CARD_STATES.SCHEDULED 
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
-      return (autoStartPatrols) ? AUTO_START_LABEL : SCHEDULED_LABEL;
+      return (displayAutoStart ? AUTO_START_LABEL : SCHEDULED_LABEL);
     }
 
     return null;
@@ -530,7 +540,7 @@ const PatrolModal = (props) => {
 
     const endScheduled = isSegmentEndScheduled(firstLeg);
 
-    if (endScheduled && autoEndPatrols) {
+    if (displayAutoEnd) {
       return AUTO_END_LABEL;
     }
 
