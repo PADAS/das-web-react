@@ -384,7 +384,6 @@ const ReportForm = (props) => {
   }, [addEventToIncident, fetchEvent, is_collection, map, removeModal, saveChanges]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
-    console.log({ patrol });
     const patrolId = patrol.id;
     const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
 
