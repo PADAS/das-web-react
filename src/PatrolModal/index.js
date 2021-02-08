@@ -13,7 +13,7 @@ import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals'
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { addSegmentToEvent, getEventIdsForCollection } from '../utils/events';
+import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
@@ -494,6 +494,11 @@ const PatrolModal = (props) => {
       if (toSubmit.hasOwnProperty(prop) && !toSubmit[prop]) {
         toSubmit[prop] = null;
       }
+    });
+
+    // just assign added reports to inital segment id for now
+    addedReports.forEach((report) => {
+      addPatrolSegmentToEvent(patrolSegmentId, report.id);
     });
 
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);

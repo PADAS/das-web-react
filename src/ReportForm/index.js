@@ -6,7 +6,8 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { openModalForPatrol } from '../utils/patrols';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
@@ -14,6 +15,7 @@ import { trackEvent } from '../utils/analytics';
 
 import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
+import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 
 import EventIcon from '../EventIcon';
@@ -27,6 +29,7 @@ import RelationshipButton from './RelationshipButton';
 import EditableItem from '../EditableItem';
 import HeaderMenuContent from './HeaderMenuContent';
 import AddToIncidentModal from './AddToIncidentModal';
+import AddToPatrolModal from './AddToPatrolModal';
 
 import { withFormDataContext } from '../EditableItem/context';
 
@@ -41,7 +44,7 @@ const ACTIVE_STATES = ['active', 'new'];
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 
 const ReportForm = (props) => {
-  const { eventTypes, map, data: originalReport, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
+  const { eventTypes, map, data: originalReport, fetchPatrol, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
 
   const formRef = useRef(null);
@@ -57,7 +60,7 @@ const ReportForm = (props) => {
 
   const { is_collection } = report;
 
-  const reportTitle = displayTitleForEvent(report);
+  const reportTitle = displayTitleForEvent(report, eventTypes);
   const reportTypeTitle = eventTypeTitleForEvent(report);
 
   const isActive = reportIsActive(report.state);
@@ -380,6 +383,23 @@ const ReportForm = (props) => {
     });
   }, [addEventToIncident, fetchEvent, is_collection, map, removeModal, saveChanges]);
 
+  const onAddToPatrol = useCallback(async (patrol) => {
+    console.log({ patrol });
+    const patrolId = patrol.id;
+    const patrolSegmentId = patrol?.patrol_segments?.[0]?.id;
+
+    if (!patrolSegmentId) return;
+    const [{ data: { data: thisReport } }] = await saveChanges();
+    await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
+
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Add ${is_collection?'Incident':'Event'} to Patrol`);
+
+    return fetchPatrol(patrolId).then(({ data: { data } }) => {
+      openModalForPatrol(data, map);
+      removeModal();
+    });
+  }, [fetchPatrol, is_collection, map, removeModal, saveChanges]);
+
   const onStartAddToIncident = useCallback(() => {
     // trackEvent(eventOrIncidentReport, 'Click \'Add to Incident\'');
     addModal({
@@ -388,6 +408,13 @@ const ReportForm = (props) => {
       onAddToExistingIncident,
     });
   }, [addModal, onAddToExistingIncident, onAddToNewIncident]);
+
+  const onStartAddToPatrol = useCallback(() => {
+    addModal({
+      content: AddToPatrolModal,
+      onAddToPatrol,
+    });
+  }, [addModal, onAddToPatrol]);
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
@@ -433,7 +460,7 @@ const ReportForm = (props) => {
 
     <EditableItem.Header 
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} isPatrolReport={isPatrolReport}  />}
+      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 
@@ -513,6 +540,7 @@ export default memo(
         addEventToIncident: (...args) => addEventToIncident(...args),
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
+        fetchPatrol: id => fetchPatrol(id),
       }
     )
     (ReportForm)
