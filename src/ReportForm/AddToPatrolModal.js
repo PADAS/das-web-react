@@ -12,7 +12,7 @@ import uniq from 'lodash/uniq';
 import { PATROL_CARD_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
 import { trackEvent } from '../utils/analytics';
-import { calcPatrolCardState, displayTitleForPatrol, patrolShouldBeMeasured } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
 import LoadingOverlay from '../LoadingOverlay';
@@ -116,7 +116,7 @@ const AddToPatrolModal = (props) => {
   }, [patrols.next]);
 
   const onPatrolSocketMessage = useCallback(({ patrol_data }) => {
-    if (patrolShouldBeMeasured(patrol_data)) {
+    if (patrolStateAllowsTrackDisplay(patrol_data)) {
       dispatch(socketPatrolUpdate(patrol_data.id));
     }
   }, []);
