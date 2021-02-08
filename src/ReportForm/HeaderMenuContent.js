@@ -8,6 +8,7 @@ import { ReactComponent as AddToIncidentIcon } from '../common/images/icons/add-
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
 import PriorityPicker from '../PriorityPicker';
 import { withFormDataContext } from '../EditableItem/context';
+import DasIcon from '../DasIcon';
 
 import styles from './styles.module.scss';
 
@@ -36,11 +37,12 @@ const ReportHeaderPopover = (props, ref) => {
       {canAddToIncident && <Fragment>
         <hr />
         <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToIncident}>
-          <AddToIncidentIcon style={{height: '2rem', width: '2rem'}} />Add to incident
+          <AddToIncidentIcon style={{height: '2rem', width: '2rem'}} />Add to Incident
         </Button>
       </Fragment>
       }
       {!isPatrolReport && <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToPatrol}>
+        <DasIcon type='events' iconId='routine-patrol-icon' color='gray' className={styles.patrolIcon} />
           Add to Patrol
       </Button>}
       {hasExternalLink && <Fragment> 
