@@ -328,7 +328,7 @@ const PatrolModal = (props) => {
     const { data: { data } } = report;
 
     // patch the report to include the segment id
-    addSegmentToEvent(patrolSegmentId, data.id,);
+    addPatrolSegmentToEvent(patrolSegmentId, data.id,);
  
     // dedupe collections
     if(!allPatrolReportIds.includes(data.id)) {
