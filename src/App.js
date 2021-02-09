@@ -162,16 +162,18 @@ const App = (props) => {
 
   useEffect(() => {
     if (map) {
-      resizeInterval(map);
-      clearInterval(mapInterval.current);
+      const resizeAnimation = () => animateResize(map);
 
-      mapInterval.current = setInterval(() => {
-        !!mapResized.current && !!map && map.resize();
-        mapResized.current = false;
-      }, 10000);
+      window.addEventListener('resize', resizeAnimation);
       return () => {
-        clearInterval(mapInterval.current);
+        window.removeEventListener('resize', resizeAnimation);
       };
+    }
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      animateResize(map);
     }
   }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
