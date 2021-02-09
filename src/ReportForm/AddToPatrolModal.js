@@ -18,7 +18,7 @@ import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
-import { INITIAL_PATROLS_STATE, PATROLS_API_URL, fetchPatrolsSuccess } from '../ducks/patrols';
+import { INITIAL_PATROLS_STATE, PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
 import { SocketContext } from '../withSocketConnection';
 
@@ -79,7 +79,7 @@ const activePatrolsFeedRecuer = (state, action) => {
 };
 
 const AddToPatrolModal = (props) => {
-  const { id, removeModal, onAddToPatrol, fetchPatrolsSuccess, patrolStore,
+  const { id, removeModal, onAddToPatrol, updatePatrolStore, patrolStore,
   } = props;
   
   const scrollRef = useRef(null);
@@ -96,14 +96,14 @@ const AddToPatrolModal = (props) => {
     const params = calcPatrolFilterForRequest({ params: { page_size: 75, state:['active', 'done'] } });
     return get(`${PATROLS_API_URL}?${params}`)
       .then(({ data: { data:patrols } }) => {
-        fetchPatrolsSuccess(patrols);
+        updatePatrolStore(patrols);
         setLoadedState(true);
         dispatch(fetchFeedSuccess(patrols));
       })
       .catch((error) => {
         console.warn({ error });
       });
-  }, [fetchPatrolsSuccess]);
+  }, [updatePatrolStore]);
 
   const fetchFeedPatrolsNextPage = useCallback(() => {
     return get(patrols.next)
@@ -203,7 +203,7 @@ const AddToPatrolModal = (props) => {
 
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
 
-export default connect(mapStateToProps, { removeModal, fetchPatrolsSuccess })(memo(AddToPatrolModal));
+export default connect(mapStateToProps, { removeModal, updatePatrolStore })(memo(AddToPatrolModal));
 
 AddToPatrolModal.propTypes = {
   onAddToPatrol: PropTypes.func.isRequired,

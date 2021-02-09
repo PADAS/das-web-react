@@ -11,6 +11,7 @@ export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
 const PATROL_SEGMENTS_API_URL = `${PATROLS_API_URL}segments/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
+const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
 
 const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
@@ -72,10 +73,18 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
   }
 };
 
-export const fetchPatrolsSuccess = (patrols) => ({
-  type: FETCH_PATROLS_SUCCESS,
+export const updatePatrolStore = (patrols) => ({
+  type: UPDATE_PATROL_STORE,
   payload: patrols,
 });
+
+export const fetchPatrolsSuccess = (patrols) => (dispatch) => {
+  dispatch({
+    type: FETCH_PATROLS_SUCCESS,
+    payload: patrols,
+  });
+  dispatch(updatePatrolStore(patrols));
+}; 
 
 export const socketDeletePatrol = (payload) => (dispatch) => {
   console.log('patrol_delete', payload);
@@ -311,7 +320,7 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
     return { ...INITIAL_STORE_STATE };
   }
 
-  if (type === FETCH_PATROLS_SUCCESS) {
+  if (type === UPDATE_PATROL_STORE) {
     return merge({}, state, payload.results.reduce((accumulator, patrol) => ({
       ...accumulator,
       [patrol.id]: patrol,
