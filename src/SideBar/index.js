@@ -85,6 +85,17 @@ const SideBar = (props) => {
     trackEvent('Reports', `${reportHeatmapVisible ? 'Hide' : 'Show'} Reports Heatmap`);
   };
 
+  const fetchAndLoadPatrolData = () => {
+    const loadPatrolData = async () => {
+      if (showPatrols) {
+        setPatrolLoadState(true);
+        await fetchPatrols();
+        setPatrolLoadState(false);
+      }
+    };
+    loadPatrolData();
+};
+
   const optionalFeedProps = useMemo(() => {
     let value = {};
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
@@ -140,16 +151,14 @@ const SideBar = (props) => {
   }, [eventFilter]); // eslint-disable-line
 
   useEffect(() => {
-    const loadPatrolData = async () => {
-      if (showPatrols) {
-        setPatrolLoadState(true);
-        await fetchPatrols();
-        setPatrolLoadState(false);
-      }
-    };
+    fetchAndLoadPatrolData();
+  }, [patrolFilter]); // eslint-disable-line
 
-    loadPatrolData();
-  }, [patrolFilter, patrolsOverlapFilter]); // eslint-disable-line
+  useEffect(() => {
+    if (!isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+      fetchAndLoadPatrolData();
+    }
+  }, [patrolsOverlapFilter]); // eslint-disable-line
 
   useEffect(() => {
     if (!isUndefined(sidebarOpen)) {
