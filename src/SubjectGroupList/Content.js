@@ -19,8 +19,8 @@ import { trackEvent } from '../utils/analytics';
 import listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-  lazyRender: true,
-  transitionTime: 1,
+  lazyRender: false,
+  transitionTime: 100,
 };
 
 const TriggerComponent = memo((props) => { // eslint-disable-line react/display-name
