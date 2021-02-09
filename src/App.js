@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useContext, useState } from 'react';
+import React, { memo, useCallback, useEffect, useContext, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -42,6 +42,29 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
+let mapResizeAnimation;
+
+const animateResize = (map) => {
+  const transitionLength = 500;
+  const numberOfFrames = 8;
+  let count = 0;
+
+  clearInterval(mapResizeAnimation);
+
+  mapResizeAnimation = setInterval(() => {
+    count += 1;
+
+    map.resize();
+
+    if (count === numberOfFrames) {
+      clearInterval(mapResizeAnimation);
+    }
+    
+  }, (transitionLength / numberOfFrames));
+
+  return mapResizeAnimation;
+};
+
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
@@ -49,24 +72,7 @@ const App = (props) => {
 
   const [isDragging, setDragState] = useState(false);
 
-  const resizeInt = useRef(null);
-  const mapInterval = useRef(null);
-
   const socket = useContext(SocketContext);
-
-  const resizeInterval = useCallback((map) => {
-    clearInterval(resizeInt.current);
-    const transitionLength = 300;
-    const numberOfFrames = 2;
-    let count = 0;
-    resizeInt.current = setInterval(() => {
-      count += 1;
-      map.resize();
-      if (count > (transitionLength / numberOfFrames)) clearInterval(resizeInt.current);
-    }, numberOfFrames);
-  }, []);
-
-  let mapResized = useRef(false);
 
   const onMapHasLoaded = useCallback((map) => {
     setMap(map);
@@ -131,9 +137,6 @@ const App = (props) => {
     window.addEventListener('offline', () => {
       updateNetworkStatus(UNHEALTHY_STATUS);
     });
-    window.addEventListener('resize', () => {
-      mapResized.current = true;
-    });
     initZenDesk();
     hideZenDesk();
     
@@ -141,18 +144,20 @@ const App = (props) => {
 
   useEffect(() => {
     if (map) {
-      resizeInterval(map);
-      clearInterval(mapInterval.current);
+      const resizeAnimation = () => animateResize(map);
 
-      mapInterval.current = setInterval(() => {
-        !!mapResized.current && !!map && map.resize();
-        mapResized.current = false;
-      }, 10000);
+      window.addEventListener('resize', resizeAnimation);
       return () => {
-        clearInterval(mapInterval.current);
+        window.removeEventListener('resize', resizeAnimation);
       };
     }
-  }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      animateResize(map);
+    }
+  }, [map, sidebarOpen]); 
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <PrintTitle />
