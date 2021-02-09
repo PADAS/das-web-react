@@ -45,8 +45,8 @@ const bindDirectMapEventing = (map) => {
 let mapResizeAnimation;
 
 const animateResize = (map) => {
-  const transitionLength = 300;
-  const numberOfFrames = 5;
+  const transitionLength = 500;
+  const numberOfFrames = 8;
   let count = 0;
 
   clearInterval(mapResizeAnimation);
