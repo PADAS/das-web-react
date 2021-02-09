@@ -1,8 +1,12 @@
 div.popover {
   position: fixed !important;
-  width: 14.0rem;
-  [class*=popover-body] {
-    padding: 0.25rem;
+  width: 16.0rem;
+  padding: 0.5rem;
+  [class*=arrow]::before {
+    left: -0.3rem;
+  }
+  [class*=arrow]::after {
+    left: -0.3rem;
   }
 }
 
