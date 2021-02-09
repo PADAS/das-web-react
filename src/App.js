@@ -3,7 +3,6 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-import debounce from 'lodash/debounce';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
@@ -43,21 +42,27 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
+let mapResizeAnimation;
+
 const animateResize = (map) => {
   const transitionLength = 300;
   const numberOfFrames = 5;
   let count = 0;
 
-  const animation = setInterval(() => {
-    count += 1;
-    if (count > (transitionLength / numberOfFrames)) {
-      clearInterval(animation);
-    } else {
-      map.resize();
-    }
-  }, numberOfFrames);
+  clearInterval(mapResizeAnimation);
 
-  return animation;
+  mapResizeAnimation = setInterval(() => {
+    count += 1;
+
+    map.resize();
+
+    if (count === numberOfFrames) {
+      clearInterval(mapResizeAnimation);
+    }
+    
+  }, (transitionLength / numberOfFrames));
+
+  return mapResizeAnimation;
 };
 
 
@@ -138,23 +143,19 @@ const App = (props) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-
-    
     if (map) {
-      const handleResize = debounce(() => animateResize(map), 100);
-      window.addEventListener('resize', handleResize);
+      const resizeAnimation = () => animateResize(map);
+
+      window.addEventListener('resize', resizeAnimation);
       return () => {
-        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('resize', resizeAnimation);
       };
     }
   }, [map]);
 
   useEffect(() => {
     if (map) {
-      const animation = animateResize(map);
-      return () => {
-        clearInterval(animation);
-      };
+      animateResize(map);
     }
   }, [map, sidebarOpen]); 
 
