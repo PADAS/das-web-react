@@ -41,6 +41,30 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
+let mapResizeAnimation;
+
+const animateResize = (map) => {
+  const transitionLength = 500;
+  const numberOfFrames = 8;
+  let count = 0;
+
+  clearInterval(mapResizeAnimation);
+
+  mapResizeAnimation = setInterval(() => {
+    count += 1;
+
+    map.resize();
+
+    if (count === numberOfFrames) {
+      clearInterval(mapResizeAnimation);
+    }
+    
+  }, (transitionLength / numberOfFrames));
+
+  return mapResizeAnimation;
+};
+
+
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
   const [map, setMap] = useState(null);
