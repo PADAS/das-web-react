@@ -19,7 +19,7 @@ import { trackEvent } from '../utils/analytics';
 import listStyles from '../SideBar/styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-  lazyRender: true,
+  lazyRender: false,
   transitionTime: 1,
 };
 
