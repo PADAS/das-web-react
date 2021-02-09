@@ -16,7 +16,7 @@ import { trackEvent } from '../utils/analytics';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
@@ -77,15 +77,18 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
     const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
     const leaderTrackHidden = !leader || !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
       
-    if (patrolTrackHidden) {
-      togglePatrolTrackState(patrol.id);
-    }
+    if (patrolStateAllowsTrackDisplay(patrol)) {
       
-    if (leaderTrackHidden && !!leader) {
-      toggleTrackState(leader.id);
+      if (patrolTrackHidden) {
+        togglePatrolTrackState(patrol.id);
+      }
+      
+      if (leaderTrackHidden && !!leader) {
+        toggleTrackState(leader.id);
+      }
     }
 
-  }, [leader, patrol.id, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
+  }, [leader, patrol, patrolTrackState.pinned, patrolTrackState.visible, subjectTrackState.pinned, subjectTrackState.visible, togglePatrolTrackState, toggleTrackState]);
 
   const onOverlayClose = useCallback(() => {
     const patrolTrackVisible = patrolTrackState.visible.includes(patrol.id);

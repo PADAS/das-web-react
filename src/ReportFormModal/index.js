@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 
 const ReportFormModal = (props) => {
   const { report, id:modalId, eventSchemas, eventStore, onSaveError, onSaveSuccess, fetchEventTypeSchema,
-    removeModal, fetchEvent, relationshipButtonDisabled, map, hidePatrols, isPatrolReport} = props;
+    removeModal, fetchEvent, relationshipButtonDisabled, map, hidePatrols} = props;
 
   const { id: report_id, event_type } = report;
 
@@ -60,6 +60,8 @@ const ReportFormModal = (props) => {
   if (!loaded) {
     return <LoadingOverlay className={styles.loadingOverlay} message='Loading...' />;
   }
+
+  const isPatrolReport = !!stateReport.patrol_segments && !!stateReport.patrol_segments.length;
 
   return loaded && <EditableItem data={stateReport}>
     <EditableItem.Modal>

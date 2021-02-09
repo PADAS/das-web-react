@@ -1,18 +1,22 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
-import DasIcon from '../DasIcon';
 import PropTypes from 'prop-types';
+import isObject from 'lodash/isObject';
 
+import DasIcon from '../DasIcon';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
+import { displayEventTypes } from '../selectors/events';
 
 import styles from './styles.module.scss';
 
 const EventIcon = ({report, eventTypes, color, ...rest}) => {
   const { is_collection } = report;
+  const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
 
   if (!is_collection) {
     let iconId = null;
-    const matchingEventType = eventTypes.find(({ value }) => value === report.event_type);
+    const matchingEventType = eventTypes.find(({ value }) => value ===
+     ( isPatrol ? report?.patrol_segments?.[0]?.patrol_type : report.event_type));
     if (matchingEventType) iconId = matchingEventType.icon_id;
     return <DasIcon type='events' iconId={iconId} {...rest} />;
 
@@ -30,7 +34,7 @@ const EventIcon = ({report, eventTypes, color, ...rest}) => {
   </span>;
 };
 
-const mapStateToProps = ({ data: { eventTypes } }) => ({ eventTypes });
+const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
 
 export default connect(mapStateToProps, null)(memo(EventIcon));
 

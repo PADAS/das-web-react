@@ -13,7 +13,7 @@ import listStyles from '../SideBar/styles.module.scss';
 import styles from './styles.module.scss';
 
 const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
-  lazyRender: true,
+  lazyRender: false,
   transitionTime: 1,
 };
 

@@ -24,7 +24,7 @@ import styles from './styles.module.scss';
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, pickingLocationOnMap, dispatch:_dispatch, ...rest } = props;
 
-  const { patrol, leader, trackData } = patrolData;
+  const { patrol, leader } = patrolData;
 
   const menuRef = useRef(null);
   const cardRef = useRef(ref || null);
@@ -180,7 +180,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       {!isScheduledPatrol && <Fragment> 
         <div>
           <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
-          <p>Distance covered: <span><PatrolDistanceCovered trackData={trackData} /></span></p>
+          <p>Distance covered: <span><PatrolDistanceCovered patrolsData={[patrolData]} /></span></p>
         </div>
       </Fragment>}
     </div>

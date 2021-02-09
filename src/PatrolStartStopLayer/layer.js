@@ -1,18 +1,14 @@
 import React, { Fragment, memo, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import isAfter from 'date-fns/is_after';
 
 import { Source, Layer } from 'react-mapbox-gl';
 
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
+import { createPatrolDataSelector } from '../selectors/patrols';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import { withMap } from '../EarthRangerMap';
-import { assemblePatrolDataForPatrol, getTrackForPatrolFromProps, getLeaderForPatrolFromProps } from '../selectors/patrols';
-import { drawLinesBetweenPatrolTrackAndPatrolPoints, extractPatrolPointsFromTrackData } from '../utils/patrols';
 import { uuid } from '../utils/string';
-import { trackTimeEnvelope } from '../selectors/tracks';
-import { getTimeSliderState } from '../selectors';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
 
@@ -49,50 +45,19 @@ const labelPaint = {
 
 
 const StartStopLayer = (props) => {
-  const { allowOverlap, key, patrol, leader, rawTrack, map, mapUserLayoutConfig, timeSliderState, trackTimeEnvelope, ...rest } = props;
+  const { allowOverlap, key, patrolData, map, mapUserLayoutConfig, ...rest } = props;
 
   const [ layerIds, setLayerIds ] = useState(null);
   const [instanceId] = useState(uuid());
   const layerId = `patrol-start-stop-layer-${instanceId}`;
 
-  const patrolData = useMemo(() => assemblePatrolDataForPatrol(patrol, leader, rawTrack), [leader, patrol, rawTrack]);
-
-  const patrolStartStopData = useMemo(() => {
-    const points = extractPatrolPointsFromTrackData(patrolData, rawTrack);
-
-    const timeSliderActiveWithVirtualDate = (timeSliderState.active && timeSliderState.virtualDate);
-
-    if (!points) return null;
-
-    if (points.start_location
-      && points.start_location.properties.time) {
-      const startDate = new Date(points.start_location.properties.time);
-      if (timeSliderActiveWithVirtualDate && isAfter(startDate, new Date(timeSliderState.virtualDate))) {
-        delete points.start_location;
-      }
-    }
-    if (points.end_location
-      && points.end_location.properties.time) {
-      const endDate = new Date(points.end_location.properties.time);
-
-      if (timeSliderActiveWithVirtualDate && isAfter(endDate, new Date(timeSliderState.virtualDate))) {
-        delete points.end_location;
-      }
-    }
-
-    if (!points.start_location && !points.end_location) return null;
-
-    const lines = drawLinesBetweenPatrolTrackAndPatrolPoints(points, patrolData.trackData);
-
-    return {
-      points,
-      lines,
-    };
-  } , [patrolData, rawTrack, timeSliderState.active, timeSliderState.virtualDate]);
+  const points = patrolData?.startStopGeometries?.points;
+  const lines = patrolData?.startStopGeometries?.lines;
 
   useEffect(() => {
-    if (patrolStartStopData) {
-      const { points: { start_location } } = patrolStartStopData;
+    const start_location = patrolData?.startStopGeometries?.points?.start_location;
+
+    if (start_location) {
 
       const image = start_location?.properties?.image;
       const imgHeight = start_location?.properties?.height;
@@ -105,7 +70,7 @@ const StartStopLayer = (props) => {
       }
 
     }
-  }, [map, patrolStartStopData]);
+  }, [map, patrolData]);
   
   const layoutConfig = allowOverlap ? {
     'icon-allow-overlap': true,
@@ -121,11 +86,11 @@ const StartStopLayer = (props) => {
   const sourceId = `patrol-symbol-source-${instanceId}`;
 
   const patrolPointFeatures = useMemo(() => {
-    return !!patrolStartStopData && [
-      ...Object.values(patrolStartStopData.points),
-      patrolStartStopData.lines,
+    return [
+      ...Object.values(points || {}),
+      lines,
     ].filter(val => !!val);
-  }, [patrolStartStopData]);
+  }, [lines, points]);
 
   const patrolPointsSourceData = useMemo(() => {
     return {
@@ -137,7 +102,7 @@ const StartStopLayer = (props) => {
     };
   }, [patrolPointFeatures]);
 
-  if (!patrolStartStopData) return null;
+  if (!points && !lines) return null;
 
   const layerSymbolPaint = { ...symbolPaint, 'text-color':  ['get', 'stroke'] };
   const layerLabelPaint = { ...labelPaint, 'icon-color': ['get', 'stroke'] };
@@ -153,12 +118,15 @@ const StartStopLayer = (props) => {
   </Fragment>;
 };
 
-const mapStateToProps = (state, props) => ({
-  leader: getLeaderForPatrolFromProps(state, props),
-  rawTrack: getTrackForPatrolFromProps(state, props),
-  trackTimeEnvelope: trackTimeEnvelope(state),
-  timeSliderState: getTimeSliderState(state),
-});
+const makeMapStateToProps = () => {
+  const getDataForPatrolFromProps = createPatrolDataSelector();
+  const mapStateToProps = (state, props) => {
+    return {
+      patrolData: getDataForPatrolFromProps(state, props),
+    };
+  };
+  return mapStateToProps;
+};
 
-export default connect(mapStateToProps, null)(withMap(
-  memo(withMapViewConfig(StartStopLayer))));
+
+export default connect(makeMapStateToProps, null)(memo(withMap(withMapViewConfig(StartStopLayer))));

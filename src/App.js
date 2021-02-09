@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useContext, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -24,6 +24,7 @@ import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
+import WithSocketContext, { SocketContext } from './withSocketConnection';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 //  import ErrorBoundary from './ErrorBoundary';
@@ -41,29 +42,37 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
+let mapResizeAnimation;
+
+const animateResize = (map) => {
+  const transitionLength = 500;
+  const numberOfFrames = 8;
+  let count = 0;
+
+  clearInterval(mapResizeAnimation);
+
+  mapResizeAnimation = setInterval(() => {
+    count += 1;
+
+    map.resize();
+
+    if (count === numberOfFrames) {
+      clearInterval(mapResizeAnimation);
+    }
+    
+  }, (transitionLength / numberOfFrames));
+
+  return mapResizeAnimation;
+};
+
+
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
 
-  const resizeInt = useRef(null);
-  const mapInterval = useRef(null);
-
-
-  const resizeInterval = useCallback((map) => {
-    clearInterval(resizeInt.current);
-    const transitionLength = 300;
-    const numberOfFrames = 2;
-    let count = 0;
-    resizeInt.current = setInterval(() => {
-      count += 1;
-      map.resize();
-      if (count > (transitionLength / numberOfFrames)) clearInterval(resizeInt.current);
-    }, numberOfFrames);
-  }, []);
-
-  let mapResized = useRef(false);
+  const socket = useContext(SocketContext);
 
   const onMapHasLoaded = useCallback((map) => {
     setMap(map);
@@ -128,9 +137,6 @@ const App = (props) => {
     window.addEventListener('offline', () => {
       updateNetworkStatus(UNHEALTHY_STATUS);
     });
-    window.addEventListener('resize', () => {
-      mapResized.current = true;
-    });
     initZenDesk();
     hideZenDesk();
     
@@ -138,19 +144,20 @@ const App = (props) => {
 
   useEffect(() => {
     if (map) {
-      resizeInterval(map);
-      clearInterval(mapInterval.current);
+      const resizeAnimation = () => animateResize(map);
 
-      mapInterval.current = setInterval(() => {
-        !!mapResized.current && !!map && map.resize();
-        mapResized.current = false;
-      }, 10000);
+      window.addEventListener('resize', resizeAnimation);
       return () => {
-        clearInterval(mapInterval.current);
+        window.removeEventListener('resize', resizeAnimation);
       };
     }
-  }, [sidebarOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [map]);
 
+  useEffect(() => {
+    if (map) {
+      animateResize(map);
+    }
+  }, [map, sidebarOpen]); 
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <PrintTitle />
@@ -158,7 +165,7 @@ const App = (props) => {
     <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
       {/* <ErrorBoundary> */}
-      <Map map={map} onMapLoad={onMapHasLoaded} pickingLocationOnMap={pickingLocationOnMap} />
+      <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
       {/* </ErrorBoundary> */}
       {/* <ErrorBoundary> */}
       {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
@@ -178,5 +185,13 @@ const App = (props) => {
 };
 
 const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });
+const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
 
-export default connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
+const AppWithSocketContext = (props) => <WithSocketContext>
+  <ConnectedApp />
+</WithSocketContext>;
+
+
+
+
+export default AppWithSocketContext;

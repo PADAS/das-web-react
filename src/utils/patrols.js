@@ -465,13 +465,6 @@ export const canEndPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return patrolState === PATROL_CARD_STATES.ACTIVE;
 };
-// look to calcEventFilterForRequest as this grows
-export const calcPatrolFilterForRequest = (options = {}) => {
-  const { data: { patrolFilter } } = store.getState();
-  const { params } = options;
-  const  filterParams = merge({}, patrolFilter, params);
-  return objectToParamString(filterParams);  
-};
 
 export const sortPatrolCards = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
@@ -488,7 +481,7 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol.leader, true).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments[0]?.leader).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
@@ -559,9 +552,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
           const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && new Date(nextPointAfterTrimmedData.properties.properties).getTime() === endTime.getTime();
           const timeDiffFromLastPatrolTrackPoint = Math.abs(new Date(lastTrackPoint.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromLastPatrolTrackPoint });
           const timeDiffFromNextPoint = Math.abs(new Date(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromNextPoint });
 
           if (nextPointMatchesEndTime
           || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
@@ -688,3 +679,10 @@ export const getBoundsForPatrol = ((patrolData) => {
     featureCollection(collectionData),
   );
 });
+
+export const patrolStateAllowsTrackDisplay = (patrol) => {
+  const vizualizablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
+  const patrolState = calcPatrolCardState(patrol);
+
+  return vizualizablePatrolStates.includes(patrolState);
+};

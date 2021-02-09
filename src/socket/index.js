@@ -8,6 +8,7 @@ import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
 import { calcEventFilterForRequest } from '../utils/events';
+import { socketEventData } from '../ducks/events';
 
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
 
@@ -58,10 +59,6 @@ export const pingSocket = (socket) => {
 const bindSocketEvents = (socket, store) => {
   let eventsBound = false;
 
-  socket.on('*', (msg) => {
-    console.log('wildcard bitches', msg);
-  });
-
   socket.on('connect', () => {
     console.log('realtime: connected');
     store.dispatch({ type: SOCKET_HEALTHY_STATUS });
@@ -93,6 +90,17 @@ const bindSocketEvents = (socket, store) => {
           });
         });
       });
+      ['new_event', 'update_event'].forEach((event_name) => {
+        return stateManagedSocketEventHandler(socket, event_name, (payload) => {
+          [socketEventData, SOCKET_HEALTHY_STATUS].forEach(type => {
+            if (isFunction(type)) {
+              store.dispatch(type(payload));
+            } else {
+              store.dispatch({ type, payload });
+            }
+          });
+        });
+      });
     }
     eventsBound = true;
 
@@ -109,12 +117,13 @@ export const unbindSocketEvents = (socket) => {
   socket.removeAllListeners();
 };
 
-export default (url = SOCKET_URL) => {
+const createSocket = (url = SOCKET_URL) => {
   const socket = io(url, {
     reconnectionDelay: 3000,        // how long to initially wait before attempting a new reconnection
     reconnectionDelayMax: 150000,     // maximum amount of time to wait between reconnection attempts. Each attempt increases the reconnection delay by 2x along with a randomization factor
     randomizationFactor: 0.25,
   });
+
   socket._on = socket.on.bind(socket);
 
   socket.on = (eventName, oldFn) => {
@@ -130,5 +139,9 @@ export default (url = SOCKET_URL) => {
   };
 
   bindSocketEvents(socket, store);
+  
+  console.log('created socket', socket);
   return socket;
 };
+
+export default createSocket;
