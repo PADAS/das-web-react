@@ -307,7 +307,7 @@ div.datePopover {
   }
 }
 
-.addToIncidentBtn {
+button.addToIncidentBtn {
   @include unstyledButton;
   border: 1px solid transparent !important;
   align-items: center;
@@ -315,7 +315,7 @@ div.datePopover {
   color: $link-color;
   display: flex;
   font-weight: normal;
-  justify-content: center;
+  // justify-content: flex-start; 
   padding: 0.5rem 0;
   transition: background .2s linear;
   width: 100%;
