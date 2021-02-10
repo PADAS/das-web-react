@@ -13,7 +13,8 @@ const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointC
   const onSymbolClick = () => {};
 
   return <Fragment>
-    {patrols.map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
+    {patrols
+      .map((patrol, index) => <StartStopLayer key={index} patrol={patrol} onSymbolClick={onSymbolClick} />)}
   </Fragment>;
 
 };

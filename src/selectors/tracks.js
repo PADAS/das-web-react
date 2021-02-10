@@ -1,9 +1,11 @@
 import uniq from 'lodash/uniq';
 import startOfDay from 'date-fns/start_of_day';
 import subDays from 'date-fns/sub_days';
+import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
+import { TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 
 const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs;
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
@@ -39,14 +41,18 @@ export const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState
   (trackLength, timeSliderState, eventFilterDateRange) => {
     const { virtualDate, active:timeSliderActive } = timeSliderState;
     const { lower } = eventFilterDateRange;
+    const { origin, length } = trackLength;
 
-    let trackLengthStartDate = startOfDay(
-      subDays(new Date(), trackLength.length),
-    );
+    const trackLengthDays = origin === TRACK_LENGTH_ORIGINS.eventFilter ?
+      differenceInCalendarDays(new Date(), new Date(lower)) : length;
+
+
+    let trackLengthStartDate = subDays(new Date(), trackLengthDays);
+
 
     if (timeSliderActive) {
       if (virtualDate) {
-        trackLengthStartDate = virtualDate ? subDays(virtualDate, trackLength.length) : trackLengthStartDate;
+        trackLengthStartDate = subDays(virtualDate, trackLengthDays);
       }
 
       const startDate = new Date(Math.max(trackLengthStartDate, new Date(lower)));

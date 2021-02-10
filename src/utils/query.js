@@ -59,9 +59,22 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
 export const cleanedUpFilterObject = (filter) =>
   Object.entries(filter)
     .reduce((accumulator, [key, value]) => {
-      if (isBoolean(value) || (!isNil(value) && !isEmpty(value))) {
-        accumulator[key] = value;
+
+      if (Array.isArray(value)) {
+        return !!value.length ? {
+          ...accumulator,
+          [key]: value,
+        } : accumulator;
       }
+
+      if (!!value
+      || (!isNil(value) && !isEmpty(value))) {
+        return {
+          ...accumulator,
+          [key]: value,
+        };
+      }
+      
       return accumulator;
     }, {});
 

@@ -3,9 +3,8 @@ import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
-import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
-import merge from 'lodash/merge';
+import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import isUndefined from 'lodash/isUndefined';
@@ -23,7 +22,6 @@ import { getReporterById } from './events';
 import PatrolModal from '../PatrolModal';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
-import { objectToParamString } from './query';
 
 const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -377,7 +375,7 @@ export const isSegmentEndScheduled = (patrolSegment) => {
   const { time_range: { end_time }, scheduled_end } = patrolSegment;
   const time = end_time || scheduled_end;
 
-  return !!time && normalizeDate(time).getTime() > new Date().getTime();
+  return !!time && new Date(time).getTime() > new Date().getTime();
 };
 
 
@@ -465,13 +463,6 @@ export const canEndPatrol = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
   return patrolState === PATROL_CARD_STATES.ACTIVE;
 };
-// look to calcEventFilterForRequest as this grows
-export const calcPatrolFilterForRequest = (options = {}) => {
-  const { data: { patrolFilter } } = store.getState();
-  const { params } = options;
-  const  filterParams = merge({}, patrolFilter, params);
-  return objectToParamString(filterParams);  
-};
 
 export const sortPatrolCards = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
@@ -488,7 +479,7 @@ export const sortPatrolCards = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol.leader).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments[0]?.leader).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };
@@ -526,15 +517,15 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     end_location: null,
   };
 
-  const endTime = normalizeDate(end_time);
-  const startTime = normalizeDate(start_time);
+  const endTime = new Date(end_time);
+  const startTime = new Date(start_time);
 
   if (start_location) {
     patrol_points.start_location = makePatrolPointFromFeature('Patrol Start', [start_location.longitude, start_location.latitude], icon_id, stroke, start_time);
 
   } else if (hasFeatures) {
     const firstTrackPoint = features[features.length - 1];
-    const firstTrackPointMatchesStartTime = normalizeDate(firstTrackPoint.properties.time) === startTime;
+    const firstTrackPointMatchesStartTime = new Date(firstTrackPoint.properties.time).getTime() === startTime.getTime();
 
     const { geometry: { coordinates: [longitude, latitude] } } = firstTrackPoint;
 
@@ -547,7 +538,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
     } else if (hasFeatures) {
       let lastTrackPoint = features[0];
-      let lastTrackPointMatchesEndTime = normalizeDate(lastTrackPoint.properties.time) === endTime;
+      let lastTrackPointMatchesEndTime = new Date(lastTrackPoint.properties.time).getTime() === endTime.getTime();
 
       if (!lastTrackPointMatchesEndTime
         && !!trackData.indices 
@@ -557,16 +548,14 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
         if (nextPointAfterTrimmedData) {
 
-          const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && normalizeDate(nextPointAfterTrimmedData.properties.properties) === endTime;
-          const timeDiffFromLastPatrolTrackPoint = Math.abs(normalizeDate(lastTrackPoint.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromLastPatrolTrackPoint });
-          const timeDiffFromNextPoint = Math.abs(normalizeDate(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
-          console.log({ timeDiffFromNextPoint });
+          const nextPointMatchesEndTime = !!nextPointAfterTrimmedData && new Date(nextPointAfterTrimmedData.properties.properties).getTime() === endTime.getTime();
+          const timeDiffFromLastPatrolTrackPoint = Math.abs(new Date(lastTrackPoint.properties.time).getTime() - endTime.getTime());
+          const timeDiffFromNextPoint = Math.abs(new Date(nextPointAfterTrimmedData.properties.time).getTime() - endTime.getTime());
 
           if (nextPointMatchesEndTime
           || (timeDiffFromNextPoint < timeDiffFromLastPatrolTrackPoint)) {
             lastTrackPoint = nextPointAfterTrimmedData;
-            lastTrackPointMatchesEndTime = normalizeDate(nextPointAfterTrimmedData.properties.time) === endTime;
+            lastTrackPointMatchesEndTime = new Date(nextPointAfterTrimmedData.properties.time).getTime() === endTime.getTime();
           }
         }
       }
@@ -644,6 +633,25 @@ export const patrolTimeRangeIsValid = (patrol) => {
   
 };
 
+
+
+export const patrolShouldBeMarkedOpen = (patrol) => {
+  const isDone = (patrol.state === PATROL_API_STATES.DONE);
+  const endTime = actualEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isDone && endTime && (now.getTime() < endTime.getTime());
+};
+
+export const patrolShouldBeMarkedDone = (patrol) => {
+  const isOpen = (patrol.state === PATROL_API_STATES.OPEN);
+  const endTime = actualEndTimeForPatrol(patrol);
+  const now = new Date();
+
+  return isOpen && endTime && (now.getTime() > endTime.getTime());
+
+};
+
 export const getBoundsForPatrol = ((patrolData) => {
   const { leader, trackData, patrol } = patrolData;
   
@@ -669,3 +677,10 @@ export const getBoundsForPatrol = ((patrolData) => {
     featureCollection(collectionData),
   );
 });
+
+export const patrolStateAllowsTrackDisplay = (patrol) => {
+  const vizualizablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
+  const patrolState = calcPatrolCardState(patrol);
+
+  return vizualizablePatrolStates.includes(patrolState);
+};

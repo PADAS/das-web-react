@@ -7,9 +7,11 @@ import globallyResettableReducer from '../reducers/global-resettable';
 import { calcPatrolFilterForRequest/* , 
   validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
-const PATROLS_API_URL = `${API_URL}activity/patrols/`;
+export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
+const PATROL_SEGMENTS_API_URL = `${PATROLS_API_URL}segments/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
+const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
 const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
 
 const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
@@ -31,8 +33,8 @@ const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
 
 const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
-const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
-const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
+export const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
+export const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
 
 
 // for now, assume that a realtime update of a patrol can
@@ -71,6 +73,19 @@ export const socketCreatePatrol = (payload) => (dispatch) => {
   }
 };
 
+export const updatePatrolStore = (patrols) => ({
+  type: UPDATE_PATROL_STORE,
+  payload: patrols,
+});
+
+export const fetchPatrolsSuccess = (patrols) => (dispatch) => {
+  dispatch({
+    type: FETCH_PATROLS_SUCCESS,
+    payload: patrols,
+  });
+  dispatch(updatePatrolStore(patrols));
+}; 
+
 export const socketDeletePatrol = (payload) => (dispatch) => {
   console.log('patrol_delete', payload);
   const { patrol_id, matches_current_filter } = payload;
@@ -81,6 +96,35 @@ export const socketDeletePatrol = (payload) => (dispatch) => {
     });
   }
 };
+
+
+const addReportToPatrol = (reportId, patrol) => {
+  const firstLeg = patrol.patrol_segments?.[0];
+
+  if (!firstLeg) return Promise.reject('No patrol segments available');
+
+  const segmentId = firstLeg.id;
+  // const segmentEvents = firstLeg
+
+
+  return axios.post(`${PATROL_SEGMENTS_API_URL}/${segmentId}/events`, );
+
+
+
+};
+
+export const fetchPatrol = id => dispatch => axios.get(`${PATROLS_API_URL}${id}`)
+  .then((response) => {
+    const patrol = response.data.data;
+    dispatch({
+      type: UPDATE_PATROL_SUCCESS,
+      payload: patrol,
+    });
+    return response;
+  })
+  .catch((error) => {
+    console.warn('error fetching patrol', error);
+  });
 
 export const fetchPatrols = () => async (dispatch) => {
 
@@ -94,10 +138,8 @@ export const fetchPatrols = () => async (dispatch) => {
     });
     return new Error(error);
   });
-  dispatch({
-    type: FETCH_PATROLS_SUCCESS,
-    payload: patrols,
-  });
+
+  dispatch(fetchPatrolsSuccess(patrols));
   return patrols;
 };
 
@@ -232,7 +274,7 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
     });
 };
 
-const INITIAL_PATROLS_STATE = {
+export const INITIAL_PATROLS_STATE = {
   count: null,
   next: null,
   previous: null,
@@ -278,7 +320,7 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
     return { ...INITIAL_STORE_STATE };
   }
 
-  if (type === FETCH_PATROLS_SUCCESS) {
+  if (type === UPDATE_PATROL_STORE) {
     return merge({}, state, payload.results.reduce((accumulator, patrol) => ({
       ...accumulator,
       [patrol.id]: patrol,
