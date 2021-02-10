@@ -40,6 +40,19 @@
 }
 
 
+.buttons {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  width: 100%;
+  > button {
+    padding: 0.5rem;
+    width: 100%;
+  }
+}
+
+
 .activeCategory {
   text-decoration: underline;
 }
@@ -89,7 +102,7 @@ div.popover {
   }
 }
 
-.tabBar {
+.tab {
   width: 100%;
 }
 

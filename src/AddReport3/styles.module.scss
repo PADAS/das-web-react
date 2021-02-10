@@ -39,6 +39,12 @@
   }
 }
 
+.tab {
+  display: flex;
+  flex-flow: column;
+  max-height: 25rem;
+  width: 100%;
+}
 
 .activeCategory {
   text-decoration: underline;

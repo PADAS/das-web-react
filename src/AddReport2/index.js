@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
-import Tabs from 'react-bootstrap/Tabs';
-import Tab from 'react-bootstrap/Tab';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
@@ -61,20 +59,39 @@ const ReportTypeList = (props) => {
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, ...rest } = props;
 
-  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+  const [activeTab, setActiveTab] = useState(null);
 
+  const onButtonClick = useCallback(({ target: { value } }) => {
+    setActiveTab(value);
+  }, []);
+
+  const ReportComponent = <div className={styles.tab} title="Add Report">
+    <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
+    <ReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
+  </div>;
+
+  const PatrolComponent = patrolsEnabled && <div className={styles.tab} title="Add Patrol">
+    <ReportTypeList reportTypes={patrolTypes} onClickReportType={onClickReportType} />
+  </div>;
+
+  const renderContent = () => {
+    if (!patrolsEnabled) return ReportComponent;
+    if (!activeTab) return  <div className={styles.buttons}>
+      <button type='button' value={TAB_KEYS.REPORTS} onClick={onButtonClick}>Add Report</button>
+      <button type='button' value={TAB_KEYS.PATROLS} onClick={onButtonClick}>Add Patrol</button>
+    </div>;
+
+    return <div className={styles.buttons}>
+      <button type='button' value={null} onClick={onButtonClick}>&#x2190; back</button>
+      {activeTab === TAB_KEYS.REPORTS && ReportComponent}
+      {activeTab === TAB_KEYS.PATROLS && PatrolComponent}
+    </div>;
+
+  };
 
   return <Popover {...rest} ref={ref} className={styles.popover}> 
     <Popover.Content>
-      <Tabs activeKey={activeTab} onSelect={setActiveTab} className={styles.tabBar}>
-        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
-          <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
-          <ReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
-        </Tab>
-        {patrolsEnabled && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Add Patrol">
-          <ReportTypeList reportTypes={patrolTypes} onClickReportType={onClickReportType} />
-        </Tab>}
-      </Tabs>
+      {renderContent()}
     </Popover.Content>
   </Popover>;
 });
@@ -82,7 +99,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
-    map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
+    map, showLabel, showIcon, title, clickSideEffect } = props;
 
   const { hidePatrols } = formProps;
 
@@ -188,8 +205,8 @@ const AddReport = (props) => {
       {showIcon && <AddButtonIcon />}
       {showLabel && <span>{title}</span>}
     </button>
-    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
-      <AddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} placement={popoverPlacement}
+    <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement='bottom'>
+      <AddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} placement='bottom'
         onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} patrolTypes={patrolTypes} />
     </Overlay>
   </div>;

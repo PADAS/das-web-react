@@ -59,22 +59,21 @@ const ReportTypeList = (props) => {
 };
 
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, ...rest } = props;
-
-  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+  const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, show, ...rest } = props;
 
 
   return <Popover {...rest} ref={ref} className={styles.popover}> 
+    <Popover.Title>
+      Add {show === TAB_KEYS.REPORTS ? 'Report' : 'Patrol'}
+    </Popover.Title>
     <Popover.Content>
-      <Tabs activeKey={activeTab} onSelect={setActiveTab} className={styles.tabBar}>
-        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
-          <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
-          <ReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
-        </Tab>
-        {patrolsEnabled && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Add Patrol">
-          <ReportTypeList reportTypes={patrolTypes} onClickReportType={onClickReportType} />
-        </Tab>}
-      </Tabs>
+      {show === TAB_KEYS.REPORTS && <div className={styles.tab} title="Add Report">
+        <CategoryList eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} onCategoryClick={onCategoryClick} />
+        <ReportTypeList reportTypes={selectedCategory.types} onClickReportType={onClickReportType} />
+      </div>}
+      {patrolsEnabled && show === TAB_KEYS.PATROLS && <div className={styles.tab} title="Add Patrol">
+        <ReportTypeList reportTypes={patrolTypes} onClickReportType={onClickReportType} />
+      </div>}
     </Popover.Content>
   </Popover>;
 });
@@ -82,7 +81,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
-    map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
+    map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect, type = TAB_KEYS.REPORTS } = props;
 
   const { hidePatrols } = formProps;
 
@@ -190,7 +189,7 @@ const AddReport = (props) => {
     </button>
     <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
       <AddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} placement={popoverPlacement}
-        onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} patrolTypes={patrolTypes} />
+        onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} patrolTypes={patrolTypes} show={type} />
     </Overlay>
   </div>;
 };

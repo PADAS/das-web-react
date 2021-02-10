@@ -25,7 +25,7 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import EventFeed from '../EventFeed';
-import AddReport from '../AddReport';
+import AddReport from '../AddReport3';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
@@ -157,7 +157,7 @@ const SideBar = (props) => {
         activeTabPreClose.current = activeTab.current;
         dispatch(setActiveTab(TAB_KEYS.REPORTS));
       } else {
-        if ( activeTabPreClose.current !== TAB_KEYS.REPORTS) {
+        if (activeTabPreClose.current !== TAB_KEYS.REPORTS) {
           dispatch(undo(SIDEBAR_STATE_REDUCER_NAMESPACE));
         }
       }
@@ -195,9 +195,9 @@ const SideBar = (props) => {
     <MapContext.Provider value={map}>
       <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-        <div className={styles.addReportContainer}>
-          <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
-        </div>
+        {activeTab.current !== TAB_KEYS.LAYERS && <div className={styles.addReportContainer}>
+          <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} type={activeTab.current} />
+        </div>}
         <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
           <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
             <DelayedUnmount isMounted={sidebarOpen}>
