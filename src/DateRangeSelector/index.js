@@ -105,7 +105,8 @@ const DateRangeSelector = (props) => {
         lower: generateMonthsAgoDate(3),
         upper: null,
       }, 'last three months')}>Last three months</Button>
-      {!!filterSettings && <Fragment>
+    </div>}
+    {!!filterSettings && <div>
         <button type='button' className={styles.gearButton} ref={settingsButtonRef
     }
           onClick={toggleFilterSettingsPopover}>
@@ -115,8 +116,7 @@ const DateRangeSelector = (props) => {
             container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
             {filterSettings}
           </FilterSettingsControl> 
-        </Fragment>}
-    </div>}
+        </div>}
   </div>;
 };
 

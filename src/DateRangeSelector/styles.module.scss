@@ -99,7 +99,14 @@
     fill: #333;
   }
   position: absolute;
-  right: .75rem;
-  bottom: .0rem;
+  border: none;
+  background: none;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  &:hover, &:focus, &:active {
+    border: none;
+    background: none;
+    outline: none;
+  }
   z-index: 200;
 }
