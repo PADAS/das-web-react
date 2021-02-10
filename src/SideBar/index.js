@@ -72,6 +72,8 @@ const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
   const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { filter: { overlap } } = patrolFilter;
+  const { filter: { date_range } } = patrolFilter;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
@@ -152,18 +154,13 @@ const SideBar = (props) => {
 
   useEffect(() => {
     fetchAndLoadPatrolData();
-  }, [patrolFilter]); // eslint-disable-line
+  }, [date_range]); // eslint-disable-line
 
-<<<<<<< HEAD
   useEffect(() => {
     if (!isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       fetchAndLoadPatrolData();
     }
-  }, [patrolsOverlapFilter]); // eslint-disable-line
-=======
-    loadPatrolData();
-  }, [patrolFilter]); // eslint-disable-line
->>>>>>> 6bc5792f6b312bf03060272eed16461c5a53a602
+  }, [overlap]); // eslint-disable-line
 
   useEffect(() => {
     if (!isUndefined(sidebarOpen)) {

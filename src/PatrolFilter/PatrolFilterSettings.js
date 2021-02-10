@@ -27,7 +27,7 @@ const PatrolFilterSettings = (props) => {
                       type="radio"
                       id="start_dates"
                       value="start_dates"
-                      checked={!patrolsOverlapFilter}
+                      checked={!overlap}
                       onChange={handleFilterOptionChange}
                     /><label forHtml="start_dates">Filter by start date</label>
                   </span>
@@ -40,7 +40,7 @@ const PatrolFilterSettings = (props) => {
                       type="radio"
                       id="overlap_dates"
                       value="overlap_dates"
-                      checked={patrolsOverlapFilter}
+                      checked={overlap}
                       onChange={handleFilterOptionChange}
                     /><label htmlFor="overlap_dates">Filter by date range overlap</label>
                   </span>
