@@ -71,7 +71,7 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, patrols, eventFilter, patrolFilter, patrolsOverlapFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
@@ -154,11 +154,16 @@ const SideBar = (props) => {
     fetchAndLoadPatrolData();
   }, [patrolFilter]); // eslint-disable-line
 
+<<<<<<< HEAD
   useEffect(() => {
     if (!isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       fetchAndLoadPatrolData();
     }
   }, [patrolsOverlapFilter]); // eslint-disable-line
+=======
+    loadPatrolData();
+  }, [patrolFilter]); // eslint-disable-line
+>>>>>>> 6bc5792f6b312bf03060272eed16461c5a53a602
 
   useEffect(() => {
     if (!isUndefined(sidebarOpen)) {
@@ -275,7 +280,6 @@ const mapStateToProps = (state) => ({
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
-  patrolsOverlapFilter: state.data.patrolsOverlapFilter,
 });
 
 export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility })(memo(SideBar));

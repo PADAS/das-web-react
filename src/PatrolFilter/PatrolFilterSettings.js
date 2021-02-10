@@ -6,7 +6,8 @@ import Tooltip from "react-bootstrap/Tooltip";
 import styles from './styles.module.scss';
 
 const PatrolFilterSettings = (props) => {
-  const { handleFilterOptionChange, patrolsOverlapFilter } = props;
+  const { handleFilterOptionChange, patrolFilter } = props;
+  const { filter: { overlap } } = patrolFilter;
 
   const startInfo = props => (
     <Tooltip className={styles.filterTooltip} {...props}>Include patrols starting within the date range</Tooltip>
@@ -52,7 +53,7 @@ const PatrolFilterSettings = (props) => {
 
 const mapStateToProps = (state) =>
   ({
-    patrolsOverlapFilter: state.data.patrolsOverlapFilter,
+    patrolFilter: state.data.patrolFilter,
   });
 
 export default connect(mapStateToProps, null)(memo(PatrolFilterSettings));

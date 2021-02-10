@@ -26,7 +26,7 @@ const DateRangeSelector = (props) => {
   const endDateDayClicked = useRef(false);
   const settingsButtonRef = useRef(null);
   const popoverRef = useRef(null);
-  const containerRef = useRef(null)
+  const containerRef = useRef(null);
 
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 

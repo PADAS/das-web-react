@@ -8,7 +8,7 @@ import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 // import uniq from 'lodash/uniq';
 
-import { updatePatrolFilter, INITIAL_FILTER_STATE, setPatrolFilterAllowsOverlap } from '../ducks/patrol-filter';
+import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
@@ -45,8 +45,8 @@ import styles from '../EventFilter/styles.module.scss';
 ]; */
 
 const PatrolFilter = (props) => {
-  const { children, className, patrolFilter, /* reporters, */ setPatrolFilterAllowsOverlap, resetGlobalDateRange, updatePatrolFilter } = props;
-  const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text } } = patrolFilter;
+  const { children, className, patrolFilter, /* reporters, */ resetGlobalDateRange, updatePatrolFilter } = props;
+  const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text, overlap } } = patrolFilter;
 
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
 
@@ -59,7 +59,8 @@ const PatrolFilter = (props) => {
   }, [filterSettingsOpen]);
 
   const onFilterSettingsOptionChange = useCallback((e) => {
-    setPatrolFilterAllowsOverlap(e.currentTarget.value === 'overlap_dates');
+    const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
+    updatePatrolFilter({ filter: {overlap: patrolOverlap}});
   });
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
@@ -252,8 +253,7 @@ const mapStateToProps = (state) =>
   ({
     patrolFilter: state.data.patrolFilter,
     patrolTypes: state.data.patrolTypes,
-    patrolsOverlapFilter: state.data.patrolsOverlapFilter,
     // reporters: reportedBy(state),
   });
 
-export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter, setPatrolFilterAllowsOverlap })(memo(PatrolFilter));
+export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter })(memo(PatrolFilter));
