@@ -39,16 +39,6 @@ const useMatchMedia = (matchMediaDef) => {
   return isMatch;
 };
 
-export const useCompareObjectEffect = (value) => {
-  const valueRef = useRef(value);
-  useEffect(() => {
-    if (!isEqual(valueRef.current, value)) {
-      valueRef.current = value;
-    }
-  }, [value]);
-  return valueRef.current;
-};
-
 export const useDeepCompareEffect = (callback, dependencies) => {
   const valueRef = useRef();
   useEffect(() => {
