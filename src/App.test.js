@@ -1,4 +1,4 @@
-import './__mocks__/createObjectURL.mock';
+import '../test-helpers/window';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -29,6 +29,6 @@ it('renders without crashing', () => {
     <Provider store={store}>
       <App />
     </Provider>
-  , div);
+    , div);
   ReactDOM.unmountComponentAtNode(div);
 });

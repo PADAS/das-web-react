@@ -77,5 +77,10 @@
   ],
   "resolutions": {
     "eslint-loader": "3.0.2"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/geodesy/*.js"
+    ]
   }
 }

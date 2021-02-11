@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import isEqual from 'react-fast-compare';
 
 import { useSelector } from 'react-redux';
 
@@ -36,6 +37,18 @@ const useMatchMedia = (matchMediaDef) => {
   }, []); // eslint-disable-line
 
   return isMatch;
+};
+
+export const useDeepCompareEffect = (callback, dependencies) => {
+  const valueRef = useRef(dependencies);
+  
+  useEffect(() => {
+    if (!isEqual(valueRef.current, dependencies)) {
+      valueRef.current = dependencies;
+      callback();
+    }
+  }, [callback, dependencies]);
+
 };
 
 export {
