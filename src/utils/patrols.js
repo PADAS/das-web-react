@@ -4,8 +4,7 @@ import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
 import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
-import { SHORT_TIME_FORMAT, normalizeDate } from '../utils/datetime';
-import merge from 'lodash/merge';
+import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import isUndefined from 'lodash/isUndefined';
@@ -23,7 +22,6 @@ import { getReporterById } from './events';
 import PatrolModal from '../PatrolModal';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
-import { objectToParamString } from './query';
 
 const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
