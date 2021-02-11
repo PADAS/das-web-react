@@ -10,7 +10,7 @@ import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
 import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
-import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
+import { useMatchMedia, useFeatureFlag, usePermissions, useDeepCompareEffect } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
@@ -45,6 +45,7 @@ import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString'
 import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
+import { cloneDeep } from 'lodash-es';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -73,7 +74,6 @@ const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 const SideBar = (props) => {
   const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
   const { filter: { overlap } } = patrolFilter;
-  const { filter: { date_range } } = patrolFilter;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
@@ -87,17 +87,6 @@ const SideBar = (props) => {
     trackEvent('Reports', `${reportHeatmapVisible ? 'Hide' : 'Show'} Reports Heatmap`);
   };
 
-  const fetchAndLoadPatrolData = () => {
-    const loadPatrolData = async () => {
-      if (showPatrols) {
-        setPatrolLoadState(true);
-        await fetchPatrols();
-        setPatrolLoadState(false);
-      }
-    };
-    loadPatrolData();
-};
-
   const optionalFeedProps = useMemo(() => {
     let value = {};
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
@@ -106,6 +95,12 @@ const SideBar = (props) => {
     return value;
   }, [eventFilter]);
 
+  const patrolFilterParams = useMemo(() => {
+    const filterParams = cloneDeep(patrolFilter);
+    delete filterParams.filter.overlap;
+    return filterParams;
+  }, [patrolFilter]);
+    
   const activeTabPreClose = useRef(null);
 
   useEffect(() => {
@@ -152,10 +147,7 @@ const SideBar = (props) => {
     loadFeedEvents();
   }, [eventFilter]); // eslint-disable-line
 
-  useEffect(() => {
-    fetchAndLoadPatrolData();
-  }, [date_range]); // eslint-disable-line
-
+  // fetch patrols if filter settings has changed
   useEffect(() => {
     if (!isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       fetchAndLoadPatrolData();
@@ -183,6 +175,12 @@ const SideBar = (props) => {
 
   const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
+  const fetchAndLoadPatrolData = useCallback(async() => {
+    setPatrolLoadState(true);
+    await fetchPatrols();
+    setPatrolLoadState(false);
+  }, [fetchPatrols]);
+
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'
     : (isMediumLayout
@@ -197,6 +195,11 @@ const SideBar = (props) => {
       setEventLoadState(false);
     }
   }, [events.error, loadingEvents]);
+
+  // fetch patrols if filter itself has changed
+  useDeepCompareEffect(() => {
+    fetchAndLoadPatrolData();
+  }, [fetchAndLoadPatrolData, patrolFilterParams]);
 
   if (!map) return null;
 
