@@ -61,7 +61,11 @@ const ReportTypeList = (props) => {
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, ...rest } = props;
 
-  const [activeTab, setActiveTab] = useState(TAB_KEYS.REPORTS);
+  const [activeTab, setActiveTab] = useState(localStorage.getItem('activeAddReportButtonTab') || TAB_KEYS.REPORTS);
+
+  useEffect(() => {
+    localStorage.setItem('activeAddReportButtonTab', activeTab);
+  }, [activeTab]);
 
 
   return <Popover {...rest} ref={ref} className={styles.popover}> 
