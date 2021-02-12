@@ -11,9 +11,11 @@ const MetaAddReport = (props) => {
   useEffect(() => {
 
     const bindKeys = (event) => {
-      const { ctrlKey, keyCode } = event;;
+      const { shiftKey, keyCode } = event;
 
-      if (!ctrlKey || keyCode !== 78) return;
+      console.log({ event });
+
+      if (!shiftKey || keyCode !== 79) return;
 
       const newIndex = index+1;
 
