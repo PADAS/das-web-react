@@ -87,7 +87,6 @@ export const fetchPatrolsSuccess = (patrols) => (dispatch) => {
 }; 
 
 export const socketDeletePatrol = (payload) => (dispatch) => {
-  console.log('patrol_delete', payload);
   const { patrol_id, matches_current_filter } = payload;
   if (matches_current_filter) {
     dispatch({

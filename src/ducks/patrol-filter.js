@@ -1,5 +1,4 @@
 import { endOfToday, startOfToday } from '../utils/datetime';
-import merge from 'lodash/merge';
 import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from './global-date-range';
 
 const defaultDateRange = {
@@ -13,7 +12,7 @@ const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(
   
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
-const RESET_PATROL_FILTER = 'RESET_PATROL_FILTER';
+const RESET_PATROL_FILTER = 'RESET_PAROL_FILTER';
 
 // ACTION CREATORS
 export const updatePatrolFilter = (update) => (dispatch) => {
@@ -28,6 +27,7 @@ export const INITIAL_FILTER_STATE = {
   //status: ['active', 'done', 'cancelled'], /* FPO - as per designs */
   filter: {
     date_range: defaultDateRange,
+    overlap: false,
     // patrol_type: [],
     // text: '',
     // leader: [],
