@@ -59,10 +59,11 @@ const ReportTypeList = (props) => {
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, ...rest } = props;
 
-  const [activeTab, setActiveTab] = useState(null);
+  const [activeTab, setActiveTab] = useState(localStorage.getItem('activeTabForAddReportButtonOption') || null);
 
   const onButtonClick = useCallback(({ target: { value } }) => {
     setActiveTab(value);
+    localStorage.setItem('activeTabForAddReportButtonOption', value);
   }, []);
 
   const ReportComponent = <div className={styles.tab} title="Add Report">

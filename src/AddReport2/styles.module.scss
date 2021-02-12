@@ -69,6 +69,7 @@ div.popover {
     display: flex;
     flex-flow: column;
     max-height: 22rem;
+    overflow: hidden;
     padding: 0;
     position: relative;
     @media (min-height: $lg-height-min) {
@@ -108,7 +109,7 @@ div.popover {
 
 .reportTypeMenu {
   flex-wrap: wrap;
-  height: 100%;
+  height: 16rem;
   overflow-y: auto;
   li {
     font-size: 0.8rem;
