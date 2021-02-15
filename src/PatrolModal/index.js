@@ -92,15 +92,17 @@ const PatrolModal = (props) => {
   const allPatrolReports = useMemo(() => {
     // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
-    const incidents = allReports.filter(report => report.is_collection);
-    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
+    const incidentIds = allReports
+      .filter(report => report.is_collection)
+      .reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
+
     const topLevelReports = allReports.filter(report => 
-      !report.is_contained_in?.length && !incidentIds.includes(report.id));
+      !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
       (item) => {
-        return new Date(item.updated_at);
-      }],['acs']);
+        return new Date(item.updated_at).getTime();
+      }],['asc']);
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
@@ -334,7 +336,7 @@ const PatrolModal = (props) => {
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
-  }, [addedReports, allPatrolReportIds]);
+  }, [addedReports, allPatrolReportIds, patrolSegmentId]);
   
   const onSaveNote = useCallback((noteToSave) => {
     
@@ -533,7 +535,7 @@ const PatrolModal = (props) => {
     }
 
     return null;
-  }, [statePatrol]);
+  }, [displayAutoStart, statePatrol]);
 
   const endTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -549,7 +551,7 @@ const PatrolModal = (props) => {
     }
  
     return null;
-  }, [statePatrol]);
+  }, [displayAutoEnd, statePatrol.patrol_segments]);
 
   const startTimeLabelClass = useMemo(() => {
     if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
