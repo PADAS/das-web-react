@@ -14,6 +14,7 @@ import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
+import { setTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
@@ -117,12 +118,16 @@ const App = (props) => {
         // 
       });
     fetchSystemStatus()
-      .then(({ patrol_enabled }) => {
+      .then(({ patrol_enabled, track_length }) => {
         if (patrol_enabled) {
           fetchPatrolTypes()
             .catch((e) => {
               // 
             });
+        }
+        if (track_length) {
+          console.log('setting track length', track_length);
+          setTrackLength(track_length);
         }
       })
       .catch((e) => {

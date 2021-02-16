@@ -2,7 +2,7 @@ import axios, { CancelToken, isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 
 import globallyResettableReducer from '../reducers/global-resettable';
-import { API_URL } from '../constants';
+import { API_URL, DEFAULT_TRACK_LENGTH } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
 import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
 
@@ -110,7 +110,7 @@ export const TRACK_LENGTH_ORIGINS = {
 
 const INITIAL_TRACK_DATE_RANGE_STATE = {
   origin: TRACK_LENGTH_ORIGINS.customLength,
-  length: 21, // days
+  length: DEFAULT_TRACK_LENGTH //set by systemConfig.trackLength when used
 };
 
 export const trackDateRangeReducer = globallyResettableReducer((state, { type, payload }) => {

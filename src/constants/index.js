@@ -248,6 +248,7 @@ export const TILE_LAYER_SOURCE_TYPES = ['tile_server', 'mapbox_tiles'];
 export const VALID_LAYER_SOURCE_TYPES = [...MAPBOX_STYLE_LAYER_SOURCE_TYPES, /* ...GOOGLE_LAYER_SOURCE_TYPES, */ ...TILE_LAYER_SOURCE_TYPES];
 
 export const DEFAULT_SHOW_TRACK_DAYS = 7;
+export const DEFAULT_TRACK_LENGTH = 20;
 
 
 export const COLUMN_CLASS_PREFIXES = {
