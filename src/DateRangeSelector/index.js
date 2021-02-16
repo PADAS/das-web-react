@@ -31,7 +31,7 @@ const DateRangeSelector = (props) => {
   const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
 
   const hideFilterSettings = () => {
-    setFilterSettingsPopoverState(false);
+    if (filterSettingsOpen) setFilterSettingsPopoverState(false);
   };
 
   const toggleFilterSettingsPopover = useCallback(() => {
@@ -64,7 +64,7 @@ const DateRangeSelector = (props) => {
     <div className={startDateLabel ? styles.dateSelectorWrapper : styles.dateSelectorWrapperInline}>
       <label className={styles.label}>
         {startDateLabel && <span>{startDateLabel}</span>}
-        <span>
+        <span onClick={hideFilterSettings}>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
           <DateTimePickerPopover placement={placement} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={true} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
         </span>
@@ -73,7 +73,7 @@ const DateRangeSelector = (props) => {
       {children}
       <label className={styles.label}>
         {endDateLabel && <span>{endDateLabel}</span>}
-        <span>
+        <span onClick={hideFilterSettings}>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
           <DateTimePickerPopover placement={placement} onClickDay={handleEndDateDayClick} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={hasEndMaxDate ? endMaxDate : maxDate} value={endDate} onChange={handleEndDateChange} />
         </span>
@@ -107,16 +107,16 @@ const DateRangeSelector = (props) => {
       }, 'last three months')}>Last three months</Button>
     </div>}
     {!!filterSettings && <div>
-        <button type='button' className={styles.gearButton} ref={settingsButtonRef
-    }
-          onClick={toggleFilterSettingsPopover}>
-          <GearIcon />
-        </button>
-          <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
-            container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
-            {filterSettings}
-          </FilterSettingsControl> 
-        </div>}
+      <button type='button' className={styles.gearButton} ref={settingsButtonRef
+      }
+      onClick={toggleFilterSettingsPopover}>
+        <GearIcon />
+      </button>
+      <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
+        container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
+        {filterSettings}
+      </FilterSettingsControl> 
+    </div>}
   </div>;
 };
 
