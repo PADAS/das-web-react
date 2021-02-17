@@ -126,7 +126,6 @@ const App = (props) => {
             });
         }
         if (track_length) {
-          console.log('setting track length', track_length);
           setTrackLength(track_length);
         }
       })
