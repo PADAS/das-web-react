@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { combineReducers } from 'redux';
 
-import { API_URL, FEATURE_FLAGS, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS, DEFAULT_TRACK_LENGTH } from '../constants';
+import { API_URL, FEATURE_FLAGS, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
 
 const STATUS_API_URL = `${API_URL}status`;
@@ -26,7 +26,6 @@ export const SET_PATROL_MANAGEMENT_ENABLED = 'SET_PATROL_MANAGEMENT_ENABLED';
 export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
 export const SET_EULA_ENABLED = 'SET_EULA_ENABLED';
 export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
-export const SET_DEFAULT_TRACK_LENGTH = 'SET_DEFAULT_TRACK_LENGTH';
 export const SET_SITENAME = 'SET_SITENAME';
 export const SET_TABLEAU_ENABLED = 'SET_TABLEAU_ENABLED';
 
@@ -102,10 +101,6 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_SHOW_TRACK_DAYS,
     payload: data.show_track_days,
-  });
-  dispatch({
-    type: SET_DEFAULT_TRACK_LENGTH,
-    payload: data.track_length,
   });
   dispatch({
     type: SET_SITENAME,
@@ -257,39 +252,39 @@ const INITIAL_REALTIME_STATUS_STATE = genericStatusModel({
 });
 const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STATUS_STATE, { type, payload }) => {
   switch (type) {
-  case (SOCKET_HEALTHY_STATUS): {
-    const timestamp = new Date();
+    case (SOCKET_HEALTHY_STATUS): {
+      const timestamp = new Date();
 
-    return {
-      ...state,
-      status: HEALTHY_STATUS,
-      timestamp,
-    };
-  }
-  case (SERVER_STATUS_CHANGE): {
-    if (payload === UNKNOWN_STATUS) {
       return {
         ...state,
-        status: UNKNOWN_STATUS,
+        status: HEALTHY_STATUS,
+        timestamp,
       };
     }
-    return state;
-  }
-  case (SOCKET_UNHEALTHY_STATUS): {
-    return {
-      ...state,
-      status: UNHEALTHY_STATUS,
-    };
-  }
-  case (SOCKET_WARNING_STATUS): {
-    return {
-      ...state,
-      status: WARNING_STATUS,
-    };
-  }
-  default: {
-    return state;
-  }
+    case (SERVER_STATUS_CHANGE): {
+      if (payload === UNKNOWN_STATUS) {
+        return {
+          ...state,
+          status: UNKNOWN_STATUS,
+        };
+      }
+      return state;
+    }
+    case (SOCKET_UNHEALTHY_STATUS): {
+      return {
+        ...state,
+        status: UNHEALTHY_STATUS,
+      };
+    }
+    case (SOCKET_WARNING_STATUS): {
+      return {
+        ...state,
+        status: WARNING_STATUS,
+      };
+    }
+    default: {
+      return state;
+    }
   }
 });
 
@@ -327,7 +322,6 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   [FEATURE_FLAGS.ALERTS]: false,
   [FEATURE_FLAGS.EULA]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
-  defaultTrackLength: DEFAULT_TRACK_LENGTH,
   sitename: '',
 };
 export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
@@ -345,14 +339,12 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
   case (SET_PATROL_MANAGEMENT_ENABLED): {
     return { ...state, [FEATURE_FLAGS.PATROL_MANAGEMENT]: payload, };
   }
+
   case (SET_ALERTS_ENABLED): {
     return { ...state, [FEATURE_FLAGS.ALERTS]: payload, };
   }
   case (SET_SHOW_TRACK_DAYS): {
     return { ...state, showTrackDays: payload, };
-  }
-  case (SET_DEFAULT_TRACK_LENGTH): {
-    return { ...state, defaultTrackLength: payload, };
   }
   case (SET_EULA_ENABLED): {
     return { ...state, [FEATURE_FLAGS.EULA]: payload, };
