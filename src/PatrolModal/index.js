@@ -95,7 +95,7 @@ const PatrolModal = (props) => {
     const incidents = allReports.filter(report => report.is_collection);
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
-      !report.is_contained_in?.length && !incidentIds.includes(report.id));
+      !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
       (item) => {
