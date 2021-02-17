@@ -110,7 +110,7 @@ export const TRACK_LENGTH_ORIGINS = {
 
 const INITIAL_TRACK_DATE_RANGE_STATE = {
   origin: TRACK_LENGTH_ORIGINS.customLength,
-  length: DEFAULT_TRACK_LENGTH //set by systemConfig.trackLength when used
+  length: DEFAULT_TRACK_LENGTH 
 };
 
 export const trackDateRangeReducer = globallyResettableReducer((state, { type, payload }) => {
