@@ -4,6 +4,7 @@ import isSameDay from 'date-fns/is_same_day';
 import isSameMonth from 'date-fns/is_same_month';
 import format from 'date-fns/format';
 import isThisYear from 'date-fns/is_this_year';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { displayEndTimeForPatrol, displayStartTimeForPatrol, isPatrolCancelled } from './patrols';
 import { objectToParamString } from './query';
@@ -19,12 +20,13 @@ export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INI
 
 export const calcPatrolFilterForRequest = (options = {}) => {
   const { data: { patrolFilter } } = store.getState();
-  const { filter: { overlap }} = patrolFilter;
+  const clonedFilter = cloneDeep(patrolFilter);
+  const { filter: { overlap }} = clonedFilter;
+  delete clonedFilter.filter.overlap;
+  clonedFilter.filter.patrols_overlap_daterange = isDateFilterModified(clonedFilter) ? overlap : true;
   const { params } = options;
-  // only apply current filter settings if it is modified, otherwise allow overlap
-  params.patrols_overlap_daterange = isDateFilterModified(patrolFilter) ? overlap : true;
-  console.log('filter params', params);
-  const  filterParams = merge({}, patrolFilter, params);
+  const  filterParams = merge({}, clonedFilter, params);
+  console.log('patrol filter params', filterParams);
   return objectToParamString(filterParams);  
 };
 
