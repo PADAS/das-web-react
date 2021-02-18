@@ -26,7 +26,6 @@ export const calcPatrolFilterForRequest = (options = {}) => {
   clonedFilter.filter.patrols_overlap_daterange = isDateFilterModified(clonedFilter) ? overlap : true;
   const { params } = options;
   const  filterParams = merge({}, clonedFilter, params);
-  console.log('patrol filter params', filterParams);
   return objectToParamString(filterParams);  
 };
 
