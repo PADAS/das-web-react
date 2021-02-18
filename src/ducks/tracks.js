@@ -35,7 +35,7 @@ export const refreshTrackOnBulkObservationUpdateIfNecessary = (payload) => (disp
     return Promise.resolve();
   }
 
-  return dispatch(fetchTracks(subjectTrackData.fetchedDateRange, null, subject_id));
+  return dispatch(fetchTracks({ since: subjectTrackData.fetchedDateRange }, null, subject_id));
 };
 
 export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...ids) => {
