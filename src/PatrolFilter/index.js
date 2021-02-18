@@ -46,7 +46,7 @@ import styles from '../EventFilter/styles.module.scss';
 
 const PatrolFilter = (props) => {
   const { children, className, patrolFilter, /* reporters, */ resetGlobalDateRange, updatePatrolFilter } = props;
-  const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text, overlap } } = patrolFilter;
+  const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text } } = patrolFilter;
 
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
 
@@ -61,7 +61,7 @@ const PatrolFilter = (props) => {
   const onFilterSettingsOptionChange = useCallback((e) => {
     const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
     updatePatrolFilter({ filter: {overlap: patrolOverlap}});
-  }, []);
+  }, [updatePatrolFilter]);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 

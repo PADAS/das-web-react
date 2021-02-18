@@ -124,20 +124,20 @@ export const iconTypeForPatrol = (patrol) => {
 export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
 
-  if (includeLeaderName && leader && leader.name) {
-    return leader.name;
-  }
-
-  if (patrol.title) return patrol.title;
-
-  if (!patrol.patrol_segments.length
-    || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
-
   const { data: { patrolTypes } } = store.getState();
   const matchingType = (patrolTypes || []).find(t =>
     (t.value === patrol.patrol_segments[0].patrol_type)
     || (t.id === patrol.patrol_segments[0].patrol_type)
   );
+
+  if (matchingType && patrol.title && (patrol.title !== matchingType.display)) return patrol.title;
+
+  if (includeLeaderName && leader && leader.name) {
+    return leader.name;
+  }
+
+  if (!patrol.patrol_segments.length
+    || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
 
   if (matchingType) return matchingType.display;
 
