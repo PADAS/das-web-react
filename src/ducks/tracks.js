@@ -4,7 +4,7 @@ import isEqual from 'react-fast-compare';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
-import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints } from '../utils/tracks';
+import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints, trackHasDataWithinTimeRange} from '../utils/tracks';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -16,6 +16,28 @@ const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 
 // action creators
+export const refreshTrackOnBulkObservationUpdateIfNecessary = (payload) => (dispatch, getState) => {
+  const { subject_id, points } = payload;
+
+  const { data: { tracks } } = getState();
+
+  const subjectTrackData = tracks[subject_id];
+
+  if (!subjectTrackData) return Promise.resolve();
+
+  const [recentmostPoint] = points;
+  const lastPoint = points[points.length - 1];
+
+  const recentMostTime = new Date(recentmostPoint.time);
+  const earliestTime = new Date(lastPoint.time);
+
+  if (!trackHasDataWithinTimeRange(subjectTrackData, earliestTime, recentMostTime)) {
+    return Promise.resolve();
+  }
+
+  return dispatch(fetchTracks({ since: subjectTrackData?.fetchedDateRange?.since }, null, subject_id));
+};
+
 export const fetchTracks = (dateParams, cancelToken = CancelToken.source(), ...ids) => {
   return async (dispatch) => {
     try {
