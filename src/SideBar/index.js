@@ -76,7 +76,6 @@ const SideBar = (props) => {
   const { filter: { overlap } } = patrolFilter;
 
   const [loadingEvents, setEventLoadState] = useState(false);
-  const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
 
@@ -102,6 +101,7 @@ const SideBar = (props) => {
   }, [patrolFilter]);
     
   const activeTabPreClose = useRef(null);
+  const patrolFetchRef = useRef(null);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
@@ -175,11 +175,24 @@ const SideBar = (props) => {
 
   const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
-  const fetchAndLoadPatrolData = useCallback(async() => {
-    setPatrolLoadState(true);
-    await fetchPatrols();
-    setPatrolLoadState(false);
+  const fetchAndLoadPatrolData = useCallback(() => {
+
+    const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+
+    if (priorRequestCancelToken) {
+      priorRequestCancelToken.cancel();
+    }
+
+    patrolFetchRef.current = fetchPatrols();
+
+    patrolFetchRef.current.request
+      .finally(() => {
+        patrolFetchRef.current = null;
+      });
+      
   }, [fetchPatrols]);
+
+  const loadingPatrols = !!patrolFetchRef.current;
 
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'
