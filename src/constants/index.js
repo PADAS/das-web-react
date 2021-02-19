@@ -40,6 +40,8 @@ export const EVENT_FILTER_SCHEMA_HIDDEN_PROPS = ['event_filter_id', 'duration'];
 
 export const API_URL = `${REACT_APP_DAS_HOST}${REACT_APP_DAS_API_URL}`;
 
+export const DEFAULT_CUSTOM_TRACK_LENGTH = 21;
+
 export const STATUSES = {
   HEALTHY_STATUS: 'HEALTHY',
   WARNING_STATUS: 'WARNING',

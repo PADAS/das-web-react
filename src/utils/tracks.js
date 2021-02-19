@@ -12,6 +12,7 @@ import merge from 'lodash/merge';
 import { store } from '../index';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
+import { DEFAULT_CUSTOM_TRACK_LENGTH } from '../constants';
 
 export const convertTrackFeatureCollectionToPoints = feature => {
   if (!feature.features.length) return featureCollection([]);
@@ -323,4 +324,12 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
     };
   }
   return tracks;
+};
+
+export const hasDefaultTrackLength = () => {
+  const { view: { trackLength } } = store.getState();
+  const { length, origin } =  trackLength;
+  // if set to custom length, and current legth is not 
+  // the default value, set it. Otherwise, leave it alone
+  return (origin === TRACK_LENGTH_ORIGINS.customLength && length === DEFAULT_CUSTOM_TRACK_LENGTH);
 };
