@@ -9,7 +9,6 @@ import 'axios-progress-bar/dist/nprogress.css';
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
-import { hasDefaultTrackLength } from './utils/tracks';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
@@ -69,7 +68,8 @@ const animateResize = (map) => {
 
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences, setTrackLength } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, 
+    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -127,8 +127,10 @@ const App = (props) => {
             });
         }
         if (track_length) {
-          if(hasDefaultTrackLength())
+          const { hasSetCustomTrackLength } = trackLength;
+          if(!hasSetCustomTrackLength) {
             setTrackLength(track_length);
+          }
         }
       })
       .catch((e) => {
@@ -190,7 +192,7 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });
+const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
 const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength })(memo(App));
 
 const AppWithSocketContext = (props) => <WithSocketContext>
