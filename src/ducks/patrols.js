@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import merge from 'lodash/merge';
 
 import { API_URL } from '../constants';
@@ -8,7 +8,6 @@ import { calcPatrolFilterForRequest/* ,
   validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
 
 export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
-const PATROL_SEGMENTS_API_URL = `${PATROLS_API_URL}segments/`;
 
 const FETCH_PATROLS_SUCCESS = 'FETCH_PATROLS_SUCCESS';
 const UPDATE_PATROL_STORE = 'UPDATE_PATROL_STORE';
@@ -96,22 +95,6 @@ export const socketDeletePatrol = (payload) => (dispatch) => {
   }
 };
 
-
-const addReportToPatrol = (reportId, patrol) => {
-  const firstLeg = patrol.patrol_segments?.[0];
-
-  if (!firstLeg) return Promise.reject('No patrol segments available');
-
-  const segmentId = firstLeg.id;
-  // const segmentEvents = firstLeg
-
-
-  return axios.post(`${PATROL_SEGMENTS_API_URL}/${segmentId}/events`, );
-
-
-
-};
-
 export const fetchPatrol = id => dispatch => axios.get(`${PATROLS_API_URL}${id}`)
   .then((response) => {
     const patrol = response.data.data;
@@ -125,21 +108,32 @@ export const fetchPatrol = id => dispatch => axios.get(`${PATROLS_API_URL}${id}`
     console.warn('error fetching patrol', error);
   });
 
-export const fetchPatrols = () => async (dispatch) => {
+export const fetchPatrols = () => (dispatch) => {
+  let cancelToken = CancelToken.source();
 
   const patrolFilterParamString = calcPatrolFilterForRequest({ params: { page_size: 200 } });
 
-  const { data: { data: patrols } } = await axios.get(`${PATROLS_API_URL}?${patrolFilterParamString}`).catch((error) => {
-    console.warn('error fetching patrols', error);
-    dispatch({
-      type: FETCH_PATROLS_ERROR,
-      payload: error,
-    });
-    return new Error(error);
-  });
+  const request = axios.get(`${PATROLS_API_URL}?${patrolFilterParamString}`, {
+    cancelToken: cancelToken.token,
+  })
+    .then(({ data: { data: patrols } }) => {
+      dispatch(fetchPatrolsSuccess(patrols));
+      return patrols;
 
-  dispatch(fetchPatrolsSuccess(patrols));
-  return patrols;
+    })
+    .catch((error) => {
+      const isCancelation = !!error.__CANCEL__;
+      console.warn('error fetching patrols', error);
+      dispatch({
+        type: FETCH_PATROLS_ERROR,
+        payload: error,
+      });
+      if (!isCancelation) {
+        return new Error(error);
+      }
+    });
+
+  return { request, cancelToken };
 };
 
 export const createPatrol = (patrol) => (dispatch) => {
