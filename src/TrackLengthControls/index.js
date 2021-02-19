@@ -6,7 +6,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { debouncedTrackEvent } from '../utils/analytics';
 
-import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, hasSetCustomTrackLength } from '../ducks/tracks';
 
 import styles from './styles.module.scss';
 
@@ -25,7 +25,7 @@ const FREEHAND_INPUT_ATTRS = {
 const debouncedAnalytics = debouncedTrackEvent();
 
 const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin } = props;
+  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, hasSetCustomTrackLength } = props;
 
   const [customLengthValue, setCustomLengthValue] = useState(length);
   const [customLengthValid, setCustomLengthValidity] = useState(true);
@@ -46,11 +46,12 @@ const TrackLengthControls = (props) => {
     if (rangeIsValid) {
       setCustomLengthValidity(true);
       setTrackLength(customLengthValue);
+      hasSetCustomTrackLength(true);
       debouncedAnalytics('Map Interaction', 'Set Track Length To Custom Length', `${customLengthValue} days`);
     } else {
       setCustomLengthValidity(false);
     }
-  }, [customLengthValue, setTrackLength]);
+  }, [customLengthValue, hasSetCustomTrackLength, setTrackLength]);
 
   useEffect(() => {
     if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
@@ -102,7 +103,7 @@ const mapStatetoProps = ({ view: { trackLength }, data: { eventFilter, tracks } 
   eventFilterTimeRange: eventFilter.filter.date_range,
 });
 
-export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin })(memo(TrackLengthControls));
+export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin, hasSetCustomTrackLength })(memo(TrackLengthControls));
 
 
 TrackLengthControls.defaultProps = {

@@ -2,7 +2,7 @@ import axios, { CancelToken, isCancel } from 'axios';
 import isEqual from 'react-fast-compare';
 
 import globallyResettableReducer from '../reducers/global-resettable';
-import { API_URL, DEFAULT_CUSTOM_TRACK_LENGTH } from '../constants';
+import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
 import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints, trackHasDataWithinTimeRange} from '../utils/tracks';
 
@@ -14,6 +14,7 @@ export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
 const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
+const HAS_CUSTOM_TRACK_LENGTH = 'HAS_CUSTOM_TRACK_LENGTH';
 
 // action creators
 export const refreshTrackOnBulkObservationUpdateIfNecessary = (payload) => (dispatch, getState) => {
@@ -85,6 +86,11 @@ export const setTrackLengthRangeOrigin = (origin) => ({
   payload: origin,
 });
 
+export const hasSetCustomTrackLength = (hasSet) => ({
+  type: HAS_CUSTOM_TRACK_LENGTH,
+  payload: hasSet,
+});
+
 // reducers
 const INITIAL_TRACKS_STATE = {};
 const tracksReducer = (state = INITIAL_TRACKS_STATE, action = {}) => {
@@ -130,9 +136,10 @@ export const TRACK_LENGTH_ORIGINS = {
   customLength: 'customLength',
 };
 
-const INITIAL_TRACK_DATE_RANGE_STATE = {
+export const INITIAL_TRACK_DATE_RANGE_STATE = {
   origin: TRACK_LENGTH_ORIGINS.customLength,
-  length: DEFAULT_CUSTOM_TRACK_LENGTH,
+  length: 21,
+  hasCustomTrackLength: false,
 };
 
 export const trackDateRangeReducer = globallyResettableReducer((state, { type, payload }) => {
@@ -142,9 +149,15 @@ export const trackDateRangeReducer = globallyResettableReducer((state, { type, p
       origin: payload,
     };
   }
+  if (type === HAS_CUSTOM_TRACK_LENGTH) {
+    return {
+      ...state,
+      hasCustomTrackLength: payload,
+    };
+  }
   if (type === SET_TRACK_LENGTH) {
     return {
-      ...state, length: payload,
+      ...state, length: payload, 
     };
   }
 
