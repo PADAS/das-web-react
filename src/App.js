@@ -9,6 +9,7 @@ import 'axios-progress-bar/dist/nprogress.css';
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
+import { hasDefaultTrackLength } from './utils/tracks';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
@@ -126,7 +127,8 @@ const App = (props) => {
             });
         }
         if (track_length) {
-          setTrackLength(track_length);
+          if(hasDefaultTrackLength())
+            setTrackLength(track_length);
         }
       })
       .catch((e) => {
