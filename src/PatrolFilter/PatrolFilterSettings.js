@@ -7,7 +7,7 @@ import styles from './styles.module.scss';
 
 const PatrolFilterSettings = (props) => {
   const { handleFilterOptionChange, patrolFilter } = props;
-  const { filter: { overlap } } = patrolFilter;
+  const { filter: { patrols_overlap_daterange } } = patrolFilter;
 
   const startInfo = props => (
     <Tooltip className={styles.filterTooltip} {...props}>Include patrols starting within the date range</Tooltip>
@@ -27,7 +27,7 @@ const PatrolFilterSettings = (props) => {
                 type="radio"
                 id="start_dates"
                 value="start_dates"
-                checked={!overlap}
+                checked={!patrols_overlap_daterange}
                 onChange={handleFilterOptionChange}
               /><label forHtml="start_dates">Filter by start date</label>
             </span>
@@ -40,7 +40,7 @@ const PatrolFilterSettings = (props) => {
                 type="radio"
                 id="overlap_dates"
                 value="overlap_dates"
-                checked={overlap}
+                checked={patrols_overlap_daterange}
                 onChange={handleFilterOptionChange}
               /><label htmlFor="overlap_dates">Filter by date range overlap</label>
             </span>

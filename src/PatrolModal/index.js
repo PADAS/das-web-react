@@ -334,7 +334,7 @@ const PatrolModal = (props) => {
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
-  }, [addedReports, allPatrolReportIds]);
+  }, [addedReports, allPatrolReportIds, patrolSegmentId]);
   
   const onSaveNote = useCallback((noteToSave) => {
     
@@ -538,7 +538,7 @@ const PatrolModal = (props) => {
     }
 
     return null;
-  }, [statePatrol]);
+  }, [displayAutoStart, statePatrol]);
 
   const endTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -554,7 +554,7 @@ const PatrolModal = (props) => {
     }
  
     return null;
-  }, [statePatrol]);
+  }, [displayAutoEnd, statePatrol.patrol_segments]);
 
   const startTimeLabelClass = useMemo(() => {
     if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;

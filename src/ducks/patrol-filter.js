@@ -27,7 +27,7 @@ export const INITIAL_FILTER_STATE = {
   //status: ['active', 'done', 'cancelled'], /* FPO - as per designs */
   filter: {
     date_range: defaultDateRange,
-    overlap: false,
+    patrols_overlap_daterange: false,
     // patrol_type: [],
     // text: '',
     // leader: [],
