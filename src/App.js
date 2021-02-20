@@ -14,7 +14,7 @@ import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
-import { setTrackLength } from './ducks/tracks';
+import { setTrackLength, setDefaultTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
@@ -69,7 +69,7 @@ const animateResize = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, 
-    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength } = props;
+    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultTrackLength } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -127,6 +127,7 @@ const App = (props) => {
             });
         }
         if (track_length) {
+          setDefaultTrackLength(track_length);
           const { hasCustomTrackLength } = trackLength;
           if(!hasCustomTrackLength) {
             setTrackLength(track_length);
@@ -193,7 +194,7 @@ const App = (props) => {
 };
 
 const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
-const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength })(memo(App));
+const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultTrackLength })(memo(App));
 
 const AppWithSocketContext = (props) => <WithSocketContext>
   <ConnectedApp />

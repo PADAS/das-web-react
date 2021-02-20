@@ -10,7 +10,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 
 import { store } from '../index';
-import { TRACK_LENGTH_ORIGINS, fetchTracks, INITIAL_TRACK_DATE_RANGE_STATE } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 
 export const convertTrackFeatureCollectionToPoints = feature => {

@@ -1,5 +1,4 @@
 import uniq from 'lodash/uniq';
-import startOfDay from 'date-fns/start_of_day';
 import subDays from 'date-fns/sub_days';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
