@@ -6,7 +6,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { debouncedTrackEvent } from '../utils/analytics';
 
-import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, hasSetCustomTrackLength } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength, INITIAL_TRACK_DATE_RANGE_STATE } from '../ducks/tracks';
 
 import styles from './styles.module.scss';
 
@@ -25,7 +25,7 @@ const FREEHAND_INPUT_ATTRS = {
 const debouncedAnalytics = debouncedTrackEvent();
 
 const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, hasSetCustomTrackLength } = props;
+  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } = props;
 
   const [customLengthValue, setCustomLengthValue] = useState(length);
   const [customLengthValid, setCustomLengthValidity] = useState(true);
@@ -46,12 +46,11 @@ const TrackLengthControls = (props) => {
     if (rangeIsValid) {
       setCustomLengthValidity(true);
       setTrackLength(customLengthValue);
-      hasSetCustomTrackLength(true);
       debouncedAnalytics('Map Interaction', 'Set Track Length To Custom Length', `${customLengthValue} days`);
     } else {
       setCustomLengthValidity(false);
     }
-  }, [customLengthValue, hasSetCustomTrackLength, setTrackLength]);
+  }, [customLengthValue, setTrackLength]);
 
   useEffect(() => {
     if (origin === TRACK_LENGTH_ORIGINS.eventFilter) {
@@ -61,6 +60,12 @@ const TrackLengthControls = (props) => {
     }
   }, [origin, lower, upper, setTrackLength, eventFilterDateRangeLength, setTrackLengthToEventDateRange, setTrackLengthToCustomDateRange]);
 
+  useEffect(() => {
+    // if the user ever sets this value to something 
+    // other than the default, flag it
+    if(customLengthValue !== INITIAL_TRACK_DATE_RANGE_STATE.length)
+      setHasCustomTrackLength(true);  
+  },[customLengthValue, setHasCustomTrackLength]);
 
   useEffect(() => {
     if (!initialized) setInitState(true);
@@ -103,7 +108,7 @@ const mapStatetoProps = ({ view: { trackLength }, data: { eventFilter, tracks } 
   eventFilterTimeRange: eventFilter.filter.date_range,
 });
 
-export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin, hasSetCustomTrackLength })(memo(TrackLengthControls));
+export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength })(memo(TrackLengthControls));
 
 
 TrackLengthControls.defaultProps = {

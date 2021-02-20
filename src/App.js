@@ -127,8 +127,8 @@ const App = (props) => {
             });
         }
         if (track_length) {
-          const { hasSetCustomTrackLength } = trackLength;
-          if(!hasSetCustomTrackLength) {
+          const { hasCustomTrackLength } = trackLength;
+          if(!hasCustomTrackLength) {
             setTrackLength(track_length);
           }
         }

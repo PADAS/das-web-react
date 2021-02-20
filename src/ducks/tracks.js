@@ -86,7 +86,7 @@ export const setTrackLengthRangeOrigin = (origin) => ({
   payload: origin,
 });
 
-export const hasSetCustomTrackLength = (hasSet) => ({
+export const setHasCustomTrackLength = (hasSet) => ({
   type: HAS_CUSTOM_TRACK_LENGTH,
   payload: hasSet,
 });
