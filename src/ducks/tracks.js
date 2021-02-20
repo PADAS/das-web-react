@@ -15,6 +15,7 @@ export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
 const HAS_CUSTOM_TRACK_LENGTH = 'HAS_CUSTOM_TRACK_LENGTH';
+const DEFAULT_TRACK_LENGTH = 'DEFAULT_TRACK_LENGTH';
 
 // action creators
 export const refreshTrackOnBulkObservationUpdateIfNecessary = (payload) => (dispatch, getState) => {
@@ -86,6 +87,11 @@ export const setTrackLengthRangeOrigin = (origin) => ({
   payload: origin,
 });
 
+export const setDefaultTrackLength = (length) => ({
+  type: DEFAULT_TRACK_LENGTH,
+  payload: length,
+});
+
 export const setHasCustomTrackLength = (hasSet) => ({
   type: HAS_CUSTOM_TRACK_LENGTH,
   payload: hasSet,
@@ -139,6 +145,7 @@ export const TRACK_LENGTH_ORIGINS = {
 export const INITIAL_TRACK_DATE_RANGE_STATE = {
   origin: TRACK_LENGTH_ORIGINS.customLength,
   length: 21,
+  defaultLength: 21,
   hasCustomTrackLength: false,
 };
 
@@ -147,6 +154,12 @@ export const trackDateRangeReducer = globallyResettableReducer((state, { type, p
     return {
       ...state,
       origin: payload,
+    };
+  }
+  if (type === DEFAULT_TRACK_LENGTH) {
+    return {
+      ...state,
+      defaultLength: payload,
     };
   }
   if (type === HAS_CUSTOM_TRACK_LENGTH) {

@@ -6,7 +6,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { debouncedTrackEvent } from '../utils/analytics';
 
-import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength, INITIAL_TRACK_DATE_RANGE_STATE } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } from '../ducks/tracks';
 
 import styles from './styles.module.scss';
 
@@ -25,7 +25,7 @@ const FREEHAND_INPUT_ATTRS = {
 const debouncedAnalytics = debouncedTrackEvent();
 
 const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } = props;
+  const { trackLength: { origin, length, defaultLength }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } = props;
 
   const [customLengthValue, setCustomLengthValue] = useState(length);
   const [customLengthValid, setCustomLengthValidity] = useState(true);
@@ -63,9 +63,9 @@ const TrackLengthControls = (props) => {
   useEffect(() => {
     // if the user ever sets this value to something 
     // other than the default, flag it
-    if(customLengthValue !== INITIAL_TRACK_DATE_RANGE_STATE.length)
+    if(customLengthValue !== defaultLength)
       setHasCustomTrackLength(true);  
-  },[customLengthValue, setHasCustomTrackLength]);
+  },[customLengthValue, setHasCustomTrackLength, defaultLength]);
 
   useEffect(() => {
     if (!initialized) setInitState(true);
