@@ -25,7 +25,7 @@ const FREEHAND_INPUT_ATTRS = {
 const debouncedAnalytics = debouncedTrackEvent();
 
 const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length, defaultLength }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } = props;
+  const { trackLength: { origin, length, defaultCustomTrackLength }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } = props;
 
   const [customLengthValue, setCustomLengthValue] = useState(length);
   const [customLengthValid, setCustomLengthValidity] = useState(true);
@@ -63,9 +63,8 @@ const TrackLengthControls = (props) => {
   useEffect(() => {
     // if the user ever sets this value to something 
     // other than the default, flag it
-    if(customLengthValue !== defaultLength)
-      setHasCustomTrackLength(true);  
-  },[customLengthValue, setHasCustomTrackLength, defaultLength]);
+    setHasCustomTrackLength(customLengthValue !== defaultCustomTrackLength);  
+  },[customLengthValue, setHasCustomTrackLength, defaultCustomTrackLength]);
 
   useEffect(() => {
     if (!initialized) setInitState(true);
