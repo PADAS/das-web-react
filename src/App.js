@@ -127,11 +127,12 @@ const App = (props) => {
             });
         }
         if (track_length) {
-          // in the future, we'll use this for reset
-          setDefaultCustomTrackLength(track_length);
-          const { hasCustomTrackLength } = trackLength;
-          if(!hasCustomTrackLength) {
+          const { defaultCustomTrackLength, length } = trackLength;
+          if(defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
             setTrackLength(track_length);
+            setDefaultCustomTrackLength(track_length);
+          } else if(track_length !== defaultCustomTrackLength) {
+            setDefaultCustomTrackLength(track_length);
           }
         }
       })

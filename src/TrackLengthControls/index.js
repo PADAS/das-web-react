@@ -6,7 +6,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { debouncedTrackEvent } from '../utils/analytics';
 
-import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } from '../ducks/tracks';
+import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin } from '../ducks/tracks';
 
 import styles from './styles.module.scss';
 
@@ -25,7 +25,7 @@ const FREEHAND_INPUT_ATTRS = {
 const debouncedAnalytics = debouncedTrackEvent();
 
 const TrackLengthControls = (props) => {
-  const { trackLength: { origin, length, defaultCustomTrackLength }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength } = props;
+  const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin } = props;
 
   const [customLengthValue, setCustomLengthValue] = useState(length);
   const [customLengthValid, setCustomLengthValidity] = useState(true);
@@ -59,12 +59,6 @@ const TrackLengthControls = (props) => {
       setTrackLengthToCustomDateRange();
     }
   }, [origin, lower, upper, setTrackLength, eventFilterDateRangeLength, setTrackLengthToEventDateRange, setTrackLengthToCustomDateRange]);
-
-  useEffect(() => {
-    // if the user ever sets this value to something 
-    // other than the default, flag it
-    setHasCustomTrackLength(customLengthValue !== defaultCustomTrackLength);  
-  },[customLengthValue, setHasCustomTrackLength, defaultCustomTrackLength]);
 
   useEffect(() => {
     if (!initialized) setInitState(true);
@@ -107,7 +101,7 @@ const mapStatetoProps = ({ view: { trackLength }, data: { eventFilter, tracks } 
   eventFilterTimeRange: eventFilter.filter.date_range,
 });
 
-export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin, setHasCustomTrackLength })(memo(TrackLengthControls));
+export default connect(mapStatetoProps, { setTrackLength, setTrackLengthRangeOrigin })(memo(TrackLengthControls));
 
 
 TrackLengthControls.defaultProps = {
