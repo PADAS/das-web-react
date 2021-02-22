@@ -15,12 +15,12 @@ const TableauModal = ({ id, title, removeModal, params = {}, paramString, fetchT
 
   useEffect(() => {
     fetchTableauDashboard();
-  }, []);
+  }, [fetchTableauDashboard]);
 
   const isTableauDashboardDataValid = useMemo(
     () => Boolean(reports.tableauDashboard.display_url),
     [reports.tableauDashboard.display_url]
-  )
+  );
 
   const { display_url } = reports.tableauDashboard;
 
