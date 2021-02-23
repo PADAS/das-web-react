@@ -7,9 +7,14 @@ import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 class PrivateRoute extends Component {
-  loginPath = `${REACT_APP_ROUTE_PREFIX}login`;
-  eulaPath = `${REACT_APP_ROUTE_PREFIX}eula`;
 
+  constructor(props) {
+    super(props);
+
+    this.loginPath = `${REACT_APP_ROUTE_PREFIX}login`;
+    this.eulaPath = `${REACT_APP_ROUTE_PREFIX}eula`;
+
+  }
 
   render() {
     const { component: Component, dispatch: _dispatch, token, ...rest } = this.props;
