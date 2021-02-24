@@ -14,6 +14,7 @@ export const FETCH_TRACKS_ERROR = 'FETCH_TRACKS_ERROR';
 
 const SET_TRACK_LENGTH = 'SET_TRACK_LENGTH';
 const SET_TRACK_LENGTH_ORIGIN = 'SET_TRACK_LENGTH_ORIGIN';
+const CUSTOM_TRACK_LENGTH = 'CUSTOM_TRACK_LENGTH';
 
 // action creators
 export const refreshTrackOnBulkObservationUpdateIfNecessary = (payload) => (dispatch, getState) => {
@@ -85,6 +86,12 @@ export const setTrackLengthRangeOrigin = (origin) => ({
   payload: origin,
 });
 
+export const setDefaultCustomTrackLength = (length) => ({
+  type: CUSTOM_TRACK_LENGTH,
+  payload: length,
+});
+
+
 // reducers
 const INITIAL_TRACKS_STATE = {};
 const tracksReducer = (state = INITIAL_TRACKS_STATE, action = {}) => {
@@ -130,9 +137,10 @@ export const TRACK_LENGTH_ORIGINS = {
   customLength: 'customLength',
 };
 
-const INITIAL_TRACK_DATE_RANGE_STATE = {
+export const INITIAL_TRACK_DATE_RANGE_STATE = {
   origin: TRACK_LENGTH_ORIGINS.customLength,
   length: 21,
+  defaultCustomTrackLength: undefined,
 };
 
 export const trackDateRangeReducer = globallyResettableReducer((state, { type, payload }) => {
@@ -142,9 +150,15 @@ export const trackDateRangeReducer = globallyResettableReducer((state, { type, p
       origin: payload,
     };
   }
+  if (type === CUSTOM_TRACK_LENGTH) {
+    return {
+      ...state,
+      defaultCustomTrackLength: payload,
+    };
+  }
   if (type === SET_TRACK_LENGTH) {
     return {
-      ...state, length: payload,
+      ...state, length: payload, 
     };
   }
 
