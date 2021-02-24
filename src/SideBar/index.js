@@ -10,7 +10,7 @@ import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
 import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
-import { useMatchMedia, useFeatureFlag, usePermissions, useDeepCompareEffect } from '../hooks';
+import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
 import { getFeedEvents } from '../selectors';
@@ -76,6 +76,7 @@ const SideBar = (props) => {
   const { filter: { overlap } } = patrolFilter;
 
   const [loadingEvents, setEventLoadState] = useState(false);
+  const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
 
@@ -176,23 +177,15 @@ const SideBar = (props) => {
   const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
   const fetchAndLoadPatrolData = useCallback(() => {
-
-    const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
-
-    if (priorRequestCancelToken) {
-      priorRequestCancelToken.cancel();
-    }
-
     patrolFetchRef.current = fetchPatrols();
 
     patrolFetchRef.current.request
       .finally(() => {
+        setPatrolLoadState(false);
         patrolFetchRef.current = null;
       });
       
   }, [fetchPatrols]);
-
-  const loadingPatrols = !!patrolFetchRef.current;
 
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'
@@ -210,8 +203,16 @@ const SideBar = (props) => {
   }, [events.error, loadingEvents]);
 
   // fetch patrols if filter itself has changed
-  useDeepCompareEffect(() => {
+  useEffect(() => {
+    setPatrolLoadState(true);
     fetchAndLoadPatrolData();
+    return () => {
+      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+
+      if (priorRequestCancelToken) {
+        priorRequestCancelToken.cancel();
+      }
+    };
   }, [fetchAndLoadPatrolData, patrolFilterParams]);
 
   if (!map) return null;
