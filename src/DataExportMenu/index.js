@@ -14,20 +14,20 @@ import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
 import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
-import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/events';
 import { fetchCurrentUser } from '../ducks/user';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { fetchTableauDashboard } from '../ducks/external-reporting';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
+  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, fetchTableauDashboard, ...rest } = props;
   const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
   const [isOpen, setOpenState] = useState(false);
 
@@ -100,14 +100,6 @@ const DataExportMenu = (props) => {
     }
   }, [addUserNotification, hasTableauNotification, props.systemConfig, removeUserNotification, tableauEnabled, updateUserPreferences]);
 
-  const tableauModal = {
-    title: 'powered by Tableau',
-    content: TableauModal,
-    modalProps: {
-      className: 'tableau-modal',
-    },
-  };
-
   const alertModal = {
     title: 'Alerts',
     content: AlertsModal,
@@ -124,6 +116,15 @@ const DataExportMenu = (props) => {
   const onModalClick = (modal, analyticsTitle = 'Report Export') => {
     addModal({...modal});
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
+  };
+
+  const openTableauReport = (analyticsTitle) => {
+    fetchTableauDashboard()
+      .then( ({ display_url }) => {
+        const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
+        if (newWindow) newWindow.opener = null;
+        trackEvent(analyticsTitle, 'Click Analysis (via Tableau) menu item');    
+      }); 
   };
 
   const onContactSupportClick = () => {
@@ -143,8 +144,7 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
-      {!!tableau_enabled && <Item onClick={() => onModalClick(tableauModal, 'Analysis (via Tableau)')}>Analysis (via Tableau) </Item>}
-      {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
+      {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau) </Item>}      {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
@@ -161,4 +161,4 @@ const DataExportMenu = (props) => {
 };
 
 const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification, user });
-export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences })(withRouter(DataExportMenu));
+export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));
