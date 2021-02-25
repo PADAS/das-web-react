@@ -14,15 +14,20 @@ import styles from './styles.module.scss';
 const ReportedBySelect = (props) => {
   const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder } = props;
 
-  const [recentRadios, setRecentRadios] = useState([]);
 
-  useEffect(() => {
-    setRecentRadios(
-      calcRecentRadiosFromSubjects(...subjects)
-        .splice(0, numberOfRecentRadiosToShow)
-    );
-  }, [numberOfRecentRadiosToShow, subjects]);
+  const recentRadios = useMemo(() =>
+    calcRecentRadiosFromSubjects(...subjects)
+      .splice(0, numberOfRecentRadiosToShow)
+  , [numberOfRecentRadiosToShow, subjects]);
 
+  const displayReporters = useMemo(() =>
+    reporters
+      .filter(({ id }) =>
+        !recentRadios
+          .some(({ id:radioId }) =>
+            radioId === id
+          )
+      ), [recentRadios, reporters]);
 
   const optionalProps = {};
   const selectStyles = {
@@ -59,7 +64,7 @@ const ReportedBySelect = (props) => {
     },
     {
       label: 'All',
-      options: reporters || [],
+      options: displayReporters || [],
     },
   ];
 

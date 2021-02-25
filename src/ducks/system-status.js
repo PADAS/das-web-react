@@ -252,39 +252,39 @@ const INITIAL_REALTIME_STATUS_STATE = genericStatusModel({
 });
 const realtimeStatusReducer = genericStatusReducer((state = INITIAL_REALTIME_STATUS_STATE, { type, payload }) => {
   switch (type) {
-    case (SOCKET_HEALTHY_STATUS): {
-      const timestamp = new Date();
+  case (SOCKET_HEALTHY_STATUS): {
+    const timestamp = new Date();
 
+    return {
+      ...state,
+      status: HEALTHY_STATUS,
+      timestamp,
+    };
+  }
+  case (SERVER_STATUS_CHANGE): {
+    if (payload === UNKNOWN_STATUS) {
       return {
         ...state,
-        status: HEALTHY_STATUS,
-        timestamp,
+        status: UNKNOWN_STATUS,
       };
     }
-    case (SERVER_STATUS_CHANGE): {
-      if (payload === UNKNOWN_STATUS) {
-        return {
-          ...state,
-          status: UNKNOWN_STATUS,
-        };
-      }
-      return state;
-    }
-    case (SOCKET_UNHEALTHY_STATUS): {
-      return {
-        ...state,
-        status: UNHEALTHY_STATUS,
-      };
-    }
-    case (SOCKET_WARNING_STATUS): {
-      return {
-        ...state,
-        status: WARNING_STATUS,
-      };
-    }
-    default: {
-      return state;
-    }
+    return state;
+  }
+  case (SOCKET_UNHEALTHY_STATUS): {
+    return {
+      ...state,
+      status: UNHEALTHY_STATUS,
+    };
+  }
+  case (SOCKET_WARNING_STATUS): {
+    return {
+      ...state,
+      status: WARNING_STATUS,
+    };
+  }
+  default: {
+    return state;
+  }
   }
 });
 

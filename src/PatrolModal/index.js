@@ -93,7 +93,7 @@ const PatrolModal = (props) => {
     const incidents = allReports.filter(report => report.is_collection);
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
-      !report.is_contained_in?.length && !incidentIds.includes(report.id));
+      !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
       (item) => {
@@ -332,7 +332,7 @@ const PatrolModal = (props) => {
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
-  }, [addedReports, allPatrolReportIds]);
+  }, [addedReports, allPatrolReportIds, patrolSegmentId]);
   
   const onSaveNote = useCallback((noteToSave) => {
     
@@ -531,7 +531,7 @@ const PatrolModal = (props) => {
     }
 
     return null;
-  }, [statePatrol]);
+  }, [displayAutoStart, statePatrol]);
 
   const endTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -547,7 +547,7 @@ const PatrolModal = (props) => {
     }
  
     return null;
-  }, [statePatrol]);
+  }, [displayAutoEnd, statePatrol.patrol_segments]);
 
   const startTimeLabelClass = useMemo(() => {
     if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;

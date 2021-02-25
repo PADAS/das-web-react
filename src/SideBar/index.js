@@ -46,6 +46,7 @@ import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString'
 import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
+import { cloneDeep } from 'lodash-es';
 
 const TAB_KEYS = {
   REPORTS: 'reports',
@@ -73,6 +74,7 @@ const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
   const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { filter: { overlap } } = patrolFilter;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
@@ -94,7 +96,14 @@ const SideBar = (props) => {
     return value;
   }, [eventFilter]);
 
+  const patrolFilterParams = useMemo(() => {
+    const filterParams = cloneDeep(patrolFilter);
+    delete filterParams.filter.overlap;
+    return filterParams;
+  }, [patrolFilter]);
+    
   const activeTabPreClose = useRef(null);
+  const patrolFetchRef = useRef(null);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
@@ -140,17 +149,12 @@ const SideBar = (props) => {
     loadFeedEvents();
   }, [eventFilter]); // eslint-disable-line
 
+  // fetch patrols if filter settings has changed
   useEffect(() => {
-    const loadPatrolData = async () => {
-      if (showPatrols) {
-        setPatrolLoadState(true);
-        await fetchPatrols();
-        setPatrolLoadState(false);
-      }
-    };
-
-    loadPatrolData();
-  }, [patrolFilter]); // eslint-disable-line
+    if (!isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+      fetchAndLoadPatrolData();
+    }
+  }, [overlap]); // eslint-disable-line
 
   useEffect(() => {
     if (!isUndefined(sidebarOpen)) {
@@ -173,6 +177,17 @@ const SideBar = (props) => {
 
   const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
 
+  const fetchAndLoadPatrolData = useCallback(() => {
+    patrolFetchRef.current = fetchPatrols();
+
+    patrolFetchRef.current.request
+      .finally(() => {
+        setPatrolLoadState(false);
+        patrolFetchRef.current = null;
+      });
+      
+  }, [fetchPatrols]);
+
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'
     : (isMediumLayout
@@ -187,6 +202,19 @@ const SideBar = (props) => {
       setEventLoadState(false);
     }
   }, [events.error, loadingEvents]);
+
+  // fetch patrols if filter itself has changed
+  useEffect(() => {
+    setPatrolLoadState(true);
+    fetchAndLoadPatrolData();
+    return () => {
+      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+
+      if (priorRequestCancelToken) {
+        priorRequestCancelToken.cancel();
+      }
+    };
+  }, [fetchAndLoadPatrolData, patrolFilterParams]);
 
   if (!map) return null;
 
