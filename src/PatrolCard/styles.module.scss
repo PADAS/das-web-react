@@ -14,7 +14,7 @@
     color: darken($light-gray, 17%);
   }
   .header {
-    margin-top: 0.45rem;
+    margin-top: 0.125rem;
     height: 1.0rem;
     background: none;
     text-align: center;
@@ -41,6 +41,7 @@
     align-items: center;
     display:flex;
     height: 1.75rem;
+    line-height: .75rem;
     justify-content: center;
     margin-top: 0.125rem;
   }
@@ -55,19 +56,19 @@
       cursor: pointer;
   }
   p {
-      color: #8C8C8C;
-      font-size: .5rem;
+      color: #444444;
+      font-size: .75rem;
       font-style: italic;
       margin-bottom: 0.125rem;
       span {
-          color: #646161;
+          color: black;
       }
   }
   h6 {
-    color: #8C8C8C;
-    font-size: .5rem;
+    color: #444444;
+    font-size: .70rem;
     font-style: plain;
-    margin-top: 0.25rem;
+    margin-top: 0rem;
     margin-bottom: 0.125rem;
   }
   &:not(.status-cancelled) {
