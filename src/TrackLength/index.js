@@ -20,7 +20,7 @@ function TrackLength(props) {
 
   if (!trackFeature) return null;
 
-  return <span className={className || ''}>Track length: {length(trackFeature).toFixed(2)} kilometers</span>;
+  return <span className={className || ''}><strong>Track length:</strong> {length(trackFeature).toFixed(2)} kilometers</span>;
 
 }
 
