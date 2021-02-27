@@ -56,19 +56,23 @@
       cursor: pointer;
   }
   p {
-      color: #444444;
-      font-size: .75rem;
-      font-style: italic;
+      color: #777;
+      font-size: .7rem;
       margin-bottom: 0.125rem;
+      strong {
+        font-weight: 500;
+      }
       span {
-          color: black;
+        color: black;
+        font-style: italic;
+        font-weight: 400;
       }
   }
   h6 {
-    color: #444444;
+    color: #666;
     font-size: .70rem;
-    font-style: plain;
-    margin-top: 0rem;
+    font-style: italic;
+    margin-top: 0.25rem;
     margin-bottom: 0.125rem;
   }
   &:not(.status-cancelled) {

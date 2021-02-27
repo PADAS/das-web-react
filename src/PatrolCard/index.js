@@ -179,8 +179,8 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       </Fragment>}
       {!isScheduledPatrol && <Fragment> 
         <div>
-          <p>Time on patrol: <span>{patrolElapsedTime}</span></p>
-          <p>Distance covered: <span><PatrolDistanceCovered patrolsData={[patrolData]} /></span></p>
+          <p><strong>Time on patrol:</strong> <span>{patrolElapsedTime}</span></p>
+          <p><strong>Distance covered:</strong> <span><PatrolDistanceCovered patrolsData={[patrolData]} /></span></p>
         </div>
       </Fragment>}
     </div>
