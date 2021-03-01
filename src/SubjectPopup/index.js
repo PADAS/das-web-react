@@ -21,7 +21,7 @@ const STORAGE_KEY = 'showSubjectDetailsByDefault';
 const SubjectPopup = (props) => {
   const { data, map, ...rest } = props;
   const  { geometry, properties } = data;
-  const device_status_properties = JSON.parse(properties?.device_status_properties ?? '');
+  const device_status_properties = JSON.parse(properties?.device_status_properties ?? '[]');
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
