@@ -110,7 +110,7 @@ export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   let results = [...collection];
   const { from, until } = envelope;
 
-  if (!window.isNaN(from)) {
+  if (!window.isNaN(from) && from > -1) {
     results = results.slice(0, from + 1);
   }
   if (!window.isNaN(until)) {
