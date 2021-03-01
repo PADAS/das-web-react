@@ -25,8 +25,7 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import EventFeed from '../EventFeed';
-import AddReport from '../AddReport3';
-import MetaAddReport from '../MetaAddReport';
+import AddReport from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
@@ -225,8 +224,7 @@ const SideBar = (props) => {
       <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
         {activeTab.current !== TAB_KEYS.LAYERS && <div className={styles.addReportContainer}>
-          {/* <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} type={activeTab.current} /> */}
-          <MetaAddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} type={activeTab.current}  />
+          <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} type={activeTab.current} />
         </div>}
         <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
           <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
