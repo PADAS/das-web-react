@@ -23,8 +23,8 @@
     justify-content: center;
       h3 {
         cursor: pointer;
-        font-size: 0.95rem;
-        font-weight: 500;
+        font-size: 1.0rem;
+        font-weight: 510;
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-box-orient: vertical;
@@ -61,7 +61,7 @@
       font-style: italic;
       margin-bottom: 0.125rem;
       span {
-        color: black;
+        color: #333;
         font-weight: 350;
       }
   }
