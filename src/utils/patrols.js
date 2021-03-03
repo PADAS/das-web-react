@@ -653,7 +653,8 @@ export const patrolShouldBeMarkedDone = (patrol) => {
 };
 
 export const getBoundsForPatrol = ((patrolData) => {
-  const { leader, trackData, patrol } = patrolData;
+  const { leader, trackData, patrol, startStopGeometries } = patrolData;
+
   
   const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
   if (!hasSegments) return null;
@@ -663,11 +664,12 @@ export const getBoundsForPatrol = ((patrolData) => {
   const hasEvents = !!firstLeg.events && !!firstLeg.events.length;
   const hasLeaderPosition = !!leader && !!leader.last_position;
 
+  const { start_location:patrolStartPoint, end_location:patrolEndPoint } = startStopGeometries?.points || {};
   const patrolEvents = hasEvents && firstLeg.events.map(({ geojson }) => geojson);
   const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
   const patrolTrack = !!trackData && trackData.track;
 
-  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features)
+  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features, patrolStartPoint, patrolEndPoint)
     .filter(item => !!item);
 
   
