@@ -84,19 +84,13 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
-  const isScheduledPatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.READY_TO_START 
+  const isScheduledPatrol = patrolState === PATROL_CARD_STATES.READY_TO_START 
     || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
-  }, [patrolState]);
 
-  const isPatrolWithActivity = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.ACTIVE || patrolState === PATROL_CARD_STATES.DONE;
-  }, [patrolState]);
+  const isPatrolActiveOrDone = patrolState === PATROL_CARD_STATES.ACTIVE || patrolState === PATROL_CARD_STATES.DONE;
 
-  const isCancelledPatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.CANCELLED;
-  }, [patrolState]);
+  const isCancelledPatrol = patrolState === PATROL_CARD_STATES.CANCELLED;
 
   const patrolStatusStyle = `status-${patrolState.status}`;
 
@@ -185,7 +179,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       {isScheduledPatrol && <Fragment> 
         <p>Scheduled: <span>{scheduledStartTime}</span></p>
       </Fragment>}
-      {isPatrolWithActivity && <Fragment> 
+      {isPatrolActiveOrDone && <Fragment> 
         <p><span>{patrolElapsedTime}</span> - <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span></p>
       </Fragment>}
       {isCancelledPatrol && <Fragment> 
