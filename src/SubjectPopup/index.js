@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 import format from 'date-fns/format';
 import Button from 'react-bootstrap/Button';
+import isObject from 'lodash/isObject';
 
 import TimeAgo from '../TimeAgo';
 import DateTime from '../DateTime';
@@ -21,7 +22,11 @@ const STORAGE_KEY = 'showSubjectDetailsByDefault';
 const SubjectPopup = (props) => {
   const { data, map, ...rest } = props;
   const  { geometry, properties } = data;
-  const device_status_properties = JSON.parse(properties?.device_status_properties ?? '[]');
+  const device_status_properties =
+      typeof properties?.device_status_properties === 'string' ?
+        JSON.parse(properties?.device_status_properties ?? '[]')
+        : properties?.device_status_properties;
+
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;

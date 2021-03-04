@@ -98,32 +98,33 @@ const INITIAL_MAP_SUBJECT_STATE = {
 
 
 
-export default globallyResettableReducer((state, action = {}) => {
-  switch (action.type) {
-  case CLEAR_SUBJECT_DATA: {
-    return { ...INITIAL_MAP_SUBJECT_STATE };
+let lastKnownMapSubjectValue = { ...INITIAL_MAP_SUBJECT_STATE }; /* PATCH -- store updates via FETCH_MAP_SUBJECTS_SUCCESS are not sticking when the number of map subjects in a query is > 2...race condition? redux funk? who knows. this fixes it for the time being. */
+
+export default globallyResettableReducer((state = INITIAL_MAP_SUBJECT_STATE, action = {}) => {
+  if (action.type === CLEAR_SUBJECT_DATA) {
+    lastKnownMapSubjectValue = { ...INITIAL_MAP_SUBJECT_STATE };
   }
-  case FETCH_MAP_SUBJECTS_START: {
+
+  if (action.type === FETCH_MAP_SUBJECTS_START) {
     const { bbox } = action.payload;
-    return {
+    lastKnownMapSubjectValue = {
       ...state,
       bbox,
     };
   }
-  case FETCH_MAP_SUBJECTS_SUCCESS: {
+
+  if (action.type === FETCH_MAP_SUBJECTS_SUCCESS) {
     const { payload: { data: subjects } } = action;
 
     const mapSubjectIDs = subjects.map(({ id }) => id);
 
-    return {
+    lastKnownMapSubjectValue = {
       ...state,
       subjects: union(mapSubjectIDs, state.subjects),
     };
   }
-  default: {
-    return state;
-  }
-  }
+
+  return lastKnownMapSubjectValue;
 }, INITIAL_MAP_SUBJECT_STATE);
 
 export const subjectGroupsReducer = globallyResettableReducer((state, action = {}) => {
