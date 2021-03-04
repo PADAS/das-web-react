@@ -62,25 +62,18 @@ export const addBearingToTrackPoints = feature => ({
 const dateIsAtOrAfterDate = (date, targetDate) =>
   new Date(date) - new Date(targetDate) >= 0;
 
-
-const binarySearchOrderedCollection = (collection, evaluator, startIndex = 0, endIndex = collection.length - 1)  => {
+const findDateIndexInRange = (times, targetDate, startIndex = 0, endIndex = times.length - 1) => { // binary searching in an array of dates for the first date which is at or after a target date.
   while (startIndex < endIndex) {
     const timeIndex = Math.floor(startIndex + ((endIndex - startIndex) + 1) / 2);
-    const itemAtIndex = collection[timeIndex];
 
-    if (!!evaluator(itemAtIndex)) {
-      return binarySearchOrderedCollection(collection, evaluator, timeIndex, endIndex);
-    } else {
-      binarySearchOrderedCollection(collection, evaluator, startIndex, timeIndex - 1);
+    if (dateIsAtOrAfterDate(times[timeIndex], targetDate)) {
+      return findDateIndexInRange(times, targetDate, timeIndex, endIndex);
     }
-    return evaluator(itemAtIndex) ? startIndex : -1;
+    else {
+      return findDateIndexInRange(times, targetDate, startIndex, timeIndex - 1);
+    }
   }
-};
-
-const findDateIndexInRange = (times, targetDate) => { // binary searching in an array of dates for the first date which is at or after a target date.
-  const evaluator = (item) => dateIsAtOrAfterDate(item, targetDate);
-
-  return binarySearchOrderedCollection(times, evaluator);
+  return (dateIsAtOrAfterDate(times[startIndex], targetDate)) ? startIndex : -1;
 };
 
 export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
