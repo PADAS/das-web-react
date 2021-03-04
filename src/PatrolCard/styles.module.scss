@@ -23,8 +23,8 @@
     justify-content: center;
       h3 {
         cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 1.0rem;
+        font-weight: 510;
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-box-orient: vertical;
@@ -40,10 +40,10 @@
   .statusInfo {
     align-items: center;
     display:flex;
-    height: 1.75rem;
-    line-height: .75rem;
+    height: 1.35rem;
+    line-height: 0.75rem;
     justify-content: center;
-    margin-top: 0.333rem;
+    margin-top: 0.47rem;
   }
   > svg {
       margin-top: 0.25rem;
@@ -57,22 +57,19 @@
   }
   p {
       color: #777;
-      font-size: .7rem;
+      font-size: 0.84rem;
+      font-style: italic;
       margin-bottom: 0.125rem;
-      strong {
-        font-weight: 500;
-      }
       span {
-        color: black;
-        font-style: italic;
-        font-weight: 400;
+        color: #333;
+        font-weight: 350;
       }
   }
   h6 {
     color: #666;
-    font-size: .70rem;
+    font-size: .8rem;
     font-style: italic;
-    margin-top: 0.25rem;
+    margin-top: 0.0625rem;
     margin-bottom: 0.125rem;
   }
   &:not(.status-cancelled) {
@@ -86,6 +83,11 @@
       .addReport {
           display: block;
       }
+    }
+  }
+  &:is(.status-cancelled) {
+    span {
+      color: #777;
     }
   }
   &:hover {
@@ -109,6 +111,12 @@
   &:hover {
       background-color: darken($patrol-active-bg, 6%);
   }
+  h6 {
+    font-style: normal;
+  }
+  p {
+    font-style: normal;
+  }
 }
 
 .status-start-overdue {
@@ -118,11 +126,11 @@
       background-color: darken($patrol-overdue-bg, 6%);
   }
   h6 {
-    color: red;
+    color: $patrol-overdue-status;
     &:hover {
       cursor: pointer;
       text-decoration: underline;
-      color: darken(red, 6%);
+      color: darken($patrol-overdue-status, 6%);
     }
   }
 }

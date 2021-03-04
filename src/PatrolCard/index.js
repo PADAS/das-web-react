@@ -84,11 +84,13 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
-  const isScheduledPatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.READY_TO_START 
+  const isScheduledPatrol = patrolState === PATROL_CARD_STATES.READY_TO_START 
     || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
-  }, [patrolState]);
+
+  const isPatrolActiveOrDone = patrolState === PATROL_CARD_STATES.ACTIVE || patrolState === PATROL_CARD_STATES.DONE;
+
+  const isCancelledPatrol = patrolState === PATROL_CARD_STATES.CANCELLED;
 
   const patrolStatusStyle = `status-${patrolState.status}`;
 
@@ -175,13 +177,13 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onClickOpen={onTitleClick} />
     <div className={styles.statusInfo} onClick={togglePopoverIfPossible}>
       {isScheduledPatrol && <Fragment> 
-        <p>Scheduled start: <span>{scheduledStartTime}</span></p>
+        <p>Scheduled: <span>{scheduledStartTime}</span></p>
       </Fragment>}
-      {!isScheduledPatrol && <Fragment> 
-        <div>
-          <p><strong>Time on patrol:</strong> <span>{patrolElapsedTime}</span></p>
-          <p><strong>Distance covered:</strong> <span><PatrolDistanceCovered patrolsData={[patrolData]} /></span></p>
-        </div>
+      {isPatrolActiveOrDone && <Fragment> 
+        <p><span>{patrolElapsedTime}</span> | <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span></p>
+      </Fragment>}
+      {isCancelledPatrol && <Fragment> 
+        <p>No Patrol: <span>{scheduledStartTime}</span></p>
       </Fragment>}
     </div>
     <h6 ref={stateTitleRef} onClick={togglePopoverIfPossible}>{patrolStateTitle}</h6>
