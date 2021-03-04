@@ -62,6 +62,9 @@ export const addBearingToTrackPoints = feature => ({
 const dateIsAtOrAfterDate = (date, targetDate) =>
   new Date(date) - new Date(targetDate) >= 0;
 
+const dateIsAtOrBeforeDate = (date, targetDate) =>
+  dateIsAtOrAfterDate(targetDate, date);
+
 const findDateIndexInRange = (times, targetDate, startIndex = 0, endIndex = times.length - 1) => { // binary searching in an array of dates for the first date which is at or after a target date.
   while (startIndex < endIndex) {
     const timeIndex = Math.floor(startIndex + ((endIndex - startIndex) + 1) / 2);
@@ -81,17 +84,26 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
   if (!from && !until) return {
     from, until,
   };
+
+  const earliestTime = times[times.length -1];
+  const mostRecentTime = times[0];
+
   if (from) {
-    const fromIndex = findDateIndexInRange(times, from);
-    results.from = fromIndex;
+    results.from = dateIsAtOrAfterDate(earliestTime, from)
+      ? times.length -1 
+      : findDateIndexInRange(times, from);
   }
   if (until) {
-    const untilIndex = findDateIndexInRange(times, until);
+
+    const untilIndex = dateIsAtOrBeforeDate(mostRecentTime, until)
+      ? 0
+      : findDateIndexInRange(times, until);
+
     if (
-      untilIndex === (times.length - 1)
-      && (new Date(times[untilIndex]) - new Date(until) > 0)
+      times[untilIndex] === earliestTime
+      && dateIsAtOrAfterDate(earliestTime, until)
     ) {
-      results.until = new Date(times[untilIndex]) - new Date(until) > 0 ? times.length : times.length - 1;
+      results.until = times.length;
     } else if (untilIndex > -1) {
       results.until = untilIndex;
     }
@@ -103,7 +115,7 @@ export const trimArrayWithEnvelopeIndices = (collection, envelope = {}) => {
   let results = [...collection];
   const { from, until } = envelope;
 
-  if (!window.isNaN(from) && from > -1) {
+  if (!window.isNaN(from)) {
     results = results.slice(0, from + 1);
   }
   if (!window.isNaN(until)) {
@@ -243,6 +255,13 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
   const indices = findTimeEnvelopeIndices(originalTrack.properties.coordinateProperties.times, from ? new Date(from) : null, until? new Date(until) : until);
 
   if (window.isNaN(indices.from) && window.isNaN(indices.until)) {
+    return { track, points };
+  }
+
+  if (
+    indices.from === (originalTrack.properties.coordinateProperties.times.length - 1)
+    && indices.until === 0
+  ) {
     return { track, points };
   }
 
