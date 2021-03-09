@@ -3,7 +3,7 @@
 .patrolListItem {
   border-radius: .75rem;
   margin: 0.25rem;
-  padding: 0.125rem 0.25rem;
+  padding: 0.187rem 0.25rem;
   position: relative;
   text-align: center;
   width: 48%;
@@ -14,7 +14,7 @@
     color: darken($light-gray, 17%);
   }
   .header {
-    margin-top: 0.45rem;
+    margin-top: 0.125rem;
     height: 1.0rem;
     background: none;
     text-align: center;
@@ -23,8 +23,8 @@
     justify-content: center;
       h3 {
         cursor: pointer;
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 1.0rem;
+        font-weight: 510;
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-box-orient: vertical;
@@ -40,9 +40,10 @@
   .statusInfo {
     align-items: center;
     display:flex;
-    height: 1.75rem;
+    height: 1.35rem;
+    line-height: 0.75rem;
     justify-content: center;
-    margin-top: 0.125rem;
+    margin-top: 0.47rem;
   }
   > svg {
       margin-top: 0.25rem;
@@ -55,19 +56,20 @@
       cursor: pointer;
   }
   p {
-      color: #8C8C8C;
-      font-size: .5rem;
+      color: #777;
+      font-size: 0.84rem;
       font-style: italic;
       margin-bottom: 0.125rem;
       span {
-          color: #646161;
+        color: #333;
+        font-weight: 350;
       }
   }
   h6 {
-    color: #8C8C8C;
-    font-size: .5rem;
-    font-style: plain;
-    margin-top: 0.25rem;
+    color: #666;
+    font-size: .8rem;
+    font-style: italic;
+    margin-top: 0.0625rem;
     margin-bottom: 0.125rem;
   }
   &:not(.status-cancelled) {
@@ -81,6 +83,11 @@
       .addReport {
           display: block;
       }
+    }
+  }
+  &:is(.status-cancelled) {
+    span {
+      color: #777;
     }
   }
   &:hover {
@@ -104,6 +111,12 @@
   &:hover {
       background-color: darken($patrol-active-bg, 6%);
   }
+  h6 {
+    font-style: normal;
+  }
+  p {
+    font-style: normal;
+  }
 }
 
 .status-start-overdue {
@@ -113,11 +126,11 @@
       background-color: darken($patrol-overdue-bg, 6%);
   }
   h6 {
-    color: red;
+    color: $patrol-overdue-status;
     &:hover {
       cursor: pointer;
       text-decoration: underline;
-      color: darken(red, 6%);
+      color: darken($patrol-overdue-status, 6%);
     }
   }
 }

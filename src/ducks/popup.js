@@ -47,7 +47,7 @@ export default (state = null, action = {}) => {
       return state;
     }
     const { geometry, properties } = payload;
-    return {
+    const returnVal = {
       ...state, data: {
         ...state.data,
         geometry: {
@@ -60,6 +60,11 @@ export default (state = null, action = {}) => {
         },
       }
     };
+    if (payload.hasOwnProperty('device_status_properties')) {
+      returnVal.data.properties.device_status_properties = JSON.stringify(payload.device_status_properties);
+    }
+
+    return returnVal;
   }
   return state;
 };

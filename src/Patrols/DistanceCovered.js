@@ -5,7 +5,7 @@ import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 
 import length from '@turf/length';
 
-const PatrolDistanceCovered = ({ patrolsData  = []}) => {
+const PatrolDistanceCovered = ({ patrolsData  = [], suffix='km'}) => {
   
   const patrolTrackLength = useMemo(() =>
     patrolsData
@@ -21,7 +21,7 @@ const PatrolDistanceCovered = ({ patrolsData  = []}) => {
       }, 0), 
   [patrolsData]);
 
-  return `${patrolTrackLength ? patrolTrackLength.toFixed(2) : 0}km`;
+  return `${patrolTrackLength ? patrolTrackLength.toFixed(2) : 0}${suffix}`;
 };
 
 

@@ -2,7 +2,12 @@
 
 .trackLength {
   display: block;
-  margin: 0.25rem 0;
+  line-height: normal;
+  margin: 0.5rem 0;
+}
+
+.gpsFormatToggle {
+  margin-bottom: 1rem;
 }
 
 .trackControls {
@@ -16,8 +21,8 @@
   border-top: 1px solid $light-gray-border;
   display: flex;
   margin: 0.5rem 0;
-  padding: 0.5rem 0;
-  text-align: left;
+  padding: 0.5rem 0 0.25rem;
+  justify-content: center;
   h5 {
     font-size: 0.8rem;
     font-weight: 600;
@@ -31,5 +36,18 @@
 }
 
 .addReport {
-  margin-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.header {
+  margin-bottom: 0.5rem;
+}
+
+.additionalProperties { 
+  margin: -0.25rem 0 0;
+  padding: 0;
+}
+
+.toggleAdditionalProps {
+  margin-bottom: 0.5rem;
 }
