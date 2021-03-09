@@ -10,10 +10,11 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
+import { setCurrentReportTab } from '../ducks/add-report-tab';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
-import { openModalForPatrol, generatePseudoReportCategoryForPatrolTypes, createNewPatrolForPatrolType } from '../utils/patrols';
+import { openModalForPatrol, createNewPatrolForPatrolType } from '../utils/patrols';
 
 import EventTypeListItem from '../EventTypeListItem';
 
@@ -59,9 +60,10 @@ const ReportTypeList = (props) => {
 };
 
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, ...rest } = props;
+  const { eventsByCategory, selectedCategory, patrolTypes, onCategoryClick, onClickReportType, patrolsEnabled, currentAddReportTab, setCurrentReportTab, ...rest } = props;
 
-  const [activeTab, setActiveTab] = useState(localStorage.getItem('activeAddReportButtonTab') || TAB_KEYS.REPORTS);
+  const [activeTab, setActiveTab] = useState(currentAddReportTab);
+  // useState(localStorage.getItem('activeAddReportButtonTab') || TAB_KEYS.REPORTS);
 
   useEffect(() => {
     localStorage.setItem('activeAddReportButtonTab', activeTab);
@@ -85,7 +87,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
 
 const AddReport = (props) => {
-  const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
+  const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory, currentAddReportTab,
     map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
 
   const { hidePatrols } = formProps;
@@ -194,7 +196,7 @@ const AddReport = (props) => {
     </button>
     <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
       <AddReportPopover eventsByCategory={eventsByCategory} selectedCategory={selectedCategory} placement={popoverPlacement}
-        onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} patrolTypes={patrolTypes} />
+        onCategoryClick={onCategoryClick} onClickReportType={startEditNewReport} patrolsEnabled={patrolsEnabled} patrolTypes={patrolTypes} currentAddReportTab={currentAddReportTab} />
     </Overlay>
   </div>;
 };
@@ -202,6 +204,7 @@ const AddReport = (props) => {
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
   patrolTypes: state.data.patrolTypes,
+  currentAddReportTab: state.view.currentAddReportTab,
 });
 export default connect(mapStateToProps, null)(memo(AddReport));
 
