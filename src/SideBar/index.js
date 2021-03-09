@@ -9,7 +9,7 @@ import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
-import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
@@ -46,13 +46,7 @@ import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
 import { cloneDeep } from 'lodash-es';
-import { setCurrentReportTab } from '../ducks/add-report-tab';
-
-const TAB_KEYS = {
-  REPORTS: 'reports',
-  LAYERS: 'layers',
-  PATROLS: 'patrols',
-};
+import { setActiveAddReportTab } from '../ducks/add-report-tab';
 
 const SET_TAB = 'SET_TAB';
 
@@ -70,13 +64,13 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
   return state;
 };
 
-const ADD_REPORT_TYPES = ['reports', 'patrols'];
+const validAddReportTypes = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
   const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, 
-    setReportHeatmapVisibility, sidebarOpen, setCurrentReportTab, } = props;
+    setReportHeatmapVisibility, sidebarOpen, setActiveAddReportTab, } = props;
 
   const { filter: { overlap } } = patrolFilter;
 
@@ -108,7 +102,7 @@ const SideBar = (props) => {
 
   const setAddReportType = (eventKey) => {
     // naive eval, don't worry about current value
-    if (ADD_REPORT_TYPES.includes(eventKey)) setCurrentReportTab(eventKey);
+    if (validAddReportTypes.includes(eventKey)) setActiveAddReportTab(eventKey);
   };
     
   const activeTabPreClose = useRef(null);
@@ -305,10 +299,10 @@ const mapStateToProps = (state) => ({
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
-  currentAddReportTab: state.view.currentAddReportTab,
+  activeAddReportTab: state.view.activeAddReportTab,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility, setCurrentReportTab })(memo(SideBar));
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility, setActiveAddReportTab })(memo(SideBar));
 
 SideBar.propTypes = {
   events: PropTypes.shape({
