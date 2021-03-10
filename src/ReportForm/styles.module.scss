@@ -307,6 +307,29 @@ div.datePopover {
   }
 }
 
+.readonly {
+  form, [class*=formHeader], label:not([class*=locationSelectionLabel]), [class*=attachmentControls], [class*=formButtons] button:not([class*=btn-secondary]), [class*=gpsPopover] input, [class*=gpsPopover] [class*=locationButtons] {
+    pointer-events: none;
+    cursor: not-allowed !important;
+    opacity: 0.9;
+  }
+}
+
+div.readonly {
+  padding: 0 !important;
+  &::before {
+    background: $bright-red;
+    color: white;
+    content: 'Editing is disabled for this report type.';
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    text-align: center;
+    width: 100%;
+  }
+}
+
 button.addToIncidentBtn {
   @include unstyledButton;
   border: 1px solid transparent !important;

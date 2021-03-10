@@ -32,12 +32,13 @@ const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-lin
     onLocationSelectFromMap,
     showUserLocation,
     onGeoLocationStart,
+    disabled,
     onGeoLocationSuccess,
   } = props;
 
   return <Popover placement='bottom' className={className}>
     {!!gpsPopoverOpen && <div ref={popoverContentRef}>
-      <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={handleGpsInputKeydown} />
+      <GpsInput onValidChange={onLocationChange} lngLat={location} onKeyDown={handleGpsInputKeydown} disabled={disabled} />
       <div className={styles.locationButtons}>
         <MapLocationPicker map={map} onLocationSelectStart={onLocationSelectFromMapStart} onLocationSelectCancel={onLocationSelectFromMapCancel} onLocationSelect={onLocationSelectFromMap} />
         {!!showUserLocation && <GeoLocator className={styles.geoLocator} onStart={onGeoLocationStart} onSuccess={onGeoLocationSuccess} />}
@@ -47,7 +48,7 @@ const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-lin
 }));
 
 const LocationSelectorInput = (props) => {
-  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
+  const { label, popoverClassName, disabled, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
@@ -142,6 +143,7 @@ const LocationSelectorInput = (props) => {
       <PopoverComponent popoverContentRef={popoverContentRef}
         className={popoverClassString}
         onLocationChange={onLocationChange}
+        disabled={disabled}
         location={location}
         gpsPopoverOpen={gpsPopoverOpen}
         handleGpsInputKeydown={handleGpsInputKeydown}

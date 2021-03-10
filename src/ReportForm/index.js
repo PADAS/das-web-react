@@ -441,44 +441,21 @@ const ReportForm = (props) => {
 
   return <EditableItem.ContextProvider value={report}>
   
-    {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
-    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
-
-    <EditableItem.Header 
-      icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
-      priority={displayPriority}
-      title={reportTitle} onTitleChange={onReportTitleChange} />
-
-    <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
-
-    <EditableItem.Body ref={scrollContainerRef}>
-      {is_collection && <IncidentReportsList reports={report.contains} 
-        onReportClick={onIncidentReportClick}>
-        <EditableItem.AttachmentList
-          files={filesToList}
-          notes={notesToList}
-          onClickFile={onClickFile}
-          onClickNote={startEditNote}
-          onDeleteNote={onDeleteNote}
-          onDeleteFile={onDeleteFile} />
-      </IncidentReportsList>}
-      {!is_collection && <Fragment>
-        <ReportFormTopLevelControls
-          map={map}
-          report={report}
-          menuContainerRef={reportedBySelectPortalRef.current}
-          onReportDateChange={onReportDateChange}
-          onReportedByChange={onReportedByChange}
-          onReportLocationChange={onReportLocationChange} />
-        <ReportFormBody
-          ref={formRef}
-          formData={report.event_details}
-          formScrollContainer={scrollContainerRef.current}
-          onChange={onDetailChange}
-          onSubmit={startSave}
-          schema={schema}
-          uiSchema={uiSchema}>
+    <div className={schema?.readonly ? styles.readonly : ''}>
+      {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
+      {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
+  
+      <EditableItem.Header 
+        icon={<EventIcon title={reportTypeTitle} report={report} />}
+        menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
+        priority={displayPriority}
+        title={reportTitle} onTitleChange={onReportTitleChange} />
+  
+      <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
+  
+      <EditableItem.Body ref={scrollContainerRef}>
+        {is_collection && <IncidentReportsList reports={report.contains} 
+          onReportClick={onIncidentReportClick}>
           <EditableItem.AttachmentList
             files={filesToList}
             notes={notesToList}
@@ -486,28 +463,54 @@ const ReportForm = (props) => {
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
-        </ReportFormBody>
-      </Fragment>
-      }
-    </EditableItem.Body>
-    {/* bottom controls */}
-    <EditableItem.AttachmentControls
-      onAddFiles={onAddFiles}
-      onSaveNote={onSaveNote} >
-
-      <RelationshipButton
-        isCollection={is_collection}
-        map={map}
-        isCollectionChild={eventBelongsToCollection(report)}
-        onGoToCollection={goToParentCollection}
-        relationshipButtonDisabled={disableAddReport}
-        hidePatrols={true}
-        onNewReportSaved={onReportAdded}
-      />
-
-    </EditableItem.AttachmentControls>
-
-    <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+        </IncidentReportsList>}
+        {!is_collection && <Fragment>
+          <ReportFormTopLevelControls
+            map={map}
+            report={report}
+            disableLocation={schema?.readonly}
+            menuContainerRef={reportedBySelectPortalRef.current}
+            onReportDateChange={onReportDateChange}
+            onReportedByChange={onReportedByChange}
+            onReportLocationChange={onReportLocationChange} />
+          <ReportFormBody
+            ref={formRef}
+            formData={report.event_details}
+            formScrollContainer={scrollContainerRef.current}
+            onChange={onDetailChange}
+            onSubmit={startSave}
+            schema={schema}
+            uiSchema={uiSchema}>
+            <EditableItem.AttachmentList
+              files={filesToList}
+              notes={notesToList}
+              onClickFile={onClickFile}
+              onClickNote={startEditNote}
+              onDeleteNote={onDeleteNote}
+              onDeleteFile={onDeleteFile} />
+          </ReportFormBody>
+        </Fragment>
+        }
+      </EditableItem.Body>
+      {/* bottom controls */}
+      <EditableItem.AttachmentControls
+        onAddFiles={onAddFiles}
+        onSaveNote={onSaveNote} >
+  
+        <RelationshipButton
+          isCollection={is_collection}
+          map={map}
+          isCollectionChild={eventBelongsToCollection(report)}
+          onGoToCollection={goToParentCollection}
+          relationshipButtonDisabled={disableAddReport}
+          hidePatrols={true}
+          onNewReportSaved={onReportAdded}
+        />
+  
+      </EditableItem.AttachmentControls>
+  
+      <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    </div>
   </EditableItem.ContextProvider>;
 };
 

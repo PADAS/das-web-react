@@ -14,7 +14,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import styles from './styles.module.scss';
 
 const ReportFormTopLevelControls = (props) => {
-  const { map, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report } = props;
+  const { map, onReportDateChange, menuContainerRef, onReportedByChange, onReportLocationChange, report, disableLocation } = props;
 
   const reportLocation = useMemo(() => !!report.location ? [report.location.longitude, report.location.latitude] : null, [report.location]);
   const canShowReportedBy = useMemo(() => report.provenance !== 'analyzer', [report.provenance]);
@@ -39,7 +39,7 @@ const ReportFormTopLevelControls = (props) => {
         maxDate={new Date()}
         onChange={onReportDateChange}  />
     </label>
-    <LocationSelectorInput map={map} location={reportLocation} onLocationChange={onReportLocationChange} />
+    <LocationSelectorInput disabled={disableLocation} map={map} location={reportLocation} onLocationChange={onReportLocationChange} />
   </div>;
 };
 
