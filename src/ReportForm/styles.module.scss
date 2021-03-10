@@ -308,7 +308,7 @@ div.datePopover {
 }
 
 .readonly {
-  form, [class*=formHeader], label:not([class*=locationSelectionLabel]), [class*=attachmentControls], [class*=formButtons] button:not([class*=btn-secondary]), [class*=gpsPopover] input, [class*=gpsPopover] [class*=locationButtons] {
+  form, [class*=formHeader], label:not([class*=locationSelectionLabel]), label:not([class*=linkLabel]), [class*=attachmentControls], [class*=formButtons] button:not([class*=btn-secondary]), [class*=gpsPopover] input, [class*=gpsPopover] [class*=locationButtons] {
     pointer-events: none;
     cursor: not-allowed !important;
     opacity: 0.9;
