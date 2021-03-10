@@ -441,7 +441,7 @@ const ReportForm = (props) => {
 
   return <EditableItem.ContextProvider value={report}>
   
-    <div className={schema?.readonly ? styles.readonly : ''}>
+    <div className={schema.readonly ? styles.readonly : ''}>
       {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
       {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
   
@@ -468,13 +468,14 @@ const ReportForm = (props) => {
           <ReportFormTopLevelControls
             map={map}
             report={report}
-            disableLocation={schema?.readonly}
+            disableLocation={schema.readonly}
             menuContainerRef={reportedBySelectPortalRef.current}
             onReportDateChange={onReportDateChange}
             onReportedByChange={onReportedByChange}
             onReportLocationChange={onReportLocationChange} />
           <ReportFormBody
             ref={formRef}
+            readonly={schema.readonly}
             formData={report.event_details}
             formScrollContainer={scrollContainerRef.current}
             onChange={onDetailChange}
@@ -495,9 +496,9 @@ const ReportForm = (props) => {
       {/* bottom controls */}
       <EditableItem.AttachmentControls
         onAddFiles={onAddFiles}
+        disabled={schema.readonly}
         onSaveNote={onSaveNote} >
-  
-        <RelationshipButton
+        {!schema.readonly &&<RelationshipButton
           isCollection={is_collection}
           map={map}
           isCollectionChild={eventBelongsToCollection(report)}
@@ -505,11 +506,11 @@ const ReportForm = (props) => {
           relationshipButtonDisabled={disableAddReport}
           hidePatrols={true}
           onNewReportSaved={onReportAdded}
-        />
+        />}
   
       </EditableItem.AttachmentControls>
   
-      <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+      <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} saveDisabled={schema.readonly} isActiveState={reportIsActive(report.state)}/>
     </div>
   </EditableItem.ContextProvider>;
 };
@@ -541,7 +542,7 @@ ReportForm.defaultProps = {
   onSaveSuccess() {
   },
   onSaveError(e) {
-    console.log('error saving report', e);
+    console.warn('error saving report', e);
   },
 };
 

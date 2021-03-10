@@ -30,7 +30,6 @@ export default connect(mapStateToProps, null)(withMap(
 
 PatrolStartStopLayer.defaultProps = {
   onPointClick(layer) {
-    console.log('clicked timepoint', layer);
   },
   showTimepoints: true,
 };

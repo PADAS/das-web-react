@@ -191,6 +191,10 @@ export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
         enumNames: value.enum.map(item => value.enumNames[item]),
       };
 
+      if (schema.readonly) {
+        propsObject[key].readonly = true;
+      }
+
     } else if (value.properties) {
       propsObject[key] = convertSchemaEnumNameObjectsIntoArray(value);
     }
@@ -223,6 +227,7 @@ const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
       inactive_enum: definition.inactive_titleMap || null,
       title,
       type: 'array',
+      readonly: schema.readonly,
       uniqueItems: true,
     },
     uiSchemaEntry: {

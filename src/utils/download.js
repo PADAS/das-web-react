@@ -11,7 +11,7 @@ export const downloadFileFromUrl = async (url, { params = {}, filename = null },
     responseType: 'blob',
   })
     .catch((error) => {
-      console.log('error downloading file', error);
+      console.warn('error downloading file', error);
     });
   const link = document.createElement('a');
 
@@ -32,7 +32,7 @@ export const downloadFileStreamFromUrl = async (url, params = {}, { token:cancel
     cancelToken,
     params,
     responseType: 'stream',
-  }).catch(e => console.log('error downloading file stream', e));
+  }).catch(e => console.warn('error downloading file stream', e));
 
   const { data, headers } = response;
 

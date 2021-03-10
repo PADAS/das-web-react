@@ -56,7 +56,6 @@ export default connect(mapStateToProps, null)(withMap(
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {
-    console.log('clicked timepoint', layer);
   },
   showTimepoints: true,
 };

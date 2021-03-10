@@ -26,7 +26,6 @@ export const getMapEventFeatureCollectionWithVirtualDate = createSelector(
 export const displayEventTypes = createSelector(
   [getEventTypes, getPatrolTypes],
   (eventTypes, patrolTypes) => {
-    console.log({ eventTypes, patrolTypes});
     return [...eventTypes, ...patrolTypes];
   }
 );

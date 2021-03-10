@@ -72,7 +72,7 @@ const UserCurrentLocationLayer = (props) => {
   };
 
   const onLocationWatchError = (e) => {
-    console.log('error watching current location', e);
+    console.warn('error watching current location', e);
   };
 
   const onCurrentLocationIconClick = () => {

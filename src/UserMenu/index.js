@@ -23,40 +23,38 @@ const UserMenu = (props) => {
   };
 
   return <Fragment>
-  <button hidden id="ot-sdk-btn" class="ot-sdk-show-settings" ref={cookieSettingsRef} />
-  <Dropdown alignRight className={styles.menu} {...rest} onToggle={onDropdownToggle}>
-    <Toggle>
-      <UserIcon className={styles.icon} /><span className={styles.username}>{displayUser.username}</span>
-    </Toggle>
-    <Menu>
-      {!!userProfiles.length &&
+    <button hidden id="ot-sdk-btn" className="ot-sdk-show-settings" ref={cookieSettingsRef} />
+    <Dropdown alignRight className={styles.menu} {...rest} onToggle={onDropdownToggle}>
+      <Toggle>
+        <UserIcon className={styles.icon} /><span className={styles.username}>{displayUser.username}</span>
+      </Toggle>
+      <Menu>
+        {!!userProfiles.length &&
         <Fragment>
           {[user, ...userProfiles]
             // .filter(({ username }) => username !== displayUser.username)
             .map((profile, index) =>
-                <Item active={profile.username === displayUser.username ? 'active' : null}
-                  key={`${profile.id}-${index}`}
-                  onClick={() => onProfileClick(profile)}>
-                  {profile.username}
-                </Item>
-              )}
-            <Divider />
-          </Fragment>}
+              <Item active={profile.username === displayUser.username ? 'active' : null}
+                key={`${profile.id}-${index}`}
+                onClick={() => onProfileClick(profile)}>
+                {profile.username}
+              </Item>
+            )}
+          <Divider />
+        </Fragment>}
         <Item onClick={() => cookieSettingsRef.current.click()}>Cookie Settings</Item>
         <Item onClick={onLogOutItemClick}>Log out</Item>
       </Menu>
     </Dropdown>
-  </Fragment>
+  </Fragment>;
 };
 
 UserMenu.defaultProps = {
   userProfiles: [],
   selectedUserProfile: null,
   onLogOutClick() {
-    console.log('log out click');
   },
   onProfileClick() {
-    console.log('profile click');
   },
 };
 

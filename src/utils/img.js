@@ -36,7 +36,7 @@ export const imgElFromSrc = (src, width = 30, height = null) => new Promise((res
     resolve(img);
   };
   img.onerror = (e) => {
-    console.log('image error', src, e);
+    console.warn('image error', src, e);
     reject('could not load image');
   };
   img.src = src;

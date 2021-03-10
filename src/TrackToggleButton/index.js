@@ -20,7 +20,6 @@ export default memo(TrackToggleButton);
 
 TrackToggleButton.defaultProps = {
   onClick() {
-    console.log('track button click');
   },
   showLabel: true,
   loading: false,

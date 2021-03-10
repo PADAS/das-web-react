@@ -27,7 +27,7 @@ const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, hei
 };
 
 const SelectField = (props) => {
-  const { id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
+  const { id, value, placeholder, disabled, readonly, required, onChange, schema, options: { enumOptions } } = props;
   const selectRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -90,6 +90,7 @@ const SelectField = (props) => {
     isClearable={true}
     onMenuOpen={onMenuOpen}
     isSearchable={true}
+    isDisabled={disabled || readonly || schema.readonly}
     menuShouldScrollIntoView={true}
     getOptionLabel={getOptionLabel}
     getOptionValue={getOptionValue}

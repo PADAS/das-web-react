@@ -24,7 +24,7 @@ const AttachmentButton = memo(({ title, icon: Icon, ...rest }) => <button title=
 </button>);  
 
 const AttachmentControls = (props) => {
-  const { addModal, analyticsMetadata, children, allowMultipleFiles, onAddFiles,
+  const { addModal, analyticsMetadata, children, disabled, allowMultipleFiles, onAddFiles,
     onSaveNote, } = props;
 
   const hasAnalytics = !!analyticsMetadata;
@@ -87,12 +87,13 @@ const AttachmentControls = (props) => {
         accept='image/*, .doc, .docx, .xml, .xlsx, .csv, .pdf, text/plain, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ref={fileInputRef} type='file'
         multiple={allowMultipleFiles}
+        disabled={disabled}
         onChange={onFileAddFromDialog}>
       </input>
 
-      <AttachmentButton title='Add Note' icon={NoteIcon} onClick={startAddNote} />
+      <AttachmentButton title='Add Note' disabled={disabled} icon={NoteIcon} onClick={startAddNote} />
 
-      <AttachmentButton title='Add Attachment' icon={AttachmentIcon}
+      <AttachmentButton title='Add Attachment' icon={AttachmentIcon} disabled={disabled}
         onClick={openFileDialog} onDrop={onFileDrop} className={`${styles.draggable} ${draggingFiles ? styles.draggingOver : ''}`} onDragOver={onFileDragOver} onDragLeave={onFileDragLeave}
       />
 

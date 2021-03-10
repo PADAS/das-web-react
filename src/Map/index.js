@@ -310,7 +310,6 @@ class Map extends Component {
     return this.props.fetchMapSubjects(...args)
       .then((latestMapSubjects) => timeSliderActive ? this.fetchMapSubjectTracksForTimeslider(latestMapSubjects) : Promise.resolve(latestMapSubjects))
       .catch((e) => {
-        // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
   handleMultiFeaturesAtSameLocationClick(event, layers) {
