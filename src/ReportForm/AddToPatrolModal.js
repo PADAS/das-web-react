@@ -6,7 +6,7 @@ import { findDOMNode } from 'react-dom';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import InfiniteScroll from 'react-infinite-scroller';
-import uniq from 'lodash/uniq';
+import union from 'lodash/union';
 
 
 import { PATROL_CARD_STATES } from '../constants';
@@ -66,13 +66,13 @@ const activePatrolsFeedRecuer = (state, action) => {
       count,
       next,
       previous,
-      results: uniq([...state.results, ...patrolIds]),
+      results: union(state.results, patrolIds),
     };
   }
   if (type === FEED_REALTIME_UPDATE) {
     return {
       ...state,
-      results: uniq([payload, ...state.results]),
+      results: union([payload], state.results),
     };
   }
   return state;
@@ -93,7 +93,7 @@ const AddToPatrolModal = (props) => {
     ), [patrolStore, patrols.results]);
 
   const fetchFeedPatrols = useCallback(() => {
-    const params = calcPatrolFilterForRequest({ params: { page_size: 75, state:['active', 'done'] } });
+    const params = calcPatrolFilterForRequest({ params: { page_size: 25, state:['active', 'done'] } }, false);
     return get(`${PATROLS_API_URL}?${params}`)
       .then(({ data: { data:patrols } }) => {
         updatePatrolStore(patrols);
@@ -108,6 +108,7 @@ const AddToPatrolModal = (props) => {
   const fetchFeedPatrolsNextPage = useCallback(() => {
     return get(patrols.next)
       .then(({ data: { data: patrols }  }) => {
+        updatePatrolStore(patrols);
         dispatch(fetchFeedNextPageSuccess(patrols));
       })
       .catch((error) => {
@@ -172,7 +173,7 @@ const AddToPatrolModal = (props) => {
             useWindow={false}
             getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
           
-            {listPatrols.map((patrol, index) => {
+            {listPatrols.filter(p => !!p).map((patrol, index) => {
               const cardState = calcPatrolCardState(patrol);
   
               const priority = cardState === PATROL_CARD_STATES.ACTIVE ? 100 : 0;
