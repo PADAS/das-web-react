@@ -287,11 +287,19 @@ const ExternalLink = (props) => {
   </div>;
 };
 
+const EmbeddedFrame = (props) => {
+  const { id, schema: { title: label }, formData: value } = props;
+  return <div>
+    <iframe id={id} title={label} src={value}  />
+  </div>;
+};
+
 export default {
   select: SelectField,
   checkboxes: CustomCheckboxes,
   datetime: DateTimeField,
   externalUri: ExternalLink,
+  embeddedFrame: EmbeddedFrame,
 };
 
 export const ObjectFieldTemplate = (props) => {

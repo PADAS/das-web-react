@@ -280,6 +280,23 @@ const generateUiSchemaForSelectFields = (key) => {
   };
 };
 
+const addLinkForEmbeddedObjects = (schema) => Object.entries(schema.properties)
+  .reduce((accumulator, [key, value]) => {
+    if (value.format && value.format === 'uri') {
+      return merge(accumulator, {
+        [key]: {
+          'ui:field': customSchemaFields.externalUri,
+        }, 
+      });
+    }
+    if (value.type === 'object') {
+      return merge(accumulator, {
+        [key]: addLinkForEmbeddedObjects(value),
+      });
+    }
+    return accumulator;
+  }, {});
+
 const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properties)
   .reduce((accumulator, [key, value]) => {
     if (value.format && value.format === 'uri') {
