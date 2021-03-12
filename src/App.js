@@ -26,6 +26,7 @@ import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
+import InReachMessageProvider from './InReach';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 //  import ErrorBoundary from './ErrorBoundary';
@@ -170,29 +171,31 @@ const App = (props) => {
     }
   }, [map, sidebarOpen]); 
 
-  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
-    <PrintTitle />
-    <Nav map={map} />
-    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+  return <InReachMessageProvider>
+    <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+      <PrintTitle />
+      <Nav map={map} />
+      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
-      {/* <ErrorBoundary> */}
-      <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-      {/* </ErrorBoundary> */}
-      {/* <ErrorBoundary> */}
-      {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-      {/* </ErrorBoundary> */}
-      <ModalRenderer map={map} />
+        {/* <ErrorBoundary> */}
+        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+        {/* </ErrorBoundary> */}
+        {/* <ErrorBoundary> */}
+        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        {/* </ErrorBoundary> */}
+        <ModalRenderer map={map} />
+      </div>
+      <div style={{
+        display: 'none',
+        height: 0,
+        width: 0,
+      }}>
+        <ReportTypeIconSprite id="reportTypeIconSprite" />
+        <EarthRangerLogoSprite />
+      </div>
+      <ServiceWorkerWatcher />
     </div>
-    <div style={{
-      display: 'none',
-      height: 0,
-      width: 0,
-    }}>
-      <ReportTypeIconSprite id="reportTypeIconSprite" />
-      <EarthRangerLogoSprite />
-    </div>
-    <ServiceWorkerWatcher />
-  </div>;
+  </InReachMessageProvider>;
 };
 
 const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
