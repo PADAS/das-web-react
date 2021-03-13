@@ -129,6 +129,9 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
     if (type === 'textarea') {
       result = merge(result, generateSchemaAndUiSchemaForTextarea(definition));
     }
+    if (type === 'embeddedFrame') {
+      result = merge(result, generateSchemaAndUiSchemaForEmbeddedFrame(definition));
+    }
     if (type === 'fieldset' && !!items && items.some(i => typeof i === 'object')) {
       recursedValues = merge(result, convertDefinitionsToSchemas(items.filter(i => typeof i === 'object'), schema));
     }
@@ -246,6 +249,15 @@ const generateSchemaAndUiSchemaForTextarea = ({ key }) => ({
   },
   uiSchemaEntry: {
     'ui:widget': 'textarea',
+  },
+});
+
+const generateSchemaAndUiSchemaForEmbeddedFrame = ({ key }) => ({
+  schemaEntry: {
+    key,
+  },
+  uiSchemaEntry: {
+    'ui:widget': 'embeddedFrame',
   },
 });
 
