@@ -82,19 +82,6 @@ const ReportForm = (props) => {
     return report.priority;
   }, [eventTypes, report]);
 
-  useEffect(() => {
-    updateStateReport({
-      ...report,
-      ...originalReport,
-      event_details: {
-        ...report.event_details,
-        ...originalReport.event_details,
-      },
-    });
-    updateFilesToUpload([]);
-    updateNotesToAdd([]);
-  }, [originalReport]); // eslint-disable-line
-
   const handleSaveError = useCallback((e) => {
     setSavingState(false);
     setSaveErrorState(e);
