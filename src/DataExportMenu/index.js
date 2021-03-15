@@ -28,9 +28,6 @@ const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject
 
 const DataExportMenu = (props) => {
 
-  // const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled },
-  //   eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user,
-  //   updateUserPreferences, staticContext:_staticContext, ...rest } = props;
   const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
     eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, 
     staticContext:_staticContext, fetchTableauDashboard, ...rest } = props;
@@ -140,10 +137,6 @@ const DataExportMenu = (props) => {
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
-  const onDoTheThing = useCallback(() => {
-    console.log('the thing is being done, my lord');
-  }, []);
-
   const onAboutClick = useCallback(() => {
     addModal({ content: AboutModal });
   }, [addModal]);
@@ -165,7 +158,6 @@ const DataExportMenu = (props) => {
       <Divider />
       <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
-      <Item onClick={onDoTheThing}>Do The Thing</Item>
       <Divider />
       <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>
