@@ -55,6 +55,7 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
+import MessageBadgeLayer from '../MessageBadgeLayer';
 // import IsochroneLayer from '../IsochroneLayer';
 import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
@@ -611,6 +612,8 @@ class Map extends Component {
               subjectsOnActivePatrol={subjectsOnActivePatrol}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+
+            <MessageBadgeLayer />
 
             <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>

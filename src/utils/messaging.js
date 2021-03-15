@@ -4,12 +4,16 @@ const MESSAGING_API_URL = 'whatever';
 
 const { get, post } = axios;
 
-export const fetchMessages = (params) => get(MESSAGING_API_URL, {
+const fetchMessages = (params) => get(MESSAGING_API_URL, {
   params,
 });
 
-export const fetchMessagesForId = (id, params) => get(`${MESSAGING_API_URL}/${id}`, {
+const fetchMessagesForId = (id, params) => get(`${MESSAGING_API_URL}/${id}`, {
   params,
+});
+
+const markMessageAsRead = (id) => post(`${MESSAGING_API_URL}/${id}/status`, {
+  read: true,
 });
 
 /* 

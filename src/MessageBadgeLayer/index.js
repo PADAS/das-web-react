@@ -1,17 +1,54 @@
 import React, { useEffect, useCallback, useContext, useMemo, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { withMessageContext } from '../InReach';
+import { connect } from 'react-redux';
+import { featureCollection } from '@turf/helpers';
+
 import { withMap } from '../EarthRangerMap';
-import { calcMapMessages } from '../utils/messaging';
+import MessageContext from '../InReach/context';
+
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+
+
+const calcMapMessages = (messageStore, subjectFeatureCollection) => {
+  if (!subjectFeatureCollection?.features?.length) return null;
+
+  const subjectFeaturesWithUnreadMessages =
+    subjectFeatureCollection.features
+      .map(feature => 
+        ({ feature, messages: (messageStore[feature.properties.id] || []).filter(msg => !msg.read) }))
+      .filter(item => !!item.messages.length);
+
+  return featureCollection(
+    subjectFeaturesWithUnreadMessages
+      .map(item => ({
+        ...item.feature,
+        properties: {
+          ...item.feature.properties,
+          unread_message_count: item.messages.length,
+        }
+      }))
+  );
+};
 
 const SOURCE_ID = 'MESSAGE_BADGES';
 const LAYER_ID = `${SOURCE_ID}_LAYER`;
 
-const messageBadgeLayout = {};
-const messageBadgePaint = {};
+const messageBadgeLayout = {
+  'text-field': '{unread_message_count}',
+  'text-offset': [1.1, -1.1],
+};
+
+const messageBadgePaint = {
+  'text-color': 'white',
+  'text-halo-color': 'red',
+  'text-halo-width': 3,
+};
 
 const MessageBadgeLayer = (props) => {
-  const { map, messages, subjects }  = props;
+  const { map, messages, subjectFeatureCollection }  = props;
+
+  const { state, dispatch } = useContext(MessageContext);
+
 
   useEffect(() => {
     if (map) {
@@ -21,7 +58,7 @@ const MessageBadgeLayer = (props) => {
       const hasSource = !!source;
       const hasLayer = !!layer;
 
-      const data = calcMapMessages(messages, subjects);
+      const data = calcMapMessages(state, subjectFeatureCollection);
 
       if (hasSource) {
         source.setData(data);
@@ -41,27 +78,20 @@ const MessageBadgeLayer = (props) => {
           paint: messageBadgePaint,
         });
       } 
-
-      if (hasSource) {
-
-      }
     }
-  }, [map, messages, subjects]);
-
-  useEffect(() => {
-    return () => {
-      if (!map) return null;
-
-      map.removeSource(SOURCE_ID);
-      map.removeLayer(LAYER_ID);
-    };
-  }, [map]);
+  }, [map, messages, state, subjectFeatureCollection]);
+  
+  return null;
 };
 
-export default memo(withMessageContext(withMap(MessageBadgeLayer)));
+const mapStateToProps = (state) => ({
+  subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
+});
+
+export default connect(mapStateToProps, null)(memo(withMap(MessageBadgeLayer)));
 
 
 MessageBadgeLayer.propTypes = {
   messages: PropTypes.array.isRequired,
-  subjects: PropTypes.array.isRequired,
+  subjectFeatureCollection: PropTypes.array.isRequired,
 };

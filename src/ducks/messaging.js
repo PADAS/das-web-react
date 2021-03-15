@@ -2,6 +2,7 @@ import unionBy from 'lodash/unionBy';
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
 const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
+const NEW_MESSAGE = 'NEW_MESSAGE';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
 
 export const fetchMessagesSuccess = payload => ({
@@ -13,6 +14,12 @@ export const updateMessage = payload => ({
   type: UPDATE_MESSAGE,
   payload,
 });
+
+export const newMessage = payload => ({
+  type: NEW_MESSAGE,
+  payload,
+});
+
 
 
 export const updateMessageFromRealtime = payload => ({
@@ -38,7 +45,7 @@ export const messageStoreReducer = (state = {}, action) => {
     };
   }
 
-  if (type === SOCKET_MESSAGE_UPDATE) {
+  if ([SOCKET_MESSAGE_UPDATE, NEW_MESSAGE, UPDATE_MESSAGE].includes(type)) {
     const { receiver_id }  = payload;
     
     return {

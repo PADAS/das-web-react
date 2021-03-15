@@ -1,19 +1,89 @@
-import React, { connect, memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useContext, useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import { connect } from 'react-redux';
 import faker from 'faker';
 import sample from 'lodash/sample';
+import booleanIntersects from '@turf/boolean-intersects';
+import bboxPolygon from '@turf/bbox-polygon';
+
+import { getBboxParamsFromMap } from '../utils/query';
+
+import MessageContext from './context';
+
+import { newMessage } from '../ducks/messaging';
 
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 
-const MessageEmulator = (props) => {
-  const { mapSubjects } = props;
+import styles from './styles.module.scss';
 
-  const generateNewMessage = useCallback(() => {
-    if (!mapSubjects.features.length)
-  });
+const getMessage = (mapSubjects, map) => generateNewMessage(mapSubjects, map);
+
+const generateNewMessage = (mapSubjects, map) => {
   
-  return <div>
-    <h3>Send a radio message</h3>
-    <button disabled={!mapSubjects.features.length} onClick={generateNewMessage} type='button'>New Message</button>
+  const randomSubject = sample(mapSubjects);
+
+  return {
+    receiver_id: randomSubject.properties.id, 
+    device_id : faker.random.uuid(), 
+    id: faker.random.uuid(),
+    message_type : 'inbox', 
+    read: false,
+    text : faker.lorem.sentence(), 
+    status : sample(['pending', 'sent', 'errored', 'received']),
+    device_location: { latitude: randomSubject.geometry.coordinates[1], longitude: randomSubject.geometry.coordinates[0] }, 
+    message_time: new Date().toISOString(),
+    additional: {},
+  };
+};
+
+const MessageEmulator = (props) => {
+  const { map, mapSubjects } = props;
+
+  const [hiddenState, setHiddenState] = useState(true);
+
+  const hasMapSubjects = !!mapSubjects?.features?.length;
+
+  const sampleableMapSubjects = useMemo(() => {
+    if (!map || !hasMapSubjects) return null;
+    const bboxPoly = bboxPolygon(
+      getBboxParamsFromMap(map, false)
+    );
+
+    return mapSubjects.features.filter(feature => booleanIntersects(bboxPoly, feature));
+
+  }, [hasMapSubjects, map, mapSubjects.features]);
+
+  const { state, dispatch } = useContext(MessageContext);
+
+  const getMsg = useCallback(() => {
+    const msg = getMessage(sampleableMapSubjects, map);
+
+    dispatch(newMessage(msg));
+
+  }, [dispatch, map, sampleableMapSubjects]);
+  /*  const sendMsg = useCallback(() => {
+    const msg = sendMessage(mapSubjects);
+
+  }, [mapSubjects]); */
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { ctrlKey, shiftKey, keyCode } = event;
+
+      if (ctrlKey && shiftKey && keyCode === 71) {
+        setHiddenState(!hiddenState);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [hiddenState]);
+  
+  return <div className={`${styles.emulator} ${hiddenState ? styles.hidden : ''}`}>
+    <h3>Radio Message Emulator</h3>
+    <Button variant='primary' disabled={!sampleableMapSubjects?.length} onClick={getMsg} type='button'>Get Message</Button>
+    {/* <Button variant='primary' disabled={!hasMapSubjects} onClick={sendMsg} type='button'>Send Message</Button> */}
   </div>;
 };
 
@@ -21,7 +91,7 @@ const mapStateToProps = (state) => ({
   mapSubjects: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
 });
 
-export default connect()(memo(MessageEmulator));
+export default connect(mapStateToProps, null)(memo(MessageEmulator));
 
 
 /* 

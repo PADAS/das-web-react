@@ -24,6 +24,7 @@ import { fetchEventSchema } from './ducks/event-schemas';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
+import MessageEmulator from './InReach/MessageEmulator';
 import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
 import InReachMessageProvider from './InReach';
@@ -182,6 +183,7 @@ const App = (props) => {
         {/* </ErrorBoundary> */}
         {/* <ErrorBoundary> */}
         {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        {!!map && <MessageEmulator map={map} />}
         {/* </ErrorBoundary> */}
         <ModalRenderer map={map} />
       </div>

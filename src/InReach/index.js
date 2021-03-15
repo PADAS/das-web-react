@@ -4,9 +4,9 @@ import MessageContext from './context';
 import { messageStoreReducer } from '../ducks/messaging';
 
 const withMessageContext = (Component) => (props) => { /* eslint-disable-line react/display-name, */
-  const messages = useContext(MessageContext);
+  const messageContext = useContext(MessageContext);
 
-  return <Component {...props} messages={messages} />;
+  return <Component {...props} messageContext={messageContext} />;
 };
 
 const MessageProvider = ({ children }) => {
