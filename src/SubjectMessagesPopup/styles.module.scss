@@ -1,0 +1,30 @@
+.popup {
+  [class*=mapboxgl-popup-content] {
+    width: 24rem;
+  }
+}
+
+.senderDetails {
+  display: block;
+}
+
+.messageHistory {
+  max-height: 13rem;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.chatControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  textarea {
+    flex-grow: 1;
+  }
+}
+
+.messageDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

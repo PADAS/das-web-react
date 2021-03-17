@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="20px" viewBox="0 0 24 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linejoin="round">
+        <g id="Group" transform="translate(1.000000, 1.000000)" stroke="#979797">
+            <polygon id="Path" points="22 14 22 -1.77635684e-15 0 -1.77635684e-15 0 14 5.19620678 14 5.19620678 18.0996345 6.7077326 16.4505927 9.09779146 14"></polygon>
+            <line x1="3.98022783" y1="3.78510509" x2="13.6466304" y2="3.78510509" id="Path" stroke-linecap="round"></line>
+            <line x1="6.96504662" y1="6.27297912" x2="17.9162076" y2="6.27297912" id="Path-2" stroke-linecap="round"></line>
+            <line x1="3.98022783" y1="8.98136746" x2="12.4406271" y2="8.98136746" id="Path-3" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>

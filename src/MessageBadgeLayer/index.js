@@ -3,10 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { featureCollection } from '@turf/helpers';
 
+import { addMapImage } from '../utils/map';
+
 import { withMap } from '../EarthRangerMap';
 import MessageContext from '../InReach/context';
 
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+
+import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
 
 
 const calcMapMessages = (messageStore, subjectFeatureCollection) => {
@@ -34,18 +38,21 @@ const SOURCE_ID = 'MESSAGE_BADGES';
 const LAYER_ID = `${SOURCE_ID}_LAYER`;
 
 const messageBadgeLayout = {
+  'icon-anchor': 'bottom-left',
+  'icon-image': 'message-badge',
+  'icon-offset': [2, -0.35],
+  'icon-size': 0.5,
   'text-field': '{unread_message_count}',
-  'text-offset': [1.1, -1.1],
+  'text-offset': [2, -0.65],
+  'text-size': 14,
 };
 
 const messageBadgePaint = {
   'text-color': 'white',
-  'text-halo-color': 'red',
-  'text-halo-width': 3,
 };
 
 const MessageBadgeLayer = (props) => {
-  const { map, messages, subjectFeatureCollection }  = props;
+  const { map, messages, onBadgeClick, subjectFeatureCollection }  = props;
 
   const { state, dispatch } = useContext(MessageContext);
 
@@ -80,6 +87,26 @@ const MessageBadgeLayer = (props) => {
       } 
     }
   }, [map, messages, state, subjectFeatureCollection]);
+
+
+  useEffect(() => {
+    if (!map.hasImage('message-badge')) {
+      addMapImage({ src: MessageBadgeIcon, id: 'message-badge', width: 36 });
+    }
+  }, [map]);
+
+  useEffect(() => {
+    const onClick = (event) => {
+      const layer = map.queryRenderedFeatures(event.point, { layers: [LAYER_ID] })[0];
+
+      return onBadgeClick({ event, layer });
+    };
+
+    map.on('click', LAYER_ID, onClick);
+    return () => {
+      map.off('click', LAYER_ID, onClick);
+    };
+  }, [map, onBadgeClick]);
   
   return null;
 };

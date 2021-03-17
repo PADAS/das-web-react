@@ -1,40 +1,22 @@
 import React, { memo, useCallback, useEffect, useMemo, useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
-import faker from 'faker';
 import sample from 'lodash/sample';
 import booleanIntersects from '@turf/boolean-intersects';
 import bboxPolygon from '@turf/bbox-polygon';
+import { generateNewMessage } from '../utils/messaging';
 
 import { getBboxParamsFromMap } from '../utils/query';
 
 import MessageContext from './context';
 
-import { newMessage } from '../ducks/messaging';
+import { newMessage, fetchMessagesSuccess } from '../ducks/messaging';
 
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 
-const getMessage = (mapSubjects, map) => generateNewMessage(mapSubjects, map);
-
-const generateNewMessage = (mapSubjects, map) => {
-  
-  const randomSubject = sample(mapSubjects);
-
-  return {
-    receiver_id: randomSubject.properties.id, 
-    device_id : faker.random.uuid(), 
-    id: faker.random.uuid(),
-    message_type : 'inbox', 
-    read: false,
-    text : faker.lorem.sentence(), 
-    status : sample(['pending', 'sent', 'errored', 'received']),
-    device_location: { latitude: randomSubject.geometry.coordinates[1], longitude: randomSubject.geometry.coordinates[0] }, 
-    message_time: new Date().toISOString(),
-    additional: {},
-  };
-};
+const getMessage = (mapSubjects, map) => generateNewMessage(mapSubjects);
 
 const MessageEmulator = (props) => {
   const { map, mapSubjects } = props;
@@ -61,6 +43,18 @@ const MessageEmulator = (props) => {
     dispatch(newMessage(msg));
 
   }, [dispatch, map, sampleableMapSubjects]);
+
+
+  const getBulkMsg = useCallback(() => {
+    const messages = new Array(10);
+
+    for (let i = 0; i < messages.length; i++) {
+      messages[i] = getMessage(sampleableMapSubjects, map);
+    }
+
+    dispatch(fetchMessagesSuccess(messages));
+  }, [dispatch, map, sampleableMapSubjects]);
+
   /*  const sendMsg = useCallback(() => {
     const msg = sendMessage(mapSubjects);
 
@@ -82,7 +76,10 @@ const MessageEmulator = (props) => {
   
   return <div className={`${styles.emulator} ${hiddenState ? styles.hidden : ''}`}>
     <h3>Radio Message Emulator</h3>
-    <Button variant='primary' disabled={!sampleableMapSubjects?.length} onClick={getMsg} type='button'>Get Message</Button>
+    <div className={styles.buttons}>
+      <Button variant='primary' disabled={!sampleableMapSubjects?.length} onClick={getMsg} type='button'>Get Message</Button>
+      <Button variant='primary' disabled={!sampleableMapSubjects?.length} onClick={getBulkMsg} type='button'>Get 10 Messages</Button>
+    </div>
     {/* <Button variant='primary' disabled={!hasMapSubjects} onClick={sendMsg} type='button'>Send Message</Button> */}
   </div>;
 };

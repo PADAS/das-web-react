@@ -92,6 +92,7 @@ class Map extends Component {
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapZoom = this.onMapZoom.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
+    this.onMessageBadgeClick = this.onMessageBadgeClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
@@ -504,6 +505,12 @@ class Map extends Component {
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
+  onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {
+    const { geometry, properties } = layer;
+
+    this.props.showPopup('subject-messages', { geometry, properties });
+  })
+
   setMap(map) {
     // don't set zoom if not hydrated
     if (this.props.homeMap && this.props.homeMap.zoom) {
@@ -613,7 +620,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <MessageBadgeLayer />
+            <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 
             <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
