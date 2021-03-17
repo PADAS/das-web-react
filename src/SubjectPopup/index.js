@@ -1,5 +1,6 @@
 import React, { memo, Fragment, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { Popup } from 'react-mapbox-gl';
 import format from 'date-fns/format';
 import Button from 'react-bootstrap/Button';
@@ -10,7 +11,10 @@ import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
+import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 import AddReport from '../AddReport';
+
+import { showPopup } from '../ducks/popup';
 
 import { subjectIsARadioWithRecentVoiceActivity } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
@@ -20,7 +24,7 @@ import styles from './styles.module.scss';
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = (props) => {
-  const { data, map, ...rest } = props;
+  const { data, map, showPopup, ...rest } = props;
   const  { geometry, properties } = data;
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
@@ -41,6 +45,10 @@ const SubjectPopup = (props) => {
     setShowAdditionalProperties(!showAdditionalProperties);
     window.localStorage.setItem(STORAGE_KEY, !showAdditionalProperties);
   }, [showAdditionalProperties]);
+
+  const onClickMessagingIcon = useCallback(() => {
+    showPopup('subject-messages', { geometry, properties });
+  }, [geometry, properties, showPopup]);
 
   const locationObject = {
     longitude: geometry.coordinates[0],
@@ -81,19 +89,24 @@ const SubjectPopup = (props) => {
       {tracks_available && (
         <Fragment>
           <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
-          <AddReport 
-            analyticsMetadata={{
-              category: 'Map Interaction',
-              location: 'subject popover',
-            }}
-            className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
+          <div className={styles.controls}>
+            <AddReport 
+              analyticsMetadata={{
+                category: 'Map Interaction',
+                location: 'subject popover',
+              }}
+              className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
+            <Button variant='link' type='button' onClick={onClickMessagingIcon}>
+              <ChatIcon className={styles.messagingIcon} />
+            </Button>
+          </div>
         </Fragment>
       )}
     </Popup>
   );
 };
 
-export default memo(SubjectPopup);
+export default connect(null, { showPopup })(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,

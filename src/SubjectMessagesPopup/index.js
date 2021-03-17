@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useContext } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 import Button from 'react-bootstrap/Button';
@@ -7,18 +7,22 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 
 import DateTime from '../DateTime';
 
-import { newMessage } from '../ducks/messaging';
+import { newMessage, fetchMessagesSuccess } from '../ducks/messaging';
 import { generateNewMessage } from '../utils/messaging';
 
 import styles from './styles.module.scss';
+
+const TEXT_MAX_LENGTH = 160;
 
 const SubjectMessagesPopup = (props) => {
   const  { data: { geometry, properties } } = props;
 
   const { state, dispatch } = useContext(MessageContext);
 
+  const [inputValue, setInputValue] = useState('');
+
   const recentMessages = useMemo(() => {
-    return ((state[properties.id] && state[properties.id].slice(0, 5)) || [])
+    return ((state[properties.id] && state[properties.id].slice(0, 50)) || [])
       .sort((a, b) => new Date(a.message_time) - new Date(b.message_time));
   }, [properties.id, state]);
 
@@ -32,15 +36,21 @@ const SubjectMessagesPopup = (props) => {
 
     dispatch(newMessage(msg));
 
-    textareaRef.current.value = '';
-    textareaRef.current.focus();
+    setInputValue('');
+    textInputRef.current.focus();
 
   }, [dispatch, geometry, properties]);
+
+  const handleInputChange = useCallback(({ target: { value } }) => {
+    setInputValue(value);
+  }, []);
 
 
   const listRef = useRef(null);
   const formRef = useRef(null);
-  const textareaRef = useRef(null);
+  const textInputRef = useRef(null);
+
+  const characterCount = inputValue.length;
 
   useEffect(() => {
     if (!!recentMessages.length && !!listRef.current) {
@@ -49,31 +59,47 @@ const SubjectMessagesPopup = (props) => {
   }, [recentMessages]);
 
   useEffect(() => {
-    if (!!textareaRef.current) {
-      textareaRef.current.focus();
+    if (!!textInputRef.current) {
+      textInputRef.current.focus();
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      const updates = recentMessages
+        .filter(msg => !msg.read)
+        .map(msg => ({
+          ...msg,
+          read: true,
+        }));
+      if (!!updates.length) {
+        dispatch(fetchMessagesSuccess(updates));
+      }
+    };
+  }, [dispatch, recentMessages]);
+
   return (
-    <Popup className={styles.popup} anchor='left' offset={[-8, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
+    <Popup className={styles.popup} anchor='left' offset={[20, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
       <div className={styles.header}>
         <h4><ChatIcon /> {properties.name}</h4>
       </div>
       <ul ref={listRef} className={styles.messageHistory}>
         {!!recentMessages.length && recentMessages.map(message => 
           <li key={message.id}>
-            <span className={styles.senderDetails}>{message.message_type === 'inbox' ? 'incoming' : 'outgoing'}</span>
+            <strong className={styles.senderDetails}>{message.message_type === 'inbox' ? 'incoming' : 'outgoing'}</strong>
             <div className={styles.messageDetails}>
               <span className={styles.messageContent}>{message.text}</span>
               <DateTime date={message.message_time} />
             </div>
           </li>
         )}
+        {!recentMessages.length && <span>No messages to display.</span>}
       </ul>
       <form ref={formRef} onSubmit={sendMessage} className={styles.chatControls}>
-        <textarea ref={textareaRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
+        <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
         <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>
       </form>
+      <small>{characterCount}/{TEXT_MAX_LENGTH}</small>
 
 
     </Popup>

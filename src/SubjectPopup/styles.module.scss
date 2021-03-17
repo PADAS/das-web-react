@@ -15,6 +15,20 @@
   justify-content: space-around;
 }
 
+.controls {
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.messagingIcon {
+  height: 2rem;
+  width: auto;
+  g {
+    stroke: $primary-font-color;
+  }
+}
+
 .micActivity {
   align-items: baseline;
   border-bottom: 1px solid $light-gray-border;

@@ -38,7 +38,7 @@ const MessageMenu = (props) => {
     }
   }, [dispatch, unreads]);
 
-  return <Dropdown alignRight onToggle={onDropdownToggle}>
+  return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle disabled={!messageArray.length}>
       <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
     </Toggle>

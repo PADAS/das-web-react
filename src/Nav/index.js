@@ -68,8 +68,8 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, h
 
     {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
     <div className="rightMenus">
-      <NotificationMenu />
       <MessageMenu />
+      <NotificationMenu />
       <UserMenu user={user} onProfileClick={onProfileClick} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>
       <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />

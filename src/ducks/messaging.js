@@ -36,7 +36,7 @@ export const messageStoreReducer = (state = {}, action) => {
       const { receiver_id }  = message;
       return {
         ...accumulator,
-        [receiver_id]: unionBy([message], state[receiver_id] || [], 'id'),
+        [receiver_id]: unionBy([message], accumulator[receiver_id] || [], state[receiver_id] || [], 'id'),
       };
     }, {});
     return {

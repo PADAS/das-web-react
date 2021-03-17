@@ -9,7 +9,8 @@
 }
 
 .messageHistory {
-  max-height: 13rem;
+  line-height: normal;
+  max-height: 12rem;
   overflow-y: auto;
   text-align: left;
 }
@@ -18,8 +19,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  textarea {
+  input {
     flex-grow: 1;
+    margin-right: 0.5rem;
   }
 }
 
