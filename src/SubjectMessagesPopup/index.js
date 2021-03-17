@@ -32,17 +32,27 @@ const SubjectMessagesPopup = (props) => {
 
     dispatch(newMessage(msg));
 
+    textareaRef.current.value = '';
+    textareaRef.current.focus();
+
   }, [dispatch, geometry, properties]);
 
 
   const listRef = useRef(null);
   const formRef = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     if (!!recentMessages.length && !!listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
     }
-  }, [recentMessages.length]);
+  }, [recentMessages]);
+
+  useEffect(() => {
+    if (!!textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
 
   return (
     <Popup className={styles.popup} anchor='left' offset={[-8, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
@@ -61,7 +71,7 @@ const SubjectMessagesPopup = (props) => {
         )}
       </ul>
       <form ref={formRef} onSubmit={sendMessage} className={styles.chatControls}>
-        <textarea name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
+        <textarea ref={textareaRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
         <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>
       </form>
 
