@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
-import sample from 'lodash/sample';
 import booleanIntersects from '@turf/boolean-intersects';
 import bboxPolygon from '@turf/bbox-polygon';
 import { generateNewMessage } from '../utils/messaging';
@@ -35,7 +34,7 @@ const MessageEmulator = (props) => {
 
   }, [hasMapSubjects, map, mapSubjects.features]);
 
-  const { state, dispatch } = useContext(MessageContext);
+  const { dispatch } = useContext(MessageContext);
 
   const getMsg = useCallback(() => {
     const msg = getMessage(sampleableMapSubjects, map);

@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Popup } from 'react-mapbox-gl';
 import format from 'date-fns/format';
 import Button from 'react-bootstrap/Button';
-import isObject from 'lodash/isObject';
 
 import TimeAgo from '../TimeAgo';
 import DateTime from '../DateTime';

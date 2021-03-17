@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import DateTime from '../DateTime';
 import MessageContext from '../InReach/context';
 
-import { updateMessage, fetchMessagesSuccess } from '../ducks/messaging';
+import { fetchMessagesSuccess } from '../ducks/messaging';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
