@@ -6,6 +6,7 @@ import MessageContext from '../InReach/context';
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
 import DateTime from '../DateTime';
+import MessageList from '../MessageList';
 
 import { newMessage, fetchMessagesSuccess } from '../ducks/messaging';
 import { generateNewMessage } from '../utils/messaging';
@@ -32,7 +33,7 @@ const SubjectMessagesPopup = (props) => {
     const data = new FormData(formRef.current);
     const value = data.get(`chat-${properties.id}`);
 
-    const msg = generateNewMessage([{ geometry, properties }], { message_type: 'outbox', text: value, read: true });
+    const msg = generateNewMessage([{ geometry, properties }], { message_type: 'outbox', text: value, read: true, message_time: new Date().toISOString() });
 
     dispatch(newMessage(msg));
 
@@ -80,21 +81,10 @@ const SubjectMessagesPopup = (props) => {
 
   return (
     <Popup className={styles.popup} anchor='left' offset={[20, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
+      <MessageList ref={listRef} messages={recentMessages} />
       <div className={styles.header}>
         <h4><ChatIcon /> {properties.name}</h4>
       </div>
-      <ul ref={listRef} className={styles.messageHistory}>
-        {!!recentMessages.length && recentMessages.map(message => 
-          <li key={message.id} className={message.message_type === 'inbox' ? styles.incomingMessage : styles.outgoingMessage}>
-            <em className={styles.senderDetails}>{message.message_type === 'inbox' ? 'incoming' : 'outgoing'}</em>
-            <div className={`${styles.messageDetails} ${message.read ? '' : styles.unread}`}>
-              <span className={styles.messageContent}>{message.text}</span>
-              <DateTime date={message.message_time} />
-            </div>
-          </li>
-        )}
-        {!recentMessages.length && <span>No messages to display.</span>}
-      </ul>
       <form ref={formRef} onSubmit={sendMessage} className={styles.chatControls}>
         <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
         <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>

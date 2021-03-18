@@ -1,20 +1,9 @@
+@import '../common/styles/vars/colors';
+
 .popup {
   [class*=mapboxgl-popup-content] {
+    background: white;
     width: 24rem;
-  }
-}
-
-.senderDetails {
-  display: block;
-}
-
-.messageHistory {
-  line-height: normal;
-  max-height: 12rem;
-  overflow-y: auto;
-  text-align: left;
-  li {
-    display: flex;
   }
 }
 
@@ -26,14 +15,4 @@
     flex-grow: 1;
     margin-right: 0.5rem;
   }
-}
-
-.messageDetails {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.outgoingMessage {
-  flex-flow: reverse;
 }

@@ -33,10 +33,16 @@ export const messageStoreReducer = (state = {}, action) => {
 
   if (type === FETCH_MESSAGES_SUCCESS) {
     const updates = payload.reduce((accumulator, message) => {
-      const { receiver_id }  = message;
+      const subject = message.message_type === 'inbox' ? message.sender : message.receiver;
+
+      if (!subject) return state;
+      
+      const { id } = subject;
+      
       return {
         ...accumulator,
-        [receiver_id]: unionBy([message], accumulator[receiver_id] || [], state[receiver_id] || [], 'id'),
+        [id]: unionBy([message], accumulator[id] || [], state[id] || [], 'id')
+          .sort((a, b) => new Date(b.message_time) - new Date(a.message_time)),
       };
     }, {});
     return {
@@ -46,11 +52,11 @@ export const messageStoreReducer = (state = {}, action) => {
   }
 
   if ([SOCKET_MESSAGE_UPDATE, NEW_MESSAGE, UPDATE_MESSAGE].includes(type)) {
-    const { receiver_id }  = payload;
+    const { receiver }  = payload;
     
     return {
       ...state,
-      [receiver_id]: unionBy([payload], state[receiver_id] || [], 'id'),
+      [receiver.id]: unionBy([payload], state[receiver.id] || [], 'id'),
     };
   }
 };

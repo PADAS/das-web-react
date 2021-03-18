@@ -1,10 +1,15 @@
 import axios from 'axios';
 import faker from 'faker';
 import sample from 'lodash/sample';
+import subDays from 'date-fns/sub_days';
+import { store } from '../';
 
 const MESSAGING_API_URL = 'whatever';
 
 const { get, post } = axios;
+
+export const extractSubjectFromMessage = (message) =>
+  message.message_type === 'inbox' ? message.sender : message.receiver;
 
 const fetchMessages = (params) => get(MESSAGING_API_URL, {
   params,
@@ -20,18 +25,28 @@ const markMessageAsRead = (id) => post(`${MESSAGING_API_URL}/${id}/status`, {
 
 export const generateNewMessage = (mapSubjects, config = {}) => {
   
+  const types = ['inbox', 'outbox'];
+  const statuses = ['pending', 'sent', 'errored', 'received'];
+
   const randomSubject = sample(mapSubjects);
+  const subjectFromStore = store.getState()?.data.subjectStore[randomSubject.properties.id];
+  const message_type = config.message_type || sample(types);
+  const status = sample(statuses);
+
+  const sender = message_type === 'inbox' ? subjectFromStore : null;
+  const receiver = message_type === 'inbox' ? null : subjectFromStore;
 
   return {
-    receiver_id: randomSubject.properties.id, 
+    receiver,
+    sender,
+    message_type, 
+    status,
     device_id : faker.random.uuid(), 
     id: faker.random.uuid(),
-    message_type : 'inbox', 
     read: false,
     text : faker.lorem.sentence(), 
-    status : sample(['pending', 'sent', 'errored', 'received']),
     device_location: { latitude: randomSubject.geometry.coordinates[1], longitude: randomSubject.geometry.coordinates[0] }, 
-    message_time: new Date().toISOString(),
+    message_time: faker.date.between(subDays(new Date(), 13), new Date()),
     additional: {},
     ...config,
   };
