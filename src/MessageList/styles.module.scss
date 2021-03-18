@@ -1,0 +1,34 @@
+@import '../common/styles/vars/colors';
+
+
+.dividerTitle {
+  line-height: 0;
+  display: block;
+  font-size: 1rem;
+  border: 1px solid gray;
+  text-align: center;
+  span {
+    background: white;
+    padding: 0.25rem;
+  }
+}
+
+.senderDetails {
+  display: block;
+}
+
+.messageHistory {
+  line-height: normal;
+  max-height: 12rem;
+  overflow-y: auto;
+  text-align: left;
+  li li:not(:first-child) {
+    padding: 0.5rem;
+    border-top: 1px solid $light-gray-border;
+  }
+}
+.messageDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
