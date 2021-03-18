@@ -1,4 +1,5 @@
 import React, { Fragment, memo, useCallback, useMemo, useContext } from 'react';
+import { connect } from 'react-redux';
 import flatten from 'lodash/flatten';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
@@ -16,6 +17,8 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const MessageMenu = (props) => {
+  const { subjects } = props;
+
   const { state, dispatch } = useContext(MessageContext);
 
   const messageArray = useMemo(() => flatten(Object
@@ -50,6 +53,8 @@ const MessageMenu = (props) => {
           {displayMessageList.map(msg =>
             <li key={msg.id} className={msg.read ? styles.read : styles.unread}>
               <Item>
+                <span>{subjects?.[msg.receiver_id]?.name}</span>
+                <em>{msg.message_type === 'inbox' ? 'incoming' : 'outgoing'}</em>
                 <span className={styles.messageText}>{msg.text}</span>
                 <DateTime className={styles.datetime} date={new Date(msg.message_time)} />
               </Item>
@@ -65,4 +70,8 @@ const MessageMenu = (props) => {
   </Dropdown>;
 };
 
-export default memo(MessageMenu);
+const mapStateToProps = (state) => ({
+  subjects: state.data.subjectStore,
+});
+
+export default connect(mapStateToProps, null)(memo(MessageMenu));

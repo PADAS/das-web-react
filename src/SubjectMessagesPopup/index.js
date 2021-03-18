@@ -85,9 +85,9 @@ const SubjectMessagesPopup = (props) => {
       </div>
       <ul ref={listRef} className={styles.messageHistory}>
         {!!recentMessages.length && recentMessages.map(message => 
-          <li key={message.id}>
-            <strong className={styles.senderDetails}>{message.message_type === 'inbox' ? 'incoming' : 'outgoing'}</strong>
-            <div className={styles.messageDetails}>
+          <li key={message.id} className={message.message_type === 'inbox' ? styles.incomingMessage : styles.outgoingMessage}>
+            <em className={styles.senderDetails}>{message.message_type === 'inbox' ? 'incoming' : 'outgoing'}</em>
+            <div className={`${styles.messageDetails} ${message.read ? '' : styles.unread}`}>
               <span className={styles.messageContent}>{message.text}</span>
               <DateTime date={message.message_time} />
             </div>
