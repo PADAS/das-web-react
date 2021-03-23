@@ -1,0 +1,38 @@
+@import '../common/styles/vars/colors';
+
+
+.dividerTitle {
+  $divider-color: $medium-light-gray;
+
+  border: 1px solid $divider-color;
+  color: $divider-color;
+  display: block;
+  font-size: 1rem;
+  line-height: 0;
+  margin: 1rem 0;
+  text-align: center;
+  span {
+    background: white;
+    padding: 0.25rem;
+  }
+}
+
+.senderDetails {
+  display: block;
+}
+
+.messageHistory {
+  line-height: normal;
+  max-height: 12rem;
+  overflow-y: auto;
+  text-align: left;
+  li li:not(:first-child) {
+    padding: 0.5rem;
+    border-top: 1px solid $light-gray-border;
+  }
+}
+.messageDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

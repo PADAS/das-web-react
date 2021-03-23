@@ -1,0 +1,18 @@
+@import '../common/styles/vars/colors';
+
+.popup {
+  [class*=mapboxgl-popup-content] {
+    background: white;
+    width: 24rem;
+  }
+}
+
+.chatControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  input {
+    flex-grow: 1;
+    margin-right: 0.5rem;
+  }
+}

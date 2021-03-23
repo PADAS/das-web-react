@@ -18,6 +18,7 @@ import styles from './styles.module.scss';
 
 const SubjectControls = (props) => {
   const { subject,
+    children,
     showHeatmapButton,
     showTrackButton,
     showJumpButton,
@@ -89,6 +90,7 @@ const SubjectControls = (props) => {
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
       map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button', 
         `Subject Type:${subject.subject_type}`]} />}
+        {children}
   </div>;
 };
 

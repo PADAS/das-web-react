@@ -1,0 +1,62 @@
+import React, { Fragment, memo, useCallback, useMemo, useContext } from 'react';
+import { connect } from 'react-redux';
+import flatten from 'lodash/flatten';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Button from 'react-bootstrap/Button';
+
+import DateTime from '../DateTime';
+import MessageList from '../MessageList';
+import MessageContext from '../InReach/context';
+
+import { fetchMessagesSuccess } from '../ducks/messaging';
+
+import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
+
+import styles from './styles.module.scss';
+
+
+const { Toggle, Menu, Item } = Dropdown;
+
+const MessageMenu = (props) => {
+  const { subjects } = props;
+
+  const { state, dispatch } = useContext(MessageContext);
+
+  const messageArray = useMemo(() => flatten(Object
+    .values(state))
+    .sort((a, b) => new Date(b.message_time) - new Date(a.message_time)), [state]);
+
+  const unreads = messageArray.filter(msg => !msg.read);
+  const reads = messageArray.filter(msg => !unreads.map(m => m.id).includes(msg.id));
+
+  const displayMessageList = [...unreads, ...reads].slice(0, Math.max(unreads.length, 15));
+
+  const onDropdownToggle = useCallback((isOpen) => {
+    if (!isOpen) {
+      const updates = unreads.map(msg =>({
+        ...msg,
+        read: true,
+      }));
+
+      dispatch(fetchMessagesSuccess(updates));
+    }
+  }, [dispatch, unreads]);
+
+  return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
+    <Toggle disabled={!messageArray.length}>
+      <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
+    </Toggle>
+    <Menu>
+      {!!displayMessageList.length && <MessageList className={styles.messageList} messages={displayMessageList} />}
+      <Item>
+        <Button variant='link'>See all &raquo;</Button>
+      </Item>
+    </Menu>
+  </Dropdown>;
+};
+
+const mapStateToProps = (state) => ({
+  subjects: state.data.subjectStore,
+});
+
+export default connect(mapStateToProps, null)(memo(MessageMenu));

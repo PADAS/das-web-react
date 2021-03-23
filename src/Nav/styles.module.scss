@@ -1,0 +1,36 @@
+@import '../common/styles/vars/colors';
+
+.messageMenu {
+  margin-right: 1rem;
+}
+
+.messageList {
+  margin-bottom: 1rem;
+  max-height: 16rem;
+  overflow-y: auto;
+/*   li {
+    align-items: center;
+    border-top: 1px solid $light-gray-border;
+    display: flex;
+    justify-content: space-between;
+    line-height: normal;
+  }
+  .unread {
+    span {
+      font-weight: bold;
+    }
+  }
+  .datetime {
+    font-style: italic;
+    margin-left: auto;
+    text-align: right;
+  }
+  .messageText {
+    display: block;
+    margin-right: 0.5rem;
+  } */
+}
+
+.messageTitle {
+  padding: 0.5rem 1rem;
+}
