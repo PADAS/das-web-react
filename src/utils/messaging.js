@@ -3,15 +3,16 @@ import faker from 'faker';
 import sample from 'lodash/sample';
 import subDays from 'date-fns/sub_days';
 import { store } from '../';
+import { API_URL } from '../constants';
 
-const MESSAGING_API_URL = 'whatever';
+const MESSAGING_API_URL = `${API_URL}messaging`;
 
 const { get, post } = axios;
 
 export const extractSubjectFromMessage = (message) =>
   message.message_type === 'inbox' ? message.sender : message.receiver;
 
-const fetchMessages = (params) => get(MESSAGING_API_URL, {
+const fetchMessages = params => get(MESSAGING_API_URL, {
   params,
 });
 
@@ -19,7 +20,7 @@ const fetchMessagesForId = (id, params) => get(`${MESSAGING_API_URL}/${id}`, {
   params,
 });
 
-const markMessageAsRead = (id) => post(`${MESSAGING_API_URL}/${id}/status`, {
+const markMessageAsRead = id => post(`${MESSAGING_API_URL}/${id}/status`, {
   read: true,
 });
 

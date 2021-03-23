@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
 import DateTime from '../DateTime';
+import MessageList from '../MessageList';
 import MessageContext from '../InReach/context';
 
 import { fetchMessagesSuccess } from '../ducks/messaging';
@@ -46,23 +47,7 @@ const MessageMenu = (props) => {
       <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
     </Toggle>
     <Menu>
-      {!!displayMessageList.length && 
-      <Fragment>
-        <h5 className={styles.messageTitle}>Recent Messages</h5>
-        <ul className={styles.messageList}>
-          {displayMessageList.map(msg =>
-            <li key={msg.id} className={msg.read ? styles.read : styles.unread}>
-              <Item>
-                <span>{subjects?.[msg.receiver_id]?.name}</span>
-                <em>{msg.message_type === 'inbox' ? 'incoming' : 'outgoing'}</em>
-                <span className={styles.messageText}>{msg.text}</span>
-                <DateTime className={styles.datetime} date={new Date(msg.message_time)} />
-              </Item>
-            </li>
-          )}
-        </ul>
-      </Fragment>
-      }
+      {!!displayMessageList.length && <MessageList className={styles.messageList} messages={displayMessageList} />}
       <Item>
         <Button variant='link'>See all &raquo;</Button>
       </Item>

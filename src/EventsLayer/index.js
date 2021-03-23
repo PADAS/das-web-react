@@ -110,13 +110,13 @@ const EventsLayer = (props) => {
   useEffect(() => {
     setMapEventFeatureCollection({
       ...eventsWithBounce,
-      features: eventsWithBounce.features.filter((feature) => {
+      /*  features: eventsWithBounce.features.filter((feature) => {
         return !!mapImages[
           calcImgIdFromUrlForMapImages(
             feature.properties.image || feature.properties.image_url, feature.properties.width, feature.properties.height,
           )
         ];
-      }),
+      }), */
     });
   }, [eventsWithBounce, mapImages]);
 

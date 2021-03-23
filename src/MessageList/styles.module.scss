@@ -2,10 +2,14 @@
 
 
 .dividerTitle {
-  line-height: 0;
+  $divider-color: $medium-light-gray;
+
+  border: 1px solid $divider-color;
+  color: $divider-color;
   display: block;
   font-size: 1rem;
-  border: 1px solid gray;
+  line-height: 0;
+  margin: 1rem 0;
   text-align: center;
   span {
     background: white;

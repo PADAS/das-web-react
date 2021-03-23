@@ -21,7 +21,7 @@ const calcMessageGroupTitle = (date) => {
 };
 
 const MessageList = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { messages, onMessageClick = () => null, } = props;
+  const { className = '', messages, onMessageClick = () => null, } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -51,7 +51,7 @@ const MessageList = forwardRef((props, ref) => { /* eslint-disable-line react/di
 
   console.log({ groupedByDate });
 
-  return <ul ref={ref} className={styles.messageHistory}>
+  return <ul ref={ref} className={`${styles.messageHistory} ${className}`}>
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
       <MessageGroupListItem key={`${instanceId}-message-group-${index}`}
         messages={group.messages} title={group.title} />
