@@ -48,6 +48,7 @@
 }
 
 div.popover {
+  border-radius: 0.5rem;
   padding: 0;
   max-width: 20rem;
   width: 100vw;
@@ -119,7 +120,7 @@ nav.tabBar {
 
 .search {
   margin-bottom: 0;
-  max-width: 14rem;
+  max-width: 13rem;
 }
 
 .reportTypeContainer {
