@@ -26,7 +26,7 @@ const ReportHeaderPopover = (props, ref) => {
   }, [data]);
 
   const reportBelongsToCollection = !!data.is_contained_in && !!data.is_contained_in.length;
-  const canAddToIncident = !isPatrolReport && !data.is_collection && !reportBelongsToCollection;
+  const canAddToIncident = !data.is_collection && !reportBelongsToCollection;
   const hasExternalLink = (!!data.external_source && !!data.external_source.url);
 
   return <Popover {...rest} ref={ref} className={styles.headerPopover}> {/* eslint-disable-line react/display-name */}
