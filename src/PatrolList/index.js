@@ -72,7 +72,7 @@ const PatrolList = (props) => {
           key={item.id}/>
       )}
     </Flipper>}
-    {!listItems.length && <div className={`${styles.listItem} ${styles.loadMessage}`} key='no-patrols-to-display'>No patrols to display.</div>}
+    {!listItems.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}
   </Fragment>;
 };
 

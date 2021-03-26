@@ -15,7 +15,13 @@ const RelationshipButton = (props) => {
         category: 'Report Modal',
         location: 'report modal',
       }}
-      map={map} hidePatrols={hidePatrols} relationshipButtonDisabled={true} onSaveSuccess={onNewReportSaved} />}
+      map={map}
+      formProps={{
+        hidePatrols: hidePatrols, 
+        relationshipButtonDisabled:true, 
+        onSaveSuccess: onNewReportSaved,
+      }}
+    />}
     {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={onGoToCollection} />}
 
   </Fragment>;
