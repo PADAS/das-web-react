@@ -36,7 +36,6 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
-import addReportTabReducer from '../ducks/add-report-tab';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -89,7 +88,6 @@ const rootReducer = combineReducers({
   }),
   view: combineReducers({
     currentBaseLayer: persistReducer(baseLayerPersistanceConfig, currentBaseLayerReducer),
-    activeAddReportTab: addReportTabReducer,
     homeMap: persistReducer(homeMapPersistanceConfig, homeMapReducer),
     heatmapStyles: persistReducer(heatmapConfigPersistanceConfig, heatmapStyleConfigReducer),
     heatmapSubjectIDs: heatmapSubjectIDsReducer,

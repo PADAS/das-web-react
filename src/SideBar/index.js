@@ -25,7 +25,7 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import EventFeed from '../EventFeed';
-import AddReport from '../AddReport';
+import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
@@ -46,14 +46,16 @@ import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
 import { cloneDeep } from 'lodash-es';
-import { setActiveAddReportTab } from '../ducks/add-report-tab';
 
 const SET_TAB = 'SET_TAB';
 
-const setActiveTab = (tab) => ({
-  type: 'SET_TAB',
-  payload: tab,
-});
+const setActiveTab = (tab) => {
+  return {
+    type: 'SET_TAB',
+    payload: tab,
+  };
+};
+
 
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
@@ -70,7 +72,7 @@ const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
   const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, 
-    setReportHeatmapVisibility, sidebarOpen, setActiveAddReportTab, } = props;
+    setReportHeatmapVisibility, sidebarOpen, } = props;
 
   const { filter: { overlap } } = patrolFilter;
 
@@ -100,11 +102,6 @@ const SideBar = (props) => {
     return filterParams;
   }, [patrolFilter]);
 
-  const setAddReportType = (eventKey) => {
-    // naive eval, don't worry about current value
-    if (validAddReportTypes.includes(eventKey)) setActiveAddReportTab(eventKey);
-  };
-    
   const activeTabPreClose = useRef(null);
   const patrolFetchRef = useRef(null);
 
@@ -125,13 +122,18 @@ const SideBar = (props) => {
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
 
+  useEffect(() => {
+    if (validAddReportTypes.includes(activeTab.current)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
+    }
+  }, [activeTab]);
+
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
     trackEvent('Feed', `Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
   };
 
   const onTabsSelect = (eventKey) => {
-    setAddReportType(eventKey);   
     dispatch(setActiveTab(eventKey));
     let tabTitles = {
       [TAB_KEYS.REPORTS]: 'Reports',
@@ -299,10 +301,9 @@ const mapStateToProps = (state) => ({
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
   reportHeatmapVisible: state.view.showReportHeatmap,
-  activeAddReportTab: state.view.activeAddReportTab,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility, setActiveAddReportTab })(memo(SideBar));
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility })(memo(SideBar));
 
 SideBar.propTypes = {
   events: PropTypes.shape({

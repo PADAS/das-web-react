@@ -73,6 +73,19 @@ div.popover {
   }
 }
 
+.reportTypeSearchControls {
+  align-items: center;
+  display: flex;
+  margin: 0.5rem 0;
+  padding: 0 1rem;
+  > * {
+    flex-grow: 1;
+  }
+}
+
+.quickJumpSelect {
+  margin-left: 1rem;
+}
 
 nav.tabBar {
   $tab-header-color: $bright-blue;
@@ -105,9 +118,8 @@ nav.tabBar {
 }
 
 .search {
+  margin-bottom: 0;
   max-width: 14rem;
-  margin: 0.5rem 0;
-  padding: 0 1rem;
 }
 
 .reportTypeContainer {
@@ -117,6 +129,9 @@ nav.tabBar {
 
 .reportTypeMenu {
   flex-wrap: wrap;
+  &:first-child {
+    border-top: thin solid $light-gray-border;
+  }
   li {
     font-size: 0.8rem;
     height: 6rem;
@@ -148,4 +163,5 @@ nav.tabBar {
     margin-bottom: .25rem;
     width: var(--dimensions);
   }
+
 }

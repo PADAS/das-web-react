@@ -5,12 +5,12 @@ import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
+import Select from 'react-select';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
-import { setActiveAddReportTab } from '../ducks/add-report-tab';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
@@ -23,12 +23,13 @@ import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../consta
 
 import styles from './styles.module.scss';
 
+export const STORAGE_KEY = 'selectedAddReportTab';
 
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
 
-const ReportTypeList = (props) => {
+const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { categories, filter = '', onClickReportType } = props;
 
   const filterText = filter.toLowerCase();
@@ -60,8 +61,8 @@ const ReportTypeList = (props) => {
     }, []);
 
   const createList = useCallback((category, showTitle) => 
-    <Fragment>
-      {showTitle && <h4 className={styles.categoryTitle}>{category.display}</h4>}
+    <div>
+      {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
       <ul key={category.value} className={styles.reportTypeMenu}>
         {category.types.map(type => <li key={type.id}>
           <button type='button' onClick={() => onClickReportType(type)}>
@@ -69,25 +70,28 @@ const ReportTypeList = (props) => {
           </button>
         </li>)}
       </ul>
-    </Fragment>
+    </div>
   , [onClickReportType]);
 
-  return <div className={styles.reportTypeContainer}>
+  return <div className={styles.reportTypeContainer} ref={ref}>
     {filteredCategories
       .map(category => createList(category, categories.length > 1))}
   </div>;
-};
+});
 
 const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { onClickReportType, activeAddReportTab, setActiveAddReportTab, ...rest } = props;
+  const { onClickReportType, ...rest } = props;
 
-  const [activeTab, setActiveTab] = useState(activeAddReportTab);
+  const [activeTab, setActiveTab] = useState(window.localStorage.getItem(STORAGE_KEY) || TAB_KEYS.REPORTS);
 
   const eventsByCategory = useContext(ReportTypesContext);
   const patrolCategories = useContext(PatrolTypesContext);
 
   const [reportFilter, setReportFilter] = useState('');
   const [patrolFilter, setPatrolFilter] = useState('');
+  const [quickJumpOption, setQuickJumpOption] = useState(null);
+
+  const reportTypesListRef = useRef(null);
 
   const onReportFilterClear = useCallback(() => {
     setReportFilter('');
@@ -105,21 +109,52 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
     setPatrolFilter(value);
   }, []);
 
+  const onTabSelect = useCallback((tab) => {
+    window.localStorage.setItem(STORAGE_KEY, tab);
+    setActiveTab(tab);
+  }, []);
+
+  const hasPatrols = !!patrolCategories?.length;
+
+  const onQuickJumpChange = useCallback((category) => {
+    const targetList = reportTypesListRef?.current?.querySelector(`#${category.value}-quick-select`);
+    if (targetList) {
+      reportTypesListRef.current.scrollTop = (targetList.offsetTop - 96);
+    }
+  }, []);
+
+  const getQuickJumpOptionLabel = useCallback(({ display }) => display, []);
+
   useEffect(() => {
-    setActiveAddReportTab(activeTab);
-  }, [activeTab, setActiveAddReportTab]);
+    if (!hasPatrols && activeTab !== TAB_KEYS.REPORTS) {
+      setActiveTab(TAB_KEYS.REPORTS);
+    }
+  }, [activeTab, hasPatrols]);
 
   return <Popover {...rest} ref={ref} className={styles.popover}> 
     <Popover.Content>
-      <Tabs activeKey={activeTab} onSelect={setActiveTab} className={styles.tabBar}>
+      <Tabs activeKey={activeTab} onSelect={onTabSelect} className={styles.tabBar}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
-          <SearchBar className={styles.search} placeholder='Search' value={reportFilter}
-            onChange={onReportSearchValueChange} onClear={onReportFilterClear} />
-          <ReportTypeList categories={eventsByCategory} filter={reportFilter} onClickReportType={onClickReportType} />
+          <div className={styles.reportTypeSearchControls}>
+            <SearchBar className={styles.search} placeholder='Search' value={reportFilter}
+              onChange={onReportSearchValueChange} onClear={onReportFilterClear} />
+            <Select
+              className={styles.quickJumpSelect}
+              value={quickJumpOption}
+              isSearchable={false}
+              onChange={onQuickJumpChange}
+              options={eventsByCategory}
+              placeholder='Jump to...'
+              getOptionLabel={getQuickJumpOptionLabel}
+            />
+          </div>
+          <ReportTypeList ref={reportTypesListRef} categories={eventsByCategory} filter={reportFilter} onClickReportType={onClickReportType} />
         </Tab>
         {!!patrolCategories?.length && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Add Patrol">
-          <SearchBar className={styles.search} placeholder='Search' value={patrolFilter}
-            onChange={onPatrolSearchValueChange} onClear={onPatrolFilterClear} />
+          <div className={styles.reportTypeSearchControls}>
+            <SearchBar className={styles.search} placeholder='Search' value={patrolFilter}
+              onChange={onPatrolSearchValueChange} onClear={onPatrolFilterClear} />
+          </div>
           <ReportTypeList categories={patrolCategories} filter={patrolFilter} onClickReportType={onClickReportType} />
         </Tab>}
       </Tabs>
@@ -129,7 +164,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
 
 const AddReport = (props) => {
-  const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory, activeAddReportTab, setActiveAddReportTab,
+  const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
     map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
 
   const { hidePatrols } = formProps;
@@ -141,7 +176,6 @@ const AddReport = (props) => {
     && !!hasPatrolWritePermissions 
     && !!patrolTypes.length 
     && !hidePatrols;
-
   
   const patrolCategories = useMemo(() => patrolsEnabled && [generatePseudoReportCategoryForPatrolTypes(patrolTypes)], [patrolTypes, patrolsEnabled]);
 
@@ -183,6 +217,7 @@ const AddReport = (props) => {
     };
   }, [popoverOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
   const startEditNewReport = useCallback((reportType) => {
     trackEvent(analyticsMetadata.category, `Click Add '${reportType.display}' Report button${!!analyticsMetadata.location && ` from ${analyticsMetadata.location}`}`);
 
@@ -215,8 +250,7 @@ const AddReport = (props) => {
           {showLabel && <span>{title}</span>}
         </button>
         <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
-          <AddReportPopover placement={popoverPlacement}  onClickReportType={startEditNewReport}
-            setActiveAddReportTab={setActiveAddReportTab} activeAddReportTab={activeAddReportTab} />
+          <AddReportPopover placement={popoverPlacement}  onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>
@@ -226,11 +260,10 @@ const AddReport = (props) => {
 const mapStateToProps = (state, ownProps) => ({
   eventsByCategory: getUserCreatableEventTypesByCategory(state, ownProps),
   patrolTypes: state.data.patrolTypes,
-  activeAddReportTab: state.view.activeAddReportTab,
 });
 
 
-export default connect(mapStateToProps, { setActiveAddReportTab })(memo(AddReport));
+export default connect(mapStateToProps, null)(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
