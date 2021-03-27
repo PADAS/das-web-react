@@ -70,7 +70,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
 
-  const canShowTrack = useMemo(() => patrolStateAllowsTrackDisplay(patrol) && !!trackData, [patrol, trackData]);
+  const canShowTrack = useMemo(() => patrolStateAllowsTrackDisplay(patrol) && !!trackData?.track?.features?.[0]?.geometry, [patrol, trackData]);
 
   const onOverlayOpen = useCallback(() => {
 

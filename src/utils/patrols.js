@@ -654,10 +654,11 @@ export const patrolShouldBeMarkedDone = (patrol) => {
 
 export const getBoundsForPatrol = ((patrolData) => {
   const { leader, trackData, patrol, startStopGeometries } = patrolData;
-
   
   const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
-  if (!hasSegments) return null;
+  const hasGeoData = !!trackData?.track?.features?.[0]?.geometry || !!startStopGeometries;
+
+  if (!hasSegments || !hasGeoData) return null;
 
   const [firstLeg] = patrol.patrol_segments;
   
