@@ -573,7 +573,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     patrol_points.end_location.properties.title = 'Patrol End (Est)';
   }
 
-  if (!!patrol_points.end_location && patrol_points.start_location
+  if (!!patrol_points.end_location && !!patrol_points.start_location
     && booleanEqual(
       point(patrol_points.end_location.geometry.coordinates),
       point(patrol_points.start_location.geometry.coordinates),
