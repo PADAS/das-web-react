@@ -10,9 +10,11 @@ import { featureCollection } from '@turf/helpers';
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 import { addBounceToEventMapFeatures } from '../utils/events';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
+import { createTheDamnThing } from '../utils/whatever';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
+import MapImageFromSvgSpriteRenderer from '../MapImageFromSvgSpriteRenderer';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
@@ -140,6 +142,8 @@ const EventsLayer = (props) => {
       }
     };
     !!events && addFeatureCollectionImagesToMap(events, map);
+    !!events?.features?.length && events.features.map(feature => createTheDamnThing(feature.properties));
+    
     addClusterIconToMap();
   }, [eventSymbolLayerIDs, events, handleEventClick, map]);
 
@@ -289,6 +293,7 @@ const EventsLayer = (props) => {
 
       <Layer minZoom={minZoom} maxZoom={MAX_ZOOM - 2} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
+    {!!events?.features?.length && <MapImageFromSvgSpriteRenderer reports={events.features.map(({ properties }) => properties)} />}
   </Fragment>;
 };
 
