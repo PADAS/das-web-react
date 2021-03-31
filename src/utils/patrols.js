@@ -7,6 +7,7 @@ import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } f
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
+import { cloneDeep } from 'lodash-es';
 import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
@@ -502,11 +503,11 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
   const { patrol_segments: [firstLeg] } = patrol;
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
-  const hasFeatures = !!trackData && !!trackData.points && !!trackData.points.features.length;
-
+  const hasFeatures = !!trackData?.points?.features?.length;
   const features = hasFeatures && trackData.points.features;
-
   const isPatrolActive = calcPatrolCardState(patrol) === PATROL_CARD_STATES.ACTIVE;
+  const isPatrolDone = calcPatrolCardState(patrol) === PATROL_CARD_STATES.DONE;
+
   const stroke = features?.[0]?.properties?.stroke
     || leader?.last_position?.properties?.stroke
     || (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`)
@@ -566,10 +567,20 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     }
   }
 
-  if (!!patrol_points.end_location 
+<<<<<<< HEAD
+  if (!!patrol_points.end_location && patrol_points.start_location
+=======
+  if (!!patrol_points.start_location && !patrol_points.end_location &&
+  isPatrolDone) {
+    patrol_points.end_location = cloneDeep(patrol_points.start_location); 
+    patrol_points.end_location.properties.title = 'Patrol End (Est)';
+  }
+
+  if (!!patrol_points.end_location && !!patrol_points.start_location
+>>>>>>> 963b34ce122ec6f83cac41ee9125f77a4acfad03
     && booleanEqual(
       point(patrol_points.end_location.geometry.coordinates),
-      point(patrol_points.start_location.geometry.coordinates)
+      point(patrol_points.start_location.geometry.coordinates),
     )) {
     patrol_points.start_location.properties.title += ` & ${patrol_points.end_location.properties.title}`;
     delete patrol_points.end_location;
@@ -634,6 +645,7 @@ export const patrolTimeRangeIsValid = (patrol) => {
 };
 
 
+export const patrolHasGeoDataToDisplay = (trackData, startStopGeometries) => !!trackData?.track?.features?.[0]?.geometry || !!startStopGeometries;
 
 export const patrolShouldBeMarkedOpen = (patrol) => {
   const isDone = (patrol.state === PATROL_API_STATES.DONE);
@@ -654,10 +666,11 @@ export const patrolShouldBeMarkedDone = (patrol) => {
 
 export const getBoundsForPatrol = ((patrolData) => {
   const { leader, trackData, patrol, startStopGeometries } = patrolData;
-
   
   const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
-  if (!hasSegments) return null;
+  const hasGeoData = patrolHasGeoDataToDisplay(trackData, startStopGeometries);
+
+  if (!hasSegments || !hasGeoData) return null;
 
   const [firstLeg] = patrol.patrol_segments;
   
