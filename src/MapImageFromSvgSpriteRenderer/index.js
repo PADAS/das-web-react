@@ -43,25 +43,30 @@ const MapImageFromSvgSpriteRenderer = (props) => {
 
 
   if (!!matchingTypes.length) {
-    fetchSpriteImage(matchingTypes[0].reportTypeIconId)
-      .then((response) => {
-        console.log({ response });
-        requestsToIgnore.current[matchingTypes[0].svgImageIconId] = response;
+    matchingTypes.forEach((item) => {
+      fetchSpriteImage(item.reportTypeIconId)
+        .then((response) => {
+          console.log({ response });
+          requestsToIgnore.current[item.svgImageIconId] = response;
 
-        const color = calcIconColorByPriority(matchingTypes[0].report);
+          const color = calcIconColorByPriority(item.report);
 
-        /* programmatically set fill */
-        /* save to cache of requests to ignore */
-        /* set feature property to be accessed by style expression somehow??? */
-        /* add to map if necessary */
-      })
-      .catch((error) => {
-        if (/4[0-9][0-9]/.test(error?.response?.status)) {
-          requestsToIgnore.current[matchingTypes[0].svgImageIconId] = true; /* ignore missing images, this is expected */
-        } else {
-          return new Error(error);
-        }
-      });
+          console.log({ color });
+
+          /* programmatically set fill */
+          /* save to cache of requests to ignore */
+          /* set feature property to be accessed by style expression somehow??? */
+          /* add to map if necessary */
+        })
+        .catch((error) => {
+          if (/4[0-9][0-9]/.test(error?.response?.status)) {
+            requestsToIgnore.current[matchingTypes[0].svgImageIconId] = true; /* ignore missing images, this is expected */
+          } else {
+            return new Error(error);
+          }
+        });
+
+    });
   }
 
   return null;
