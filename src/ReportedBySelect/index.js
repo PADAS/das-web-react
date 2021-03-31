@@ -6,30 +6,29 @@ import TimeAgo from '../TimeAgo';
 
 import { calcRecentRadiosFromSubjects } from '../utils/subjects';
 import { DEFAULT_SELECT_STYLES } from '../constants';
-import { reportedBy, trackedby } from '../selectors';
+import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, leaders, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, isPatrol } = props;
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options } = props;
 
+  const selections = options ? options : reporters;
 
   const recentRadios = useMemo(() =>
     calcRecentRadiosFromSubjects(...subjects)
       .splice(0, numberOfRecentRadiosToShow)
   , [numberOfRecentRadiosToShow, subjects]);
 
-  const selectedOptions = isPatrol ? leaders : reporters;
-
-  const displayReporters = useMemo(() =>
-    selectedOptions
+  const displayOptions = useMemo(() =>
+    selections
       .filter(({ id }) =>
         !recentRadios
           .some(({ id:radioId }) =>
             radioId === id
           )
-      ), [recentRadios, selectedOptions]);
+      ), [recentRadios, selections]);
 
   const optionalProps = {};
   const selectStyles = {
@@ -47,26 +46,26 @@ const ReportedBySelect = (props) => {
         value.map(item =>
           item.hidden
             ? item
-            : selectedOptions.find(selectedOptions => selectedOptions.id === item.id)
+            : selections.find(selections => selections.id === item.id)
         );
     }
 
     return !!value
       ? value.hidden
         ? value
-        : selectedOptions.find(selectedOptions => selectedOptions.id === value.id)
+        : selections.find(selections => selections.id === value.id)
       : null;
 
-  }, [isMulti, selectedOptions, value]);
+  }, [isMulti, reporters, value]);
 
-  const options = [
+  const GetOptions = [
     {
       label: 'Recent radios',
       options: recentRadios,
     },
     {
       label: 'All',
-      options: displayReporters || [],
+      options: displayOptions || [],
     },
   ];
 
@@ -108,7 +107,7 @@ const ReportedBySelect = (props) => {
     isSearchable={true}
     isMulti={isMulti}
     onChange={onChange}
-    options={options}
+    options={GetOptions}
     placeholder={placeholder}
     styles={selectStyles}
     getOptionValue={getOptionValue}
@@ -120,7 +119,6 @@ const ReportedBySelect = (props) => {
 const mapStateToProps = (state) => ({
   reporters: reportedBy(state),
   subjects: allSubjects(state),
-  leaders: trackedby(state),
 });
 
 export default connect(mapStateToProps, null)(memo(ReportedBySelect));
@@ -130,7 +128,6 @@ ReportedBySelect.defaultProps = {
   isMulti: false,
   numberOfRecentRadiosToShow: 5,
   placeholder: 'Reported By...',
-  isPatrol: false
 };
 
 
@@ -142,5 +139,4 @@ ReportedBySelect.propTypes = {
   ]),
   onChange: PropTypes.func.isRequired,
   numberOfRecentRadiosToShow: PropTypes.number,
-  isPatrol: PropTypes.bool,
 };

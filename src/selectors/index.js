@@ -39,10 +39,6 @@ export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.gl
   : [];
 
   /* getLeaders: fetches trackedby  ....*/
-export const getLeaders = ({ data: { leaderschema } }) => leaderschema.trackedbySchema
-  ? leaderschema.trackedbySchema.properties.leader.enum_ext
-    .map(({ value }) => value)
-  : [];
 
 export const userLocationCanBeShown = createSelector(
   [userLocation, showUserLocation],
@@ -112,10 +108,10 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
-export const trackedby = createSelector(
-  [getLeaders],
-  leaders => leaders,
-);
+// export const trackedby = createSelector(
+//   [getLeaders],
+//   leaders => leaders,
+// );
 
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures, hiddenAnalyzerIDs],

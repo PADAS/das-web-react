@@ -12,9 +12,7 @@ const { get } = axios;
 
 export const fetchTrackedBySchema = () => dispatch => get(PATROL_TRACKEDBY_SCHEMA_API_URL)
     .then(({ data: { data } }) => {
-        console.log("dispatch.....", data);
         dispatch(fetchTrackedBySuccess(data));
-
     });
 
 const fetchTrackedBySuccess = payload => ({
@@ -30,7 +28,7 @@ const patrolTrackedBySchemaReducer = (state, action) => {
         return { ...state, trackedbySchema: payload };
     };
     return state;
-}
+};
 
 
 export default globallyResettableReducer(patrolTrackedBySchemaReducer, {});

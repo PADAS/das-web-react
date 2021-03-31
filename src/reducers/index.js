@@ -86,7 +86,7 @@ const rootReducer = combineReducers({
     userProfiles: userProfilesReducer,
     selectedUserProfile: persistReducer(userProfilePersistanceConfig, selectedUserProfileReducer),
     socketUpdates: socketActivityReducer,
-    leaderschema: patrolTrackedBySchemaReducer,
+    patrolLeaderSchema: patrolTrackedBySchemaReducer,
 
   }),
   view: combineReducers({
