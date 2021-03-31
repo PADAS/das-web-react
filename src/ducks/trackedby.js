@@ -26,10 +26,7 @@ const fetchTrackedBySuccess = payload => ({
 const patrolTrackedBySchemaReducer = (state, action) => {
     const { type, payload } = action;
 
-
-
     if (type === FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS) {
-
         return { ...state, trackedbySchema: payload };
     };
     return state;
