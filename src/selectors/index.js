@@ -38,6 +38,12 @@ export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.gl
     .map(({ value }) => value)
   : [];
 
+  /* getLeaders: fetches trackedby  ....*/
+export const getLeaders = ({ data: { leaderschema } }) => leaderschema.trackedbySchema
+  ? leaderschema.trackedbySchema.properties.leader.enum_ext
+    .map(({ value }) => value)
+  : [];
+
 export const userLocationCanBeShown = createSelector(
   [userLocation, showUserLocation],
   (userLocation, showUserLocation) => userLocation && showUserLocation,
@@ -106,6 +112,11 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
+export const trackedby = createSelector(
+  [getLeaders],
+  leaders => leaders,
+);
+
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures, hiddenAnalyzerIDs],
   (analyzerFeatures, hiddenAnalyzerIDs) => {
@@ -117,7 +128,7 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
             return feature;
           })], []);
     // simulate layergroups found in old codebase by passing the feature ids
-    // of the analyzer feature collection so they can be looked up at runtime - 
+    // of the analyzer feature collection so they can be looked up at runtime -
     // ie when a rollover occurs with a mouse
     const layerGroups = analyzerFeatures.map((analyzer) => {
       const featureIds = analyzer.geojson.features.map(feature => feature.properties.id);

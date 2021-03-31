@@ -6,13 +6,13 @@ import TimeAgo from '../TimeAgo';
 
 import { calcRecentRadiosFromSubjects } from '../utils/subjects';
 import { DEFAULT_SELECT_STYLES } from '../constants';
-import { reportedBy } from '../selectors';
+import { reportedBy, trackedby } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder } = props;
+  const { menuRef = null, reporters, subjects, leaders, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, isPatrol } = props;
 
 
   const recentRadios = useMemo(() =>
@@ -20,14 +20,16 @@ const ReportedBySelect = (props) => {
       .splice(0, numberOfRecentRadiosToShow)
   , [numberOfRecentRadiosToShow, subjects]);
 
+  const selectedOptions = isPatrol ? leaders : reporters;
+
   const displayReporters = useMemo(() =>
-    reporters
+    selectedOptions
       .filter(({ id }) =>
         !recentRadios
           .some(({ id:radioId }) =>
             radioId === id
           )
-      ), [recentRadios, reporters]);
+      ), [recentRadios, selectedOptions]);
 
   const optionalProps = {};
   const selectStyles = {
@@ -45,17 +47,17 @@ const ReportedBySelect = (props) => {
         value.map(item =>
           item.hidden
             ? item
-            : reporters.find(reporter => reporter.id === item.id)
+            : selectedOptions.find(selectedOptions => selectedOptions.id === item.id)
         );
     }
 
     return !!value
-      ? value.hidden 
-        ? value 
-        : reporters.find(reporter => reporter.id === value.id)
+      ? value.hidden
+        ? value
+        : selectedOptions.find(selectedOptions => selectedOptions.id === value.id)
       : null;
 
-  }, [isMulti, reporters, value]);
+  }, [isMulti, selectedOptions, value]);
 
   const options = [
     {
@@ -70,8 +72,8 @@ const ReportedBySelect = (props) => {
 
   const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
     if (hidden) return 'RESTRICTED';
-    return content_type === 'accounts.user' 
-      ? `${first_name} ${last_name}` 
+    return content_type === 'accounts.user'
+      ? `${first_name} ${last_name}`
       : name;
   };
 
@@ -118,6 +120,7 @@ const ReportedBySelect = (props) => {
 const mapStateToProps = (state) => ({
   reporters: reportedBy(state),
   subjects: allSubjects(state),
+  leaders: trackedby(state),
 });
 
 export default connect(mapStateToProps, null)(memo(ReportedBySelect));
@@ -127,6 +130,7 @@ ReportedBySelect.defaultProps = {
   isMulti: false,
   numberOfRecentRadiosToShow: 5,
   placeholder: 'Reported By...',
+  isPatrol: false
 };
 
 
@@ -138,4 +142,5 @@ ReportedBySelect.propTypes = {
   ]),
   onChange: PropTypes.func.isRequired,
   numberOfRecentRadiosToShow: PropTypes.number,
+  isPatrol: PropTypes.bool,
 };

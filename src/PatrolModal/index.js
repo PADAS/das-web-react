@@ -464,6 +464,8 @@ const PatrolModal = (props) => {
       }],['desc']);
   }, [statePatrol]);
 
+  const isPatrol = true;
+
   const patrolWithFlattenedHistory = useMemo(() => {
     return({...statePatrol, updates: allPatrolUpdateHistory});
   }, [statePatrol, allPatrolUpdateHistory]);
@@ -587,7 +589,7 @@ const PatrolModal = (props) => {
       <div className={styles.topControls}>
         <label>
           Tracking:
-          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
+          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} isPatrol={isPatrol} />
         </label>
       </div>
       <section className={`${styles.timeBar} ${styles.start}`}>
