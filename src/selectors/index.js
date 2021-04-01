@@ -38,8 +38,6 @@ export const getEventReporters = ({ data: { eventSchemas } }) => eventSchemas.gl
     .map(({ value }) => value)
   : [];
 
-  /* getLeaders: fetches trackedby  ....*/
-
 export const userLocationCanBeShown = createSelector(
   [userLocation, showUserLocation],
   (userLocation, showUserLocation) => userLocation && showUserLocation,
@@ -108,10 +106,6 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
-// export const trackedby = createSelector(
-//   [getLeaders],
-//   leaders => leaders,
-// );
 
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures, hiddenAnalyzerIDs],
