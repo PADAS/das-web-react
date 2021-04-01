@@ -567,9 +567,6 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     }
   }
 
-<<<<<<< HEAD
-  if (!!patrol_points.end_location && patrol_points.start_location
-=======
   if (!!patrol_points.start_location && !patrol_points.end_location &&
   isPatrolDone) {
     patrol_points.end_location = cloneDeep(patrol_points.start_location); 
@@ -577,7 +574,6 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
   }
 
   if (!!patrol_points.end_location && !!patrol_points.start_location
->>>>>>> 963b34ce122ec6f83cac41ee9125f77a4acfad03
     && booleanEqual(
       point(patrol_points.end_location.geometry.coordinates),
       point(patrol_points.start_location.geometry.coordinates),
