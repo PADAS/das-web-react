@@ -1,9 +1,14 @@
+import axios from 'axios';
 import unionBy from 'lodash/unionBy';
+
+import { API_URL } from '../constants';
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
 const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
 const NEW_MESSAGE = 'NEW_MESSAGE';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
+
+const MESSAGING_API_URL = `${API_URL}activity/events/`;
 
 export const fetchMessagesSuccess = payload => ({
   type: FETCH_MESSAGES_SUCCESS,
@@ -26,6 +31,16 @@ export const updateMessageFromRealtime = payload => ({
   type: SOCKET_MESSAGE_UPDATE,
   payload,
 });
+
+const { get } = axios;
+
+const fetchMessages = (params) => dispatch => get(MESSAGING_API_URL, { params })
+  .then(({ data: { data:messages } }) => {
+    dispatch(fetchMessagesSuccess(messages));
+  })
+  .catch((error) => {
+    console.warn('error fetching messages', { error });
+  });
 
 
 export const messageStoreReducer = (state = {}, action) => {
