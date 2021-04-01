@@ -32,7 +32,7 @@ export const updateMessageFromRealtime = payload => ({
   payload,
 });
 
-const { get } = axios;
+const { get, post } = axios;
 
 const fetchMessages = (params) => dispatch => get(MESSAGING_API_URL, { params })
   .then(({ data: { data:messages } }) => {
@@ -42,6 +42,7 @@ const fetchMessages = (params) => dispatch => get(MESSAGING_API_URL, { params })
     console.warn('error fetching messages', { error });
   });
 
+const sendMessage = (recipient_id, message) => dispatch => post(`${MESSAGING_API_URL}${recipient_id}`, message);
 
 export const messageStoreReducer = (state = {}, action) => {
   const { type, payload } = action;
