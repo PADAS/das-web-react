@@ -678,10 +678,10 @@ export const getBoundsForPatrol = ((patrolData) => {
   const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
   const patrolTrack = !!trackData && trackData.track;
 
-  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features, patrolStartPoint, patrolEndPoint)
-    .filter(item => !!item);
 
-  
+  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features, patrolStartPoint, patrolEndPoint)
+    .filter(item => !!item?.geometry);
+
   if (!collectionData.length) return null;
 
   return bbox(
