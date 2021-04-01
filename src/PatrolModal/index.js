@@ -7,6 +7,7 @@ import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
+import {isEmpty} from 'lodash'
 
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
@@ -77,13 +78,14 @@ const PatrolModal = (props) => {
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
   useEffect(() => {
+    if (isEmpty(patrolLeaderSchema)){
     fetchTrackedBySchema()
       .catch((e) => {
         //
-      });
-  });
+      })};
+  }, []);
 
-  const PatrolLeaders = patrolLeaderSchema.trackedbySchema ?
+  const patrolLeaders = patrolLeaderSchema.trackedbySchema ?
     patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.map(({ value }) => value): [];
 
   const patrolReports = useMemo(() => {
@@ -598,7 +600,7 @@ const PatrolModal = (props) => {
       <div className={styles.topControls}>
         <label>
           Tracking:
-          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={PatrolLeaders} />
+          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
         </label>
       </div>
       <section className={`${styles.timeBar} ${styles.start}`}>
