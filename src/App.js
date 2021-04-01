@@ -60,7 +60,7 @@ const animateResize = (map) => {
     if (count === numberOfFrames) {
       clearInterval(mapResizeAnimation);
     }
-
+    
   }, (transitionLength / numberOfFrames));
 
   return mapResizeAnimation;
