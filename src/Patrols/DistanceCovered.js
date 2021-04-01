@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
@@ -28,6 +28,5 @@ const PatrolDistanceCovered = ({ patrolsData  = [], suffix='km'}) => {
 export default memo(PatrolDistanceCovered);
 
 PatrolDistanceCovered.propTypes = {
-  tracks: PropTypes.object.isRequired,
-  patrol: PropTypes.object.isRequired,
+  trackData: PropTypes.object,
 };

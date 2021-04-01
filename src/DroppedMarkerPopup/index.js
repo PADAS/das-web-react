@@ -34,7 +34,12 @@ const DroppedMarkerPopup = ({ data: { location }, id, hidePopup, ...rest }) => {
           longitude: location.lng,
         }
      
-      }} onSaveSuccess={onComplete} onSaveError={onComplete} />
+      }}
+      formProps={{
+        onSaveSuccess: onComplete,
+        onSaveError: onComplete,
+      }}
+    />
   </Popup>;
 };
 

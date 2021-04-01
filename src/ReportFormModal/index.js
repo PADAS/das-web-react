@@ -74,7 +74,7 @@ const ReportFormModal = (props) => {
         onSaveSuccess={onSaveSuccess}
         hidePatrols={hidePatrols}
         isPatrolReport={isPatrolReport}
-        relationshipButtonDisabled={relationshipButtonDisabled}
+        formProps={{relationshipButtonDisabled}}
         map={map}
       />
     </EditableItem.Modal>

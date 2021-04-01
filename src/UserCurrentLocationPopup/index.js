@@ -38,7 +38,12 @@ const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, ...rest }
         latitude: coords.latitude,
         longitude: coords.longitude,
       }
-    }} onSaveSuccess={onComplete} onSaveError={onComplete} />
+    }}
+    formProps={{
+      onSaveSuccess: onComplete,
+      onSaveError: onComplete,
+    }}
+    />
   </Popup>;
 };
 
