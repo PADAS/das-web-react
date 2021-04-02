@@ -8,7 +8,7 @@ const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
 const NEW_MESSAGE = 'NEW_MESSAGE';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
 
-const MESSAGING_API_URL = `${API_URL}activity/events/`;
+const MESSAGING_API_URL = `${API_URL}messages/`;
 
 export const fetchMessagesSuccess = payload => ({
   type: FETCH_MESSAGES_SUCCESS,
@@ -34,7 +34,7 @@ export const updateMessageFromRealtime = payload => ({
 
 const { get, post } = axios;
 
-const fetchMessages = (params) => dispatch => get(MESSAGING_API_URL, { params })
+export const fetchMessages = (params) => dispatch => get(MESSAGING_API_URL, { ...params, include_additional_data: false, page_size: 150 })
   .then(({ data: { data:messages } }) => {
     dispatch(fetchMessagesSuccess(messages));
   })
@@ -42,7 +42,7 @@ const fetchMessages = (params) => dispatch => get(MESSAGING_API_URL, { params })
     console.warn('error fetching messages', { error });
   });
 
-const sendMessage = (recipient_id, message) => dispatch => post(`${MESSAGING_API_URL}${recipient_id}`, message);
+export const sendMessage = (receiver_id, message) => dispatch => post(`${MESSAGING_API_URL}`, { ...message, receiver_id });
 
 export const messageStoreReducer = (state = {}, action) => {
   const { type, payload } = action;
