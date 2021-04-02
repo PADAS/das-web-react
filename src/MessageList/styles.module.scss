@@ -4,21 +4,24 @@
 .dividerTitle {
   $divider-color: $medium-light-gray;
 
-  border: 1px solid $divider-color;
+  border-top: 1px solid $divider-color;
   color: $divider-color;
   display: block;
   font-size: 1rem;
   line-height: 0;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
   text-align: center;
   span {
     background: white;
+    font-size: 0.65rem;
     padding: 0.25rem;
   }
 }
 
 .senderDetails {
+  color: $light-font-color;
   display: block;
+  font-size: 0.75rem;
 }
 
 .messageHistory {
@@ -35,4 +38,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.messageTime {
+  margin-top: -1.25rem;
+  text-align: right;
 }

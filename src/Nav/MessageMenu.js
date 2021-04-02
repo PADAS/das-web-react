@@ -8,7 +8,7 @@ import DateTime from '../DateTime';
 import MessageList from '../MessageList';
 import MessageContext from '../InReach/context';
 
-import { fetchMessagesSuccess } from '../ducks/messaging';
+import { fetchMessagesSuccess, readMessage } from '../ducks/messaging';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -38,9 +38,9 @@ const MessageMenu = (props) => {
         read: true,
       }));
 
-      dispatch(fetchMessagesSuccess(updates));
+      updates.forEach((message) => readMessage(message));
     }
-  }, [dispatch, unreads]);
+  }, [unreads]);
 
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle disabled={!messageArray.length}>
