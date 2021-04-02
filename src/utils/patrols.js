@@ -166,13 +166,7 @@ export const actualStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getReportsForPatrol = (patrol) => {
-  if (!patrol.patrol_segments.length) return null;
-  // this is only grabbibng the first segment for now
-  const [firstLeg] = patrol.patrol_segments;
-  const { events } = firstLeg;
-  return events || [];
-};
+export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.[0]?.events ?? null;
 
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;

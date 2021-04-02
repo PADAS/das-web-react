@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { calcIconColorByPriority } from '../utils/event-types';
 import { displayEventTypes } from '../selectors/events';
 
-import html2canvas from 'html2canvas';
 import drop from 'lodash/drop';
 import unionBy from 'lodash/unionBy';
 
@@ -33,28 +32,35 @@ const MapImageFromSvgSpriteRenderer = (props) => {
     .map((report) => {
       const reportTypeIconId = eventTypes.find(({ value }) => value === report.event_type)?.icon_id ?? 'generic';
       const svgImageIconId = calcSvgImageIconId(reportTypeIconId, report.priority, report.width, report.height);
+      const color = calcIconColorByPriority(report.priority);
 
-      return { report, svgImageIconId, reportTypeIconId };
+      const svgCacheId = `${svgImageIconId}-${color}`;
+
+      return { svgCacheId, color, report, svgImageIconId, reportTypeIconId };
 
     }, [])
-    .filter(({ report, svgImageIconId, reportTypeIconId }) => {
-      return !requestsToIgnore.current[svgImageIconId];
+    .filter(({ svgCacheId }) => {
+      return !requestsToIgnore.current[svgCacheId];
     });
 
 
   if (!!matchingTypes.length) {
-    matchingTypes.forEach((item) => {
-      fetchSpriteImage(item.reportTypeIconId)
+    matchingTypes.forEach(({ color, report, svgImageIconId, reportTypeIconId, svgCacheId }) => {
+
+
+      fetchSpriteImage(reportTypeIconId)
         .then((response) => {
-          console.log({ response });
-          requestsToIgnore.current[item.svgImageIconId] = response;
 
-          const color = calcIconColorByPriority(item.report);
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(response.data, 'image/svg+xml');
+          const svgEl = doc.documentElement;
 
-          console.log({ color });
+          svgEl.style.fill = color;
 
-          /* programmatically set fill */
-          /* save to cache of requests to ignore */
+          requestsToIgnore.current[svgCacheId] = svgEl;
+
+          /* programmatically set fill XX */ 
+          /* save to cache of requests to ignore XX */
           /* set feature property to be accessed by style expression somehow??? */
           /* add to map if necessary */
         })
