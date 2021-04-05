@@ -15,9 +15,9 @@ import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status
 import {
   heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
-  mapDataZoomSimplificationReducer, pickingLocationOnMapReducer, printTitleReducer, 
+  mapDataZoomSimplificationReducer, pickingLocationOnMapReducer, printTitleReducer,
   displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
-  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, 
+  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer,
 } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
@@ -36,6 +36,7 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
+import patrolTrackedBySchemaReducer from '../ducks/trackedby'
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -85,6 +86,8 @@ const rootReducer = combineReducers({
     userProfiles: userProfilesReducer,
     selectedUserProfile: persistReducer(userProfilePersistanceConfig, selectedUserProfileReducer),
     socketUpdates: socketActivityReducer,
+    patrolLeaderSchema: patrolTrackedBySchemaReducer,
+
   }),
   view: combineReducers({
     currentBaseLayer: persistReducer(baseLayerPersistanceConfig, currentBaseLayerReducer),
