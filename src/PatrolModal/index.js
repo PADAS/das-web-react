@@ -12,6 +12,7 @@ import {isEmpty} from 'lodash'
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
+import { fetchEvent } from '../ducks/events';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
@@ -58,7 +59,7 @@ const AUTO_END_LABEL = 'Auto End';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
-  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols, eventStore,fetchTrackedBySchema, patrolLeaderSchema} = props;
+  const { addModal, patrol, map, id, fetchEvent, fetchTrackedBySchema, removeModal, updateUserPreferences, autoStartPatrols, patrolLeaderSchema, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [addedReports, setAddedReports] = useState([]);
@@ -87,18 +88,9 @@ const PatrolModal = (props) => {
 
   const patrolLeaders = patrolLeaderSchema.trackedbySchema ?
     patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.map(({ value }) => value): [];
-
-  const patrolReports = useMemo(() => {
-    const currReports = getReportsForPatrol(patrol);
-    const syncedReports = currReports.map( (report) => {
-      // if there is no entry for this event, add it to the store
-      if (!eventStore[report.id]) {
-        eventStore[report.id] = report;
-        return report;
-      } else return eventStore[report.id];
-    });
-    return syncedReports;
-  }, [eventStore, patrol]);
+  const patrolReports = useMemo(() =>
+    getReportsForPatrol(patrol)
+  , [patrol]);
 
   const allPatrolReports = useMemo(() => {
     // don't show the contained reports, which are also bound to the segment
@@ -574,10 +566,17 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  const onReportListItemClick = useCallback((item) => {
+  const onReportListItemClick = useCallback(async (item) => {
     trackEvent('Patrol Modal', `Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
+
+    const needToFetchReport = !eventStore[item.id];
+
+    if (needToFetchReport) {
+      await fetchEvent(item.id);
+    }
+    
     openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
-  }, [map, onAddReport]);
+  }, [eventStore, fetchEvent, map, onAddReport]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -729,7 +728,7 @@ const makeMapStateToProps = () => {
  
 const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props) => <PatrolDistanceCovered patrolsData={[props.patrolData]} />)); /* eslint-disable-line react/display-name */
 
-export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState, fetchTrackedBySchema })(memo(PatrolModal));
+export default connect(mapStateToProps, { addModal, fetchEvent: id => fetchEvent(id), fetchTrackedBySchema, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
