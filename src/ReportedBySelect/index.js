@@ -12,9 +12,9 @@ import { allSubjects } from '../selectors/subjects';
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options } = props;
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options: optionsFromProps } = props;
 
-  const selections = options ? options : reporters;
+  const selections = optionsFromProps ? optionsFromProps : reporters;
 
   const recentRadios = useMemo(() =>
     calcRecentRadiosFromSubjects(...subjects)
@@ -56,9 +56,9 @@ const ReportedBySelect = (props) => {
         : selections.find(selections => selections.id === value.id)
       : null;
 
-  }, [isMulti, reporters, value]);
+  }, [isMulti, selections, value]);
 
-  const GetOptions = [
+  const options = [
     {
       label: 'Recent radios',
       options: recentRadios,
@@ -107,7 +107,7 @@ const ReportedBySelect = (props) => {
     isSearchable={true}
     isMulti={isMulti}
     onChange={onChange}
-    options={GetOptions}
+    options={options}
     placeholder={placeholder}
     styles={selectStyles}
     getOptionValue={getOptionValue}
