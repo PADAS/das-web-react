@@ -106,6 +106,7 @@ export const reportedBy = createSelector(
   reporters => reporters,
 );
 
+
 export const getAnalyzerFeatureCollectionsByType = createSelector(
   [analyzerFeatures, hiddenAnalyzerIDs],
   (analyzerFeatures, hiddenAnalyzerIDs) => {
@@ -117,7 +118,7 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
             return feature;
           })], []);
     // simulate layergroups found in old codebase by passing the feature ids
-    // of the analyzer feature collection so they can be looked up at runtime - 
+    // of the analyzer feature collection so they can be looked up at runtime -
     // ie when a rollover occurs with a mouse
     const layerGroups = analyzerFeatures.map((analyzer) => {
       const featureIds = analyzer.geojson.features.map(feature => feature.properties.id);
