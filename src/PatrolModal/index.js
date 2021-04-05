@@ -7,7 +7,7 @@ import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
-import {isEmpty} from 'lodash'
+import {isEmpty} from 'lodash';
 
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
@@ -61,6 +61,7 @@ const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, Locatio
 const PatrolModal = (props) => {
   const { addModal, patrol, map, id, fetchEvent, fetchTrackedBySchema, removeModal, updateUserPreferences, autoStartPatrols, patrolLeaderSchema, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
+  const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [filesToUpload, updateFilesToUpload] = useState([]);
   const [addedReports, setAddedReports] = useState([]);
   const [isSaving, setSaveState] = useState(false);
@@ -80,11 +81,15 @@ const PatrolModal = (props) => {
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
-    fetchTrackedBySchema()
-      .catch((e) => {
+      fetchTrackedBySchema()
+        .catch((e) => {
         //
-      })};
-  }, []);
+        })
+        .finally(() => setLoadingTrackedBy(false));
+    } else {
+      setLoadingTrackedBy(false);
+    }
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   const patrolLeaders = patrolLeaderSchema.trackedbySchema ?
     patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.map(({ value }) => value): [];
@@ -597,7 +602,8 @@ const PatrolModal = (props) => {
         <StatusBadge />
       </Header>
       <div className={styles.topControls}>
-        <label>
+        <label className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
+          {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
           Tracking:
           <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
         </label>
