@@ -1,18 +1,22 @@
-import React, { memo, useEffect, useCallback, useRef, useState } from 'react';
+import React, { memo, useRef } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { calcIconColorByPriority } from '../utils/event-types';
-import { displayEventTypes } from '../selectors/events';
+import { calcUrlForImage, imgElFromSrc } from '../utils/img';
+import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import drop from 'lodash/drop';
-import unionBy from 'lodash/unionBy';
+import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
-import { errorIsHttpError } from '../utils/request';
+export const calcSvgImageIconId = ({icon_id, priority, height, width}) => {
+  let string = `${icon_id}`;
 
-import EventIcon from '../EventIcon';
+  [priority, height, width]
+    .filter(item => item === 0 || !!item)
+    .forEach((item) => {
+      string+=`-${item}`;
+    });
 
-const calcSvgImageIconId = (icon_id, priority = 0, height = 'x', width = 'x') => {
-  return `${icon_id}-${priority}-${width}-${height}`;
+  return string;
 };
 
 const fetchSpriteImage = (icon_id) => axios.get(`${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`, 
@@ -21,65 +25,132 @@ const fetchSpriteImage = (icon_id) => axios.get(`${process.env.REACT_APP_DAS_HOS
       Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
     },
     responseType: 'text',
+  }
+);
+
+const imageElFromSvgString = (svgString, report) => {
+
+  const { height, priority, width = MAP_ICON_SIZE } = report;
+  const color = calcIconColorByPriority(priority);
+  
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgString, 'image/svg+xml');
+  const svgEl = doc.documentElement;
+
+  svgEl.style.fill = `${color} !important`;
+  svgEl.setAttribute('fill', color);
+
+  const svgContent = svgEl.querySelectorAll('*');
+
+  svgContent.forEach((item) => {
+    const attributesToRemove = ['class', 'style', 'fill', 'stroke'];
+    attributesToRemove.forEach(attr => item.removeAttribute(attr));
   });
 
+  var xml = (new XMLSerializer()).serializeToString(svgEl);
+  const withStyleElRemoved = xml.replace(/<style>.*?<\/style>/g, '');
+
+  const blob = new Blob([withStyleElRemoved], {type: 'image/svg+xml'});
+  const url = URL.createObjectURL(blob);
+
+  return imgElFromSrc(
+    url,
+    width * MAP_ICON_SCALE,
+    (height ? (height * MAP_ICON_SCALE) : undefined),
+  );
+}; 
+
+const getImageAssemblyDataFromReport = (report) => {
+  const reportTypeIconId = report.icon_id || 'generic';
+  const icon_id = calcSvgImageIconId(report);
+  const color = calcIconColorByPriority(report.priority);
+
+  return { color, report, icon_id, reportTypeIconId };
+};
+
 const MapImageFromSvgSpriteRenderer = (props) => {
-  const { eventTypes, reports = [] } = props;
+  const { addImageToMapIfNecessary, mapImages, reportFeatureCollection = { features: [] } } = props;
 
-  const requestsToIgnore = useRef({});
+  const reports = reportFeatureCollection.features.map(({ properties }) => properties);
+  const spriteCache = useRef({});
+  const ongoingRequests = useRef({});
 
-  const matchingTypes = reports
-    .map((report) => {
-      const reportTypeIconId = eventTypes.find(({ value }) => value === report.event_type)?.icon_id ?? 'generic';
-      const svgImageIconId = calcSvgImageIconId(reportTypeIconId, report.priority, report.width, report.height);
-      const color = calcIconColorByPriority(report.priority);
+  const reportImageAssemblyData = reports
+    .map(getImageAssemblyDataFromReport)
+    .filter(({ icon_id }) => !mapImages[icon_id]);
 
-      const svgCacheId = `${svgImageIconId}-${color}`;
+  const toRequest = reportImageAssemblyData
+    .filter(({ reportTypeIconId }) =>
+      !spriteCache.current[reportTypeIconId]
+    );
 
-      return { svgCacheId, color, report, svgImageIconId, reportTypeIconId };
+  const toGenerateFromCache = reportImageAssemblyData
+    .filter(({ reportTypeIconId }) =>
+      !!spriteCache.current[reportTypeIconId]
+    );
 
-    }, [])
-    .filter(({ svgCacheId }) => {
-      return !requestsToIgnore.current[svgCacheId];
-    });
+  toRequest.forEach(({ color, report, icon_id, reportTypeIconId }) => {
+    if (!ongoingRequests.current[reportTypeIconId]) {
+      ongoingRequests.current[reportTypeIconId] = fetchSpriteImage(reportTypeIconId);
+    }
+      
+    ongoingRequests.current[reportTypeIconId]
+      .then((response) => {
+        spriteCache.current[reportTypeIconId] = response.data;
 
+        return imageElFromSvgString(response.data, report);
+      })
+      .then((image) => {
+        addImageToMapIfNecessary({ icon_id, image });
+      })
+      .catch((error) => {
+        if (/4[0-9][0-9]/.test(error?.response?.status)) {
+          /* not in the sprite, fetch from the url instead */
+          const iconSrc = calcUrlForImage(report.image);
 
-  if (!!matchingTypes.length) {
-    matchingTypes.forEach(({ color, report, svgImageIconId, reportTypeIconId, svgCacheId }) => {
+          const { height, width = MAP_ICON_SIZE } = report;
 
+          imgElFromSrc(
+            iconSrc,
+            width * MAP_ICON_SCALE,
+            (height ? (height * MAP_ICON_SCALE) : undefined),
+          )
+            .then((image) => {
+              addImageToMapIfNecessary({ icon_id, image });
+            })
+            .catch((error) => {
+              console.warn('imgElFromSrc error', error);
+            });
+            
+            
+        } else {
+          delete spriteCache.current[reportTypeIconId];
+          console.warn('error generating image for report', error);
+        }
+      })
+      .finally(() => {
+        delete ongoingRequests.current[reportTypeIconId];
+      });
 
-      fetchSpriteImage(reportTypeIconId)
-        .then((response) => {
+  });
 
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(response.data, 'image/svg+xml');
-          const svgEl = doc.documentElement;
-
-          svgEl.style.fill = color;
-
-          requestsToIgnore.current[svgCacheId] = svgEl;
-
-          /* programmatically set fill XX */ 
-          /* save to cache of requests to ignore XX */
-          /* set feature property to be accessed by style expression somehow??? */
-          /* add to map if necessary */
-        })
-        .catch((error) => {
-          if (/4[0-9][0-9]/.test(error?.response?.status)) {
-            requestsToIgnore.current[matchingTypes[0].svgImageIconId] = true; /* ignore missing images, this is expected */
-          } else {
-            return new Error(error);
-          }
-        });
-
-    });
-  }
+  toGenerateFromCache.forEach(({ icon_id, reportTypeIconId, report }) => {
+    imageElFromSvgString(spriteCache.current[reportTypeIconId], report)
+      .then((image) => {
+        addImageToMapIfNecessary({ icon_id, image });
+      })
+      .catch((error) => {
+        console.warn('error generating image from cache', error);
+      });
+  });
 
   return null;
   
 };
 
-const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
+const mapStateToProps = ({ view: { mapImages } }) => ({
+  mapImages,
+});
 
 
-export default connect(mapStateToProps, null)(memo(MapImageFromSvgSpriteRenderer));
+export default connect(mapStateToProps, { addImageToMapIfNecessary })(memo(MapImageFromSvgSpriteRenderer));
