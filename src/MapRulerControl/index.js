@@ -259,7 +259,7 @@ const PointPopup = (props) => {
             latitude: point[1],
             longitude: point[0],
           }
-        }} /* onSaveSuccess={onComplete} onSaveError={onComplete} */ />
+        }} />
     </Fragment>}
     {
       drawing && <p onClick={onClickFinish} className={styles.finishButton}>

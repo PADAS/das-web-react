@@ -25,9 +25,9 @@ const filterEventTypes = (eventTypes, filterText) =>
           }
           return accumulator;
         }, item);
-        return nestedFilterProp && nestedFilterProp.toString().toLowerCase().includes(filterText.toString().toLowerCase());
+        return nestedFilterProp?.toString().toLowerCase().includes(filterText.toString().toLowerCase());
       }
-      return item[prop] && item[prop].toString().toLowerCase().includes(filterText.toString().toLowerCase());
+      return item?.[prop].toString().toLowerCase().includes(filterText.toString().toLowerCase());
     })
   );
 

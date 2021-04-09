@@ -27,7 +27,11 @@ const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, fetchTableauDashboard, ...rest } = props;
+
+  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
+    eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, 
+    staticContext:_staticContext, fetchTableauDashboard, ...rest } = props;
+
   const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
   const [isOpen, setOpenState] = useState(false);
 

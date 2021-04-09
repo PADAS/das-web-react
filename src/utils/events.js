@@ -131,21 +131,15 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
 };
 
 export const openModalForReport = (report, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport = false } = config;
 
   return store.dispatch(
     addModal({
       content: ReportFormModal,
       report,
-      relationshipButtonDisabled,
-      hidePatrols,
-      isPatrolReport,
       map,
-      onSaveSuccess,
-      onSaveError,
+      ...config,
       modalProps: {
         className: 'event-form-modal',
-        // keyboard: false,
       },
     }));
 };

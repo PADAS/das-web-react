@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
+import center from '@turf/center';
+import { feature } from '@turf/helpers';
 
 import { showFeatures } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
@@ -12,9 +14,9 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import listStyles from '../SideBar/styles.module.scss';
 
-const geometryIsPoint = ({ type, coordinates }) => {
+/* const geometryIsPoint = ({ type, coordinates }) => {
   return (type === 'Point' || (type === 'MultiPoint' && coordinates.length === 1));
-};
+}; */
 
 // eslint-disable-next-line react/display-name
 const FeatureListItem = memo((props) => {
@@ -32,9 +34,14 @@ const FeatureListItem = memo((props) => {
     setTimeout(() => {
       setFeatureActiveStateByID(map, properties.id, true);
     }, 200);
-    if (geometryIsPoint(geometry)) {
-      showPopup('feature-symbol', { geometry, properties });
-    }
+
+    const popupFeature = feature(geometry);
+    const centerPoint = center(popupFeature);
+
+    centerPoint.properties = { ...properties };
+
+    showPopup('feature-symbol', centerPoint);
+
     trackEvent('Map Layers', 'Click Jump To Feature Location button',
       `Feature Type:${properties.type_name}`);
   };

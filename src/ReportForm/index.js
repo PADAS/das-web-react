@@ -500,7 +500,7 @@ const ReportForm = (props) => {
         map={map}
         isCollectionChild={eventBelongsToCollection(report)}
         onGoToCollection={goToParentCollection}
-        relationshipButtonDisabled={disableAddReport}
+        formProps={{relationshipButtonDisabled: disableAddReport}}
         hidePatrols={true}
         onNewReportSaved={onReportAdded}
       />
