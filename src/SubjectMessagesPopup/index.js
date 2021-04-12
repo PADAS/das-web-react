@@ -8,7 +8,7 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 import DateTime from '../DateTime';
 import MessageList from '../MessageList';
 
-import { sendMessage, readMessage } from '../ducks/messaging';
+import { fetchMessagesForSubject, sendMessage, readMessage } from '../ducks/messaging';
 import { generateNewMessage } from '../utils/messaging';
 
 import styles from './styles.module.scss';
@@ -79,12 +79,18 @@ const SubjectMessagesPopup = (props) => {
     };
   }, [dispatch, recentMessages]);
 
+  useEffect(() => {
+    if (!!properties.id) {
+      fetchMessagesForSubject(properties.id);
+    }
+  }, [properties.id]);
+
   return (
     <Popup className={styles.popup} anchor='left' offset={[20, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
-      <MessageList ref={listRef} messages={recentMessages} />
       <div className={styles.header}>
-        <h4><ChatIcon /> {properties.name}</h4>
+        <h6><ChatIcon /> {properties.name}</h6>
       </div>
+      <MessageList ref={listRef} messages={recentMessages} />
       <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
         <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
         <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>

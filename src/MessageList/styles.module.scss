@@ -2,7 +2,7 @@
 
 
 .dividerTitle {
-  $divider-color: $medium-light-gray;
+  $divider-color: darken($light-gray-border, 10%);
 
   border-top: 1px solid $divider-color;
   color: $divider-color;
@@ -29,8 +29,10 @@
   max-height: 12rem;
   overflow-y: auto;
   text-align: left;
-  li li:not(:first-child) {
+  li li {
     padding: 0.5rem;
+  }
+  li li:not(:first-child) {
     border-top: 1px solid $light-gray-border;
   }
 }

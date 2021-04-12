@@ -4,6 +4,7 @@ import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
+const FETCH_MESSAGES_FOR_SUBJECT_SUCCESS = 'FETCH_MESSAGES_FOR_SUBJECT_SUCCESS';
 const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
 const NEW_MESSAGE = 'NEW_MESSAGE';
 const SOCKET_MESSAGE_UPDATE = 'SOCKET_MESSAGE_UPDATE';
@@ -12,6 +13,11 @@ const MESSAGING_API_URL = `${API_URL}messages/`;
 
 export const fetchMessagesSuccess = payload => ({
   type: FETCH_MESSAGES_SUCCESS,
+  payload,
+});
+
+export const fetchMessagesForSubjectSuccess = payload => ({
+  type: FETCH_MESSAGES_FOR_SUBJECT_SUCCESS,
   payload,
 });
 
@@ -36,6 +42,9 @@ const { get, post, patch } = axios;
 
 export const fetchMessages = (params = {}) => get(MESSAGING_API_URL, { ...params, include_additional_data: false, page_size: 150 });
 
+/* need the correct API URL for `fetchMessagesForSubject` */
+export const fetchMessagesForSubject = (id, params = {}) => get(`${MESSAGING_API_URL}${id}`, { ...params, include_additional_data: false, page_size: 150 });
+
 export const sendMessage = (message) => post(`${MESSAGING_API_URL}`, message);
 export const readMessage = (message) => patch(`${MESSAGING_API_URL}${message.id}`, { read: true });
 
@@ -56,9 +65,20 @@ export const messageStoreReducer = (state = {}, action) => {
           .sort((a, b) => new Date(b.message_time) - new Date(a.message_time)),
       };
     }, {});
+
     return {
       ...state,
       ...updates,
+    };
+  }
+
+  if (type === FETCH_MESSAGES_FOR_SUBJECT_SUCCESS) {
+    const { id, messages } = payload;
+
+    return {
+      ...state,
+      [id]: unionBy(messages, (state[id] || []), 'id')
+        .sort((a, b) => new Date(b.message_time) - new Date(a.message_time)),
     };
   }
 
