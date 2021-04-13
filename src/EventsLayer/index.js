@@ -13,6 +13,7 @@ import { calcImgIdFromUrlForMapImages } from '../utils/img';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
+import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
@@ -110,15 +111,13 @@ const EventsLayer = (props) => {
   useEffect(() => {
     setMapEventFeatureCollection({
       ...eventsWithBounce,
-      features: eventsWithBounce.features.filter((feature) => {
-        return !!mapImages[
-          calcImgIdFromUrlForMapImages(
-            feature.properties.image || feature.properties.image_url, feature.properties.width, feature.properties.height,
-          )
-        ];
-      }),
+      features: eventsWithBounce.features.filter(feature => 
+        !map.hasImage(
+          calcSvgImageIconId(feature)
+        )
+      ),
     });
-  }, [eventsWithBounce, mapImages]);
+  }, [eventsWithBounce, map, mapImages]);
 
   const getEventLayer = useCallback((e, map) => map.queryRenderedFeatures(e.point, { layers: eventSymbolLayerIDs })[0], [eventSymbolLayerIDs]);
 
@@ -134,14 +133,14 @@ const EventsLayer = (props) => {
   }, [getEventLayer, map, onEventClick]);
 
   useEffect(() => {
-    const addClusterIconToMap = async () => {
+    const addClusterIconToMap = () => {
       if (!map.hasImage('event-cluster-icon')) {
         addMapImage({ src: ClusterIcon, id: 'event-cluster-icon' });
       }
     };
-    !!events && addFeatureCollectionImagesToMap(events, map);
+    
     addClusterIconToMap();
-  }, [eventSymbolLayerIDs, events, handleEventClick, map]);
+  }, [map]);
 
   const clusterGeometryIsSet = !!clusterBufferPolygon
     && !!clusterBufferPolygon.geometry
@@ -162,7 +161,6 @@ const EventsLayer = (props) => {
               
               const buffered = buffer(concaved, 0.2);
               const simplified = simplify(buffered, { tolerance: 0.005 });
-              // const tenPixelBufferSize = metersPerPixel(lat, zoom) / 100;
               
               setClusterBufferPolygon(simplified);
             } catch (e) {
@@ -235,6 +233,25 @@ const EventsLayer = (props) => {
         SCALE_ICON_IF_BOUNCED(0.5/MAP_ICON_SCALE, ICON_SCALE_RATE), 
         SCALE_ICON_IF_BOUNCED(1/MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
+    'icon-image': ['concat',
+      ['get', 'icon_id'],
+      '-',
+      ['get', 'priority'],
+      ['case',
+        ['has', 'width'], [
+          'concat',
+          '-',
+          ['get', 'width'],
+        ],
+        ''],
+      ['case',
+        ['has', 'height'], 
+        [ 'concat',
+          '-',
+          ['get', 'height'],
+        ],
+        ''],
+    ],
     ...mapUserLayoutConfig,
     'text-size': 0,
   };
@@ -289,6 +306,7 @@ const EventsLayer = (props) => {
 
       <Layer minZoom={minZoom} maxZoom={MAX_ZOOM - 2} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
     </Fragment>}
+    {!!events?.features?.length && <MapImageFromSvgSpriteRenderer reportFeatureCollection={events} />}
   </Fragment>;
 };
 

@@ -14,7 +14,8 @@ const imgNeedsHostAppended = url => {
 export const imgElFromSrc = (src, width = 30, height = null) => new Promise((resolve, reject) => {
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
-  img.onload = () => {
+
+  img.addEventListener('load',() => {
     if (width && height) {
       img.width = width;
       img.height = height;
@@ -34,7 +35,8 @@ export const imgElFromSrc = (src, width = 30, height = null) => new Promise((res
       }
     }
     resolve(img);
-  };
+  }, { once: true });
+  
   img.onerror = (e) => {
     console.log('image error', src, e);
     reject('could not load image');
