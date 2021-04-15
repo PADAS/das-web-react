@@ -20,7 +20,7 @@ const SOCKET_DISPATCHES = {
   update_patrol: [socketUpdatePatrol, SOCKET_HEALTHY_STATUS],
   delete_patrol: [socketDeletePatrol, SOCKET_HEALTHY_STATUS],
   subject_track_merge: [refreshTrackOnBulkObservationUpdateIfNecessary],
-  radio_message: [updateMessageFromRealtime],
+  message_update: [updateMessageFromRealtime],
 };
 
 export { SOCKET_DISPATCHES as events };

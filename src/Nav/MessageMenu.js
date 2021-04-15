@@ -30,10 +30,10 @@ const MessageMenu = (props) => {
       dispatch(updateMessageFromRealtime(msg));
     };
     
-    socket.on('radio_message', handleRealtimeMessage);
+    socket.on('message_update', handleRealtimeMessage);
 
     return () => {
-      socket.off('radio_message', handleRealtimeMessage);
+      socket.off('message_update', handleRealtimeMessage);
     };
   }, [dispatch, socket]);
 
