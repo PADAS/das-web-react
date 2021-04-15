@@ -85,7 +85,7 @@ const MessageListItem = (props) => {
     <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? 'Operator'} > ${subject.name}`}</em>
     <div className={`${styles.messageDetails} ${message.read ? '' : styles.unread}`}>
       <span className={styles.messageContent}>{message.text}</span>
-      <DateTime date={message.message_time} />
+      <DateTime date={message.message_time} className={styles.messageTime} />
     </div>
   </li>;
 };

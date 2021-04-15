@@ -7,6 +7,17 @@
   }
 }
 
+.header {
+  margin: 0 0 0.5rem;
+  h6 {
+    font-size: 0.875rem;
+    margin: 0;
+    svg {
+      margin-right: 0.666rem;
+    }
+  }
+}
+
 .chatControls {
   display: flex;
   align-items: center;

@@ -2,23 +2,26 @@
 
 
 .dividerTitle {
-  $divider-color: $medium-light-gray;
+  $divider-color: darken($light-gray-border, 10%);
 
-  border: 1px solid $divider-color;
+  border-top: 1px solid $divider-color;
   color: $divider-color;
   display: block;
   font-size: 1rem;
   line-height: 0;
-  margin: 1rem 0;
+  margin: 0.5rem 0;
   text-align: center;
   span {
     background: white;
+    font-size: 0.65rem;
     padding: 0.25rem;
   }
 }
 
 .senderDetails {
+  color: $light-font-color;
   display: block;
+  font-size: 0.75rem;
 }
 
 .messageHistory {
@@ -26,8 +29,10 @@
   max-height: 12rem;
   overflow-y: auto;
   text-align: left;
-  li li:not(:first-child) {
+  li li {
     padding: 0.5rem;
+  }
+  li li:not(:first-child) {
     border-top: 1px solid $light-gray-border;
   }
 }
@@ -35,4 +40,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.messageTime {
+  margin-top: -1.25rem;
+  text-align: right;
 }

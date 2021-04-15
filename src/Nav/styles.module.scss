@@ -5,9 +5,13 @@
 }
 
 .messageList {
-  margin-bottom: 1rem;
+  margin: 0;
   max-height: 16rem;
+  min-width: 24rem;
   overflow-y: auto;
+  li li {
+    padding: 0.25rem 1rem 0.5rem;
+  }
 /*   li {
     align-items: center;
     border-top: 1px solid $light-gray-border;

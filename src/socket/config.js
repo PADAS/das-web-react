@@ -3,6 +3,7 @@ import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
 import { socketEventData } from '../ducks/events';
 import { socketUpdatePatrol, socketCreatePatrol, socketDeletePatrol } from '../ducks/patrols';
 import { refreshTrackOnBulkObservationUpdateIfNecessary } from '../ducks/tracks';
+import { updateMessageFromRealtime } from '../ducks/messaging';
 
 const SOCKET_DISPATCHES = {
   resp_authorization: [/* 'SOCKET_AUTH_RESPONSE' ,*/ SOCKET_HEALTHY_STATUS],
@@ -19,6 +20,7 @@ const SOCKET_DISPATCHES = {
   update_patrol: [socketUpdatePatrol, SOCKET_HEALTHY_STATUS],
   delete_patrol: [socketDeletePatrol, SOCKET_HEALTHY_STATUS],
   subject_track_merge: [refreshTrackOnBulkObservationUpdateIfNecessary],
+  radio_message: [updateMessageFromRealtime],
 };
 
 export { SOCKET_DISPATCHES as events };

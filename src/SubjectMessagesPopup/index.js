@@ -8,7 +8,7 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 import DateTime from '../DateTime';
 import MessageList from '../MessageList';
 
-import { newMessage, fetchMessagesSuccess } from '../ducks/messaging';
+import { fetchMessagesForSubject, sendMessage, readMessage } from '../ducks/messaging';
 import { generateNewMessage } from '../utils/messaging';
 
 import styles from './styles.module.scss';
@@ -27,7 +27,7 @@ const SubjectMessagesPopup = (props) => {
       .sort((a, b) => new Date(a.message_time) - new Date(b.message_time));
   }, [properties.id, state]);
 
-  const sendMessage = useCallback((event) => {
+  const onMessageSubmit = useCallback((event) => {
     event.preventDefault();
 
     const data = new FormData(formRef.current);
@@ -35,12 +35,12 @@ const SubjectMessagesPopup = (props) => {
 
     const msg = generateNewMessage([{ geometry, properties }], { message_type: 'outbox', text: value, read: true, message_time: new Date().toISOString() });
 
-    dispatch(newMessage(msg));
+    sendMessage(msg);
 
     setInputValue('');
     textInputRef.current.focus();
 
-  }, [dispatch, geometry, properties]);
+  }, [geometry, properties]);
 
   const handleInputChange = useCallback(({ target: { value } }) => {
     setInputValue(value);
@@ -74,18 +74,24 @@ const SubjectMessagesPopup = (props) => {
           read: true,
         }));
       if (!!updates.length) {
-        dispatch(fetchMessagesSuccess(updates));
+        updates.forEach((message) => readMessage(message));
       }
     };
   }, [dispatch, recentMessages]);
 
+  useEffect(() => {
+    if (!!properties.id) {
+      fetchMessagesForSubject(properties.id);
+    }
+  }, [properties.id]);
+
   return (
     <Popup className={styles.popup} anchor='left' offset={[20, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
-      <MessageList ref={listRef} messages={recentMessages} />
       <div className={styles.header}>
-        <h4><ChatIcon /> {properties.name}</h4>
+        <h6><ChatIcon /> {properties.name}</h6>
       </div>
-      <form ref={formRef} onSubmit={sendMessage} className={styles.chatControls}>
+      <MessageList ref={listRef} messages={recentMessages} />
+      <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
         <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
         <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>
       </form>
