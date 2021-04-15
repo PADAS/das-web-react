@@ -1,8 +1,11 @@
-import React, { forwardRef, memo, useMemo, useState } from 'react';
+import React, { forwardRef, memo, useMemo, useRef, useState } from 'react';
+import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import isSameDay from 'date-fns/is_same_day';
 import isToday from 'date-fns/is_today';
 import isYesterday from 'date-fns/is_yesterday';
+
+import InfiniteScroll from 'react-infinite-scroller';
 
 import format from 'date-fns/format';
 
@@ -20,8 +23,8 @@ const calcMessageGroupTitle = (date) => {
   return format(date, SHORTENED_DATE_FORMAT);
 };
 
-const MessageList = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { className = '', messages, onMessageClick = () => null, } = props;
+const MessageList = forwardRef((props, ref = useRef() ) => { /* eslint-disable-line react/display-name */
+  const { className = '', hasMore = false, onScroll = () => null, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -49,15 +52,20 @@ const MessageList = forwardRef((props, ref) => { /* eslint-disable-line react/di
 
   }, []), [messages]);
 
-  console.log({ groupedByDate });
-
-  return <ul ref={ref} className={`${styles.messageHistory} ${className}`}>
+  return   <InfiniteScroll
+    element='ul'
+    hasMore={hasMore}
+    loadMore={onScroll}
+    className={`${styles.messageHistory} ${className}`}
+    useWindow={false}
+    getScrollParent={() => findDOMNode(ref.current)} // eslint-disable-line react/no-find-dom-node 
+  >
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
       <MessageGroupListItem key={`${instanceId}-message-group-${index}`}
         messages={group.messages} title={group.title} />
     )}
     {!groupedByDate.length && <span>No messages to display.</span>}
-  </ul>;
+  </InfiniteScroll>;
 });
 
 

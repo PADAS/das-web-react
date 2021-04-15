@@ -1,25 +1,28 @@
-import React, { useEffect, useCallback, useContext, useMemo, useRef, memo } from 'react';
+import React, { useEffect, useContext, useReducer, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { featureCollection } from '@turf/helpers';
 
 import { addMapImage } from '../utils/map';
+import { SocketContext } from '../withSocketConnection';
 
 import { withMap } from '../EarthRangerMap';
-import MessageContext from '../InReach/context';
-
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';
+
+import { fetchMessages } from '../ducks/messaging';
 
 import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
 
-
-const calcMapMessages = (messageStore, subjectFeatureCollection) => {
-  if (!subjectFeatureCollection?.features?.length) return null;
+const calcMapMessages = (messages = [], subjectFeatureCollection) => {
+  if (!messages.length || !subjectFeatureCollection?.features?.length) return null;
 
   const subjectFeaturesWithUnreadMessages =
     subjectFeatureCollection.features
       .map(feature => 
-        ({ feature, messages: (messageStore[feature.properties.id] || []).filter(msg => !msg.read) }))
+        ({ feature, messages: messages
+          .filter(msg => msg?.receiver?.id === feature.properties.id)
+          .filter(msg => !msg.read) }))
       .filter(item => !!item.messages.length);
 
   return featureCollection(
@@ -52,10 +55,28 @@ const messageBadgePaint = {
 };
 
 const MessageBadgeLayer = (props) => {
-  const { map, messages, onBadgeClick, subjectFeatureCollection }  = props;
+  /* "messages" prop needs to be replaced by a FETCH that retrieves only unread messages and has a huge page size to guarantee full retrieval */
+  const { map, onBadgeClick, subjectFeatureCollection }  = props;
 
-  const { state, dispatch } = useContext(MessageContext);
+  const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
 
+  const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    const handleRealtimeMessage = (msg) => {
+      if (msg.read) {
+        dispatch(removeMessageById(msg.id));
+      } else {
+        dispatch(updateMessageFromRealtime(msg));
+      }
+    };
+    
+    socket.on('radio_message', handleRealtimeMessage);
+
+    return () => {
+      socket.off('radio_message', handleRealtimeMessage);
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (map) {
@@ -65,7 +86,7 @@ const MessageBadgeLayer = (props) => {
       const hasSource = !!source;
       const hasLayer = !!layer;
 
-      const data = calcMapMessages(state, subjectFeatureCollection);
+      const data = calcMapMessages(state.results, subjectFeatureCollection);
 
       if (hasSource) {
         source.setData(data);
@@ -86,7 +107,15 @@ const MessageBadgeLayer = (props) => {
         });
       } 
     }
-  }, [map, messages, state, subjectFeatureCollection]);
+  }, [map, state.results, subjectFeatureCollection]);
+
+  useEffect(() => {
+    fetchMessages({ read: false })
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response?.data?.data));
+      });
+  }, []);
+  
 
 
   useEffect(() => {

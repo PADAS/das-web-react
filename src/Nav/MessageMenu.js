@@ -1,14 +1,14 @@
-import React, { Fragment, memo, useCallback, useMemo, useContext } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import flatten from 'lodash/flatten';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
-import DateTime from '../DateTime';
 import MessageList from '../MessageList';
+import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
+import { SocketContext } from '../withSocketConnection';
 
-import { fetchMessagesSuccess, readMessage } from '../ducks/messaging';
+import { fetchMessages, fetchMessagesSuccess, readMessage, updateMessageFromRealtime } from '../ducks/messaging';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -20,11 +20,34 @@ const { Toggle, Menu, Item } = Dropdown;
 const MessageMenu = (props) => {
   const { subjects } = props;
 
+  const listRef = useRef();
+
+  const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
 
-  const messageArray = useMemo(() => flatten(Object
-    .values(state))
-    .sort((a, b) => new Date(b.message_time) - new Date(a.message_time)), [state]);
+  useEffect(() => {
+    const handleRealtimeMessage = (msg) => {
+      dispatch(updateMessageFromRealtime(msg));
+    };
+    
+    socket.on('radio_message', handleRealtimeMessage);
+
+    return () => {
+      socket.off('radio_message', handleRealtimeMessage);
+    };
+  }, [dispatch, socket]);
+
+  useEffect(() => {
+    fetchMessages()
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response?.data?.data));
+      })
+      .catch((error) => {
+        console.warn('error fetching messages', { error });
+      });
+  }, [dispatch]);
+
+  const messageArray = state?.results ?? [];
 
   const unreads = messageArray.filter(msg => !msg.read);
   const reads = messageArray.filter(msg => !unreads.map(m => m.id).includes(msg.id));
@@ -42,17 +65,19 @@ const MessageMenu = (props) => {
     }
   }, [unreads]);
 
-  return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
-    <Toggle disabled={!messageArray.length}>
-      <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
-    </Toggle>
-    <Menu>
-      {!!displayMessageList.length && <MessageList className={styles.messageList} messages={displayMessageList} />}
-      <Item>
-        <Button variant='link'>See all &raquo;</Button>
-      </Item>
-    </Menu>
-  </Dropdown>;
+  return <WithMessageContext>
+    <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
+      <Toggle disabled={!messageArray.length}>
+        <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
+      </Toggle>
+      <Menu>
+        {!!displayMessageList.length && <MessageList ref={listRef} className={styles.messageList} messages={displayMessageList} />}
+        <Item>
+          <Button variant='link'>See all &raquo;</Button>
+        </Item>
+      </Menu>
+    </Dropdown>
+  </WithMessageContext>;
 };
 
 const mapStateToProps = (state) => ({
