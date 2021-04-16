@@ -94,7 +94,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
       {
         patrol_type,
         priority,
-        reports: [],
+        events: [],
         scheduled_start: null,
         leader,
         start_location: location ? { ...location } : null,
@@ -167,7 +167,7 @@ export const actualStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.[0]?.events ?? null;
+export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.[0]?.events ?? [];
 
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
