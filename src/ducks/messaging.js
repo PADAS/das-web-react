@@ -20,7 +20,7 @@ export const fetchMessagesSuccess = (payload, refresh = false) => ({
 export const updateMessageFromRealtime = payload => ({
   type: SOCKET_MESSAGE_UPDATE,
   payload,
-});
+}); 
 
 export const removeMessageById = id => ({
   type: REMOVE_MESSAGE,
@@ -33,7 +33,7 @@ export const fetchMessages = (params = {}) => get(MESSAGING_API_URL, { params: {
   ...params, include_additional_data: false, page_size: 150,
 } });
 
-export const sendMessage = (message) => post(`${MESSAGING_API_URL}`, message);
+export const sendMessage = (url, message) => post(url, message);
 export const readMessage = (message) => patch(`${MESSAGING_API_URL}${message.id}`, { read: true });
 
 

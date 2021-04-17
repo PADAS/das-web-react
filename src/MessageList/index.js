@@ -23,8 +23,8 @@ const calcMessageGroupTitle = (date) => {
   return format(date, SHORTENED_DATE_FORMAT);
 };
 
-const MessageList = forwardRef((props, ref = useRef() ) => { /* eslint-disable-line react/display-name */
-  const { className = '', hasMore = false, onScroll = () => null, messages = [], } = props;
+const MessageList = (props) => { /* eslint-disable-line react/display-name */
+  const { className = '', containerRef, hasMore = false, onScroll = () => null, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -58,7 +58,7 @@ const MessageList = forwardRef((props, ref = useRef() ) => { /* eslint-disable-l
     loadMore={onScroll}
     className={`${styles.messageHistory} ${className}`}
     useWindow={false}
-    getScrollParent={() => findDOMNode(ref.current)} // eslint-disable-line react/no-find-dom-node 
+    getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node 
   >
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
       <MessageGroupListItem key={`${instanceId}-message-group-${index}`}
@@ -66,7 +66,7 @@ const MessageList = forwardRef((props, ref = useRef() ) => { /* eslint-disable-l
     )}
     {!groupedByDate.length && <span>No messages to display.</span>}
   </InfiniteScroll>;
-});
+};
 
 
 const MessageGroupListItem = (props) => {

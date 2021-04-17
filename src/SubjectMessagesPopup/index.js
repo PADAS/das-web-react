@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 const TEXT_MAX_LENGTH = 160;
 
 const SubjectMessagesPopup = (props) => {
-  const  { data: { geometry, properties } } = props;
+  const  { data: { geometry, properties } } = props; 
 
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
   const socket = useContext(SocketContext);
@@ -28,16 +28,19 @@ const SubjectMessagesPopup = (props) => {
     return (state?.results ?? []).slice(0, 50)
       .sort((a, b) => new Date(a.message_time) - new Date(b.message_time));
   }, [state]);
+  
 
   const onMessageSubmit = useCallback((event) => {
     event.preventDefault();
 
     const data = new FormData(formRef.current);
     const value = data.get(`chat-${properties.id}`);
+    
 
-    const msg = generateNewMessage([{ geometry, properties }], { message_type: 'outbox', text: value, read: true, message_time: new Date().toISOString() });
+    const { url } = JSON.parse(properties.messaging)[0];
+    const msg = generateNewMessage({ geometry, properties }, { text: value, read: true });
 
-    sendMessage(msg);
+    sendMessage(url, msg);
 
     setInputValue('');
     textInputRef.current.focus();
@@ -56,10 +59,10 @@ const SubjectMessagesPopup = (props) => {
   const characterCount = inputValue.length;
 
   useEffect(() => {
-    if (!!recentMessages.length && !!listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
+    if (!loading && !!recentMessages.length) {
+      listRef.current.querySelector('ul').scrollTop = listRef.current.scrollHeight;
     }
-  }, [recentMessages]);
+  }, [loading, recentMessages.length]);
 
   useEffect(() => {
     if (!!textInputRef.current) {
@@ -113,7 +116,10 @@ const SubjectMessagesPopup = (props) => {
       <h6><ChatIcon /> {properties.name}</h6>
     </div>
     {loading && <LoadingOverlay />}
-    {!loading && <MessageList ref={listRef} messages={recentMessages} />}
+    {!loading && <div ref={listRef}>
+      <MessageList containerRef={listRef} messages={recentMessages} />
+    </div>
+    }
     <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
       <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
       <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>

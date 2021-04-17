@@ -3,15 +3,20 @@
 .popup {
   [class*=mapboxgl-popup-content] {
     background: white;
-    padding: 0.5rem 1rem 0.25rem;
+    padding: 0.5rem 0 0.25rem;
     width: 24rem;
+    > * {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 }
 
 .header {
-  margin: 0.25rem 0;
+  margin: 0.25rem 0 0.5rem;
   h6 {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 500;
     margin: 0;
     svg {
       margin-right: 0.666rem;
@@ -23,6 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 2rem;
   input {
     flex-grow: 1;
     margin-right: 0.5rem;

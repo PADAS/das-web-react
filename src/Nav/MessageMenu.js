@@ -8,7 +8,10 @@ import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
 import { SocketContext } from '../withSocketConnection';
 
+import MessagesModal from '../MessagesModal';
+
 import { fetchMessages, fetchMessagesSuccess, readMessage, updateMessageFromRealtime } from '../ducks/messaging';
+import { addModal } from '../ducks/modals';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -49,6 +52,13 @@ const MessageMenu = (props) => {
 
   const messageArray = state?.results ?? [];
 
+  const showAllMessagesModal = useCallback(() => {
+    addModal({
+      content: MessagesModal,
+    });
+    // trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
+  }, []);
+
   const unreads = messageArray.filter(msg => !msg.read);
   const reads = messageArray.filter(msg => !unreads.map(m => m.id).includes(msg.id));
 
@@ -73,7 +83,7 @@ const MessageMenu = (props) => {
       <Menu>
         {!!displayMessageList.length && <MessageList ref={listRef} className={styles.messageList} messages={displayMessageList} />}
         <Item>
-          <Button variant='link'>See all &raquo;</Button>
+          <Button variant='link' onClick={showAllMessagesModal}>See all &raquo;</Button>
         </Item>
       </Menu>
     </Dropdown>
