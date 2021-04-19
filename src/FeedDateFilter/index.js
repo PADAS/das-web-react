@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 
 
 const FeedDateFilter = (props) => {
-  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, onSettingsButtonClicked, filterSettingsOpen, container, ...rest } = props;
+  const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, filterSettingsOpen, container, ...rest } = props;
 
   const { lower, upper } = dateRange;
 
