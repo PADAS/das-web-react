@@ -136,10 +136,11 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
   if (
     since 
     && new Date(since).getTime() < new Date(
-      Math.min(
-        new Date(fetchedDateRange.since).getTime(),
-        new Date(first).getTime(),
-      )
+      first ? 
+        Math.min(
+          new Date(fetchedDateRange.since).getTime(),
+          new Date(first).getTime(),
+        ) : new Date(fetchedDateRange.since).getTime()
     ).getTime()
   ) {
     return false;
@@ -148,10 +149,10 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
   if (
     until 
     && new Date(until).getTime() > new Date(
-      Math.max(
+      last ? Math.max(
         new Date(fetchedDateRange.until).getTime(),
         new Date(last).getTime(),
-      )
+      ) : new Date(fetchedDateRange.until).getTime()
     ).getTime()) {
     return false;
   }
