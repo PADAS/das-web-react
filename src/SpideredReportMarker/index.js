@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { addTitleWithDateToGeoJson, getEventTypeTitle } from '../utils/map';
+import { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 
 import styles from './styles.module.scss';
 
@@ -20,9 +20,7 @@ const SpideredReportMarker = (props) => {
   
   useEffect(() => {
     const storeImage = mapImages[
-      calcImgIdFromUrlForMapImages(
-        (report.image || report.image_url), report.width, report.height,
-      )
+      calcSvgImageIconId(report)
     ];
     if (storeImage) {
       const attributes = {};
@@ -36,7 +34,7 @@ const SpideredReportMarker = (props) => {
       }
       setImgAttributes(attributes);
     }
-  }, [mapImages, report.height, report.image, report.image_url, report.width]);
+  }, [mapImages, report]);
 
   useEffect(() => {
     const { title, event_type } = report;

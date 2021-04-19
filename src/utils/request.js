@@ -16,8 +16,8 @@
 const errorHasAResponse = error => !!error.response;
 const errorHasAResponseStatusCode = error => errorHasAResponse(error) && !!error.response.status && !!error.response.status.code;
 
-export const errorIsHttpError = error => errorHasAResponseStatusCode(error) && error.response.status.code >= 400 && error.response.status.code <= 499;
-export const errorIsServerError = error => errorHasAResponseStatusCode(error) && error.response.status.code >= 500 && error.response.status.code <= 599;
+export const errorIsHttpError = error => errorHasAResponseStatusCode(error) && error.response.status >= 400 && error.response.status <= 499;
+export const errorIsServerError = error => errorHasAResponseStatusCode(error) && error.response.status >= 500 && error.response.status <= 599;
 
 const errorIsRequestError = error => !!error.request; // aka trouble communicating with the server, probably a network outage
 

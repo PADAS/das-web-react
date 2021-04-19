@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, forwardRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isObject from 'lodash/isObject';
@@ -9,7 +9,7 @@ import { displayEventTypes } from '../selectors/events';
 
 import styles from './styles.module.scss';
 
-const EventIcon = ({report, eventTypes, color, ...rest}) => {
+const EventIcon = forwardRef(({report, eventTypes, color, ...rest}, ref) => { /* eslint-disable-line react/display-name */
   const { is_collection } = report;
   const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
 
@@ -24,7 +24,7 @@ const EventIcon = ({report, eventTypes, color, ...rest}) => {
 
   const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
 
-  return <span className={styles.wrapper}>
+  return <span ref={ref} className={styles.wrapper}>
     <DasIcon type='events' iconId='incident_collection'  {...rest}  />
     {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events'  {...rest} 
       style={{
@@ -32,7 +32,7 @@ const EventIcon = ({report, eventTypes, color, ...rest}) => {
       }}
       className={styles.content} iconId={topRatedReportAndType.event_type.icon_id} />}
   </span>;
-};
+});
 
 const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
 

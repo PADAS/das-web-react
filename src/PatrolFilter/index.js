@@ -132,6 +132,10 @@ const PatrolFilter = (props) => {
     trackEvent('Patrol Filter', 'Click Reset Date Range Filter');
   }, [resetGlobalDateRange]);
 
+  const onFilterSettingsToggle = useCallback(() => {
+    trackEvent('Patrol Filter', 'Click Date Filter Settings button');
+  }, []);
+
   /* const resetStateFilter = useCallback((e) => {
     e.stopPropagation();
     updatePatrolFilter({ status: INITIAL_FILTER_STATE.status });
@@ -204,9 +208,8 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' 
-        endDateLabel='' startDateLabel='' container={containerRef} filterSettings={filterSettings}
-        onSettingsButtonClick={toggleFilterSettingsPopover}/>
+      <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' onFilterSettingsToggle={onFilterSettingsToggle}
+        endDateLabel='' startDateLabel='' container={containerRef} filterSettings={filterSettings} />
     </Popover.Content>
   </Popover>;
 

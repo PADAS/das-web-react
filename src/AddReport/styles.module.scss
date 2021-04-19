@@ -59,12 +59,9 @@ div.popover {
     align-items: center;
     display: flex;
     flex-flow: column;
-    max-height: 22rem;
+    max-height: 29rem;
     padding: 0;
     position: relative;
-    @media (min-height: $lg-height-min) {
-      max-height: 29rem;
-    }
   }
   [class*=popover-header] {
     @include popoverTitle;

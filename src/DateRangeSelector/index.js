@@ -16,7 +16,7 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
 const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
-    startDateLabel, endDateLabel, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
+    startDateLabel, endDateLabel, onFilterSettingsToggle, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
     defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
     children, placement, filterSettings, ...rest } = props;
 
@@ -36,7 +36,8 @@ const DateRangeSelector = (props) => {
 
   const toggleFilterSettingsPopover = useCallback(() => {
     setFilterSettingsPopoverState(!filterSettingsOpen);
-  }, [filterSettingsOpen]);
+    onFilterSettingsToggle && onFilterSettingsToggle(!filterSettingsOpen);
+  }, [filterSettingsOpen, onFilterSettingsToggle]);
 
   const hasEndMaxDate = typeof endMaxDate !== 'undefined';
 

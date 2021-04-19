@@ -1,7 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { connect } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+
+import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -17,6 +19,11 @@ const PatrolFilterSettings = (props) => {
     <Tooltip className={styles.filterTooltip} {...props}>Include patrols whose start to end date range overlaps with the date range</Tooltip>
   );
 
+  const handleOptionClick = useCallback((e) => {
+    handleFilterOptionChange(e);
+    trackEvent('Patrol Filter', `Select "${e.target.value === 'start_dates' ? 'Filter by start date' : 'Filter by date range overlap'}"`);
+  }, [handleFilterOptionChange]);
+
   return <div className={styles.filterSelection}>
     <form>
       <fieldset>
@@ -28,7 +35,7 @@ const PatrolFilterSettings = (props) => {
                 id="start_dates"
                 value="start_dates"
                 checked={!patrols_overlap_daterange}
-                onChange={handleFilterOptionChange}
+                onChange={handleOptionClick}
               /><label forHtml="start_dates">Filter by start date</label>
             </span>
           </OverlayTrigger>
@@ -41,7 +48,7 @@ const PatrolFilterSettings = (props) => {
                 id="overlap_dates"
                 value="overlap_dates"
                 checked={patrols_overlap_daterange}
-                onChange={handleFilterOptionChange}
+                onChange={handleOptionClick}
               /><label htmlFor="overlap_dates">Filter by date range overlap</label>
             </span>
           </OverlayTrigger>
