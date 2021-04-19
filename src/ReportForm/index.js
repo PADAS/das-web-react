@@ -400,7 +400,8 @@ const ReportForm = (props) => {
       content: AddToPatrolModal,
       onAddToPatrol,
     });
-  }, [addModal, onAddToPatrol]);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add to Patrol\' button');
+  }, [addModal, is_collection, onAddToPatrol]);
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
