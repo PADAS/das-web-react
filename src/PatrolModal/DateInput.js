@@ -27,7 +27,7 @@ const PatrolDateInput = (props) => {
     && isFuture(new Date(stateTime)
     ), [stateTime]);
 
-  const commitTimeChange = useCallback(() => {
+  const commitTimeChange = useCallback(() => { 
     const auto = !canShowAutoCheck ? true : isAuto;
     
     onChange(stateTime, auto);
