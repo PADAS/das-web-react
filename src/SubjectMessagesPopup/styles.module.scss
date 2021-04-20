@@ -34,3 +34,8 @@
     margin-right: 0.5rem;
   }
 }
+
+.scrollContainer {
+  max-height: 12em;
+  overflow-y: auto;
+}

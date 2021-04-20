@@ -10,7 +10,7 @@
   min-width: 24rem;
   overflow-y: auto;
   li li {
-    padding: 0.25rem 1rem 0.5rem;
+    padding: 0.5rem 1rem 0.5rem;
   }
 /*   li {
     align-items: center;
@@ -37,4 +37,16 @@
 
 .messageTitle {
   padding: 0.5rem 1rem;
+}
+
+div.messageMenu {
+  [class*=dropdown-menu] {
+    padding-bottom: 0;
+  }
+}
+
+.seeAll {
+  border-top: 1px solid $light-gray-border;
+  justify-content: flex-end;
+  text-align: right;
 }

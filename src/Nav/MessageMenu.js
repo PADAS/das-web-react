@@ -29,14 +29,14 @@ const MessageMenu = (props) => {
   const { state, dispatch } = useContext(MessageContext);
 
   useEffect(() => {
-    const handleRealtimeMessage = (msg) => {
+    const handleRealtimeMessage = ({ data:msg }) => {
       dispatch(updateMessageFromRealtime(msg));
     };
     
-    socket.on('message_update', handleRealtimeMessage);
+    socket.on('radio_message', handleRealtimeMessage);
 
     return () => {
-      socket.off('message_update', handleRealtimeMessage);
+      socket.off('radio_message', handleRealtimeMessage);
     };
   }, [dispatch, socket]);
 
@@ -75,23 +75,25 @@ const MessageMenu = (props) => {
     }
   }, [unreads]);
 
-  return <WithMessageContext>
-    <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
-      <Toggle disabled={!messageArray.length}>
-        <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
-      </Toggle>
-      <Menu>
-        {!!displayMessageList.length && <MessageList ref={listRef} className={styles.messageList} messages={displayMessageList} />}
-        <Item>
-          <Button variant='link' onClick={showAllMessagesModal}>See all &raquo;</Button>
-        </Item>
-      </Menu>
-    </Dropdown>
-  </WithMessageContext>;
+  return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
+    <Toggle disabled={!messageArray.length}>
+      <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
+    </Toggle>
+    <Menu className={styles.messageMenus}>
+      {!!displayMessageList.length && <MessageList ref={listRef} className={styles.messageList} messages={displayMessageList} />}
+      <Item className={styles.seeAll}>
+        <Button variant='link' onClick={showAllMessagesModal}>See all &raquo;</Button>
+      </Item>
+    </Menu>
+  </Dropdown>;
 };
 
 const mapStateToProps = (state) => ({
   subjects: state.data.subjectStore,
 });
 
-export default connect(mapStateToProps, null)(memo(MessageMenu));
+const WithContext = (props) => <WithMessageContext>
+  <MessageMenu {...props} />
+</WithMessageContext>;
+
+export default connect(mapStateToProps, null)(memo(WithContext));

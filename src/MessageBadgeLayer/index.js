@@ -63,7 +63,7 @@ const MessageBadgeLayer = (props) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    const handleRealtimeMessage = (msg) => {
+    const handleRealtimeMessage = ({ data:msg }) => {
       if (msg.read) {
         dispatch(removeMessageById(msg.id));
       } else {
@@ -71,10 +71,10 @@ const MessageBadgeLayer = (props) => {
       }
     };
     
-    socket.on('message_update', handleRealtimeMessage);
+    socket.on('radio_message', handleRealtimeMessage);
 
     return () => {
-      socket.off('message_update', handleRealtimeMessage);
+      socket.off('radio_message', handleRealtimeMessage);
     };
   }, [socket]);
 

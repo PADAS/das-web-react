@@ -60,7 +60,7 @@ const SubjectMessagesPopup = (props) => {
 
   useEffect(() => {
     if (!loading && !!recentMessages.length) {
-      listRef.current.querySelector('ul').scrollTop = listRef.current.scrollHeight;
+      listRef.current.scrollTop = listRef.current.querySelector('ul').scrollHeight;
     }
   }, [loading, recentMessages.length]);
 
@@ -98,16 +98,16 @@ const SubjectMessagesPopup = (props) => {
   }, [dispatch, properties.id]);
 
   useEffect(() => {
-    const handleRealtimeMessage = (msg) => {
-      if (msg.receiver.id === properties.id) {
+    const handleRealtimeMessage = ({ data:msg }) => {
+      if (msg?.receiver?.id === properties.id || msg?.sender?.id === properties.id) {
         dispatch(updateMessageFromRealtime(msg));
       }
     };
     
-    socket.on('message_update', handleRealtimeMessage);
+    socket.on('radio_message', handleRealtimeMessage);
 
     return () => {
-      socket.off('message_update', handleRealtimeMessage);
+      socket.off('radio_message', handleRealtimeMessage);
     };
   }, [dispatch, properties.id, socket]);
 
@@ -116,7 +116,7 @@ const SubjectMessagesPopup = (props) => {
       <h6><ChatIcon /> {properties.name}</h6>
     </div>
     {loading && <LoadingOverlay />}
-    {!loading && <div ref={listRef}>
+    {!loading && <div ref={listRef} className={styles.scrollContainer}>
       <MessageList containerRef={listRef} messages={recentMessages} />
     </div>
     }
