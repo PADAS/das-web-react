@@ -8,7 +8,7 @@ import MessageList from '../MessageList';
 import { SocketContext } from '../withSocketConnection';
 import LoadingOverlay from '../LoadingOverlay';
 
-import { INITIAL_MESSAGE_LIST_STATE, fetchMessages, fetchMessagesSuccess, messageListReducer, updateMessageFromRealtime, sendMessage, readMessage } from '../ducks/messaging';
+import { INITIAL_MESSAGE_LIST_STATE, bulkReadMessages, fetchMessages, fetchMessagesNextPage, fetchMessagesSuccess, messageListReducer, updateMessageFromRealtime, sendMessage } from '../ducks/messaging';
 import { generateNewMessage } from '../utils/messaging';
 
 import styles from './styles.module.scss';
@@ -23,11 +23,6 @@ const SubjectMessagesPopup = (props) => {
 
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoadState] = useState(true);
-
-  const recentMessages = useMemo(() => {
-    return (state?.results ?? []).slice(0, 50)
-      .sort((a, b) => new Date(a.message_time) - new Date(b.message_time));
-  }, [state]);
   
 
   const onMessageSubmit = useCallback((event) => {
@@ -59,12 +54,6 @@ const SubjectMessagesPopup = (props) => {
   const characterCount = inputValue.length;
 
   useEffect(() => {
-    if (!loading && !!recentMessages.length) {
-      listRef.current.scrollTop = listRef.current.querySelector('ul').scrollHeight;
-    }
-  }, [loading, recentMessages.length]);
-
-  useEffect(() => {
     if (!!textInputRef.current) {
       textInputRef.current.focus();
     }
@@ -72,36 +61,48 @@ const SubjectMessagesPopup = (props) => {
 
   useEffect(() => {
     return () => {
-      const updates = recentMessages
+      const ids = state.results
         .filter(msg => !msg.read)
-        .map(msg => ({
-          ...msg,
-          read: true,
-        }));
-      if (!!updates.length) {
-        updates.forEach((message) => readMessage(message));
+        .map(({ id }) => id);
+
+      if (!!ids.length) {
+        bulkReadMessages(ids);
       }
     };
-  }, [dispatch, recentMessages]);
+  }, [dispatch, state.results]);
 
   useEffect(() => {
     if (!!properties.id) {
       setLoadState(true);
-      fetchMessages({subject_id: properties.id})
+      fetchMessages({subject_id: properties.id, page_size: 25})
         .then((response) => {
-          dispatch(fetchMessagesSuccess(response?.data?.data ?? [], true));
+          
+          dispatch(fetchMessagesSuccess(response.data.data, true));
         })
         .finally(() => {
           setLoadState(false);
+          if (listRef.current) {
+            listRef.current.scrollTop = listRef.current.querySelector('ul').scrollHeight;
+          }
         });
     }
   }, [dispatch, properties.id]);
+
+
+  const displayMessages = useMemo(() => {
+    return state.results.sort((a, b) => new Date(a.message_time) - new Date(b.message_time));
+  }, [state.results]);
 
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
       if (msg?.receiver?.id === properties.id || msg?.sender?.id === properties.id) {
         dispatch(updateMessageFromRealtime(msg));
       }
+      setTimeout(() => {
+        if (listRef.current) {
+          listRef.current.scrollTop = listRef.current.querySelector('ul').scrollHeight;
+        }
+      }, 100);
     };
     
     socket.on('radio_message', handleRealtimeMessage);
@@ -111,13 +112,20 @@ const SubjectMessagesPopup = (props) => {
     };
   }, [dispatch, properties.id, socket]);
 
-  return <Popup className={styles.popup} anchor='left' offset={[20, 20]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
+  const loadMoreMessages = useCallback(() => {
+    fetchMessagesNextPage(state.next)
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response.data.data));
+      });
+  }, [state.next]);
+
+  return <Popup className={styles.popup}/*  offset={[20, 20]} */ coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
     <div className={styles.header}>
       <h6><ChatIcon /> {properties.name}</h6>
     </div>
     {loading && <LoadingOverlay />}
     {!loading && <div ref={listRef} className={styles.scrollContainer}>
-      <MessageList containerRef={listRef} messages={recentMessages} />
+      <MessageList containerRef={listRef} messages={displayMessages} hasMore={!!state.next} onScroll={loadMoreMessages} isReverse={true} />
     </div>
     }
     <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>

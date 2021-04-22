@@ -30,8 +30,19 @@ export const removeMessageById = id => ({
 const { get, post, patch } = axios;
 
 export const fetchMessages = (params = {}) => get(MESSAGING_API_URL, { params: {
-  ...params, include_additional_data: false, page_size: 150,
+  include_additional_data: false, page_size: 150, ...params,
 } });
+
+
+export const fetchMessagesNextPage = url => get(url);
+
+export const bulkReadMessages = (ids) => post(MESSAGING_API_URL,
+  {
+    ids,
+    bulk_read: true,
+    read: true,
+  },
+);
 
 export const sendMessage = (url, message) => post(url, message);
 export const readMessage = (message) => patch(`${MESSAGING_API_URL}${message.id}`, { read: true });
@@ -52,7 +63,7 @@ export const messageListReducer = (state = INITIAL_MESSAGE_LIST_STATE, action) =
 
     return {
       ...payload,
-      results: unionBy(payload.results, state.results || [], 'id')
+      results: unionBy(state.results || [], payload.results, 'id')
     };
   }
 

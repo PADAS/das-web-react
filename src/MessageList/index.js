@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useMemo, useRef, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import isSameDay from 'date-fns/is_same_day';
@@ -24,7 +24,7 @@ const calcMessageGroupTitle = (date) => {
 };
 
 const MessageList = (props) => { /* eslint-disable-line react/display-name */
-  const { className = '', containerRef, hasMore = false, onScroll = () => null, messages = [], } = props;
+  const { className = '', containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -56,6 +56,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
     element='ul'
     hasMore={hasMore}
     loadMore={onScroll}
+    isReverse={isReverse}
     className={`${styles.messageHistory} ${className}`}
     useWindow={false}
     getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node 
@@ -90,7 +91,7 @@ const MessageListItem = (props) => {
   if (!subject) return null;
 
   return  <li className={message.message_type === 'inbox' ? styles.incomingMessage : styles.outgoingMessage}>
-    <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? 'Operator'} > ${subject.name}`}</em>
+    <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? message?.sender?.username ?? 'Operator'} > ${subject.name}`}</em>
     <div className={`${styles.messageDetails} ${message.read ? '' : styles.unread}`}>
       <span className={styles.messageContent}>{message.text}</span>
       <DateTime date={message.message_time} className={styles.messageTime} />

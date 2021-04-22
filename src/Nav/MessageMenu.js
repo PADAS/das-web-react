@@ -7,10 +7,11 @@ import MessageList from '../MessageList';
 import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
 import { SocketContext } from '../withSocketConnection';
+import Badge from '../Badge';
 
 import MessagesModal from '../MessagesModal';
 
-import { fetchMessages, fetchMessagesSuccess, readMessage, updateMessageFromRealtime } from '../ducks/messaging';
+import { bulkReadMessages, fetchMessages, fetchMessagesNextPage, fetchMessagesSuccess, updateMessageFromRealtime } from '../ducks/messaging';
 import { addModal } from '../ducks/modals';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
@@ -21,8 +22,6 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const MessageMenu = (props) => {
-  const { subjects } = props;
-
   const listRef = useRef();
 
   const socket = useContext(SocketContext);
@@ -41,16 +40,14 @@ const MessageMenu = (props) => {
   }, [dispatch, socket]);
 
   useEffect(() => {
-    fetchMessages()
+    fetchMessages({ page_size: 25 })
       .then((response) => {
-        dispatch(fetchMessagesSuccess(response?.data?.data));
+        dispatch(fetchMessagesSuccess(response.data.data));
       })
       .catch((error) => {
         console.warn('error fetching messages', { error });
       });
   }, [dispatch]);
-
-  const messageArray = state?.results ?? [];
 
   const showAllMessagesModal = useCallback(() => {
     addModal({
@@ -59,30 +56,34 @@ const MessageMenu = (props) => {
     // trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
   }, []);
 
-  const unreads = messageArray.filter(msg => !msg.read);
-  const reads = messageArray.filter(msg => !unreads.map(m => m.id).includes(msg.id));
-
-  const displayMessageList = [...unreads, ...reads].slice(0, Math.max(unreads.length, 15));
+  const unreads = state.results.filter(msg => !msg.read);
 
   const onDropdownToggle = useCallback((isOpen) => {
-    if (!isOpen) {
-      const updates = unreads.map(msg =>({
-        ...msg,
-        read: true,
-      }));
-
-      updates.forEach((message) => readMessage(message));
+    if (!!unreads.length) {
+      const ids = unreads.map(({ id }) => id);
+      bulkReadMessages(ids);
     }
   }, [unreads]);
 
+  
+  const loadMoreMessages = useCallback(() => {
+    fetchMessagesNextPage(state.next)
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response.data.data));
+      });
+  }, [dispatch, state.next]);
+
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
-    <Toggle disabled={!messageArray.length}>
-      <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
+    <Toggle disabled={!state.results.length}>
+      <ChatIcon />
+      {!!unreads.length && <Badge className={styles.badge} count={unreads.length} />}
     </Toggle>
     <Menu className={styles.messageMenus}>
-      {!!displayMessageList.length && <MessageList ref={listRef} className={styles.messageList} messages={displayMessageList} />}
+      <div ref={listRef} className={styles.messageList}>
+        <MessageList containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />
+      </div>
       <Item className={styles.seeAll}>
-        <Button variant='link' onClick={showAllMessagesModal}>See all &raquo;</Button>
+        <Button variant='link' disabled={!state.results.length} onClick={showAllMessagesModal}>See all &raquo;</Button>
       </Item>
     </Menu>
   </Dropdown>;

@@ -1,9 +1,12 @@
-import React, { useEffect, useContext, useReducer, memo } from 'react';
+import React, { useEffect, useContext, useReducer, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { featureCollection } from '@turf/helpers';
+import bboxPolygon from '@turf/bbox-polygon';
+import booleanContains from '@turf/boolean-contains';
 
 import { addMapImage } from '../utils/map';
+import { getBboxParamsFromMap } from '../utils/query';
 import { SocketContext } from '../withSocketConnection';
 
 import { withMap } from '../EarthRangerMap';
@@ -12,16 +15,19 @@ import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMess
 
 import { fetchMessages } from '../ducks/messaging';
 
-import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
+import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon-2.png';
 
 const calcMapMessages = (messages = [], subjectFeatureCollection) => {
-  if (!messages.length || !subjectFeatureCollection?.features?.length) return null;
+  if (!messages.length || !subjectFeatureCollection?.features?.length) return featureCollection([]);
 
   const subjectFeaturesWithUnreadMessages =
     subjectFeatureCollection.features
       .map(feature => 
         ({ feature, messages: messages
-          .filter(msg => msg?.receiver?.id === feature.properties.id)
+          .filter(msg =>
+            msg?.receiver?.id === feature.properties.id
+            || msg?.sender?.id === feature.properties.id
+          )
           .filter(msg => !msg.read) }))
       .filter(item => !!item.messages.length);
 
@@ -51,6 +57,8 @@ const messageBadgeLayout = {
 };
 
 const messageBadgePaint = {
+  'text-halo-color': 'white',
+  'text-halo-width': 0.2,
   'text-color': 'white',
 };
 
@@ -62,12 +70,18 @@ const MessageBadgeLayer = (props) => {
 
   const socket = useContext(SocketContext);
 
+  const lastRequestedSubjectIdList = useRef(null);
+
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
-      if (msg.read) {
-        dispatch(removeMessageById(msg.id));
-      } else {
-        dispatch(updateMessageFromRealtime(msg));
+      if (!!lastRequestedSubjectIdList.current &&
+        lastRequestedSubjectIdList.current.includes(msg?.sender?.id || msg?.receiver?.id)
+      ) {
+        if (msg.read) {
+          dispatch(removeMessageById(msg.id));
+        } else {
+          dispatch(updateMessageFromRealtime(msg));
+        }
       }
     };
     
@@ -87,6 +101,8 @@ const MessageBadgeLayer = (props) => {
       const hasLayer = !!layer;
 
       const data = calcMapMessages(state.results, subjectFeatureCollection);
+
+      console.log({ data });
 
       if (hasSource) {
         source.setData(data);
@@ -110,11 +126,31 @@ const MessageBadgeLayer = (props) => {
   }, [map, state.results, subjectFeatureCollection]);
 
   useEffect(() => {
-    fetchMessages({ read: false })
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response?.data?.data));
-      });
-  }, []);
+    const requestMapMessages = () => {
+      if (subjectFeatureCollection.features.length) {
+        const mapBboxPolygon = bboxPolygon(getBboxParamsFromMap(map, false));
+
+        const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
+          .filter(feature => booleanContains(mapBboxPolygon, feature))
+          .map(({ properties: { id } }) => id)
+          .join(',');
+
+
+        if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
+          fetchMessages({ read: false, subject_id: toRequest})
+            .then((response) => {
+              dispatch(fetchMessagesSuccess(response?.data?.data));
+            });
+        }
+        lastRequestedSubjectIdList.current = toRequest;
+      }
+    };
+
+    const handler = setTimeout(requestMapMessages, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [map, subjectFeatureCollection.features]);
   
 
 

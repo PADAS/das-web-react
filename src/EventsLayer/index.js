@@ -9,7 +9,6 @@ import { featureCollection } from '@turf/helpers';
 
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
 import { addBounceToEventMapFeatures } from '../utils/events';
-import { calcImgIdFromUrlForMapImages } from '../utils/img';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
