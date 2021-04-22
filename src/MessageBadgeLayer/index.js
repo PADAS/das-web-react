@@ -15,7 +15,7 @@ import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMess
 
 import { fetchMessages } from '../ducks/messaging';
 
-import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon-2.png';
+import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
 
 const calcMapMessages = (messages = [], subjectFeatureCollection) => {
   if (!messages.length || !subjectFeatureCollection?.features?.length) return featureCollection([]);
