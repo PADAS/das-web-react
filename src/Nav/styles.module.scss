@@ -10,31 +10,22 @@
   min-width: 24rem;
   overflow-y: auto;
   li li {
-    padding: 0.25rem 1rem 0.5rem;
+    padding: 0.5rem 1rem 0.5rem;
   }
-/*   li {
-    align-items: center;
-    border-top: 1px solid $light-gray-border;
-    display: flex;
-    justify-content: space-between;
-    line-height: normal;
-  }
-  .unread {
-    span {
-      font-weight: bold;
-    }
-  }
-  .datetime {
-    font-style: italic;
-    margin-left: auto;
-    text-align: right;
-  }
-  .messageText {
-    display: block;
-    margin-right: 0.5rem;
-  } */
 }
 
 .messageTitle {
   padding: 0.5rem 1rem;
+}
+
+div.messageMenu {
+  [class*=dropdown-menu] {
+    padding-bottom: 0;
+  }
+}
+
+.seeAll {
+  border-top: 1px solid $light-gray-border;
+  justify-content: flex-end;
+  text-align: right;
 }

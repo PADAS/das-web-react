@@ -1,14 +1,18 @@
-import React, { Fragment, memo, useCallback, useMemo, useContext } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import flatten from 'lodash/flatten';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
-import DateTime from '../DateTime';
 import MessageList from '../MessageList';
+import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
+import { SocketContext } from '../withSocketConnection';
+import Badge from '../Badge';
 
-import { fetchMessagesSuccess, readMessage } from '../ducks/messaging';
+import MessagesModal from '../MessagesModal';
+
+import { bulkReadMessages, fetchMessages, fetchMessagesNextPage, fetchMessagesSuccess, updateMessageFromRealtime } from '../ducks/messaging';
+import { addModal } from '../ducks/modals';
 
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 
@@ -18,38 +22,68 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item } = Dropdown;
 
 const MessageMenu = (props) => {
-  const { subjects } = props;
+  const listRef = useRef();
 
+  const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
 
-  const messageArray = useMemo(() => flatten(Object
-    .values(state))
-    .sort((a, b) => new Date(b.message_time) - new Date(a.message_time)), [state]);
+  useEffect(() => {
+    const handleRealtimeMessage = ({ data:msg }) => {
+      dispatch(updateMessageFromRealtime(msg));
+    };
+    
+    socket.on('radio_message', handleRealtimeMessage);
 
-  const unreads = messageArray.filter(msg => !msg.read);
-  const reads = messageArray.filter(msg => !unreads.map(m => m.id).includes(msg.id));
+    return () => {
+      socket.off('radio_message', handleRealtimeMessage);
+    };
+  }, [dispatch, socket]);
 
-  const displayMessageList = [...unreads, ...reads].slice(0, Math.max(unreads.length, 15));
+  useEffect(() => {
+    fetchMessages({ page_size: 25 })
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response.data.data));
+      })
+      .catch((error) => {
+        console.warn('error fetching messages', { error });
+      });
+  }, [dispatch]);
+
+  const showAllMessagesModal = useCallback(() => {
+    addModal({
+      content: MessagesModal,
+    });
+    // trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
+  }, []);
+
+  const unreads = state.results.filter(msg => !msg.read);
 
   const onDropdownToggle = useCallback((isOpen) => {
-    if (!isOpen) {
-      const updates = unreads.map(msg =>({
-        ...msg,
-        read: true,
-      }));
-
-      updates.forEach((message) => readMessage(message));
+    if (!!unreads.length) {
+      const ids = unreads.map(({ id }) => id);
+      bulkReadMessages(ids);
     }
   }, [unreads]);
 
+  
+  const loadMoreMessages = useCallback(() => {
+    fetchMessagesNextPage(state.next)
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response.data.data));
+      });
+  }, [dispatch, state.next]);
+
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
-    <Toggle disabled={!messageArray.length}>
-      <ChatIcon /> {!!unreads.length && `(${unreads.length})`}
+    <Toggle disabled={!state.results.length}>
+      <ChatIcon />
+      {!!unreads.length && <Badge className={styles.badge} count={unreads.length} />}
     </Toggle>
-    <Menu>
-      {!!displayMessageList.length && <MessageList className={styles.messageList} messages={displayMessageList} />}
-      <Item>
-        <Button variant='link'>See all &raquo;</Button>
+    <Menu className={styles.messageMenus}>
+      <div ref={listRef} className={styles.messageList}>
+        <MessageList containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />
+      </div>
+      <Item className={styles.seeAll}>
+        <Button variant='link' disabled={!state.results.length} onClick={showAllMessagesModal}>See all &raquo;</Button>
       </Item>
     </Menu>
   </Dropdown>;
@@ -59,4 +93,8 @@ const mapStateToProps = (state) => ({
   subjects: state.data.subjectStore,
 });
 
-export default connect(mapStateToProps, null)(memo(MessageMenu));
+const WithContext = (props) => <WithMessageContext>
+  <MessageMenu {...props} />
+</WithMessageContext>;
+
+export default connect(mapStateToProps, null)(memo(WithContext));

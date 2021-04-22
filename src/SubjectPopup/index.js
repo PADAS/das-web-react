@@ -36,6 +36,8 @@ const SubjectPopup = (props) => {
 
   const [showAdditionalProperties, setShowAdditionalProperties] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
 
+  const isMessageable = !!properties.messaging.length;
+
   const radioWithRecentMicActivity = useMemo(() =>
     subjectIsARadioWithRecentVoiceActivity(properties)
   , [properties]);
@@ -95,9 +97,9 @@ const SubjectPopup = (props) => {
                 location: 'subject popover',
               }}
               className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
-            <Button variant='link' type='button' onClick={onClickMessagingIcon}>
+            {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
               <ChatIcon className={styles.messagingIcon} />
-            </Button>
+            </Button>}
           </div>
         </Fragment>
       )}

@@ -1,8 +1,11 @@
-import React, { forwardRef, memo, useMemo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
+import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import isSameDay from 'date-fns/is_same_day';
 import isToday from 'date-fns/is_today';
 import isYesterday from 'date-fns/is_yesterday';
+
+import InfiniteScroll from 'react-infinite-scroller';
 
 import format from 'date-fns/format';
 
@@ -20,8 +23,8 @@ const calcMessageGroupTitle = (date) => {
   return format(date, SHORTENED_DATE_FORMAT);
 };
 
-const MessageList = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { className = '', messages, onMessageClick = () => null, } = props;
+const MessageList = (props) => { /* eslint-disable-line react/display-name */
+  const { className = '', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -49,41 +52,42 @@ const MessageList = forwardRef((props, ref) => { /* eslint-disable-line react/di
 
   }, []), [messages]);
 
-  console.log({ groupedByDate });
-
-  return <ul ref={ref} className={`${styles.messageHistory} ${className}`}>
+  return   <InfiniteScroll
+    element='ul'
+    hasMore={hasMore}
+    loadMore={onScroll}
+    isReverse={isReverse}
+    className={`${styles.messageHistory} ${className}`}
+    useWindow={false}
+    getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node 
+  >
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
-      <MessageGroupListItem key={`${instanceId}-message-group-${index}`}
-        messages={group.messages} title={group.title} />
+      <li key={`${instanceId}-message-group-${index}`}>
+        <ul>
+          {group.messages.map(message => 
+            <MessageListItem message={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />
+          )}
+        </ul>
+        <h6 className={styles.dividerTitle}>
+          <span>{group.title}</span>
+        </h6>
+      </li>
     )}
     {!groupedByDate.length && <span>No messages to display.</span>}
-  </ul>;
-});
-
-
-const MessageGroupListItem = (props) => {
-  const { instanceId, title, messages } = props;
-  return <li>
-    <ul>
-      {messages.map(message => 
-        <MessageListItem message={message} key={`${instanceId}-message-${message.id}`}  />
-      )}
-    </ul>
-    <h6 className={styles.dividerTitle}>
-      <span>{title}</span>
-    </h6>
-  </li>;
+  </InfiniteScroll>;
 };
 
+
+
 const MessageListItem = (props) => {
-  const { message } = props;
+  const { message, unreadMessageClassName, readMessageClassName } = props;
   const subject = extractSubjectFromMessage(message);
 
   if (!subject) return null;
 
   return  <li className={message.message_type === 'inbox' ? styles.incomingMessage : styles.outgoingMessage}>
-    <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? 'Operator'} > ${subject.name}`}</em>
-    <div className={`${styles.messageDetails} ${message.read ? '' : styles.unread}`}>
+    <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? message?.sender?.username ?? 'Operator'} > ${subject.name}`}</em>
+    <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
       <span className={styles.messageContent}>{message.text}</span>
       <DateTime date={message.message_time} className={styles.messageTime} />
     </div>
