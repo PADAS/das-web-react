@@ -24,7 +24,7 @@ const calcMessageGroupTitle = (date) => {
 };
 
 const MessageList = (props) => { /* eslint-disable-line react/display-name */
-  const { className = '', containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
+  const { className = '', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -62,37 +62,32 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
     getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node 
   >
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
-      <MessageGroupListItem key={`${instanceId}-message-group-${index}`}
-        messages={group.messages} title={group.title} />
+      <li key={`${instanceId}-message-group-${index}`}>
+        <ul>
+          {group.messages.map(message => 
+            <MessageListItem message={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />
+          )}
+        </ul>
+        <h6 className={styles.dividerTitle}>
+          <span>{group.title}</span>
+        </h6>
+      </li>
     )}
     {!groupedByDate.length && <span>No messages to display.</span>}
   </InfiniteScroll>;
 };
 
 
-const MessageGroupListItem = (props) => {
-  const { instanceId, title, messages } = props;
-  return <li>
-    <ul>
-      {messages.map(message => 
-        <MessageListItem message={message} key={`${instanceId}-message-${message.id}`}  />
-      )}
-    </ul>
-    <h6 className={styles.dividerTitle}>
-      <span>{title}</span>
-    </h6>
-  </li>;
-};
 
 const MessageListItem = (props) => {
-  const { message } = props;
+  const { message, unreadMessageClassName, readMessageClassName } = props;
   const subject = extractSubjectFromMessage(message);
 
   if (!subject) return null;
 
   return  <li className={message.message_type === 'inbox' ? styles.incomingMessage : styles.outgoingMessage}>
     <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? message?.sender?.username ?? 'Operator'} > ${subject.name}`}</em>
-    <div className={`${styles.messageDetails} ${message.read ? '' : styles.unread}`}>
+    <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
       <span className={styles.messageContent}>{message.text}</span>
       <DateTime date={message.message_time} className={styles.messageTime} />
     </div>
