@@ -25,7 +25,7 @@ const PopupLayer = ({ popup, ...rest }) => {
   if (type === 'analyzer-config') Template = AnalyzerConfigPopup;
   if (type === 'multi-layer-select') Template = LayerSelectorPopup;
   
-  return Template ? <Template key={id} data={data} {...rest} /> : null;
+  return Template ? <Template key={id} popupId={id} data={data} {...rest} /> : null;
 };
 
 export default memo(withMap(PopupLayer));

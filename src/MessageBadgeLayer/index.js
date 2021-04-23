@@ -102,8 +102,6 @@ const MessageBadgeLayer = (props) => {
 
       const data = calcMapMessages(state.results, subjectFeatureCollection);
 
-      console.log({ data });
-
       if (hasSource) {
         source.setData(data);
       } else {

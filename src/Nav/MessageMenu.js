@@ -21,7 +21,7 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
-const MessageMenu = (props) => {
+const MessageMenu = ({ addModal }) => {
   const listRef = useRef();
 
   const socket = useContext(SocketContext);
@@ -54,7 +54,7 @@ const MessageMenu = (props) => {
       content: MessagesModal,
     });
     // trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
-  }, []);
+  }, [addModal]);
 
   const unreads = state.results.filter(msg => !msg.read);
 
@@ -97,4 +97,4 @@ const WithContext = (props) => <WithMessageContext>
   <MessageMenu {...props} />
 </WithMessageContext>;
 
-export default connect(mapStateToProps, null)(memo(WithContext));
+export default connect(mapStateToProps, { addModal })(memo(WithContext));

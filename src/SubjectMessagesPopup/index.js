@@ -1,29 +1,33 @@
-import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, useContext } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 import Button from 'react-bootstrap/Button';
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
+import ExpandIcon from '../common/images/icons/expand-arrow.png';
 
-import MessageList from '../MessageList';
-import { SocketContext } from '../withSocketConnection';
-import LoadingOverlay from '../LoadingOverlay';
+import MessagesModal from '../MessagesModal';
 
-import { INITIAL_MESSAGE_LIST_STATE, bulkReadMessages, fetchMessages, fetchMessagesNextPage, fetchMessagesSuccess, messageListReducer, updateMessageFromRealtime, sendMessage } from '../ducks/messaging';
+import ParamFedMessageList from '../MessageList/ParamFedMessageList';
+
+import { sendMessage } from '../ducks/messaging';
+import { hidePopup } from '../ducks/popup';
+import { addModal } from '../ducks/modals';
 import { generateNewMessage } from '../utils/messaging';
 
 import styles from './styles.module.scss';
 
 const TEXT_MAX_LENGTH = 160;
+const isReverse = true;
 
 const SubjectMessagesPopup = (props) => {
-  const  { data: { geometry, properties } } = props; 
-
-  const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
-  const socket = useContext(SocketContext);
+  const  { addModal, data: { geometry, properties }, hidePopup, popupId } = props; 
 
   const [inputValue, setInputValue] = useState('');
-  const [loading, setLoadState] = useState(true);
-  
+
+  const params = useMemo(() => {
+    return { subject_id: properties.id };
+  }, [properties.id]);
 
   const onMessageSubmit = useCallback((event) => {
     event.preventDefault();
@@ -46,8 +50,15 @@ const SubjectMessagesPopup = (props) => {
     setInputValue(value);
   }, []);
 
+  const expandChat = useCallback(() => {
+    addModal({
+      content: MessagesModal,
+      params,
+    });
+    hidePopup(popupId);
+  }, [addModal, hidePopup, params, popupId]);
 
-  const listRef = useRef(null);
+
   const formRef = useRef(null);
   const textInputRef = useRef(null);
 
@@ -59,75 +70,12 @@ const SubjectMessagesPopup = (props) => {
     }
   }, []);
 
-  useEffect(() => {
-    return () => {
-      const ids = state.results
-        .filter(msg => !msg.read)
-        .map(({ id }) => id);
-
-      if (!!ids.length) {
-        bulkReadMessages(ids);
-      }
-    };
-  }, [dispatch, state.results]);
-
-  useEffect(() => {
-    if (!!properties.id) {
-      setLoadState(true);
-      fetchMessages({subject_id: properties.id, page_size: 25})
-        .then((response) => {
-          
-          dispatch(fetchMessagesSuccess(response.data.data, true));
-        })
-        .finally(() => {
-          setLoadState(false);
-          if (listRef.current) {
-            listRef.current.scrollTop = listRef.current.querySelector('ul').scrollHeight;
-          }
-        });
-    }
-  }, [dispatch, properties.id]);
-
-
-  const displayMessages = useMemo(() => {
-    return state.results.sort((a, b) => new Date(a.message_time) - new Date(b.message_time));
-  }, [state.results]);
-
-  useEffect(() => {
-    const handleRealtimeMessage = ({ data:msg }) => {
-      if (msg?.receiver?.id === properties.id || msg?.sender?.id === properties.id) {
-        dispatch(updateMessageFromRealtime(msg));
-      }
-      setTimeout(() => {
-        if (listRef.current) {
-          listRef.current.scrollTop = listRef.current.querySelector('ul').scrollHeight;
-        }
-      }, 100);
-    };
-    
-    socket.on('radio_message', handleRealtimeMessage);
-
-    return () => {
-      socket.off('radio_message', handleRealtimeMessage);
-    };
-  }, [dispatch, properties.id, socket]);
-
-  const loadMoreMessages = useCallback(() => {
-    fetchMessagesNextPage(state.next)
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response.data.data));
-      });
-  }, [state.next]);
-
   return <Popup className={styles.popup}/*  offset={[20, 20]} */ coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`}>
     <div className={styles.header}>
       <h6><ChatIcon /> {properties.name}</h6>
+      <img src={ExpandIcon} alt='Expand subject chat history' onClick={expandChat} />
     </div>
-    {loading && <LoadingOverlay />}
-    {!loading && <div ref={listRef} className={styles.scrollContainer}>
-      <MessageList containerRef={listRef} messages={displayMessages} hasMore={!!state.next} onScroll={loadMoreMessages} isReverse={true} />
-    </div>
-    }
+    <ParamFedMessageList params={params} isReverse={isReverse} />
     <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
       <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
       <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>
@@ -138,7 +86,7 @@ const SubjectMessagesPopup = (props) => {
   </Popup>;
 };
 
-export default memo(SubjectMessagesPopup);
+export default connect(null, { addModal, hidePopup })(memo(SubjectMessagesPopup));
 
 SubjectMessagesPopup.propTypes = {
   data: PropTypes.object.isRequired,

@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useState } from 'react';
 import { findDOMNode } from 'react-dom';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import isSameDay from 'date-fns/is_same_day';
 import isToday from 'date-fns/is_today';
 import isYesterday from 'date-fns/is_yesterday';

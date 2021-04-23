@@ -13,14 +13,21 @@
 }
 
 .header {
+  align-items: center;
+  display: flex;
   margin: 0.25rem 0 0.5rem;
   h6 {
+    flex-grow: 1;
     font-size: 0.75rem;
     font-weight: 500;
     margin: 0;
     svg {
       margin-right: 0.666rem;
     }
+  }
+  img {
+    cursor: pointer;
+    margin-left: auto;
   }
 }
 
