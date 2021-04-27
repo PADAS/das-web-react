@@ -52,18 +52,23 @@ const MessageMenu = ({ addModal }) => {
   const showAllMessagesModal = useCallback(() => {
     addModal({
       content: MessagesModal,
+      modalProps: {
+        className: 'messaging-modal',
+      }
     });
-    // trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
+    // trackEvent('Messaging', 'Open Message Modal');
   }, [addModal]);
 
   const unreads = state.results.filter(msg => !msg.read);
 
   const onDropdownToggle = useCallback((isOpen) => {
-    if (!!unreads.length) {
+    if (!!unreads.length && !isOpen) {
       const ids = unreads.map(({ id }) => id);
       bulkReadMessages(ids);
     }
   }, [unreads]);
+
+  const badgeCount = unreads.length > 10 ? '10+' : unreads.length;
 
   
   const loadMoreMessages = useCallback(() => {
@@ -76,7 +81,7 @@ const MessageMenu = ({ addModal }) => {
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle disabled={!state.results.length}>
       <ChatIcon />
-      {!!unreads.length && <Badge className={styles.badge} count={unreads.length} />}
+      {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
     </Toggle>
     <Menu className={styles.messageMenus}>
       <div ref={listRef} className={styles.messageList}>

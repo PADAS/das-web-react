@@ -11,6 +11,7 @@ import { SocketContext } from '../withSocketConnection';
 
 import { withMap } from '../EarthRangerMap';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { extractSubjectFromMessage } from '../utils/messaging';
 import { messageListReducer, removeMessageById, fetchMessagesSuccess, updateMessageFromRealtime, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';
 
 import { fetchMessages } from '../ducks/messaging';
@@ -25,8 +26,7 @@ const calcMapMessages = (messages = [], subjectFeatureCollection) => {
       .map(feature => 
         ({ feature, messages: messages
           .filter(msg =>
-            msg?.receiver?.id === feature.properties.id
-            || msg?.sender?.id === feature.properties.id
+            extractSubjectFromMessage(msg)?.id === feature.properties.id
           )
           .filter(msg => !msg.read) }))
       .filter(item => !!item.messages.length);
@@ -75,7 +75,7 @@ const MessageBadgeLayer = (props) => {
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
       if (!!lastRequestedSubjectIdList.current &&
-        lastRequestedSubjectIdList.current.includes(msg?.sender?.id || msg?.receiver?.id)
+        lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)
       ) {
         if (msg.read) {
           dispatch(removeMessageById(msg.id));

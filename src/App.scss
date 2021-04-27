@@ -619,9 +619,16 @@ div.mapboxgl-popup-tip {
   }
 }
 
-.daily-report-modal, .kml-export-modal {
+.daily-report-modal, .kml-export-modal, .messaging-modal {
   .modal-dialog {
     margin-top: -5rem;
+  }
+}
+
+.messaging-modal {
+  .modal-body {
+    max-height: 34rem;
+    height: 80vh;
   }
 }
 

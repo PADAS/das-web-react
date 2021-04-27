@@ -37,6 +37,8 @@ export const generateNewMessage = ({ geometry, properties }, config = {}) => {
   };
 };
 
+export const calcSenderNameForMessage = (message) => message?.sender?.name ?? message?.sender?.username ?? 'Operator';
+
 /* 
 {
       sender_id:" ", 

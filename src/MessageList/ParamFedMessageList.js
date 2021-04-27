@@ -1,8 +1,9 @@
 import React, { memo, useMemo, useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react';
+
+
+import { extractSubjectFromMessage } from '../utils/messaging';
 import { messageListReducer, fetchMessages, fetchMessagesSuccess, updateMessageFromRealtime, fetchMessagesNextPage, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';
 import { SocketContext } from '../withSocketConnection';
-
-import cloneDeep from 'lodash/cloneDeep';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -63,7 +64,7 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
         consumeMessage(msg);
       }
 
-      else if (params.subject_id.includes(msg?.receiver?.id) || params.subject_id.includes(msg?.sender?.id)) {
+      else if (params.subject_id.includes(extractSubjectFromMessage(msg)?.id)) {
         consumeMessage(msg);
       }
     };

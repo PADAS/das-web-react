@@ -1,5 +1,6 @@
 @import '../common/styles/vars/colors';
 
+$radio-icon-width: 1.25em;
 
 .dividerTitle {
   $divider-color: darken($light-gray-border, 10%);
@@ -9,18 +10,22 @@
   display: block;
   font-size: 1em;
   line-height: 0;
-  margin-bottom: 0.5em; 
+  // margin: 0.5em 0 0;
   text-align: center;
   span {
     background: white;
     font-size: 0.65em;
     padding: 0.25em;
   }
+  &.reverse {
+    margin: 0 0 0.5em;
+  }
 }
 
 .senderDetails {
+  align-items: center;
   color: $light-font-color;
-  display: block;
+  display: flex;
   font-size: 0.7em;
   margin-bottom: 0.5em;
 }
@@ -30,16 +35,31 @@
   margin: 0;
   text-align: left;
   li li {
-    padding: 0.75em 0.5em;
+    padding: 0.75em 0;
+    position: relative;
+    [class*=badge] {
+      // margin-right: 0.5em;
+      // position: absolute;
+    }
+    img {
+      margin-right: 0.5em;
+      width: $radio-icon-width;
+    }
   }
   li li:not(:first-child) {
     border-top: 1px solid lighten($light-gray-border, 7.5%);
   }
 }
 .messageDetails {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.messageContentWrapper {
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 .messageTime {
@@ -49,7 +69,45 @@
 
 .scrollContainer {
   margin: 0;
-  max-height: 16rem;
+  height: 100%;
   min-width: 24rem;
   overflow-y: auto;
+}
+
+.summaryList {
+  [class*=senderDetails] {
+    font-size: 0.95em;
+    font-style: normal;
+    font-weight: 500;
+  }
+  li li {
+    cursor: pointer;
+    &:hover {
+      background: rgba($light-blue, 0.2);
+      text-decoration: underline;
+    }
+  }
+}
+
+.summaryLoadingOverlay {
+  background: none;
+  div[class*=spinner] {
+    bottom: -3.75rem;
+    position: absolute;
+    left: 1rem;
+    height: 3rem;
+    width: 3rem;
+  }
+}
+
+.messageContent {
+  &.outgoing {
+    font-style: italic;
+  }
+}
+
+.hasImage {
+  .messageDetails {
+    padding-left: $radio-icon-width + 0.25em;
+  }
 }
