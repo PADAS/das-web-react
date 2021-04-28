@@ -25,12 +25,10 @@ const MessageListItem = (props) => {
 
   return  <li className={`${isOutgoing ? styles.outgoingMessage : styles.incomingMessage} ${radioImage ? styles.hasImage : ''}`} onClick={handleClick} {...rest}>
     <em className={styles.senderDetails}>{radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} />} {subject.name}</em>
-    <div className={styles.messageContentWrapper}>
+    <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
       {!message.read && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
-      <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
-        <span className={`${styles.messageContent} ${isOutgoing ? styles.outgoing : styles.incoming}`}>{isOutgoing ? `${calcSenderNameForMessage(message)}: `: ''}{message.text}</span>
-        <DateTime date={message.message_time} className={styles.messageTime} />
-      </div>
+      <span className={`${styles.messageContent} ${isOutgoing ? styles.outgoing : styles.incoming}`}>{isOutgoing ? `${calcSenderNameForMessage(message)}: `: ''}{message.text}</span>
+      <DateTime date={message.message_time} className={styles.messageTime} />
     </div>
   </li>;
 };

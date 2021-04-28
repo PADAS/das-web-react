@@ -627,8 +627,9 @@ div.mapboxgl-popup-tip {
 
 .messaging-modal {
   .modal-body {
-    max-height: 34rem;
     height: 80vh;
+    max-height: 34rem;
+    padding: 0.25rem 0 0;
   }
 }
 

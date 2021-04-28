@@ -28,6 +28,12 @@ export const MESSAGE_LIST_TYPES = {
   SUMMARY: 'summary',
 };
 
+const ICON_OPTIONS = {
+  SENDER: 'sender',
+  RADIO: 'radio',
+  NONE: 'none',
+};
+
 const MessageList = (props) => { /* eslint-disable-line react/display-name */
   const { className = '', onMessageClick = () => null, type = MESSAGE_LIST_TYPES.GENERAL, emptyMessage = 'No messages to display.', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 

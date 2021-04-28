@@ -1,6 +1,6 @@
 @import '../common/styles/vars/colors';
 
-$radio-icon-width: 1.25em;
+$icon-size: 1.5em;
 
 .dividerTitle {
   $divider-color: darken($light-gray-border, 10%);
@@ -10,7 +10,7 @@ $radio-icon-width: 1.25em;
   display: block;
   font-size: 1em;
   line-height: 0;
-  // margin: 0.5em 0 0;
+  margin: 0;
   text-align: center;
   span {
     background: white;
@@ -30,24 +30,49 @@ $radio-icon-width: 1.25em;
   margin-bottom: 0.5em;
 }
 
+.messageHistory:not(.summaryList) {
+  .outgoingMessage {
+    .messageDetails {
+      align-self: flex-end;
+      background: lighten($light-blue, 35%);
+    }
+    .senderDetails {
+      justify-content: flex-end;
+    }
+    img, svg {
+      margin-left: 0.5em;
+    }
+  }
+  .messageDetails {
+    background: lighten($light-blue, 25%);
+    border: 1px solid $light-gray-border;
+    border-radius: 1em;
+    width: 87.5%;
+  }
+}
+  
 .messageHistory {
   line-height: normal;
   margin: 0;
   text-align: left;
+  ul {
+    display: flex;
+    flex-flow: column;
+  }
   li li {
-    padding: 0.75em 0;
+    display: flex;
+    flex-flow: column;
+    padding: 0.75em 1em;
     position: relative;
     [class*=badge] {
-      // margin-right: 0.5em;
-      // position: absolute;
+      left: 1rem;
+      position: absolute;
     }
-    img {
+    img, svg {
       margin-right: 0.5em;
-      width: $radio-icon-width;
+      max-height: $icon-size;
+      max-width: $icon-size;
     }
-  }
-  li li:not(:first-child) {
-    border-top: 1px solid lighten($light-gray-border, 7.5%);
   }
 }
 .messageDetails {
@@ -55,22 +80,20 @@ $radio-icon-width: 1.25em;
   display: flex;
   flex-grow: 1;
   justify-content: space-between;
+  margin-bottom: 0.5em;
+  padding: 0.5em;
 }
 
-.messageContentWrapper {
-  display: flex;
-  align-items: center;
-}
 
 .messageTime {
-  margin-top: -1.25em;
+  margin-left: 0.25em;
   text-align: right;
 }
 
 .scrollContainer {
   margin: 0;
   height: 100%;
-  min-width: 24rem;
+  min-width: 24em;
   overflow-y: auto;
 }
 
@@ -78,13 +101,16 @@ $radio-icon-width: 1.25em;
   [class*=senderDetails] {
     font-size: 0.95em;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 600;
   }
   li li {
     cursor: pointer;
     &:hover {
-      background: rgba($light-blue, 0.2);
+      background: rgba($light-blue, 0.1);
       text-decoration: underline;
+    }
+    &:not(:first-child) {
+      border-top: 1px solid $light-gray-border;
     }
   }
 }
@@ -92,11 +118,11 @@ $radio-icon-width: 1.25em;
 .summaryLoadingOverlay {
   background: none;
   div[class*=spinner] {
-    bottom: -3.75rem;
+    bottom: -3.75em;
     position: absolute;
-    left: 1rem;
-    height: 3rem;
-    width: 3rem;
+    left: 1em;
+    height: 3em;
+    width: 3em;
   }
 }
 
@@ -108,6 +134,6 @@ $radio-icon-width: 1.25em;
 
 .hasImage {
   .messageDetails {
-    padding-left: $radio-icon-width + 0.25em;
+    padding-left: $icon-size + 0.25em;
   }
 }

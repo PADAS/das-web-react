@@ -12,9 +12,11 @@ import styles from './styles.module.scss';
 import MessageList from './';
 
 const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-name */
-  const { params = {}, isReverse = false, ...rest } = props;
+  const { params, isReverse = false, ...rest } = props;
 
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
+  const isInit = useRef(false);
+  const scrollPositionTimeout = useRef(null);
   const [loading, setLoadState] = useState(false);
   const containerRef = useRef(null);
   const socket = useContext(SocketContext);
@@ -26,32 +28,43 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
     return state.results;
   }, [isReverse, state.results]);
 
-  const onScroll = useCallback(() => {
-    fetchMessagesNextPage(state.next)
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response.data.data));
-      });
-  }, [state.next]); 
-  
-  useEffect(() => {
-    setLoadState(true);
-    fetchMessages(params, true)
-      .then((response) => {
-        dispatch(fetchMessagesSuccess(response.data.data, true));
-      })
-      .finally(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = containerRef.current.querySelector('ul').scrollHeight;
-        }
-        setLoadState(false);
-      });
-  }, [params, dispatch]);
-
   const setListScrollPosition = useCallback(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = isReverse ? containerRef.current.querySelector('ul').scrollHeight : 0;
     }
+    isInit.current = true;
   }, [isReverse]);
+
+  const onScroll = useCallback(() => {
+    window.clearTimeout(scrollPositionTimeout.current);
+    fetchMessagesNextPage(state.next)
+      .then((response) => {
+        dispatch(fetchMessagesSuccess(response.data.data));
+      })
+      .finally(() => {
+        scrollPositionTimeout.current = window.setTimeout(() => {
+          setListScrollPosition();
+        }, 200);
+      });
+  }, [setListScrollPosition, state.next]); 
+
+  useEffect(() => {
+    if (params) {
+      window.clearTimeout(scrollPositionTimeout.current);
+      setLoadState(true);
+      isInit.current = false;
+      fetchMessages(params, true)
+        .then((response) => {
+          dispatch(fetchMessagesSuccess(response.data.data, true));
+        })
+        .finally(() => {
+          scrollPositionTimeout.current = window.setTimeout(() => {
+            setListScrollPosition();
+          }, 200);
+          setLoadState(false);
+        });
+    }
+  }, [params, dispatch, setListScrollPosition]);
 
   useEffect(() => {
     const consumeMessage = (msg) => {

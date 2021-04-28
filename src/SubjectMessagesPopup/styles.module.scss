@@ -31,18 +31,6 @@
   }
 }
 
-.chatControls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 2rem;
-  input {
-    flex-grow: 1;
-    margin-right: 0.5rem;
-  }
-}
-
-.scrollContainer {
-  max-height: 12em;
-  overflow-y: auto;
+.messageList {
+  max-height: 16rem;
 }

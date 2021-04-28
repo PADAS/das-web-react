@@ -1,18 +1,33 @@
-import React, { Fragment, memo, useState }  from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState }  from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+
+
 import MessageSummaryList from '../MessageList/MessageSummaryList';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
-import Modal from 'react-bootstrap/Modal';
+import MessageInput from '../MessageInput';
 
 import { removeModal } from '../ducks/modals';
 import { extractSubjectFromMessage } from '../utils/messaging';
 
+
 const { Body, Footer, Header } = Modal;
 
-const MessagesModal =  ({ id:modalId, removeModal, subjectStore }) => {
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const params = selectedSubject ? { subject_id: selectedSubject.id } : null;
+const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, subjectStore }) => {
+  const [selectedSubject, setSelectedSubject] = useState(subjectStore?.[initParamsFromProps?.subject_id] ?? null);
+  const [params, setParams] = useState(initParamsFromProps);
+
+  const isInit = useRef(false);
+
+  useEffect(() => {
+    if (selectedSubject) {
+      setParams({ subject_id: selectedSubject.id });
+    } else if (isInit.current) {
+      setParams(null);
+    }
+    isInit.current = true;
+  }, [selectedSubject]);
   
   const onSummaryMessageClick = (message) => {
     const subject = subjectStore?.[extractSubjectFromMessage(message)?.id];
@@ -22,23 +37,28 @@ const MessagesModal =  ({ id:modalId, removeModal, subjectStore }) => {
     setSelectedSubject(subject);
   };
 
+  const clearSelectedSubject = () => {
+    console.log('clearSelectedSubject fired');
+    setSelectedSubject(null);
+  };
+
   return <Fragment>
     <Header>
-      <h2>Messages</h2>
-    </Header>
-    <Body style={{display: params ? 'none' : 'block'}}>
-      <MessageSummaryList onMessageClick={onSummaryMessageClick}  />
-      {params && <Fragment>
-        <Button variant='secondary' onClick={() => setSelectedSubject(null)}>Back</Button>
-        <ParamFedMessageList params={params} isReverse={true} />
+      {!selectedSubject && <h2>Messages</h2>}
+      {selectedSubject && <Fragment>
+        <h5>{selectedSubject.name}</h5>
+        {selectedSubject && <Button variant='secondary' onClick={clearSelectedSubject}>&larr; All messages</Button>}
       </Fragment>}
+    </Header>
+    <Body style={{display: selectedSubject ? 'none' : 'block'}}>
+      <MessageSummaryList onMessageClick={onSummaryMessageClick}  />
     </Body>
-    {params && <Body>
-      <Button variant='secondary' onClick={() => setSelectedSubject(null)}>Back</Button>
+    {selectedSubject && <Body>
       <ParamFedMessageList params={params} isReverse={true} />
     </Body>}
     <Footer>
-      <Button variant='primary' onClick={() => removeModal(modalId)}>Close</Button>
+      {!selectedSubject && <Button variant='primary' onClick={() => removeModal(modalId)}>Close</Button>}
+      {selectedSubject && <MessageInput subjectId={selectedSubject.id} />}
     </Footer>
   </Fragment>;
 };

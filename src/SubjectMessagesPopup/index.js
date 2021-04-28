@@ -9,6 +9,7 @@ import ExpandIcon from '../common/images/icons/expand-arrow.png';
 import MessagesModal from '../MessagesModal';
 
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
+import MessageInput from '../MessageInput';
 
 import { sendMessage } from '../ducks/messaging';
 import { hidePopup } from '../ducks/popup';
@@ -54,6 +55,9 @@ const SubjectMessagesPopup = (props) => {
     addModal({
       content: MessagesModal,
       params,
+      modalProps: {
+        className: 'messaging-modal',
+      }
     });
     hidePopup(popupId);
   }, [addModal, hidePopup, params, popupId]);
@@ -75,13 +79,8 @@ const SubjectMessagesPopup = (props) => {
       <h6><ChatIcon /> {properties.name}</h6>
       <img src={ExpandIcon} alt='Expand subject chat history' onClick={expandChat} />
     </div>
-    <ParamFedMessageList params={params} isReverse={isReverse} />
-    <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
-      <input maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${properties.id}`} id={`chat-${properties.id}`} />
-      <Button type='submit' id={`chat-submit-${properties.id}`}>Send</Button>
-    </form>
-    <small>{characterCount}/{TEXT_MAX_LENGTH}</small>
-
+    <ParamFedMessageList className={styles.messageList} params={params} isReverse={isReverse} />
+    <MessageInput subjectId={properties.id} />
 
   </Popup>;
 };
