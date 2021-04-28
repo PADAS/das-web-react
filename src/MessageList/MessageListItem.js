@@ -7,13 +7,14 @@ import { ReactComponent as UserIcon } from '../common/images/icons/solid-user-ic
 
 import { isRadioWithImage } from '../utils/subjects';
 import { calcSenderNameForMessage, extractSubjectFromMessage } from '../utils/messaging';
+import { calcUrlForImage } from '../utils/img';
 import styles from './styles.module.scss';
 
 const MessageListItem = (props) => {
   
   const { message, onClick = () => null, subject, unreadMessageClassName, readMessageClassName, ...rest } = props;
 
-  const radioImage = isRadioWithImage(subject) || subject.image_url;
+  const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
   const isOutgoing = message.message_type === 'outbox';
 
   const handleClick = () => onClick(message);
