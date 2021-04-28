@@ -14,6 +14,7 @@ import { uuid } from '../utils/string';
 
 import MessageListItem from './MessageListItem';
 import MessageSummaryListItem from './MessageSummaryListItem';
+import SenderDetails, { SENDER_DETAIL_STYLES } from './SenderDetails';
 
 import styles from './styles.module.scss';
 
@@ -28,14 +29,8 @@ export const MESSAGE_LIST_TYPES = {
   SUMMARY: 'summary',
 };
 
-const ICON_OPTIONS = {
-  SENDER: 'sender',
-  RADIO: 'radio',
-  NONE: 'none',
-};
-
 const MessageList = (props) => { /* eslint-disable-line react/display-name */
-  const { className = '', onMessageClick = () => null, type = MESSAGE_LIST_TYPES.GENERAL, emptyMessage = 'No messages to display.', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
+  const { className = '', senderDetailStyle = SENDER_DETAIL_STYLES.FULL, onMessageClick = () => null, type = MESSAGE_LIST_TYPES.GENERAL, emptyMessage = 'No messages to display.', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -81,7 +76,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         </h6>}
         <ul>
           {group.messages.map((message) => {
-            return <ListItemComponent onClick={onMessageClick} message={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
+            return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} message={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
           })}
         </ul>
         {isReverse && <h6 className={`${styles.dividerTitle} ${styles.reverse}`}>
@@ -89,7 +84,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         </h6>}
       </li>
     )}
-    {!groupedByDate.length && <span>{emptyMessage}</span>}
+    {!groupedByDate.length && <span className={styles.emptyMessage}>{emptyMessage}</span>}
   </InfiniteScroll>;
 };
 

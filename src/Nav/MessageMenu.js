@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
@@ -26,6 +26,7 @@ const MessageMenu = ({ addModal }) => {
 
   const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
+  const [initialEmptyMessage, setInitialEmptyMessage] = useState('Loading messages...');
 
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
@@ -46,6 +47,9 @@ const MessageMenu = ({ addModal }) => {
       })
       .catch((error) => {
         console.warn('error fetching messages', { error });
+      })
+      .finally(() => {
+        setInitialEmptyMessage(undefined);
       });
   }, [dispatch]);
 
@@ -85,7 +89,7 @@ const MessageMenu = ({ addModal }) => {
     </Toggle>
     <Menu className={styles.messageMenus}>
       <div ref={listRef} className={styles.messageList}>
-        <MessageList containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />
+        <MessageList emptyMessage={initialEmptyMessage} containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />
       </div>
       <Item className={styles.seeAll}>
         <Button variant='link' disabled={!state.results.length} onClick={showAllMessagesModal}>See all &raquo;</Button>

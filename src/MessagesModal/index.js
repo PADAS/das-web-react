@@ -7,6 +7,7 @@ import Modal from 'react-bootstrap/Modal';
 import MessageSummaryList from '../MessageList/MessageSummaryList';
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import MessageInput from '../MessageInput';
+import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
 
 import { removeModal } from '../ducks/modals';
 import { extractSubjectFromMessage } from '../utils/messaging';
@@ -54,7 +55,7 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
       <MessageSummaryList onMessageClick={onSummaryMessageClick}  />
     </Body>
     {selectedSubject && <Body>
-      <ParamFedMessageList params={params} isReverse={true} />
+      <ParamFedMessageList params={params} isReverse={true} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} />
     </Body>}
     <Footer>
       {!selectedSubject && <Button variant='primary' onClick={() => removeModal(modalId)}>Close</Button>}

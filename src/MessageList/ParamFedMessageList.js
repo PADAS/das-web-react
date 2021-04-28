@@ -93,9 +93,9 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
     setListScrollPosition();
   }, [setListScrollPosition]);
 
-  return <div ref={containerRef} className={styles.scrollContainer}>
+  return <div ref={containerRef} className={styles.scrollContainer} style={!isInit.current ? {overflow: 'hidden'} : {}}>
     {loading && <LoadingOverlay message='Loading messages...' />}
-    <MessageList containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
+    <MessageList emptyMessage={loading ? 'Loading messages...' : undefined} containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
   </div>;
 };
 

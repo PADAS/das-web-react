@@ -5,6 +5,7 @@ import { SocketContext } from '../withSocketConnection';
 import LoadingOverlay from '../LoadingOverlay';
 
 import MessageList, { MESSAGE_LIST_TYPES } from './';
+import { SENDER_DETAIL_STYLES } from './SenderDetails';
 // import ParamFedMessageList from './ParamFedMessageList';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
@@ -94,7 +95,7 @@ const MessageSummaryList = (props) => {
 
   return <div ref={containerRef} className={styles.scrollContainer}>
     {loading && <LoadingOverlay className={styles.summaryLoadingOverlay} />}
-    <MessageList type={MESSAGE_LIST_TYPES.SUMMARY} className={styles.summaryList} containerRef={containerRef} hasMore={!!state.next} onScroll={loadMoreMessages} messages={mostRecentMessagesPerSubject} {...props} />
+    <MessageList emptyMessage={loading ? 'Loading messages...' : undefined} type={MESSAGE_LIST_TYPES.SUMMARY} senderDetailStyle={SENDER_DETAIL_STYLES.SUBJECT} className={styles.summaryList} containerRef={containerRef} hasMore={!!state.next} onScroll={loadMoreMessages} messages={mostRecentMessagesPerSubject} {...props} />
   </div>;
 };  
 
