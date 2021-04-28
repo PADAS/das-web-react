@@ -101,8 +101,3 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
 
 
 export default memo(ParamFedMessageList);
-
-
-/* today */
-/* yesterday */
-/* datee */
