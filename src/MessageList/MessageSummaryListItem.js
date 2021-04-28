@@ -5,17 +5,17 @@ import { STATUSES } from '../constants';
 
 import DateTime from '../DateTime';
 import Badge from '../Badge';
-              
 
 import { calcSenderNameForMessage, extractSubjectFromMessage } from '../utils/messaging';
 import { isRadioWithImage } from '../utils/subjects';
+import { calcUrlForImage } from '../utils/img';
 
 import styles from './styles.module.scss';
 
 const MessageListItem = (props) => {
   
   const { message, subject, unreadMessageClassName, readMessageClassName, onClick = () => null, ...rest } = props;
-  const radioImage = isRadioWithImage(subject);
+  const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
 
   const isOutgoing = message.message_type === 'outbox';
 
