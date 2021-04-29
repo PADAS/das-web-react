@@ -125,9 +125,9 @@ $icon-size: 1.5em;
 .summaryLoadingOverlay {
   background: none;
   div[class*=spinner] {
-    bottom: -3.75em;
+    bottom: -5em;
     position: absolute;
-    left: 1em;
+    left: 1.5em;
     height: 3em;
     width: 3em;
   }

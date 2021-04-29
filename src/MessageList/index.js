@@ -95,7 +95,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         </h6>}
       </li>
     )}
-    {!groupedByDate.length && <span className={styles.emptyMessage}>{emptyMessage}</span>}
+    {!groupedByDate.length && <li className={styles.emptyMessage}>{emptyMessage}</li>}
   </InfiniteScroll>;
 };
 
