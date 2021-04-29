@@ -13,35 +13,36 @@ import { calcUrlForImage } from '../utils/img';
 
 import styles from './styles.module.scss';
 
-const MessageListItem = (props) => {
+const MessageSummaryListItem = (props) => {
   
-  const { message, senderDetailStyle = SENDER_DETAIL_STYLES.SUBJECT, subject, unreadMessageClassName, readMessageClassName, onClick = () => null, ...rest } = props;
-  const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
+  const { messageGroup, senderDetailStyle = SENDER_DETAIL_STYLES.SUBJECT, unreadMessageClassName, readMessageClassName, onClick = () => null, subjectStore, ...rest } = props;
 
-  const isOutgoing = message.message_type === 'outbox';
 
-  const handleClick = () => onClick(message);
+  return messageGroup.map((message) => {
+    const isOutgoing = message.message_type === 'outbox';
+    const handleClick = () => onClick(message);
+    const messageSubject = extractSubjectFromMessage(message);
+    const subject = subjectStore[messageSubject.id];
 
-  if (!subject) return null;
+    if (!subject) return null;
+    
+    const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
 
-  return  <li className={`${isOutgoing ? styles.outgoingMessage : styles.incomingMessage} ${radioImage ? styles.hasImage : ''}`} onClick={handleClick} {...rest}>
-    <SenderDetails subject={subject} message={message} senderDetailStyle={senderDetailStyle} />
-    <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
-      {!message.read && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
-      <span className={`${styles.messageContent} ${isOutgoing ? styles.outgoing : styles.incoming}`}>{isOutgoing ? `${calcSenderNameForMessage(message)}: `: ''}{message.text}</span>
-      <DateTime date={message.message_time} className={styles.messageTime} />
-    </div>
-  </li>;
+    return <li key={message.id} className={`${isOutgoing ? styles.outgoingMessage : styles.incomingMessage} ${radioImage ? styles.hasImage : ''}`} onClick={handleClick} {...rest}>
+      <SenderDetails subject={subject} message={message} senderDetailStyle={senderDetailStyle} />
+      <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
+        {!message.read && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
+        <span className={`${styles.messageContent} ${isOutgoing ? styles.outgoing : styles.incoming}`}>{isOutgoing ? `${calcSenderNameForMessage(message)}: `: ''}{message.text}</span>
+        <DateTime date={message.message_time} className={styles.messageTime} />
+      </div>
+    </li>;
+
+  }
+  ) ;
 };
 
-const mapStateToProps = ({ data: { subjectStore } }, ownProps) => {
-  const subject = ownProps.message && extractSubjectFromMessage(ownProps.message);
+const mapStateToProps = ({ data: { subjectStore } }, ownProps) => ({
+  subjectStore,
+});
 
-  return {
-    subject: subjectStore[subject.id],
-  };
-
-
-};
-
-export default connect(mapStateToProps, null)(memo(MessageListItem));
+export default connect(mapStateToProps, null)(memo(MessageSummaryListItem));

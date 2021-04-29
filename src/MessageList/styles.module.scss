@@ -77,6 +77,9 @@ $icon-size: 1.5em;
       max-height: $icon-size;
       max-width: $icon-size;
     }
+    li {
+      padding: 0;
+    }
   }
 }
 .messageDetails {

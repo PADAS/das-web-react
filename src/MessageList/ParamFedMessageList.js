@@ -42,11 +42,13 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
         dispatch(fetchMessagesSuccess(response.data.data));
       })
       .finally(() => {
-        scrollPositionTimeout.current = window.setTimeout(() => {
-          setListScrollPosition();
-        }, 200);
+        if (!isInit.current) {
+          scrollPositionTimeout.current = window.setTimeout(() => {
+            setListScrollPosition();
+          }, 200);
+        }
       });
-  }, [setListScrollPosition, state.next]); 
+  }, [setListScrollPosition, state.next]);
 
   useEffect(() => {
     if (params) {
@@ -93,7 +95,7 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
     setListScrollPosition();
   }, [setListScrollPosition]);
 
-  return <div ref={containerRef} className={styles.scrollContainer} style={!isInit.current ? {overflow: 'hidden'} : {}}>
+  return <div ref={containerRef} className={styles.scrollContainer}>
     {loading && <LoadingOverlay message='Loading messages...' />}
     <MessageList emptyMessage={loading ? 'Loading messages...' : undefined} containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
   </div>;

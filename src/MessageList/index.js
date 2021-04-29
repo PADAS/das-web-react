@@ -44,16 +44,27 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         {
           date: message.message_time,
           title: calcMessageGroupTitle(new Date(message.message_time)),
-          messages: [message],
+          messages: [[message]],
         },
       ];
     }
     const returnVal = [...accumulator];
-    
-    returnVal[returnVal.length - 1].messages = [
-      ...returnVal[returnVal.length - 1].messages,
-      message,
-    ];
+
+    const isSameSenderAsPriorMessage = message?.sender?.id && returnVal[returnVal.length - 1].messages[returnVal[returnVal.length - 1].messages.length - 1]?.[0]?.sender?.id === message.sender.id;
+
+    if (isSameSenderAsPriorMessage) {
+      returnVal[returnVal.length - 1].messages[returnVal[returnVal.length - 1].messages.length - 1] = [
+        ...returnVal[returnVal.length - 1].messages[returnVal[returnVal.length - 1].messages.length - 1],
+        message,
+      ];
+    } else {
+      returnVal[returnVal.length - 1].messages = [
+        ...returnVal[returnVal.length - 1].messages,
+        [message],
+      ];
+
+    }
+
     return returnVal;
 
   }, []), [messages]);
@@ -76,7 +87,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         </h6>}
         <ul>
           {group.messages.map((message) => {
-            return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} message={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
+            return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} messageGroup={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
           })}
         </ul>
         {isReverse && <h6 className={`${styles.dividerTitle} ${styles.reverse}`}>

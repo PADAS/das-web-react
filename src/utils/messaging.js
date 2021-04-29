@@ -11,18 +11,6 @@ const { get, post } = axios;
 export const extractSubjectFromMessage = (message) =>
   message.message_type === 'inbox' ? message.sender : message.receiver;
 
-const fetchMessages = params => get(MESSAGING_API_URL, {
-  params,
-});
-
-const fetchMessagesForId = (id, params) => get(`${MESSAGING_API_URL}/${id}`, {
-  params,
-});
-
-const markMessageAsRead = id => post(`${MESSAGING_API_URL}/${id}/status`, {
-  read: true,
-});
-
 export const generateNewMessage = ({ geometry, properties }, config = {}) => {
   const sender = store.getState().data.subjectStore[properties.id];
 

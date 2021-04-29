@@ -47,7 +47,7 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
     <Header>
       {!selectedSubject && <h2>Messages</h2>}
       {selectedSubject && <Fragment>
-        <h5>{selectedSubject.name}</h5>
+        <h5>Messages: {selectedSubject.name}</h5>
         {selectedSubject && <Button variant='secondary' onClick={clearSelectedSubject}>&larr; All messages</Button>}
       </Fragment>}
     </Header>
