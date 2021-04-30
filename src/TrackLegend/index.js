@@ -6,6 +6,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 import distanceInWords from 'date-fns/distance_in_words';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import format from 'date-fns/format';
 
 import uniq from 'lodash/uniq';
 
@@ -73,13 +74,13 @@ const TitleElement = memo((props) => { // eslint-disable-line
       </button>
     </OverlayTrigger>}
       </h6>
-      <span>{trackPointCount} points over {trackDuration}</span>
+      <span>{trackPointCount} points {trackDuration}</span>
     </div>
   </div>;
 });
 
 const TrackLegend = (props) => {
-  const { trackData, onClose, trackState, subjectStore, updateTrackState, trackTimeEnvelope } = props;
+  const { trackData, onClose, timeSliderState, trackState, subjectStore, updateTrackState, trackTimeEnvelope } = props;
 
   const subjectCount = uniq([...trackState.visible, ...trackState.pinned]).length;
   const trackPointCount = useMemo(() => trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0), [trackData]);
@@ -98,9 +99,13 @@ const TrackLegend = (props) => {
 
   const displayTrackLength = useMemo(() => {
     const { from, until } = trackTimeEnvelope;
-    if (!until) return distanceInWordsToNow(new Date(from));
-    return distanceInWords(new Date(from), new Date(until));
-  }, [trackTimeEnvelope]);
+
+    if (timeSliderState.active) {
+      return `(${format(new Date(from), 'D MMM \'YY')}\u2014${!until ? 'now' : format(new Date(until), 'D MMM \'YY')})`;
+    }
+    else return `over ${!until ? distanceInWordsToNow(new Date(from)) : distanceInWords(new Date(from), new Date(until))}`;
+    // return <span className='FUCKBALL'>{returnString}</span>;
+  }, [timeSliderState.active, trackTimeEnvelope]);
 
   const iconSrc = useMemo(() => {
     if (!subjectCount || !hasTrackData ||  subjectCount !== 1) return null;
@@ -129,6 +134,7 @@ const TrackLegend = (props) => {
 
 const mapStatetoProps = (state) => ({
   subjectStore: state.data.subjectStore,
+  timeSliderState: state.view.timeSliderState,
   trackTimeEnvelope: trackTimeEnvelope(state),
   trackLength: state.view.trackLength,
 });
