@@ -153,7 +153,7 @@ const DataExportMenu = (props) => {
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
-          <span>{modal.title}</span>
+          <span>{modal.title}</span> 
         </Item>
       )}
       <Divider />
