@@ -148,7 +148,8 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
-      {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau) </Item>}      {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
+      {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau)</Item>}
+      {!!alerts_enabled && !!eventTypes.length && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts</Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
