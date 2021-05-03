@@ -124,24 +124,31 @@ const fetchNamedFeedActionCreator = (name) => {
       });
   };
 
-  const fetchNextPageFn = url => dispatch => axios.get(url)
-    .then(response => {
-      dispatch(updateEventStore(...response.data.data.results));
-      dispatch({
-        name,
-        type: FEED_FETCH_NEXT_PAGE_SUCCESS,
-        payload: response.data.data,
-      });
-      return response;
+  const fetchNextPageFn = url => dispatch => {
+    cancelToken.cancel();
+    cancelToken = CancelToken.source();
+    
+    return axios.get(url, {
+      cancelToken: cancelToken.token,
     })
-    .catch((error) => {
-      dispatch({
-        name,
-        type: FEED_FETCH_ERROR,
-        payload: error,
+      .then(response => {
+        dispatch(updateEventStore(...response.data.data.results));
+        dispatch({
+          name,
+          type: FEED_FETCH_NEXT_PAGE_SUCCESS,
+          payload: response.data.data,
+        });
+        return response;
+      })
+      .catch((error) => {
+        dispatch({
+          name,
+          type: FEED_FETCH_ERROR,
+          payload: error,
+        });
+        return Promise.reject(error);
       });
-      return Promise.reject(error);
-    });
+  };
 
   return [fetchFn, fetchNextPageFn, cancelToken];
 };

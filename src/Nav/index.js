@@ -10,6 +10,7 @@ import { trackEvent } from '../utils/analytics';
 import { MAX_ZOOM } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
+import MessageMenu from './MessageMenu';
 import UserMenu from '../UserMenu';
 import EarthRangerLogo from '../EarthRangerLogo';
 import DataExportMenu from '../DataExportMenu';
@@ -67,6 +68,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, h
 
     {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
     <div className="rightMenus">
+      <MessageMenu />
       <NotificationMenu />
       <UserMenu user={user} onProfileClick={onProfileClick} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>

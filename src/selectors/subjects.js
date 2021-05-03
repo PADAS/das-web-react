@@ -5,7 +5,7 @@ import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { createFeatureCollectionFromSubjects, filterInactiveRadiosFromCollection } from '../utils/map';
 import { pinMapSubjectsToVirtualPosition, markSubjectFeaturesWithActivePatrols } from '../utils/subjects';
 
-const getMapSubjects = ({ data: { mapSubjects: { subjects } } }) => subjects;
+const getMapSubjects = ({ data: { mapSubjects } }) => mapSubjects;
 const hiddenSubjectIDs = ({ view: { hiddenSubjectIDs } }) => hiddenSubjectIDs;
 const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
@@ -16,7 +16,7 @@ const getUserPermissions = ({ data: { user: { permissions } } }) => permissions;
 export const getMapSubjectFeatureCollection = createSelector(
   [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],
   (mapSubjects, subjectStore, hiddenSubjectIDs, showInactiveRadios) => {
-    const fromStore = mapSubjects
+    const fromStore = mapSubjects.subjects
       .filter(id => !hiddenSubjectIDs.includes(id))
       .map(id => subjectStore[id])
       .filter(item => !!item);

@@ -56,11 +56,17 @@ const PatrolFilter = (props) => {
 
   const toggleFilterSettingsPopover = useCallback(() => {
     setFilterSettingsPopoverState(!filterSettingsOpen);
+
+    if (!filterSettingsOpen) {
+      trackEvent('Patrol Filter', 'Click Date Filter Settings button');
+    }
+
   }, [filterSettingsOpen]);
 
   const onFilterSettingsOptionChange = useCallback((e) => {
     const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
     updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap }});
+    trackEvent('Patrol Filter', patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
   }, [updatePatrolFilter]);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
