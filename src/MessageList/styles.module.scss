@@ -1,5 +1,6 @@
 @import '../common/styles/vars/colors';
 
+$icon-size: 1.5em;
 
 .dividerTitle {
   $divider-color: darken($light-gray-border, 10%);
@@ -9,40 +10,137 @@
   display: block;
   font-size: 1em;
   line-height: 0;
-  margin-bottom: 0.5em; 
+  margin: 0.5em 0;
   text-align: center;
   span {
     background: white;
-    font-size: 0.65em;
+    font-size: 0.75em;
     padding: 0.25em;
+  }
+  &.reverse {
+    margin: 0 0 0.5em;
   }
 }
 
 .senderDetails {
+  align-items: center;
   color: $light-font-color;
-  display: block;
+  display: flex;
   font-size: 0.7em;
   margin-bottom: 0.5em;
 }
 
+.messageHistory:not(.summaryList) {
+  .outgoingMessage {
+    .messageDetails {
+      align-self: flex-end;
+      background: lighten($light-blue, 35%);
+    }
+    .senderDetails {
+      justify-content: flex-end;
+    }
+    img, svg {
+      margin-left: 0.5em;
+    }
+  }
+  .messageDetails {
+    background: lighten($light-blue, 25%);
+    border: 1px solid $light-gray-border;
+    border-radius: 1em;
+    width: 87.5%;
+  }
+}
+
+.emptyMessage {
+  padding: 0.75em 1em;
+}
+  
 .messageHistory {
   line-height: normal;
   margin: 0;
   text-align: left;
-  li li {
-    padding: 0.75em 0.5em;
+  ul {
+    display: flex;
+    flex-flow: column;
   }
-  li li:not(:first-child) {
-    border-top: 1px solid lighten($light-gray-border, 7.5%);
+  li li {
+    display: flex;
+    flex-flow: column;
+    padding: 0.75em 1em;
+    position: relative;
+    [class*=badge] {
+      left: 1rem;
+      position: absolute;
+    }
+    img, svg {
+      margin-right: 0.5em;
+      max-height: $icon-size;
+      max-width: $icon-size;
+    }
+    li {
+      padding: 0;
+    }
   }
 }
 .messageDetails {
-  display: flex;
   align-items: center;
+  display: flex;
+  flex-grow: 1;
   justify-content: space-between;
+  margin-bottom: 0.5em;
+  padding: 0.5em;
 }
 
+
 .messageTime {
-  margin-top: -1.25em;
+  margin-left: 0.5em;
   text-align: right;
+}
+
+.scrollContainer {
+  margin: 0;
+  height: 100%;
+  min-width: 24em;
+  overflow-y: auto;
+}
+
+.summaryList {
+  [class*=senderDetails] {
+    font-size: 0.95em;
+    font-style: normal;
+    font-weight: 600;
+  }
+  li li {
+    cursor: pointer;
+    &:hover {
+      background: rgba($light-blue, 0.1);
+      text-decoration: underline;
+    }
+    &:not(:first-child) {
+      border-top: 1px solid $light-gray-border;
+    }
+  }
+}
+
+.summaryLoadingOverlay {
+  background: none;
+  div[class*=spinner] {
+    bottom: -5em;
+    position: absolute;
+    left: 1.5em;
+    height: 3em;
+    width: 3em;
+  }
+}
+
+.messageContent {
+  &.outgoing {
+    font-style: italic;
+  }
+}
+
+.hasImage {
+  .messageDetails {
+    padding-left: $icon-size + 0.25em;
+  }
 }

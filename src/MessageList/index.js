@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useState } from 'react';
 import { findDOMNode } from 'react-dom';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import isSameDay from 'date-fns/is_same_day';
 import isToday from 'date-fns/is_today';
 import isYesterday from 'date-fns/is_yesterday';
@@ -11,9 +11,10 @@ import format from 'date-fns/format';
 
 import { SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { uuid } from '../utils/string';
-import { extractSubjectFromMessage } from '../utils/messaging';
 
-import DateTime from '../DateTime';
+import MessageListItem from './MessageListItem';
+import MessageSummaryListItem from './MessageSummaryListItem';
+import SenderDetails, { SENDER_DETAIL_STYLES } from './SenderDetails';
 
 import styles from './styles.module.scss';
 
@@ -23,8 +24,13 @@ const calcMessageGroupTitle = (date) => {
   return format(date, SHORTENED_DATE_FORMAT);
 };
 
+export const MESSAGE_LIST_TYPES = {
+  GENERAL: 'general',
+  SUMMARY: 'summary',
+};
+
 const MessageList = (props) => { /* eslint-disable-line react/display-name */
-  const { className = '', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
+  const { className = '', senderDetailStyle = SENDER_DETAIL_STYLES.FULL, onMessageClick = () => null, type = MESSAGE_LIST_TYPES.GENERAL, emptyMessage = 'No messages to display.', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -38,19 +44,32 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         {
           date: message.message_time,
           title: calcMessageGroupTitle(new Date(message.message_time)),
-          messages: [message],
+          messages: [[message]],
         },
       ];
     }
     const returnVal = [...accumulator];
-    
-    returnVal[returnVal.length - 1].messages = [
-      ...returnVal[returnVal.length - 1].messages,
-      message,
-    ];
+
+    const isSameSenderAsPriorMessage = message?.sender?.id && returnVal[returnVal.length - 1].messages[returnVal[returnVal.length - 1].messages.length - 1]?.[0]?.sender?.id === message.sender.id;
+
+    if (isSameSenderAsPriorMessage) {
+      returnVal[returnVal.length - 1].messages[returnVal[returnVal.length - 1].messages.length - 1] = [
+        ...returnVal[returnVal.length - 1].messages[returnVal[returnVal.length - 1].messages.length - 1],
+        message,
+      ];
+    } else {
+      returnVal[returnVal.length - 1].messages = [
+        ...returnVal[returnVal.length - 1].messages,
+        [message],
+      ];
+
+    }
+
     return returnVal;
 
   }, []), [messages]);
+
+  const ListItemComponent = type === MESSAGE_LIST_TYPES.SUMMARY ? MessageSummaryListItem : MessageListItem;
 
   return   <InfiniteScroll
     element='ul'
@@ -63,35 +82,21 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
   >
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
       <li key={`${instanceId}-message-group-${index}`}>
-        <ul>
-          {group.messages.map(message => 
-            <MessageListItem message={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />
-          )}
-        </ul>
-        <h6 className={styles.dividerTitle}>
+        {!isReverse && <h6 className={styles.dividerTitle}>
           <span>{group.title}</span>
-        </h6>
+        </h6>}
+        <ul>
+          {group.messages.map((message) => {
+            return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} messageGroup={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
+          })}
+        </ul>
+        {isReverse && <h6 className={`${styles.dividerTitle} ${styles.reverse}`}>
+          <span>{group.title}</span>
+        </h6>}
       </li>
     )}
-    {!groupedByDate.length && <span>No messages to display.</span>}
+    {!groupedByDate.length && <li className={styles.emptyMessage}>{emptyMessage}</li>}
   </InfiniteScroll>;
-};
-
-
-
-const MessageListItem = (props) => {
-  const { message, unreadMessageClassName, readMessageClassName } = props;
-  const subject = extractSubjectFromMessage(message);
-
-  if (!subject) return null;
-
-  return  <li className={message.message_type === 'inbox' ? styles.incomingMessage : styles.outgoingMessage}>
-    <em className={styles.senderDetails}>{message.message_type === 'inbox' ? subject.name : `${message?.sender?.name ?? message?.sender?.username ?? 'Operator'} > ${subject.name}`}</em>
-    <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
-      <span className={styles.messageContent}>{message.text}</span>
-      <DateTime date={message.message_time} className={styles.messageTime} />
-    </div>
-  </li>;
 };
 
 export default memo(MessageList);

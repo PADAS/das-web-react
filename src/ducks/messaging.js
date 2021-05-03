@@ -30,7 +30,7 @@ export const removeMessageById = id => ({
 const { get, post, patch } = axios;
 
 export const fetchMessages = (params = {}) => get(MESSAGING_API_URL, { params: {
-  include_additional_data: false, page_size: 150, ...params,
+  include_additional_data: false, page_size: 25, ...params,
 } });
 
 

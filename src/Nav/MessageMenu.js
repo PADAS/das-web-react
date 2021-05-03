@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
@@ -19,13 +19,14 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 import styles from './styles.module.scss';
 
 
-const { Toggle, Menu, Item } = Dropdown;
+const { Header, Toggle, Menu, Item } = Dropdown;
 
-const MessageMenu = (props) => {
+const MessageMenu = ({ addModal }) => {
   const listRef = useRef();
 
   const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
+  const [initialEmptyMessage, setInitialEmptyMessage] = useState('Loading messages...');
 
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
@@ -46,24 +47,32 @@ const MessageMenu = (props) => {
       })
       .catch((error) => {
         console.warn('error fetching messages', { error });
+      })
+      .finally(() => {
+        setInitialEmptyMessage(undefined);
       });
   }, [dispatch]);
 
   const showAllMessagesModal = useCallback(() => {
     addModal({
       content: MessagesModal,
+      modalProps: {
+        className: 'messaging-modal',
+      }
     });
-    // trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
-  }, []);
+    // trackEvent('Messaging', 'Open Message Modal');
+  }, [addModal]);
 
   const unreads = state.results.filter(msg => !msg.read);
 
   const onDropdownToggle = useCallback((isOpen) => {
-    if (!!unreads.length) {
+    if (!!unreads.length && !isOpen) {
       const ids = unreads.map(({ id }) => id);
       bulkReadMessages(ids);
     }
   }, [unreads]);
+
+  const badgeCount = unreads.length > 10 ? '10+' : unreads.length;
 
   
   const loadMoreMessages = useCallback(() => {
@@ -76,11 +85,13 @@ const MessageMenu = (props) => {
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle disabled={!state.results.length}>
       <ChatIcon />
-      {!!unreads.length && <Badge className={styles.badge} count={unreads.length} />}
+      {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
     </Toggle>
     <Menu className={styles.messageMenus}>
+      <Header>Recent Messages</Header>
       <div ref={listRef} className={styles.messageList}>
-        <MessageList containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />
+        {!state.results.length && <span style={{padding: '1rem', display: 'block', textAlign: 'right'}}>No messages</span>}
+        {!!state.results.length && <MessageList emptyMessage={initialEmptyMessage} containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />}
       </div>
       <Item className={styles.seeAll}>
         <Button variant='link' disabled={!state.results.length} onClick={showAllMessagesModal}>See all &raquo;</Button>
@@ -97,4 +108,4 @@ const WithContext = (props) => <WithMessageContext>
   <MessageMenu {...props} />
 </WithMessageContext>;
 
-export default connect(mapStateToProps, null)(memo(WithContext));
+export default connect(mapStateToProps, { addModal })(memo(WithContext));

@@ -13,8 +13,11 @@
 }
 
 .header {
+  align-items: center;
+  display: flex;
   margin: 0.25rem 0 0.5rem;
   h6 {
+    flex-grow: 1;
     font-size: 0.75rem;
     font-weight: 500;
     margin: 0;
@@ -22,20 +25,13 @@
       margin-right: 0.666rem;
     }
   }
-}
-
-.chatControls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 2rem;
-  input {
-    flex-grow: 1;
-    margin-right: 0.5rem;
+  img {
+    cursor: pointer;
+    margin-left: auto;
   }
 }
 
-.scrollContainer {
-  max-height: 12em;
-  overflow-y: auto;
+.messageList {
+  font-size: 0.95rem;
+  max-height: 16rem;
 }

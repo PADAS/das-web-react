@@ -90,7 +90,7 @@ const SubjectControls = (props) => {
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
       map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button', 
         `Subject Type:${subject.subject_type}`]} />}
-        {children}
+    {children}
   </div>;
 };
 
