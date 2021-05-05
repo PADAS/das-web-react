@@ -12,6 +12,8 @@ import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
 import { removeModal } from '../ducks/modals';
 import { extractSubjectFromMessage } from '../utils/messaging';
 
+import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
+
 
 const { Body, Footer, Header } = Modal;
 
@@ -45,7 +47,10 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
 
   return <Fragment>
     <Header>
-      {!selectedSubject && <h2>Messages</h2>}
+      {!selectedSubject && <Fragment>
+        <h2>Messages</h2>
+        {/* <AddButtonIcon /> */}
+      </Fragment>}
       {selectedSubject && <Fragment>
         <h5>Messages: {selectedSubject.name}</h5>
         {selectedSubject && <Button variant='secondary' onClick={clearSelectedSubject}>&larr; All messages</Button>}
