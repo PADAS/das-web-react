@@ -49,7 +49,7 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
     <Header>
       {!selectedSubject && <Fragment>
         <h2>Messages</h2>
-        <AddButtonIcon />
+        {/* <AddButtonIcon /> */}
       </Fragment>}
       {selectedSubject && <Fragment>
         <h5>Messages: {selectedSubject.name}</h5>
