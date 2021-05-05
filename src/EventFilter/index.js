@@ -326,6 +326,6 @@ const mapStateToProps = (state) =>
     eventFilter: state.data.eventFilter,
     eventTypes: state.data.eventTypes,
     reporters: reportedBy(state),
-  });
+  }); 
 
 export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));
