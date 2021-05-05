@@ -74,6 +74,23 @@ const MessageMenu = ({ addModal }) => {
 
   const badgeCount = unreads.length > 10 ? '10+' : unreads.length;
 
+
+  const onMessageSubjectClick = useCallback((subject) => {
+    const { id:subject_id } = subject;
+
+    const params = {
+      subject_id,
+    };
+
+    addModal({
+      content: MessagesModal,
+      params,
+      modalProps: {
+        className: 'messaging-modal',
+      }
+    });
+  }, [addModal]);
+
   
   const loadMoreMessages = useCallback(() => {
     fetchMessagesNextPage(state.next)
@@ -91,7 +108,7 @@ const MessageMenu = ({ addModal }) => {
       <Header>Recent Messages</Header>
       <div ref={listRef} className={styles.messageList}>
         {!state.results.length && <span style={{padding: '1rem', display: 'block', textAlign: 'right'}}>No messages</span>}
-        {!!state.results.length && <MessageList emptyMessage={initialEmptyMessage} containerRef={listRef} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />}
+        {!!state.results.length && <MessageList emptyMessage={initialEmptyMessage} containerRef={listRef} onMessageSubjectClick={onMessageSubjectClick} onScroll={loadMoreMessages} hasMore={!!state.next} messages={state.results} />}
       </div>
       <Item className={styles.seeAll}>
         <Button variant='link' disabled={!state.results.length} onClick={showAllMessagesModal}>See all &raquo;</Button>

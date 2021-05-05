@@ -10,14 +10,14 @@ import styles from './styles.module.scss';
 
 const MessageListItem = (props) => {
   
-  const { messageGroup, senderDetailStyle, onClick = () => null, subject, unreadMessageClassName, readMessageClassName, ...rest } = props;
+  const { messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null, subject, unreadMessageClassName, readMessageClassName, ...rest } = props;
 
   if (!subject) return null;
 
   const isOutgoing = messageGroup[0].message_type === 'outbox';
 
   return <li className={isOutgoing ? styles.outgoingMessage: styles.incomingMessage}>
-    <SenderDetails subject={subject} message={messageGroup[0]} senderDetailStyle={senderDetailStyle} />
+    <SenderDetails subject={subject} message={messageGroup[0]} senderDetailStyle={senderDetailStyle} onMessageSubjectClick={onMessageSubjectClick} />
     <ul>
       {messageGroup.map((message) => {
         const handleClick = () => onClick(message);
