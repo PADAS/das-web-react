@@ -629,15 +629,24 @@ div.mapboxgl-popup-tip {
   background: none;
   pointer-events: none;
   .modal-dialog {
-    box-shadow: 0px 0px 3px $light-gray;
     position: absolute;
-    right: 12rem;
+    right: 5vw;
     left: unset;
     top: 0.5rem;
     min-height: unset;
     bottom: unset;
-    width: 33rem;
+    width: 90vw;
     font-size: 0.95rem;
+    @media (min-width: $md-layout-width-min) {
+      right: 4rem;
+      width: 33rem;
+    }
+    @media (min-width: $lg-layout-width-min) {
+      right: 11.5rem;
+    }
+  }
+  .modal-content {
+    box-shadow: 0px 0px 3px $light-gray;
   }
   .modal-header {
     align-items: center;

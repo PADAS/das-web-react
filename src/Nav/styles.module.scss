@@ -1,8 +1,14 @@
 @import '../common/styles/vars/colors';
 
 .messageMenu {
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
   position: relative;
+  &.active {
+    opacity: 0.9;
+    svg * {
+      stroke: white;
+    }
+  }
   .badge {
     color: white;
     font-size: 0.6rem;

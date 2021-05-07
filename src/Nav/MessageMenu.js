@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
@@ -17,7 +17,8 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 import styles from './styles.module.scss';
 
 const MessageMenu = ({ addModal, modals, removeModal }) => {
-  const modalIdRef = useRef();
+  const [modalId, setModalId] = useState(null);
+
 
   const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
@@ -47,9 +48,8 @@ const MessageMenu = ({ addModal, modals, removeModal }) => {
   const unreads = state.results.filter(msg => !msg.read);
 
   const toggleMessagesModal = useCallback(() => {
-    if (modalIdRef.current) {
-      removeModal(modalIdRef.current);
-      modalIdRef.current = null;
+    if (modalId) {
+      removeModal(modalId);
     } else {
       const { id } = addModal({
         backdrop: true,
@@ -59,20 +59,21 @@ const MessageMenu = ({ addModal, modals, removeModal }) => {
         }
       });
 
+      setModalId(id);
+
       /*  if (!!unreads.length) {
         const ids = unreads.map(({ id }) => id);
         bulkReadMessages(ids);
       } */
 
-      modalIdRef.current = id;
     }
     // trackEvent('Messaging', 'Open Message Modal');
-  }, [addModal, removeModal]);
+  }, [addModal, modalId, removeModal]);
 
   useEffect(() => {
     /* in case the modal is closed externally */
     if (!modals.some(({ content }) => content === MessagesModal)) {
-      modalIdRef.current = null;
+      setModalId(null);
     }
   }, [modals]);
 
@@ -80,7 +81,7 @@ const MessageMenu = ({ addModal, modals, removeModal }) => {
 
   const badgeCount = unreads.length > 9 ? '9+' : unreads.length;
 
-  return  <Button variant='link' disabled={!state.results.length} className={styles.messageMenu} onClick={toggleMessagesModal}>
+  return  <Button variant='link' disabled={!state.results.length} className={`${styles.messageMenu} ${!!modalId ? styles.active : ''}`} onClick={toggleMessagesModal}>
     <ChatIcon />
     {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
   </Button>;

@@ -51,11 +51,12 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
 
   return <Fragment>
     <Header>
-      {selectedSubject && <Fragment>
-        <h5>{selectedSubject.name}</h5>
-        <Button style={{fontSize: '0.85rem'}} variant='secondary' onClick={clearSelectedSubject}>&larr; All messages</Button>
-      </Fragment>}
+      {selectedSubject && <h5>
+        {selectedSubject.name} 
+        <Button style={{fontSize: '0.85rem', marginLeft: '1em'}} variant='secondary' size='sm' onClick={clearSelectedSubject}>&larr; All messages</Button>
+      </h5>}
       {!selectedSubject && <h5>Messages</h5>}
+      <Button variant='info' onClick={() => removeModal(modalId)}>Close</Button>
     </Header>
     <Body style={{display: selectedSubject ? 'none' : 'block'}}>
       <MessageSummaryList onMessageClick={onSummaryMessageClick}  />
@@ -63,13 +64,15 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
     {selectedSubject && <Body>
       <ParamFedMessageList params={params} isReverse={true} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} />
     </Body>}
-    <Footer>
-      <Button variant='secondary' onClick={() => removeModal(modalId)}>Close</Button>
-      {!selectedSubject && <Button variant='light' onClick={showNewMessageDialog}>
+    {!selectedSubject && <Footer>
+      <Button variant='light' onClick={showNewMessageDialog}>
         <EditIcon /> New Message
-      </Button>}
-      {selectedSubject &&<MessageInput subjectId={selectedSubject.id} />}
-    </Footer>
+      </Button>
+    </Footer>}
+    {selectedSubject &&  <Footer>
+      {!selectedSubject.messaging && <strong>You may only receive messages from this subject.</strong>} 
+      <MessageInput subjectId={selectedSubject.id} />
+    </Footer>}
   </Fragment>;
 };
 
