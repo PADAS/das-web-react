@@ -1,13 +1,20 @@
 version: 2.1
+orbs:
+  node: circleci/node@4.3.0
+references:
+  workspace_root: &workspace_root /root/project
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: *workspace_root
 commands:
   configure_git_for_commit_and_push:
     steps:
       - run: 'git config user.email "circleci@vulcan.com"'
       - run: 'git config user.name "circleci"'
-      - run: 'git config push.default current'
+      - run: "git config push.default current"
       - add_ssh_keys:
           fingerprints:
-            - 'c9:1d:33:93:16:c9:28:1c:3c:f4:f0:85:e3:f0:f8:d7'
+            - "c9:1d:33:93:16:c9:28:1c:3c:f4:f0:85:e3:f0:f8:d7"
   activate_google_service_account:
     steps:
       - run: 'gcloud auth activate-service-account --key-file=<(echo "$ENCODED_GCR_KEY" | base64 --decode)'
@@ -22,25 +29,46 @@ commands:
         type: string
         default: "das"
     steps:
-      - run: 'ci-helpers/trigger-downstream.sh << parameters.target_project_slug >> ${CIRCLE_BRANCH}'
+      - run: "ci-helpers/trigger-downstream.sh << parameters.target_project_slug >> ${CIRCLE_BRANCH}"
 
 executors:
   gcloud:
     docker:
-      - image: 'google/cloud-sdk:269.0.0'
+      - image: "google/cloud-sdk:269.0.0"
 
 jobs:
-  build_das_web_react:
-    executor: 'gcloud'
+  production_build:
+    executor: node/default
     steps:
-      - 'setup_remote_docker'
-      - 'docker_login'
-      - 'checkout'
-      - run: 'ci-helpers/makeversion.py'
+      - "setup_remote_docker"
+      - "docker_login"
+      - "checkout"
+      - run: "ci-helpers/makeversion.py"
+      - node/install-packages:
+          cache-path: ~/project/node_modules
+          override-ci-command: npm install
+      - run:
+          command: CI=false npm run build
+          name: Build Production Artefact
       - run: 'make build_and_push descriptive_gcr_path_stem="$CIRCLE_BRANCH" unique_gcr_tag="$CIRCLE_WORKFLOW_ID"'
+      - persist_to_workspace:
+          root: "./"
+          paths:
+            - "build"
+  push_to_storage:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - *attach_workspace
+      - run: |
+          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+          gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+      - run: |
+          gsutil cp -r build/static gs://er-static/
 
   trigger_downstream:
-    executor: 'gcloud'
+    executor: "gcloud"
     steps:
       - checkout
       - trigger_downstream_builds:
@@ -50,8 +78,11 @@ workflows:
   version: 2
   docker_build_workflow:
     jobs:
-      - build_das_web_react
+      - production_build
+      - push_to_storage:
+          requires:
+            - production_build
       - trigger_downstream:
           context: padas-context
           requires:
-            - build_das_web_react
+            - production_build
