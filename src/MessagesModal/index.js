@@ -12,6 +12,8 @@ import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
 import { removeModal } from '../ducks/modals';
 import { extractSubjectFromMessage } from '../utils/messaging';
 
+import { ReactComponent as EditIcon } from '../common/images/icons/edit.svg';
+
 
 const { Body, Footer, Header } = Modal;
 
@@ -38,6 +40,10 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
     setSelectedSubject(subject);
   };
 
+  const showNewMessageDialog = () => {
+    
+  };
+
   const clearSelectedSubject = () => {
     console.log('clearSelectedSubject fired');
     setSelectedSubject(null);
@@ -45,11 +51,11 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
 
   return <Fragment>
     <Header>
-      {!selectedSubject && <h2>Messages</h2>}
       {selectedSubject && <Fragment>
-        <h5>Messages: {selectedSubject.name}</h5>
-        {selectedSubject && <Button variant='secondary' onClick={clearSelectedSubject}>&larr; All messages</Button>}
+        <h5>{selectedSubject.name}</h5>
+        <Button style={{fontSize: '0.85rem'}} variant='secondary' onClick={clearSelectedSubject}>&larr; All messages</Button>
       </Fragment>}
+      {!selectedSubject && <h5>Messages</h5>}
     </Header>
     <Body style={{display: selectedSubject ? 'none' : 'block'}}>
       <MessageSummaryList onMessageClick={onSummaryMessageClick}  />
@@ -58,8 +64,11 @@ const MessagesModal =  ({ id:modalId, params:initParamsFromProps, removeModal, s
       <ParamFedMessageList params={params} isReverse={true} senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} />
     </Body>}
     <Footer>
-      {!selectedSubject && <Button variant='primary' onClick={() => removeModal(modalId)}>Close</Button>}
-      {selectedSubject && <MessageInput subjectId={selectedSubject.id} />}
+      <Button variant='secondary' onClick={() => removeModal(modalId)}>Close</Button>
+      {!selectedSubject && <Button variant='light' onClick={showNewMessageDialog}>
+        <EditIcon /> New Message
+      </Button>}
+      {selectedSubject &&<MessageInput subjectId={selectedSubject.id} />}
     </Footer>
   </Fragment>;
 };

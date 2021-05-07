@@ -36,7 +36,7 @@ const SubjectPopup = (props) => {
 
   const [showAdditionalProperties, setShowAdditionalProperties] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
 
-  const isMessageable = !!properties.messaging.length;
+  const isMessageable = !!properties?.messaging?.length;
 
   const radioWithRecentMicActivity = useMemo(() =>
     subjectIsARadioWithRecentVoiceActivity(properties)

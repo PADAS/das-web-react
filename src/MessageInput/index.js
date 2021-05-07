@@ -45,7 +45,7 @@ const MessageInput = (props) => {
     setInputValue(value);
   }, []);
 
-  if (!subject) return null;
+  if (!subject?.messaging?.length) return null;
 
   return <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
     <input placeholder='Type your message here...' maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${subject.id}`} id={`chat-${subject.id}`} />
