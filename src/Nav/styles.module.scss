@@ -1,8 +1,12 @@
 @import '../common/styles/vars/colors';
 
 .messageMenu {
-  margin-right: 0.25rem;
+  margin-right: 1rem;
   position: relative;
+  [class*=dropdown-menu] {
+    border: none;
+    padding: 0;
+  }
   &.active {
     opacity: 0.9;
     svg * {

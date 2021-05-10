@@ -4,75 +4,43 @@ import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import TimeAgo from '../TimeAgo';
 
-import { calcRecentRadiosFromSubjects } from '../utils/subjects';
 import { DEFAULT_SELECT_STYLES } from '../constants';
-import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
 
 import styles from './styles.module.scss';
 
-const RECENT_MESSAGING_SUBJECTS_LIMIT = 5;
+// const RECENT_MESSAGING_SUBJECTS_LIMIT = 5;
 
-const getSubjectForRecentMessage = (message, subjects) => null;
 
-const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, recentMessages = [], onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options: optionsFromProps } = props;
+const MessagingSelect = (props) => {
+  const { subjects = [], onChange, value = null, isMulti = false, className } = props;
 
-  const selections = optionsFromProps ? optionsFromProps : reporters;
 
   const allMessagingCapableRadios = useMemo(() =>
     subjects.filter(({ messaging }) => !!messaging?.length)
   , [subjects]);
 
-  const recentMessageRadios = useMemo(() =>
-    recentMessages.map(message => getSubjectForRecentMessage(message, subjects)).slice(0, RECENT_MESSAGING_SUBJECTS_LIMIT)
-  , [allMessagingCapableRadios]);
 
-  const displayOptions = useMemo(() =>
-    selections
-      .filter(({ id }) =>
-        !recentMessageRadios
-          .some(({ id:radioId }) =>
-            radioId === id
-          )
-      ), [recentMessageRadios, selections]);
 
   const optionalProps = {};
   const selectStyles = {
     ...DEFAULT_SELECT_STYLES,
+    container(styles) {
+      return {
+        ...styles,
+        flexGrow: 1,
+      };
+    }
   };
 
-  // if (menuRef) {
-  //   optionalProps.menuPortalTarget = menuRef;
-  //   selectStyles.menuPortal = base => ({ ...base, /* position: 'absolute',  */fontSize: '0.9rem', left: '1rem', top: '10rem', zIndex: 9999 });
-  // };
-
-  const selected = useMemo(() => {
-    if (isMulti) {
-      !!value && !!value.length &&
-        value.map(item =>
-          item.hidden
-            ? item
-            : selections.find(selections => selections.id === item.id)
-        );
-    }
-
-    return !!value
-      ? value.hidden
-        ? value
-        : selections.find(selections => selections.id === value.id)
-      : null;
-
-  }, [isMulti, selections, value]);
-
   const options = [
-    {
+    /*     {
       label: 'Recent radios',
       options: recentMessageRadios,
-    },
+    }, */
     {
       label: 'All',
-      options: displayOptions || [],
+      options: allMessagingCapableRadios || [],
     },
   ];
 
@@ -91,16 +59,16 @@ const ReportedBySelect = (props) => {
   const Option = (props) => {
     const { data } = props;
 
-    const isRecent = recentMessageRadios.some(item => item.id === data.id)
-      && (data.last_voice_call_start_at || data.last_position_date);
+    /*     const isRecent = recentMessageRadios.some(item => item.id === data.id)
+      && (data.last_voice_call_start_at || data.last_position_date); */
 
     return (
       <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`} >
         <components.Option {...props}>
           <span>{getOptionLabel(data)}</span>
-          {isRecent &&
+          {/* {isRecent &&
             <TimeAgo className={styles.timeAgo} date={new Date(data.last_voice_call_start_at || data.last_position_date)} />
-          }
+          } */}
         </components.Option>
       </div>
     );
@@ -109,13 +77,13 @@ const ReportedBySelect = (props) => {
   return <Select
     className={className}
     components={{ Option }}
-    value={selected}
+    value={value}
     isClearable={true}
     isSearchable={true}
     isMulti={isMulti}
     onChange={onChange}
     options={options}
-    placeholder={placeholder}
+    placeholder='Send message to...'
     styles={selectStyles}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
@@ -124,26 +92,20 @@ const ReportedBySelect = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  reporters: reportedBy(state),
   subjects: allSubjects(state),
 });
 
-export default connect(mapStateToProps, null)(memo(ReportedBySelect));
+export default connect(mapStateToProps, null)(memo(MessagingSelect));
 
-ReportedBySelect.defaultProps = {
+MessagingSelect.defaultProps = {
   value: null,
-  isMulti: false,
-  numberOfRecentRadiosToShow: 5,
-  placeholder: 'Reported By...',
 };
 
 
-ReportedBySelect.propTypes = {
-  isMulti: PropTypes.bool,
+MessagingSelect.propTypes = {
   value: PropTypes.oneOfType([
     PropTypes.object,
     PropTypes.array,
   ]),
   onChange: PropTypes.func.isRequired,
-  numberOfRecentRadiosToShow: PropTypes.number,
 };
