@@ -21,7 +21,7 @@ import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_CARD_STATES } from '../constants'; 
 
 import styles from './styles.module.scss';
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useContext, useState } from 'react';
+import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -36,6 +36,8 @@ import './App.scss';
 import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+const MapContext = createContext(null);
 
 // use this block to do direct map event binding.
 // useful for API gaps between react-mapbox-gl and mapbox-gl.
@@ -176,27 +178,29 @@ const App = (props) => {
   }, [map, sidebarOpen]); 
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
-    <PrintTitle />
-    <Nav map={map} />
-    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <MapContext.Provider value={map}>
+      <PrintTitle />
+      <Nav map={map} />
+      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
-      {/* <ErrorBoundary> */}
-      <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-      {/* </ErrorBoundary> */}
-      {/* <ErrorBoundary> */}
-      {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-      {/* </ErrorBoundary> */}
-      <ModalRenderer map={map} />
-    </div>
-    <div style={{
-      display: 'none',
-      height: 0,
-      width: 0,
-    }}>
-      <ReportTypeIconSprite id="reportTypeIconSprite" />
-      <EarthRangerLogoSprite />
-    </div>
-    <ServiceWorkerWatcher />
+        {/* <ErrorBoundary> */}
+        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+        {/* </ErrorBoundary> */}
+        {/* <ErrorBoundary> */}
+        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        {/* </ErrorBoundary> */}
+        <ModalRenderer map={map} />
+      </div>
+      <div style={{
+        display: 'none',
+        height: 0,
+        width: 0,
+      }}>
+        <ReportTypeIconSprite id="reportTypeIconSprite" />
+        <EarthRangerLogoSprite />
+      </div>
+      <ServiceWorkerWatcher />
+    </MapContext.Provider>
   </div>;
 };
 
@@ -211,3 +215,5 @@ const AppWithSocketContext = (props) => <WithSocketContext>
 
 
 export default AppWithSocketContext;
+
+export { MapContext };

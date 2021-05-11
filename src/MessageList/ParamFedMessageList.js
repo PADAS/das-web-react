@@ -2,7 +2,7 @@ import React, { memo, useMemo, useCallback, useContext, useEffect, useReducer, u
 
 
 import { extractSubjectFromMessage } from '../utils/messaging';
-import { messageListReducer, fetchMessages, fetchMessagesSuccess, updateMessageFromRealtime, fetchMessagesNextPage, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';
+import { bulkReadMessages, messageListReducer, fetchMessages, fetchMessagesSuccess, updateMessageFromRealtime, fetchMessagesNextPage, INITIAL_MESSAGE_LIST_STATE } from '../ducks/messaging';
 import { SocketContext } from '../withSocketConnection';
 
 import LoadingOverlay from '../LoadingOverlay';
@@ -27,6 +27,8 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
     }
     return state.results;
   }, [isReverse, state.results]);
+
+  const unreads = useMemo(() => state.results.filter(msg => !msg.read), [state.results]);
 
   const setListScrollPosition = useCallback(() => {
     if (containerRef.current) {
@@ -94,6 +96,13 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
   useEffect(() => {
     setListScrollPosition();
   }, [setListScrollPosition]);
+
+  useEffect(() => {
+    if (!!unreads.length) {
+      const ids = unreads.map(({ id }) => id);
+      bulkReadMessages(ids);
+    }
+  }, [unreads]);
 
   return <div ref={containerRef} className={styles.scrollContainer}>
     {loading && <LoadingOverlay message='Loading messages...' />}

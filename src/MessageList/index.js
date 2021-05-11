@@ -30,7 +30,7 @@ export const MESSAGE_LIST_TYPES = {
 };
 
 const MessageList = (props) => { /* eslint-disable-line react/display-name */
-  const { className = '', senderDetailStyle = SENDER_DETAIL_STYLES.FULL, onMessageClick = () => null, type = MESSAGE_LIST_TYPES.GENERAL, emptyMessage = 'No messages to display.', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
+  const { className = '', senderDetailStyle = SENDER_DETAIL_STYLES.FULL, onMessageClick = () => null, type = MESSAGE_LIST_TYPES.GENERAL, onMessageSubjectClick, emptyMessage = 'No messages to display.', unreadMessageClassName = '', readMessageClassName = '',  containerRef, hasMore = false, onScroll = () => null, isReverse = false, messages = [], } = props;
 
   const [instanceId] = useState(uuid());
 
@@ -87,7 +87,8 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
         </h6>}
         <ul>
           {group.messages.map((message) => {
-            return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} messageGroup={message} key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
+            return <ListItemComponent senderDetailStyle={senderDetailStyle} onClick={onMessageClick} messageGroup={message} onMessageSubjectClick={onMessageSubjectClick}
+              key={`${instanceId}-message-${message.id}`} unreadMessageClassName={unreadMessageClassName} readMessageClassName={readMessageClassName}  />;
           })}
         </ul>
         {isReverse && <h6 className={`${styles.dividerTitle} ${styles.reverse}`}>

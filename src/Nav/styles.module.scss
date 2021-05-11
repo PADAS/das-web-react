@@ -2,36 +2,24 @@
 
 .messageMenu {
   margin-right: 1rem;
-}
-
-.messageList {
-  margin: 0;
-  max-height: 16rem;
-  min-width: 24rem;
-  overflow-y: auto;
-  li li {
-    padding: 0.5rem 1rem 0.5rem;
-  }
-}
-
-.messageTitle {
-  padding: 0.5rem 1rem;
-}
-
-div.messageMenu {
+  position: relative;
   [class*=dropdown-menu] {
-    padding-bottom: 0;
+    border: none;
+    padding: 0;
+  }
+  &.active {
+    opacity: 0.9;
+    svg * {
+      stroke: white;
+    }
   }
   .badge {
-    position: absolute;
-    top: 0;
-    right: -0.333rem;
+    color: white;
     font-size: 0.6rem;
+    position: absolute;
+    right: 0.25rem;
+    top: 0;
   }
 }
 
-.seeAll {
-  border-top: 1px solid $light-gray-border;
-  justify-content: flex-end;
-  text-align: right;
-}
+

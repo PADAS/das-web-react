@@ -79,7 +79,7 @@ const MessageSummaryList = (props) => {
 
   useEffect(() => {
     setLoadState(true);
-    fetchMessages({ page_size: 500 })
+    fetchMessages({ page_size: 500, recent_message: 1 })
       .then((response) => {
         dispatch(fetchMessagesSuccess(response.data.data));
       })
