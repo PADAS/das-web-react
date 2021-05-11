@@ -27,7 +27,11 @@ import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
+import { debouncedTrackEvent } from '../utils/analytics';
+
 import styles from './styles.module.scss';
+
+const debouncedAnalytics = debouncedTrackEvent();
 
 const EventFilter = (props) => {
   const { children, className, eventFilter, eventTypes, reporters, resetGlobalDateRange, updateEventFilter } = props;
@@ -209,7 +213,7 @@ const EventFilter = (props) => {
 
   const onSearchChange = ({ target: { value } }) => {
     setFilterText(value);
-    trackEvent('Event Filter', 'Change Search Text Filter');
+    debouncedAnalytics('Event Filter', 'Clear Search Text Filter');
   };
 
   const onSearchClear = (e) => {
@@ -322,6 +326,6 @@ const mapStateToProps = (state) =>
     eventFilter: state.data.eventFilter,
     eventTypes: state.data.eventTypes,
     reporters: reportedBy(state),
-  });
+  }); 
 
 export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));
