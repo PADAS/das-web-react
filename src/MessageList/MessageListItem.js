@@ -30,7 +30,7 @@ const MessageListItem = (props) => {
             <span className={styles.messageContent}>{message.text}</span>
             <DateTime date={message.message_time} className={styles.messageTime} />
           </div>
-          {message.device_location && <LocationJumpButton map={map} coordinates={[message.device_location.longitude, message.device_location.latitude]} />}
+          {/* {message.device_location && <LocationJumpButton map={map} coordinates={[message.device_location.longitude, message.device_location.latitude]} />} */}
         </li>;
 
       })}
