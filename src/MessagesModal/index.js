@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useRef, useState }  from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useRef, useState }  from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
@@ -31,29 +31,24 @@ const headerStyles = {
 
 const { Body, Footer, Header } = Modal;
 
-const MessagesModal =  ({ id:modalId, showClose = true, params:initParamsFromProps, removeModal, subjectStore }) => {
-  const [selectedSubject, setSelectedSubject] = useState(subjectStore?.[initParamsFromProps?.subject_id]);
-  const [params, setParams] = useState(initParamsFromProps);
+const MessagesModal =  ({ id:modalId, showClose = true, onSelectSubject, selectedSubject, removeModal, subjectStore }) => {
   const [selectingRecipient, setSelectingRecipient] = useState(false);
 
-  const isInit = useRef(false);
+  const params = useMemo(() => {
+    if (selectedSubject) return {
+      subject_id: selectedSubject.id,
+    };
+
+  }, [selectedSubject]);
 
   useEffect(() => {
-    if (selectedSubject) {
-      setParams({ subject_id: selectedSubject.id });
-    } else if (isInit.current) {
-      setParams(null);
-    }
-    isInit.current = true;
     setSelectingRecipient(false);
-  }, [selectedSubject]);
+  }, [params]);
   
   const onSummaryMessageClick = (message) => {
     const subject = subjectStore?.[extractSubjectFromMessage(message)?.id];
 
-    if (!subject) return null;
-
-    setSelectedSubject(subject);
+    onSelectSubject(subject);
   };
 
   const showNewMessageDialog = () => {
@@ -62,12 +57,13 @@ const MessagesModal =  ({ id:modalId, showClose = true, params:initParamsFromPro
 
   const onRecipientSelect = (subject) => {
     setSelectingRecipient(false);
-    setSelectedSubject(subject);
+
+    onSelectSubject(subject);
   };
 
   const clearSelectedSubject = () => {
     console.log('clearSelectedSubject fired');
-    setSelectedSubject(null);
+    onSelectSubject(null);
   };
 
   return <Fragment>

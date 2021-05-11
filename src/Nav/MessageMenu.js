@@ -2,7 +2,6 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-
 import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
 import { SocketContext } from '../withSocketConnection';
@@ -19,9 +18,18 @@ import styles from './styles.module.scss';
 const { Toggle, Menu } = Dropdown;
 
 const MessageMenu = (props) => {
+  const [selectedSubject, setSelectedSubject] = useState(null);
+
+  const onDropdownToggle = () => {
+    setSelectedSubject(null);
+  };
 
   const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
+
+  const onSelectSubject = useCallback((subject) => {
+    setSelectedSubject(subject);
+  }, []);
 
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
@@ -49,13 +57,13 @@ const MessageMenu = (props) => {
 
   const badgeCount = unreads.length > 9 ? '9+' : unreads.length;
 
-  return <Dropdown alignRight /* onToggle={onDropdownToggle}  */className={styles.messageMenu}>
+  return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle disabled={!state.results.length}>
       <ChatIcon />
       {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
     </Toggle>
     <Menu className={styles.messageMenu}>
-      <MessagesModal showClose={false} />
+      <MessagesModal showClose={false} onSelectSubject={onSelectSubject} selectedSubject={selectedSubject} />
      
     </Menu>
   </Dropdown>;

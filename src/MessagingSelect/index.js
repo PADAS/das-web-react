@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
@@ -14,6 +14,8 @@ import styles from './styles.module.scss';
 
 const MessagingSelect = (props) => {
   const { subjects = [], onChange, value = null, isMulti = false, className } = props;
+
+  const selectRef = useRef(null);
 
 
   const allMessagingCapableRadios = useMemo(() =>
@@ -74,6 +76,12 @@ const MessagingSelect = (props) => {
     );
   };
 
+  useEffect(() => {
+    if (selectRef?.current?.focus) {
+      selectRef.current.focus();
+    }
+  }, []);
+
   return <Select
     className={className}
     components={{ Option }}
@@ -85,6 +93,7 @@ const MessagingSelect = (props) => {
     options={options}
     placeholder='Send message to...'
     styles={selectStyles}
+    ref={selectRef}
     getOptionValue={getOptionValue}
     getOptionLabel={getOptionLabel}
     {...optionalProps}

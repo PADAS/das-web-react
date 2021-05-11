@@ -1,9 +1,11 @@
 
-import React, { Fragment, memo }  from 'react';
+import React, { Fragment, useContext, memo }  from 'react';
 import { connect } from 'react-redux';
 
+import { MapContext } from '../App';
 import DateTime from '../DateTime';
 import SenderDetails from './SenderDetails';
+import LocationJumpButton from '../LocationJumpButton';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
 import styles from './styles.module.scss';
@@ -11,6 +13,7 @@ import styles from './styles.module.scss';
 const MessageListItem = (props) => {
   
   const { messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null, subject, unreadMessageClassName, readMessageClassName, ...rest } = props;
+  const map = useContext(MapContext);
 
   if (!subject) return null;
 
@@ -27,6 +30,7 @@ const MessageListItem = (props) => {
             <span className={styles.messageContent}>{message.text}</span>
             <DateTime date={message.message_time} className={styles.messageTime} />
           </div>
+          {message.device_location && <LocationJumpButton map={map} coordinates={[message.device_location.longitude, message.device_location.latitude]} />}
         </li>;
 
       })}
