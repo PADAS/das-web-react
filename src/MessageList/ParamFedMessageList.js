@@ -105,8 +105,7 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
   }, [unreads]);
 
   return <div ref={containerRef} className={styles.scrollContainer}>
-    {loading && <LoadingOverlay message='Loading messages...' />}
-    <MessageList emptyMessage={loading ? 'Loading messages...' : undefined} containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
+    <MessageList emptyMessage={loading ? <LoadingOverlay message='Loading messages...' /> : undefined} containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
   </div>;
 };
 

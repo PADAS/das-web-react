@@ -16,7 +16,7 @@ const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
   const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
-    zoom, updateUserPreferences, onButtonClick, iconOverride, className, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
+    zoom, updateUserPreferences, iconOverride, className, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
 
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
   

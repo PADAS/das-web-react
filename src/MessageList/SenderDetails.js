@@ -41,7 +41,7 @@ const SenderDetails = (props) => {
     </Fragment>}
     {!isOutgoing && <Fragment>
       <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
-        {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} />}
+        {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} />} 
         {subject.name}
       </span>
     </Fragment>}

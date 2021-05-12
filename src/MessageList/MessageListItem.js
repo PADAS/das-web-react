@@ -1,6 +1,7 @@
 
-import React, { Fragment, useContext, memo }  from 'react';
+import React, { useContext, memo }  from 'react';
 import { connect } from 'react-redux';
+import uniq from 'lodash/uniq';
 
 import { MapContext } from '../App';
 import DateTime from '../DateTime';
@@ -8,11 +9,17 @@ import SenderDetails from './SenderDetails';
 import LocationJumpButton from '../LocationJumpButton';
 
 import { extractSubjectFromMessage } from '../utils/messaging';
+import { jumpToLocation } from '../utils/map';
+import { fetchTracksIfNecessary } from '../utils/tracks';
+import { toggleTrackState } from '../ducks/map-ui';
+import { showPopup } from '../ducks/popup';
+
 import styles from './styles.module.scss';
 
 const MessageListItem = (props) => {
   
-  const { messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null, subject, unreadMessageClassName, readMessageClassName, ...rest } = props;
+  const { currentPopup, messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null,
+    showPopup, subject, subjectTrackState, toggleTrackState, unreadMessageClassName, readMessageClassName, ...rest } = props;
   const map = useContext(MapContext);
 
   if (!subject) return null;
@@ -25,12 +32,24 @@ const MessageListItem = (props) => {
       {messageGroup.map((message) => {
         const handleClick = () => onClick(message);
 
+        const onJumpButtonClick = async () => {
+          jumpToLocation(map, [message.device_location.longitude, message.device_location.latitude]);
+
+          const subjectTrackHidden = !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(subject.id);
+          if (subjectTrackHidden) {
+            await fetchTracksIfNecessary([subject.id]);
+            toggleTrackState(subject.id);
+          }
+          showPopup('subject-message', { subject, message });
+        };
+        
+
         return <li key={message.id}  onClick={handleClick} {...rest}>
           <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
             <span className={styles.messageContent}>{message.text}</span>
             <DateTime date={message.message_time} className={styles.messageTime} />
           </div>
-          {/* {message.device_location && <LocationJumpButton map={map} coordinates={[message.device_location.longitude, message.device_location.latitude]} />} */}
+          {message.device_location && <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />} 
         </li>;
 
       })}
@@ -41,14 +60,14 @@ const MessageListItem = (props) => {
   
 };
 
-const mapStateToProps = ({ data: { subjectStore } }, ownProps) => {
+const mapStateToProps = ({ data: { subjectStore }, view: { popup, subjectTrackState } }, ownProps) => {
   const subject = ownProps.messageGroup && extractSubjectFromMessage(ownProps.messageGroup[0]);
 
   return {
+    currentPopup: popup,
     subject: subjectStore[subject.id],
+    subjectTrackState,
   };
-
-
 };
 
-export default connect(mapStateToProps, null)(memo(MessageListItem));
+export default connect(mapStateToProps, { showPopup, toggleTrackState })(memo(MessageListItem));

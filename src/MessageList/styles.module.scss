@@ -29,6 +29,11 @@ $icon-size: 1.5em;
   display: flex;
   font-size: 0.7em;
   margin-bottom: 0.5em;
+  img, svg {
+    margin-right: 0.5em;
+    max-height: $icon-size;
+    max-width: $icon-size;
+  }
 }
 
 .messageHistory:not(.summaryList) {
@@ -37,19 +42,21 @@ $icon-size: 1.5em;
       align-self: flex-end;
       background: lighten($light-blue, 35%);
       border: 1px solid lighten($light-blue, 25%);
+      margin: 0 0 0 0.5rem;
     }
     .senderDetails {
       justify-content: flex-end;
-    }
-    img, svg {
-      margin-left: 0.5em;
+      img, svg {
+        margin-left: 0.5em;
+      }
     }
   }
   .messageDetails {
     background: lighten($light-blue, 25%);
     border: 1px solid lighten($light-blue, 15%);
     border-radius: 1em;
-    width: 87.5%;
+    margin: 0 0.5rem 0 0;
+    width: 85%;
   }
 }
 
@@ -74,12 +81,10 @@ $icon-size: 1.5em;
       left: 1rem;
       position: absolute;
     }
-    img, svg {
-      margin-right: 0.5em;
-      max-height: $icon-size;
-      max-width: $icon-size;
-    }
     li {
+      align-items: center;
+      flex-flow: row;
+      justify-content: space-between;
       padding: 0;
     }
   }
