@@ -68,8 +68,8 @@ const MessageListItem = (props) => {
         return <li key={message.id}  onClick={handleClick} {...rest}>
           <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
             <span className={styles.messageContent}>{message.text}</span>
-            <div className={styles.messageMetaData}>
-              {!!StatusIcon && <StatusIcon className={styles.messageStatusIcon} title={message.status} />}
+            <div className={styles.messageMetaData} title={message.status}>
+              {!!StatusIcon && <StatusIcon className={styles.messageStatusIcon}  />}
               <DateTime date={message.message_time} className={styles.messageTime} />
             </div>
           </div>
