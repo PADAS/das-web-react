@@ -26,19 +26,3 @@ export const generateNewMessage = ({ geometry, properties }, config = {}) => {
 };
 
 export const calcSenderNameForMessage = (message) => message?.sender?.name ?? message?.sender?.username ?? 'Operator';
-
-/* 
-{
-      sender_id:" ", 
-      receiver_id:" ", 
-      device_id :" ", 
-      message_type : "inbox", 
-      text : " sample text",  
-      status : "received",  // pending, sent, errored, received
-      sender_address: " ", 
-      device_location: " ", 
-      message_time: " ",
-      additional:{}
-}
-
- */

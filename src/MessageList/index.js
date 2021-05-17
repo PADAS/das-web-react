@@ -14,7 +14,7 @@ import { uuid } from '../utils/string';
 
 import MessageListItem from './MessageListItem';
 import MessageSummaryListItem from './MessageSummaryListItem';
-import SenderDetails, { SENDER_DETAIL_STYLES } from './SenderDetails';
+import { SENDER_DETAIL_STYLES } from './SenderDetails';
 
 import styles from './styles.module.scss';
 

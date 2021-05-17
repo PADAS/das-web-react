@@ -89,7 +89,7 @@ const SubjectPopup = (props) => {
       {hasAdditionalDeviceProps && <Button variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
       {tracks_available && (
         <Fragment>
-          <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
+          <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
           <div className={styles.controls}>
             <AddReport 
               analyticsMetadata={{

@@ -14,7 +14,26 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { toggleTrackState } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
 
+import { ReactComponent as PendingIcon } from '../common/images/icons/pending-message-icon.svg';
+import { ReactComponent as SentIcon } from '../common/images/icons/sent-message-icon.svg';
+import { ReactComponent as ReceivedIcon } from '../common/images/icons/received-message-icon.svg';
+import { ReactComponent as FailedIcon } from '../common/images/icons/failed-message-icon.svg';
+
 import styles from './styles.module.scss';
+
+const MESSAGE_STATUSES = {
+  RECEIVED: 'received',
+  FAILED: 'failed',
+  PENDING: 'pending',
+  SENT: 'sent',
+};
+
+const MESSAGE_ICON_MAP = {
+  [MESSAGE_STATUSES.RECEIVED]: ReceivedIcon,
+  [MESSAGE_STATUSES.SENT]: SentIcon,
+  [MESSAGE_STATUSES.PENDING]: PendingIcon,
+  [MESSAGE_STATUSES.FAILED]: FailedIcon,
+};
 
 const MessageListItem = (props) => {
   
@@ -32,6 +51,8 @@ const MessageListItem = (props) => {
       {messageGroup.map((message) => {
         const handleClick = () => onClick(message);
 
+        const StatusIcon = MESSAGE_ICON_MAP[message.status];
+
         const onJumpButtonClick = async () => {
           jumpToLocation(map, [message.device_location.longitude, message.device_location.latitude]);
 
@@ -47,7 +68,10 @@ const MessageListItem = (props) => {
         return <li key={message.id}  onClick={handleClick} {...rest}>
           <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
             <span className={styles.messageContent}>{message.text}</span>
-            <DateTime date={message.message_time} className={styles.messageTime} />
+            <div className={styles.messageMetaData}>
+              {!!StatusIcon && <StatusIcon className={styles.messageStatusIcon} title={message.status} />}
+              <DateTime date={message.message_time} className={styles.messageTime} />
+            </div>
           </div>
           {message.device_location && <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />} 
         </li>;
