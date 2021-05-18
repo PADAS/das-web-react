@@ -2,7 +2,6 @@ import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
-import TimeAgo from '../TimeAgo';
 
 import { DEFAULT_SELECT_STYLES } from '../constants';
 import { allSubjects } from '../selectors/subjects';

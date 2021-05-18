@@ -42,7 +42,7 @@ const SubjectControls = (props) => {
   const { id } = subject;
 
 
-  const isMessageable = !!subject?.messaging?.length;
+  const isMessageable = !!showMessageButton && !!subject?.messaging?.length;
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
