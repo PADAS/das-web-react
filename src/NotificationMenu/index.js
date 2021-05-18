@@ -44,7 +44,7 @@ const NotificationMenu = ({ notifications = [], dispatch:_dispatch, ...rest }) =
       {!!notifications.length && <BadgeIcon className={styles.badge} count={notifications.length} />}
     </Toggle>
     <Menu className={styles.menu}>
-      {!notifications.length && <h6 className={styles.noItems}>No new messages at this time.</h6>}
+      {!notifications.length && <h6 className={styles.noItems}>No new notifications at this time.</h6>}
       {!!notifications.length && notifications.map(NotificationItem)}
     </Menu>
   </Dropdown>;
