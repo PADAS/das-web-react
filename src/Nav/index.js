@@ -7,7 +7,9 @@ import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 
-import { MAX_ZOOM } from '../constants';
+import { usePermissions } from '../hooks';
+
+import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
 import MessageMenu from './MessageMenu';
@@ -22,6 +24,8 @@ import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import './Nav.scss';
 
 const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, homeMap, location, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+
+  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const onHomeMapSelect = (chosenMap) => {
     setHomeMap(chosenMap);
@@ -68,7 +72,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, h
 
     {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
     <div className="rightMenus">
-      <MessageMenu />
+      {!!canViewMessages && <MessageMenu />}
       <NotificationMenu />
       <UserMenu user={user} onProfileClick={onProfileClick} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>

@@ -5,6 +5,9 @@ import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 import booleanContains from '@turf/boolean-contains';
 
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+
+import { usePermissions } from '../hooks';
 import { addMapImage } from '../utils/map';
 import { getBboxParamsFromMap } from '../utils/query';
 import { SocketContext } from '../withSocketConnection';
@@ -20,6 +23,7 @@ import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png'
 
 const calcMapMessages = (messages = [], subjectFeatureCollection) => {
   if (!messages.length || !subjectFeatureCollection?.features?.length) return featureCollection([]);
+
 
   const subjectFeaturesWithUnreadMessages =
     subjectFeatureCollection.features
@@ -67,33 +71,36 @@ const MessageBadgeLayer = (props) => {
   const { map, onBadgeClick, subjectFeatureCollection }  = props;
 
   const [state, dispatch] = useReducer(messageListReducer, INITIAL_MESSAGE_LIST_STATE);
+  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const socket = useContext(SocketContext);
 
   const lastRequestedSubjectIdList = useRef(null);
 
   useEffect(() => {
-    const handleRealtimeMessage = ({ data:msg }) => {
-      if (!!lastRequestedSubjectIdList.current &&
+    if (!!canViewMessages) {
+      const handleRealtimeMessage = ({ data:msg }) => {
+        if (!!lastRequestedSubjectIdList.current &&
         lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)
-      ) {
-        if (msg.read) {
-          dispatch(removeMessageById(msg.id));
-        } else {
-          dispatch(updateMessageFromRealtime(msg));
+        ) {
+          if (msg.read) {
+            dispatch(removeMessageById(msg.id));
+          } else {
+            dispatch(updateMessageFromRealtime(msg));
+          }
         }
-      }
-    };
+      };
     
-    socket.on('radio_message', handleRealtimeMessage);
+      socket.on('radio_message', handleRealtimeMessage);
 
-    return () => {
-      socket.off('radio_message', handleRealtimeMessage);
-    };
-  }, [socket]);
+      return () => {
+        socket.off('radio_message', handleRealtimeMessage);
+      };
+    }
+  }, [canViewMessages, socket]);
 
   useEffect(() => {
-    if (map) {
+    if (map && !!canViewMessages) {
       const source = map.getSource(SOURCE_ID);
       const layer = map.getLayer(LAYER_ID);
 
@@ -121,55 +128,61 @@ const MessageBadgeLayer = (props) => {
         });
       } 
     }
-  }, [map, state.results, subjectFeatureCollection]);
+  }, [canViewMessages, map, state.results, subjectFeatureCollection]);
 
   useEffect(() => {
-    const requestMapMessages = () => {
-      if (subjectFeatureCollection.features.length) {
-        const mapBboxPolygon = bboxPolygon(getBboxParamsFromMap(map, false));
+    if (!!canViewMessages) {
+      
+      const requestMapMessages = () => {
+        if (subjectFeatureCollection.features.length) {
+          const mapBboxPolygon = bboxPolygon(getBboxParamsFromMap(map, false));
 
-        const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
-          .filter(feature => booleanContains(mapBboxPolygon, feature))
-          .map(({ properties: { id } }) => id)
-          .join(',');
+          const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
+            .filter(feature => booleanContains(mapBboxPolygon, feature))
+            .map(({ properties: { id } }) => id)
+            .join(',');
 
 
-        if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
-          fetchMessages({ read: false, subject_id: toRequest})
-            .then((response) => {
-              dispatch(fetchMessagesSuccess(response?.data?.data));
-            });
+          if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
+            fetchMessages({ read: false, subject_id: toRequest})
+              .then((response) => {
+                dispatch(fetchMessagesSuccess(response?.data?.data));
+              });
+          }
+          lastRequestedSubjectIdList.current = toRequest;
         }
-        lastRequestedSubjectIdList.current = toRequest;
-      }
-    };
+      };
 
-    const handler = setTimeout(requestMapMessages, 300);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [map, subjectFeatureCollection.features]);
+      const handler = setTimeout(requestMapMessages, 300);
+      return () => {
+        clearTimeout(handler);
+      };
+    }
+  }, [canViewMessages, map, subjectFeatureCollection.features]);
   
 
 
   useEffect(() => {
-    if (!map.hasImage('message-badge')) {
+    if (!map.hasImage('message-badge') && !!canViewMessages) {
       addMapImage({ src: MessageBadgeIcon, id: 'message-badge', width: 36 });
     }
-  }, [map]);
+  }, [canViewMessages, map]);
 
   useEffect(() => {
-    const onClick = (event) => {
-      const layer = map.queryRenderedFeatures(event.point, { layers: [LAYER_ID] })[0];
+    if (!!canViewMessages) {
 
-      return onBadgeClick({ event, layer });
-    };
+      const onClick = (event) => {
+        const layer = map.queryRenderedFeatures(event.point, { layers: [LAYER_ID] })[0];
 
-    map.on('click', LAYER_ID, onClick);
-    return () => {
-      map.off('click', LAYER_ID, onClick);
-    };
-  }, [map, onBadgeClick]);
+        return onBadgeClick({ event, layer });
+      };
+
+      map.on('click', LAYER_ID, onClick);
+      return () => {
+        map.off('click', LAYER_ID, onClick);
+      };
+    }
+  }, [canViewMessages, map, onBadgeClick]);
   
   return null;
 };

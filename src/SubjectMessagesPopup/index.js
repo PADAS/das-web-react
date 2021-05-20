@@ -11,12 +11,17 @@ import { SENDER_DETAIL_STYLES } from '../MessageList/SenderDetails';
 import { hidePopup } from '../ducks/popup';
 import { addModal } from '../ducks/modals';
 
+import { usePermissions } from '../hooks';
+import {PERMISSION_KEYS, PERMISSIONS } from '../constants';
+
 import styles from './styles.module.scss';
 
 const isReverse = true;
 
 const SubjectMessagesPopup = (props) => {
   const  { data: { geometry, properties } } = props; 
+
+  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
 
   const params = useMemo(() => {
     return { subject_id: properties.id };
@@ -39,7 +44,7 @@ const SubjectMessagesPopup = (props) => {
       {/* <img src={ExpandIcon} alt='Expand subject chat history' onClick={expandChat} /> */}
     </div>
     <ParamFedMessageList senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} className={styles.messageList} params={params} isReverse={isReverse} />
-    <MessageInput subjectId={properties.id} />
+    {!!hasMessagingWritePermissions && <MessageInput subjectId={properties.id} />}
 
   </Popup>;
 };

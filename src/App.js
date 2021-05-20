@@ -6,7 +6,8 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
+import { usePermissions } from './hooks';
+import { STATUSES, PERMISSION_KEYS, PERMISSIONS } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
@@ -77,6 +78,8 @@ const App = (props) => {
 
   const [isDragging, setDragState] = useState(false);
 
+  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
+
   const socket = useContext(SocketContext);
 
   const onMapHasLoaded = useCallback((map) => {
@@ -109,10 +112,7 @@ const App = (props) => {
       .catch((e) => {
         // 
       });
-    fetchMessages()
-      .catch((error) => {
-        console.warn({ error }, 'error fetching messages');
-      });
+
     fetchMaps()
       .catch((e) => {
         // 
@@ -159,6 +159,12 @@ const App = (props) => {
     hideZenDesk();
     
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (canViewMessages) {
+      fetchMessages();
+    }
+  }, [canViewMessages, fetchMessages]);
 
   useEffect(() => {
     if (map) {
