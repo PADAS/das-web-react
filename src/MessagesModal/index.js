@@ -88,7 +88,7 @@ const MessagesModal =  ({ id:modalId, showClose = true, onSelectSubject, selecte
     </Body>}
     
     {!selectingRecipient && <Fragment>
-      {!selectedSubject && <Footer>
+      {!selectedSubject && !!hasMessagingWritePermissions && <Footer>
         <Button variant='light' onClick={showNewMessageDialog}>
           <EditIcon /> New Message
         </Button>
