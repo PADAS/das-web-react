@@ -20,18 +20,18 @@ const StateButton = (props) => {
 };
 
 const Footer = (props) => {
-  const { onCancel, cancelTitle = 'Cancel', onSave, onStateToggle, data, isActiveState, saveDisabled } = props;
+  const { onCancel, readonly, cancelTitle = 'Cancel', onSave, onStateToggle, data, isActiveState, saveDisabled } = props;
 
   const SaveButtonComponent = !!onStateToggle ? SplitButton : Button;
   
   return <div className={styles.formButtons}>
     <Button type="button" onClick={onCancel} variant="secondary">{cancelTitle}</Button>
-    <SaveButtonComponent className={styles.saveButton} disabled={saveDisabled} drop='down' variant='primary' type='submit' title='Save' onClick={onSave}>
+    {!readonly && <SaveButtonComponent className={styles.saveButton} disabled={saveDisabled} drop='down' variant='primary' type='submit' title='Save' onClick={onSave}>
       {!onStateToggle && 'Save'}
       {!!onStateToggle && <Dropdown.Item>
         <StateButton state={data.state} isActive={isActiveState} onStateToggle={onStateToggle} />
       </Dropdown.Item>}
-    </SaveButtonComponent>
+    </SaveButtonComponent>}
   </div>;
 };
 
