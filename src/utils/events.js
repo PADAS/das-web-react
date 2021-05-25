@@ -234,8 +234,8 @@ export const addBounceToEventMapFeatures = (features, bounceIDs) => {
   return featuresWithIds;
 };
 
-export const validateReportAgainstCurrentEventFilter = (report) => { /* client-side filter validation -- save a round trip request after event updates */
-  const { data: { eventFilter, eventTypes } } = store.getState();
+export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) => { /* client-side filter validation -- save a round trip request after event updates */
+  const { data: { eventFilter, eventTypes } } = (storeFromProps || store).getState();
 
   const reportMatchesDateFilter = () => {
     const { filter: { date_range: { lower, upper } } } = eventFilter;

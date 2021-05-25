@@ -90,7 +90,7 @@ export const socketEventData = (payload) => (dispatch) => {
 const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
 
-  const fetchFn = (config, paramString) => (dispatch) => {
+  const fetchFn = (config, paramString) => (dispatch, getState) => {
     cancelToken.cancel();
     cancelToken = CancelToken.source();
   
@@ -106,12 +106,15 @@ const fetchNamedFeedActionCreator = (name) => {
       .then((response) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
           dispatch(updateEventStore(...response.data.data.results));
-          dispatch({
-            name,
-            type: FEED_FETCH_SUCCESS,
-            payload: response.data.data,
-          });
-        }
+           
+          if (validateReportAgainstCurrentEventFilter(response?.data?.data?.results?.[0], { getState })) {
+            dispatch({
+              name,
+              type: FEED_FETCH_SUCCESS,
+              payload: response.data.data,
+            });
+          }
+        } /* extra layer of validation for async query race condition edge cases */
         return response;
       })
       .catch((error) => {
@@ -437,10 +440,7 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
     return INITIAL_EVENT_FEED_STATE;
   }
   if (type === FEED_FETCH_SUCCESS
-   && (
-     !payload.results.length
-    || validateReportAgainstCurrentEventFilter(payload.results[0]) /* extra layer of validation for async query race condition edge cases */
-   )
+  
   ) {
     return {
       ...payload,
