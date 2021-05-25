@@ -106,15 +106,18 @@ const fetchNamedFeedActionCreator = (name) => {
       .then((response) => {
         if (typeof response !== 'undefined') { /* response === undefined for canceled requests. it's not an error, but it's a no-op for state management */
           dispatch(updateEventStore(...response.data.data.results));
-           
-          if (validateReportAgainstCurrentEventFilter(response?.data?.data?.results?.[0], { getState })) {
-            dispatch({
-              name,
-              type: FEED_FETCH_SUCCESS,
-              payload: response.data.data,
-            });
+
+          if (
+            !response.data.data.results.length
+          || (validateReportAgainstCurrentEventFilter(response.data.data.results[0], { getState })) /* extra layer of validation for async query race condition edge cases */
+          ) {
           }
-        } /* extra layer of validation for async query race condition edge cases */
+          dispatch({
+            name,
+            type: FEED_FETCH_SUCCESS,
+            payload: response.data.data,
+          });
+        } 
         return response;
       })
       .catch((error) => {
