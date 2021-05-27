@@ -439,6 +439,7 @@ const ReportForm = (props) => {
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
+  const styles = {};
 
   return <EditableItem.ContextProvider value={report}>
   
@@ -448,7 +449,7 @@ const ReportForm = (props) => {
     <EditableItem.Header 
       icon={<EventIcon title={reportTypeTitle} report={report} />}
       menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
-      priority={displayPriority}
+      priority={displayPriority} readonly={schema.readonly}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 
     <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
@@ -468,6 +469,7 @@ const ReportForm = (props) => {
         <ReportFormTopLevelControls
           map={map}
           report={report}
+          readonly={schema.readonly}
           menuContainerRef={reportedBySelectPortalRef.current}
           onReportDateChange={onReportDateChange}
           onReportedByChange={onReportedByChange}
@@ -492,7 +494,7 @@ const ReportForm = (props) => {
       }
     </EditableItem.Body>
     {/* bottom controls */}
-    <EditableItem.AttachmentControls
+    {!schema.readonly && <EditableItem.AttachmentControls
       onAddFiles={onAddFiles}
       onSaveNote={onSaveNote} >
 
@@ -506,9 +508,10 @@ const ReportForm = (props) => {
         onNewReportSaved={onReportAdded}
       />
 
-    </EditableItem.AttachmentControls>
+    </EditableItem.AttachmentControls>}
 
-    <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
   </EditableItem.ContextProvider>;
 };
 
