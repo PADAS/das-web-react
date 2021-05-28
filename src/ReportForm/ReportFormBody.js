@@ -43,7 +43,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
 
   return <Form
     additionalMetaSchemas={additionalMetaSchemas}
-    className={styles.form}
+    className={`${styles.form} ${schema.readonly ? styles.readonly : ''}`}
     disabled={schema.readonly}
     formData={formData}
     liveValidate={true}

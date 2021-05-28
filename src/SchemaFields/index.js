@@ -194,7 +194,7 @@ const DateTimeField = (props) => {
 };
 
 const CustomCheckboxes = (props) => {
-  const { id, disabled, options, value, autofocus, readonly, onChange, schema } = props;
+  const { id, disabled, options, value = [], autofocus, readonly, onChange, schema } = props;
   const { enumOptions, inline } = options;
   const [instanceId] = useState(uuid());
   const [originalValues] = useState(
