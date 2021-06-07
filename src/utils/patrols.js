@@ -32,7 +32,8 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
 
   const state = store.getState();
 
-  const patrolPermissions = state?.data?.user?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
 
   const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
