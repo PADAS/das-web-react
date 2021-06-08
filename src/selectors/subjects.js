@@ -11,7 +11,7 @@ const subjectGroups = ({ data: { subjectGroups } }) => subjectGroups;
 export const getSubjectStore = ({ data: { subjectStore } }) => subjectStore;
 const showInactiveRadios = ({ view: { showInactiveRadios } }) => showInactiveRadios;
 const getSystemConfig = ({ view: { systemConfig } }) => systemConfig;
-const getUserPermissions = ({ data: { user: { permissions } } }) => permissions;
+const getUserPermissions = ({ data: { user, selectedUserProfile } }) => (selectedUserProfile.id ? selectedUserProfile : user).permissions || {};
 
 export const getMapSubjectFeatureCollection = createSelector(
   [getMapSubjects, getSubjectStore, hiddenSubjectIDs, showInactiveRadios],

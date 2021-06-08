@@ -10,7 +10,9 @@ const useFeatureFlag = flag =>
 
 const usePermissions = (permissionKey, ...permissions) =>  {
   const permissionSet = useSelector(state => {
-    return state?.data?.user?.permissions?.[permissionKey];
+    const permissionsSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+
+    return permissionsSource?.permissions?.[permissionKey];
   }
   )
   || [];
