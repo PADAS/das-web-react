@@ -17,7 +17,6 @@ import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/events';
-import { fetchCurrentUser } from '../ducks/user';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
@@ -29,17 +28,15 @@ const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject
 const DataExportMenu = (props) => {
 
   const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
-    eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, 
+    eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences, 
     staticContext:_staticContext, fetchTableauDashboard, ...rest } = props;
 
-  const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
 
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
-  const tableauEnabled = useFeatureFlag(FEATURE_FLAGS.TABLEAU);
 
   useEffect(() => {
     setModals([
@@ -77,32 +74,6 @@ const DataExportMenu = (props) => {
       },
     ]);
   }, [props.systemConfig, eventTypes, eventFilter, dailyReportEnabled, kmlExportEnabled]);
-
-  useEffect(() => {
-    if (tableauEnabled && !hasTableauNotification) {
-      addUserNotification({
-        message: 'Check out your new analysis dashboard, available in the main menu at the top right of your screen, generously provided by Tableau.',
-        onConfirm(_e, item) {
-          hamburgerToggle.current.click();
-          setHasTableauNotification(false);
-          removeUserNotification(item.id);
-          updateUserPreferences({
-            shownTableauNotification: true
-          });
-        },
-        onDismiss(_e, item) {
-          setHasTableauNotification(false);
-          removeUserNotification(item.id);
-          updateUserPreferences({
-            shownTableauNotification: true
-          });
-        },
-        confirmText: 'OK',
-      });
-
-      setHasTableauNotification(true);
-    }
-  }, [addUserNotification, hasTableauNotification, props.systemConfig, removeUserNotification, tableauEnabled, updateUserPreferences]);
 
   const alertModal = {
     title: 'Alerts',
@@ -172,5 +143,5 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification, user });
-export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));
+const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification });
+export default connect(mapStateToProps, { addModal, addUserNotification, removeUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));

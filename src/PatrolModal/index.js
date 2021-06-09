@@ -580,7 +580,7 @@ const PatrolModal = (props) => {
       await fetchEvent(item.id);
     }
     
-    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
+    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport, relationshipButtonDisabled: true } );
   }, [eventStore, fetchEvent, map, onAddReport]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
