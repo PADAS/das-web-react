@@ -6,6 +6,7 @@ import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../ut
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
+import SubjectMessagesPopover from '../SubjectMessagesPopover';
 import LocationJumpButton from '../LocationJumpButton';
 import { trackEvent } from '../utils/analytics';
 
@@ -22,6 +23,7 @@ const SubjectControls = (props) => {
     showHeatmapButton,
     showTrackButton,
     showJumpButton,
+    showMessageButton,
     showTitles,
     className,
     toggleTrackState,
@@ -38,6 +40,9 @@ const SubjectControls = (props) => {
   const [ loadingTracks, setTrackLoadingState ] = useState(false);
 
   const { id } = subject;
+
+
+  const isMessageable = !!subject?.messaging?.length;
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
@@ -82,6 +87,7 @@ const SubjectControls = (props) => {
 
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
+    {isMessageable && <SubjectMessagesPopover className={styles.messagingButton} subject={subject} />}
     {showTrackButton && <TrackToggleButton loading={loadingTracks} 
       onClick={onTrackButtonClick} trackVisible={tracksVisible} 
       trackPinned={tracksPinned} />}
@@ -99,6 +105,7 @@ SubjectControls.defaultProps = {
   showHeatmapButton: true,
   showTrackButton: true,
   showJumpButton: true,
+  showMessageButton: true,
   showTitles: true,
 };
 

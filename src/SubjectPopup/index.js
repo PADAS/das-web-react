@@ -36,7 +36,7 @@ const SubjectPopup = (props) => {
 
   const [showAdditionalProperties, setShowAdditionalProperties] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
 
-  const isMessageable = !!properties.messaging.length;
+  const isMessageable = !!properties?.messaging?.length;
 
   const radioWithRecentMicActivity = useMemo(() =>
     subjectIsARadioWithRecentVoiceActivity(properties)
@@ -89,7 +89,7 @@ const SubjectPopup = (props) => {
       {hasAdditionalDeviceProps && <Button variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
       {tracks_available && (
         <Fragment>
-          <SubjectControls map={map} showJumpButton={false} subject={properties} className={styles.trackControls} />
+          <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
           <div className={styles.controls}>
             <AddReport 
               analyticsMetadata={{

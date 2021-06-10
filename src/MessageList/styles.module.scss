@@ -12,6 +12,7 @@ $icon-size: 1.5em;
   line-height: 0;
   margin: 0.5em 0;
   text-align: center;
+  text-transform: uppercase;
   span {
     background: white;
     font-size: 0.75em;
@@ -28,6 +29,11 @@ $icon-size: 1.5em;
   display: flex;
   font-size: 0.7em;
   margin-bottom: 0.5em;
+  img, svg {
+    margin-right: 0.5em;
+    max-height: $icon-size;
+    max-width: $icon-size;
+  }
 }
 
 .messageHistory:not(.summaryList) {
@@ -35,19 +41,22 @@ $icon-size: 1.5em;
     .messageDetails {
       align-self: flex-end;
       background: lighten($light-blue, 35%);
+      border: 1px solid lighten($light-blue, 25%);
+      margin: 0 0 0 0.5rem;
     }
     .senderDetails {
       justify-content: flex-end;
-    }
-    img, svg {
-      margin-left: 0.5em;
+      img, svg {
+        margin-left: 0.5em;
+      }
     }
   }
   .messageDetails {
     background: lighten($light-blue, 25%);
-    border: 1px solid $light-gray-border;
+    border: 1px solid lighten($light-blue, 15%);
     border-radius: 1em;
-    width: 87.5%;
+    margin: 0 0.5rem 0 0;
+    width: 85%;
   }
 }
 
@@ -72,12 +81,11 @@ $icon-size: 1.5em;
       left: 1rem;
       position: absolute;
     }
-    img, svg {
-      margin-right: 0.5em;
-      max-height: $icon-size;
-      max-width: $icon-size;
-    }
     li {
+      align-items: center;
+      flex-flow: row;
+      justify-content: space-between;
+      margin-bottom: 0.25em;
       padding: 0;
     }
   }
@@ -91,10 +99,20 @@ $icon-size: 1.5em;
   padding: 0.5em;
 }
 
+.messageMetaData {
+  align-items: flex-start;
+  display: flex;
+  margin-left: 0.5em;
+}
+
+.messageStatusIcon {
+  max-height: 1em;
+  max-width: 1.25em;
+}
 
 .messageTime {
-  margin-left: 0.5em;
   text-align: right;
+  margin-left: 0.2em;
 }
 
 .scrollContainer {
@@ -105,13 +123,16 @@ $icon-size: 1.5em;
 }
 
 .summaryList {
+  $img-size: 2em;
   [class*=senderDetails] {
-    font-size: 0.95em;
+    font-size: 1.05em;
     font-style: normal;
     font-weight: 600;
+    margin-bottom: 0;
   }
   li li {
     cursor: pointer;
+    transition: background 0.15s linear;
     &:hover {
       background: rgba($light-blue, 0.1);
       text-decoration: underline;
@@ -119,15 +140,27 @@ $icon-size: 1.5em;
     &:not(:first-child) {
       border-top: 1px solid $light-gray-border;
     }
+    img {
+      max-height: $img-size;
+      max-width: $img-size;
+    }
+  }
+  [class*=messageDetails] {
+    padding-top: 0.25em;
+  }
+  .messageTime {
+    position: absolute;
+    right: 1em;
+    top: 1em;
   }
 }
 
 .summaryLoadingOverlay {
   background: none;
   div[class*=spinner] {
-    bottom: -5em;
+    bottom: -3rem;
     position: absolute;
-    left: 1.5em;
+    left: 0.75rem;
     height: 3em;
     width: 3em;
   }
@@ -142,5 +175,15 @@ $icon-size: 1.5em;
 .hasImage {
   .messageDetails {
     padding-left: $icon-size + 0.25em;
+  }
+}
+
+.messageSubjectName {
+  display: contents;
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }

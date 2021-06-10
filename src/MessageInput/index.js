@@ -45,11 +45,11 @@ const MessageInput = (props) => {
     setInputValue(value);
   }, []);
 
-  if (!subject) return null;
+  if (!subject?.messaging?.length) return null;
 
   return <form ref={formRef} onSubmit={onMessageSubmit} className={styles.chatControls}>
     <input placeholder='Type your message here...' maxLength={TEXT_MAX_LENGTH} type='text' value={inputValue} onChange={handleInputChange} ref={textInputRef} name={`chat-${subject.id}`} id={`chat-${subject.id}`} />
-    <Button type='submit' id={`chat-submit-${subject.id}`}>Send</Button>
+    <Button type='submit' id={`chat-submit-${subject.id}`} disabled={!inputValue.length}>Send</Button>
     <small>{characterCount}/{TEXT_MAX_LENGTH}</small>
   </form>;
 };
