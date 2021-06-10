@@ -1,4 +1,5 @@
-@import '../common//styles/layout';
+@import '../common/styles/layout';
+@import '../common/styles/inputs';
 
 div.datepicker {
   left: 0;
@@ -13,5 +14,23 @@ div.datepicker {
   margin-bottom: 0.25rem;
   a {
     margin-left: 0.25rem;
+  }
+}
+
+.timeInput {
+  border: 1px solid $light-gray-border;
+  flex: 1;
+  max-width: 47.5%;
+}
+
+.timeInputWrapper {
+  position: relative;
+  span {
+    margin: 0 0.5rem;
+  }
+  svg {
+    position: absolute;
+    right: 0;
+    top: 0;
   }
 }

@@ -73,7 +73,7 @@ const DateTimePicker = (props) => {
 
   return <div>
     <Calendar {...CALENDAR_CONFIG} {...BLOCKED_EVENT_HANDLERS} onChange={handleCalendarChange} value={value} {...rest} />
-    {!!value && <TimeInput ref={firstTimeInputRef} disabled={!value} value={timeInputValue} onChange={handleTimeChange} />}
+    {!!value && <TimeInput ref={firstTimeInputRef} disabled={!value} value={timeInputValue} required={true} onChange={handleTimeChange} />}
   </div>;
 
 };

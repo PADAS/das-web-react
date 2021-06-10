@@ -129,6 +129,9 @@ const convertDefinitionsToSchemas = (definitions = [], schema) => {
     if (type === 'textarea') {
       result = merge(result, generateSchemaAndUiSchemaForTextarea(definition));
     }
+    if (type === 'time') {
+      result = merge(result, generateSchemaAndUiSchemaForTimeField(definition));
+    }
     if (type === 'fieldset' && !!items && items.some(i => typeof i === 'object')) {
       recursedValues = merge(result, convertDefinitionsToSchemas(items.filter(i => typeof i === 'object'), schema));
     }
@@ -237,6 +240,21 @@ const generateSchemaAndUiSchemaForDateField = ({ key }) => ({
   },
   uiSchemaEntry: {
     'ui:field': customSchemaFields.datetime,
+  },
+});
+
+const generateSchemaAndUiSchemaForTimeField = ({ key }) => ({
+  schemaEntry: {
+    key,
+    type: {
+      anyOf: [
+        { type: 'string' },
+        { type: 'null' },
+      ],
+    },
+  },
+  uiSchemaEntry: {
+    'ui:field': customSchemaFields.time,
   },
 });
 

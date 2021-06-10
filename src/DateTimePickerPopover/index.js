@@ -1,5 +1,4 @@
 import React, { forwardRef, memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import debounceRender from 'react-debounce-render';
 import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 import debounce from 'lodash/debounce';
@@ -191,7 +190,7 @@ const DateTimePopover = forwardRef((props, ref) => {  /* eslint-disable-line rea
   </Popover>;
 });
 
-export default debounceRender(memo(forwardRef(DateTimePickerPopover)));
+export default memo(forwardRef(DateTimePickerPopover));
 
 DateTimePickerPopover.propTypes = {
   popperConfig: PropTypes.object,

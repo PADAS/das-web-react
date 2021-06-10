@@ -1,6 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react';
 import Select, { components } from 'react-select';
 import DateTimePickerPopover from '../DateTimePickerPopover';
+import TimeInput from '../TimeInput';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
 import debounce from 'lodash/debounce';
@@ -113,6 +114,30 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
   return {
     offsets, placement,
   };
+};
+
+
+const TimeField = (props) => {
+  const { idSchema: { id }, schema: { title: label }, disabled, onChange, required, maxDate, formData:value } = props;
+  const labelRef = useRef(null);
+  const [localCss, setStyles] = useState({ display: 'none' });
+  const [popoverOpen, setPopoverState] = useState(false);
+  const [placement, setPlacement] = useState('bottom');
+
+    const handleTimeChange = useCallback((inputValue) => {
+    
+    if (!inputValue) return onChange(undefined);
+      
+    const [hours, minutes] = inputValue
+      .split(':');
+
+      return onChange(`${window.isNaN(hours) ? '00' : parseFloat(hours)}:${window.isNaN(minutes) ? '00' : parseFloat(minutes || 0)}`);
+  }, [onChange]);
+
+  return <div className={styles.timeInputWrapper}>
+    <label ref={labelRef} htmlFor={id}>{label}</label>
+    <TimeInput showClear={true} className={styles.timeInput} required={required} disabled={disabled} value={value} onChange={handleTimeChange} />
+  </div>;
 };
 
 
@@ -289,6 +314,7 @@ const ExternalLink = (props) => {
 
 export default {
   select: SelectField,
+  time: TimeField,
   checkboxes: CustomCheckboxes,
   datetime: DateTimeField,
   externalUri: ExternalLink,
