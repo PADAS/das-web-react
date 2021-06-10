@@ -164,7 +164,7 @@ const App = (props) => {
       window.addEventListener('resize', resizeAnimation);
       return () => {
         window.removeEventListener('resize', resizeAnimation);
-      };
+      }; 
     }
   }, [map]);
 
