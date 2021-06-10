@@ -51,17 +51,6 @@ const PatrolFilter = (props) => {
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
 
   const containerRef = useRef(null);
-  
-  const [filterSettingsOpen, setFilterSettingsPopoverState] = useState(false);
-
-  const toggleFilterSettingsPopover = useCallback(() => {
-    setFilterSettingsPopoverState(!filterSettingsOpen);
-
-    if (!filterSettingsOpen) {
-      trackEvent('Patrol Filter', 'Click Date Filter Settings button');
-    }
-
-  }, [filterSettingsOpen]);
 
   const onFilterSettingsOptionChange = useCallback((e) => {
     const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
@@ -197,8 +186,6 @@ const PatrolFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const filterSettings = <PatrolFilterSettings handleFilterOptionChange={onFilterSettingsOptionChange} />;
-
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
@@ -208,8 +195,8 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector filterSettingsOpen={filterSettingsOpen} placement='bottom' onFilterSettingsToggle={onFilterSettingsToggle}
-        endDateLabel='' startDateLabel='' container={containerRef} filterSettings={filterSettings} />
+      <PatrolFilterDateRangeSelector placement='bottom' onFilterSettingsToggle={onFilterSettingsToggle}
+        endDateLabel='' startDateLabel='' container={containerRef} filterSettings={<PatrolFilterSettings handleFilterOptionChange={onFilterSettingsOptionChange} />} />
     </Popover.Content>
   </Popover>;
 

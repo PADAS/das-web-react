@@ -82,13 +82,13 @@ const GpsInput = (props) => {
     }
   };
 
-  const handleValidChange = useCallback(() => {
+  const handleValidChange = () => {
     if (!initialized) {
       setInitState(true);
     } else {
       onValidChange(lastKnownValidValue);
     }
-  }, [initialized, lastKnownValidValue, onValidChange]);
+  };
 
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);

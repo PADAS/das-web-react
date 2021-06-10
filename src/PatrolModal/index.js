@@ -93,6 +93,7 @@ const PatrolModal = (props) => {
 
   const patrolLeaders = patrolLeaderSchema.trackedbySchema ?
     patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.map(({ value }) => value): [];
+
   const patrolReports = useMemo(() =>
     getReportsForPatrol(patrol)
   , [patrol]);
