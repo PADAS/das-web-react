@@ -98,7 +98,7 @@ const ReportForm = (props) => {
     } else {
       const changes = extractObjectDifference(report, originalReport);
 
-      toSubmit = {
+      c = {
         ...changes,
         id: report.id,
         event_details: {
@@ -118,6 +118,11 @@ const ReportForm = (props) => {
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
       if (changes.notes) {
         toSubmit.notes = report.notes;
+      }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (toSubmit.contains) {
+        delete toSubmit.contains;
       }
     }
 
