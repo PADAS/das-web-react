@@ -137,6 +137,13 @@ const DataExportMenu = (props) => {
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
 
+  const onCommunityClick = () => {
+    const newWindow = window.open('https://Community.EarthRanger.com', '_blank', 'noopener,noreferrer');
+    if (newWindow) newWindow.opener = null;
+    trackEvent('Main Toolbar', 'Click \'Community\' menu item');
+  };
+
+
   const onAboutClick = useCallback(() => {
     addModal({ content: AboutModal });
   }, [addModal]);
@@ -157,8 +164,8 @@ const DataExportMenu = (props) => {
         </Item>
       )}
       <Divider />
-      <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
+      <Item onClick={onCommunityClick}>Community</Item>
       <Divider />
       <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>

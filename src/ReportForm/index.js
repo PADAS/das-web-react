@@ -98,7 +98,7 @@ const ReportForm = (props) => {
     } else {
       const changes = extractObjectDifference(report, originalReport);
 
-      toSubmit = {
+      c = {
         ...changes,
         id: report.id,
         event_details: {
@@ -118,6 +118,11 @@ const ReportForm = (props) => {
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
       if (changes.notes) {
         toSubmit.notes = report.notes;
+      }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (toSubmit.contains) {
+        delete toSubmit.contains;
       }
     }
 
@@ -439,6 +444,7 @@ const ReportForm = (props) => {
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
+  const styles = {};
 
   return <EditableItem.ContextProvider value={report}>
   
@@ -447,8 +453,8 @@ const ReportForm = (props) => {
 
     <EditableItem.Header 
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
-      priority={displayPriority}
+      menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
+      priority={displayPriority} readonly={schema.readonly}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 
     <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
@@ -468,6 +474,7 @@ const ReportForm = (props) => {
         <ReportFormTopLevelControls
           map={map}
           report={report}
+          readonly={schema.readonly}
           menuContainerRef={reportedBySelectPortalRef.current}
           onReportDateChange={onReportDateChange}
           onReportedByChange={onReportedByChange}
@@ -492,7 +499,7 @@ const ReportForm = (props) => {
       }
     </EditableItem.Body>
     {/* bottom controls */}
-    <EditableItem.AttachmentControls
+    {!schema.readonly && <EditableItem.AttachmentControls
       onAddFiles={onAddFiles}
       onSaveNote={onSaveNote} >
 
@@ -506,9 +513,10 @@ const ReportForm = (props) => {
         onNewReportSaved={onReportAdded}
       />
 
-    </EditableItem.AttachmentControls>
+    </EditableItem.AttachmentControls>}
 
-    <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
   </EditableItem.ContextProvider>;
 };
 

@@ -2,6 +2,10 @@ import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
+import { usePermissions } from '../hooks';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+
+
 import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
 import TrackToggleButton from '../TrackToggleButton';
@@ -38,11 +42,12 @@ const SubjectControls = (props) => {
 
   const [ loadingHeatmap, setHeatmapLoadingState ] = useState(false);
   const [ loadingTracks, setTrackLoadingState ] = useState(false);
+  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const { id } = subject;
 
 
-  const isMessageable = !!subject?.messaging?.length;
+  const isMessageable = !!canViewMessages && !!showMessageButton && !!subject?.messaging?.length;
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());

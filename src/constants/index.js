@@ -270,6 +270,7 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
+  MESSAGING: 'message',
 };
 
 

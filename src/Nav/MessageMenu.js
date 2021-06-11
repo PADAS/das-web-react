@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -6,6 +6,8 @@ import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
 import { SocketContext } from '../withSocketConnection';
 import Badge from '../Badge';
+
+import { allSubjects } from '../selectors/subjects';
 
 import MessagesModal from '../MessagesModal';
 
@@ -18,6 +20,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu } = Dropdown;
 
 const MessageMenu = (props) => {
+  const { subjects } = props;
   const [selectedSubject, setSelectedSubject] = useState(null);
 
   const onDropdownToggle = () => {
@@ -57,8 +60,13 @@ const MessageMenu = (props) => {
 
   const badgeCount = unreads.length > 9 ? '9+' : unreads.length;
 
+  const canShowMessageMenu = useMemo(() => !!state.results.length
+    || !!subjects.filter(subject => !!subject?.messaging?.length).length, [state.results.length, subjects]);
+
+  if (!canShowMessageMenu) return null;
+
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
-    <Toggle disabled={!state.results.length}>
+    <Toggle>
       <ChatIcon />
       {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
     </Toggle>
@@ -70,7 +78,7 @@ const MessageMenu = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  subjects: state.data.subjectStore,
+  subjects: allSubjects(state),
 });
 
 const WithContext = (props) => <WithMessageContext>

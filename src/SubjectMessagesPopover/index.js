@@ -1,7 +1,9 @@
-import React, { Fragment, forwardRef, memo, createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
-import { connect } from 'react-redux';
+import React, { memo, useMemo } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+
+import { usePermissions } from '../hooks';
+import {PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import MessageInput from '../MessageInput';
@@ -13,6 +15,9 @@ import styles from './styles.module.scss';
 
 const SubjectMessagesPopover = (props) => {
   const { className = '', subject } = props;
+
+  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
+
   const params = useMemo(() => {
     return { subject_id: subject?.id };
   }, [subject]);
@@ -25,7 +30,7 @@ const SubjectMessagesPopover = (props) => {
     </Popover.Title>
     <Popover.Content>
       <ParamFedMessageList senderDetailStyle={SENDER_DETAIL_STYLES.SHORT} className={styles.messageList} params={params} isReverse={true} />
-      <MessageInput subjectId={subject.id} />
+      {!!hasMessagingWritePermissions && <MessageInput subjectId={subject.id} />}
     </Popover.Content>
   </Popover>;
 

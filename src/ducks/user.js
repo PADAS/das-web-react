@@ -3,7 +3,8 @@ import { API_URL } from '../constants';
 import { setUserRole } from '../utils/analytics';
 import globallyResettableReducer from '../reducers/global-resettable';
 
-export const CURRENT_USER_API_URL = `${API_URL}user/me`;
+const USER_API_URL = `${API_URL}user`;
+export const CURRENT_USER_API_URL = `${USER_API_URL}/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
 
 // actions
@@ -15,12 +16,19 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 
 // action creators
 
-export const fetchCurrentUser = (config = {}) => (dispatch) => axios.get(CURRENT_USER_API_URL, config)
+export const fetchCurrentUser = (config = {}) => (dispatch, getState) => axios.get(CURRENT_USER_API_URL)
   .then(( { data: { data } }) => {
     if (!!data.role && data.role.length > 0) {
       setUserRole(data.role);
     }
     dispatch(fetchUserSuccess(data));
+    const { data: { selectedUserProfile } } = getState();
+    if (selectedUserProfile?.id && selectedUserProfile.id !== data.id) {
+      return axios.get(`${USER_API_URL}/${selectedUserProfile.id}`)
+        .then(({ data: { data:profileUser } }) => {
+          dispatch(setUserProfile(profileUser));
+        });
+    }
   })
   .catch((error) => {
     console.log('error fetching current user', error);
@@ -37,7 +45,7 @@ export const fetchCurrentUserProfiles = () => async (dispatch) => {
   }
 };
 
-export const setUserProfile = (profile, setCookie) => (dispatch) => {
+export const setUserProfile = (profile = {}, setCookie) => (dispatch, getState) => {
   if (setCookie) {
     document.cookie = `userProfile=${profile.id}`; // set profile cookie
   } else {

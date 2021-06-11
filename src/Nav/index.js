@@ -1,13 +1,15 @@
 import React, { memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
+import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 
-import { MAX_ZOOM } from '../constants';
+import { usePermissions } from '../hooks';
+
+import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
 import MessageMenu from './MessageMenu';
@@ -21,7 +23,9 @@ import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import './Nav.scss';
 
-const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, homeMap, location, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, history, homeMap, location, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+
+  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const onHomeMapSelect = (chosenMap) => {
     setHomeMap(chosenMap);
@@ -37,12 +41,13 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, h
     const isMainUser = profile.username === user.username;
 
     if (isMainUser) {
+      clearUserProfile();
       trackEvent('Main Toolbar', 'Select to operate as the main user');
     } else {
       trackEvent('Main Toolbar', 'Select to operate as a user profile');
+      setUserProfile(profile, isMainUser ? false : true);
     }
 
-    setUserProfile(profile, isMainUser ? false : true);
   };
 
   useEffect(() => {
@@ -68,7 +73,7 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, h
 
     {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
     <div className="rightMenus">
-      <MessageMenu />
+      {!!canViewMessages && <MessageMenu />}
       <NotificationMenu />
       <UserMenu user={user} onProfileClick={onProfileClick} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
       <div className="alert-menu"></div>
@@ -79,4 +84,4 @@ const Nav = ({ clearAuth, fetchCurrentUser, fetchCurrentUserProfiles, history, h
 
 const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) => ({ homeMap, maps, user, userProfiles, selectedUserProfile });
 
-export default connect(mapStatetoProps, { clearAuth, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(memo(withRouter(Nav)));
+export default connect(mapStatetoProps, { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(memo(withRouter(Nav)));

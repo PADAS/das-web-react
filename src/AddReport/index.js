@@ -64,7 +64,9 @@ const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react
     <div>
       {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
       <ul key={category.value} className={styles.reportTypeMenu}>
-        {category.types.map(type => <li key={type.id}>
+        {category.types
+          .filter(t => !t.readonly)
+          .map(type => <li key={type.id}>
           <button type='button' onClick={() => onClickReportType(type)}>
             <EventTypeListItem {...type} />
           </button>

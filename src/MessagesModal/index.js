@@ -1,7 +1,10 @@
-import React, { Fragment, memo, useEffect, useMemo, useRef, useState }  from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useState }  from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+
+import { usePermissions } from '../hooks';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 
 import MessageSummaryList from '../MessageList/MessageSummaryList';
@@ -33,6 +36,8 @@ const { Body, Footer, Header } = Modal;
 
 const MessagesModal =  ({ id:modalId, showClose = true, onSelectSubject, selectedSubject, removeModal, subjectStore }) => {
   const [selectingRecipient, setSelectingRecipient] = useState(false);
+
+  const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
 
   const params = useMemo(() => {
     if (selectedSubject) return {
@@ -83,14 +88,14 @@ const MessagesModal =  ({ id:modalId, showClose = true, onSelectSubject, selecte
     </Body>}
     
     {!selectingRecipient && <Fragment>
-      {!selectedSubject && <Footer>
+      {!selectedSubject && !!hasMessagingWritePermissions && <Footer>
         <Button variant='light' onClick={showNewMessageDialog}>
           <EditIcon /> New Message
         </Button>
       </Footer>}
       {selectedSubject && <Footer>
         {!selectedSubject.messaging && <strong>You may only receive messages from this subject.</strong>} 
-        <MessageInput subjectId={selectedSubject.id} />
+        {!!hasMessagingWritePermissions && <MessageInput subjectId={selectedSubject.id} />}
       </Footer>}
     </Fragment>}
 
