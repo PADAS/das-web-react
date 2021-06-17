@@ -68,6 +68,7 @@ import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
+import MapNavigator from '../MapNavigator';
 
 import './Map.scss';
 
@@ -580,6 +581,7 @@ class Map extends Component {
         center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
+          <MapNavigator />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />

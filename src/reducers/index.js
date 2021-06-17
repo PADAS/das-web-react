@@ -37,6 +37,7 @@ import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby'
+import searchLocationReducer from '../ducks/location-finder';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -87,7 +88,7 @@ const rootReducer = combineReducers({
     selectedUserProfile: persistReducer(userProfilePersistanceConfig, selectedUserProfileReducer),
     socketUpdates: socketActivityReducer,
     patrolLeaderSchema: patrolTrackedBySchemaReducer,
-
+    locationFinder: searchLocationReducer,
   }),
   view: combineReducers({
     currentBaseLayer: persistReducer(baseLayerPersistanceConfig, currentBaseLayerReducer),
