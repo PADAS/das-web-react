@@ -62,9 +62,6 @@ const MessageSummaryList = (props) => {
     }, []);
   }, [state.results]);
 
-  console.log({ mostRecentMessagesPerSubject });
-
-
   useEffect(() => {
     const handleRealtimeMessage = ({ data:msg }) => {
       dispatch(updateMessageFromRealtime(msg));

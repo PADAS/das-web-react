@@ -28,6 +28,20 @@ export const STORAGE_KEY = 'selectedAddReportTab';
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
+const CategoryList = ({ category, showTitle, onClickReportType }) => 
+  <div>
+    {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
+    <ul key={category.value} className={styles.reportTypeMenu}>
+      {category.types
+        .filter(t => !t.readonly)
+        .map(type => <li key={type.id}>
+        <button type='button' onClick={() => onClickReportType(type)}>
+          <EventTypeListItem {...type} />
+        </button>
+      </li>)}
+    </ul>
+  </div>;
+
 
 const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { categories, filter = '', onClickReportType } = props;
@@ -60,24 +74,11 @@ const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react
 
     }, []);
 
-  const createList = useCallback((category, showTitle) => 
-    <div>
-      {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
-      <ul key={category.value} className={styles.reportTypeMenu}>
-        {category.types
-          .filter(t => !t.readonly)
-          .map(type => <li key={type.id}>
-          <button type='button' onClick={() => onClickReportType(type)}>
-            <EventTypeListItem {...type} />
-          </button>
-        </li>)}
-      </ul>
-    </div>
-  , [onClickReportType]);
+
 
   return <div className={styles.reportTypeContainer} ref={ref}>
     {filteredCategories
-      .map(category => createList(category, categories.length > 1))}
+      .map(category => <CategoryList category={category}  showTitle={categories.length > 1} onClickReportType={onClickReportType} />)}
   </div>;
 });
 

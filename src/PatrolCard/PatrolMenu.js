@@ -7,7 +7,7 @@ import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
 
 import { trackEvent } from '../utils/analytics';
-import { canStartPatrol, canEndPatrol, calcPatrolCardState } from '../utils/patrols';
+import { canEndPatrol, calcPatrolCardState } from '../utils/patrols';
 
 import styles from './styles.module.scss';
 
