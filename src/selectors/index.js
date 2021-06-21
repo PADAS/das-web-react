@@ -96,7 +96,7 @@ export const getUserCreatableEventTypesByCategory = createSelector(
       .map(cat => ({
         ...cat,
         types: cat.types
-          .filter(t => !t.is_collection),
+          .filter(t => !t.is_collection && !t.readonly),
       }));
   },
 );
