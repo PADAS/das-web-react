@@ -96,9 +96,9 @@ const ReportForm = (props) => {
     if (reportIsNew) {
       toSubmit = report;
     } else {
-      const changes = extractObjectDifference(report, originalReport);
+      let changes = extractObjectDifference(report, originalReport);
 
-      c = {
+      toSubmit = {
         ...changes,
         id: report.id,
         event_details: {
