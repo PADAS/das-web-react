@@ -18,11 +18,12 @@ import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
 const RelationshipButton = (props) => {
-  const { fetchEvent, fetchPatrol, hidePatrols, onNewReportSaved, map, removeModal } = props;
+  const { fetchEvent, fetchPatrol, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
 
   const report = useContext(FormDataContext);
 
   const isPatrolReport = useMemo(() => eventBelongsToPatrol(report), [report]);
+  const isCollection = !!report.is_collection;
   const isCollectionChild = useMemo(() => eventBelongsToCollection(report), [report]);
 
   const goToParentCollection = useCallback(() => {
@@ -47,21 +48,24 @@ const RelationshipButton = (props) => {
     });
   }, [fetchPatrol, map, removeModal, report.is_collection, report.patrols]);
 
-  if (isPatrolReport) return <AttachmentButton icon={PatrolIcon} title='Go To Patrol' onClick={goToParentPatrol} />;
-  if (isCollectionChild) return <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={goToParentCollection} />;
-
-  return <AddReport 
-    analyticsMetadata={{
-      category: 'Report Modal',
-      location: 'report modal',
-    }}
-    map={map}
-    formProps={{
-      hidePatrols: hidePatrols, 
-      relationshipButtonDisabled:true, 
-      onSaveSuccess: onNewReportSaved,
-    }}
-  />;
+  return <Fragment>
+    {navigateRelationships && <Fragment>
+      {isPatrolReport && <AttachmentButton icon={PatrolIcon} title='Go To Patrol' onClick={goToParentPatrol} />}
+      {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={goToParentCollection} />}
+    </Fragment>}
+    {(isCollection || (!isPatrolReport && !isCollectionChild)) && <AddReport 
+      analyticsMetadata={{
+        category: 'Report Modal',
+        location: 'report modal',
+      }}
+      map={map}
+      formProps={{
+        hidePatrols: hidePatrols, 
+        relationshipButtonDisabled:true, 
+        onSaveSuccess: onNewReportSaved,
+      }}
+    />}
+  </Fragment>;
 };
 
 

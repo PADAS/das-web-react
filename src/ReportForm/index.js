@@ -45,7 +45,7 @@ const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
 
-  const { relationshipButtonDisabled } = formProps;
+  const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
   const formRef = useRef(null);
   const reportedBySelectPortalRef = useRef(null);
@@ -316,7 +316,7 @@ const ReportForm = (props) => {
       `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
-      openModalForReport(data, map, { relationshipButtonDisabled: true });
+      openModalForReport(data, map, { navigateRelationships: false });
     });
   };
 
@@ -499,6 +499,7 @@ const ReportForm = (props) => {
       {!relationshipButtonDisabled && <RelationshipButton
         isCollection={is_collection}
         map={map}
+        navigateRelationships={navigateRelationships}
         isCollectionChild={eventBelongsToCollection(report)}
         isPatrolReport={eventBelongsToPatrol(report)}
         onGoToCollection={goToParentCollection}
