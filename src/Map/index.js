@@ -399,7 +399,7 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
-  })
+  }) 
 
   hideUnpinnedTrackLayers(map, event) {
     const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible:visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
