@@ -94,10 +94,6 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
   }, [dispatch, isReverse, params, setListScrollPosition, socket]);
 
   useEffect(() => {
-    setListScrollPosition();
-  }, [setListScrollPosition]);
-
-  useEffect(() => {
     if (!!unreads.length) {
       const ids = unreads.map(({ id }) => id);
       bulkReadMessages(ids);
