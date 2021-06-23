@@ -9,14 +9,13 @@ import styles from './styles.module.scss';
 
 const MapNavigator = (props) => {
     const { locationFinder, searchLocation } = props;
+    const { search, results } = locationFinder;
     const buttonRef = useRef(null);
     const wrapperRef = useRef(null);
     const [active, setActiveState] = useState(false);
-    const [search, setSearch] = useState('');
 
     const toggleActiveState = () => setActiveState(!active);
 
-    // 
     useEffect(() => {
         
         const handleKeyDown = (event) => {
@@ -52,18 +51,27 @@ const MapNavigator = (props) => {
 
     // listens to change events
     const handleSearchChange = useCallback(({target: {value}}) => {
-        setSearch(value);
-    });
+        // console.log(value);
+        searchLocation({search: !!value ? value.toLowerCase() : null,});
+    }, []);
 
     // invoked when clear button is clicked
     const handleClearSearch = () => {
-        setSearch('');
+        searchLocation({search: ''});
     };
 
+    const onKeyDown = (event) => {
+        const { key } = event;
+        if (key === 'Enter') {
+          event.preventDefault();
+          fetchSearchResults();
+        }
+      };
+
     // TODO: search with auto-complete
-    useEffect(() => {
-        fetchSearchResults();
-    },[search]);
+    // useEffect(() => {
+    //     fetchSearchResults();
+    // },[search]);
 
     return (
         <div className={styles.wrapper} ref={wrapperRef}>
@@ -83,6 +91,7 @@ const MapNavigator = (props) => {
                         onChange={handleSearchChange}
                         onClear={handleClearSearch}
                         value={search}
+                        onKeyDown={onKeyDown}
                         />
                     </Popover.Content>
                 </Popover>
