@@ -33,7 +33,6 @@ const CategoryList = ({ category, showTitle, onClickReportType }) =>
     {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
     <ul key={category.value} className={styles.reportTypeMenu}>
       {category.types
-        .filter(t => !t.readonly)
         .map(type => <li key={type.id}>
         <button type='button' onClick={() => onClickReportType(type)}>
           <EventTypeListItem {...type} />
