@@ -119,6 +119,11 @@ const ReportForm = (props) => {
       if (changes.notes) {
         toSubmit.notes = report.notes;
       }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (toSubmit.contains) {
+        delete toSubmit.contains;
+      }
     }
 
     if (toSubmit.hasOwnProperty('location') && !toSubmit.location) {

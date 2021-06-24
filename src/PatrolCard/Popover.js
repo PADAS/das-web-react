@@ -16,7 +16,7 @@ import { trackEvent } from '../utils/analytics';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol, patrolHasGeoDataToDisplay, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol, patrolHasGeoDataToDisplay, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';

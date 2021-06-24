@@ -71,7 +71,7 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
   }, [params, dispatch, setListScrollPosition]);
 
   useEffect(() => {
-    const consumeMessage = (msg) => {
+    const consumeMessage = (msg) => { 
       dispatch(updateMessageFromRealtime(msg));
       setListScrollPosition();
     };
@@ -94,10 +94,6 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
   }, [dispatch, isReverse, params, setListScrollPosition, socket]);
 
   useEffect(() => {
-    setListScrollPosition();
-  }, [setListScrollPosition]);
-
-  useEffect(() => {
     if (!!unreads.length) {
       const ids = unreads.map(({ id }) => id);
       bulkReadMessages(ids);
@@ -108,6 +104,5 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
     <MessageList emptyMessage={loading ? <LoadingOverlay message='Loading messages...' /> : undefined} containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
   </div>;
 };
-
 
 export default memo(ParamFedMessageList);

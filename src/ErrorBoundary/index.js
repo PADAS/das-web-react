@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ErrorBoundary from 'react-error-boundary'
+import ErrorBoundary from 'react-error-boundary';
 import Button from 'react-bootstrap/Button';
 
 import { uuid } from '../utils/string';
@@ -19,7 +19,7 @@ const ErrorBoundaryComponent = (props) => {
     return <div className={styles.fallback}>
       <ErrorMessage message={error.toString()} details={componentStack} />
       <Button variant='info' type='button' onClick={reset}>Reload</Button>
-    </div>
+    </div>;
   };
 
   const FallbackComponent = ({ componentStack, error }) => renderOnError
