@@ -312,7 +312,6 @@ const ReportForm = (props) => {
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       openModalForReport(data, map);
-      // removeModal();
     });
   };
 
@@ -503,11 +502,11 @@ const ReportForm = (props) => {
 
       {!relationshipButtonDisabled && <RelationshipButton
         isCollection={is_collection}
+        removeModal={removeModal}
         map={map}
         navigateRelationships={navigateRelationships}
         isCollectionChild={eventBelongsToCollection(report)}
         isPatrolReport={eventBelongsToPatrol(report)}
-        onGoToCollection={goToParentCollection}
         hidePatrols={true}
         onNewReportSaved={onReportAdded}
       />}

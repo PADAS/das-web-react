@@ -6,7 +6,6 @@ import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } fr
 import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
-import { removeModal } from '../ducks/modals';
 import { trackEvent } from '../utils/analytics';
 
 import { FormDataContext } from '../EditableItem/context';
@@ -69,7 +68,7 @@ const RelationshipButton = (props) => {
 };
 
 
-export default memo(connect(null, { fetchEvent: id => fetchEvent(id), fetchPatrol: id => fetchPatrol(id), removeModal })(RelationshipButton));
+export default memo(connect(null, { fetchEvent: id => fetchEvent(id), fetchPatrol: id => fetchPatrol(id) })(RelationshipButton));
 
 RelationshipButton.propTypes = {
   onNewReportSaved: PropTypes.func,
