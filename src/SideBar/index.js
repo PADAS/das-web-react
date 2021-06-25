@@ -82,7 +82,9 @@ const SideBar = (props) => {
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
 
   const onScroll = useCallback(() => {
-    fetchNextEventFeedPage(events.next);
+    if (events.next) {
+      fetchNextEventFeedPage(events.next);
+    }
   }, [events.next, fetchNextEventFeedPage]);
 
   const toggleReportHeatmapVisibility = () => {
