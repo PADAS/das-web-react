@@ -1,20 +1,22 @@
 import axios from 'axios';
 import React, { memo, useRef, useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
-import { searchLocation, fetchLocations } from '../ducks/location-finder';
-import { jumpToLocation } from '../utils/map'
+import { jumpToLocation } from '../utils/map';
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
+import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import styles from './styles.module.scss';
 
 const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
 
 const MapNavigator = (props) => {
     const { map } = props;
-    // const { search, results } = locationFinder;
+    // const { coords } = locationFinder;
     const buttonRef = useRef(null);
     const wrapperRef = useRef(null);
     const [active, setActiveState] = useState(false);
@@ -76,16 +78,13 @@ const MapNavigator = (props) => {
     // make api call to mapbox api
     const fetchLocation = async() => {
         const url = `${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`
-        const data = await axiosGet.request({
-            method: 'get',
-            url: url
-        })
+        const data = await axiosGet.request({ method: 'get', url: url })
         const {data: { features }} = data;
         setLocations(features);
         const obj = features.map((location) => {
             const obj2 = {
-                coords: location.geometry.coordinates,
-                placename: location.place_name
+                coordinates: location.geometry.coordinates,
+                placenames: location.place_name
             }
             return obj2
         })
@@ -94,24 +93,25 @@ const MapNavigator = (props) => {
     }
 
     // extract coordinates from api response
-    const coordinates = () => {
-        locations.map(coord => {
-            const obj = {
-                lng: coord.geometry.coordinates[0],
-                lat: coord.geometry.coordinates[1]
-            }
-            console.log(obj)
-            return obj
-        })
-    }
-
-    const coords = coordinates();
+    const coords = locations.map(coord => {
+        if (coord) {
+            const sw = new mapboxgl.LngLat(
+                coord.geometry.coordinates[0],
+                coord.geometry.coordinates[1]
+            );
+            const arrayOfCoords = Object.values(sw);
+            console.log(arrayOfCoords);
+            return arrayOfCoords;
+        } else {
+            return null;
+        }
+    })
 
     // listens to change events; auto-completes the search query
     const handleSearchChange = (e) => {
         setQuery(e.target.value);
-        if (query && query.length > 0) {
-            fetchLocation();
+        if (query && query.length > 1){
+            fetchLocation()
         }
     };
 
@@ -133,9 +133,12 @@ const MapNavigator = (props) => {
     const onQueryResultClick = (e) => {
         jumpToLocation(map, coords);
         const searchResult = e.target.id;
-        setSelectedLocation(locations[searchResult])
-        setLocations([])
+        setSelectedLocation(locations[searchResult]);
+        setLocations([]);
+        setQuery('');
     }
+
+    // Displaying marker on the address
 
     return (
         <div className={styles.wrapper} ref={wrapperRef}>
@@ -168,6 +171,6 @@ const MapNavigator = (props) => {
     )
 }
 
-const mapStateToProps = ({data: {locationFinder}}) => ({ locationFinder });
+// const mapStateToProps = ({data: {locationFinder}}) => ({ locationFinder });
 
-export default connect(mapStateToProps, {searchLocation, fetchLocations})(memo(MapNavigator));
+export default connect(null, null)(memo(MapNavigator));
