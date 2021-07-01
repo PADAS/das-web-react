@@ -1,51 +1,53 @@
-import axios from 'axios';
-import { API_URL } from "../constants";
+// import axios from 'axios';
 
-// axios config
-const axiosConfig = axios.create({
-    BASE_URL: API_URL,
-    Headers: {
-        'Content-Type': 'application/json',
-    }
-});
+// const SEARCH_URL = `https://api.mapbox.com/geocoding/v5/mapbox.places/`
 
-// actions
-const SEARCH_STRING = 'SEARCH_STRING';
-const SEARCH_RESULTS = 'SEARCH_RESULTS';
+// // actions
+// const SEARCH_LOCATION = 'SEARCH_LOCATION';
+// const FETCH_LOCATION = 'FETCH_LOCATION';
 
-// action creators
-export const searchLocation = search => dispatch => {
-       dispatch({
-           type: SEARCH_STRING,
-           payload: search
-    });
-}
-export const fetchSearchResults = search => dispatch => {
-    // `${API_URL}features?query=${search}`
-    dispatch({
-        type: SEARCH_RESULTS,
-        // payload: res.data
-    });
-}
+// // action creators
+// export const searchLocation = search => dispatch => {
+//        dispatch({
+//            type: SEARCH_LOCATION,
+//            payload: search
+//     });
+// }
+// export const fetchLocations = search => dispatch => {
+//     axios
+//     // .get(`${SEARCH_URL}${search}.json?access_token=REACT_APP_MAPBOX_TOKEN`)
+//     .then(res => 
+//         dispatch({
+//             type: FETCH_LOCATION,
+//             payload: {
+//                 'coords': res.features.geometry.coordinates,
+//                 'place': res.features.place_name
+//             }
+//         })
+//     )
+//     .catch(err => console.log(err));
+// }
 
-// initial state
-const INITIAL_STATE = {
-    search:'',
-    results: []
-};
+// // initial state
+// const INITIAL_STATE = {
+//     search:'',
+//     results: [],
+//     loading: false,
+//     result: []
+// };
 
-// reducer
-const searchLocationReducer = (state=INITIAL_STATE, action) => {
-    const { type, payload } = action;
+// // reducer
+// const searchLocationReducer = (state=INITIAL_STATE, action) => {
+//     const { type, payload } = action;
 
-    if (type === SEARCH_STRING) {
-        return { ...state, ...payload };
-    }
+//     if (type === SEARCH_LOCATION) {
+//         return { ...state, ...payload };
+//     }
 
-    if (type === SEARCH_RESULTS) {
-        return { ...state, results: payload };
-    }
-    return state;
-}
+//     if (type === FETCH_LOCATION) {
+//         return {...state, ...payload };
+//     }
+//     return state;
+// }
 
-export default searchLocationReducer;
+// export default searchLocationReducer;

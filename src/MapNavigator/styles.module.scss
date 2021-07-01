@@ -109,3 +109,26 @@ $filtered-color : $highlight-color;
     }
   }
 }
+
+.query-suggestions {
+    text-align: left;
+    width: 80%;
+    margin: 0 auto;
+  }
+  
+  .query-suggestions > ul {
+    padding: 0;
+    margin: 0;
+    background-color: gainsboro;
+  }
+  
+  li.suggestion {
+    list-style: none;
+    padding: 15px 10px;
+  }
+  
+  li.suggestion:hover {
+    background-color: black;
+    color: gainsboro;
+    cursor: pointer;
+  }
