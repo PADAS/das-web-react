@@ -1,15 +1,13 @@
 import axios from 'axios';
-import React, { memo, useRef, useState, useEffect, useCallback } from 'react';
+import React, { memo, useRef, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
-import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import styles from './styles.module.scss';
 
 const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
@@ -67,11 +65,16 @@ const MapNavigator = (props) => {
         }
     }, [active]);
 
+    // navigate to location on the map on when Enter key is pressed
     const onKeyDown = (event) => {
         const { key } = event;
         if (key === 'Enter') {
             event.preventDefault();
-            onQueryResultClick()
+            if (query) {
+                jumpToLocation(map, coords);
+                setLocations([]);
+                setQuery('');
+            }
         }
     }
 
@@ -88,7 +91,6 @@ const MapNavigator = (props) => {
             }
             return obj2
         })
-        console.log(obj)
         return obj;
     }
 
@@ -99,8 +101,8 @@ const MapNavigator = (props) => {
                 coord.geometry.coordinates[0],
                 coord.geometry.coordinates[1]
             );
+            // convert the returned objects to array
             const arrayOfCoords = Object.values(sw);
-            console.log(arrayOfCoords);
             return arrayOfCoords;
         } else {
             return null;
@@ -139,6 +141,8 @@ const MapNavigator = (props) => {
     }
 
     // Displaying marker on the address
+    // const marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
+    // marker.addEventListener('click', onQueryResultClick);
 
     return (
         <div className={styles.wrapper} ref={wrapperRef}>
@@ -162,7 +166,8 @@ const MapNavigator = (props) => {
                         />
                         <div className='query-suggestions'>
                             { query.length > 1 &&
-                            (<ul onClick={onQueryResultClick} >{querySuggestions}</ul>) }
+                                (<ul onClick={onQueryResultClick }>{querySuggestions}</ul>)
+                            }
                         </div> 
                     </Popover.Content>
                 </Popover>

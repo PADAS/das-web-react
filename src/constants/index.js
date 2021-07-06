@@ -15,6 +15,7 @@ export const {
   REACT_APP_ROUTE_PREFIX,
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
+  SEARCH_URL,
   
 } = process.env;
 
