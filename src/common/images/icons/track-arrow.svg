@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="43px" height="62px" viewBox="0 0 43 62" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
-    <title>Rectangle</title>
-    <desc>Created with Sketch.</desc>
+    <title>Track Direction</title>
+    
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <path d="M-7.81018353,12.2744913 L50.6264173,40.7110922 C38.8840708,41.8579618 31.2352016,44.2090926 27.6798097,47.7644845 C24.1244177,51.3198764 21.773287,58.9687456 20.6264173,70.7110922 L-7.81018353,12.2744913 Z" id="Rectangle" fill="#0079CA" transform="translate(21.408117, 41.492792) rotate(-315.000000) translate(-21.408117, -41.492792) "></path>
     </g>

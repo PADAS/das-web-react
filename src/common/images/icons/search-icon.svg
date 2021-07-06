@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="126px" height="124px" viewBox="0 0 126 124" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
-    <title>Group</title>
-    <desc>Created with Sketch.</desc>
+   
+    <title>Search</title>
+    
         <g transform="translate(6.000000, 6.000000)">
             <circle id="Oval" stroke-width="11" cx="43.5" cy="43.5" r="43.5"></circle>
             <path d="M76.557267,78.193398 L78.6412421,76.0353786 C81.3267866,73.2544158 85.7582665,73.177064 88.5392293,75.8626086 L117.312821,103.648943 C120.093784,106.334488 120.171136,110.765968 117.485591,113.546931 L115.401616,115.70495 C112.716072,118.485913 108.284592,118.563265 105.503629,115.87772 L76.730037,88.0913852 C73.9490742,85.4058406 73.8717224,80.9743608 76.557267,78.193398 Z" id="Rectangle"></path>

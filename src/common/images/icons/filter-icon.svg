@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="21px" height="21px" viewBox="0 0 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
-    <title>Fill-1</title>
-    <desc>Created with Sketch.</desc>
+    <title>Filter</title>
+    
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="filter-icon" transform="translate(1.000000, 1.000000)" stroke="#57595D" stroke-width="2">
             <path d="M0.43202,0 C0.19345,0 0,0.193248 0,0.431622 C0,0.52274 0.02893,0.611699 0.08291,0.685543 L7.11831,10.317266 L7.11831,15.463267 C7.11831,15.594546 7.17811,15.718484 7.28066,15.800533 L11.17771,18.905882 C11.36446,19.054435 11.6365,19.023774 11.78525,18.837652 C11.84614,18.761432 11.87939,18.666428 11.87939,18.568617 L11.87939,10.317266 L18.91695,0.685543 C19.05772,0.492943 19.01518,0.223044 18.82238,0.082697 C18.74833,0.029149 18.65938,0 18.56783,0 L0.43202,0 Z" id="Fill-1"></path>
