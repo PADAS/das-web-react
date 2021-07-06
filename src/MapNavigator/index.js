@@ -9,7 +9,6 @@ import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
 import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
-import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import styles from './styles.module.scss';
 
 const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
@@ -71,7 +70,11 @@ const MapNavigator = (props) => {
         const { key } = event;
         if (key === 'Enter') {
             event.preventDefault();
-            onQueryResultClick()
+            if (query) {
+                jumpToLocation(map, coords);
+                setLocations([]);
+                setQuery('');
+            }
         }
     }
 
@@ -88,7 +91,6 @@ const MapNavigator = (props) => {
             }
             return obj2
         })
-        console.log(obj)
         return obj;
     }
 
@@ -99,8 +101,8 @@ const MapNavigator = (props) => {
                 coord.geometry.coordinates[0],
                 coord.geometry.coordinates[1]
             );
+            // convert the returned value to array
             const arrayOfCoords = Object.values(sw);
-            console.log(arrayOfCoords);
             return arrayOfCoords;
         } else {
             return null;
@@ -139,6 +141,8 @@ const MapNavigator = (props) => {
     }
 
     // Displaying marker on the address
+    // const marker = new mapboxgl.Marker().setLngLat([38, 5]).addTo(map);
+    // marker.getElement().addEventListener('click', onQueryResultClick);
 
     return (
         <div className={styles.wrapper} ref={wrapperRef}>
@@ -162,7 +166,7 @@ const MapNavigator = (props) => {
                         />
                         <div className='query-suggestions'>
                             { query.length > 1 &&
-                            (<ul onClick={onQueryResultClick} >{querySuggestions}</ul>) }
+                            (<ul onClick={onQueryResultClick}>{querySuggestions}</ul>) }
                         </div> 
                     </Popover.Content>
                 </Popover>
