@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { withMap } from '../EarthRangerMap';
 
 import SubjectPopup from '../SubjectPopup';
+import SubjectMessagesPopup from '../SubjectMessagesPopup';
+import SubjectMessagePopup from '../SubjectMessagePopup';
 import TimepointPopup from '../TimepointPopup';
 import DroppedMarkerPopup from '../DroppedMarkerPopup';
 import UserCurrentLocationPopup from '../UserCurrentLocationPopup';
@@ -16,6 +18,8 @@ const PopupLayer = ({ popup, ...rest }) => {
   let Template;
 
   if (type === 'subject') Template = SubjectPopup;
+  if (type === 'subject-messages') Template = SubjectMessagesPopup;
+  if (type === 'subject-message') Template = SubjectMessagePopup;
   if (type === 'timepoint') Template = TimepointPopup;
   if (type === 'dropped-marker') Template = DroppedMarkerPopup;
   if (type === 'current-user-location') Template = UserCurrentLocationPopup;
@@ -23,7 +27,7 @@ const PopupLayer = ({ popup, ...rest }) => {
   if (type === 'analyzer-config') Template = AnalyzerConfigPopup;
   if (type === 'multi-layer-select') Template = LayerSelectorPopup;
   
-  return Template ? <Template key={id} data={data} {...rest} /> : null;
+  return Template ? <Template key={id} popupId={id} data={data} {...rest} /> : null;
 };
 
 export default memo(withMap(PopupLayer));

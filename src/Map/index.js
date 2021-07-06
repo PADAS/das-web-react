@@ -55,8 +55,8 @@ import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
+import MessageBadgeLayer from '../MessageBadgeLayer';
 // import IsochroneLayer from '../IsochroneLayer';
-import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
@@ -70,16 +70,9 @@ import PatrolTracks from '../PatrolTracks';
 
 import './Map.scss';
 
-const REPORT_SPIDER_THRESHOLD = MAX_ZOOM - 2;
 
 class Map extends Component {
-  state = {
-    reportSpiderConfig: {
-      reports: null,
-      coordinates: null,
-    },
-  };
-  
+
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
@@ -91,6 +84,7 @@ class Map extends Component {
     this.onMapClick = this.onMapClick.bind(this);
     this.onMapZoom = this.onMapZoom.bind(this);
     this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
+    this.onMessageBadgeClick = this.onMessageBadgeClick.bind(this);
     this.onTimepointClick = this.onTimepointClick.bind(this);
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
@@ -105,7 +99,6 @@ class Map extends Component {
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.fetchMapData = this.fetchMapData.bind(this);
     this.onRotationControlClick = this.onRotationControlClick.bind(this);
-    this.unspiderfy = this.unspiderfy.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.onSleepDetected = this.onSleepDetected.bind(this);
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
@@ -134,9 +127,7 @@ class Map extends Component {
   }
 
   onMapZoom = debounce((e) => {
-    if (!!this.state.reportSpiderConfig.reports) {
-      this.unspiderfy();
-    }
+
     if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
       this.props.hidePopup(this.props.popup.id);
     }
@@ -225,15 +216,6 @@ class Map extends Component {
         this.props.hidePopup(this.props.popup.id);
       }
     }
-  }
-
-  unspiderfy() {
-    this.setState({
-      reportSpiderConfig: {
-        coordinates: null,
-        reports: null,
-      },
-    });
   }
 
   setTrackLengthToEventFilterLowerValue() {
@@ -367,9 +349,6 @@ class Map extends Component {
       }
     }
     this.hideUnpinnedTrackLayers(map, event);
-    if (!!this.state.reportSpiderConfig.reports) {
-      this.unspiderfy();
-    }
   })
 
   onEventSymbolClick = this.withLocationPickerState(({ event:clickEvent, layer: { properties } }) => {
@@ -420,7 +399,7 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
-  })
+  }) 
 
   hideUnpinnedTrackLayers(map, event) {
     const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible:visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
@@ -451,25 +430,10 @@ class Map extends Component {
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
 
-      if (zoom > REPORT_SPIDER_THRESHOLD) {
-        clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
-          if (err) return;
-
-          const reports = features.map(feature => feature.properties);
-
-          this.setState({
-            reportSpiderConfig: {
-              coordinates: [lngLat.lng, lngLat.lat],
-              reports,
-            }
-          });
-        });
-      }
-
       const mapZoom = this.props.map.getZoom();
-      const newMapZoom = (zoom > REPORT_SPIDER_THRESHOLD) ? REPORT_SPIDER_THRESHOLD : zoom;
+      const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
 
-      if (mapZoom < REPORT_SPIDER_THRESHOLD
+      if (mapZoom < MAX_ZOOM
       && mapZoom < zoom) {
         this.props.map.easeTo({
           center: features[0].geometry.coordinates,
@@ -502,6 +466,12 @@ class Map extends Component {
     }
     trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
+
+  onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {
+    const { geometry, properties } = layer;
+
+    this.props.showPopup('subject-messages', { geometry, properties });
+  })
 
   setMap(map) {
     // don't set zoom if not hydrated
@@ -612,12 +582,14 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
+            <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
+
             <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
                 <EventFilter />
                 <FriendlyEventFilterString className='map-report-filter-details' />
               </div>
-            </DelayedUnmount>
+            </DelayedUnmount> 
                 
 
             <div className='map-legends'>
@@ -638,13 +610,6 @@ class Map extends Component {
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
-
-
-            {!!this.state.reportSpiderConfig.coordinates && 
-              <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 
-                mapImages={this.props.mapImages} eventTypes={this.props.eventTypes} 
-                reports={this.state.reportSpiderConfig.reports} onReportClick={this.onClusterLeafClick} />
-            }
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 

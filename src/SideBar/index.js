@@ -9,7 +9,7 @@ import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
-import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
 import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
@@ -25,7 +25,7 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import EventFeed from '../EventFeed';
-import AddReport from '../AddReport';
+import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
@@ -45,19 +45,17 @@ import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString'
 import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
-
-const TAB_KEYS = {
-  REPORTS: 'reports',
-  LAYERS: 'layers',
-  PATROLS: 'patrols',
-};
+import { cloneDeep } from 'lodash-es';
 
 const SET_TAB = 'SET_TAB';
 
-const setActiveTab = (tab) => ({
-  type: 'SET_TAB',
-  payload: tab,
-});
+const setActiveTab = (tab) => {
+  return {
+    type: 'SET_TAB',
+    payload: tab,
+  };
+};
+
 
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
@@ -68,17 +66,26 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
   return state;
 };
 
+const validAddReportTypes = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
+
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, setReportHeatmapVisibility, sidebarOpen } = props;
+  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, 
+    setReportHeatmapVisibility, sidebarOpen, } = props;
+
+  const { filter: { overlap } } = patrolFilter;
 
   const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
 
-  const onScroll = () => fetchNextEventFeedPage(events.next);
+  const onScroll = useCallback(() => {
+    if (events.next) {
+      fetchNextEventFeedPage(events.next);
+    }
+  }, [events.next, fetchNextEventFeedPage]);
 
   const toggleReportHeatmapVisibility = () => {
     setReportHeatmapVisibility(!reportHeatmapVisible);
@@ -93,7 +100,14 @@ const SideBar = (props) => {
     return value;
   }, [eventFilter]);
 
+  const patrolFilterParams = useMemo(() => {
+    const filterParams = cloneDeep(patrolFilter);
+    delete filterParams.filter.overlap;
+    return filterParams;
+  }, [patrolFilter]);
+
   const activeTabPreClose = useRef(null);
+  const patrolFetchRef = useRef(null);
 
   useEffect(() => {
     if (!optionalFeedProps.exclude_contained) { 
@@ -111,6 +125,12 @@ const SideBar = (props) => {
       setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
+
+  useEffect(() => {
+    if (validAddReportTypes.includes(activeTab.current)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
+    }
+  }, [activeTab]);
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
@@ -139,17 +159,12 @@ const SideBar = (props) => {
     loadFeedEvents();
   }, [eventFilter]); // eslint-disable-line
 
+  // fetch patrols if filter settings has changed
   useEffect(() => {
-    const loadPatrolData = async () => {
-      if (showPatrols) {
-        setPatrolLoadState(true);
-        await fetchPatrols();
-        setPatrolLoadState(false);
-      }
-    };
-
-    loadPatrolData();
-  }, [patrolFilter]); // eslint-disable-line
+    if (!isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+      fetchAndLoadPatrolData();
+    }
+  }, [overlap]); // eslint-disable-line
 
   useEffect(() => {
     if (!isUndefined(sidebarOpen)) {
@@ -157,7 +172,7 @@ const SideBar = (props) => {
         activeTabPreClose.current = activeTab.current;
         dispatch(setActiveTab(TAB_KEYS.REPORTS));
       } else {
-        if ( activeTabPreClose.current !== TAB_KEYS.REPORTS) {
+        if (activeTabPreClose.current !== TAB_KEYS.REPORTS) {
           dispatch(undo(SIDEBAR_STATE_REDUCER_NAMESPACE));
         }
       }
@@ -171,6 +186,17 @@ const SideBar = (props) => {
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const showPatrols = !!patrolFlagEnabled && !!hasPatrolViewPermissions;
+
+  const fetchAndLoadPatrolData = useCallback(() => {
+    patrolFetchRef.current = fetchPatrols();
+
+    patrolFetchRef.current.request
+      .finally(() => {
+        setPatrolLoadState(false);
+        patrolFetchRef.current = null;
+      });
+      
+  }, [fetchPatrols]);
 
   const addReportPopoverPlacement = isExtraLargeLayout
     ? 'left'
@@ -187,6 +213,19 @@ const SideBar = (props) => {
     }
   }, [events.error, loadingEvents]);
 
+  // fetch patrols if filter itself has changed
+  useEffect(() => {
+    setPatrolLoadState(true);
+    fetchAndLoadPatrolData();
+    return () => {
+      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+
+      if (priorRequestCancelToken) {
+        priorRequestCancelToken.cancel();
+      }
+    };
+  }, [fetchAndLoadPatrolData, patrolFilterParams]);
+
   if (!map) return null;
 
   const selectedTab = !!activeTab && activeTab.current;
@@ -195,9 +234,9 @@ const SideBar = (props) => {
     <MapContext.Provider value={map}>
       <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
-        <div className={styles.addReportContainer}>
-          <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} />
-        </div>
+        {activeTab.current !== TAB_KEYS.LAYERS && <div className={styles.addReportContainer}>
+          <AddReport popoverPlacement={addReportPopoverPlacement} map={map} showLabel={false} type={activeTab.current} />
+        </div>}
         <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
           <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
             <DelayedUnmount isMounted={sidebarOpen}>

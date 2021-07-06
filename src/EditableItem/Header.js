@@ -17,7 +17,7 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const { /* addModal,  */analyticsMetadata, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
+  const { /* addModal,  */analyticsMetadata, readonly, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
 
   const data = useContext(FormDataContext);
   
@@ -102,7 +102,7 @@ const EditableItemHeader = (props) => {
     </Popover.Content>
   </Popover>);
 
-  return <div className={`${styles.formHeader} ${styles[`priority-${priority}`]}`} onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[`priority-${priority}`]} ${readonly ? styles.readonly : ''}`} onKeyDown={handleEscapePress}>
     <h4>
       {!!Icon &&
         <span className={styles.headerIcon}>

@@ -44,12 +44,36 @@ library.add(faPlus, faTimes, faArrowUp, faArrowDown);
 dom.watch();
 
 // Initialize ReactGA with const from .env
-ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
+ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' });
 setClientReleaseIdentifier();
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);
 export const store = createStoreWithMiddleware(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 const persistor = persistStore(store);
+
+const PathNormalizationRouteComponent = (props) => {
+  const externalRedirectRef = useRef(null);
+
+  useEffect(() => {
+    !!externalRedirectRef.current && externalRedirectRef.current.click();
+  });
+
+  const GoToHomepage = () => <Redirect
+    to={REACT_APP_ROUTE_PREFIX}
+  />;
+
+  if (process.env.NODE_ENV !== 'production') {
+    return <GoToHomepage />;
+  } 
+
+  const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === props.location.pathname);
+  if (!localMatch) {
+    return <GoToHomepage />;
+  }
+
+
+  return <a href={localMatch} style={{opacity: 0}} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
+};
 
 ReactDOM.render(
   <Provider store={store}>
@@ -60,29 +84,7 @@ ReactDOM.render(
           <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
           <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
           <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
-          <Route component={(props) => {
-            const externalRedirectRef = useRef(null);
-
-            useEffect(() => {
-              !!externalRedirectRef.current && externalRedirectRef.current.click();
-            });
-
-            const GoToHomepage = () => <Redirect
-              to={REACT_APP_ROUTE_PREFIX}
-            />;
-
-            if (process.env.NODE_ENV !== 'production') {
-              return <GoToHomepage />;
-            } 
-
-            const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === props.location.pathname);
-            if (!localMatch) {
-              return <GoToHomepage />;
-            }
-
-
-            return <a href={localMatch} style={{opacity: 0}} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
-          }} />
+          <Route component={PathNormalizationRouteComponent} />
 
         </Switch>
       </BrowserRouter>

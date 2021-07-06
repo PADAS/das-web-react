@@ -14,28 +14,29 @@ import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
 import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
-import TableauModal from '../TableauModal';
 import { trackEvent } from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/events';
-import { fetchCurrentUser } from '../ducks/user';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { fetchTableauDashboard } from '../ducks/external-reporting';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
 
 const DataExportMenu = (props) => {
-  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, eventTypes, eventFilter, fetchCurrentUser, history, location, shownTableauNotification, user, updateUserPreferences, ...rest } = props;
-  const [hasTableauNotification, setHasTableauNotification] = useState(shownTableauNotification);
+
+  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
+    eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences, 
+    staticContext:_staticContext, fetchTableauDashboard, ...rest } = props;
+
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
 
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
-  const tableauEnabled = useFeatureFlag(FEATURE_FLAGS.TABLEAU);
 
   useEffect(() => {
     setModals([
@@ -74,40 +75,6 @@ const DataExportMenu = (props) => {
     ]);
   }, [props.systemConfig, eventTypes, eventFilter, dailyReportEnabled, kmlExportEnabled]);
 
-  useEffect(() => {
-    if (tableauEnabled && !hasTableauNotification) {
-      addUserNotification({
-        message: 'Check out your new analysis dashboard, available in the main menu at the top right of your screen, generously provided by Tableau.',
-        onConfirm(_e, item) {
-          hamburgerToggle.current.click();
-          setHasTableauNotification(false);
-          removeUserNotification(item.id);
-          updateUserPreferences({
-            shownTableauNotification: true
-          });
-        },
-        onDismiss(_e, item) {
-          setHasTableauNotification(false);
-          removeUserNotification(item.id);
-          updateUserPreferences({
-            shownTableauNotification: true
-          });
-        },
-        confirmText: 'OK',
-      });
-
-      setHasTableauNotification(true);
-    }
-  }, [addUserNotification, hasTableauNotification, props.systemConfig, removeUserNotification, tableauEnabled, updateUserPreferences]);
-
-  const tableauModal = {
-    title: 'powered by Tableau',
-    content: TableauModal,
-    modalProps: {
-      className: 'tableau-modal',
-    },
-  };
-
   const alertModal = {
     title: 'Alerts',
     content: AlertsModal,
@@ -126,11 +93,27 @@ const DataExportMenu = (props) => {
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   };
 
+  const openTableauReport = (analyticsTitle) => {
+    fetchTableauDashboard()
+      .then( ({ display_url }) => {
+        const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
+        if (newWindow) newWindow.opener = null;
+        trackEvent(analyticsTitle, 'Click Analysis (via Tableau) menu item');    
+      }); 
+  };
+
   const onContactSupportClick = () => {
     trackEvent('Main Toolbar', 'Click \'Contact Support\'');
     if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
+
+  const onCommunityClick = () => {
+    const newWindow = window.open('https://Community.EarthRanger.com', '_blank', 'noopener,noreferrer');
+    if (newWindow) newWindow.opener = null;
+    trackEvent('Main Toolbar', 'Click \'Community\' menu item');
+  };
+
 
   const onAboutClick = useCallback(() => {
     addModal({ content: AboutModal });
@@ -143,22 +126,22 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
-      {!!tableau_enabled && <Item onClick={() => onModalClick(tableauModal, 'Analysis (via Tableau)')}>Analysis (via Tableau) </Item>}
-      {!!alerts_enabled && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts </Item>}
+      {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau)</Item>}
+      {!!alerts_enabled && !!eventTypes.length && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts</Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
-          <span>{modal.title}</span>
+          <span>{modal.title}</span> 
         </Item>
       )}
       <Divider />
-      <Header>Support</Header>
       <Item onClick={onContactSupportClick}>Contact Support</Item>
+      <Item onClick={onCommunityClick}>Community</Item>
       <Divider />
       <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, user } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification, user });
-export default connect(mapStateToProps, { addModal, addUserNotification, fetchCurrentUser, removeUserNotification, updateUserPreferences })(withRouter(DataExportMenu));
+const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification });
+export default connect(mapStateToProps, { addModal, addUserNotification, removeUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));

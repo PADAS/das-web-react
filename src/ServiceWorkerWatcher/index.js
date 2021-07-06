@@ -10,7 +10,6 @@ const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dis
 
       addUserNotification({
         message: 'A new version of EarthRanger is available. It will be loaded the next time you refresh your browser.',
-        infolink: 'https://earthranger.com/News/2020/Major-EarthRanger-Release-Summer-2020.aspx',
         onConfirm(_e, item) {
           setHasCodeUpdateNotification(false);
           removeUserNotification(item.id);

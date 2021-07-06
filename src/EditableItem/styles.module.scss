@@ -20,6 +20,10 @@
 
 }
 
+.readonly {
+  pointer-events: none;
+}
+
 .historyPopover {
   max-width: none !important;
   min-width: 14rem;

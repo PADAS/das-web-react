@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
@@ -12,17 +12,23 @@ import { allSubjects } from '../selectors/subjects';
 import styles from './styles.module.scss';
 
 const ReportedBySelect = (props) => {
-  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder } = props;
+  const { menuRef = null, reporters, subjects, onChange, numberOfRecentRadiosToShow, value, isMulti, className, placeholder, options: optionsFromProps } = props;
 
-  const [recentRadios, setRecentRadios] = useState([]);
+  const selections = optionsFromProps ? optionsFromProps : reporters;
 
-  useEffect(() => {
-    setRecentRadios(
-      calcRecentRadiosFromSubjects(...subjects)
-        .splice(0, numberOfRecentRadiosToShow)
-    );
-  }, [numberOfRecentRadiosToShow, subjects]);
+  const recentRadios = useMemo(() =>
+    calcRecentRadiosFromSubjects(...subjects)
+      .splice(0, numberOfRecentRadiosToShow)
+  , [numberOfRecentRadiosToShow, subjects]);
 
+  const displayOptions = useMemo(() =>
+    selections
+      .filter(({ id }) =>
+        !recentRadios
+          .some(({ id:radioId }) =>
+            radioId === id
+          )
+      ), [recentRadios, selections]);
 
   const optionalProps = {};
   const selectStyles = {
@@ -40,17 +46,17 @@ const ReportedBySelect = (props) => {
         value.map(item =>
           item.hidden
             ? item
-            : reporters.find(reporter => reporter.id === item.id)
+            : selections.find(selections => selections.id === item.id)
         );
     }
 
     return !!value
-      ? value.hidden 
-        ? value 
-        : reporters.find(reporter => reporter.id === value.id)
+      ? value.hidden
+        ? value
+        : selections.find(selections => selections.id === value.id)
       : null;
 
-  }, [isMulti, reporters, value]);
+  }, [isMulti, selections, value]);
 
   const options = [
     {
@@ -59,14 +65,14 @@ const ReportedBySelect = (props) => {
     },
     {
       label: 'All',
-      options: reporters || [],
+      options: displayOptions || [],
     },
   ];
 
   const getOptionLabel = ({ hidden, name, content_type, first_name, last_name }) => {
     if (hidden) return 'RESTRICTED';
-    return content_type === 'accounts.user' 
-      ? `${first_name} ${last_name}` 
+    return content_type === 'accounts.user'
+      ? `${first_name} ${last_name}`
       : name;
   };
 

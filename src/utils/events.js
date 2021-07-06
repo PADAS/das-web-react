@@ -69,6 +69,7 @@ export const eventHasLocation = (evt) => {
 };
 
 export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;
+export const eventBelongsToPatrol = evt => !!evt?.patrols?.length && !!evt?.patrols?.[0];
 
 export const uniqueEventIds = (value, index, self) => { 
   return self.indexOf(value) === index;
@@ -131,21 +132,15 @@ export const calcFriendlyEventStateFilterString = (eventFilter) => {
 };
 
 export const openModalForReport = (report, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled, hidePatrols, isPatrolReport = false } = config;
 
   return store.dispatch(
     addModal({
       content: ReportFormModal,
       report,
-      relationshipButtonDisabled,
-      hidePatrols,
-      isPatrolReport,
       map,
-      onSaveSuccess,
-      onSaveError,
+      ...config,
       modalProps: {
         className: 'event-form-modal',
-        // keyboard: false,
       },
     }));
 };
@@ -240,8 +235,8 @@ export const addBounceToEventMapFeatures = (features, bounceIDs) => {
   return featuresWithIds;
 };
 
-export const validateReportAgainstCurrentEventFilter = (report) => { /* client-side filter validation -- save a round trip request after event updates */
-  const { data: { eventFilter, eventTypes } } = store.getState();
+export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) => { /* client-side filter validation -- save a round trip request after event updates */
+  const { data: { eventFilter, eventTypes } } = (storeFromProps || store).getState();
 
   const reportMatchesDateFilter = () => {
     const { filter: { date_range: { lower, upper } } } = eventFilter;

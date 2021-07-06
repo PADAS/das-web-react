@@ -22,6 +22,20 @@ div.datePopover {
   top: auto;
 }
 
+.readonly {
+  cursor: not-allowed;
+  pointer-events: none;
+  ::placeholder {
+    font-size: 0;
+  }
+  [class*=locationAnchor][class*=empty] {
+    color: white;
+  }
+  [class*=clearIcon] {
+    display: none;
+  }
+}
+
 
 .form {
   background: white;

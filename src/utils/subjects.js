@@ -20,6 +20,8 @@ export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
     && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
 };
 
+export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
+
 const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
   if (subject
     && subject.last_position_status
@@ -82,7 +84,7 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
   delete update.trace_id;
   delete update.mid;
 
-  return {
+  const returnVal = {
     ...subject,
     last_position_date: update.properties.coordinateProperties.time,
     last_position_status: {
@@ -98,7 +100,17 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
         radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
       }
     },
+    device_status_properties: {
+      ...subject?.device_status_properties,
+      ...updateObj?.device_status_properties
+    }
   };
+
+  if (update.hasOwnProperty('device_status_properties')) {
+    returnVal.device_status_properties = update.device_status_properties;
+  }
+
+  return returnVal;
 };
 
 export const pinMapSubjectsToVirtualPosition = (mapSubjectFeatureCollection, tracks, virtualDate) => {

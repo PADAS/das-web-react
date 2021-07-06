@@ -1,9 +1,7 @@
 import { get, isCancel } from 'axios';
 import toString from 'lodash/toString';
-import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import merge from 'lodash/merge';
 
 import bbox from '@turf/bbox';
 import buffer from '@turf/buffer';

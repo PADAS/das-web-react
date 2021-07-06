@@ -7,16 +7,19 @@ import isPast from 'date-fns/is_past';
 import differenceInMinutes from 'date-fns/difference_in_minutes';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
+import {isEmpty} from 'lodash';
 
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
+import { fetchEvent } from '../ducks/events';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
+import { fetchTrackedBySchema } from '../ducks/trackedby';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -56,15 +59,14 @@ const AUTO_END_LABEL = 'Auto End';
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
-  const { addModal, patrol, map, id, removeModal, updateUserPreferences, autoStartPatrols, autoEndPatrols, eventStore } = props;
+  const { addModal, patrol, map, id, fetchEvent, fetchTrackedBySchema, removeModal, updateUserPreferences, autoStartPatrols, patrolLeaderSchema, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
+  const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [filesToUpload, updateFilesToUpload] = useState([]);
-  const [notesToAdd, updateNotesToAdd] = useState([]);
   const [addedReports, setAddedReports] = useState([]);
   const [isSaving, setSaveState] = useState(false);
 
   const filesToList = useMemo(() => [...statePatrol.files, ...filesToUpload], [filesToUpload, statePatrol.files]);
-  const notesToList = useMemo(() => [...statePatrol.notes, ...notesToAdd], [notesToAdd, statePatrol.notes]);
 
   const displayStartTime = useMemo(() => displayStartTimeForPatrol(statePatrol), [statePatrol]);
   const displayEndTime = useMemo(() => displayEndTimeForPatrol(statePatrol), [statePatrol]);
@@ -77,17 +79,24 @@ const PatrolModal = (props) => {
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
-  const patrolReports = useMemo(() => {
-    const currReports = getReportsForPatrol(patrol);
-    const syncedReports = currReports.map( (report) => {
-      // if there is no entry for this event, add it to the store
-      if (!eventStore[report.id]) {
-        eventStore[report.id] = report;
-        return report;
-      } else return eventStore[report.id];
-    });
-    return syncedReports;
-  }, [eventStore, patrol]);
+  useEffect(() => {
+    if (isEmpty(patrolLeaderSchema)){
+      fetchTrackedBySchema()
+        .catch((e) => {
+        //
+        })
+        .finally(() => setLoadingTrackedBy(false));
+    } else {
+      setLoadingTrackedBy(false);
+    }
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  const patrolLeaders = patrolLeaderSchema.trackedbySchema ?
+    patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.map(({ value }) => value): [];
+
+  const patrolReports = useMemo(() =>
+    getReportsForPatrol(patrol)
+  , [patrol]);
 
   const allPatrolReports = useMemo(() => {
     // don't show the contained reports, which are also bound to the segment
@@ -95,7 +104,7 @@ const PatrolModal = (props) => {
     const incidents = allReports.filter(report => report.is_collection);
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
     const topLevelReports = allReports.filter(report => 
-      !report.is_contained_in?.length && !incidentIds.includes(report.id));
+      !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
       (item) => {
@@ -334,7 +343,7 @@ const PatrolModal = (props) => {
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
-  }, [addedReports, allPatrolReportIds]);
+  }, [addedReports, allPatrolReportIds, patrolSegmentId]);
   
   const onSaveNote = useCallback((noteToSave) => {
     
@@ -501,18 +510,13 @@ const PatrolModal = (props) => {
       addPatrolSegmentToEvent(patrolSegmentId, report.id);
     });
 
-    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', notesToAdd, filesToUpload);
+    const actions = generateSaveActionsForReportLikeObject(toSubmit, 'patrol', [], filesToUpload);
 
     return executeSaveActions(actions)
       .then((results) => {
         trackEvent('Patrol Modal', `Saved ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
         removeModal(id);
-        // onSaveSuccess(results);
-        /*   if (report.is_collection && toSubmit.state) {
-          return Promise.all(report.contains
-            .map(contained => contained.related_event.id)
-            .map(id => setEventState(id, toSubmit.state)));
-        } */
+
         return results;
       })
       .catch((error) => {
@@ -522,7 +526,7 @@ const PatrolModal = (props) => {
       .finally(() => {
         setSaveState(false);
       });
-  }, [addModal, filesToUpload, id, notesToAdd, removeModal, statePatrol, addedReports, patrolSegmentId]);
+  }, [addModal, filesToUpload, id, removeModal, statePatrol, addedReports, patrolSegmentId]);
 
   const startTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -538,7 +542,7 @@ const PatrolModal = (props) => {
     }
 
     return null;
-  }, [statePatrol]);
+  }, [displayAutoStart, statePatrol]);
 
   const endTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
@@ -554,7 +558,7 @@ const PatrolModal = (props) => {
     }
  
     return null;
-  }, [statePatrol]);
+  }, [displayAutoEnd, statePatrol.patrol_segments]);
 
   const startTimeLabelClass = useMemo(() => {
     if (startTimeLabel === STARTED_LABEL) return styles.startedLabel;
@@ -568,10 +572,17 @@ const PatrolModal = (props) => {
     removeModal(id);
   }, [id, removeModal]);
 
-  const onReportListItemClick = useCallback((item) => {
+  const onReportListItemClick = useCallback(async (item) => {
     trackEvent('Patrol Modal', `Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
-    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport} );
-  }, [map, onAddReport]);
+
+    const needToFetchReport = !eventStore[item.id];
+
+    if (needToFetchReport) {
+      await fetchEvent(item.id);
+    }
+    
+    openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport, relationshipButtonDisabled: !item.is_collection,  navigateRelationships: false } );
+  }, [eventStore, fetchEvent, map, onAddReport]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -592,9 +603,10 @@ const PatrolModal = (props) => {
         <StatusBadge />
       </Header>
       <div className={styles.topControls}>
-        <label>
+        <label className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
+          {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
           Tracking:
-          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} />
+          <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
         </label>
       </div>
       <section className={`${styles.timeBar} ${styles.start}`}>
@@ -637,7 +649,7 @@ const PatrolModal = (props) => {
         <AttachmentList
           className={styles.attachments}
           files={filesToList}
-          notes={notesToList}
+          notes={statePatrol.notes}
           onClickFile={onClickFile}
           onClickNote={startEditNote}
           onDeleteNote={onDeleteNote}
@@ -685,7 +697,12 @@ const PatrolModal = (props) => {
             category: 'Patrol Modal',
             location: 'patrol modal',
           }}
-          hidePatrols={true} onSaveSuccess={onAddReport} isPatrolReport={true} />}
+          formProps={{
+            hidePatrols: true,
+            onSaveSuccess: onAddReport,
+            isPatrolReport: true,
+          }}
+        />}
       </AttachmentControls>
       <Footer
         cancelTitle={canEditPatrol ? undefined : 'Close'}
@@ -699,10 +716,11 @@ const PatrolModal = (props) => {
 
 };
 
-const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } }, data: { eventStore } }) => ({
+const mapStateToProps = ({ view: { userPreferences:  { autoStartPatrols, autoEndPatrols } }, data: { eventStore }, data: {patrolLeaderSchema} }) => ({
   autoStartPatrols,
   autoEndPatrols,
-  eventStore
+  eventStore,
+  patrolLeaderSchema
 });
 
 const makeMapStateToProps = () => {
@@ -717,7 +735,7 @@ const makeMapStateToProps = () => {
  
 const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props) => <PatrolDistanceCovered patrolsData={[props.patrolData]} />)); /* eslint-disable-line react/display-name */
 
-export default connect(mapStateToProps, { addModal, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
+export default connect(mapStateToProps, { addModal, fetchEvent: id => fetchEvent(id), fetchTrackedBySchema, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,

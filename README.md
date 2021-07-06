@@ -1,10 +1,10 @@
 # EarthRanger Web
 This is the web interface for EarthRanger. It is built with React (whose bootstrapping documentation is kept inline at the end of this document), using Redux for state management and Mapbox GL for map rendering. For an exhaustive list of 3rd-party dependencies, please review the package.json file at the root of this project.
 
-## Setting up
+## Setting up for development
 To start developing within this repo, you need to have [Docker](https://www.docker.com/get-started) installed. Once docker is up and running, `cd` into the root of this project repository and run the following command: `docker-compose up --build`.
 
-This will build two images, for development and testing, and run them simultaneously. Once up and running, you may view the web application at http://localhost:9000/beta.
+This will build two images, for development and testing, and run them simultaneously. Once up and running, you may view the web application at http://localhost:9000/.
 
 <EOF>
 

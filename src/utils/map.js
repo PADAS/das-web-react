@@ -49,7 +49,7 @@ export const addFeatureCollectionImagesToMap = (collection, map) => {
   const images = features
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties }) => properties)
-    .filter((properties, index, array) => !map.hasImage(properties.image) && (array.findIndex(item => item.image === properties.image) === index))
+    .filter((properties, index, array) =>  array.findIndex(item => item.image === properties.image) === index)
     .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width }));
 
   return Promise.all(images).then(results => results);
@@ -89,7 +89,15 @@ export const getEventTypeTitle = (event_types, event_type) => {
   return (typeTitle && typeTitle.display) ? typeTitle.display : typeTitle;
 };
 
-const setUpSubjectGeoJson = subjects => addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position').map(subject => copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')).map(({ last_position: geojson }) => geojson);
+const setUpSubjectGeoJson = subjects =>
+  addIdToCollectionItemsGeoJsonByKey(subjects, 'last_position')
+    .map(subject =>
+      copyResourcePropertiesToGeoJsonByKey(subject, 'last_position')
+    )
+    .map(({ last_position: geojson }) =>
+      geojson
+    );
+
 const featureCollectionFromGeoJson = geojson_collection => 
   featureCollection(
     geojson_collection
@@ -121,8 +129,6 @@ export const generateBoundsForLineString = ({ geometry }) => {
 };
 
 export const jumpToLocation = (map, coords, zoom = 15) => {
-
-  
   if (!Array.isArray(coords[0])) {
     map.setZoom(zoom);
     map.easeTo({
@@ -147,16 +153,6 @@ export const jumpToLocation = (map, coords, zoom = 15) => {
       });
     }
   }
-};
-
-/* react-mapbox-gl generates layer names for the GeoJsonLayer component by appending them with `-<layertype>`, such as `-fill` or `-circle`. 
-this is a utility for identifying those layers by name programmatically when required. */
-export const calcLayerName = (key, name) => {
-  if (key.includes('_FILLS')) return `${name}-fill`;
-  if (key.includes('_SYMBOL')) return `${name}-symbol`;
-  if (key.includes('_LINES')) return `${name}-line`;
-  if (key.includes('_CIRCLES')) return `${name}-circle`;
-  return name;
 };
 
 
@@ -185,9 +181,6 @@ export const cleanUpBadlyStoredValuesFromMapSymbolLayer = (object) => {
     ...updates,
   };
 };
-
-export const bindMapClickFunction = (map, fn) => map.on('click', fn);
-export const unbindMapClickFunction = (map, fn) => map.off('click', fn);
 
 export const lockMap = (map, isLocked) => {
   const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];

@@ -83,3 +83,30 @@
   position: fixed;
   top: unset;
 }
+
+@mixin buttonOpacity {
+  opacity: 0.75;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.gearButton {
+  @include buttonOpacity;
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    fill: #333;
+  }
+  position: absolute;
+  border: none;
+  background: none;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  &:hover, &:focus, &:active {
+    border: none;
+    background: none;
+    outline: none;
+  }
+  z-index: 200;
+}

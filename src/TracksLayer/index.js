@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import uniq from 'lodash/uniq';
 
 import { withMap } from '../EarthRangerMap';
 import { addMapImage } from '../utils/map';
@@ -10,14 +9,13 @@ import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
 import { trackEvent } from '../utils/analytics';
-import withMapViewConfig from '../WithMapViewConfig';
 
 const ARROW_IMG_ID = 'track_arrow';
 
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const TracksLayer = (props) => {
-  const { map, onPointClick, patrolTrackState, showTimepoints, trackData } = props;
+  const { map, onPointClick, showTimepoints, trackData } = props;
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
@@ -30,8 +28,6 @@ const TracksLayer = (props) => {
       addMapImage({ src: Arrow, id: ARROW_IMG_ID });
     }
   }, []); // eslint-disable-line
-
-  const patrolTrackIds = uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
 
   if (!trackData.length) return null;
 

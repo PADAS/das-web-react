@@ -7,7 +7,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
@@ -37,15 +37,15 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-import styles from './styles.module.scss';
-
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 
 const ReportForm = (props) => {
-  const { eventTypes, map, data: originalReport, fetchPatrol, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
+  const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
+
+  const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
   const formRef = useRef(null);
   const reportedBySelectPortalRef = useRef(null);
@@ -81,19 +81,6 @@ const ReportForm = (props) => {
 
     return report.priority;
   }, [eventTypes, report]);
-
-  useEffect(() => {
-    updateStateReport({
-      ...report,
-      ...originalReport,
-      event_details: {
-        ...report.event_details,
-        ...originalReport.event_details,
-      },
-    });
-    updateFilesToUpload([]);
-    updateNotesToAdd([]);
-  }, [originalReport]); // eslint-disable-line
 
   const handleSaveError = useCallback((e) => {
     setSavingState(false);
@@ -131,6 +118,11 @@ const ReportForm = (props) => {
       /* the API doesn't handle inline PATCHes of notes reliably, so if a note change is detected just bring the whole Array over */
       if (changes.notes) {
         toSubmit.notes = report.notes;
+      }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (toSubmit.contains) {
+        delete toSubmit.contains;
       }
     }
 
@@ -179,8 +171,6 @@ const ReportForm = (props) => {
 
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
-
-  const disableAddReport = relationshipButtonDisabled;
 
   const onCancel = () => {
     removeModal();
@@ -322,7 +312,6 @@ const ReportForm = (props) => {
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       openModalForReport(data, map);
-      // removeModal();
     });
   };
 
@@ -331,7 +320,7 @@ const ReportForm = (props) => {
       `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
-      openModalForReport(data, map, { relationshipButtonDisabled: true });
+      openModalForReport(data, map, { navigateRelationships: false });
     });
   };
 
@@ -413,7 +402,8 @@ const ReportForm = (props) => {
       content: AddToPatrolModal,
       onAddToPatrol,
     });
-  }, [addModal, onAddToPatrol]);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add to Patrol\' button');
+  }, [addModal, is_collection, onAddToPatrol]);
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
     try {
@@ -451,6 +441,7 @@ const ReportForm = (props) => {
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
+  const styles = {};
 
   return <EditableItem.ContextProvider value={report}>
   
@@ -459,8 +450,8 @@ const ReportForm = (props) => {
 
     <EditableItem.Header 
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
-      priority={displayPriority}
+      menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
+      priority={displayPriority} readonly={schema.readonly}
       title={reportTitle} onTitleChange={onReportTitleChange} />
 
     <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
@@ -480,6 +471,7 @@ const ReportForm = (props) => {
         <ReportFormTopLevelControls
           map={map}
           report={report}
+          readonly={schema.readonly}
           menuContainerRef={reportedBySelectPortalRef.current}
           onReportDateChange={onReportDateChange}
           onReportedByChange={onReportedByChange}
@@ -504,23 +496,25 @@ const ReportForm = (props) => {
       }
     </EditableItem.Body>
     {/* bottom controls */}
-    <EditableItem.AttachmentControls
+    {!schema.readonly && <EditableItem.AttachmentControls
       onAddFiles={onAddFiles}
       onSaveNote={onSaveNote} >
 
-      <RelationshipButton
+      {!relationshipButtonDisabled && <RelationshipButton
         isCollection={is_collection}
+        removeModal={removeModal}
         map={map}
+        navigateRelationships={navigateRelationships}
         isCollectionChild={eventBelongsToCollection(report)}
-        onGoToCollection={goToParentCollection}
-        relationshipButtonDisabled={disableAddReport}
+        isPatrolReport={eventBelongsToPatrol(report)}
         hidePatrols={true}
         onNewReportSaved={onReportAdded}
-      />
+      />}
 
-    </EditableItem.AttachmentControls>
+    </EditableItem.AttachmentControls>}
 
-    <EditableItem.Footer onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
   </EditableItem.ContextProvider>;
 };
 
@@ -547,7 +541,7 @@ export default memo(
 );
 
 ReportForm.defaultProps = {
-  relationshipButtonDisabled: false,
+  formProps: {},
   onSaveSuccess() {
   },
   onSaveError(e) {
@@ -556,7 +550,7 @@ ReportForm.defaultProps = {
 };
 
 ReportForm.propTypes = {
-  relationshipButtonDisabled: PropTypes.bool,
+  formProps: PropTypes.object,
   data: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
   onSubmit: PropTypes.func,

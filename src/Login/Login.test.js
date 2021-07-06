@@ -1,10 +1,19 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
+import '../../test-helpers/window';
+
+import Login from './';
 
 
 it('does something', function () {
-  expect(true).toBe(true);
+  const container = document.createElement('div');
+  ReactDOM.render(<Provider store={{}}>
+    <Login />
+  </Provider>, container);
+  expect(true).toBe(true); 
 });
 /* 
 import MyComponent from './MyComponent';

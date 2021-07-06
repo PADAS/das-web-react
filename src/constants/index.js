@@ -63,6 +63,12 @@ export const PATROL_API_STATES = {
   CANCELLED: 'cancelled',
 };
 
+export const TAB_KEYS = {
+  REPORTS: 'reports',
+  LAYERS: 'layers',
+  PATROLS: 'patrols',
+};
+
 export const MAP_ICON_SIZE = 30;
 export const MAP_ICON_SCALE = 2;
 
@@ -264,6 +270,7 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 export const PERMISSION_KEYS = {
   PATROLS: 'patrol',
   PATROL_TYPES: 'patroltype',
+  MESSAGING: 'message',
 };
 
 

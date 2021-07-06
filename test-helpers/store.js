@@ -1,16 +1,25 @@
-import '../test-helpers/window';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import configureMockStore from 'redux-mock-store';
 import ReduxPromise from 'redux-promise';
 import ReduxThunk from 'redux-thunk';
 
-import App from './App';
+jest.mock('redux-persist', () => {
+  const real = jest.requireActual('redux-persist');
+  return {
+    ...real,
+    persistReducer: jest
+      .fn()
+      .mockImplementation((config, reducers) => reducers),
+  };
+});
+
 
 const middlewares = [ReduxPromise, ReduxThunk];
 
+
 const mockStore = configureMockStore(middlewares);
+
 const store = mockStore({
   data: {
     maps: [],
@@ -23,12 +32,6 @@ const store = mockStore({
   },
 });
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(
-    <Provider store={store}>
-      <App />
-    </Provider>
-    , div);
-  ReactDOM.unmountComponentAtNode(div);
-});
+const MockProvider = ({ children }) => <Provider store={store}>{...children}</Provider>;
+
+export default MockProvider;

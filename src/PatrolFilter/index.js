@@ -14,15 +14,22 @@ import { caseInsensitiveCompare } from '../utils/string';
 import { useDeepCompareEffect } from '../hooks';
 
 import PatrolFilterDateRangeSelector from '../PatrolFilter/DateRange';
+import PatrolFilterSettings from '../PatrolFilter/PatrolFilterSettings';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from '../EventFilter/styles.module.scss';
 
 const PatrolFilter = (props) => {
-  const { children, className, patrolFilter, sresetGlobalDateRange, updatePatrolFilter } = props;
+  const { children, className, patrolFilter, resetGlobalDateRange, updatePatrolFilter } = props;
   const { filter: { date_range, text } } = patrolFilter;
 
-  const menuContainerRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const onFilterSettingsOptionChange = useCallback((e) => {
+    const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
+    updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap }});
+    trackEvent('Patrol Filter', patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
+  }, [updatePatrolFilter]);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
@@ -40,6 +47,10 @@ const PatrolFilter = (props) => {
 
   const onDateFilterIconClicked = useCallback((e) => {
     trackEvent('Patrol Filter', 'Date Filter Popover Toggled');
+  }, []);
+
+  const onFilterSettingsToggle = useCallback(() => {
+    trackEvent('Patrol Filter', 'Click Date Filter Settings button');
   }, []);
 
   useEffect(() => {
@@ -77,13 +88,13 @@ const PatrolFilter = (props) => {
       </div>
     </Popover.Title>
     <Popover.Content>
-      <PatrolFilterDateRangeSelector placement='bottom' endDateLabel='' startDateLabel=''/>
+      <PatrolFilterDateRangeSelector placement='bottom' onFilterSettingsToggle={onFilterSettingsToggle}
+        endDateLabel='' startDateLabel='' container={containerRef} filterSettings={<PatrolFilterSettings handleFilterOptionChange={onFilterSettingsOptionChange} />} />
     </Popover.Content>
   </Popover>;
 
   return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
-    <div className={styles.controls}  ref={menuContainerRef}>
-
+    <div className={styles.controls}  ref={containerRef}>
       <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`} onClick={onDateFilterIconClicked}>
           <ClockIcon className={styles.clockIcon} />

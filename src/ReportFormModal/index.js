@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 
 const ReportFormModal = (props) => {
   const { report, id:modalId, eventSchemas, eventStore, onSaveError, onSaveSuccess, fetchEventTypeSchema,
-    removeModal, fetchEvent, relationshipButtonDisabled, map, hidePatrols} = props;
+    removeModal, fetchEvent, navigateRelationships, relationshipButtonDisabled, map, hidePatrols} = props;
 
   const { id: report_id, event_type } = report;
 
@@ -74,7 +74,7 @@ const ReportFormModal = (props) => {
         onSaveSuccess={onSaveSuccess}
         hidePatrols={hidePatrols}
         isPatrolReport={isPatrolReport}
-        relationshipButtonDisabled={relationshipButtonDisabled}
+        formProps={{navigateRelationships, relationshipButtonDisabled}}
         map={map}
       />
     </EditableItem.Modal>

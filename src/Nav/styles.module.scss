@@ -1,0 +1,25 @@
+@import '../common/styles/vars/colors';
+
+.messageMenu {
+  margin-right: 1rem;
+  position: relative;
+  [class*=dropdown-menu] {
+    border: none;
+    padding: 0;
+  }
+  &.active {
+    opacity: 0.9;
+    svg * {
+      stroke: white;
+    }
+  }
+  .badge {
+    color: white;
+    font-size: 0.6rem;
+    position: absolute;
+    right: -0.5rem;
+    top: 0;
+  }
+}
+
+

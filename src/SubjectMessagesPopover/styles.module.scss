@@ -1,0 +1,9 @@
+.popover {
+  height: 22rem;
+  max-width: unset;
+  overflow: hidden;
+  width: 24rem;
+  [class*=popover-body] {
+    height: 15.5rem;
+  }
+}

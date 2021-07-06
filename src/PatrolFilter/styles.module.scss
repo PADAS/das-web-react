@@ -1,3 +1,6 @@
+@import '../common/styles/layout';
+@import '../common/styles/vars/colors';
+
 .dateSelect {
   display: flex;
   flex-wrap: wrap;
@@ -14,3 +17,40 @@
     }
   }
 }
+
+.filterSelection {
+  div {
+    display: block;
+    clear: both;
+  }
+  span {
+    display: block;
+    padding-left: 20px;
+    cursor: inherit;
+  }
+  label {
+    margin-top: 0.25rem;
+    margin-left: 0.25;
+  }
+  input {
+    float: left;
+    width: 20px;
+    margin-left: -20px;
+    margin-top: 0.55rem; 
+    padding: 0;
+    -webkit-appearance: radio;
+  }
+}
+
+.filterTooltip {
+  [class$=inner] {
+    background: white;
+    color: black;
+    border: 1px solid $light-gray-border;
+  }
+  [class$=arrow] {
+    display: none !important;
+  }
+}
+
+

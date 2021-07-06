@@ -2,10 +2,15 @@ import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
+import { usePermissions } from '../hooks';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+
+
 import { canShowTrackForSubject, getSubjectLastPositionCoordinates } from '../utils/subjects';
 import { addHeatmapSubjects, removeHeatmapSubjects, toggleTrackState } from '../ducks/map-ui';
 import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
+import SubjectMessagesPopover from '../SubjectMessagesPopover';
 import LocationJumpButton from '../LocationJumpButton';
 import { trackEvent } from '../utils/analytics';
 
@@ -18,9 +23,11 @@ import styles from './styles.module.scss';
 
 const SubjectControls = (props) => {
   const { subject,
+    children,
     showHeatmapButton,
     showTrackButton,
     showJumpButton,
+    showMessageButton,
     showTitles,
     className,
     toggleTrackState,
@@ -35,8 +42,12 @@ const SubjectControls = (props) => {
 
   const [ loadingHeatmap, setHeatmapLoadingState ] = useState(false);
   const [ loadingTracks, setTrackLoadingState ] = useState(false);
+  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const { id } = subject;
+
+
+  const isMessageable = !!canViewMessages && !!showMessageButton && !!subject?.messaging?.length;
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
@@ -81,6 +92,7 @@ const SubjectControls = (props) => {
 
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
+    {isMessageable && <SubjectMessagesPopover className={styles.messagingButton} subject={subject} />}
     {showTrackButton && <TrackToggleButton loading={loadingTracks} 
       onClick={onTrackButtonClick} trackVisible={tracksVisible} 
       trackPinned={tracksPinned} />}
@@ -89,6 +101,7 @@ const SubjectControls = (props) => {
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
       map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button', 
         `Subject Type:${subject.subject_type}`]} />}
+    {children}
   </div>;
 };
 
@@ -97,6 +110,7 @@ SubjectControls.defaultProps = {
   showHeatmapButton: true,
   showTrackButton: true,
   showJumpButton: true,
+  showMessageButton: true,
   showTitles: true,
 };
 

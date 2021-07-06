@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import isEqual from 'react-fast-compare';
 
 import { useSelector } from 'react-redux';
+import isEqual from 'react-fast-compare';
 
 const useFeatureFlag = flag => 
   useSelector(state =>
@@ -10,7 +10,9 @@ const useFeatureFlag = flag =>
 
 const usePermissions = (permissionKey, ...permissions) =>  {
   const permissionSet = useSelector(state => {
-    return state?.data?.user?.permissions?.[permissionKey];
+    const permissionsSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+
+    return permissionsSource?.permissions?.[permissionKey];
   }
   )
   || [];
@@ -40,15 +42,13 @@ const useMatchMedia = (matchMediaDef) => {
 };
 
 export const useDeepCompareEffect = (callback, dependencies) => {
-  const valueRef = useRef(dependencies);
-  
+  const valueRef = useRef();
   useEffect(() => {
     if (!isEqual(valueRef.current, dependencies)) {
       valueRef.current = dependencies;
       callback();
     }
   }, [callback, dependencies]);
-
 };
 
 export {

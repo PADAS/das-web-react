@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useContext, useState } from 'react';
+import React, { createContext, memo, useCallback, useEffect, useContext, useState } from 'react';
 import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
@@ -14,6 +14,7 @@ import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
 import { updateNetworkStatus } from './ducks/system-status';
+import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
@@ -34,6 +35,8 @@ import './App.scss';
 import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+const MapContext = createContext(null);
 
 // use this block to do direct map event binding.
 // useful for API gaps between react-mapbox-gl and mapbox-gl.
@@ -67,7 +70,8 @@ const animateResize = (map) => {
 
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, sidebarOpen, updateNetworkStatus, updateUserPreferences } = props;
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, 
+    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -104,6 +108,7 @@ const App = (props) => {
       .catch((e) => {
         // 
       });
+
     fetchMaps()
       .catch((e) => {
         // 
@@ -117,12 +122,21 @@ const App = (props) => {
         // 
       });
     fetchSystemStatus()
-      .then(({ patrol_enabled }) => {
+      .then(({ patrol_enabled, track_length }) => {
         if (patrol_enabled) {
           fetchPatrolTypes()
             .catch((e) => {
               // 
             });
+        }
+        if (track_length) {
+          const { defaultCustomTrackLength, length } = trackLength;
+          if(defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
+            setTrackLength(track_length);
+            setDefaultCustomTrackLength(track_length);
+          } else if(track_length !== defaultCustomTrackLength) {
+            setDefaultCustomTrackLength(track_length);
+          }
         }
       })
       .catch((e) => {
@@ -142,6 +156,7 @@ const App = (props) => {
     
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+
   useEffect(() => {
     if (map) {
       const resizeAnimation = () => animateResize(map);
@@ -149,7 +164,7 @@ const App = (props) => {
       window.addEventListener('resize', resizeAnimation);
       return () => {
         window.removeEventListener('resize', resizeAnimation);
-      };
+      }; 
     }
   }, [map]);
 
@@ -160,32 +175,34 @@ const App = (props) => {
   }, [map, sidebarOpen]); 
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
-    <PrintTitle />
-    <Nav map={map} />
-    <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <MapContext.Provider value={map}>
+      <PrintTitle />
+      <Nav map={map} />
+      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         
-      {/* <ErrorBoundary> */}
-      <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-      {/* </ErrorBoundary> */}
-      {/* <ErrorBoundary> */}
-      {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-      {/* </ErrorBoundary> */}
-      <ModalRenderer map={map} />
-    </div>
-    <div style={{
-      display: 'none',
-      height: 0,
-      width: 0,
-    }}>
-      <ReportTypeIconSprite id="reportTypeIconSprite" />
-      <EarthRangerLogoSprite />
-    </div>
-    <ServiceWorkerWatcher />
+        {/* <ErrorBoundary> */}
+        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+        {/* </ErrorBoundary> */}
+        {/* <ErrorBoundary> */}
+        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+        {/* </ErrorBoundary> */}
+        <ModalRenderer map={map} />
+      </div>
+      <div style={{
+        display: 'none',
+        height: 0,
+        width: 0,
+      }}>
+        <ReportTypeIconSprite id="reportTypeIconSprite" />
+        <EarthRangerLogoSprite />
+      </div>
+      <ServiceWorkerWatcher />
+    </MapContext.Provider>
   </div>;
 };
 
-const mapStateToProps = ({ view: { userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ pickingLocationOnMap, sidebarOpen });
-const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus })(memo(App));
+const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
+const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 const AppWithSocketContext = (props) => <WithSocketContext>
   <ConnectedApp />
@@ -195,3 +212,5 @@ const AppWithSocketContext = (props) => <WithSocketContext>
 
 
 export default AppWithSocketContext;
+
+export { MapContext };

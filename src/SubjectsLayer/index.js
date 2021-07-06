@@ -38,13 +38,15 @@ const SubjectsLayer = (props) => {
   } : { ...mapUserLayoutConfig };
 
   useEffect(() => {
-    subjects && addFeatureCollectionImagesToMap(subjects, map);
+    if (!!subjects?.features?.length) {
+      addFeatureCollectionImagesToMap(subjects, map);
+    }
   }, [map, subjects]);
 
   useEffect(() => {
     setMapSubjectFeatures({
       ...subjects,
-      features: subjects.features.filter((feature) => {
+      /* features: subjects.features.filter((feature) => {
         return !!mapImages[
           calcImgIdFromUrlForMapImages(
             feature.properties.last_position 
@@ -52,7 +54,7 @@ const SubjectsLayer = (props) => {
               : (feature.properties.image || feature.properties.image_url)
             , feature.properties.width, feature.properties.height)
         ];
-      }),
+      }), */
     });
   }, [subjects, mapImages]);
 

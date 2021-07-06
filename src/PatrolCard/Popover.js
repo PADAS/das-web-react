@@ -16,12 +16,12 @@ import { trackEvent } from '../utils/analytics';
 
 import PatrolStartStopButton from './StartStopButton';
 
-import { canStartPatrol, canEndPatrol, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { canStartPatrol, canEndPatrol, patrolHasGeoDataToDisplay, displayTitleForPatrol, getBoundsForPatrol, iconTypeForPatrol } from '../utils/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_CARD_STATES } from '../constants'; 
 
 import styles from './styles.module.scss';
 
@@ -29,7 +29,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const { container, isOpen, map, onPatrolChange, patrolData, patrolState, patrolTrackState, subjectTrackState,
     target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
 
-  const { leader, patrol, trackData } = patrolData;
+  const { leader, patrol, startStopGeometries, trackData } = patrolData;
 
   const leaderLastPositionCoordinates = useMemo(() => !!leader && leader.last_position && leader.last_position.geometry && leader.last_position.geometry.coordinates, [leader]);
 
@@ -70,7 +70,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
 
-  const canShowTrack = useMemo(() => patrolStateAllowsTrackDisplay(patrol) && !!trackData, [patrol, trackData]);
+  const canShowTrack = useMemo(() => patrolHasGeoDataToDisplay(trackData, startStopGeometries), [startStopGeometries, trackData]);
 
   const onOverlayOpen = useCallback(() => {
 

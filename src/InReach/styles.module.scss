@@ -1,0 +1,33 @@
+@import '../common/styles/vars/colors';
+
+.emulator {
+  align-items: center;
+  background: white;
+  bottom: 1rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  left: 4rem;
+  padding: 0 0 1rem;
+  position: absolute;
+  transition: .3s transform linear;
+  width: 21rem;
+  h3 {
+    background: $dark-gray;
+    color: white;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    width: 100%;
+  }
+  &.hidden {
+    transform: translateY(20rem);
+  }
+}
+
+.buttons {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+  width: 100%;
+}

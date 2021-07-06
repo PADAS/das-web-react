@@ -27,7 +27,7 @@
   }
 }
 
-.categoryMenu, .reportTypeMenu {
+.reportTypeMenu {
   align-items: center;
   display: flex;
   line-height: normal;
@@ -40,11 +40,15 @@
 }
 
 
-.activeCategory {
-  text-decoration: underline;
+.categoryTitle {
+  background: $light-gray-background;
+  line-height: normal;
+  margin: 0;
+  padding: 0.25rem 1rem;
 }
 
 div.popover {
+  border-radius: 0.5rem;
   padding: 0;
   max-width: 20rem;
   width: 100vw;
@@ -55,41 +59,77 @@ div.popover {
     align-items: center;
     display: flex;
     flex-flow: column;
-    max-height: 22rem;
+    max-height: 29rem;
     padding: 0;
     position: relative;
-    @media (min-height: $lg-height-min) {
-      max-height: 28rem;
-    }
   }
   [class*=popover-header] {
     @include popoverTitle;
   }
+  [class*=tab-content] {
+    width: 100%;
+  }
 }
 
-.categoryMenu {
-  background: $light-gray-background;
-  font-size: 0.75rem;
-  padding: 0.5rem;
-  top: 0;
-  z-index: 1;
-  @media (min-width: $md-layout-width-min) {
+.reportTypeSearchControls {
+  align-items: center;
+  display: flex;
+  margin: 0.5rem 0;
+  padding: 0 1rem;
+  > * {
+    flex-grow: 1;
+  }
+}
+
+.quickJumpSelect {
+  margin-left: 1rem;
+}
+
+nav.tabBar {
+  $tab-header-color: $bright-blue;
+  width: 100%;  
+  [class*=nav-link] {
+    border: none;
     font-size: 1rem;
-  }
-  li {
-    flex: 1;
+    font-weight: bold;
+    flex-grow: 1;
+    padding: 0.5rem;
     text-align: center;
+    text-transform: uppercase;
+    &:only-child {
+      cursor: default;
+      pointer-events: none;
+    }
+    &:not([class*=active]), &:only-child {
+      background: $tab-header-color;
+      color: white;
+      }
+    &[class*=active]:not(:only-child) {
+      background: white;
+      color: $tab-header-color;
+    }
   }
-  button {
-    background: none !important;
-    padding: 0;
-  }
+}
+
+.tab {
+  text-transform: uppercase;
+}
+
+.search {
+  margin-bottom: 0;
+  max-width: 13rem;
+}
+
+.reportTypeContainer {
+  height: 23rem;
+  overflow-y: auto;
 }
 
 .reportTypeMenu {
   flex-wrap: wrap;
-  height: 100%;
-  overflow-y: auto;
+  &:first-child {
+    border-top: thin solid $light-gray-border;
+  }
   li {
     font-size: 0.8rem;
     height: 6rem;
@@ -98,10 +138,15 @@ div.popover {
   }
   button {
     border: thin solid $light-gray-border;
+    border-top: none;
     height: 100%;
     width: 100%;
     &:hover {
       text-decoration: underline;
+    }
+    &:hover, &:active {
+      border: thin solid $light-gray-border;
+      border-top: none;
     }
     span {
       align-items: center;
@@ -116,4 +161,5 @@ div.popover {
     margin-bottom: .25rem;
     width: var(--dimensions);
   }
+
 }

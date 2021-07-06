@@ -60,7 +60,6 @@ const TrackLengthControls = (props) => {
     }
   }, [origin, lower, upper, setTrackLength, eventFilterDateRangeLength, setTrackLengthToEventDateRange, setTrackLengthToCustomDateRange]);
 
-
   useEffect(() => {
     if (!initialized) setInitState(true);
   }, [initialized]);

@@ -7,6 +7,7 @@ import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } f
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
+import { cloneDeep } from 'lodash-es';
 import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
@@ -31,7 +32,8 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
 
   const state = store.getState();
 
-  const patrolPermissions = state?.data?.user?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
 
   const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
@@ -93,7 +95,7 @@ export const createNewPatrolForPatrolType = ({ value: patrol_type, icon_id, defa
       {
         patrol_type,
         priority,
-        reports: [],
+        events: [],
         scheduled_start: null,
         leader,
         start_location: location ? { ...location } : null,
@@ -123,12 +125,12 @@ export const iconTypeForPatrol = (patrol) => {
 
 export const displayTitleForPatrol = (patrol, leader, includeLeaderName = true) => {
   const UNKNOWN_MESSAGE = 'Unknown patrol type';
-
   if (patrol.title) return patrol.title;
 
   if (includeLeaderName && leader && leader.name) {
     return leader.name;
   }
+
 
   if (!patrol.patrol_segments.length
     || !patrol.patrol_segments[0].patrol_type) return UNKNOWN_MESSAGE;
@@ -166,13 +168,7 @@ export const actualStartTimeForPatrol = (patrol) => {
     : null;
 };
 
-export const getReportsForPatrol = (patrol) => {
-  if (!patrol.patrol_segments.length) return null;
-  // this is only grabbibng the first segment for now
-  const [firstLeg] = patrol.patrol_segments;
-  const { events } = firstLeg;
-  return events || [];
-};
+export const getReportsForPatrol = (patrol) => patrol?.patrol_segments?.[0]?.events ?? [];
 
 export const displayEndTimeForPatrol = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
@@ -502,11 +498,11 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
   const { patrol_segments: [firstLeg] } = patrol;
   const { icon_id, start_location, end_location, time_range: { start_time, end_time } } = firstLeg;
 
-  const hasFeatures = !!trackData && !!trackData.points && !!trackData.points.features.length;
-
+  const hasFeatures = !!trackData?.points?.features?.length;
   const features = hasFeatures && trackData.points.features;
-
   const isPatrolActive = calcPatrolCardState(patrol) === PATROL_CARD_STATES.ACTIVE;
+  const isPatrolDone = calcPatrolCardState(patrol) === PATROL_CARD_STATES.DONE;
+
   const stroke = features?.[0]?.properties?.stroke
     || leader?.last_position?.properties?.stroke
     || (!!leader && !!leader.additional && !!leader.additional.rgb && `rgb(${leader.additional.rgb})`)
@@ -566,10 +562,16 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
     }
   }
 
-  if (!!patrol_points.end_location 
+  if (!!patrol_points.start_location && !patrol_points.end_location &&
+  isPatrolDone) {
+    patrol_points.end_location = cloneDeep(patrol_points.start_location); 
+    patrol_points.end_location.properties.title = 'Patrol End (Est)';
+  }
+
+  if (!!patrol_points.end_location && !!patrol_points.start_location
     && booleanEqual(
       point(patrol_points.end_location.geometry.coordinates),
-      point(patrol_points.start_location.geometry.coordinates)
+      point(patrol_points.start_location.geometry.coordinates),
     )) {
     patrol_points.start_location.properties.title += ` & ${patrol_points.end_location.properties.title}`;
     delete patrol_points.end_location;
@@ -634,6 +636,7 @@ export const patrolTimeRangeIsValid = (patrol) => {
 };
 
 
+export const patrolHasGeoDataToDisplay = (trackData, startStopGeometries) => !!trackData?.track?.features?.[0]?.geometry || !!startStopGeometries;
 
 export const patrolShouldBeMarkedOpen = (patrol) => {
   const isDone = (patrol.state === PATROL_API_STATES.DONE);
@@ -653,24 +656,27 @@ export const patrolShouldBeMarkedDone = (patrol) => {
 };
 
 export const getBoundsForPatrol = ((patrolData) => {
-  const { leader, trackData, patrol } = patrolData;
+  const { leader, trackData, patrol, startStopGeometries } = patrolData;
   
   const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
-  if (!hasSegments) return null;
+  const hasGeoData = patrolHasGeoDataToDisplay(trackData, startStopGeometries);
+
+  if (!hasSegments || !hasGeoData) return null;
 
   const [firstLeg] = patrol.patrol_segments;
   
   const hasEvents = !!firstLeg.events && !!firstLeg.events.length;
   const hasLeaderPosition = !!leader && !!leader.last_position;
 
+  const { start_location:patrolStartPoint, end_location:patrolEndPoint } = startStopGeometries?.points || {};
   const patrolEvents = hasEvents && firstLeg.events.map(({ geojson }) => geojson);
   const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
   const patrolTrack = !!trackData && trackData.track;
 
-  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features)
-    .filter(item => !!item);
 
-  
+  const collectionData = concat(patrolEvents, patrolLeaderPosition, patrolTrack.features, patrolStartPoint, patrolEndPoint)
+    .filter(item => !!item?.geometry);
+
   if (!collectionData.length) return null;
 
   return bbox(
