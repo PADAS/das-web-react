@@ -1,6 +1,10 @@
 import axios from 'axios';
+<<<<<<< HEAD
 import React, { memo, useRef, useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
+=======
+import React, { memo, useRef, useState, useEffect } from 'react';
+>>>>>>> added map marker
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Overlay from 'react-bootstrap/Overlay';
@@ -75,6 +79,7 @@ const MapNavigator = (props) => {
         jumpToLocation(map, coords);
         setLocations([]);
         setQuery('');
+        addMarkers();
       }
     }
   }
@@ -126,7 +131,7 @@ const MapNavigator = (props) => {
   // loop thru features array of objects and displays query suggestions
   const querySuggestions = React.Children.toArray(
     locations.map((location) => (
-      <li className='suggestion' id={location.id}>
+      <li className='suggestion' id={location.id} onClick={ (e) => onQueryResultClick(e) }>
         {location.place_name}
       </li>
     ))
@@ -137,14 +142,31 @@ const MapNavigator = (props) => {
     jumpToLocation(map, coords);
     const searchResult = e.target.id;
     setSelectedLocation(locations[searchResult]);
+    addMarkers();
     setLocations([]);
     setQuery('');
   }
+ 
+  const markers = []
+  // Displaying marker on the map
+  const addMarkers = () =>
+    locations.map(point => {
+      const marker = new mapboxgl.Marker().setLngLat(new mapboxgl.LngLat(
+        point.geometry.coordinates[0],
+        point.geometry.coordinates[1]
+      ));
+      markers.push(marker)
+      marker.addTo(map)
+    }) 
 
-  // Displaying marker on the address
-  // const marker = new mapboxgl.Marker().setLngLat(coords).addTo(map);
-  // marker.addEventListener('click', onQueryResultClick);
-
+  // remove marker during onclick
+  const removeMarker = () => {
+    for (const marker of markers) {
+      marker.remove()
+    }
+  }
+  document.addEventListener('click', removeMarker);
+  
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       <button type='button'
@@ -165,9 +187,9 @@ const MapNavigator = (props) => {
             onKeyDown={onKeyDown}
             value={query}
             />
-            <div className='query-suggestions'>
+            <div>
               { query.length > 1 &&
-                (<ul onClick={onQueryResultClick }>{querySuggestions}</ul>)
+                (<ul>{querySuggestions}</ul>)
               }
             </div> 
           </Popover.Content>
@@ -177,6 +199,4 @@ const MapNavigator = (props) => {
   )
 }
 
-// const mapStateToProps = ({data: {locationFinder}}) => ({ locationFinder });
-
-export default connect(null, null)(memo(MapNavigator));
+export default MapNavigator;
