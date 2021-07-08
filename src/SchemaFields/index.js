@@ -338,14 +338,7 @@ const createGroupedFields = ({ instanceId, properties, groups, props }) => {
       const found = properties.filter(p => p.name === g);
       if (!!found && found.length === 1) {
         const el = found[0];
-        const required = props.schema.properties?.[g]?.required || false;
-        return {
-          ...el.content,
-          props: {
-            ...el.content.props,
-            required,
-          },
-        };
+        return el.content;
       }
       return null;
     } else if (typeof g === 'object') {

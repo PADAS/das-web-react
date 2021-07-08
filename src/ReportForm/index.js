@@ -48,6 +48,7 @@ const ReportForm = (props) => {
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
   const formRef = useRef(null);
+  const submitButtonRef = useRef(null);
   const reportedBySelectPortalRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
@@ -328,6 +329,12 @@ const ReportForm = (props) => {
     setSavingState(true);
   };
 
+  const startSubmitForm = useCallback(() => {
+    if (submitButtonRef.current) {
+      submitButtonRef.current.click();
+    }
+  }, []);
+
   const clearErrors = () => setSaveErrorState(null);
 
   const onClickFile = async (file) => {
@@ -435,8 +442,9 @@ const ReportForm = (props) => {
 
   const onUpdateStateReportToggle = useCallback((state) => {
     updateStateReport({ ...report, state });
+    startSubmitForm();
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
-  }, [is_collection, report]);
+  }, [is_collection, report, startSubmitForm]);
 
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
@@ -491,6 +499,7 @@ const ReportForm = (props) => {
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
+          <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }
@@ -513,7 +522,7 @@ const ReportForm = (props) => {
 
     </EditableItem.AttachmentControls>}
 
-    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSubmitForm} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
     {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
   </EditableItem.ContextProvider>;
 };

@@ -15,6 +15,21 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
   },
 };
 
+const extractRequiredPropsFromSchemaAndDefinition = (schema, definition) => {
+  const fromProps = Object.entries(schema.properties).reduce((accumulator, [key, value], index) => {
+    if (value.type === 'object') {
+      return [...accumulator, ...extractRequiredPropsFromSchemaAndDefinition(value)];
+    }
+    if (value.required) return [...accumulator, key];
+    return accumulator;
+  }, []);
+
+  const fromDefs = definition.reduce((accumulator, def) => def.required ? [...accumulator, def.key] : accumulator, []);
+  const fromSchema = schema?.required || [];
+
+  return [...fromSchema, ...fromDefs, ...fromProps];
+};
+
 const createSchemaGroups = (schema, definitions) => {
   const INFERRED_ORIGIN = 'inferred';
   const DEFINED_ORIGIN = 'fieldset';
@@ -102,6 +117,9 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
 
   const schema = merge(withEnums, { properties: schemaFromDefinitions });
   const uiSchema = merge({ ...GLOBAL_UI_SCHEMA_CONFIG }, uiSchemaFromDefinitions, uiSchemasForSelectFields, uiSchemasForExternalURIs);
+
+  const requiredProperties = extractRequiredPropsFromSchemaAndDefinition(schema, definitions);
+  schema.required = requiredProperties;
 
   uiSchema['ui:groups'] = groupsForSchema;
   
