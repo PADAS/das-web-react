@@ -150,7 +150,7 @@ const DataExportMenu = (props) => {
       <Divider />
       <Item onClick={onContactSupportClick}>Contact Support</Item>
       <Item onClick={onCommunityClick}>Community</Item>
-      <Item onClick={onDocumentationClick}>Community</Item>
+      <Item onClick={onDocumentationClick}>Documentation</Item>
       <Divider />
       <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>
