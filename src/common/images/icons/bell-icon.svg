@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="151px" height="155px" viewBox="0 0 151 155" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
-    <title>Combined Shape</title>
-    <desc>Created with Sketch.</desc>
+    <title>Alert Bell</title>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <path d="M94.8279901,139 C93.5745057,148.03489 85.6226307,155 76,155 C66.3773693,155 58.4254943,148.03489 57.1720099,139 L6.55137904,139 C3.23767054,139 0.551379043,136.313708 0.551379043,133 C0.551379043,131.628902 1.02097404,130.299161 1.88199412,129.23213 L17,110.496933 L17,59 C17,26.4151998 43.4151998,5.9857307e-15 76,0 C108.5848,-5.9857307e-15 135,26.4151998 135,59 L135,111.736196 L149.118006,129.23213 C151.198943,131.81096 150.795321,135.588448 148.216491,137.669385 C147.14946,138.530405 145.819719,139 144.448621,139 L94.8279901,139 Z" id="Combined-Shape" fill="#FFFFFF"></path>
     </g>

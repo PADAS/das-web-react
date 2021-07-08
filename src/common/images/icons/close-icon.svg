@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="31px" height="31px" viewBox="0 0 31 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
-    <title>add_button</title>
-    <desc>Created with Sketch.</desc>
+    <title>Close</title>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="add_button" transform="translate(-1.000000, -1.000000)" fill="#1A2026" fill-rule="nonzero">
             <path d="M16.5,3 C23.9558441,3 30,9.04415588 30,16.5 C30,23.9558441 23.9558441,30 16.5,30 C9.04415588,30 3,23.9558441 3,16.5 C3.00841263,9.04764329 9.04764329,3.00841263 16.5,3 M16.5,1 C7.93958638,1 1,7.93958638 1,16.5 C1,25.0604136 7.93958638,32 16.5,32 C25.0604136,32 32,25.0604136 32,16.5 C32,7.93958638 25.0604136,1 16.5,1 Z" id="Shape"></path>
