@@ -29,7 +29,9 @@ const DataExportMenu = (props) => {
 
   const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
     eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences, 
-    staticContext:_staticContext, fetchTableauDashboard, ...rest } = props;
+    staticContext:_staticContext, fetchTableauDashboard, token, ...rest } = props;
+
+  console.log({ token });
 
   const [isOpen, setOpenState] = useState(false);
 
@@ -88,10 +90,10 @@ const DataExportMenu = (props) => {
     trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
   };
 
-  const onModalClick = (modal, analyticsTitle = 'Report Export') => {
+  const onModalClick = useCallback((modal, analyticsTitle = 'Report Export') => {
     addModal({...modal});
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
-  };
+  });
 
   const openTableauReport = (analyticsTitle) => {
     fetchTableauDashboard()
@@ -125,6 +127,11 @@ const DataExportMenu = (props) => {
     addModal({ content: AboutModal });
   }, [addModal]);
 
+  const onOpenAlertsModalClick = useCallback(() => {
+    document.cookie = `token=${token.access_token};path=/`;
+    onModalClick(alertModal, 'Alerts');
+  }, [alertModal, onModalClick, token.access_token]);
+
   const hamburgerToggle = useRef();
 
   return <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
@@ -133,7 +140,7 @@ const DataExportMenu = (props) => {
     </Toggle>
     <Menu>
       {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau)</Item>}
-      {!!alerts_enabled && !!eventTypes.length && <Item onClick={() => onModalClick(alertModal, 'Alerts')}>Alerts</Item>}
+      {!!alerts_enabled && !!eventTypes.length && <Item onClick={onOpenAlertsModalClick}>Alerts</Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
@@ -150,5 +157,5 @@ const DataExportMenu = (props) => {
   </Dropdown>;
 };
 
-const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes } }) => ({ systemConfig, eventFilter, eventTypes, shownTableauNotification });
+const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, token } }) => ({ systemConfig, eventFilter, eventTypes, token, shownTableauNotification });
 export default connect(mapStateToProps, { addModal, addUserNotification, removeUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));
