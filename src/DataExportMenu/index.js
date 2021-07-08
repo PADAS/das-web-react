@@ -114,6 +114,12 @@ const DataExportMenu = (props) => {
     trackEvent('Main Toolbar', 'Click \'Community\' menu item');
   };
 
+  const onDocumentationClick = () => {
+    const newWindow = window.open('https://community.earthranger.com/t/earthranger-users-guide/60', '_blank', 'noopener,noreferrer');
+    if (newWindow) newWindow.opener = null;
+    trackEvent('Main Toolbar', 'Click \'Documentation\' menu item');
+  };
+
 
   const onAboutClick = useCallback(() => {
     addModal({ content: AboutModal });
@@ -137,6 +143,7 @@ const DataExportMenu = (props) => {
       <Divider />
       <Item onClick={onContactSupportClick}>Contact Support</Item>
       <Item onClick={onCommunityClick}>Community</Item>
+      <Item onClick={onDocumentationClick}>Community</Item>
       <Divider />
       <Item onClick={onAboutClick}>About EarthRanger</Item>
     </Menu>
