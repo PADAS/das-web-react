@@ -41,7 +41,6 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
   const transformErrors = useCallback((errors) => {
     const errs = filterOutRequiredValueOnSchemaPropErrors(
       filterOutEnumErrors(errors, schema));
-    console.log({ errs });
     return errs;
   }, [schema]
   );

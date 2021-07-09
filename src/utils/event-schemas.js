@@ -15,7 +15,7 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
   },
 };
 
-const extractRequiredPropsFromSchemaAndDefinition = (schema, definition) => {
+const extractRequiredPropsFromSchemaAndDefinition = (schema = { properties: {} }, definition = []) => {
   const fromProps = Object.entries(schema.properties).reduce((accumulator, [key, value], index) => {
     if (value.type === 'object') {
       return [...accumulator, ...extractRequiredPropsFromSchemaAndDefinition(value)];
