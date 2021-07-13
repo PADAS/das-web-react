@@ -27,6 +27,7 @@ const MapNavigator = (props) => {
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [add, setAdd] = useState(null);
 
   const toggleActiveState = () => setActiveState(!active);
 
@@ -129,43 +130,59 @@ const MapNavigator = (props) => {
   };  
   
   // loop thru features array of objects and displays query suggestions
-  const querySuggestions = React.Children.toArray(
-    locations.map((location) => (
-      <li className='suggestion' id={location.id} onClick={ (e) => onQueryResultClick(e) }>
-        {location.place_name}
-      </li>
-    ))
-  )
+  const querySuggestions = locations.map((location, index) => (
+    <li className='suggestion' id={index} key={location.id} onClick={(e) => onQueryResultClick(e) }>
+      {location.place_name}
+    </li>
+  ) );
       
   // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
-    jumpToLocation(map, coords);
-    const searchResult = e.target.id;
-    setSelectedLocation(locations[searchResult]);
-    addMarkers();
-    setLocations([]);
-    setQuery('');
+    e.preventDefault();
+    if (query) {
+      jumpToLocation(map, coords);
+      const resultIndex = parseInt(e.target.id);
+      setSelectedLocation(locations[resultIndex]);
+      setLocations([]);
+      setQuery('');
+      addMarker(resultIndex);
+    }
   }
  
   const markers = []
-  // Displaying marker on the map
-  const addMarkers = () =>
+  // Displaying markers on the map
+  const addMarkers = () => {
     locations.map(point => {
       const marker = new mapboxgl.Marker().setLngLat(new mapboxgl.LngLat(
         point.geometry.coordinates[0],
         point.geometry.coordinates[1]
-      ));
+      ))
       markers.push(marker)
       marker.addTo(map)
-    }) 
-
-  // remove marker during onclick
+    })
+  }
+  // remove markers during onclick
   const removeMarker = () => {
     for (const marker of markers) {
       marker.remove()
     }
   }
   document.addEventListener('click', removeMarker);
+
+  // add a single marker to the map/select a specific point
+  const addMarker = (idx) => {
+    const obj = locations[idx]
+    const marker = new mapboxgl.Marker().setLngLat(obj.geometry.coordinates)
+    setAdd(marker)
+    marker.addTo(map)
+  }
+
+  // remove single marker
+  const remove = () => {
+    add && add.remove(map);
+    setAdd(null);
+  }
+  document.addEventListener('click', remove)
   
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -187,9 +204,9 @@ const MapNavigator = (props) => {
             onKeyDown={onKeyDown}
             value={query}
             />
-            <div>
+            <div style={{overflowY: 'scroll', height: '10vh'}}>
               { query.length > 1 &&
-                (<ul>{querySuggestions}</ul>)
+                (<ul >{querySuggestions}</ul>)
               }
             </div> 
           </Popover.Content>
