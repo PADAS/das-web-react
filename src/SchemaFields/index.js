@@ -27,7 +27,8 @@ const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, hei
 };
 
 const SelectField = (props) => {
-  const { id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
+  console.log('selectfield props', props);
+  const { disabled, id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
   const selectRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -81,6 +82,7 @@ const SelectField = (props) => {
 
   return <Select
     components={{SelectContainer}}
+    isDisabled={disabled}
     id={id}
     ref={selectRef}
     required={required}
@@ -117,7 +119,7 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
 
 
 const DateTimeField = (props) => {
-  const { idSchema: { id }, schema: { title: label }, onChange, required, maxDate, formData } = props;
+  const { disabled, idSchema: { id }, schema: { title: label }, onChange, required, maxDate, formData } = props;
   const labelRef = useRef(null);
   const [localCss, setStyles] = useState({ display: 'none' });
   const [popoverOpen, setPopoverState] = useState(false);
@@ -187,13 +189,14 @@ const DateTimeField = (props) => {
 
   return <Fragment>
     <label ref={labelRef} htmlFor={id}>{label}</label>
-    <DateTimePickerPopover placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
+    <DateTimePickerPopover disabled={disabled} placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
       id={id} required={required}  maxDate={maxDate || new Date('2050')} value={date} popoverOpen={popoverOpen} onPopoverToggle={onPopoverToggle}
       onChange={handleChange} defaultTimeValue='00:00' />
   </Fragment>;
 };
 
 const CustomCheckboxes = (props) => {
+  console.log('CustomCheckboxes props', props);
   const { id, disabled, options, value = [], autofocus, readonly, onChange, schema } = props;
   const { enumOptions, inline } = options;
   const [instanceId] = useState(uuid());
@@ -267,6 +270,7 @@ const CustomCheckboxes = (props) => {
 
 
 const ExternalLink = (props) => {
+  console.log('ExternalLink props', props);
   const { idSchema: { id }, schema: { title: label }, formData: value } = props;
 
   const onLinkClick = () => {

@@ -31,8 +31,6 @@ const DataExportMenu = (props) => {
     eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences, 
     staticContext:_staticContext, fetchTableauDashboard, token, ...rest } = props;
 
-  console.log({ token });
-
   const [isOpen, setOpenState] = useState(false);
 
   const [modals, setModals] = useState([]);
