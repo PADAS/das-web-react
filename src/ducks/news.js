@@ -8,7 +8,7 @@ const { get, post } = axios;
 const FETCH_NEWS_SUCCESS = 'FETCH_NEWS_SUCCESS';
 const FETCH_NEWS_NEXT_PAGE_SUCCESS = 'FETCH_NEWS_NEXT_PAGE_SUCCESS';
 
-const NEWS_ITEMS_HAVE_BEEN_READ = 'NEWS_ITEMS_HAVE_BEEN_READ';
+const READ_NEWS_ITEMS = 'READ_NEWS_ITEMS';
 
 export const fetchNews = (params = {}) => get(NEWS_API, { params: {
   include_additional_data: false, page_size: 25, ...params,
@@ -23,8 +23,8 @@ export const readNews = (news) => {
   return post(`${NEWS_API}${paramString}`);
 };
 
-export const onNewsHasBeenRead = news => ({
-  type: NEWS_ITEMS_HAVE_BEEN_READ,
+export const readNewsSuccess = news => ({
+  type: READ_NEWS_ITEMS,
   payload: news,
 });
 
@@ -47,7 +47,7 @@ export default (state, action) => {
   }
 
   if (type === FETCH_NEWS_NEXT_PAGE_SUCCESS ||
-  type === NEWS_ITEMS_HAVE_BEEN_READ) {
+  type === READ_NEWS_ITEMS) {
     return {
       ...state,
       results: unionBy(state.results || [], payload.results, 'id'),
