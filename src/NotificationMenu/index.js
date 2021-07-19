@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -13,6 +13,17 @@ import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item } = Dropdown;
 
+const formatUnreadNewsItemsAsNotifications = (news, onRead) => {
+  return news.map(item => ({
+    message: item.description,
+    confirmText: 'Read more',
+    onConfirm(_e, item) {
+      onRead(item.id); 
+    },
+  })); 
+  
+};
+
 const onShowMoreInfo = (e) => {
   e.stopPropagation();
 };
@@ -26,17 +37,21 @@ const NotificationItem = (item, index) => {
     <h6>{message}</h6>
     {!!infolink && <div><a href={infolink} target='_blank' rel='noopener noreferrer' onClick={onShowMoreInfo}>More information</a></div>}
     <div className={styles.buttons}>
-      <Button size='sm' className={styles.button} variant='secondary' onClick={handleDismiss}>Dismiss</Button>
+      {onDismiss && <Button size='sm' className={styles.button} variant='secondary' onClick={handleDismiss}>Dismiss</Button>}
       {onConfirm && <Button size='sm' className={styles.button} variant='info' onClick={handleConfirm}>{confirmText || 'Confirm'}</Button>}
     </div>
 
   </Item>;
 };
 
-const NotificationMenu = ({ notifications = [], dispatch:_dispatch, ...rest }) => {
+const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_dispatch, ...rest }) => {
   const onToggle = (isOpen) => {
     trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} Notification Menu`);
   };
+
+  const notifications = useMemo(() => {
+    return [...userNotifications];
+  }, [userNotifications]);
 
   return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
     <Toggle as="div">
@@ -51,7 +66,7 @@ const NotificationMenu = ({ notifications = [], dispatch:_dispatch, ...rest }) =
 
 };
 
-const mapStateToProps = ({ view: { userNotifications } }) => ({ notifications:userNotifications });
+const mapStateToProps = ({ view: { userNotifications } }) => ({ userNotifications });
 export default connect(mapStateToProps, null)(memo(NotificationMenu));
 
 NotificationMenu.propTypes = {
