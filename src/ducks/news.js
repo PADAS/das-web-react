@@ -11,7 +11,7 @@ const FETCH_NEWS_NEXT_PAGE_SUCCESS = 'FETCH_NEWS_NEXT_PAGE_SUCCESS';
 const READ_NEWS_ITEMS = 'READ_NEWS_ITEMS';
 
 export const fetchNews = (params = {}) => get(NEWS_API_URL, { params: {
-  include_additional_data: false, page_size: 25, ...params,
+  include_additional_data: false, page_size: 10, ...params,
 } });
 
 export const readNews = (news) => {

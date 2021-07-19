@@ -8,7 +8,8 @@ import { NEWS_API_URL } from '../ducks/news';
 
 import MockStoreProvider, { store } from '../__test-helpers/MockStore';
 
-import { render, screen } from '@testing-library/react';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 
 import NotificationMenu from './';
 
@@ -68,4 +69,12 @@ it('marks news items as unread when the menu is open, then closed', () => {
 
 it('dismisses new version messages when its "dismiss" or "confirm" button is clicked', () => {
 
+});
+
+it('shows an error message and a "try again" button if the news API request fails', () => {
+  server.use(
+    rest.get(NEWS_API_URL, (req, res, ctx) => {
+      return res(ctx.status(500));
+    })
+  );
 });
