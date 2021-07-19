@@ -15,6 +15,26 @@ it('renders without crashing', () => {
   </MockStoreProvider>, container);
 });
 
-it('lists user notifications', () => {
+it('lists news items', () => {
   expect(true).toBe(true); // obviously not a real test
+});
+
+it('opens a new tab when clicking the "more" button on a news item', () => {
+
+});
+
+it('notifies of a new earthranger version', () => {
+
+});
+
+it('shows a badge with the count of unread items', () => {
+
+});
+
+it('marks news items as unread when the menu is open, then closed', () => {
+
+});
+
+it('dismisses new version messages when its "dismiss" or "confirm" button is clicked', () => {
+
 });
