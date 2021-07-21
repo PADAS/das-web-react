@@ -63,7 +63,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
             setNews(newNews);
           })
           .catch((error) => {
-            console.warn('reading news gone wrong', error);
+            console.warn('error marking news as `read`', error);
           });
       }
     }
