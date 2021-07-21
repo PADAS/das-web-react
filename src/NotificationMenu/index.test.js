@@ -77,6 +77,7 @@ describe('listing news items', () => {
   });
 
   describe('with user notifications', async () => {
+    let userNotificationListItem;
     const storeWithUserNotification = {
       view: {
         userNotifications: [
@@ -99,43 +100,36 @@ describe('listing news items', () => {
 
       const toggle = await screen.findByTestId('notification-toggle');
       userEvent.click(toggle);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('listitem')).toHaveLength(4);
+      });
+
+      userNotificationListItem = screen.getAllByRole('listitem')[0];
     });
 
     test('user notifications are listed above news items', async () => {
-      await waitFor(() => {
-        expect(screen.getAllByRole('listitem')).toHaveLength(4);
-        expect(screen.getAllByRole('listitem')[0]).toHaveTextContent('howdy doody');
-      });
+      expect(userNotificationListItem).toHaveTextContent('howdy doody');
 
       const unreadBadge = await screen.findByTestId('unread-count');
       expect(unreadBadge.textContent).toEqual(`${mockNewsData.filter(n => !n.read).length + 1}`);
 
     });
 
-    test('clicking confirm and dismiss buttons invoke their callbacks', async () => {
-      await waitFor(() => {
-        expect(screen.getAllByRole('listitem')).toHaveLength(4);
-      });
-
-      const userNotification = screen.getAllByRole('listitem')[0];
-      const [dismissBtn, confirmBtn] = userNotification.querySelectorAll('button');
-
-      expect(storeWithUserNotification.view.userNotifications[0].onDismiss).not.toHaveBeenCalled();
-      userEvent.click(dismissBtn);
-      expect(storeWithUserNotification.view.userNotifications[0].onDismiss).toHaveBeenCalled();
-
-      /* toggle the menu back open, as list item clicks close the menu */
-      const toggle = await screen.findByTestId('notification-toggle');
-      userEvent.click(toggle);
-
-      await waitFor(() => {
-        expect(confirmBtn).toBeVisible();
-      });
+    test('clicking confirm', () => {
+      const [, confirmBtn] = userNotificationListItem.querySelectorAll('button');
 
       expect(storeWithUserNotification.view.userNotifications[0].onConfirm).not.toHaveBeenCalled();
       userEvent.click(confirmBtn);
       expect(storeWithUserNotification.view.userNotifications[0].onConfirm).toHaveBeenCalled();
-      
+    });
+
+    test('clicking dismiss',  () => {
+      const dismissBtn = userNotificationListItem.querySelector('button');
+
+      expect(storeWithUserNotification.view.userNotifications[0].onDismiss).not.toHaveBeenCalled();
+      userEvent.click(dismissBtn);
+      expect(storeWithUserNotification.view.userNotifications[0].onDismiss).toHaveBeenCalled();
 
     });
   });
