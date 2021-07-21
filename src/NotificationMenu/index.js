@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
 
-import { fetchNews } from '../ducks/news';
+import { fetchNews, readNews } from '../ducks/news';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -18,12 +18,14 @@ const { Toggle, Menu, Item } = Dropdown;
 const formatUnreadNewsItemsAsNotifications = (news = []) =>
   news
     .map(item => ({
+      id: item.id,
       message: item.description,
       confirmText: 'Read more',
       onConfirm() {
         const newWindow = window.open(item.link, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
       },
+      read: item.read,
     }));
 
 const onShowMoreInfo = (e) => {
@@ -51,6 +53,20 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
 
   const onToggle = (isOpen) => {
     trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} Notification Menu`);
+
+    if (!isOpen) {
+      const unreadNews = (news || []).filter(i => !i.read);
+      if (!!unreadNews.length) {
+        readNews(unreadNews)
+          .then(() => {
+            const newNews = news.map(n => n.read ? n : { ...n, read: true });
+            setNews(newNews);
+          })
+          .catch((error) => {
+            console.warn('reading news gone wrong', error);
+          });
+      }
+    }
   };
 
   const notifications = useMemo(() => {
@@ -59,17 +75,13 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
 
   const unreadCount = userNotifications.length + (news || []).filter(n => !n.read).length;
 
-  console.log('userNotifications.length', userNotifications.length);
-  console.log('unread news length', (news || []).filter(n => !n.read).length);
-
-
   useEffect(() => {
     fetchNews()
       .then(({ data: { data } }) => {
         setNews(formatUnreadNewsItemsAsNotifications(data));
       })
       .catch((newsFetchError) => {
-        console.log({ newsFetchError });
+        console.warn({ newsFetchError });
       });
   }, []);
 

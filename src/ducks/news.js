@@ -2,7 +2,7 @@ import axios from 'axios';
 import unionBy from 'lodash/unionBy';
 import { API_URL } from '../constants';
 
-export const NEWS_API_URL = `${API_URL}news/`;
+export const NEWS_API_URL = `${API_URL}news`;
 const { get, post } = axios;
 
 const FETCH_NEWS_SUCCESS = 'FETCH_NEWS_SUCCESS';
@@ -19,7 +19,8 @@ export const readNews = (news) => {
     .map(({ id }) => id)
     .reduce((string, id, index, array) =>
       `${string}${id}${array.length - 1 === index ? '' : ','}`
-    , 'read=');
+    , '?read=');
+
   return post(`${NEWS_API_URL}${paramString}`);
 };
 
