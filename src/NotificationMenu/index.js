@@ -63,7 +63,6 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
     fetchNews()
       .then(({ data: { data } }) => {
         setNews(formatUnreadNewsItemsAsNotifications(data.results));
-        throw new Error('balls');
       })
       .catch((error) => {
         setNewsFetchError(error);
