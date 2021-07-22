@@ -20,7 +20,9 @@ ReactGA.initialize('dummy', { testMode: true });
 
 const server = setupServer(
   rest.get(NEWS_API_URL, (req, res, ctx) => {
-    return res(ctx.json( { data: mockNewsData }));
+    return res(ctx.json( { data: {
+      results: mockNewsData,
+    } }));
   }),
   rest.post(NEWS_API_URL, (req, res, ctx) => {
     return res(ctx.status(201));
@@ -147,12 +149,33 @@ describe('listing news items', () => {
   });
 });
 
-/* 
+describe('handling failed news requests', () => {
+  beforeEach(async () => {
+    server.use(
+      rest.get(NEWS_API_URL, (req, res, ctx) => {
+        return res.once(ctx.status(500));
+      })
+    );
+    render(<Provider store={store}>
+      <NotificationMenu />
+    </Provider>);
 
-test('shows an error message and a "try again" button if the news API request fails', () => {
-  server.use(
-    rest.get(NEWS_API_URL, (req, res, ctx) => {
-      return res(ctx.status(500));
-    })
-  );
-}); */
+    const toggle = await screen.findByTestId('notification-toggle');
+    userEvent.click(toggle);
+  });
+
+  it('shows an error message', async () => {
+    await screen.findByTestId('error-message');
+  });
+
+  it('presents a retry button which attempts to re-fetch news', async () => {
+    const newsFetchRetryBtn = await screen.findByTestId('news-fetch-retry-btn');
+    userEvent.click(newsFetchRetryBtn);
+
+    const toggle = await screen.findByTestId('notification-toggle');
+    userEvent.click(toggle);
+
+    const items = await waitFor(() => screen.getAllByRole('listitem'));
+    expect(items[0]).toHaveTextContent(mockNewsData[0].description);
+  });
+});

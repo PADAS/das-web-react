@@ -47,7 +47,7 @@ div.menu {
   }
 }
 
-.noItems {
+.noItems, .newsFetchErrorMessage {
   font-size: 0.9rem;
 }
 
@@ -71,5 +71,11 @@ div.menu {
   margin: 0;
   + .button {
     margin-left: 0.5rem;
+  }
+}
+
+.newsFetchErrorMessage {
+  svg {
+    fill: white;
   }
 }
