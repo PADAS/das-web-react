@@ -4,8 +4,10 @@ import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import ReactGA from 'react-ga';
+import SocketMock from 'socket.io-mock';
 
 import { NEWS_API_URL } from '../ducks/news';
+
 
 import { mockStore } from '../__test-helpers/MockStore';
 import mockNewsData from '../__test-helpers/fixtures/news';
@@ -14,7 +16,9 @@ import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-lib
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
-import NotificationMenu from './';
+import NotificationMenu from '../NotificationMenu';
+
+const mockedSocket = new SocketMock();
 
 ReactGA.initialize('dummy', { testMode: true });
 
@@ -31,9 +35,16 @@ const server = setupServer(
 
 let store = mockStore({ view: { } });
 
+
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+
+beforeAll(() => {
+  jest.mock('socket.io-client', () => {
+    return mockedSocket.socketClient;
+  });
+});
 
 test('rendering without crashing', () => {
   render(<Provider store={store} >
@@ -164,16 +175,13 @@ describe('handling failed news requests', () => {
     userEvent.click(toggle);
   });
 
-  it('shows an error message', async () => {
+  test('showing an error message', async () => {
     await screen.findByTestId('error-message');
   });
 
-  it('presents a retry button which attempts to re-fetch news', async () => {
+  test('presenting a retry button which attempts to re-fetch news', async () => {
     const newsFetchRetryBtn = await screen.findByTestId('news-fetch-retry-btn');
     userEvent.click(newsFetchRetryBtn);
-
-    const toggle = await screen.findByTestId('notification-toggle');
-    userEvent.click(toggle);
 
     const items = await waitFor(() => screen.getAllByRole('listitem'));
     expect(items[0]).toHaveTextContent(mockNewsData[0].description);

@@ -15,7 +15,9 @@ const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dis
           removeUserNotification(item.id);
           setTimeout(() => window.location.reload(true));
         },
-        onDismiss(_e, item) {
+        onDismiss(e, item) {
+          e.preventDefault();
+          e.stopPropagation();
           setHasCodeUpdateNotification(false);
           removeUserNotification(item.id);
         },
@@ -27,6 +29,7 @@ const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dis
   });
   
   useEffect(() => {
+    onCodeUpdateAvailable.current();
     window.addEventListener('codeUpdateAvailable', onCodeUpdateAvailable.current, false);
     return () => {
       onCodeUpdateAvailable.current && window.removeEventListener('codeUpdateAvailable', onCodeUpdateAvailable.current); // eslint-disable-line

@@ -1,8 +1,13 @@
-import React, { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, memo, useContext, useRef, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
+
+import Badge from '../Badge';
+import DateTime from '../DateTime';
+
+// import { SocketContext } from '../withSocketConnection';
 
 import { fetchNews, readNews } from '../ducks/news';
 
@@ -12,11 +17,11 @@ import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import BadgeIcon from '../Badge';
 
+import { STATUSES } from '../constants';
+
 import styles from './styles.module.scss';
 
-const NEWS_FETCH_PARAMS = {
-  page_size: 10,
-};
+const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
 const { Divider, Toggle, Menu, Item } = Dropdown;
 
@@ -26,6 +31,8 @@ const formatUnreadNewsItemsAsNotifications = (news = []) =>
       id: item.id,
       message: item.description,
       confirmText: 'Read more',
+      date: item?.additional?.created_at,
+      title: item.title,
       onConfirm() {
         const newWindow = window.open(item.link, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
@@ -42,8 +49,26 @@ const NotificationItem = (item, index) => {
   const handleConfirm = e => onConfirm(e, item);
   const handleDismiss = e => onDismiss(e, item);
 
-  return <Item key={index} className={styles.item} role='listitem'>
-    <h6>{message}</h6>
+  const isNewsItem = item.hasOwnProperty('read');
+  const isUnread = isNewsItem && !item.read;
+
+  let displayMessage = message.replace(/(<([^>]+)>)/ig, '').substring(0, NEWS_ITEM_CHARACTER_LIMIT);
+  if (displayMessage.length === NEWS_ITEM_CHARACTER_LIMIT) {
+    displayMessage += '...';
+  }
+
+  return <Item key={index} className={`${styles.item} ${isUnread ? styles.unread : ''}`} role='listitem'>
+    {item.title && <div className={styles.headerGroup}>
+      {isUnread && <Badge className={styles.badge} status={STATUSES.UNHEALTHY_STATUS} />}
+      <div>
+        <h4 className={styles.title}>
+          {item.title}
+        </h4>
+        {item.date && <DateTime className={styles.dateTime} date={item.date} showElapsed={false} />}
+      </div>
+    </div>}
+    
+    <h6>{displayMessage}</h6>
     {!!infolink && <div><a href={infolink} target='_blank' rel='noopener noreferrer' onClick={onShowMoreInfo}>More information</a></div>}
     <div className={styles.buttons}>
       {onDismiss && <Button size='sm' className={styles.button} variant='secondary' onClick={handleDismiss}>Dismiss</Button>}
@@ -56,6 +81,8 @@ const NotificationItem = (item, index) => {
 const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_dispatch, ...rest }) => {
   const [news, setNews] = useState(null);
   const [newsFetchError, setNewsFetchError] = useState(null);
+  const menuRef = useRef(null);
+  // const socket = useContext(SocketContext);
 
 
   const fetchNewsForMenu = () => {
@@ -90,12 +117,13 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
             console.warn('error marking news as `read`', error);
           });
       }
+    } else {
+      if (menuRef.current) {
+        setTimeout(() => {
+          menuRef.current.scrollTop = 0;
+        });
+      } 
     }
-  };
-
-  const goToCommunityPage = () => {
-    const newWindow = window.open('https://community.earthranger.com/tag/er-notify', '_blank', 'noopener,noreferrer');
-    if (newWindow) newWindow.opener = null;
   };
 
   const notifications = useMemo(() => {
@@ -108,15 +136,31 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
     fetchNewsForMenu();
   }, []);
 
+  /* useEffect(() => {
+    const consumeMessage = (msg) => {
+      return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
+    };
+ 
+    socket.on('das.announcement.new', consumeMessage);
+
+    return () => {
+      socket.off('das.announcement.new', consumeMessage);
+    };
+  }, [news, socket]); */
+
   return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
     <Toggle as='div' data-testid='notification-toggle'>
       <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
       {!!unreadCount && <BadgeIcon data-testid='unread-count' className={styles.badge} count={unreadCount} />}
     </Toggle>
-    <Menu className={styles.menu}>
+    <Menu className={styles.menu} ref={menuRef}>
       {!notifications.length && <h6 className={styles.noItems}>No new notifications at this time.</h6>}
       {!!notifications.length && notifications.map(NotificationItem)}
-      {!!news?.length && !newsFetchError && <Item onClick={goToCommunityPage}><a href={'https://community.earthranger.com/tag/er-notify'} rel='noreferrer' target='_blank'>See all news</a></Item>}
+      {!!news?.length && !newsFetchError && <Fragment>
+        <Divider />
+        <Item href='https://community.earthranger.com/tag/er-notify' rel='noreferrer' target='_blank'><Button variant='link' style={{marginLeft: 'auto'}}>See all news &gt;</Button></Item>
+      </Fragment>
+      }
       {newsFetchError && <Fragment>
         <Divider />
         <h6 data-testid='error-message' className={styles.newsFetchErrorMessage}>Error fetching recent announcements. 
