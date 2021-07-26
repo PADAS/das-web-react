@@ -5,6 +5,7 @@ import bearing from '@turf/bearing';
 import { featureCollection }  from '@turf/helpers';
 import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
+import dateIsEqual from 'date-fns/is_equal';
 
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
@@ -94,7 +95,6 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
       : findDateIndexInRange(times, from);
   }
   if (until) {
-
     const untilIndex = dateIsAtOrBeforeDate(mostRecentTime, until)
       ? 0
       : findDateIndexInRange(times, until);
@@ -105,7 +105,7 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
     ) {
       results.until = times.length;
     } else if (untilIndex > -1) {
-      results.until = untilIndex;
+      results.until = dateIsEqual(new Date(times[untilIndex]), new Date(until)) ? untilIndex :  untilIndex + 1;
     }
   }
   return results;
