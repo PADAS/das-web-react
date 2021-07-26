@@ -39,7 +39,9 @@ afterAll(() => server.close());
 
 test('rendering without crashing', () => {
   render(<Provider store={store} >
-    <NotificationMenu /> 
+    <SocketProvider>
+      <NotificationMenu /> 
+    </SocketProvider>
   </Provider>);
 });
 
@@ -47,7 +49,9 @@ describe('listing news items', () => {
   let rendered;
   beforeEach(async () => {
     rendered = render(<Provider store={store}>
-      <NotificationMenu />
+      <SocketProvider>
+        <NotificationMenu />
+      </SocketProvider>
     </Provider>);
 
     const toggle = await screen.findByTestId('notification-toggle');
@@ -99,7 +103,9 @@ describe('listing news items', () => {
       rendered.unmount();
 
       rendered = render(<Provider store={store}>
-        <NotificationMenu />
+        <SocketProvider>
+          <NotificationMenu />
+        </SocketProvider>
       </Provider>);
 
       const toggle = await screen.findByTestId('notification-toggle');
@@ -159,7 +165,9 @@ describe('handling failed news requests', () => {
       })
     );
     render(<Provider store={store}>
-      <NotificationMenu />
+      <SocketProvider>
+        <NotificationMenu />
+      </SocketProvider>
     </Provider>);
 
     const toggle = await screen.findByTestId('notification-toggle');
