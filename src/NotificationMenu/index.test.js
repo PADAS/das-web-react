@@ -4,12 +4,11 @@ import { Provider } from 'react-redux';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import ReactGA from 'react-ga';
-import SocketMock from 'socket.io-mock';
 
 import { NEWS_API_URL } from '../ducks/news';
 
-
 import { mockStore } from '../__test-helpers/MockStore';
+import SocketProvider, { SocketContext } from '../__test-helpers/MockSocketContext';
 import mockNewsData from '../__test-helpers/fixtures/news';
 
 import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-library/react';
@@ -17,8 +16,6 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import NotificationMenu from '../NotificationMenu';
-
-const mockedSocket = new SocketMock();
 
 ReactGA.initialize('dummy', { testMode: true });
 
@@ -35,20 +32,14 @@ const server = setupServer(
 
 let store = mockStore({ view: { } });
 
-
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-beforeAll(() => {
-  jest.mock('socket.io-client', () => {
-    return mockedSocket.socketClient;
-  });
-});
 
 test('rendering without crashing', () => {
   render(<Provider store={store} >
-    <NotificationMenu />
+    <NotificationMenu /> 
   </Provider>);
 });
 

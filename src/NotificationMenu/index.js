@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Badge from '../Badge';
 import DateTime from '../DateTime';
 
-// import { SocketContext } from '../withSocketConnection';
+import { SocketContext } from '../withSocketConnection';
 
 import { fetchNews, readNews } from '../ducks/news';
 
@@ -17,9 +17,9 @@ import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import BadgeIcon from '../Badge';
 
-import { STATUSES } from '../constants';
+import { STATUSES } from '../constants';  
 
-import styles from './styles.module.scss';
+import styles from './styles.module.scss'; 
 
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
@@ -82,7 +82,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
   const [news, setNews] = useState(null);
   const [newsFetchError, setNewsFetchError] = useState(null);
   const menuRef = useRef(null);
-  // const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext);
 
 
   const fetchNewsForMenu = () => {
@@ -136,17 +136,19 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
     fetchNewsForMenu();
   }, []);
 
-  /* useEffect(() => {
-    const consumeMessage = (msg) => {
-      return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
-    };
+  useEffect(() => {
+    if (socket) {
+      const consumeMessage = (msg) => {
+        return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
+      };
  
-    socket.on('das.announcement.new', consumeMessage);
+      socket.on('das.announcement.new', consumeMessage);
 
-    return () => {
-      socket.off('das.announcement.new', consumeMessage);
-    };
-  }, [news, socket]); */
+      return () => {
+        socket.off('das.announcement.new', consumeMessage);
+      };
+    }
+  }, [news, socket]);
 
   return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
     <Toggle as='div' data-testid='notification-toggle'>
