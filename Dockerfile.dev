@@ -9,6 +9,7 @@ RUN apk add --no-cache --virtual .build-deps alpine-sdk python2
 #   npm install --quiet && \
 #   apk del native-deps
 RUN yarn
+RUN npm rebuild node-sass
 COPY ./ ./
 
 

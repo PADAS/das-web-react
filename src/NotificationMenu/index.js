@@ -142,10 +142,10 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
         return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
       };
  
-      socket.on('das.announcement.new', consumeMessage);
+      socket.on('new_announcement', consumeMessage);
 
       return () => {
-        socket.off('das.announcement.new', consumeMessage);
+        socket.off('new_announcement', consumeMessage);
       };
     }
   }, [news, socket]);
