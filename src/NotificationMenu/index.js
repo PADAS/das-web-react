@@ -138,7 +138,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
 
   useEffect(() => {
     if (socket) {
-      const consumeMessage = (msg) => {
+      const consumeMessage = ({ data: msg }) => {
         return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
       };
  
