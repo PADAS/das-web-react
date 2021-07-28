@@ -79,10 +79,10 @@ const lgLayoutWidthMin = `(min-width: ${layoutVariables.largeWidthMin})`;
 const xlLayoutWidthMin = `(min-width: ${layoutVariables.extraLargeWidthMin})`;
 
 export const BREAKPOINTS = {
-  screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
-  screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
-  screenIsLargeLayoutOrLarger: matchMedia(lgLayoutWidthMin),
-  screenIsExtraLargeWidth: matchMedia(xlLayoutWidthMin),
+  screenIsMediumLayoutOrLarger: window.matchMedia(mdLayoutWidthMin),
+  screenIsSmallerThanLargeLayout: window.matchMedia(mdLayoutWidthMax),
+  screenIsLargeLayoutOrLarger: window.matchMedia(lgLayoutWidthMin),
+  screenIsExtraLargeWidth: window.matchMedia(xlLayoutWidthMin),
 };
 
 export const LAYER_IDS = {

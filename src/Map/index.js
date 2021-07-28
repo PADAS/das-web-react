@@ -30,7 +30,7 @@ import { getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
 import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
@@ -676,7 +676,6 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   hidePopup,
   addModal,
-  removeUserNotification,
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,

@@ -44,7 +44,7 @@ library.add(faPlus, faTimes, faArrowUp, faArrowDown);
 dom.watch();
 
 // Initialize ReactGA with const from .env
-ReactGA.initialize(REACT_APP_GA_TRACKING_ID);
+ReactGA.initialize(REACT_APP_GA_TRACKING_ID, { testMode: process.env.NODE_ENV === 'test' ? true : false });
 setClientReleaseIdentifier();
 
 const createStoreWithMiddleware = applyMiddleware(ReduxThunk, ReduxPromise)(createStore);

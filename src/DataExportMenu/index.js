@@ -18,7 +18,7 @@ import { trackEvent } from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/events';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { addUserNotification } from '../ducks/user-notifications';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
@@ -27,7 +27,7 @@ const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject
 
 const DataExportMenu = (props) => {
 
-  const { addModal, addUserNotification, removeUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
+  const { addModal, addUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
     eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences, 
     staticContext:_staticContext, fetchTableauDashboard, token, ...rest } = props;
 
@@ -156,4 +156,4 @@ const DataExportMenu = (props) => {
 };
 
 const mapStateToProps = ({ view: { systemConfig, userPreferences: { shownTableauNotification } }, data: { eventFilter, eventTypes, token } }) => ({ systemConfig, eventFilter, eventTypes, token, shownTableauNotification });
-export default connect(mapStateToProps, { addModal, addUserNotification, removeUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));
+export default connect(mapStateToProps, { addModal, addUserNotification, updateUserPreferences, fetchTableauDashboard })(withRouter(DataExportMenu));

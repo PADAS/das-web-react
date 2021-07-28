@@ -14,16 +14,16 @@ services:
   #   volumes:
   #     - /app/node_modules
   #     - ./mock-api:/app
-  # web_test:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - /app/node_modules
-  #     - .:/app
-  #   environment:
-  #     - CI=true
-  #   command: yarn test
+  web_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    # environment:
+    #   - CI=true
+    command: yarn test
   nginx:
     build:
       context: ./nginx
