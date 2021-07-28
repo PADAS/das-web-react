@@ -1,4 +1,5 @@
 @import '../common/styles/vars/colors';
+@import '../common/styles/layout';
 
 .dropdown {
   margin-right: 1rem;
@@ -6,8 +7,13 @@
 }
 
 div.menu {
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 0;
   width: 20rem;
+  @media (min-height: $lg-height-min) {
+    max-height: 60vh;
+  }
 }
 
 .badge {
@@ -36,7 +42,7 @@ div.menu {
 }
 
 
-.item, .noItems {
+.item, .noItems, .newsFetchErrorMessage {
   margin: 0;
   min-width: 16rem;
   max-width: 22rem;
@@ -47,8 +53,17 @@ div.menu {
   }
 }
 
-.noItems {
+.noItems, .newsFetchErrorMessage {
   font-size: 0.9rem;
+}
+
+.newsFetchErrorMessage {
+  button {
+    margin: 0.5rem 0 0 auto;
+  }
+  svg {
+    fill: white;
+  }
 }
 
 .item {
@@ -56,6 +71,34 @@ div.menu {
   flex-flow: column;
   + .item {
     border-top: 1px solid $light-gray-border;
+  }
+/*   &.unread *:not(button) {
+    font-style: italic;
+    font-weight: 500;
+  } */
+  .title {
+    font-size: 1.1rem;
+  }
+  .dateTime, .title {
+    margin-right: auto;
+  }
+  .dateTime {
+    margin-bottom: 0.5rem;
+  }
+  .headerGroup {
+    display: flex;
+    white-space: normal;
+    width: 100%;
+  }
+  .badge {
+    --badge-dimensions: 0.666rem;
+    height: var(--badge-dimensions);
+    margin: 0.15rem 0.666rem 0 -0.666rem;
+    position: relative;
+    width: var(--badge-dimensions);
+    @media (min-width:  $md-layout-width-min) {
+      --badge-dimensions: 0.95rem;
+    }
   }
 }
 
@@ -73,3 +116,4 @@ div.menu {
     margin-left: 0.5rem;
   }
 }
+
