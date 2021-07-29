@@ -172,7 +172,7 @@ const DateTimePickerPopover = (props, ref) => {
 
   return <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={`${styles.container} ${!!inputValue ? '' : 'empty'} ${className}`}>
     {showClockIcon && <ClockIcon className={styles.clockIcon} />}
-    <InputMask disabled={disabled} type='text' value={inputValue} mask="9999-99-99 99:99" placeholder={placeholder || BLANK_VALUE} onClick={onInputClick} onChange={onInputChange} onBlur={onInputBlur} ref={buttonRef} className={`${styles.input} ${!isValid ? styles.invalid : ''} ${inputClassName}`} />
+    <InputMask disabled={disabled} required={required} type='text' value={inputValue} mask="9999-99-99 99:99" placeholder={placeholder || BLANK_VALUE} onClick={onInputClick} onChange={onInputChange} onBlur={onInputBlur} ref={buttonRef} className={`${styles.input} ${!isValid ? styles.invalid : ''} ${inputClassName}`} />
     {canShowClearButton && <ClearIcon onClick={onClickClearIcon} className={styles.clearIcon} />}
     <Overlay popperConfig={popperConfig} show={popoverOpen} placement={placement || DEFAULT_PLACEMENT} {...optionalProps} rootClose onHide={hidePopover} onEnter={onPopoverOpened} target={buttonRef.current} container={containerRef.current}>
       <DateTimePopover {...props}  />
