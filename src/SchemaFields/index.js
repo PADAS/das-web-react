@@ -188,7 +188,7 @@ const DateTimeField = (props) => {
   }, [popoverOpen]);
 
   return <Fragment>
-    <label ref={labelRef} htmlFor={id}>{label}</label>
+    <label ref={labelRef} htmlFor={id}>{label}{required ? '*' : ''}</label>
     <DateTimePickerPopover disabled={disabled} placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
       id={id} required={required}  maxDate={maxDate || new Date('2050')} value={date} popoverOpen={popoverOpen} onPopoverToggle={onPopoverToggle}
       onChange={handleChange} defaultTimeValue='00:00' />
