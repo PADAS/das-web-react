@@ -59,7 +59,7 @@ const store = mockStore({
   },
 });
 
-fit('it renders without crashing', () => {
+it('it renders without crashing', () => {
   const mapInstance = createMapMock();
   const MapboxMap = ReactMapboxGl({
     accessToken: 'fake-token-content-does-not-matter',
