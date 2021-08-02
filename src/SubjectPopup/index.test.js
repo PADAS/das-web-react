@@ -6,18 +6,12 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import ReactGA from 'react-ga';
 
-import { NEWS_API_URL } from '../ducks/news';
-// import { INITIAL_STATE as INITIAL_TIMESLIDER_STATE } from '../ducks/timeslider';
-// import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
-// import { INITIAL_TRACKS_STATE } from '../ducks/tracks';
-
 import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
 import { mockMapSubjectFeatureCollection } from '../__test-helpers/fixtures/subjects';
 
 import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
 
 import { GPS_FORMATS } from '../utils/location';
 
@@ -59,16 +53,31 @@ const store = mockStore({
   },
 });
 
+const mapInstance = createMapMock();
+const MapboxMap = ReactMapboxGl({
+  accessToken: 'fake-token-content-does-not-matter',
+  mapInstance,
+});
+const subjectGeoJson = mockMapSubjectFeatureCollection.features[0];
+
 it('it renders without crashing', () => {
-  const mapInstance = createMapMock();
-  const MapboxMap = ReactMapboxGl({
-    accessToken: 'fake-token-content-does-not-matter',
-    mapInstance,
-  });
 
   render(<Provider store={store}>
     <MapboxMap>
-      <SubjectPopup data={mockMapSubjectFeatureCollection.features[0]} />
+      <SubjectPopup data={subjectGeoJson} />
     </MapboxMap>
   </Provider>);
+});
+
+describe('the popup', () => {
+  beforeAll(() => {
+    render(<Provider store={store}>
+      <MapboxMap>
+        <SubjectPopup data={subjectGeoJson} />
+      </MapboxMap>
+    </Provider>);
+  });
+  // it('shows the subject name', () => {
+  //   expect(screen.getByText('RD-001')).toBeInTheDocument();
+  // });
 });

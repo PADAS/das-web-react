@@ -1,4 +1,5 @@
 import 'jest-webgl-canvas-mock';
+import '@testing-library/jest-dom/extend-expect';
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

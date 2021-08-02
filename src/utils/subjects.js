@@ -20,7 +20,7 @@ export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
     && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
 };
 
-export const subjectIsStatic = (s) => true;
+export const subjectIsStatic = (s) => !!s?.static_position;
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
