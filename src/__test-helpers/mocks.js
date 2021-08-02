@@ -13,3 +13,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 window.URL.createObjectURL = jest.fn();
+
+jest.mock('mapbox-gl/dist/mapbox-gl', () => ({
+  Map: () => ({})
+}));

@@ -14,7 +14,7 @@ import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
 import { default as TimeAgo } from 'react-timeago';
 
-import { store } from '../';
+import store from '../store';
 import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 

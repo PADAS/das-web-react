@@ -1,5 +1,5 @@
 // reselect explanation and usage https://redux.js.org/recipes/computing-derived-data#connecting-a-selector-to-the-redux-store
-import { createSelectorCreator, defaultMemoize } from 'reselect';
+import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect';
 import { featureCollection } from '@turf/helpers';
 import bboxPolygon from '@turf/bbox-polygon';
 import isEqual from 'react-fast-compare';
@@ -7,11 +7,6 @@ import isEqual from 'react-fast-compare';
 import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
 import { mapReportTypesToCategories } from '../utils/event-types';
-
-export const createSelector = createSelectorCreator(
-  defaultMemoize,
-  // isEqual,
-);
 
 export const createEqualitySelector = createSelectorCreator(
   defaultMemoize,
@@ -48,7 +43,7 @@ export const bboxBoundsPolygon = createSelector(
   (bbox) => bbox && bboxPolygon(bbox.split(',').map(coord => parseFloat(coord))),
 );
 
-const getEventTypes = ({ data: { eventTypes } }) => eventTypes;
+const getEventTypes = ({ data: { eventTypes = [] } }) => eventTypes;
 
 const userCreatableEventTypesByCategory = createSelector(
   [getEventTypes],

@@ -7,7 +7,7 @@ import isThisYear from 'date-fns/is_this_year';
 
 import { displayEndTimeForPatrol, displayStartTimeForPatrol, isPatrolCancelled } from './patrols';
 import { objectToParamString } from './query';
-import { store } from '../';
+import store from '../store';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 

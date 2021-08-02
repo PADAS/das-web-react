@@ -1,4 +1,6 @@
-import { createSelector, getTimeSliderState } from './';
+import { createSelector } from 'reselect';
+
+import { getTimeSliderState } from './';
 import { tracks } from './tracks';
 
 import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS } from '../constants';
@@ -51,7 +53,7 @@ export const allSubjects = createSelector(
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(
-  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, tracks, getTimeSliderState],
+  [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, (...args) => tracks(...args), (...args) => getTimeSliderState(...args)],
   (mapSubjectFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
     const patrolsEnabled = !!systemConfig?.[FEATURE_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
     

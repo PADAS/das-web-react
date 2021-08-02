@@ -1,7 +1,7 @@
 import axios from 'axios';
 import sample from 'lodash/sample';
 import subDays from 'date-fns/sub_days';
-import { store } from '../';
+import store from '../store';
 import { API_URL } from '../constants';
 
 const MESSAGING_API_URL = `${API_URL}messaging`;

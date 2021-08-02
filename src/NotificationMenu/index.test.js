@@ -84,7 +84,7 @@ describe('listing news items', () => {
     expect(unreadBadge.textContent).toEqual(mockNewsData.filter(n => !n.read).length.toString());
   });
 
-  describe('with user notifications', async () => {
+  describe('with user notifications', () => {
     let userNotificationListItem;
     const storeWithUserNotification = {
       view: {

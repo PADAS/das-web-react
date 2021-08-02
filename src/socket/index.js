@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 import isFunction from 'lodash/isFunction';
 
-import { store } from '../index';
+import store from '../store';
 import { REACT_APP_DAS_HOST } from '../constants';
 import { events } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';

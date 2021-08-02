@@ -1,7 +1,7 @@
 import { bbox, bboxPolygon, circle, centroid } from '@turf/turf';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 
-import { store } from '../';
+import store from '../store';
 import { analyzerFeatures } from '../selectors';
 
 const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL,

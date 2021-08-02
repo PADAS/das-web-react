@@ -33,7 +33,7 @@ const filterEventTypes = (eventTypes, filterText) =>
 
 
 const ReportTypeMultiSelect = (props) => {
-  const { eventTypes, filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
+  const { eventTypes = [], filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
 
   const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
 

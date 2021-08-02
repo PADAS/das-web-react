@@ -1,4 +1,4 @@
-import { createSelector } from '../selectors';
+import { createSelector } from 'reselect';
 
 const tracksLoaded = ({ data: { tracks } }, props) => !!tracks[props.subject.id];
 const tracksVisible = ({ view: { subjectTrackState: { visible } } }, props) => visible.includes(props.subject.id);
