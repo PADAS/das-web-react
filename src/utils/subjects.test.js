@@ -1,4 +1,3 @@
-// import mocks from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
 // import { subjectIsStatic } from './subjects.js';
 // import mockSubjectsData from '../__test-helpers/fixtures/subjects';
 

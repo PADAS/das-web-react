@@ -1,4 +1,7 @@
-import mocks from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
+
+
+import { createMapMock } from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
+import ReactMapboxGl from 'react-mapbox-gl';
 import React from 'react';
 import { Provider } from 'react-redux';
 import ReactGA from 'react-ga';
@@ -20,7 +23,7 @@ import { GPS_FORMATS } from '../utils/location';
 
 import SubjectPopup from './';
 
-const store = mockStore({ 
+const store = mockStore({
   data: { 
     eventFilter: {
       filter: {
@@ -57,12 +60,15 @@ const store = mockStore({
 });
 
 fit('it renders without crashing', () => {
-  const mapMock = {
-    on: jest.fn(),
-    off: jest.fn(),
-  };
+  const mapInstance = createMapMock();
+  const MapboxMap = ReactMapboxGl({
+    accessToken: 'fake-token-content-does-not-matter',
+    mapInstance,
+  });
 
   render(<Provider store={store}>
-    <SubjectPopup data={mockMapSubjectFeatureCollection.features[0]} map={mapMock} />
+    <MapboxMap>
+      <SubjectPopup data={mockMapSubjectFeatureCollection.features[0]} />
+    </MapboxMap>
   </Provider>);
 });

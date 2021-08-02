@@ -1,4 +1,3 @@
-import mocks from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
 import React from 'react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
