@@ -1,7 +1,7 @@
 
 
 import { createMapMock } from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
-import ReactMapboxGl from 'react-mapbox-gl';
+// import ReactMapboxGl from 'react-mapbox-gl';
 import React from 'react';
 import { Provider } from 'react-redux';
 // import ReactGA from 'react-ga';
@@ -10,7 +10,7 @@ import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
 import { mockMapSubjectFeatureCollection } from '../__test-helpers/fixtures/subjects';
 
-import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { GPS_FORMATS } from '../utils/location';
@@ -53,31 +53,50 @@ const store = mockStore({
   },
 });
 
-const mapInstance = createMapMock();
+/* const mapInstance = createMapMock();
 const MapboxMap = ReactMapboxGl({
   accessToken: 'fake-token-content-does-not-matter',
   mapInstance,
-});
-const subjectGeoJson = mockMapSubjectFeatureCollection.features[0];
+}); */
+const subjectGeoJsonWithAdditionalProperties = mockMapSubjectFeatureCollection.features[0];
 
-it('it renders without crashing', () => {
+test('rendering without crashing', () => {
 
   render(<Provider store={store}>
-    <MapboxMap>
-      <SubjectPopup data={subjectGeoJson} />
-    </MapboxMap>
+    <SubjectPopup data={subjectGeoJsonWithAdditionalProperties} />
   </Provider>);
 });
 
 describe('the popup', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     render(<Provider store={store}>
-      {/* <MapboxMap> */}
-      <SubjectPopup data={subjectGeoJson} />
-      {/* </MapboxMap> */}
+      <SubjectPopup data={subjectGeoJsonWithAdditionalProperties} />
     </Provider>);
   });
-  it('shows the subject name', () => {
+  test('showing the subject name', () => {
     expect(screen.getByText('RD-001')).toBeInTheDocument();
   });
+
+  test('showing and hiding additional device properties', async () => {
+    const additionalPropsToggleBtn = await screen.getByTestId('additional-props-toggle-btn');
+
+    userEvent.click(additionalPropsToggleBtn);
+
+    const additionalProps = await screen.findByTestId('additional-props');
+    const deviceStatusProps = subjectGeoJsonWithAdditionalProperties.properties.device_status_properties;
+
+    deviceStatusProps.forEach(({ label, value }) => {
+      if (label.length) expect(additionalProps).toHaveTextContent(label);
+      if (value.length) expect(additionalProps).toHaveTextContent(value);
+    });
+
+    userEvent.click(additionalPropsToggleBtn);
+    expect(additionalProps).not.toBeInTheDocument();
+
+  });
+
+  test('static subject popups', () => {
+
+  });
+
 });

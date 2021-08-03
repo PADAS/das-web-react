@@ -24,6 +24,7 @@ const STORAGE_KEY = 'showSubjectDetailsByDefault';
 const SubjectPopup = (props) => {
   const { data, map, showPopup } = props;
   const  { geometry, properties } = data;
+
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
         JSON.parse(properties?.device_status_properties ?? '[]')
@@ -74,7 +75,7 @@ const SubjectPopup = (props) => {
       </div>
     </div>}
     {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
-    {hasAdditionalDeviceProps && showAdditionalProperties && <ul className={styles.additionalProperties}>
+    {hasAdditionalDeviceProps && showAdditionalProperties && <ul data-testid='additional-props' className={styles.additionalProperties}>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>:&nbsp;
@@ -84,7 +85,7 @@ const SubjectPopup = (props) => {
         </li>
       )}
     </ul>}
-    {hasAdditionalDeviceProps && <Button variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
+    {hasAdditionalDeviceProps && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
     {tracks_available && (
       <Fragment>
         <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />

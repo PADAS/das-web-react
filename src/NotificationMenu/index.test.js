@@ -7,7 +7,7 @@ import ReactGA from 'react-ga';
 import { NEWS_API_URL } from '../ducks/news';
 
 import { mockStore } from '../__test-helpers/MockStore';
-import SocketProvider, { SocketContext } from '../__test-helpers/MockSocketContext';
+import SocketProvider from '../__test-helpers/MockSocketContext';
 import mockNewsData from '../__test-helpers/fixtures/news';
 
 import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-library/react';
