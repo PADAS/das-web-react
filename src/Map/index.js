@@ -199,6 +199,7 @@ class Map extends Component {
           this.props.showPopup('subject', {
             geometry: subjectMatch.geometry,
             properties: subjectMatch.properties,
+            coordinates: subjectMatch.geometry.coordinates,
           });
         }
       }
@@ -226,7 +227,7 @@ class Map extends Component {
   }
   onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
-    this.props.showPopup('timepoint', { geometry, properties });
+    this.props.showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   })
 
   onMapMoveStart() {
@@ -366,7 +367,9 @@ class Map extends Component {
   });
 
   onFeatureSymbolClick = this.withLocationPickerState(({ geometry, properties }) => {
-    this.props.showPopup('feature-symbol', { geometry, properties });
+    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
+
+    this.props.showPopup('feature-symbol', { geometry, properties, coordinates });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   })
 
@@ -398,7 +401,7 @@ class Map extends Component {
     const properties = features[0].properties;
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
-    this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
+    this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
   }) 
 
   hideUnpinnedTrackLayers(map, event) {
@@ -444,7 +447,7 @@ class Map extends Component {
   })
 
   onCurrentUserLocationClick = this.withLocationPickerState((location) => {
-    this.props.showPopup('current-user-location', { location });
+    this.props.showPopup('current-user-location', { location, coordinates: [location.coords.longitude, location.coords.latitude] });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   })
 
@@ -455,7 +458,7 @@ class Map extends Component {
     const { id, tracks_available } = properties;
     const { updateTrackState, subjectTrackState } = this.props;
 
-    this.props.showPopup('subject', { geometry, properties });
+    this.props.showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
 
     await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
@@ -470,7 +473,7 @@ class Map extends Component {
   onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {
     const { geometry, properties } = layer;
 
-    this.props.showPopup('subject-messages', { geometry, properties });
+    this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
   })
 
   setMap(map) {
@@ -508,7 +511,9 @@ class Map extends Component {
   }
 
   onReportMarkerDrop(location) {
-    this.props.showPopup('dropped-marker', { location });
+    const coordinates = [location.lng, location.lat];
+
+    this.props.showPopup('dropped-marker', { location, coordinates });
   }
 
   onTrackLengthChange() {

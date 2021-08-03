@@ -4,7 +4,7 @@ import { createMapMock } from '../__test-helpers/mocks'; /* eslint-disable-line 
 import ReactMapboxGl from 'react-mapbox-gl';
 import React from 'react';
 import { Provider } from 'react-redux';
-import ReactGA from 'react-ga';
+// import ReactGA from 'react-ga';
 
 import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -72,12 +72,12 @@ it('it renders without crashing', () => {
 describe('the popup', () => {
   beforeAll(() => {
     render(<Provider store={store}>
-      <MapboxMap>
-        <SubjectPopup data={subjectGeoJson} />
-      </MapboxMap>
+      {/* <MapboxMap> */}
+      <SubjectPopup data={subjectGeoJson} />
+      {/* </MapboxMap> */}
     </Provider>);
   });
-  // it('shows the subject name', () => {
-  //   expect(screen.getByText('RD-001')).toBeInTheDocument();
-  // });
+  it('shows the subject name', () => {
+    expect(screen.getByText('RD-001')).toBeInTheDocument();
+  });
 });

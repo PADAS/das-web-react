@@ -1,7 +1,6 @@
 import React, { memo, Fragment, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Popup } from 'react-mapbox-gl';
 import format from 'date-fns/format';
 import Button from 'react-bootstrap/Button';
 
@@ -23,7 +22,7 @@ import styles from './styles.module.scss';
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = (props) => {
-  const { data, map, showPopup, ...rest } = props;
+  const { data, map, showPopup } = props;
   const  { geometry, properties } = data;
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
@@ -48,7 +47,7 @@ const SubjectPopup = (props) => {
   }, [showAdditionalProperties]);
 
   const onClickMessagingIcon = useCallback(() => {
-    showPopup('subject-messages', { geometry, properties });
+    showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
   }, [geometry, properties, showPopup]);
 
   const locationObject = {
@@ -60,51 +59,49 @@ const SubjectPopup = (props) => {
 
   const time = new Date(properties.last_position_date);
 
-  return (
-    <Popup anchor='bottom' offset={[0, -16]} coordinates={geometry.coordinates} id={`subject-popup-${properties.id}`} {...rest}>
-      <div className={styles.header}>
-        <h4>{properties.name}</h4>
-        {coordProps.time && <DateTime date={coordProps.time} />}
-      </div>
+  return <>
+    <div className={styles.header}>
+      <h4>{properties.name}</h4>
+      {coordProps.time && <DateTime date={coordProps.time} />}
+    </div>
 
-      <GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} className={styles.gpsFormatToggle} />
-      {radioWithRecentMicActivity && <div className={styles.micActivity}>
-        <h5>Mic activity:</h5>
-        <div>
-          <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
-          <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} />
-        </div>
-      </div>}
-      {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
-      {hasAdditionalDeviceProps && showAdditionalProperties && <ul className={styles.additionalProperties}>
-        {device_status_properties.map(({ label, units, value }, index) =>
-          <li key={`${label}-${index}`}>
-            <strong>{label}</strong>:&nbsp;
-            <span>
-              {value}<span className={styles.unit}> {units}</span>
-            </span>
-          </li>
-        )}
-      </ul>}
-      {hasAdditionalDeviceProps && <Button variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
-      {tracks_available && (
-        <Fragment>
-          <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
-          <div className={styles.controls}>
-            <AddReport 
-              analyticsMetadata={{
-                category: 'Map Interaction',
-                location: 'subject popover',
-              }}
-              className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
-            {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
-              <ChatIcon className={styles.messagingIcon} />
-            </Button>}
-          </div>
-        </Fragment>
+    <GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} className={styles.gpsFormatToggle} />
+    {radioWithRecentMicActivity && <div className={styles.micActivity}>
+      <h5>Mic activity:</h5>
+      <div>
+        <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
+        <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} />
+      </div>
+    </div>}
+    {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
+    {hasAdditionalDeviceProps && showAdditionalProperties && <ul className={styles.additionalProperties}>
+      {device_status_properties.map(({ label, units, value }, index) =>
+        <li key={`${label}-${index}`}>
+          <strong>{label}</strong>:&nbsp;
+          <span>
+            {value}<span className={styles.unit}> {units}</span>
+          </span>
+        </li>
       )}
-    </Popup>
-  );
+    </ul>}
+    {hasAdditionalDeviceProps && <Button variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
+    {tracks_available && (
+      <Fragment>
+        <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
+        <div className={styles.controls}>
+          <AddReport 
+            analyticsMetadata={{
+              category: 'Map Interaction',
+              location: 'subject popover',
+            }}
+            className={styles.addReport} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
+          {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
+            <ChatIcon className={styles.messagingIcon} />
+          </Button>}
+        </div>
+      </Fragment>
+    )}
+  </>;
 };
 
 export default connect(null, { showPopup })(memo(SubjectPopup));

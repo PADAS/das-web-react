@@ -61,7 +61,9 @@ const MessageListItem = (props) => {
             await fetchTracksIfNecessary([subject.id]);
             toggleTrackState(subject.id);
           }
-          showPopup('subject-message', { subject, message });
+          const coordinates = [message.device_location.longitude, message.device_location.latitude];
+
+          showPopup('subject-message', { subject, message, coordinates });
         };
         
 
