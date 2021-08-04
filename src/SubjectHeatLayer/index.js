@@ -17,7 +17,7 @@ const SubjectHeatLayer = ({ trackData }) => {
     setPoints(convertTrackDataToHeatmapPoints(trackData));
   }, [trackData]);
 
-  if (!points.length) return null;
+  if (!points.features.length) return null;
 
   return <HeatLayer points={points} />;
 };
