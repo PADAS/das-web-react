@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { Popup } from 'react-mapbox-gl';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
@@ -67,7 +66,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
 
   }, [hidePopup, id, onSelectEvent, onSelectSubject]);
 
-  return <Popup className={styles.popup} coordinates={coordinates} id='multi-select-popup'>
+  return <>
     <h6>{itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}</h6>
     {showFilterInput && <input type='text' onChange={onFilterChange} placeholder='Type filter text here' className={styles.filterInput} />}
     <ul className={styles.list}>
@@ -83,7 +82,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
         </li>;
       })}
     </ul>
-  </Popup>;
+  </>;
 };
 
 

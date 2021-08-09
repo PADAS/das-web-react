@@ -1,4 +1,3 @@
-import mocks from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
 import React from 'react';
 import { Provider } from 'react-redux';
 import { rest } from 'msw';
@@ -8,12 +7,11 @@ import ReactGA from 'react-ga';
 import { NEWS_API_URL } from '../ducks/news';
 
 import { mockStore } from '../__test-helpers/MockStore';
-import SocketProvider, { SocketContext } from '../__test-helpers/MockSocketContext';
+import SocketProvider from '../__test-helpers/MockSocketContext';
 import mockNewsData from '../__test-helpers/fixtures/news';
 
 import { render, waitFor, waitForElementToBeRemoved, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
 
 import NotificationMenu from '../NotificationMenu';
 
@@ -84,7 +82,7 @@ describe('listing news items', () => {
     expect(unreadBadge.textContent).toEqual(mockNewsData.filter(n => !n.read).length.toString());
   });
 
-  describe('with user notifications', async () => {
+  describe('with user notifications', () => {
     let userNotificationListItem;
     const storeWithUserNotification = {
       view: {

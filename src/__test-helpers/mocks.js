@@ -1,15 +1,16 @@
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
+export const createMapMock = (override = {}) => ({
+  addSource: jest.fn(),
+  removeSource: jest.fn(),
+  addLayer: jest.fn(),
+  on: jest.fn(),
+  off: jest.fn(),
+  setLayerZoomRange: jest.fn(),
+  getLayer: jest.fn(),
+  addImage: jest.fn(),
+  loadImage: jest.fn(),
+  removeImage: jest.fn(),
+  hasImage: jest.fn(),
+  getSource: jest.fn().mockReturnValue({ setData: jest.fn() }),
+  project: jest.fn(),
+  ...override
 });
-
-window.URL.createObjectURL = jest.fn();

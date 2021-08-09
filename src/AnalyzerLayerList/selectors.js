@@ -1,8 +1,9 @@
-import { analyzerFeatures, createSelector } from '../selectors';
+import { createSelector } from 'reselect';
+import { analyzerFeatures } from '../selectors';
 import { getBoundsForAnalyzerFeatures } from '../utils/analyzers';
 
 export const getAnalyzerListState = createSelector(
-  [analyzerFeatures],
+  [(...args) => analyzerFeatures(...args)],
   (analyzerFeatures) => {
     const features = (analyzerFeatures).map((analyzer) => {
       // aggregate the feature ids, and store them in the first feature,

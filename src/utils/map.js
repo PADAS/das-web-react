@@ -4,7 +4,7 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import format from 'date-fns/format';
 
 
-import { store } from '../';
+import store from '../store';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 

@@ -10,7 +10,7 @@ import dateIsEqual from 'date-fns/is_equal';
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 
-import { store } from '../index';
+import store from '../store';
 import { TRACK_LENGTH_ORIGINS, fetchTracks } from '../ducks/tracks';
 import { removeNullAndUndefinedValuesFromObject } from './objects';
 

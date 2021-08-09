@@ -40,7 +40,9 @@ const FeatureListItem = memo((props) => {
 
     centerPoint.properties = { ...properties };
 
-    showPopup('feature-symbol', centerPoint);
+    const coordinates = Array.isArray(centerPoint.geometry.coordinates[0]) ? centerPoint.geometry.coordinates[0] : centerPoint.geometry.coordinates;
+
+    showPopup('feature-symbol', { ...centerPoint, coordinates });
 
     trackEvent('Map Layers', 'Click Jump To Feature Location button',
       `Feature Type:${properties.type_name}`);

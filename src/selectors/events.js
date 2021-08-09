@@ -1,4 +1,6 @@
-import { createSelector, getEventFilterDateRange, getMapEventFeatureCollection, getTimeSliderState } from './';
+import { createSelector } from 'reselect';
+
+import { getEventFilterDateRange, getMapEventFeatureCollection, getTimeSliderState } from './';
 
 import { addDistanceFromVirtualDatePropertyToEventFeatureCollection } from '../utils/events';
 
@@ -6,7 +8,7 @@ const getEventTypes = ({ data: { eventTypes } }) => eventTypes;
 const getPatrolTypes = ({ data: { patrolTypes } }) => patrolTypes;
 
 export const getMapEventFeatureCollectionWithVirtualDate = createSelector(
-  [getEventFilterDateRange, getMapEventFeatureCollection, getTimeSliderState],
+  [(...args) => getEventFilterDateRange(...args), (...args) => getMapEventFeatureCollection(...args), (...args) => getTimeSliderState(...args)],
   (eventFilterDateRange, mapEventFeatureCollection, timeSliderState) => {
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) return mapEventFeatureCollection;

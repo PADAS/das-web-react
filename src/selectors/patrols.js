@@ -1,7 +1,8 @@
 import uniq from 'lodash/uniq';
 import isAfter from 'date-fns/is_after';
+import { createSelector } from 'reselect';
 
-import { createSelector, createEqualitySelector, getTimeSliderState } from './';
+import { createEqualitySelector, getTimeSliderState } from './';
 import { getSubjectStore } from './subjects';
 
 import { trimmedVisibleTrackData, tracks } from './tracks';
@@ -93,7 +94,7 @@ export const patrolsWithTrackShown = createSelector(
 
 
 export const visibleTrackedPatrolData = createSelector(
-  [tracks, patrolsWithTrackShown, getSubjectStore, getTimeSliderState],
+  [(...args) => tracks(...args), patrolsWithTrackShown, getSubjectStore, (...args) => getTimeSliderState(...args)],
   (tracks, patrols, subjectStore, timeSliderState) => {
 
     return patrols
@@ -107,7 +108,7 @@ export const visibleTrackedPatrolData = createSelector(
 );
 
 export const visibleTrackDataWithPatrolAwareness = createSelector(
-  [trimmedVisibleTrackData, patrolsWithTrackShown],
+  [(...args) => trimmedVisibleTrackData(...args), patrolsWithTrackShown],
   (trackData, patrolsWithTrackShown) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
     const hasPatrolTrackMatch = patrolsWithTrackShown.some(p =>

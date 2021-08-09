@@ -1,4 +1,4 @@
-import { store } from '../';
+import store from '../store'; 
 
 import { createEvent, updateEvent, addNoteToEvent, uploadEventFile } from '../ducks/events';
 

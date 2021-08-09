@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'react-mapbox-gl';
 
 import { withMap } from '../EarthRangerMap';
 import { getSubjectLastPositionCoordinates } from '../utils/subjects';
@@ -19,12 +18,12 @@ const SubjectMessagePopup = (props) => {
     jumpToLocation(map, coordinates);
   };
 
-  return <Popup /*  offset={[20, 20]} */ coordinates={[message.device_location.longitude, message.device_location.latitude]} id={`message-popup-${message.id}`}>
+  return <>
     <h6 onClick={onTitleClick}><ChatIcon /> {subject.name}</h6>
     <p style={{marginBottom: '0.25rem'}}>{message.text}</p>
     <DateTime date={message.message_time}  />
     <GpsFormatToggle lng={message.device_location.longitude} lat={message.device_location.latitude} />
-  </Popup>;
+  </>;
 };
 
 export default memo(withMap(SubjectMessagePopup));

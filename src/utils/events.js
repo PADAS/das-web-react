@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { store } from '../';
+import store from '../store';
 import { getEventReporters } from '../selectors';
 
 import isNil from 'lodash/isNil';

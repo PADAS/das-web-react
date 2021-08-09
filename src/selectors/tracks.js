@@ -1,8 +1,9 @@
 import uniq from 'lodash/uniq';
 import subDays from 'date-fns/sub_days';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { createSelector } from 'reselect';
 
-import { createSelector, getTimeSliderState, getEventFilterDateRange } from './';
+import { getTimeSliderState, getEventFilterDateRange } from './';
 import { trimTrackDataToTimeRange } from '../utils/tracks';
 import { TRACK_LENGTH_ORIGINS } from '../ducks/tracks';
 
