@@ -30,11 +30,15 @@ const SubjectPopup = (props) => {
         JSON.parse(properties?.device_status_properties ?? '[]')
         : properties?.device_status_properties;
 
-  const hasAdditionalDeviceProps = !!device_status_properties?.length;
   const { tracks_available } = properties;
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
-  const [showAdditionalProperties, setShowAdditionalProperties] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
+  const hasAdditionalDeviceProps = !!device_status_properties?.length;
+  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2;
+  const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
+
+  const showAdditionalProps = hasAdditionalDeviceProps &&
+    (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
   const isMessageable = !!properties?.messaging?.length;
 
@@ -43,9 +47,9 @@ const SubjectPopup = (props) => {
   , [properties]);
 
   const toggleShowAdditionalProperties = useCallback(() => {
-    setShowAdditionalProperties(!showAdditionalProperties);
-    window.localStorage.setItem(STORAGE_KEY, !showAdditionalProperties);
-  }, [showAdditionalProperties]);
+    toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
+    window.localStorage.setItem(STORAGE_KEY, !additionalPropsToggledOn);
+  }, [additionalPropsToggledOn]);
 
   const onClickMessagingIcon = useCallback(() => {
     showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
@@ -75,7 +79,7 @@ const SubjectPopup = (props) => {
       </div>
     </div>}
     {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
-    {hasAdditionalDeviceProps && showAdditionalProperties && <ul data-testid='additional-props' className={styles.additionalProperties}>
+    {hasAdditionalDeviceProps && showAdditionalProps && <ul data-testid='additional-props' className={styles.additionalProperties}>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>:&nbsp;
@@ -85,7 +89,7 @@ const SubjectPopup = (props) => {
         </li>
       )}
     </ul>}
-    {hasAdditionalDeviceProps && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{showAdditionalProperties ? '< fewer details' : 'more details >'}</Button>}
+    {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     {tracks_available && (
       <Fragment>
         <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
