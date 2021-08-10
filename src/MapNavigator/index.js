@@ -1,10 +1,5 @@
 import axios from 'axios';
-<<<<<<< HEAD
-import React, { memo, useRef, useState, useEffect, useCallback } from 'react';
-import { connect } from 'react-redux';
-=======
 import React, { memo, useRef, useState, useEffect } from 'react';
->>>>>>> added map marker
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Overlay from 'react-bootstrap/Overlay';
@@ -16,6 +11,8 @@ import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import styles from './styles.module.scss';
 
+const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
+
 const MapNavigator = (props) => {
   const { map } = props;
   // const { coords } = locationFinder;
@@ -25,9 +22,16 @@ const MapNavigator = (props) => {
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [add, setAdd] = useState(null);
 
   const toggleActiveState = () => setActiveState(!active);
+
+  // axios config
+  const axiosGet = axios.create({
+      baseURL: SEARCH_URL,
+      headers: {
+      'Content-Type': 'application/json',
+      }
+  });
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -77,23 +81,18 @@ const MapNavigator = (props) => {
 
   // make api call to mapbox api
   const fetchLocation = async() => {
-    try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`;
-      const data = await axios.get(url);
-      const {data: { features }} = data;
-      setLocations(features);
-      const locations = features.map((location) => {
-        const locationsObj = {
-          coordinates: location.geometry.coordinates,
-          placenames: location.place_name
-        }
-        return locationsObj;
-      })
-    console.log(locations)
-    return locations;      
-    } catch (error) {
-      console.log(error);
-    }
+    const url = `${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`
+    const data = await axiosGet.request({ method: 'get', url: url })
+    const {data: { features }} = data;
+    setLocations(features);
+    const obj = features.map((location) => {
+      const obj2 = {
+        coordinates: location.geometry.coordinates,
+        placenames: location.place_name
+      }
+      return obj2
+    })
+    return obj;
   }
 
   // extract coordinates from api response
@@ -125,59 +124,43 @@ const MapNavigator = (props) => {
   };  
   
   // loop thru features array of objects and displays query suggestions
-  const querySuggestions = locations.map((location, index) => (
-    <li className='suggestion' id={index} key={location.id} onClick={(e) => onQueryResultClick(e) }>
-      {location.place_name}
-    </li>
-  ) );
+  const querySuggestions = React.Children.toArray(
+    locations.map((location) => (
+      <li className='suggestion' id={location.id} onClick={ (e) => onQueryResultClick(e) }>
+        {location.place_name}
+      </li>
+    ))
+  )
       
   // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
-    e.preventDefault();
-    if (query) {
-      jumpToLocation(map, coords);
-      const resultIndex = parseInt(e.target.id);
-      setSelectedLocation(locations[resultIndex]);
-      setLocations([]);
-      setQuery('');
-      addMarker(resultIndex);
-    }
+    jumpToLocation(map, coords);
+    const searchResult = e.target.id;
+    setSelectedLocation(locations[searchResult]);
+    addMarkers();
+    setLocations([]);
+    setQuery('');
   }
  
   const markers = []
-  // Displaying markers on the map
-  const addMarkers = () => {
+  // Displaying marker on the map
+  const addMarkers = () =>
     locations.map(point => {
       const marker = new mapboxgl.Marker().setLngLat(new mapboxgl.LngLat(
         point.geometry.coordinates[0],
         point.geometry.coordinates[1]
-      ))
+      ));
       markers.push(marker)
       marker.addTo(map)
-    })
-  }
-  // remove markers during onclick
+    }) 
+
+  // remove marker during onclick
   const removeMarker = () => {
     for (const marker of markers) {
       marker.remove()
     }
   }
   document.addEventListener('click', removeMarker);
-
-  // add a single marker to the map/select a specific point
-  const addMarker = (idx) => {
-    const point = locations[idx]
-    const marker = new mapboxgl.Marker().setLngLat(point.geometry.coordinates)
-    setAdd(marker)
-    marker.addTo(map)
-  }
-
-  // remove single marker
-  const remove = () => {
-    add && add.remove(map);
-    setAdd(null);
-  }
-  document.addEventListener('click', remove)
   
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -189,7 +172,7 @@ const MapNavigator = (props) => {
       </button>
       <Overlay show={active} target={buttonRef.current} 
         container={wrapperRef.current} placement='right'>
-        <Popover placement='right' className={styles.popover}>
+        <Popover placement='right'>
           <Popover.Content>
             <SearchBar
             className={styles.search}
@@ -199,9 +182,10 @@ const MapNavigator = (props) => {
             onKeyDown={onKeyDown}
             value={query}
             />
-            <div style={{overflowY: 'scroll', height: '20vh'}}>
-              { query && <ul >{querySuggestions}</ul> }
-              { query && !locations.length && <p> Couldn't find <strong>{query}</strong>! Spelt correctly?</p>}
+            <div>
+              { query.length > 1 &&
+                (<ul>{querySuggestions}</ul>)
+              }
             </div> 
           </Popover.Content>
         </Popover>
