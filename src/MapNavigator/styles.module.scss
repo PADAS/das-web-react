@@ -6,9 +6,10 @@ $filtered-color : $highlight-color;
 
 .suggestion {
   list-style: none;
-  &:hover {
-    cursor: pointer;
-  }
+}
+
+.suggestion:hover {
+  cursor: pointer !important;
 }
 
 .button {
@@ -18,7 +19,7 @@ $filtered-color : $highlight-color;
 .wrapper {
     position: relative;
     [class*=bs-popover] {
-      max-width: unset;
+      width: 23.4375rem;
     }
 }
 
@@ -53,7 +54,7 @@ $filtered-color : $highlight-color;
     top: -0.1rem;
     width: var(--dimensions);
     circle {
-      fill: none;
+      fill: none !important;
       stroke: $unfiltered-color;
       stroke-width: 1rem;
     }

@@ -16,8 +16,6 @@ import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import styles from './styles.module.scss';
 
-const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
-
 const MapNavigator = (props) => {
   const { map } = props;
   // const { coords } = locationFinder;
@@ -30,14 +28,6 @@ const MapNavigator = (props) => {
   const [add, setAdd] = useState(null);
 
   const toggleActiveState = () => setActiveState(!active);
-
-  // axios config
-  const axiosGet = axios.create({
-      baseURL: SEARCH_URL,
-      headers: {
-      'Content-Type': 'application/json',
-      }
-  });
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -87,18 +77,23 @@ const MapNavigator = (props) => {
 
   // make api call to mapbox api
   const fetchLocation = async() => {
-    const url = `${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`
-    const data = await axiosGet.request({ method: 'get', url: url })
-    const {data: { features }} = data;
-    setLocations(features);
-    const obj = features.map((location) => {
-      const obj2 = {
-        coordinates: location.geometry.coordinates,
-        placenames: location.place_name
-      }
-      return obj2
-    })
-    return obj;
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`;
+      const data = await axios.get(url);
+      const {data: { features }} = data;
+      setLocations(features);
+      const locations = features.map((location) => {
+        const locationsObj = {
+          coordinates: location.geometry.coordinates,
+          placenames: location.place_name
+        }
+        return locationsObj;
+      })
+    console.log(locations)
+    return locations;      
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // extract coordinates from api response
@@ -171,8 +166,8 @@ const MapNavigator = (props) => {
 
   // add a single marker to the map/select a specific point
   const addMarker = (idx) => {
-    const obj = locations[idx]
-    const marker = new mapboxgl.Marker().setLngLat(obj.geometry.coordinates)
+    const point = locations[idx]
+    const marker = new mapboxgl.Marker().setLngLat(point.geometry.coordinates)
     setAdd(marker)
     marker.addTo(map)
   }
@@ -194,7 +189,7 @@ const MapNavigator = (props) => {
       </button>
       <Overlay show={active} target={buttonRef.current} 
         container={wrapperRef.current} placement='right'>
-        <Popover placement='right'>
+        <Popover placement='right' className={styles.popover}>
           <Popover.Content>
             <SearchBar
             className={styles.search}
@@ -204,10 +199,9 @@ const MapNavigator = (props) => {
             onKeyDown={onKeyDown}
             value={query}
             />
-            <div style={{overflowY: 'scroll', height: '10vh'}}>
-              { query.length > 1 &&
-                (<ul >{querySuggestions}</ul>)
-              }
+            <div style={{overflowY: 'scroll', height: '20vh'}}>
+              { query && <ul >{querySuggestions}</ul> }
+              { query && !locations.length && <p> Couldn't find <strong>{query}</strong>! Spelt correctly?</p>}
             </div> 
           </Popover.Content>
         </Popover>
