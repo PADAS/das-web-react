@@ -143,7 +143,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
             <Select
               className={styles.quickJumpSelect}
               value={quickJumpOption}
-              isSearchable={false}
+              isSearchable={true}
               onChange={onQuickJumpChange}
               options={eventsByCategory}
               placeholder='Jump to...'
