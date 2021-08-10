@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { memo, useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl'
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -59,11 +59,13 @@ const MapNavigator = (props) => {
     const { key } = event;
     if (key === 'Enter') {
       event.preventDefault();
-      if (query) {
+      if (query && locations.length !== 0) {
         jumpToLocation(map, coords);
         setLocations([]);
         setQuery('');
         addMarkers();
+      } else {
+        setQuery('');
       }
     }
   }
@@ -82,8 +84,8 @@ const MapNavigator = (props) => {
         }
         return locationsObj;
       })
-    console.log(locations)
-    return locations;      
+      console.log(locations)
+      return locations;      
     } catch (error) {
       console.log(error);
     }
@@ -182,7 +184,7 @@ const MapNavigator = (props) => {
       </button>
       <Overlay show={active} target={buttonRef.current} 
         container={wrapperRef.current} placement='right'>
-        <Popover placement='right' className={styles.popover}>
+        <Popover placement='right'>
           <Popover.Content>
             <SearchBar
             className={styles.search}
@@ -194,7 +196,10 @@ const MapNavigator = (props) => {
             />
             <div style={{overflowY: 'scroll', height: '20vh'}}>
               { query && <ul >{querySuggestions}</ul> }
-              { query && !locations.length && <p> Couldn't find <strong>{query}</strong>! Spelt correctly?</p>}
+              { query 
+                && !locations.length 
+                && <p> Couldn't find <strong>{query}</strong> ! Spelt correctly?</p>
+              }
             </div> 
           </Popover.Content>
         </Popover>
