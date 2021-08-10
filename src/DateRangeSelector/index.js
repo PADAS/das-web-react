@@ -2,6 +2,7 @@ import React, { memo, useCallback, useRef, useState, Fragment } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
+import subSeconds from 'date-fns/sub_seconds';
 
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import FilterSettingsControl from '../FilterSettingsControl';
@@ -87,9 +88,9 @@ const DateRangeSelector = (props) => {
         upper: null,
       }, 'today')}>Today</Button>
 
-      <Button variant='link' onClick={() => onClickDateRangePreset({
+      <Button variant='link' data-testid='yesterday-btn' onClick={() => onClickDateRangePreset({
         lower: generateDaysAgoDate(1),
-        upper: generateDaysAgoDate(0),
+        upper: subSeconds(generateDaysAgoDate(0), 1),
       }, 'yesterday')}>Yesterday</Button>
 
       <Button variant='link' onClick={() => onClickDateRangePreset({
