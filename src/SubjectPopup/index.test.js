@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 
 import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
-import { mockMapSubjectFeatureCollection } from '../__test-helpers/fixtures/subjects';
+import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -53,37 +53,33 @@ const store = mockStore({
   },
 });
 
-/* const mapInstance = createMapMock();
-const MapboxMap = ReactMapboxGl({
-  accessToken: 'fake-token-content-does-not-matter',
-  mapInstance,
-}); */
-const subjectGeoJsonWithAdditionalProperties = mockMapSubjectFeatureCollection.features[0];
-
 test('rendering without crashing', () => {
 
   render(<Provider store={store}>
-    <SubjectPopup data={subjectGeoJsonWithAdditionalProperties} />
+    <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} />
   </Provider>);
 });
 
 describe('the popup', () => {
-  beforeEach(() => {
-    render(<Provider store={store}>
-      <SubjectPopup data={subjectGeoJsonWithAdditionalProperties} />
-    </Provider>);
-  });
   test('showing the subject name', () => {
+    render(<Provider store={store}>
+      <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} />
+    </Provider>);
+
     expect(screen.getByText('RD-001')).toBeInTheDocument();
   });
 
-  test('showing and hiding additional device properties', async () => {
+  test('toggling multiple device properties', async () => {
+    render(<Provider store={store}>
+      <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} />
+    </Provider>);
+
     const additionalPropsToggleBtn = await screen.getByTestId('additional-props-toggle-btn');
 
     userEvent.click(additionalPropsToggleBtn);
 
     const additionalProps = await screen.findByTestId('additional-props');
-    const deviceStatusProps = subjectGeoJsonWithAdditionalProperties.properties.device_status_properties;
+    const deviceStatusProps = subjectFeatureWithMultipleDeviceProps.properties.device_status_properties;
 
     deviceStatusProps.forEach(({ label, value }) => {
       if (label.length) expect(additionalProps).toHaveTextContent(label);
@@ -92,7 +88,19 @@ describe('the popup', () => {
 
     userEvent.click(additionalPropsToggleBtn);
     expect(additionalProps).not.toBeInTheDocument();
+  });
 
+  test('listing individual device properties', async () => {
+    render(<Provider store={store}>
+      <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+    </Provider>);
+
+    const [statusProp] = subjectFeatureWithOneDeviceProp.properties.device_status_properties;
+    const additionalProps = await screen.findByTestId('additional-props');
+
+    expect(additionalProps).toHaveTextContent(statusProp.label);
+    expect(additionalProps).toHaveTextContent(statusProp.units);
+    expect(additionalProps).toHaveTextContent(statusProp.value);
   });
 
   test('static subject popups', () => {
