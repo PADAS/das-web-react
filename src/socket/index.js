@@ -7,7 +7,7 @@ import { events } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
-import { calcEventFilterForRequest } from '../utils/events';
+import { calcEventFilterForRequest } from '../utils/event-filter';
 import { socketEventData } from '../ducks/events';
 
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;

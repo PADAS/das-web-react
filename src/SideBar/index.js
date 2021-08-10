@@ -12,7 +12,8 @@ import isUndefined from 'lodash/isUndefined';
 import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
-import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
+import { openModalForReport } from '../utils/events';
+import { calcEventFilterForRequest } from '../utils/event-filter';
 import { getFeedEvents } from '../selectors';
 import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
@@ -31,6 +32,8 @@ import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
+import ColumnSort from '../ColumnSort';
+
 import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
@@ -56,6 +59,21 @@ const setActiveTab = (tab) => {
   };
 };
 
+const EVENT_SORT_OPTIONS = [
+  {
+    label: 'Updated',
+    value: 'updated_at',
+  },
+  {
+    label: 'Created',
+    value: 'created_at',
+  },
+  {
+    label: 'Report Date',
+    value: 'event_time',
+  },
+];
+
 
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
@@ -80,6 +98,11 @@ const SideBar = (props) => {
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
+  const [feedSort, setFeedSort] = useState(['-', EVENT_SORT_OPTIONS[0]]);
+
+  const onFeedSortChange = useCallback((newVal) => {
+    setFeedSort(newVal);
+  }, []);
 
   const onScroll = useCallback(() => {
     if (events.next) {
@@ -149,15 +172,15 @@ const SideBar = (props) => {
 
   const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
-    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
+    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }, feedSort))
       .then(() => {
         setEventLoadState(false);
       });
-  }, [fetchEventFeed, optionalFeedProps]);
+  }, [feedSort, fetchEventFeed, optionalFeedProps]);
 
   useEffect(() => {
     loadFeedEvents();
-  }, [eventFilter]); // eslint-disable-line
+  }, [eventFilter, feedSort]); // eslint-disable-line
 
   // fetch patrols if filter settings has changed
   useEffect(() => {
@@ -260,6 +283,7 @@ const SideBar = (props) => {
                 Try again
                 </Button>
               </div>}
+              <ColumnSort options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
               {!events.error && <EventFeed
                 className={styles.sidebarEventFeed}
                 hasMore={!!events.next}

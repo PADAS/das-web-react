@@ -5,8 +5,10 @@ import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { addNormalizingPropertiesToEventDataFromAPI, calcEventFilterForRequest, eventBelongsToCollection,
+import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
+
+import { calcEventFilterForRequest } from '../utils/event-filter';
 
 
 const EVENTS_API_URL = `${API_URL}activity/events/`;

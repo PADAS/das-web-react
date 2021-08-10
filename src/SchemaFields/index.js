@@ -27,7 +27,6 @@ const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, hei
 };
 
 const SelectField = (props) => {
-  console.log('selectfield props', props);
   const { disabled, id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
   const selectRef = useRef(null);
   const containerRef = useRef(null);
@@ -196,7 +195,6 @@ const DateTimeField = (props) => {
 };
 
 const CustomCheckboxes = (props) => {
-  console.log('CustomCheckboxes props', props);
   const { id, disabled, options, value = [], autofocus, readonly, onChange, schema } = props;
   const { enumOptions, inline } = options;
   const [instanceId] = useState(uuid());
@@ -270,7 +268,6 @@ const CustomCheckboxes = (props) => {
 
 
 const ExternalLink = (props) => {
-  console.log('ExternalLink props', props);
   const { idSchema: { id }, schema: { title: label }, formData: value } = props;
 
   const onLinkClick = () => {
