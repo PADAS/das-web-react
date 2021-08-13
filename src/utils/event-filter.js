@@ -36,6 +36,24 @@ export const calcSortParamForEventFilter = (sortConfig) => {
   return `${direction === '-' ? direction : ''}${sortProp.value}`;
 };
 
+export const calcTimePropForSortConfig = (sortConfig) => {
+  const [, sortProp] = sortConfig;
+  return sortProp.value === 'event_time' ? 'time' : sortProp.value;
+};
+
+export const sortEventsBySortConfig = (events, sortConfig) => {
+  const [direction] = sortConfig;
+  const comparisonProp = calcTimePropForSortConfig(sortConfig);
+
+  return [...events].sort((a, b) => {
+    const date1 = new Date(a[comparisonProp]).getTime();
+    const date2 = new Date(b[comparisonProp]).getTime();
+
+    if (direction === '+') return date1 - date2;
+    return date2 - date1;
+  });
+};
+
 export const calcEventFilterForRequest = (options = {}, sortConfig = ['-', EVENT_SORT_OPTIONS[0]]) => {
   const { data: { eventFilter, eventTypes } } = store.getState();
   const { params, format = 'string' } = options;

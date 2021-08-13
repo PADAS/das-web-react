@@ -1,0 +1,30 @@
+@import '../common/styles/vars/colors';
+
+.dropdown {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  justify-content: end;
+}
+
+a.listItem, div.header {
+  display: block;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.toggle {
+  &::after {
+    display: none;
+  }
+}
+
+.sortDirection {
+  color: $link-color;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: -0.25rem;
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -74,6 +74,7 @@ const EVENT_SORT_OPTIONS = [
   },
 ];
 
+const DEFAULT_EVENT_SORT = ['-', EVENT_SORT_OPTIONS[0]];
 
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
@@ -98,10 +99,14 @@ const SideBar = (props) => {
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
-  const [feedSort, setFeedSort] = useState(['-', EVENT_SORT_OPTIONS[0]]);
+  const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
 
   const onFeedSortChange = useCallback((newVal) => {
     setFeedSort(newVal);
+  }, []);
+
+  const resetFeedSort = useCallback(() => {
+    setFeedSort(DEFAULT_EVENT_SORT);
   }, []);
 
   const onScroll = useCallback(() => {
@@ -283,12 +288,16 @@ const SideBar = (props) => {
                 Try again
                 </Button>
               </div>}
-              <ColumnSort options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
+              <div className={styles.sortWrapper}>
+                {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
+                <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
+              </div>
               {!events.error && <EventFeed
                 className={styles.sidebarEventFeed}
                 hasMore={!!events.next}
                 map={map}
                 loading={loadingEvents}
+                sortConfig={feedSort}
                 events={feedEvents}
                 onScroll={onScroll}
                 onTitleClick={onEventTitleClick}
