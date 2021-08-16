@@ -289,7 +289,10 @@ const SideBar = (props) => {
                 </Button>
               </div>}
               <div className={styles.sortWrapper}>
-                {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
+                <div className={`${styles.sortReset} ${styles.hasNewReports}`}>
+                  <span>2 report updates</span>
+                  {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
+                </div>
                 <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
               </div>
               {!events.error && <EventFeed
