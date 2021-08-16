@@ -36,7 +36,7 @@ import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-const MapContext = createContext(null);
+export const MapContext = createContext(null);
 
 // use this block to do direct map event binding.
 // useful for API gaps between react-mapbox-gl and mapbox-gl.
@@ -212,5 +212,3 @@ const AppWithSocketContext = (props) => <WithSocketContext>
 
 
 export default AppWithSocketContext;
-
-export { MapContext };

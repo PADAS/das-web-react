@@ -15,11 +15,16 @@ const LabeledSymbolLayer = (
 
   const handleMouseEnter = (e) => {
     map.getCanvas().style.cursor = 'pointer';
+
     onMouseEnter && onMouseEnter(e);
   };
   const handleMouseLeave = (e) => {
-    map.getCanvas().style.cursor = '';
-    onMouseLeave && onMouseLeave(e);
+    const qualifiedLayers = map.queryRenderedFeatures(e.point, { layers: [id, textLayerId] });
+
+    if (!qualifiedLayers.length) {
+      map.getCanvas().style.cursor = '';
+      onMouseLeave && onMouseLeave(e);
+    }
   };
 
   const handleClick = useCallback((e) => {

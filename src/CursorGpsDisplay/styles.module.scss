@@ -1,0 +1,37 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+
+button.container {
+  @include mapboxControlButton;
+  background: #f9f9f9 !important;
+  color: $primary-font-color !important;
+  cursor: unset; 
+  align-items: center;
+  display: flex;
+  font-size: 0.75rem;
+  height: 2.25rem;
+  justify-content: center;
+  line-height: normal;
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+  position: relative;
+  white-space: unset;
+  width: 8rem;
+}
+
+.menu {
+  padding: 0;
+}
+
+.gpsFormatSelect {
+  ul[class*=choices] {
+    margin: 0;
+    li {
+      padding: 0.5rem;
+      &[class*=active] {
+        background: $highlight-color;
+        color: white;
+      }
+    }
+  }
+}

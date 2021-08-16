@@ -11,7 +11,7 @@ import styles from './styles.module.scss';
 const gpsFormats = Object.values(GPS_FORMATS);
 
 const GpsFormatToggle = (props) => {
-  const { updateUserPreferences, lat, lng, currentFormat, className, ...rest } = props;
+  const { updateUserPreferences, showGpsString = true, lat, lng, currentFormat, className, ...rest } = props;
 
   const onGpsFormatClick = (gpsFormat) => {
     trackEvent('GPS Format', 'Change GPS Format', `GPS Format:${gpsFormat}`);
@@ -28,7 +28,7 @@ const GpsFormatToggle = (props) => {
             onClick={() => onGpsFormatClick(gpsFormat)}>{gpsFormat}</li>
         )}
       </ul>
-      <span className={styles.value}>{calcGpsDisplayString(lat, lng, currentFormat)}</span>
+      {showGpsString && <span className={styles.value}>{calcGpsDisplayString(lat, lng, currentFormat)}</span>}
     </div>
   );
 };

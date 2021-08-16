@@ -67,6 +67,7 @@ import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
+import CursorGpsDisplay from '../CursorGpsDisplay';
 
 import './Map.scss';
 
@@ -602,7 +603,10 @@ class Map extends Component {
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
               {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
-              <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
+              <span className='compass-wrapper' onClick={this.onRotationControlClick}>
+                <RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem 0 0.5rem 0.5rem'}} />
+                <CursorGpsDisplay />
+              </span>
             </div>
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
