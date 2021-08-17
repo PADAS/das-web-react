@@ -30,3 +30,20 @@
   display: block;
   text-align: center;
 }
+
+.gpsStringWrapper {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  svg {
+    height: 1rem;
+    margin-left: 0.5rem;
+    width: 1rem;
+  }
+}
+
+div.copySuccessMsg {
+  position: absolute;
+  right: -8rem;
+  top: 4rem;
+}

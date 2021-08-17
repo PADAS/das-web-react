@@ -96,7 +96,7 @@ describe('listing news items', () => {
       }
     };
     beforeEach(async () => {
-      store = mockStore(() => (storeWithUserNotification));
+      store = mockStore(() => storeWithUserNotification);
     
       rendered.unmount();
 
