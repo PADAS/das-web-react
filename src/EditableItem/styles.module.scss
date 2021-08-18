@@ -388,10 +388,19 @@
 
 .locationAnchor {
   @include defaultTextInput;
+  display: flex;
+  justify-content: space-between;
   padding: 0.5rem 0.25rem;
   width: 100%;
   .icon {
     margin-right: 0;
+  }
+  .locationCopyBtn {
+    [role=alert] {
+      right: 0;
+      top: 1.5rem;
+      width: 8rem;
+    }
   }
 }
 
