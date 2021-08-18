@@ -35,6 +35,7 @@
   align-items: center;
   display: flex;
   justify-content: center;
+  position: relative;
   svg {
     height: 1rem;
     margin-left: 0.5rem;
@@ -43,7 +44,8 @@
 }
 
 div.copySuccessMsg {
+  margin: 0;
   position: absolute;
   right: -8rem;
-  top: 4rem;
+  top: 0;
 }

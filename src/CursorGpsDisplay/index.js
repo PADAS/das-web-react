@@ -10,7 +10,7 @@ import { showPopup } from '../ducks/popup';
 import { MapContext } from '../App';
 import GpsFormatToggle from '../GpsFormatToggle';
 
-const { Toggle, Menu, Item, Header, Divider } = Dropdown;
+const { Toggle, Menu } = Dropdown;
 
 
 const CursorGpsDisplay = (props) => {
@@ -49,7 +49,7 @@ const CursorGpsDisplay = (props) => {
       {isValidLocation && calcGpsDisplayString(coords.lat, coords.lng, gpsFormat)}
     </Toggle>
     <Menu className={styles.menu}> 
-      {!!coords && <GpsFormatToggle className={styles.gpsFormatSelect} lng={coords.lng} lat={coords.lat} showGpsString={false} />}
+      <GpsFormatToggle className={styles.gpsFormatSelect} showGpsString={false} />
     </Menu>
   </Dropdown>;
 };

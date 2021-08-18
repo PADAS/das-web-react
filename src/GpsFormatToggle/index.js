@@ -35,7 +35,7 @@ const GpsFormatToggle = (props) => {
 
     copySuccessMsgAlertTimeout.current = setTimeout(() => {
       showCopySuccess(false);
-    }, [3000]);
+    }, [2500]);
   }, []);
 
   const onClickCopy = useCallback(async () => {
@@ -71,8 +71,8 @@ const GpsFormatToggle = (props) => {
 
 
 GpsFormatToggle.propTypes = {
-  lat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  lng: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  lat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  lng: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   currentFormat: PropTypes.string.isRequired,
   showGpsString: PropTypes.bool,
 };
