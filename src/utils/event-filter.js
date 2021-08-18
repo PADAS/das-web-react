@@ -7,20 +7,22 @@ import { generateMonthsAgoDate } from './datetime';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import store from '../store';
 
-const EVENT_SORT_OPTIONS = [
+export const EVENT_SORT_OPTIONS = [
   {
-    label: 'Updated at',
+    label: 'Last Updated',
     value: 'updated_at',
   },
   {
-    label: 'Created at',
+    label: 'Creation Time',
     value: 'created_at',
   },
   {
-    label: 'Report date',
+    label: 'Report Date',
     value: 'event_time',
   },
 ];
+
+export const DEFAULT_EVENT_SORT = ['-', EVENT_SORT_OPTIONS[0]];
 
 
 export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (

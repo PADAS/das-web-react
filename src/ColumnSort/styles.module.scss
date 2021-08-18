@@ -20,11 +20,16 @@ a.listItem, div.header {
 }
 
 .sortDirection {
-  color: $link-color;
-  cursor: pointer;
-  font-size: 0.8rem;
-  margin-left: -0.25rem;
-  &:hover {
-    text-decoration: underline;
+  margin-left: 0.5rem;
+}
+
+.columnWrapper {
+  align-items: center;
+  display: flex;
+  position: relative;
+  z-index: 1;
+  a, button {
+    color: $link-color;
+    font-size: 0.8rem;
   }
 }

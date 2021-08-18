@@ -342,8 +342,6 @@
   color: white;
   display: flex;
   height: 100%;
-  flex-grow: 1;
-  justify-content: space-between;
   padding: 0.375rem 0.5rem;
   &.hasNewReports {
     background: $highlight-color;

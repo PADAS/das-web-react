@@ -13,7 +13,7 @@ import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } fr
 import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
 import { openModalForReport } from '../utils/events';
-import { calcEventFilterForRequest } from '../utils/event-filter';
+import { calcEventFilterForRequest, EVENT_SORT_OPTIONS, DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { getFeedEvents } from '../selectors';
 import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
@@ -58,23 +58,6 @@ const setActiveTab = (tab) => {
     payload: tab,
   };
 };
-
-const EVENT_SORT_OPTIONS = [
-  {
-    label: 'Updated',
-    value: 'updated_at',
-  },
-  {
-    label: 'Created',
-    value: 'created_at',
-  },
-  {
-    label: 'Report Date',
-    value: 'event_time',
-  },
-];
-
-const DEFAULT_EVENT_SORT = ['-', EVENT_SORT_OPTIONS[0]];
 
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
@@ -274,11 +257,17 @@ const SideBar = (props) => {
                     <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
                   </EventFilter>
                   <div className={styles.filterStringWrapper}>
-                    <FriendlyEventFilterString className={styles.friendlyFilterString} />
+                    <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} />
                     <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
                   </div>
                 </div>
               </ErrorBoundary>
+              <div className={styles.sortWrapper}>
+                <div className={styles.sortReset}>
+                  {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
+                </div>
+                <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
+              </div>
             </DelayedUnmount>
             <ErrorBoundary>
               {!!events.error && <div className={styles.feedError}>
@@ -288,13 +277,6 @@ const SideBar = (props) => {
                 Try again
                 </Button>
               </div>}
-              <div className={styles.sortWrapper}>
-                <div className={`${styles.sortReset} ${styles.hasNewReports}`}>
-                  <span>2 report updates</span>
-                  {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
-                </div>
-                <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
-              </div>
               {!events.error && <EventFeed
                 className={styles.sidebarEventFeed}
                 hasMore={!!events.next}
