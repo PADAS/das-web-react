@@ -44,6 +44,8 @@ const CursorGpsDisplay = (props) => {
     }
   }, [map, showPopup]);
 
+  if (!isValidLocation) return null;
+
   return <Dropdown alignRight>
     <Toggle className={styles.container}>
       {isValidLocation && calcGpsDisplayString(coords.lat, coords.lng, gpsFormat)}

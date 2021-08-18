@@ -73,6 +73,10 @@ test('showing the GPS format toggler on click', async () => {
     </MapContext.Provider>
   </Provider>);
 
+  act(() => {
+    map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012, lat: 11.666 } });
+  });
+
   const toggleBtn = await screen.findByRole('button');
   userEvent.click(toggleBtn);
 
