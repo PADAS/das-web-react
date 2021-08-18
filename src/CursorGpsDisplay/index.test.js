@@ -13,13 +13,6 @@ import userEvent from '@testing-library/user-event';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import { MapContext } from '../App';
 
-import { showPopup } from '../ducks/popup';
-
-jest.mock('../ducks/popup', () => ({
-  ...jest.requireActual('../ducks/popup'),
-  showPopup: jest.fn(),
-}));
-
 
 let store = mockStore({ view: { userPreferences: { gpsFormat: Object.values(GPS_FORMATS)[0] } } });
 let map;
@@ -86,4 +79,34 @@ test('showing the GPS format toggler on click', async () => {
   expect(gpsFormatListItems.length).toBe(Object.values(GPS_FORMATS).length);
 });
 
-// test();
+test('showing a popup on map right click', () => {
+  render(<Provider store={store}>
+    <MapContext.Provider value={map}>
+      <CursorGpsDisplay />
+    </MapContext.Provider>
+  </Provider>);
+
+  act(() => {
+    map.__test__.fireHandlers('contextmenu', { lngLat: { lng: 10.012, lat: 11.666 } });
+  });
+
+  const actions = store.getActions();
+  expect(actions.length).toBe(1);
+
+  const [popupCall] = actions;
+
+  expect(popupCall).toEqual({ type: 'SHOW_POPUP', payload: {
+    type: 'dropped-marker',
+    data: {
+      location: { 
+        lng: 10.012, lat: 11.666 
+      }, 
+      coordinates: [10.012, 11.666], 
+      popupAttrs: {
+        offset: [0, 0],
+      } 
+    }
+  }
+  });
+
+});
