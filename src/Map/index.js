@@ -68,6 +68,7 @@ import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
+import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
 
@@ -608,6 +609,8 @@ class Map extends Component {
                 <CursorGpsDisplay />
               </span>
             </div>
+
+            <RightClickMarkerDropper />
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
             {showReportHeatmap && <ReportsHeatLayer />}
