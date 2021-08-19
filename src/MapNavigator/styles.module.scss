@@ -8,8 +8,8 @@ $filtered-color : $highlight-color;
   list-style: none;
 }
 
-.suggestion:hover {
-  cursor: pointer !important;
+li:hover {
+  cursor: pointer;
 }
 
 .button {
@@ -21,6 +21,19 @@ $filtered-color : $highlight-color;
     [class*=bs-popover] {
       width: 23.4375rem;
     }
+}
+
+.searchIcon {
+  align-items: center;
+  position: relative;
+  circle {
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.8rem;
+  }
+  path {
+    fill: #333;
+  }
 }
 
 .search {
@@ -35,14 +48,7 @@ $filtered-color : $highlight-color;
     flex-grow: 1;
     padding: 0.25rem;
     padding-left: 1.25rem;
-    &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-      color: $unfiltered-color;
-      opacity: 1; /* Firefox */
-    }
-    &:-ms-input-placeholder { /* Internet Explorer 10-11 */
-      color: $unfiltered-color;
-    }
-    &::-ms-input-placeholder { /* Microsoft Edge */
+    &::placeholder {
       color: $unfiltered-color;
     }
   }
@@ -54,7 +60,7 @@ $filtered-color : $highlight-color;
     top: -0.1rem;
     width: var(--dimensions);
     circle {
-      fill: none !important;
+      fill: none;
       stroke: $unfiltered-color;
       stroke-width: 1rem;
     }
