@@ -94,12 +94,12 @@ const PopupLayer = ({ popup, ...rest }) => {
 
   if (!template) return null;
 
-  const { coordinates, popupAttrs:attributes = {} } = data;
+  const { coordinates, popupAttrsOverride = {} } = data;
   const { Component, popupAttrs } = template;
 
   const finalPopupAttrs = {
     ...popupAttrs,
-    ...attributes,
+    ...popupAttrsOverride,
   }; 
   
   return <Popup coordinates={coordinates} {...finalPopupAttrs} key={id}>

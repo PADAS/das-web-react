@@ -16,7 +16,7 @@ const RightClickMarkerDropper = (props) => {
       const onRightClickMap = (e) => {
         const coordinates = [e.lngLat.lng, e.lngLat.lat];
 
-        showPopup('dropped-marker', { location: e.lngLat, coordinates, popupAttrs: {
+        showPopup('dropped-marker', { location: e.lngLat, coordinates, popupAttrsOverride: {
           offset: [0, 0],
         } });
       };

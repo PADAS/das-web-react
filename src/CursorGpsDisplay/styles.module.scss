@@ -3,7 +3,7 @@
 
 button.container {
   @include mapboxControlButton;
-  background: #f9f9f9 !important;
+  background: $mapbox-control-bg-color !important;
   color: $primary-font-color !important;
   cursor: unset; 
   align-items: center;
