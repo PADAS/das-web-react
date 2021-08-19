@@ -36,7 +36,7 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
-import patrolTrackedBySchemaReducer from '../ducks/trackedby';
+import patrolTrackedBySchemaReducer from '../ducks/trackedby'
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,

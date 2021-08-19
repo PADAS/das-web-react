@@ -6,9 +6,8 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
-import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
-import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
+import { API_URL } from '../constants';
 import styles from './styles.module.scss';
 
 const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
@@ -81,18 +80,22 @@ const MapNavigator = (props) => {
 
   // make api call to mapbox api
   const fetchLocation = async() => {
-    const url = `${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`
-    const data = await axiosGet.request({ method: 'get', url: url })
-    const {data: { features }} = data;
-    setLocations(features);
-    const obj = features.map((location) => {
-      const obj2 = {
-        coordinates: location.geometry.coordinates,
-        placenames: location.place_name
-      }
-      return obj2
-    })
-    return obj;
+    try {
+      const url = `${API_URL}coordinates?address?=${query}`;
+      const {data: { data }} = await axios.get(url);
+      setLocations(data);
+      const locations = data.map((location) => {
+        const locationsObj = {
+          coordinates: location.coordinates,
+          placenames: location.place_name
+        }
+        return locationsObj;
+      })
+      console.log(locations)
+      return locations;      
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // extract coordinates from api response
@@ -108,7 +111,7 @@ const MapNavigator = (props) => {
     } else {
       return null;
     }
-  })
+  });
 
   // listens to change events; auto-completes the search query
   const handleSearchChange = (e) => {
@@ -134,33 +137,51 @@ const MapNavigator = (props) => {
       
   // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
-    jumpToLocation(map, coords);
-    const searchResult = e.target.id;
-    setSelectedLocation(locations[searchResult]);
-    addMarkers();
-    setLocations([]);
-    setQuery('');
-  }
+    e.preventDefault();
+    if (query) {
+      jumpToLocation(map, coords);
+      const resultIndex = parseInt(e.target.id);
+      setSelectedLocation(locations[resultIndex]);
+      setLocations([]);
+      setQuery('');
+      addMarker(resultIndex);
+    };
+  };
  
-  const markers = []
-  // Displaying marker on the map
-  const addMarkers = () =>
+  const markers = [];
+  // Displaying markers on the map
+  const addMarkers = () => {
     locations.map(point => {
       const marker = new mapboxgl.Marker().setLngLat(new mapboxgl.LngLat(
         point.geometry.coordinates[0],
         point.geometry.coordinates[1]
-      ));
-      markers.push(marker)
-      marker.addTo(map)
-    }) 
-
-  // remove marker during onclick
+      ))
+      markers.push(marker);
+      marker.addTo(map);
+    });
+  };
+  // remove markers during onclick
   const removeMarker = () => {
     for (const marker of markers) {
-      marker.remove()
-    }
-  }
+      marker.remove();
+    };
+  };
   document.addEventListener('click', removeMarker);
+
+  // add a single marker to the map/select a specific point
+  const addMarker = (idx) => {
+    const point = locations[idx];
+    const marker = new mapboxgl.Marker().setLngLat(point.geometry.coordinates);
+    setAdd(marker);
+    marker.addTo(map);
+  }
+
+  // remove single marker
+  const remove = () => {
+    add && add.remove(map);
+    setAdd(null);
+  }
+  document.addEventListener('click', remove);
   
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
