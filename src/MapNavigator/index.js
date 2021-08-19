@@ -5,8 +5,8 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
-import { REACT_APP_MAPBOX_TOKEN } from '../constants';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
+import { API_URL } from '../constants';
 import styles from './styles.module.scss';
 
 const MapNavigator = (props) => {
@@ -73,13 +73,12 @@ const MapNavigator = (props) => {
   // make api call to mapbox api
   const fetchLocation = async() => {
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json?access_token=${REACT_APP_MAPBOX_TOKEN}`;
-      const data = await axios.get(url);
-      const {data: { features }} = data;
-      setLocations(features);
-      const locations = features.map((location) => {
+      const url = `${API_URL}coordinates?address?=${query}`;
+      const {data: { data }} = await axios.get(url);
+      setLocations(data);
+      const locations = data.map((location) => {
         const locationsObj = {
-          coordinates: location.geometry.coordinates,
+          coordinates: location.coordinates,
           placenames: location.place_name
         }
         return locationsObj;
@@ -104,7 +103,7 @@ const MapNavigator = (props) => {
     } else {
       return null;
     }
-  })
+  });
 
   // listens to change events; auto-completes the search query
   const handleSearchChange = (e) => {
@@ -136,10 +135,10 @@ const MapNavigator = (props) => {
       setLocations([]);
       setQuery('');
       addMarker(resultIndex);
-    }
-  }
+    };
+  };
  
-  const markers = []
+  const markers = [];
   // Displaying markers on the map
   const addMarkers = () => {
     locations.map(point => {
@@ -147,24 +146,24 @@ const MapNavigator = (props) => {
         point.geometry.coordinates[0],
         point.geometry.coordinates[1]
       ))
-      markers.push(marker)
-      marker.addTo(map)
-    })
-  }
+      markers.push(marker);
+      marker.addTo(map);
+    });
+  };
   // remove markers during onclick
   const removeMarker = () => {
     for (const marker of markers) {
-      marker.remove()
-    }
-  }
+      marker.remove();
+    };
+  };
   document.addEventListener('click', removeMarker);
 
   // add a single marker to the map/select a specific point
   const addMarker = (idx) => {
-    const point = locations[idx]
-    const marker = new mapboxgl.Marker().setLngLat(point.geometry.coordinates)
-    setAdd(marker)
-    marker.addTo(map)
+    const point = locations[idx];
+    const marker = new mapboxgl.Marker().setLngLat(point.geometry.coordinates);
+    setAdd(marker);
+    marker.addTo(map);
   }
 
   // remove single marker
@@ -172,7 +171,7 @@ const MapNavigator = (props) => {
     add && add.remove(map);
     setAdd(null);
   }
-  document.addEventListener('click', remove)
+  document.addEventListener('click', remove);
   
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
