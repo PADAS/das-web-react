@@ -26,7 +26,7 @@ const FriendlyEventFilterString = (props) => {
   return <span style={{lineHeight: 'normal'}} className={className || ''}>
     Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
-      ? <em>, sorted{sortConfig[0] === '+' ? ' ascending' : ''}{sortTypeName ? ` by ${sortTypeName}` : ''}</em>
+      ?<span>, sorted {sortConfig[0] === '+' ? ' ascending' : ''}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>
       : ''}
   </span>;
 };
