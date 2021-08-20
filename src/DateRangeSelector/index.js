@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef, useState, Fragment } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';

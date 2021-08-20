@@ -241,7 +241,6 @@ const PatrolFilter = (props) => {
         onChange={onSearchChange} onClear={onSearchClear} /> */}
       {children}
     </div>
-    {/* <FriendlyEventFilterString className={styles.filterDetails} /> */}
   </form>;
 };
 

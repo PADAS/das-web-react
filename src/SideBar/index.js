@@ -12,7 +12,8 @@ import isUndefined from 'lodash/isUndefined';
 import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
-import { openModalForReport, calcEventFilterForRequest } from '../utils/events';
+import { openModalForReport } from '../utils/events';
+import { calcEventFilterForRequest, EVENT_SORT_OPTIONS, DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { getFeedEvents } from '../selectors';
 import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
@@ -31,6 +32,8 @@ import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
+import ColumnSort from '../ColumnSort';
+
 import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
@@ -56,7 +59,6 @@ const setActiveTab = (tab) => {
   };
 };
 
-
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
 
 const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
@@ -80,6 +82,15 @@ const SideBar = (props) => {
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
+  const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
+
+  const onFeedSortChange = useCallback((newVal) => {
+    setFeedSort(newVal);
+  }, []);
+
+  const resetFeedSort = useCallback(() => {
+    setFeedSort(DEFAULT_EVENT_SORT);
+  }, []);
 
   const onScroll = useCallback(() => {
     if (events.next) {
@@ -149,15 +160,15 @@ const SideBar = (props) => {
 
   const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
-    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }))
+    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }, feedSort))
       .then(() => {
         setEventLoadState(false);
       });
-  }, [fetchEventFeed, optionalFeedProps]);
+  }, [feedSort, fetchEventFeed, optionalFeedProps]);
 
   useEffect(() => {
     loadFeedEvents();
-  }, [eventFilter]); // eslint-disable-line
+  }, [eventFilter, feedSort]); // eslint-disable-line
 
   // fetch patrols if filter settings has changed
   useEffect(() => {
@@ -246,11 +257,17 @@ const SideBar = (props) => {
                     <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
                   </EventFilter>
                   <div className={styles.filterStringWrapper}>
-                    <FriendlyEventFilterString className={styles.friendlyFilterString} />
+                    <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} />
                     <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
                   </div>
                 </div>
               </ErrorBoundary>
+              <div className={styles.sortWrapper}>
+                <div className={styles.sortReset}>
+                  {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
+                </div>
+                <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
+              </div>
             </DelayedUnmount>
             <ErrorBoundary>
               {!!events.error && <div className={styles.feedError}>
@@ -265,6 +282,7 @@ const SideBar = (props) => {
                 hasMore={!!events.next}
                 map={map}
                 loading={loadingEvents}
+                sortConfig={feedSort}
                 events={feedEvents}
                 onScroll={onScroll}
                 onTitleClick={onEventTitleClick}

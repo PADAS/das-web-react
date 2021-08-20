@@ -1,4 +1,4 @@
-import React, { useRef, memo } from 'react';
+import React, { useRef, memo, useMemo } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -7,12 +7,16 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
 
+import { calcTimePropForSortConfig, sortEventsBySortConfig } from '../utils/event-filter';
+
 import styles from './styles.module.scss';
 
 const EventFeed = (props) => {
-  const { className = '', events, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
+  const { className = '', events = [], sortConfig, hasMore, loading, map, onScroll, onTitleClick, onIconClick } = props;
 
   const scrollRef = useRef(null);
+  const feedEvents = useMemo(() => sortEventsBySortConfig(events, sortConfig), [events, sortConfig]);
+  const displayTimeProp = calcTimePropForSortConfig(sortConfig);
 
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
@@ -25,11 +29,12 @@ const EventFeed = (props) => {
         useWindow={false}
         getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
       >
-        <Flipper flipKey={events}>
-          {events.map((item, index) =>
+        <Flipper flipKey={feedEvents}>
+          {feedEvents.map((item, index) =>
             <Flipped flipId={item.id} key={item.id}>
               <ReportListItem
                 className={styles.listItem}
+                displayTime={item[displayTimeProp]}
                 map={map}
                 report={item}
                 onTitleClick={onTitleClick}
@@ -37,8 +42,8 @@ const EventFeed = (props) => {
             </Flipped>
           )}
           {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading more reports...</li>}
-          {!!events.length && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more reports to display.</li>}
-          {!events.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
+          {!!feedEvents.length && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-more-events-to-load'>No more reports to display.</li>}
+          {!feedEvents.length && <li className={`${styles.listItem} ${styles.loadMessage}`} key='no-events-to-display'>No reports to display.</li>}
         </Flipper>
       </InfiniteScroll>
     </div>
@@ -60,4 +65,5 @@ EventFeed.propTypes = {
   onTitleClick: PropTypes.func,
   onIconClick: PropTypes.func,
   map: PropTypes.object.isRequired,
+  sortConfig: PropTypes.array.isRequired,
 };

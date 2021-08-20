@@ -16,7 +16,7 @@ import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
 import { trackEvent } from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
-import { calcEventFilterForRequest } from '../utils/events';
+import { calcEventFilterForRequest } from '../utils/event-filter';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { addUserNotification } from '../ducks/user-notifications';
 import { fetchTableauDashboard } from '../ducks/external-reporting';

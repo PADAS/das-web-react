@@ -3,15 +3,11 @@ import axios from 'axios';
 import store from '../store';
 import { getEventReporters } from '../selectors';
 
-import isNil from 'lodash/isNil';
-import merge from 'lodash/merge';
 import isObject from 'lodash/isObject';
 import isEqual from 'react-fast-compare';
 
 import { addModal } from '../ducks/modals';
 
-import { generateMonthsAgoDate } from './datetime';
-import { objectToParamString, cleanedUpFilterObject } from './query';
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import ReportFormModal from '../ReportFormModal';
@@ -73,41 +69,6 @@ export const eventBelongsToPatrol = evt => !!evt?.patrols?.length && !!evt?.patr
 
 export const uniqueEventIds = (value, index, self) => { 
   return self.indexOf(value) === index;
-};
-
-export const calcEventFilterForRequest = (options = {}) => {
-  const { data: { eventFilter, eventTypes } } = store.getState();
-  const { params, format = 'string' } = options;
-
-  const toClean = merge({}, eventFilter, params);
-
-  const cleaned = {
-    ...cleanedUpFilterObject(toClean),
-    filter: {
-      ...cleanedUpFilterObject(toClean.filter),
-      date_range: {
-        ...cleanedUpFilterObject(toClean.filter.date_range),
-        lower: isNil(toClean.filter.date_range.lower) ? generateMonthsAgoDate(1).toISOString() : toClean.filter.date_range.lower,
-      },
-    },
-  };
-
-  if (cleaned.filter.text) {
-    cleaned.filter.text = cleaned.filter.text.toLowerCase();
-  }
-
-  /* "show all event types" doesn't require an event_type param. 
-      delete it for that case, to not overburden the query. */
-  if (eventTypes 
-    && cleaned.filter.event_type
-    && eventTypes.length === cleaned.filter.event_type.length) {
-    delete cleaned.filter.event_type;
-  }
-
-  if (format === 'string') return objectToParamString(cleaned);
-  if (format === 'object') return cleaned;
-  
-  throw new Error('invalid format specified');
 };
 
 export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
