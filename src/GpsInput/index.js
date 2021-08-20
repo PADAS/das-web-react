@@ -98,7 +98,7 @@ const GpsInput = (props) => {
   return <div className={styles.wrapper}>
     {showFormatToggle &&
       <Fragment>
-        <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
+        <GpsFormatToggle showGpsString={false} lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
         <small>Example: {GPS_FORMAT_EXAMPLES[gpsFormat]}</small>
       </Fragment>
     }

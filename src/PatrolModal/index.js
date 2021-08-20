@@ -629,7 +629,7 @@ const PatrolModal = (props) => {
             {startTimeLabel}
           </span>}
         </div>
-        <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
+        <LocationSelectorInput label='' copyable={false} iconPlacement='input' map={map} location={patrolStartLocation} onLocationChange={onStartLocationChange} placeholder='Set Start Location' />
       </section>
       <Body className={styles.body}>
         <ul className={styles.segmentList}>
@@ -683,7 +683,7 @@ const PatrolModal = (props) => {
         <span>
           <strong>Distance:</strong> <span className={styles.patrolDetail}><ConnectedDistanceCovered patrol={statePatrol} /></span>
         </span>
-        <LocationSelectorInput label='' iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
+        <LocationSelectorInput label='' copyable={false} iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
       </section>
       <AttachmentControls
         analyticsMetadata={{

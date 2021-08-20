@@ -21,6 +21,7 @@ $off-black: #333333;
 $dark-gray: darken($secondary-medium-gray, 20%);
 $medium-light-gray: $secondary-medium-light-gray;
 $light-gray: lighten($secondary-light-gray, 25%);
+$very-light-gray: #f9f9f9;
 
 $healthy: $bright-green;
 $healthy-border: lighten($bright-green, 15%);
@@ -48,6 +49,8 @@ $light-font-color: lighten($primary-font-color, 25%);
 $primary-button-color: $bright-blue;
 $popover-header-color: lighten($title-bar-color, 5%);
 $popover-header-font-color: white;
+
+$mapbox-control-bg-color: $very-light-gray;
 
 $light-gray-background: darken($light-gray, 3%);
 
