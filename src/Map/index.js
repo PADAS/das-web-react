@@ -609,7 +609,9 @@ class Map extends Component {
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
                 <RotationControl
                   className='rotation-control'
-                  style={{ position: 'relative', top: 'auto', margin: '0.5rem 0 0 0.5rem' }}
+                  style={{
+                    position: 'relative', top: 'auto', margin: '0.5rem 0 0 0.5rem', borderStyle: 'none', borderRadius: '0.25rem'
+                  }}
                 />
                 <CursorGpsDisplay />
               </span>
