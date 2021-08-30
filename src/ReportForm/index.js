@@ -98,9 +98,7 @@ const ReportForm = (props) => {
     if (reportIsNew) {
       toSubmit = report;
     } else {
-      console.warn('report', report);
       const changes = extractObjectDifference(report, originalReport);
-      console.warn('changes!!!', changes);
 
       toSubmit = {
         ...changes,
