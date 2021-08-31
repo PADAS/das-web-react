@@ -1,8 +1,8 @@
 import React, { createContext, useState } from 'react';
 import SocketMock from 'socket.io-mock';
 
-const SocketContext = createContext(null);
-const mockedSocket = new SocketMock();
+export const SocketContext = createContext(null);
+export const mockedSocket = new SocketMock();
 
 const MockSocketContext = (props) => { // eslint-disable-line react/display-name
   const { children } = props;
@@ -15,7 +15,6 @@ const MockSocketContext = (props) => { // eslint-disable-line react/display-name
 };
 
 export default MockSocketContext;
-export { SocketContext, mockedSocket };
 
 jest.doMock('../withSocketConnection', () => ({
   SocketContext,
