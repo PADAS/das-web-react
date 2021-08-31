@@ -187,12 +187,6 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       </Fragment>}
     </div>
     <h6 ref={stateTitleRef} onClick={togglePopoverIfPossible}>{patrolStateTitle}</h6>
-    {/*     <AddReport className={styles.addReport} 
-      analyticsMetadata={{
-        category: 'Feed',
-        location: 'patrol card popover',
-      }}
-      showLabel={false} /> */}
     <Popover isOpen={popoverOpen} container={cardRef} patrolState={patrolState}
       target={stateTitleRef} ref={popoverRef} onHide={onPopoverHide}
       onPatrolChange={onPatrolChangeFromPopover} patrolData={patrolData} />
