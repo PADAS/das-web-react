@@ -331,10 +331,12 @@ const ReportForm = (props) => {
   };
 
   const startSubmitForm = useCallback(() => {
-    if (submitButtonRef.current) {
+    if (is_collection) {
+      startSave();
+    } else if (submitButtonRef.current) {
       submitButtonRef.current.click();
     }
-  }, []);
+  }, [is_collection]);
 
   const clearErrors = () => setSaveErrorState(null);
 
@@ -505,10 +507,10 @@ const ReportForm = (props) => {
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
-          <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }
+      <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
     </Body>
     {/* bottom controls */}
     {!schema.readonly && <AttachmentControls
