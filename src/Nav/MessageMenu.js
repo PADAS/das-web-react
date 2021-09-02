@@ -40,18 +40,6 @@ const MessageMenu = (props) => {
     dispatch(updateMessageFromRealtime(msg));
   }, [dispatch]);
 
-  /*   useEffect(() => {
-    const handleRealtimeMessage = ({ data:msg }) => {
-      dispatch(updateMessageFromRealtime(msg));
-    };
-    
-    socket.on('radio_message', handleRealtimeMessage);
-
-    return () => {
-      socket.off('radio_message', handleRealtimeMessage);
-    };
-  }, [dispatch, socket]); */
-
   const fetchMenuMessages = useCallback(() => {
     fetchMessages({ page_size: 250 })
       .then((response) => {
