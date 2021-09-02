@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
 import StateManagedSocketConsumer from '../StateManagedSocketConsumer';
+import SleepDetector from '../SleepDetector';
 import Badge from '../Badge';
 
 import { allSubjects } from '../selectors/subjects';
@@ -19,6 +20,7 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 import styles from './styles.module.scss';
 
 const RADIO_MESSAGE_REALTIME = 'radio_message';
+const SLEEP_DETECTION_INTERVAL = 60000;
 
 const { Toggle, Menu } = Dropdown;
 
@@ -76,6 +78,7 @@ const MessageMenu = (props) => {
      
     </Menu>
     <StateManagedSocketConsumer type={RADIO_MESSAGE_REALTIME} callback={handleRealtimeMessage} onStateMismatch={fetchMenuMessages} />
+    <SleepDetector onSleepDetected={fetchMenuMessages} interval={SLEEP_DETECTION_INTERVAL} />
   </Dropdown>;
 };
 
