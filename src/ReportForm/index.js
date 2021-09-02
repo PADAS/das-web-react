@@ -7,8 +7,8 @@ import LoadingOverlay from '../LoadingOverlay';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent } from '../utils/events';
-import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEvent } from '../utils/analytics';
@@ -75,7 +75,7 @@ const ReportForm = (props) => {
       if (!topRatedReportAndType) return report.priority;
 
       return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-        topRatedReportAndType.related_event.priority
+        topRatedReportAndType.related_event.priority 
         : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
           topRatedReportAndType.event_type.default_priority
           : report.priority;
@@ -132,7 +132,7 @@ const ReportForm = (props) => {
       toSubmit.location = null;
     }
 
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, `Click 'Save' button for ${reportIsNew ? 'new' : 'existing'} report`);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click 'Save' button for ${reportIsNew?'new':'existing'} report`);
 
     const actions = generateSaveActionsForReportLikeObject(toSubmit, 'report', notesToAdd, filesToUpload);
 
@@ -166,7 +166,7 @@ const ReportForm = (props) => {
         });
     };
     if (saving) {
-
+      
       onSubmit();
     }
   }, [saving]); // eslint-disable-line
@@ -176,7 +176,7 @@ const ReportForm = (props) => {
 
   const onCancel = () => {
     removeModal();
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Cancel\' button');
+    trackEvent(`${is_collection? 'Incident': 'Event'} Report`, 'Click \'Cancel\' button');
   };
 
   const goToBottomOfForm = () => {
@@ -187,16 +187,16 @@ const ReportForm = (props) => {
 
   const onAddFiles = files => {
     const uploadableFiles = filterDuplicateUploadFilenames([...reportFiles, ...filesToUpload], files);
-
+    
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
     goToBottomOfForm();
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Added Attachment');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Added Attachment');
   };
 
   const onDeleteFile = (file) => {
     const { name } = file;
     updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Delete Attachment\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Delete Attachment\' button');
   };
 
   const startEditNote = (note) => {
@@ -205,7 +205,7 @@ const ReportForm = (props) => {
       note,
       onSubmit: onSaveNote,
     });
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Open Report Note');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Note');
   };
 
   const onSaveNote = (noteToSave) => {
@@ -230,13 +230,13 @@ const ReportForm = (props) => {
       });
     }
     goToBottomOfForm();
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Save Note\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Save Note\' button');
   };
 
   const onDeleteNote = (note) => {
     const { text } = note;
     updateNotesToAdd(notesToAdd.filter(({ text: t }) => t !== text));
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Delete Note\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Delete Note\' button');
   };
 
   const onReportedByChange = selection => {
@@ -245,21 +245,21 @@ const ReportForm = (props) => {
     };
 
     if (selection
-      && selection.last_position
-      && selection.last_position.geometry
+      && selection.last_position 
+      && selection.last_position.geometry 
       && selection.last_position.geometry.coordinates) {
       updates.location = {
         latitude: selection.last_position.geometry.coordinates[1],
         longitude: selection.last_position.geometry.coordinates[0],
       };
     }
-
+    
     updateStateReport({
       ...report,
       ...updates,
     });
-
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Change Report Report By');
+    
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Report By');
   };
 
   const onReportDateChange = date => {
@@ -267,7 +267,7 @@ const ReportForm = (props) => {
       ...report,
       time: date.toISOString(),
     });
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Change Report Date');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Date');
   };
 
   const onReportTitleChange = title => {
@@ -275,7 +275,7 @@ const ReportForm = (props) => {
       ...report,
       title,
     });
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Change Report Title');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Title');
   };
 
   const onDetailChange = ({ formData }) => updateStateReport({
@@ -291,7 +291,7 @@ const ReportForm = (props) => {
       ...report,
       priority,
     });
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Priority\' option', `Priority:${priority}`);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Priority\' option', `Priority:${priority}`);
   }, [is_collection, report]);
 
   const onReportLocationChange = useCallback((location) => {
@@ -305,12 +305,12 @@ const ReportForm = (props) => {
       ...report,
       location: updatedLocation,
     });
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Change Report Location');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Location');
   }, [is_collection, report]);
 
   const goToParentCollection = () => {
     const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Go to Incident\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Go to Incident\' button');
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       openModalForReport(data, map);
@@ -318,8 +318,8 @@ const ReportForm = (props) => {
   };
 
   const onIncidentReportClick = (report) => {
-    trackEvent('Incident Report',
-      `Open ${report.is_collection ? 'Incident' : 'Event'} Report from Incident`,
+    trackEvent('Incident Report', 
+      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       openModalForReport(data, map, { navigateRelationships: false });
@@ -343,7 +343,7 @@ const ReportForm = (props) => {
   const onClickFile = async (file) => {
     if (file.file_type === 'image') {
       const fileData = await fetchImageAsBase64FromUrl(file.images.original);
-
+        
       addModal({
         content: ImageModal,
         src: fileData,
@@ -352,7 +352,7 @@ const ReportForm = (props) => {
     } else {
       await downloadFileFromUrl(file.url, { filename: file.filename });
     }
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Open Report Attachment');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Open Report Attachment');
   };
 
   const onAddToNewIncident = useCallback(async () => {
@@ -362,7 +362,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, newIncident.id);
 
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Add To Incident\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
@@ -374,7 +374,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addEventToIncident(thisReport.id, incident.id);
 
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Add To Incident\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       openModalForReport(data, map);
@@ -390,7 +390,7 @@ const ReportForm = (props) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
     await addPatrolSegmentToEvent(patrolSegmentId, thisReport.id);
 
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, `Add ${is_collection ? 'Incident' : 'Event'} to Patrol`);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
@@ -412,7 +412,7 @@ const ReportForm = (props) => {
       content: AddToPatrolModal,
       onAddToPatrol,
     });
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, 'Click \'Add to Patrol\' button');
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Add to Patrol\' button');
   }, [addModal, is_collection, onAddToPatrol]);
 
   const onReportAdded = ([{ data: { data: newReport } }]) => {
@@ -446,7 +446,7 @@ const ReportForm = (props) => {
   const onUpdateStateReportToggle = useCallback((state) => {
     updateStateReport({ ...report, state });
     startSubmitForm();
-    trackEvent(`${is_collection ? 'Incident' : 'Event'} Report`, `Click '${state === 'resolved' ? 'Resolve' : 'Reopen'}' button`);
+    trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
   }, [is_collection, report, startSubmitForm]);
 
   const filesToList = [...reportFiles, ...filesToUpload];
@@ -455,25 +455,25 @@ const ReportForm = (props) => {
   const styles = {};
 
   return <ContextProvider value={report}>
-
+  
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
-    <Header
+    <Header 
       analyticsMetadata={{
         category: 'Report Modal',
         location: 'report modal',
       }}
       icon={<EventIcon title={reportTypeTitle} report={report} />}
-      menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport} />}
+      menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority} readonly={schema.readonly}
-      title={reportTitle} onTitleChange={onReportTitleChange}
+      title={reportTitle} onTitleChange={onReportTitleChange} 
     />
 
-    <div ref={reportedBySelectPortalRef} style={{ padding: 0 }}></div>
+    <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
 
     <Body ref={scrollContainerRef}>
-      {is_collection && <IncidentReportsList reports={report.contains}
+      {is_collection && <IncidentReportsList reports={report.contains} 
         onReportClick={onIncidentReportClick}>
         <AttachmentList
           files={filesToList}
@@ -507,10 +507,10 @@ const ReportForm = (props) => {
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
-          <button ref={submitButtonRef} type='submit' style={{ display: 'none' }}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }
+      <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
     </Body>
     {/* bottom controls */}
     {!schema.readonly && <AttachmentControls
@@ -530,7 +530,7 @@ const ReportForm = (props) => {
 
     </AttachmentControls>}
 
-    <Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSubmitForm} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)} />
+    <Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSubmitForm} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
     {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
   </ContextProvider>;
 };
@@ -553,7 +553,7 @@ export default memo(
         fetchPatrol: id => fetchPatrol(id),
       }
     )
-      (ReportForm)
+    (ReportForm)
   )
 );
 
