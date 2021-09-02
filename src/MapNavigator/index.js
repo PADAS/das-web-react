@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useRef, useState, useEffect } from 'react';
-import mapboxgl from 'mapbox-gl'
+import mapboxgl from 'mapbox-gl';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
+import { Popup } from 'react-mapbox-gl';
 import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
@@ -52,7 +53,7 @@ const MapNavigator = (props) => {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [active]);
+  }, []);
 
   // navigate to location on the map on when Enter key is pressed
   const onKeyDown = (event) => {
@@ -63,45 +64,44 @@ const MapNavigator = (props) => {
         jumpToLocation(map, coords);
         setLocations([]);
         setQuery('');
-        addMarkers();
+        // addMarkers();
       } else {
         setQuery('');
       }
     }
   }
 
-  // make api call to mapbox api
+  // make api call to google geocode api  
   const fetchLocation = async() => {
     try {
-      const url = `${API_URL}coordinates?address?=${query}`;
-      const {data: { data }} = await axios.get(url);
-      setLocations(data);
-      const locations = data.map((location) => {
-        const locationsObj = {
-          coordinates: location.coordinates,
-          placenames: location.place_name
-        }
-        return locationsObj;
+      const url = `${API_URL}coordinates?address=${query}`;
+      const response = await axios.get(url);
+      const { data : { data } } = response;
+      setLocations(data)
+      const location = data.map(location => {
+          const locationsObject = {
+            coordinates: location.coordinates,
+            placenames: location.placeName
+          }
+          return locationsObject;
       })
-      console.log(locations)
-      return locations;      
+      console.log(location);
+      return location;    
     } catch (error) {
       console.log(error);
     }
   }
-
+  
   // extract coordinates from api response
   const coords = locations.map(coord => {
     if (coord) {
-      const sw = new mapboxgl.LngLat(
-        coord.geometry.coordinates[0],
-        coord.geometry.coordinates[1]
-      );
+      const coordinates = { 
+        lng: coord.coordinates[1],
+        lat: coord.coordinates[0]
+      };
       // convert the returned objects to array
-      const arrayOfCoords = Object.values(sw);
+      const arrayOfCoords = Object.values(coordinates);
       return arrayOfCoords;
-    } else {
-      return null;
     }
   });
 
@@ -109,7 +109,7 @@ const MapNavigator = (props) => {
   const handleSearchChange = (e) => {
     setQuery(e.target.value);
     if (query && query.length > 1){
-      fetchLocation()
+      fetchLocation();
     }
   };
 
@@ -118,12 +118,16 @@ const MapNavigator = (props) => {
     setQuery('');
   };  
   
-  // loop thru features array of objects and displays query suggestions
+  // iterate on data array of objects and displays query suggestions
   const querySuggestions = locations.map((location, index) => (
-    <li className='suggestion' id={index} key={location.id} onClick={(e) => onQueryResultClick(e) }>
-      {location.place_name}
+    <li 
+      className='suggestion'
+      key={index}
+      id={index}
+      onClick={(e) => onQueryResultClick(e) }>
+        {location.placeName}
     </li>
-  ) );
+  ));
       
   // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
@@ -137,31 +141,16 @@ const MapNavigator = (props) => {
       addMarker(resultIndex);
     };
   };
- 
-  const markers = [];
-  // Displaying markers on the map
-  const addMarkers = () => {
-    locations.map(point => {
-      const marker = new mapboxgl.Marker().setLngLat(new mapboxgl.LngLat(
-        point.geometry.coordinates[0],
-        point.geometry.coordinates[1]
-      ))
-      markers.push(marker);
-      marker.addTo(map);
-    });
-  };
-  // remove markers during onclick
-  const removeMarker = () => {
-    for (const marker of markers) {
-      marker.remove();
-    };
-  };
-  document.addEventListener('click', removeMarker);
 
-  // add a single marker to the map/select a specific point
+  // add a marker to the map
   const addMarker = (idx) => {
-    const point = locations[idx];
-    const marker = new mapboxgl.Marker().setLngLat(point.geometry.coordinates);
+    const point = locations[idx]
+    const marker = new mapboxgl.Marker().setLngLat(
+      [
+        point.coordinates[1],
+        point.coordinates[0]
+      ]
+    );
     setAdd(marker);
     marker.addTo(map);
   }
@@ -179,26 +168,22 @@ const MapNavigator = (props) => {
       className={styles.button}
       onClick={toggleActiveState} 
       ref={buttonRef}>
-        <SearchIcon className={styles.searchIcon}/>
+        <SearchIcon className={styles.searchButton}/>
       </button>
       <Overlay show={active} target={buttonRef.current} 
         container={wrapperRef.current} placement='right'>
         <Popover placement='right'>
           <Popover.Content>
             <SearchBar
-            className={styles.search}
-            placeholder='Search Location ...'
-            onChange={handleSearchChange}
-            onClear={handleClearSearch}
-            onKeyDown={onKeyDown}
-            value={query}
+              className={styles.search}
+              placeholder='Search Location ...'
+              onChange={handleSearchChange}
+              onClear={handleClearSearch}
+              onKeyDown={onKeyDown}
+              value={query}
             />
             <div style={{overflowY: 'scroll', height: '20vh'}}>
               { query && <ul >{querySuggestions}</ul> }
-              { query 
-                && !locations.length 
-                && <p> Couldn't find <strong>{query}</strong> ! Spelt correctly?</p>
-              }
             </div> 
           </Popover.Content>
         </Popover>
