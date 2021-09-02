@@ -11,29 +11,28 @@ const StateManagedSocketConsumer = (props) => {
 
   const mid = useRef(0);
 
-  const resetSocketStateTracking = () => mid.current = 0;
-
   useEffect(() => {
     if (socket) {
 
       const validateSocketIncrement = value => value === (mid.current+1);
+
+      const unbindSocketHandler = () => {
+        socket.off(type, socketHandler);
+      };
   
       const socketHandler = (payload) => {
         const { mid:newMid } = payload;
         if (!validateSocketIncrement(newMid)) {
           onStateMismatch(payload);
-          resetSocketStateTracking();
         } else {
-          mid.current = newMid;
           callback(payload);
         }
+        mid.current = newMid;
       };
 
       socket.on(type, socketHandler);
 
-      return () => {
-        socket.off(type, socketHandler);
-      };
+      return unbindSocketHandler;
     }
   }, [callback, onStateMismatch, socket, type]);
 
