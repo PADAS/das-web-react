@@ -53,7 +53,6 @@ const MessageMenu = (props) => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('fetchMenuMessages in effect hook, will i be infinite? amen');
     fetchMenuMessages();
   }, [dispatch, fetchMenuMessages]);
 
