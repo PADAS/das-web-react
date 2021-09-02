@@ -4,14 +4,6 @@
 $unfiltered-color : $secondary-light-gray;
 $filtered-color : $highlight-color;
 
-.suggestion {
-  list-style: none;
-}
-
-li:hover {
-  cursor: pointer;
-}
-
 .button {
     @include mapboxControlButton;
 }
@@ -21,19 +13,6 @@ li:hover {
     [class*=bs-popover] {
       width: 23.4375rem;
     }
-}
-
-.searchIcon {
-  align-items: center;
-  position: relative;
-  circle {
-    fill: none;
-    stroke: #333;
-    stroke-width: 0.8rem;
-  }
-  path {
-    fill: #333;
-  }
 }
 
 .search {
@@ -123,4 +102,24 @@ li:hover {
     }
   }
 }
-  
+
+.searchButton {
+  align-items: center;
+  position: relative;
+  circle {
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.8rem;
+  }
+  path {
+    fill: #333;
+  }
+}
+
+.suggestion {
+  list-style: none;
+}
+
+li:hover {
+  cursor: pointer;
+}
