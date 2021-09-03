@@ -4,10 +4,12 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import WithMessageContext from '../InReach';
 import MessageContext from '../InReach/context';
-import { SocketContext } from '../withSocketConnection';
+import StateManagedSocketConsumer from '../StateManagedSocketConsumer';
+import SleepDetector from '../SleepDetector';
 import Badge from '../Badge';
 
 import { allSubjects } from '../selectors/subjects';
+import { messageIsValidForDisplay } from '../utils/messaging';
 
 import MessagesModal from '../MessagesModal';
 
@@ -17,36 +19,30 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 
 import styles from './styles.module.scss';
 
+const RADIO_MESSAGE_REALTIME = 'radio_message';
+const SLEEP_DETECTION_INTERVAL = 60000;
+
 const { Toggle, Menu } = Dropdown;
 
 const MessageMenu = (props) => {
-  const { subjects } = props;
+  const { subjects, subjectStore } = props;
   const [selectedSubject, setSelectedSubject] = useState(null);
 
   const onDropdownToggle = () => {
     setSelectedSubject(null);
   };
 
-  const socket = useContext(SocketContext);
   const { state, dispatch } = useContext(MessageContext);
 
   const onSelectSubject = useCallback((subject) => {
     setSelectedSubject(subject);
   }, []);
 
-  useEffect(() => {
-    const handleRealtimeMessage = ({ data:msg }) => {
-      dispatch(updateMessageFromRealtime(msg));
-    };
-    
-    socket.on('radio_message', handleRealtimeMessage);
+  const handleRealtimeMessage = useCallback(({ data:msg }) => {
+    dispatch(updateMessageFromRealtime(msg));
+  }, [dispatch]);
 
-    return () => {
-      socket.off('radio_message', handleRealtimeMessage);
-    };
-  }, [dispatch, socket]);
-
-  useEffect(() => {
+  const fetchMenuMessages = useCallback(() => {
     fetchMessages({ page_size: 250 })
       .then((response) => {
         dispatch(fetchMessagesSuccess(response.data.data));
@@ -56,7 +52,13 @@ const MessageMenu = (props) => {
       });
   }, [dispatch]);
 
-  const unreads = state.results.filter(msg => !msg.read);
+  useEffect(() => {
+    fetchMenuMessages();
+  }, [dispatch, fetchMenuMessages]);
+
+  const unreads = state.results
+    .filter(msg => !msg.read)
+    .filter(msg => messageIsValidForDisplay(msg, subjectStore));
 
   const badgeCount = unreads.length > 9 ? '9+' : unreads.length;
 
@@ -74,11 +76,14 @@ const MessageMenu = (props) => {
       <MessagesModal showClose={false} onSelectSubject={onSelectSubject} selectedSubject={selectedSubject} />
      
     </Menu>
+    <StateManagedSocketConsumer type={RADIO_MESSAGE_REALTIME} callback={handleRealtimeMessage} onStateMismatch={fetchMenuMessages} />
+    <SleepDetector onSleepDetected={fetchMenuMessages} interval={SLEEP_DETECTION_INTERVAL} />
   </Dropdown>;
 };
 
 const mapStateToProps = (state) => ({
   subjects: allSubjects(state),
+  subjectStore: state.data.subjectStore,
 });
 
 const WithContext = (props) => <WithMessageContext>
