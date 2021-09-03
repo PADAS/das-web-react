@@ -507,10 +507,10 @@ const ReportForm = (props) => {
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
+          <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }
-      <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
     </Body>
     {/* bottom controls */}
     {!schema.readonly && <AttachmentControls
