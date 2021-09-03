@@ -17,7 +17,7 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const { /* addModal,  */analyticsMetadata, readonly, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
+  const {analyticsMetadata, readonly, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange } = props;
 
   const data = useContext(FormDataContext);
   
@@ -110,7 +110,7 @@ const EditableItemHeader = (props) => {
         </span>
       }
       {data.serial_number && <span>{data.serial_number}</span>}
-      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} />
+      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onChange={onTitleChange} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} />
       {children}
       <div className={styles.headerDetails}>
         {!!MenuContent && <Fragment>
@@ -135,7 +135,7 @@ const EditableItemHeader = (props) => {
 export default memo(EditableItemHeader);
 
 EditableItemHeader.propTypes = {
-  analyticsMetadata: CustomPropTypes.analyticsMetaData,
+  analyticsMetadata: CustomPropTypes.analyticsMetadata,
   afterMenuToggle: PropTypes.func,
   data: PropTypes.object,
   title: PropTypes.string,

@@ -40,6 +40,7 @@ import ImageModal from '../ImageModal';
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
+const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Footer } = EditableItem;
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
@@ -330,10 +331,12 @@ const ReportForm = (props) => {
   };
 
   const startSubmitForm = useCallback(() => {
-    if (submitButtonRef.current) {
+    if (is_collection) {
+      startSave();
+    } else if (submitButtonRef.current) {
       submitButtonRef.current.click();
     }
-  }, []);
+  }, [is_collection]);
 
   const clearErrors = () => setSaveErrorState(null);
 
@@ -451,23 +454,28 @@ const ReportForm = (props) => {
 
   const styles = {};
 
-  return <EditableItem.ContextProvider value={report}>
+  return <ContextProvider value={report}>
   
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
-    <EditableItem.Header 
+    <Header 
+      analyticsMetadata={{
+        category: 'Report Modal',
+        location: 'report modal',
+      }}
       icon={<EventIcon title={reportTypeTitle} report={report} />}
       menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority} readonly={schema.readonly}
-      title={reportTitle} onTitleChange={onReportTitleChange} />
+      title={reportTitle} onTitleChange={onReportTitleChange} 
+    />
 
     <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
 
-    <EditableItem.Body ref={scrollContainerRef}>
+    <Body ref={scrollContainerRef}>
       {is_collection && <IncidentReportsList reports={report.contains} 
         onReportClick={onIncidentReportClick}>
-        <EditableItem.AttachmentList
+        <AttachmentList
           files={filesToList}
           notes={notesToList}
           onClickFile={onClickFile}
@@ -492,20 +500,20 @@ const ReportForm = (props) => {
           onSubmit={startSave}
           schema={schema}
           uiSchema={uiSchema}>
-          <EditableItem.AttachmentList
+          <AttachmentList
             files={filesToList}
             notes={notesToList}
             onClickFile={onClickFile}
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
-          <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }
-    </EditableItem.Body>
+      <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
+    </Body>
     {/* bottom controls */}
-    {!schema.readonly && <EditableItem.AttachmentControls
+    {!schema.readonly && <AttachmentControls
       onAddFiles={onAddFiles}
       onSaveNote={onSaveNote} >
 
@@ -520,11 +528,11 @@ const ReportForm = (props) => {
         onNewReportSaved={onReportAdded}
       />}
 
-    </EditableItem.AttachmentControls>}
+    </AttachmentControls>}
 
-    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSubmitForm} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    <Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSubmitForm} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
     {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
-  </EditableItem.ContextProvider>;
+  </ContextProvider>;
 };
 
 const mapStateToProps = (state, props) => ({

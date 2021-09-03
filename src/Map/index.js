@@ -106,7 +106,7 @@ class Map extends Component {
     this.onSleepDetected = this.onSleepDetected.bind(this);
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
-    
+
     this.fetchingMapData = false;
 
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
@@ -119,7 +119,7 @@ class Map extends Component {
       this.props.history.push(newLocation);
     }
   }
- 
+
 
   get mapCenter() {
     return this.lngLatFromParams || this.props.homeMap.center;
@@ -191,7 +191,7 @@ class Map extends Component {
     if ((this.props.heatmapSubjectIDs !== prev.heatmapSubjectIDs) && !!this.props.heatmapSubjectIDs.length && this.props.showReportHeatmap) {
       this.onCloseReportHeatmap();
     }
-    
+
     if (!!this.props.timeSliderState.active && !!this.props.popup
       && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
     ) {
@@ -283,10 +283,10 @@ class Map extends Component {
 
   fetchMapSubjects() {
     const args = [this.props.map];
-    const timeSliderActive =  this.props.timeSliderState.active;
+    const timeSliderActive = this.props.timeSliderState.active;
 
     if (timeSliderActive) {
-      const { lower:updated_since, upper:updated_until } = this.props.eventFilter.filter.date_range;
+      const { lower: updated_since, upper: updated_until } = this.props.eventFilter.filter.date_range;
 
       args.push({
         updated_since, updated_until,
@@ -301,13 +301,14 @@ class Map extends Component {
   }
   handleMultiFeaturesAtSameLocationClick(event, layers) {
     this.props.showPopup('multi-layer-select',
-      { layers,
+      {
+        layers,
         coordinates: [event.lngLat.lng, event.lngLat.lat],
         onSelectSubject: this.onMapSubjectClick,
         onSelectEvent: this.onEventSymbolClick,
       },
     );
-  
+
   }
   fetchMapSubjectTracksForTimeslider(subjects) {
     this.resetTrackRequestCancelToken();
@@ -333,7 +334,7 @@ class Map extends Component {
     if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
     }
-    
+
     if (clickedLayersOfInterest.length > 1) {
       if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
         this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
@@ -349,15 +350,15 @@ class Map extends Component {
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
       if (!showingMultiPopup) {
-        this.props.hidePopup(this.props.popup.id); 
+        this.props.hidePopup(this.props.popup.id);
       }
     }
     this.hideUnpinnedTrackLayers(map, event);
   })
 
-  onEventSymbolClick = this.withLocationPickerState(({ event:clickEvent, layer: { properties } }) => {
+  onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
     if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
-    
+
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
@@ -405,10 +406,10 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
-  }) 
+  })
 
   hideUnpinnedTrackLayers(map, event) {
-    const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible:visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
+    const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible: visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
 
     const clickedLayerIDs = map.queryRenderedFeatures(event.point)
@@ -440,7 +441,7 @@ class Map extends Component {
       const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
 
       if (mapZoom < MAX_ZOOM
-      && mapZoom < zoom) {
+        && mapZoom < zoom) {
         this.props.map.easeTo({
           center: features[0].geometry.coordinates,
           zoom: newMapZoom
@@ -456,7 +457,7 @@ class Map extends Component {
 
   onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
     if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
-    
+
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
     const { updateTrackState, subjectTrackState } = this.props;
@@ -487,11 +488,11 @@ class Map extends Component {
       } else {
         map.setZoom(this.props.homeMap.zoom);
       }
-    };   
+    };
     window.map = map;
-    
+
     this.props.onMapLoad(map);
-    this.debouncedFetchMapData(); 
+    this.debouncedFetchMapData();
   }
 
   onSubjectHeatmapClose() {
@@ -540,7 +541,7 @@ class Map extends Component {
     const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
-    
+
     if (!maps.length) return null;
 
     const enableEventClustering = timeSliderActive ? false : true;
@@ -570,8 +571,8 @@ class Map extends Component {
 
             <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
               <EventsLayer
-                enableClustering={enableEventClustering} 
-                events={mapEventFeatureCollection} 
+                enableClustering={enableEventClustering}
+                events={mapEventFeatureCollection}
                 mapImages={mapImages}
                 onEventClick={this.onEventSymbolClick}
                 onClusterClick={this.onClusterClick}
@@ -598,15 +599,20 @@ class Map extends Component {
                 <FriendlyEventFilterString className='map-report-filter-details' />
               </div>
             </DelayedUnmount>
-                
+
 
             <div className='map-legends'>
               {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
               {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
-              <span className='compass-wrapper' onClick={this.onRotationControlClick}>
-                <RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem 0 0.5rem 0.5rem'}} />
+              <span className='compass-wrapper' onClick={this.onRotationControlClick} >
+                <RotationControl
+                  className='rotation-control'
+                  style={{
+                    position: 'relative', top: 'auto', margin: '0.5rem 0 0 0.5rem', borderStyle: 'none', borderRadius: '0.25rem'
+                  }}
+                />
                 <CursorGpsDisplay />
               </span>
             </div>
@@ -618,7 +624,7 @@ class Map extends Component {
 
             {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
             {patrolTracksVisible && <PatrolStartStopLayer />}
-            
+
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
