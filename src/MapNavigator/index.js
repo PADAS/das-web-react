@@ -55,13 +55,27 @@ const MapNavigator = (props) => {
     }
   }, []);
 
+  // listens to change events; auto-completes the search query
+  const handleSearchChange = (e) => {
+    setQuery(e.target.value);
+    if (query && query.length > 1){
+      fetchLocation();
+    }
+  };
+
+  // invoked when clear button is clicked
+  const handleClearSearch = () => {
+    setQuery('');
+  };  
+
   // navigate to location on the map on when Enter key is pressed
   const onKeyDown = (event) => {
     const { key } = event;
     if (key === 'Enter') {
       event.preventDefault();
       if (query && locations.length !== 0) {
-        jumpToLocation(map, isValidCoords);
+        jumpToLocation(map, coords);
+        addMarkerOnKeyDown();
         setLocations([]);
         setQuery('');
       } else {
@@ -72,30 +86,30 @@ const MapNavigator = (props) => {
 
   // make api call to google geocode api  
   const fetchLocation = async() => {
-      const url = `${API_URL}coordinates?address=${query}`;
-      const response = await axios.get(url);
-      const {data: {data}} = response;
-      if (!data[0].placeName || !data[0].coodinates) {
-        setErrors(data);
-        const error = errors.map(err => {
+    const url = `${API_URL}coordinates?query=${query}`;
+    const response = await axios.get(url);
+    const {data: {data}} = response;
+    if (data[0].placeName && data[0].coordinates) {
+      setLocations(data);
+      const location = locations.map(location => {
+        const locationObject = {
+          coordinates: location.coordinates,
+          placenames: location.placeName
+        }
+        return locationObject;
+      });
+      return location;
+    } else {
+      setErrors(data);
+      setLocations([]);
+      const error = errors.map(err => {
           const errorObject = {
             zeroResult: err.noResults
           }
           return errorObject;
         });
         return error;
-      } else {
-        setLocations(data);
-        const location = locations.map(location => {
-          const locationObject = {
-            coordinates: location.coordinates,
-            placename: location.placeName
-          }
-          return locationObject;
-        });
-        console.log(location);
-        return location;
-      }
+    }
   }
   
   // extract coordinates from api response
@@ -114,25 +128,12 @@ const MapNavigator = (props) => {
   });
 
   // validate coordinates
-  const isValidCoords = (coords) => validateLngLat(coords[0], coords[1]);
+  const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
 
   // extract error messages for display
   const errorMessages = errors.map((err, index) => (
     <p key={index}> {err.noResults} </p>
   ));
-
-  // listens to change events; auto-completes the search query
-  const handleSearchChange = (e) => {
-    setQuery(e.target.value);
-    if (query && query.length > 1){
-      fetchLocation();
-    }
-  };
-
-  // invoked when clear button is clicked
-  const handleClearSearch = () => {
-    setQuery('');
-  };  
   
   // iterate on data array of objects and displays query suggestions
   const querySuggestions = locations.map((location, index) => (
@@ -149,7 +150,7 @@ const MapNavigator = (props) => {
   const onQueryResultClick = (e) => {
     e.preventDefault();
     if (query) {
-      jumpToLocation(map, isValidCoords);
+      jumpToLocation(map, coords);
       const resultIndex = parseInt(e.target.id);
       setSelectedLocation(locations[resultIndex]);
       addMarker(resultIndex);
@@ -158,21 +159,34 @@ const MapNavigator = (props) => {
     };
   };
 
-  // add a marker to the map by 
-  // clicking on search result item
+  // add a marker and popup to the map onQueryResults click
   const addMarker = (idx) => {
     const point = locations[idx];
-    const marker = new mapboxgl.Marker().setLngLat(
-      [
-        point.coordinates[1],
-        point.coordinates[0]
-      ]
-    );
+    const marker = new mapboxgl.Marker({draggable: true})
+    .setLngLat([point.coordinates[1], point.coordinates[0]]);
     setAdd(marker);
+    marker.setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+          .setHTML(`<h3>${point.placeName}</h3>
+          <p>${[point.coordinates[0]]}, ${[point.coordinates[1]]}</p>`));
     marker.addTo(map);
+    marker.togglePopup(); // toggle popup open or closed
   }
 
-  // remove single marker
+  // add marker and popup onKeyDown
+  const addMarkerOnKeyDown = () => {
+    locations.map(point => {
+      const marker = new mapboxgl.Marker({draggable: true})
+      .setLngLat([point.coordinates[1], point.coordinates[0]]);
+      setAdd(marker);
+      marker.setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+            .setHTML(`<h3>${point.placeName}</h3>
+            <p>${[point.coordinates[0]]}, ${[point.coordinates[1]]}</p>`));
+      marker.addTo(map);
+      marker.togglePopup();
+    });
+  }
+
+  // remove marker
   const removeMarker = () => {
     add && add.remove(map);
     setAdd(null);
@@ -201,7 +215,7 @@ const MapNavigator = (props) => {
             />
             <div style={{overflowY: 'scroll', height: '20vh'}}>
               { query && locations.length > 0 && <ul>{ querySuggestions}</ul> }
-              { query && locations.length == 0 && errorMessages }
+              { query && !locations.length && errorMessages }
             </div> 
           </Popover.Content>
         </Popover>
