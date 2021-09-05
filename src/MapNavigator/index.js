@@ -7,6 +7,7 @@ import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { API_URL } from '../constants';
+import { validateLngLat } from '../utils/location';
 import styles from './styles.module.scss';
 
 const SEARCH_URL='https://api.mapbox.com/geocoding/v5/mapbox.places/'
@@ -69,8 +70,8 @@ const MapNavigator = (props) => {
     const { key } = event;
     if (key === 'Enter') {
       event.preventDefault();
-      if (query) {
-        jumpToLocation(map, coords);
+      if (query && locations.length !== 0) {
+        jumpToLocation(map, isValidCoords);
         setLocations([]);
         setQuery('');
       } else {
@@ -122,6 +123,9 @@ const MapNavigator = (props) => {
     }
   });
 
+  // validate coordinates
+  const isValidCoords = (coords) => validateLngLat(coords[0], coords[1]);
+
   // extract error messages for display
   const errorMessages = errors.map((err, index) => (
     <p key={index}> {err.noResults} </p>
@@ -155,7 +159,7 @@ const MapNavigator = (props) => {
   const onQueryResultClick = (e) => {
     e.preventDefault();
     if (query) {
-      jumpToLocation(map, coords);
+      jumpToLocation(map, isValidCoords);
       const resultIndex = parseInt(e.target.id);
       setSelectedLocation(locations[resultIndex]);
       addMarker(resultIndex);
