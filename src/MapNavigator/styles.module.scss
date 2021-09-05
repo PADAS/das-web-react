@@ -4,6 +4,8 @@
 $unfiltered-color : $secondary-light-gray;
 $filtered-color : $highlight-color;
 
+* {box-sizing: border-box;}
+
 .button {
     @include mapboxControlButton;
 }
@@ -116,8 +118,9 @@ $filtered-color : $highlight-color;
   }
 }
 
-.suggestion {
+li.suggestion {
   list-style: none;
+  padding-bottom: 4px;
 }
 
 li:hover {
