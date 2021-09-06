@@ -21,7 +21,7 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
@@ -57,6 +57,8 @@ const SCHEDULED_LABEL = 'Scheduled';
 const AUTO_START_LABEL = 'Auto Start';
 const AUTO_END_LABEL = 'Auto End';
 
+const MAX_TITLE_LENGTH = 250;
+
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
   const { addModal, patrol, map, id, fetchEvent, fetchTrackedBySchema, removeModal, updateUserPreferences, autoStartPatrols, patrolLeaderSchema, autoEndPatrols, eventStore } = props;
@@ -83,7 +85,7 @@ const PatrolModal = (props) => {
     if (isEmpty(patrolLeaderSchema)){
       fetchTrackedBySchema()
         .catch((e) => {
-        //
+          //
         })
         .finally(() => setLoadingTrackedBy(false));
     } else {
@@ -96,14 +98,14 @@ const PatrolModal = (props) => {
 
   const patrolReports = useMemo(() =>
     getReportsForPatrol(patrol)
-  , [patrol]);
+    , [patrol]);
 
   const allPatrolReports = useMemo(() => {
     // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
     const incidents = allReports.filter(report => report.is_collection);
     const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
-    const topLevelReports = allReports.filter(report => 
+    const topLevelReports = allReports.filter(report =>
       !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
@@ -144,7 +146,7 @@ const PatrolModal = (props) => {
 
   const onTitleChange = useCallback((value) => {
     trackEvent('Patrol Modal', 'Set patrol title');
-    
+
     setStatePatrol({
       ...statePatrol,
       title: value,
@@ -224,7 +226,7 @@ const PatrolModal = (props) => {
 
   const onStartTimeChange = useCallback((value, isAuto) => {
     trackEvent('Patrol Modal', 'Set patrol start time');
-    
+
     const [segment] = statePatrol.patrol_segments;
     const updatedValue = new Date(value).toISOString();
 
@@ -245,7 +247,7 @@ const PatrolModal = (props) => {
 
   const onEndTimeChange = useCallback((value, isAuto) => {
     trackEvent('Patrol Modal', 'Set patrol end time');
-    
+
     const [segment] = statePatrol.patrol_segments;
 
     const update = new Date(value).toISOString();
@@ -271,7 +273,7 @@ const PatrolModal = (props) => {
 
   const onSelectTrackedSubject = useCallback((value) => {
     const patrolIsNew = !statePatrol.id;
-    
+
     trackEvent('Patrol Modal', `${value ? 'Set' : 'Unset'} patrol tracked subject`);
 
     const update = {
@@ -313,9 +315,9 @@ const PatrolModal = (props) => {
 
   const onPrioritySelect = useCallback((priority) => {
     const valueTitle = REPORT_PRIORITIES.find(item => item.value === priority).display;
-    
+
     trackEvent('Patrol Modal', 'Set patrol priority', valueTitle);
-    
+
     setStatePatrol({
       ...statePatrol,
       priority,
@@ -324,9 +326,9 @@ const PatrolModal = (props) => {
 
   const onAddFiles = useCallback((files) => {
     trackEvent('Patrol Modal', 'Add attachment to patrol');
-    
+
     const uploadableFiles = filterDuplicateUploadFilenames([...filesToList], files);
-    
+
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
   }, [filesToList, filesToUpload]);
 
@@ -338,15 +340,15 @@ const PatrolModal = (props) => {
 
     // patch the report to include the segment id
     addPatrolSegmentToEvent(patrolSegmentId, data.id,);
- 
+
     // dedupe collections
     if(!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
   }, [addedReports, allPatrolReportIds, patrolSegmentId]);
-  
+
   const onSaveNote = useCallback((noteToSave) => {
-    
+
     const note = { ...noteToSave };
     const noteIsNew = !note.id;
 
@@ -354,16 +356,16 @@ const PatrolModal = (props) => {
 
     if (noteIsNew) {
       const { originalText } = note;
-      
+
       if (originalText) {
         const { notes } = statePatrol;
         setStatePatrol({
           ...statePatrol,
           notes: notes.map(n => n.text === originalText ? note : n),
         });
-        
+
       } else {
-        setStatePatrol({ 
+        setStatePatrol({
           ...statePatrol,
           notes: [
             ...statePatrol.notes,
@@ -379,10 +381,10 @@ const PatrolModal = (props) => {
       });
     }
   }, [statePatrol]);
-  
+
   const onDeleteNote = useCallback((note) => {
     trackEvent('Patrol Modal', 'Delete note from patrol');
-    
+
     const { text } = note;
 
     const { notes } = statePatrol;
@@ -395,17 +397,17 @@ const PatrolModal = (props) => {
 
   const onDeleteFile = useCallback((file) => {
     trackEvent('Patrol Modal', 'Delete file from patrol');
-    
+
     const { name } = file;
     updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
   }, [filesToUpload]);
 
   const onClickFile = useCallback(async (file) => {
     trackEvent('Patrol Modal', 'Click attachment in list of attachments');
-    
+
     if (file.file_type === 'image') {
       const fileData = await fetchImageAsBase64FromUrl(file.images.original);
-        
+
       addModal({
         content: ImageModal,
         src: fileData,
@@ -443,7 +445,7 @@ const PatrolModal = (props) => {
   }, [statePatrol.patrol_segments]);
 
   const displayPriority = useMemo(() => {
-    if (statePatrol.hasOwnProperty('priority')) return statePatrol.priority; 
+    if (statePatrol.hasOwnProperty('priority')) return statePatrol.priority;
     if (!!statePatrol.patrol_segments.length) return statePatrol.patrol_segments[0].priority;
     return null;
   }, [statePatrol]);
@@ -530,14 +532,14 @@ const PatrolModal = (props) => {
 
   const startTimeLabel = useMemo(() => {
     const [firstLeg] = statePatrol.patrol_segments;
-    
+
     if (isSegmentActive(firstLeg)) return STARTED_LABEL;
 
     const patrolState = calcPatrolCardState(statePatrol);
 
-    if (patrolState === PATROL_CARD_STATES.READY_TO_START 
-    || patrolState === PATROL_CARD_STATES.SCHEDULED 
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    if (patrolState === PATROL_CARD_STATES.READY_TO_START
+      || patrolState === PATROL_CARD_STATES.SCHEDULED
+      || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
       return (displayAutoStart ? AUTO_START_LABEL : SCHEDULED_LABEL);
     }
 
@@ -556,7 +558,7 @@ const PatrolModal = (props) => {
     if (endScheduled) {
       return SCHEDULED_LABEL;
     }
- 
+
     return null;
   }, [displayAutoEnd, statePatrol.patrol_segments]);
 
@@ -568,7 +570,7 @@ const PatrolModal = (props) => {
 
   const onCancel = useCallback(() => {
     trackEvent('Patrol Modal', 'Click "cancel" button');
-    
+
     removeModal(id);
   }, [id, removeModal]);
 
@@ -580,7 +582,7 @@ const PatrolModal = (props) => {
     if (needToFetchReport) {
       await fetchEvent(item.id);
     }
-    
+
     openModalForReport(item, map, {isPatrolReport: true, onSaveSuccess: onAddReport, relationshipButtonDisabled: !item.is_collection,  navigateRelationships: false } );
   }, [eventStore, fetchEvent, map, onAddReport]);
 
@@ -599,6 +601,7 @@ const PatrolModal = (props) => {
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
         onTitleChange={onTitleChange}
+        maxlength={MAX_TITLE_LENGTH}
       >
         <StatusBadge />
       </Header>
@@ -624,7 +627,7 @@ const PatrolModal = (props) => {
             autoCheckLabel='Auto-start patrol'
             onAutoCheckToggle={setAutoStart}
             required={true}
-          /> 
+          />
           {startTimeLabel && <span className={startTimeLabelClass}>
             {startTimeLabel}
           </span>}
@@ -659,7 +662,7 @@ const PatrolModal = (props) => {
         <div>
           <h6>End</h6>
           <PatrolDateInput
-            value={displayEndTime} 
+            value={displayEndTime}
             defaultValue={new Date()}
             calcSubmitButtonTitle={endTimeCommitButtonTitle}
             onChange={onEndTimeChange}
@@ -683,7 +686,7 @@ const PatrolModal = (props) => {
         <span>
           <strong>Distance:</strong> <span className={styles.patrolDetail}><ConnectedDistanceCovered patrol={statePatrol} /></span>
         </span>
-        <LocationSelectorInput label='' copyable={false} iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' /> 
+        <LocationSelectorInput label='' copyable={false} iconPlacement='input' map={map} location={patrolEndLocation} onLocationChange={onEndLocationChange} placeholder='Set End Location' />
       </section>
       <AttachmentControls
         analyticsMetadata={{
@@ -692,7 +695,7 @@ const PatrolModal = (props) => {
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId &&<AddReport map={map} 
+        {patrolSegmentId &&<AddReport map={map}
           analyticsMetadata={{
             category: 'Patrol Modal',
             location: 'patrol modal',
@@ -732,7 +735,7 @@ const makeMapStateToProps = () => {
   };
   return mapStateToProps;
 };
- 
+
 const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props) => <PatrolDistanceCovered patrolsData={[props.patrolData]} />)); /* eslint-disable-line react/display-name */
 
 export default connect(mapStateToProps, { addModal, fetchEvent: id => fetchEvent(id), fetchTrackedBySchema, removeModal, updateUserPreferences, setModalVisibilityState })(memo(PatrolModal));

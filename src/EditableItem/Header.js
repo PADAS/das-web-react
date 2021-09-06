@@ -17,10 +17,10 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const {analyticsMetadata, readonly, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange } = props;
+  const { analyticsMetadata, readonly, afterMenuToggle, children, priority, icon: Icon, menuContent: MenuContent, title: titleProp, onTitleChange, ...rest } = props;
 
   const data = useContext(FormDataContext);
-  
+
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
@@ -56,21 +56,21 @@ const EditableItemHeader = (props) => {
 
   const handleEscapePress = (event) => {
     const { key } = event;
-    if (key === 'Escape' 
-    && (headerPopoverOpen || historyPopoverOpen)) {
+    if (key === 'Escape'
+      && (headerPopoverOpen || historyPopoverOpen)) {
       event.preventDefault();
       event.stopPropagation();
       setHeaderPopoverState(false);
       setHistoryPopoverState(false);
     }
   };
-  
+
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen);
     afterMenuToggle && afterMenuToggle(!headerPopoverOpen);
     !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
-  
+
 
   const onHistoryClick = () => {
     setHistoryPopoverState(!historyPopoverOpen);
@@ -110,7 +110,7 @@ const EditableItemHeader = (props) => {
         </span>
       }
       {data.serial_number && <span>{data.serial_number}</span>}
-      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onChange={onTitleChange} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} />
+      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onChange={onTitleChange} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} {...rest} />
       {children}
       <div className={styles.headerDetails}>
         {!!MenuContent && <Fragment>
