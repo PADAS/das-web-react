@@ -82,8 +82,8 @@ const PatrolMenu = (props) => {
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
   return  <Dropdown alignRight className={styles.kebabMenu}>
-    <Toggle as="button">
-      <KebabMenuIcon />
+    <Toggle as="button" className={styles.kebabToggle}>
+      <KebabMenuIcon/>
     </Toggle>
     <Menu ref={menuRef}>
       {canEditPatrol && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
