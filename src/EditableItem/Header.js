@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
   const { analyticsMetadata, readonly, afterMenuToggle, children, priority, icon: Icon, menuContent: MenuContent, title: titleProp, onTitleChange, ...rest } = props;
-
+  
   const data = useContext(FormDataContext);
 
   const menuRef = useRef(null);
@@ -56,7 +56,7 @@ const EditableItemHeader = (props) => {
 
   const handleEscapePress = (event) => {
     const { key } = event;
-    if (key === 'Escape'
+    if (key === 'Escape' 
       && (headerPopoverOpen || historyPopoverOpen)) {
       event.preventDefault();
       event.stopPropagation();
@@ -64,13 +64,13 @@ const EditableItemHeader = (props) => {
       setHistoryPopoverState(false);
     }
   };
-
+  
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen);
     afterMenuToggle && afterMenuToggle(!headerPopoverOpen);
     !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
-
+  
 
   const onHistoryClick = () => {
     setHistoryPopoverState(!historyPopoverOpen);
