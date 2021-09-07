@@ -407,7 +407,7 @@ const PatrolModal = (props) => {
     
     if (file.file_type === 'image') {
       const fileData = await fetchImageAsBase64FromUrl(file.images.original);
-      
+        
       addModal({
         content: ImageModal,
         src: fileData,
@@ -538,8 +538,8 @@ const PatrolModal = (props) => {
     const patrolState = calcPatrolCardState(statePatrol);
 
     if (patrolState === PATROL_CARD_STATES.READY_TO_START
-      || patrolState === PATROL_CARD_STATES.SCHEDULED
-      || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    || patrolState === PATROL_CARD_STATES.SCHEDULED
+    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
       return (displayAutoStart ? AUTO_START_LABEL : SCHEDULED_LABEL);
     }
 
@@ -627,7 +627,7 @@ const PatrolModal = (props) => {
             autoCheckLabel='Auto-start patrol'
             onAutoCheckToggle={setAutoStart}
             required={true}
-          />
+          /> 
           {startTimeLabel && <span className={startTimeLabelClass}>
             {startTimeLabel}
           </span>}

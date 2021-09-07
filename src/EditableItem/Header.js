@@ -20,7 +20,6 @@ const EditableItemHeader = (props) => {
   const { analyticsMetadata, readonly, afterMenuToggle, children, priority, icon: Icon, menuContent: MenuContent, title: titleProp, onTitleChange, ...rest } = props;
   
   const data = useContext(FormDataContext);
-
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
@@ -57,7 +56,7 @@ const EditableItemHeader = (props) => {
   const handleEscapePress = (event) => {
     const { key } = event;
     if (key === 'Escape' 
-      && (headerPopoverOpen || historyPopoverOpen)) {
+    && (headerPopoverOpen || historyPopoverOpen)) {
       event.preventDefault();
       event.stopPropagation();
       setHeaderPopoverState(false);
