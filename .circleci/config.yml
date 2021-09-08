@@ -48,6 +48,9 @@ jobs:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
       - run:
+          command: "CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
+          name: Execute UI tests
+      - run:
           command: CI=false npm run build
           name: Build Production Artefact
       - run: 'make build_and_push descriptive_gcr_path_stem="$CIRCLE_BRANCH" unique_gcr_tag="$CIRCLE_WORKFLOW_ID"'
@@ -72,7 +75,7 @@ jobs:
     steps:
       - checkout
       - trigger_downstream_builds:
-        name: "Trigger downstream builds"
+          name: "Trigger downstream builds"
 
 workflows:
   version: 2
