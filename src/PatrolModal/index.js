@@ -601,7 +601,7 @@ const PatrolModal = (props) => {
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
         onTitleChange={onTitleChange}
-        maxlength={MAX_TITLE_LENGTH}
+        maxTitleLength={MAX_TITLE_LENGTH}
       >
         <StatusBadge />
       </Header>
