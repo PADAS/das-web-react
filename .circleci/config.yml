@@ -48,7 +48,7 @@ jobs:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
       - run:
-          command: "CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
+          command: CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen
           name: Execute UI tests
       - run:
           command: CI=false npm run build
