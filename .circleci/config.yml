@@ -47,7 +47,6 @@ jobs:
       - node/install-packages:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
-      - run: "CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
       - run:
           command: CI=false npm run build
           name: Build Production Artefact
@@ -67,13 +66,12 @@ jobs:
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
       - run: |
           gsutil cp -r build/static gs://er-static/
-
   trigger_downstream:
     executor: "gcloud"
     steps:
       - checkout
       - trigger_downstream_builds:
-          name: "Trigger downstream builds"
+        name: "Trigger downstream builds"
 
 workflows:
   version: 2
