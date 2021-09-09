@@ -17,10 +17,9 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const {analyticsMetadata, readonly, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange } = props;
-
-  const data = useContext(FormDataContext);
+  const { analyticsMetadata, readonly, afterMenuToggle, children, priority, icon: Icon, menuContent: MenuContent, title: titleProp, onTitleChange, maxTitleLength } = props;
   
+  const data = useContext(FormDataContext);
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
@@ -110,7 +109,7 @@ const EditableItemHeader = (props) => {
         </span>
       }
       {data.serial_number && <span>{data.serial_number}</span>}
-      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onChange={onTitleChange} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} />
+      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onChange={onTitleChange} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} maxLength={maxTitleLength} />
       {children}
       <div className={styles.headerDetails}>
         {!!MenuContent && <Fragment>
@@ -147,5 +146,6 @@ EditableItemHeader.propTypes = {
   MenuContent: PropTypes.oneOfType([
     PropTypes.element, PropTypes.node,
   ]),
+  maxTitleLength: PropTypes.number,
 };
 

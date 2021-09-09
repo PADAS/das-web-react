@@ -21,7 +21,7 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol, 
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
@@ -56,6 +56,8 @@ const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
 const AUTO_START_LABEL = 'Auto Start';
 const AUTO_END_LABEL = 'Auto End';
+
+const MAX_TITLE_LENGTH = 250;
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
@@ -599,6 +601,7 @@ const PatrolModal = (props) => {
         menuContent={<HeaderMenuContent onPrioritySelect={onPrioritySelect} />}
         priority={displayPriority}
         onTitleChange={onTitleChange}
+        maxTitleLength={MAX_TITLE_LENGTH}
       >
         <StatusBadge />
       </Header>
