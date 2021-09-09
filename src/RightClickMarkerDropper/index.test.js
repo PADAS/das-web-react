@@ -56,7 +56,7 @@ test('showing a popup on map right click', () => {
         lng: 10.012, lat: 11.666 
       }, 
       coordinates: [10.012, 11.666], 
-      popupAttrs: {
+      popupAttrsOverride: {
         offset: [0, 0],
       } 
     }
