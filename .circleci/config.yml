@@ -47,6 +47,7 @@ jobs:
       - node/install-packages:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
+      - run: npm run test-ci
       - run:
           command: CI=false npm run build
           name: Build Production Artefact
@@ -66,7 +67,6 @@ jobs:
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
       - run: |
           gsutil cp -r build/static gs://er-static/
-
   trigger_downstream:
     executor: "gcloud"
     steps:
