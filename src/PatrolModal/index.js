@@ -57,7 +57,7 @@ const SCHEDULED_LABEL = 'Scheduled';
 const AUTO_START_LABEL = 'Auto Start';
 const AUTO_END_LABEL = 'Auto End';
 
-const MAX_TITLE_LENGTH = 250;
+const MAX_TITLE_LENGTH = 255;
 
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
 const PatrolModal = (props) => {
