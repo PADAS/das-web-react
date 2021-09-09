@@ -432,16 +432,16 @@ export const calcPatrolCardState = (patrol) => {
   if (!patrol_segments.length) return INVALID;
 
   const [segment]  = patrol_segments;
-  if(isSegmentFinished(segment)) {
+  if (isSegmentFinished(segment)) {
     return DONE;
   }
-  if(isSegmentOverdue(segment)) {
+  if (isSegmentOverdue(segment)) {
     return START_OVERDUE;
   }
-  if(isSegmentActive(segment)) {
+  if (isSegmentActive(segment)) {
     return ACTIVE;
   }
-  if(isSegmentPending(segment)) {
+  if (isSegmentPending(segment)) {
     const happensToday = isToday(displayStartTimeForPatrol(patrol));
     return happensToday ? READY_TO_START : SCHEDULED;
   }

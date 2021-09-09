@@ -190,7 +190,7 @@ const EventsLayer = (props) => {
     const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
     if (bounceIDs.length) {
       // assumes first increment of animation curve val> 0
-      if(Math.abs(updatedScale) > 1e-8)
+      if (Math.abs(updatedScale) > 1e-8)
       {
         setTimeout(() => {
           setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true});
