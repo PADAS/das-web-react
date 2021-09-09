@@ -1,14 +1,14 @@
 import React, { memo, useMemo, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Source, Layer } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
+
+import GeoJsonLayer from '../GeoJsonLayer';
 
 import { LAYER_IDS, MAP_ICON_SCALE } from '../constants';
 
 const { TRACKS_LINES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
-const DebouncedLayer = debounceRender(Layer, 200);
-const DebouncedSource = debounceRender(Source, 200);
+const DebouncedLayer = debounceRender(GeoJsonLayer, 200);
 
 const trackLayerLinePaint = {
   'line-color': [
@@ -57,43 +57,26 @@ const TrackLayer = (props) => {
 
   const layerBefore = useMemo(() => before || SUBJECT_SYMBOLS, [before]);
 
-
   const { track:trackCollection, points:trackPointCollection } = trackData;
   const trackId = id || trackCollection.features[0].properties.id;
   
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
-  const trackSourceConfig = useMemo(() => ({
-    tolerance: 1.5,
-    type: 'geojson',
-    data: trackCollection,
-  }), [trackCollection]);
-
-  const trackPointSourceConfig = useMemo(() => ({
-    type: 'geojson',
-    data: trackPointCollection,
-  }), [trackPointCollection]);
   
   if (!trackData.track) return null;
-
-  const sourceId = `track-source-${trackId}`;
-  const pointSourceId = `${sourceId}-points`;
 
   const layerId = `${TRACKS_LINES}-${trackId}`;
   const pointLayerId = `${TRACKS_LINES}-points-${trackId}`;
 
   return <Fragment>
-    <Source id={sourceId} geoJsonSource={trackSourceConfig} />
-    <DebouncedSource id={pointSourceId} geoJsonSource={trackPointSourceConfig} />
 
-    <Layer sourceId={sourceId} type='line' before={layerBefore}
-      paint={trackLinePaint} layout={trackLineLayout} id={layerId} {...rest} />
+    <GeoJsonLayer data={trackCollection} id={layerId} type='line' before={layerBefore} layout={trackLineLayout} paint={trackLinePaint} />
 
-    {showTimepoints && <DebouncedLayer sourceId={pointSourceId} type='symbol' before={layerBefore}
+    {showTimepoints && <DebouncedLayer data={trackPointCollection} id={pointLayerId} type='symbol' before={layerBefore}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
-      onClick={onPointClick} layout={timepointLayerLayout} paint={timepointLayerPaint} id={pointLayerId} {...rest} />}
+      onClick={onPointClick} layout={timepointLayerLayout} paint={timepointLayerPaint} {...rest} />}
 
   </Fragment>;
 };
