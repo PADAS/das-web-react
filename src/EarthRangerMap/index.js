@@ -10,7 +10,6 @@ import mapLabel from '../common/images/icons/symbol-label-outline.png';
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
-// import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import '../Map/Map.scss';
 import BaseLayerRenderer from '../BaseLayerRenderer';
 import Attribution from './Attribution';
@@ -38,6 +37,41 @@ const EarthRangerMap = (props) => {
       });
 
     });
+    if (!map.getSource('mapbox-dem')) {
+
+      map.addSource('mapbox-dem', {
+        'type': 'raster-dem',
+        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        'tileSize': 512,
+        'maxzoom': 14
+      });
+      // add the DEM source as a terrain layer with exaggerated height
+      map.setTerrain({'source': 'mapbox-dem', 'exaggeration': 1.5});
+
+      map.addLayer({
+        'id': 'sky',
+        'type': 'sky',
+        'paint': {
+          'sky-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0,
+            0,
+            5,
+            0.3,
+            8,
+            1
+          ],
+          // set up the sky layer for atmospheric scattering
+          'sky-type': 'atmosphere',
+          // explicitly set the position of the sun rather than allowing the sun to be attached to the main light source
+          // 'sky-atmosphere-sun': getSunPosition(),
+          // set the intensity of the sun as a light source (0-100 with higher values corresponding to brighter skies)
+          'sky-atmosphere-sun-intensity': 5
+        }
+      });
+    }
     onMapLoaded && onMapLoaded(map);
   };
 

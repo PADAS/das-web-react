@@ -334,38 +334,43 @@ export { fetchEventFeed, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextInc
 const cancelableMapEventsFetch = () => {
   let cancelToken = CancelToken.source();
   const fetchFn = (map) => (dispatch, getState) => {
-    let lastKnownBbox;
-    if (!map) {
-      lastKnownBbox = getState().data.mapEvents.bbox;
-    }
+    try {
 
-    if (!map && !lastKnownBbox) return Promise.reject();
-    
-    const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
-    const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
-    
-    dispatch({
-      type: FETCH_MAP_EVENTS_START,
-      payload: { bbox },
-    });
-
-    const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
-    
-    cancelToken.cancel();
-    cancelToken = CancelToken.source();
-  
-    const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-      cancelToken: cancelToken.token,
-    });
-  
-    return recursivePaginatedQuery(request, cancelToken.token, onEachRequest)
-      .then((finalResults) =>
-        finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
-      )
-      .catch((error) => {
-        dispatch(fetchMapEventsError(error));
-        return Promise.reject(error);
+      let lastKnownBbox;
+      if (!map) {
+        lastKnownBbox = getState().data.mapEvents.bbox;
+      }
+      
+      if (!map && !lastKnownBbox) return Promise.reject();
+      
+      const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
+      const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
+      
+      dispatch({
+        type: FETCH_MAP_EVENTS_START,
+        payload: { bbox },
       });
+      
+      const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
+      
+      cancelToken.cancel();
+      cancelToken = CancelToken.source();
+      
+      const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
+        cancelToken: cancelToken.token,
+      });
+      
+      return recursivePaginatedQuery(request, cancelToken.token, onEachRequest)
+        .then((finalResults) =>
+          finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
+        )
+        .catch((error) => {
+          dispatch(fetchMapEventsError(error));
+          return Promise.reject(error);
+        });
+    } catch (e) {
+      return Promise.reject(e);
+    }
   };
   return [fetchFn, cancelToken];
 };
