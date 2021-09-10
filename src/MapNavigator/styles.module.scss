@@ -120,9 +120,12 @@ $filtered-color : $highlight-color;
 
 li.suggestion {
   list-style: none;
-  padding-bottom: 4px;
+  padding: 6px 12px;
+  display: block;
 }
 
 li:hover {
   cursor: pointer;
+  color: #404040;
+  background-color: #f3f3f3;
 }

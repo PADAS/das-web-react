@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
@@ -7,27 +7,24 @@ import { jumpToLocation } from '../utils/map';
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { API_URL } from '../constants';
 import { validateLngLat } from '../utils/location';
-import MouseMarkerPopup from '../MouseMarkerPopup';
+import mapboxgl from 'mapbox-gl';
+import { MapContext } from '../App';
 import styles from './styles.module.scss';
 
-const MapNavigator = ({map, showMarkerPopup = true}) => {
+const MapNavigator = () => {
   const buttonRef = useRef(null);
   const wrapperRef = useRef(null);
   const [active, setActiveState] = useState(false);
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [errors, setErrors] = useState([])
+  const [errors, setErrors] = useState([]);
+  const [addMapMarker, setAddMapMarker] = useState(null);
 
-  const toggleActiveState = () => setActiveState(!active);
+  const toggleActiveState = useCallback(() => setActiveState(!active), [active]);
 
-  // axios config
-  const axiosGet = axios.create({
-      baseURL: SEARCH_URL,
-      headers: {
-      'Content-Type': 'application/json',
-      }
-  });
+  // use context
+  const map = useContext(MapContext);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -58,21 +55,15 @@ const MapNavigator = ({map, showMarkerPopup = true}) => {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, []);
+    };
+  }, [active, toggleActiveState]);
 
   // listens to onChange events
   const handleSearchChange = (e) => {
     setQuery(e.target.value);
-    // filter locations based on names
-    // if (query.length > 1){
-    //   let matches = [];
-    //   matches = locations.filter((val) =>{
-    //     return val.placeName.toLowerCase().includes(query.toLowerCase());
-    //   });
-    //   console.log('matches => ', matches);
-    //   setSuggestions(matches);
-    // }
+    if (query && query.length > 1) {
+      fetchLocation();
+    }
   };
 
   // invoked when clear button is clicked
@@ -87,29 +78,29 @@ const MapNavigator = ({map, showMarkerPopup = true}) => {
       event.preventDefault();
       if (query && locations.length !== 0) {
         jumpToLocation(map, coords);
+        addMarker();
         setLocations([]);
         setQuery('');
       } else {
         setQuery('');
       }
     }
-  }
+  };
 
-  // make api call to google geocode api  
+  // make api call to google geocode api
   const fetchLocation = async() => {
     const url = `${API_URL}coordinates?query=${query}`;
     const response = await axios.get(url);
     const {data: {data}} = response;
-      if (data.placeName && data.coordinates) {
+    data.forEach(res => {
+      if (res.placeName && res.coordinates) {
         setLocations(data);
       } else {
         setErrors(data);
         setLocations([]);
       }
-    }
-
-  // re-render component when query value changes
-  useEffect(() => { fetchLocation(); }, [query]);
+    });
+  };
 
   // extract coordinates from api response
   const coords = locations.map(coord => {
@@ -127,7 +118,7 @@ const MapNavigator = ({map, showMarkerPopup = true}) => {
   });
 
   // validate coordinates
-  const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
+  const validatedCoords = coords && validateLngLat(coords[0], coords[1])? [coords[0], coords[1]] : null;
 
   // extract error messages for display
   const errorMessages = errors.map((err, index) => (
@@ -141,7 +132,7 @@ const MapNavigator = ({map, showMarkerPopup = true}) => {
       key={index}
       id={index}
       onClick={(e) => onQueryResultClick(e) }>
-        {location.placeName}
+      {location.placeName}
     </li>
   ));
       
@@ -158,26 +149,57 @@ const MapNavigator = ({map, showMarkerPopup = true}) => {
     };
   };
 
-  // add a marker and popup to the map onQueryResults click
-  const addMarker = (idx) => {
-    const point = locations[idx];
-    const coordinates = [point.coordinates[1], point.coordinates[0]];
-    return showMarkerPopup && <MouseMarkerPopup coordinates={coordinates}/>;
-  }
+  // add marker function
+  const markers = [];
+  const addMarker = (index) => {
+    // on search result item click
+    const point = locations[index];
+    if (point) {
+      const coordinates = [point.coordinates[1], point.coordinates[0]];    
+      const popup = new mapboxgl.Popup({closeOnClick: true});
+      const marker = new mapboxgl.Marker()
+        .setLngLat(coordinates)
+        .setPopup(popup.setHTML(
+          `<h3>${point.placeName}</h3>${[point.coordinates[1]]}, ${[point.coordinates[0]]}`
+        ));
+      setAddMapMarker(marker);
+      marker.addTo(map);
+      marker.togglePopup();
+    } else {
+      // on keydown
+      locations.forEach(point => {
+        const popup = new mapboxgl.Popup({closeOnClick: true});
+        const marker = new mapboxgl.Marker()
+          .setLngLat([point.coordinates[1], point.coordinates[0]])
+          .setPopup(popup.setHTML(
+            `<h3>${point.placeName}</h3>${[point.coordinates[1]]}, ${[point.coordinates[0]]}`
+          ));
+        setAddMapMarker(marker);
+        markers.push(marker);
+        marker.addTo(map);
+        marker.togglePopup();
+      });
+    }
+  };
 
-  // remove marker
-  const removeMarker = () => {
-    add && add.remove(map);
-    setAdd(null);
-  }
-  document.addEventListener('click', removeMarker);
+  // hide marker
+  const hideMarker = () => {
+    if (addMapMarker) {
+      addMapMarker.remove(map);
+      setAddMapMarker(null);
+    }
+    for (let marker of markers) {
+      marker.remove(map);
+    }
+  };
+  document.addEventListener('click', hideMarker);
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       <button type='button'
-      className={styles.button}
-      onClick={toggleActiveState} 
-      ref={buttonRef}>
+        className={styles.button}
+        onClick={toggleActiveState} 
+        ref={buttonRef}>
         <SearchIcon className={styles.searchButton}/>
       </button>
       <Overlay show={active} target={buttonRef.current} 
@@ -195,13 +217,12 @@ const MapNavigator = ({map, showMarkerPopup = true}) => {
             <div style={{overflowY: 'scroll', height: '20vh'}}>
               { query && locations.length > 0 && <ul>{ querySuggestions}</ul> }
               { query && !locations.length && errorMessages }
-            </div> 
-            <MouseMarkerPopup />
+            </div>
           </Popover.Content>
         </Popover>
-      </Overlay>           
+      </Overlay>        
     </div>
-  )
-}
+  );
+};
 
 export default MapNavigator;
