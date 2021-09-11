@@ -56,7 +56,8 @@
     "clean-cra-sw": "rm -f build/precache-manifest.*.js && rm -f build/service-worker.js",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run build-sw && npm run clean-cra-sw",
     "test": "react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test-ci": "CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
   },
   "devDependencies": {
     "@babel/runtime": "^7.7.4",
