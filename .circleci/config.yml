@@ -50,12 +50,12 @@ jobs:
       - run: 
           command: npm run test-ci
           environment:
-            NODE_OPTIONS: --max_old_space_size=4096
+            NODE_OPTIONS: --max_old_space_size=8192 
       - run:
           command: CI=false npm run build
           name: Build Production Artefact
           environment:
-            NODE_OPTIONS: --max_old_space_size=4096
+            NODE_OPTIONS: --max_old_space_size=8192
       - run: 'make build_and_push descriptive_gcr_path_stem="$CIRCLE_BRANCH" unique_gcr_tag="$CIRCLE_WORKFLOW_ID"'
       - persist_to_workspace:
           root: "./"
@@ -83,7 +83,8 @@ workflows:
   version: 2
   docker_build_workflow:
     jobs:
-      - production_build
+      - production_build:
+          resource_class: xlarge
       - push_to_storage:
           requires:
             - production_build
