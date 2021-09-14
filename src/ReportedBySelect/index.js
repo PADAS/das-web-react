@@ -54,7 +54,7 @@ const ReportedBySelect = (props) => {
 
     return value.hidden
       ? value
-      : selections.find(selections => selections.id === value.id)
+      : selections.find(selection => selection.id === value.id)
 
   }, [isMulti, selections, value]);
 
