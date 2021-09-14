@@ -47,10 +47,10 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   const onPopoverHide = useCallback(() => setPopoverState(false), []);
 
   const patrolStateTitle = useMemo(() => {
-    if(patrolState === PATROL_CARD_STATES.DONE) {
+    if (patrolState === PATROL_CARD_STATES.DONE) {
       return patrolState.title + ' ' + patrolStateDetailsEndTime(patrol);
     } 
-    if(patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
       return patrolState.title + ' ' + patrolStateDetailsOverdueStartTime(patrol);
     }
     return patrolState.title;

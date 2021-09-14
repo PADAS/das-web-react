@@ -14,4 +14,4 @@ export const showErrorToast = (message, details) => {
   toast(<ErrorMessage message={message} details={details} />, {
     type: toast.TYPE.ERROR,
   });
-}
+};

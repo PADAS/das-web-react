@@ -58,6 +58,7 @@
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run build-sw && npm run clean-cra-sw",
     "test": "react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen",
     "eject": "react-scripts eject",
+    "lint": "CI=true eslint src",
     "test-ci": "CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
   },
   "devDependencies": {

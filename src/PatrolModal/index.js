@@ -342,7 +342,7 @@ const PatrolModal = (props) => {
     addPatrolSegmentToEvent(patrolSegmentId, data.id,);
  
     // dedupe collections
-    if(!allPatrolReportIds.includes(data.id)) {
+    if (!allPatrolReportIds.includes(data.id)) {
       setAddedReports([...addedReports, data]);
     }
   }, [addedReports, allPatrolReportIds, patrolSegmentId]);
@@ -452,12 +452,12 @@ const PatrolModal = (props) => {
 
   const displayAutoStart = useMemo(() => {
     const { time_range: { start_time }} = statePatrol.patrol_segments[0];
-    return(!!start_time);
+    return (!!start_time);
   }, [statePatrol]);
 
   const displayAutoEnd = useMemo(() => {
     const { time_range: { end_time }}  = statePatrol.patrol_segments[0];
-    return(!!end_time);
+    return (!!end_time);
   }, [statePatrol]);
 
   const allPatrolUpdateHistory = useMemo(() => {
@@ -478,7 +478,7 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const patrolWithFlattenedHistory = useMemo(() => {
-    return({...statePatrol, updates: allPatrolUpdateHistory});
+    return ({...statePatrol, updates: allPatrolUpdateHistory});
   }, [statePatrol, allPatrolUpdateHistory]);
 
   const onSave = useCallback(() => {
@@ -493,7 +493,7 @@ const PatrolModal = (props) => {
 
     let toSubmit = {...statePatrol};
 
-    if(patrolShouldBeMarkedDone(statePatrol)){
+    if (patrolShouldBeMarkedDone(statePatrol)){
       toSubmit.state=PATROL_API_STATES.DONE;
     } else if (patrolShouldBeMarkedOpen(statePatrol)) {
       toSubmit.state=PATROL_API_STATES.OPEN;

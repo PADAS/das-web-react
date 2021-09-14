@@ -30,7 +30,7 @@ const symbolLayout = {
 const UserCurrentLocationLayer = (props) => {
   const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
   const [locationWatcherID, setLocationWatcherID] = useState(null);
-  const[userLocationIsInMapBounds, setUserLocationWithinMapBounds] = useState(false);
+  const [userLocationIsInMapBounds, setUserLocationWithinMapBounds] = useState(false);
   const [initialized, setInitState] = useState(false);
   
   const animationFrameID = useRef(null);

@@ -16,8 +16,8 @@ const ReportMapControl = (props) => {
   };
 
   return <div className={styles.container}>
-        <CheckMark onClick={onViewReportsToggle} fullyChecked={showReportsOnMap} /> <h5>Reports</h5>
-      </div>;
+    <CheckMark onClick={onViewReportsToggle} fullyChecked={showReportsOnMap} /> <h5>Reports</h5>
+  </div>;
 };
 
 const mapStateToProps = ({ view: { showReportsOnMap } }) => ({ showReportsOnMap });

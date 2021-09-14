@@ -11,11 +11,11 @@
     "ecmaVersion": 2018
   },
   "rules": {
+    "indent": ["error", 2, {
+      "ignoredNodes": ["TemplateLiteral"]
+    }],
+    "template-curly-spacing" : "off",
     "keyword-spacing": ["error", { "before": true, "after": true }],
-    "indent": [
-      "error",
-      2
-    ],
     "linebreak-style": [
       "error",
       "unix"

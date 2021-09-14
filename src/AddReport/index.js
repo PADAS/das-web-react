@@ -1,4 +1,4 @@
-import React, { Fragment, forwardRef, memo, createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
+import React, { forwardRef, memo, createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -34,10 +34,10 @@ const CategoryList = ({ category, showTitle, onClickReportType }) =>
     <ul key={category.value} className={styles.reportTypeMenu}>
       {category.types
         .map(type => <li key={type.id}>
-        <button type='button' onClick={() => onClickReportType(type)}>
-          <EventTypeListItem {...type} />
-        </button>
-      </li>)}
+          <button type='button' onClick={() => onClickReportType(type)}>
+            <EventTypeListItem {...type} />
+          </button>
+        </li>)}
     </ul>
   </div>;
 
@@ -77,7 +77,7 @@ const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react
 
   return <div className={styles.reportTypeContainer} ref={ref}>
     {filteredCategories
-      .map(category => <CategoryList category={category}  showTitle={categories.length > 1} onClickReportType={onClickReportType} />)}
+      .map(category => <CategoryList category={category} key={category.id} showTitle={categories.length > 1} onClickReportType={onClickReportType} />)}
   </div>;
 });
 

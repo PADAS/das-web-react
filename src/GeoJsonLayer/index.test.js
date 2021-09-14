@@ -1,4 +1,3 @@
-import { oneOfType } from "prop-types";
 
 it('renders without crashing', () => {
   

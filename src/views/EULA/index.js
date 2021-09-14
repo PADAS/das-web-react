@@ -48,12 +48,12 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     fetchCurrentUser(generateTempAuthHeaderIfNecessary())
-    .catch((error) => {
-      history.push({
-        pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-        search: location.search,
+      .catch((error) => {
+        history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: location.search,
+        });
       });
-    });
     ;
     fetchEula(generateTempAuthHeaderIfNecessary());
   }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary, history, location.search]);
@@ -84,9 +84,9 @@ const EulaPage = (props) => {
   }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   useEffect(() => () => {
-      deleteCookie('routeAfterEulaAccepted');
-      deleteCookie('temporaryAccessToken');
-    }, []);
+    deleteCookie('routeAfterEulaAccepted');
+    deleteCookie('temporaryAccessToken');
+  }, []);
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
