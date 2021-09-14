@@ -38,7 +38,9 @@ executors:
 
 jobs:
   production_build:
-    executor: node/default
+    executor: 
+      name: node/default
+      size: "large"
     steps:
       - "setup_remote_docker"
       - "docker_login"
@@ -83,8 +85,7 @@ workflows:
   version: 2
   docker_build_workflow:
     jobs:
-      - production_build:
-          resource_class: xlarge
+      - production_build
       - push_to_storage:
           requires:
             - production_build
