@@ -10,7 +10,6 @@ import distance from '@turf/distance';
 import { point } from '@turf/helpers';
 
 export const getBboxParamsFromMap = (map, asString = true) => {
-
   const mapBounds = map.getBounds();
   
   const asArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []);

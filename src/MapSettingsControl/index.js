@@ -7,6 +7,8 @@ import MapNamesControl from '../MapNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
 import MapDataZoomSimplificationControl from '../MapDataZoomSimplificationControl';
 import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
+import Map3DToggleControl from './Map3DToggleControl';
+// import VirtualizeSunPositionControl from './VirtualizeSunPositionControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
@@ -26,6 +28,8 @@ const MapSettingsControl = (props) => {
           <li><MapTrackTimepointsControl /></li>
           <li><InactiveRadioControl /></li>
           <li><MapDataZoomSimplificationControl /></li>
+          <li><Map3DToggleControl /></li>
+          {/* <li><VirtualizeSunPositionControl /></li> */}
           {hasUserLocation && <li><UserLocationMapControl /></li>}
         </ul>
       </Popover.Content>

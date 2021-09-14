@@ -27,7 +27,7 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
-import { getAnalyzerFeatureCollectionsByType } from '../selectors';
+import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
@@ -404,7 +404,7 @@ class Map extends Component {
     setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
     const properties = features[0].properties;
     const geometry = e.lngLat;
-    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
+    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, this.props.analyzerFeatures);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
   })
 
@@ -658,6 +658,7 @@ const mapStatetoProps = (state, props) => {
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
+    analyzerFeatures: analyzerFeatures(state),
     maps,
     eventTypes,
     heatmapSubjectIDs,

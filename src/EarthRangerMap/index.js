@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 
+import MapTerrain from '../MapTerrain';
+import SunPosition from '../SunPosition';
+
 import { trackEvent } from '../utils/analytics';
 
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
@@ -37,41 +40,6 @@ const EarthRangerMap = (props) => {
       });
 
     });
-    if (!map.getSource('mapbox-dem')) {
-
-      map.addSource('mapbox-dem', {
-        'type': 'raster-dem',
-        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-        'tileSize': 512,
-        'maxzoom': 14
-      });
-      // add the DEM source as a terrain layer with exaggerated height
-      map.setTerrain({'source': 'mapbox-dem', 'exaggeration': 1.5});
-
-      map.addLayer({
-        'id': 'sky',
-        'type': 'sky',
-        'paint': {
-          'sky-opacity': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0,
-            0,
-            5,
-            0.3,
-            8,
-            1
-          ],
-          // set up the sky layer for atmospheric scattering
-          'sky-type': 'atmosphere',
-          // explicitly set the position of the sun rather than allowing the sun to be attached to the main light source
-          // 'sky-atmosphere-sun': getSunPosition(),
-          // set the intensity of the sun as a light source (0-100 with higher values corresponding to brighter skies)
-          'sky-atmosphere-sun-intensity': 5
-        }
-      });
-    }
     onMapLoaded && onMapLoaded(map);
   };
 
@@ -98,6 +66,8 @@ const EarthRangerMap = (props) => {
     onStyleLoad={onLoad}>
     <MapContext.Consumer>
       {(map) => map && <Fragment>
+        <MapTerrain map={map} />
+        <SunPosition map={map} />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>
