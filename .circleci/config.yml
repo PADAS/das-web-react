@@ -38,9 +38,8 @@ executors:
 
 jobs:
   production_build:
-    executor: 
-      name: node/default
-      size: "large"
+    executor: node/default
+    resource_class: large
     steps:
       - "setup_remote_docker"
       - "docker_login"
