@@ -47,8 +47,6 @@ jobs:
       - node/install-packages:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
-          environment:
-            NODE_OPTIONS: --max_old_space_size=4096
       - run: 
           command: npm run test-ci
           environment:
