@@ -12,10 +12,10 @@
   },
   "rules": {
     "keyword-spacing": ["error", { "before": true, "after": true }],
-    "indent": [
-      "error",
-      2
-    ],
+    "arrow-spacing": ["error", { "before": true, "after": true }],
+    "key-spacing": ["error", { "beforeColon": true, "afterColon": true }],
+    "indent": ["error", 2],
+    "react/jsx-indent": ["error", 2],
     "linebreak-style": [
       "error",
       "unix"
@@ -33,6 +33,7 @@
     ],
     "strict": "off",
     "max-len": "off",
+    "no-trailing-spaces": ["error", { "ignoreComments": true }],
     "no-prototype-builtins": "off",
     "no-underscore-dangle": "off",
     "camelcase": "off",
