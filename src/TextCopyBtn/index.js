@@ -22,20 +22,18 @@ const TextCopyBtn = (props) => {
     }, [2500]);
   }, []);
 
-  const onClickCopy = useCallback((e) => {
+  const onClickCopy = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     showCopySuccess(false);
 
-    window.navigator.clipboard.writeText(text)
-      .then(() => {
-        onCopySuccess();
-      })
+    await navigator.clipboard.writeText(text)
       .catch((error) => {
         console.warn('error copying value to clipboard', error);
       });
 
+    onCopySuccess();
   }, [text, onCopySuccess]);
 
   return <span className={`${styles.clipboardWrapper} ${className}`}>
