@@ -9,6 +9,9 @@ Object.defineProperty(global.navigator, 'clipboard', { value: {
   writeText: jest.fn().mockImplementation(() => Promise.resolve()),
 }, configurable: true });
 
+Object.defineProperty(window.navigator, 'clipboard', { value: {
+  writeText: jest.fn().mockImplementation(() => Promise.resolve()),
+}, configurable: true });
 const testString = 'i am being copied';
 
 test('rendering without crashing', () => {
