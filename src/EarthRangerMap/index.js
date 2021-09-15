@@ -4,7 +4,7 @@ import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapb
 import { uuid } from '../utils/string';
 
 import MapTerrain from '../MapTerrain';
-import SunPosition from '../SunPosition';
+import SkyLayer from '../SkyLayer';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -67,7 +67,7 @@ const EarthRangerMap = (props) => {
     <MapContext.Consumer>
       {(map) => map && <Fragment>
         <MapTerrain map={map} />
-        <SunPosition map={map} />
+        <SkyLayer map={map} />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>
