@@ -13,7 +13,6 @@ export const updateUserPreferences = (preference) => ({
 const INITIAL_STATE = {
   gpsFormat: Object.values(GPS_FORMATS)[0],
   enable3D: true,
-  virtualizeSunPosition: false,
   sidebarOpen: false,
   autoStartPatrols: false,
   autoEndPatrols: false,
