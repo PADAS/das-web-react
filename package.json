@@ -59,7 +59,7 @@
     "test": "react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen",
     "eject": "react-scripts eject",
     "lint": "CI=true eslint src",
-    "test-ci": "CI=true react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
+    "test-ci": "CI=true react-scripts test --verbose  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
   },
   "devDependencies": {
     "@babel/runtime": "^7.7.4",
