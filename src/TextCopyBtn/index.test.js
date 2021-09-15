@@ -2,7 +2,7 @@ import React from 'react';
 
 import TextCopyBtn from './';
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 Object.defineProperty(global.navigator, 'clipboard', { value: {
@@ -21,7 +21,7 @@ test('copying to the clipbboard', async () => {
   const copyBtn = await screen.findByRole('button');
 
   expect(global.navigator.clipboard.writeText).not.toHaveBeenCalled();
-  
+
   userEvent.click(copyBtn);
 
   expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(testString);

@@ -4,7 +4,7 @@ import { waitForMapBounds } from './map';
 
 let map;
 const errorObj = new Error('invalid LngLat');
-const successValue =  [[12, 21], [22, 32]];
+// const successValue =  [[12, 21], [22, 32]];
 
 beforeEach(() => {
   jest.useFakeTimers();
