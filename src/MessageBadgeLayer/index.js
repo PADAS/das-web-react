@@ -133,10 +133,11 @@ const MessageBadgeLayer = (props) => {
   useEffect(() => {
     if (!!canViewMessages) {
       
-      const requestMapMessages = () => {
+      const requestMapMessages = async () => {
         try {
           if (subjectFeatureCollection.features.length) {
-            const mapBboxPolygon = bboxPolygon(getBboxParamsFromMap(map, false));
+            const mapBboxParams = await getBboxParamsFromMap(map, false);
+            const mapBboxPolygon = bboxPolygon(mapBboxParams);
             
             const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
               .filter(feature => booleanContains(mapBboxPolygon, feature))

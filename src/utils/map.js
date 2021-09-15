@@ -12,6 +12,32 @@ import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constan
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
+
+export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
+  let timeoutRemaining = MAX_TIMEOUT;
+
+  const tryToGetMapBounds = () => {
+    try {
+      const bounds = map.getBounds();
+      window.clearInterval(interval);
+      resolve(bounds);
+    } catch (error) {
+      if (timeoutRemaining < INTERVAL_LENGTH) {
+        window.clearInterval(interval);
+        return reject(error);
+      }
+    }
+  };
+
+  tryToGetMapBounds();
+
+  const interval = window.setInterval(() => {
+    timeoutRemaining = (timeoutRemaining-INTERVAL_LENGTH);
+    tryToGetMapBounds();
+  }, [INTERVAL_LENGTH]);
+});
+
+
 export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
   const clone2 = { ...item };

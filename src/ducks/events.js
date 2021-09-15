@@ -333,7 +333,7 @@ export { fetchEventFeed, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextInc
 
 const cancelableMapEventsFetch = () => {
   let cancelToken = CancelToken.source();
-  const fetchFn = (map) => (dispatch, getState) => {
+  const fetchFn = (map) => async (dispatch, getState) => {
     try {
 
       let lastKnownBbox;
@@ -343,7 +343,7 @@ const cancelableMapEventsFetch = () => {
       
       if (!map && !lastKnownBbox) return Promise.reject();
       
-      const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
+      const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
       const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
       
       dispatch({

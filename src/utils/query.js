@@ -9,8 +9,10 @@ import bboxPolygon from '@turf/bbox-polygon';
 import distance from '@turf/distance';
 import { point } from '@turf/helpers';
 
-export const getBboxParamsFromMap = (map, asString = true) => {
-  const mapBounds = map.getBounds();
+import { waitForMapBounds } from './map';
+
+export const getBboxParamsFromMap = async (map, asString = true) => {
+  const mapBounds = await waitForMapBounds(map);
   
   const asArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []);
   const asPointArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, point([lng, lat])], []);
