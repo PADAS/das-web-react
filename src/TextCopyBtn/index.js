@@ -28,8 +28,6 @@ const TextCopyBtn = (props) => {
 
     showCopySuccess(false);
 
-    console.log('window.navigator.clipboard', window.navigator.clipboard);
-
     await window.navigator.clipboard.writeText(text)
       .catch((error) => {
         console.warn('error copying value to clipboard', error);
