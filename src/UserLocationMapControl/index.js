@@ -10,17 +10,17 @@ const UserLocationMapControl = (props) => {
   const handleChange = () => {
     toggleDisplayUserLocation();
 
-    trackEvent('Map Interaction', 
+    trackEvent('Map Interaction',
       `${showUserLocation? 'Uncheck' : 'Check'} 'Show My Current Location' checkbox`, null);
   };
 
   return <label>
     <input type='checkbox' id='mapname' name='mapname' checked={showUserLocation} onChange={handleChange}/>
-    <span style={{paddingLeft: '.4rem'}}>Show My Current Location</span>
+    <span style={{ paddingLeft: '.4rem' }}>Show My Current Location</span>
   </label>;
 };
 
-const mapStateToProps = ( {view:{ showUserLocation }} ) => ({
+const mapStateToProps = ( { view: { showUserLocation } } ) => ({
   showUserLocation,
 });
 

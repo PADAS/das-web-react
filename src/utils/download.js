@@ -4,7 +4,7 @@ import { createWriteStream } from 'streamsaver';
 import { uuid } from '../utils/string';
 const { get } = axios;
 
-export const downloadFileFromUrl = async (url, { params = {}, filename = null }, { token:cancelToken } = CancelToken.source()) => {
+export const downloadFileFromUrl = async (url, { params = {}, filename = null }, { token: cancelToken } = CancelToken.source()) => {
   const { data, headers } = await get(url, {
     cancelToken,
     params,
@@ -27,7 +27,7 @@ export const downloadFileFromUrl = async (url, { params = {}, filename = null },
 };
 
 
-export const downloadFileStreamFromUrl = async (url, params = {}, { token:cancelToken } = CancelToken.source()) => {
+export const downloadFileStreamFromUrl = async (url, params = {}, { token: cancelToken } = CancelToken.source()) => {
   const response = await get(url, {
     cancelToken,
     params,

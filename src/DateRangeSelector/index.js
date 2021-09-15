@@ -117,7 +117,7 @@ const DateRangeSelector = (props) => {
       <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}
         container={containerRef} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`}>
         {filterSettings}
-      </FilterSettingsControl> 
+      </FilterSettingsControl>
     </div>}
   </div>;
 };

@@ -79,7 +79,7 @@ const MessageList = (props) => { /* eslint-disable-line react/display-name */
     className={`${styles.messageHistory} ${className}`}
     useWindow={false}
     getScrollParent={() => containerRef ? findDOMNode(containerRef.current) : null} // eslint-disable-line react/no-find-dom-node 
-  >
+    >
     {!!groupedByDate.length && groupedByDate.map((group, index) =>
       <li key={`${instanceId}-message-group-${index}`}>
         {!isReverse && <h6 className={styles.dividerTitle}>

@@ -2,9 +2,9 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
 
-const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dispatch:_dispatch, ...rest }) => {
+const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dispatch: _dispatch, ...rest }) => {
   const [hasCodeUpdateNotification, setHasCodeUpdateNotification] = useState(false);
-  
+
   const onCodeUpdateAvailable = useRef(() => {
     if (!hasCodeUpdateNotification) {
 
@@ -27,7 +27,7 @@ const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dis
       setHasCodeUpdateNotification(true);
     }
   });
-  
+
   useEffect(() => {
     window.addEventListener('codeUpdateAvailable', onCodeUpdateAvailable.current, false);
     return () => {

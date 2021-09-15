@@ -22,7 +22,7 @@ export const convertTrackFeatureCollectionToPoints = feature => {
 
   const addTimeAndBearingToPointFeature = (item, index, collection) => {
     const returnValue = { ...item };
-    const { coordinateProperties:_omittedCoordProps, ...restProperties } = returnValue.properties;
+    const { coordinateProperties: _omittedCoordProps, ...restProperties } = returnValue.properties;
 
     const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;
 
@@ -91,7 +91,7 @@ export const findTimeEnvelopeIndices = (times, from = null, until = null) => {
 
   if (from) {
     results.from = dateIsAtOrAfterDate(earliestTime, from)
-      ? times.length -1 
+      ? times.length -1
       : findDateIndexInRange(times, from);
   }
   if (until) {
@@ -134,9 +134,9 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
 
 
   if (
-    since 
+    since
     && new Date(since).getTime() < new Date(
-      first ? 
+      first ?
         Math.min(
           new Date(fetchedDateRange.since).getTime(),
           new Date(first).getTime(),
@@ -147,7 +147,7 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
   }
 
   if (
-    until 
+    until
     && new Date(until).getTime() > new Date(
       last ? Math.max(
         new Date(fetchedDateRange.until).getTime(),
@@ -164,17 +164,17 @@ export  const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
   const { data: { tracks, virtualDate, eventFilter }, view: { trackLength, timeSliderState } } = store.getState();
 
-  
-  const { active:timeSliderActive } = timeSliderState;
-  
+
+  const { active: timeSliderActive } = timeSliderState;
+
   const results = ids.map((id) => {
     let dateRange;
 
-    const { length, origin:trackLengthOrigin } = trackLength;
-    const { lower:eventFilterSince, upper:eventFilterUntil } = eventFilter.filter.date_range;
+    const { length, origin: trackLengthOrigin } = trackLength;
+    const { lower: eventFilterSince, upper: eventFilterUntil } = eventFilter.filter.date_range;
 
     if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-      dateRange = removeNullAndUndefinedValuesFromObject({ since:eventFilterSince, until:eventFilterUntil });
+      dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
     } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.customLength) {
       dateRange = removeNullAndUndefinedValuesFromObject({ since: timeSliderActive ? eventFilterSince : startOfDay(subDays(virtualDate || new Date(), length)), until: virtualDate });
     }
@@ -197,7 +197,7 @@ export  const fetchTracksIfNecessary = (ids, config) => {
 
       const request = store.dispatch(fetchTracks(dateRange, cancelToken, id))
         .finally(() => delete trackFetchState[id]);
-      
+
       trackFetchState[id] = {
         cancelToken,
         dateRange,
@@ -269,7 +269,7 @@ export const trimTrackDataToTimeRange = (trackData, from = null, until = null) =
   const trackResults = cloneDeep(originalTrack);
 
   trackResults.geometry.coordinates = trimArrayWithEnvelopeIndices(trackResults.geometry.coordinates, indices);
-  
+
   trackResults.properties.coordinateProperties.times = trimArrayWithEnvelopeIndices(trackResults.properties.coordinateProperties.times, indices);
 
   if (!trackResults.geometry.coordinates.length && originalTrack.geometry.coordinates.length) {
@@ -330,7 +330,7 @@ export const addSocketStatusUpdateToTrack = (tracks, newData) => {
         },
       }))
     };
-  
+
     return {
       track: updatedTrack, points: withPointIndex, ...rest,
     };

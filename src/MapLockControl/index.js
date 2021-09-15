@@ -16,8 +16,8 @@ const MapLockControl = (props) => {
     trackEvent('Map Interaction',  `${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
   };
 
-  useEffect(() => { 
-    lockMap(map, mapIsLocked); 
+  useEffect(() => {
+    lockMap(map, mapIsLocked);
   }, [mapIsLocked]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <label>
@@ -26,8 +26,8 @@ const MapLockControl = (props) => {
   </label>;
 };
 
-const mapStateToProps = ( {view:{mapIsLocked}} ) => {
-  return {mapIsLocked};
+const mapStateToProps = ( { view: { mapIsLocked } } ) => {
+  return { mapIsLocked };
 };
 
-export default connect(mapStateToProps, {toggleMapLockState})(withMap(MapLockControl));
+export default connect(mapStateToProps, { toggleMapLockState })(withMap(MapLockControl));

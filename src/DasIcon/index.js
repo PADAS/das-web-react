@@ -25,7 +25,7 @@ const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = (props) => {
-  const { type, iconId, color = 'gray', dispatch:_dispatch, className, ...rest } = props;
+  const { type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest } = props;
 
   const svgHref = calcIconUrl(type, iconId);
 

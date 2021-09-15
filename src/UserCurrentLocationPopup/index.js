@@ -48,6 +48,6 @@ UserCurrentLocationPopup.propTypes = {
   data: PropTypes.object.isRequired,
 };
 
-const compareFunction = ({ data: { location:oldLocation } }, { data: { location:newLocation } }) => isEqual(oldLocation, newLocation);
+const compareFunction = ({ data: { location: oldLocation } }, { data: { location: newLocation } }) => isEqual(oldLocation, newLocation);
 
 export default connect(null, { hidePopup })(memo(UserCurrentLocationPopup, compareFunction));

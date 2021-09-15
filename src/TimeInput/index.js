@@ -15,7 +15,7 @@ const NUMBER_INPUT_ATTRS = {
 
 const numberToTimeString = (value) => {
   if (!value) return '00';
-  
+
   const asString = value.toString();
 
   return asString.length > 1 ? asString : `0${asString}`;
@@ -37,31 +37,31 @@ const TimeInput = (props, ref) => {
     if (minute.length === 1) {
       minute = `0${minute}`;
     }
-    
+
     setHourValue(hour);
     setMinuteValue(minute);
   }, [value]);
 
-  
+
   const onHourChange = useCallback(({ target: { value } }) => {
     if (parseFloat(value) > MAX_HOUR) return;
 
     const hourString = numberToTimeString(value);
     const minuteString = numberToTimeString(minuteValue);
-    
+
     onChange(`${hourString}:${minuteString}`);
   }, [minuteValue, onChange]);
 
   const onMinuteChange = useCallback(({ target: { value } }) => {
     if (parseFloat(value) > MAX_MINUTE) return;
-    
+
     const minuteString = numberToTimeString(value);
     const hourString = numberToTimeString(hourValue);
-    
+
     onChange(`${hourString}:${minuteString}`);
   }, [hourValue, onChange]);
-  
-  return <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-evenly'}}>
+
+  return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-evenly' }}>
     <input ref={ref} disabled={disabled} className={styles.input} {...NUMBER_INPUT_ATTRS} value={hourValue} onChange={onHourChange} />:<input disabled={disabled} className={styles.input} {...NUMBER_INPUT_ATTRS} value={minuteValue} onChange={onMinuteChange} />
   </div>;
 };

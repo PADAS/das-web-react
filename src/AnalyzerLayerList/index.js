@@ -53,7 +53,7 @@ const AnalyzerLayerList = memo((props) => {
     const { filter: { text = '' } } = mapLayerFilter;
 
     if (!text) return false;
-    
+
     return !!analyzers.length;
   }, [analyzers.length, mapLayerFilter]);
 

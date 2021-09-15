@@ -9,7 +9,7 @@ import { displayEventTypes } from '../selectors/events';
 
 import styles from './styles.module.scss';
 
-const EventIcon = forwardRef(({report, eventTypes, color, ...rest}, ref) => { /* eslint-disable-line react/display-name */
+const EventIcon = forwardRef(({ report, eventTypes, color, ...rest }, ref) => { /* eslint-disable-line react/display-name */
   const { is_collection } = report;
   const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
 
@@ -26,7 +26,7 @@ const EventIcon = forwardRef(({report, eventTypes, color, ...rest}, ref) => { /*
 
   return <span ref={ref} className={styles.wrapper}>
     <DasIcon type='events' iconId='incident_collection'  {...rest}  />
-    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events'  {...rest} 
+    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events'  {...rest}
       style={{
         fill: 'white',
       }}

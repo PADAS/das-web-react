@@ -36,4 +36,4 @@ TrackLength.propTypes = {
   trackId: PropTypes.string.isRequired,
   tracks: PropTypes.array,
   className: PropTypes.string,
-}; 
+};

@@ -20,7 +20,7 @@ export const fetchMessagesSuccess = (payload, refresh = false) => ({
 export const updateMessageFromRealtime = payload => ({
   type: SOCKET_MESSAGE_UPDATE,
   payload,
-}); 
+});
 
 export const removeMessageById = id => ({
   type: REMOVE_MESSAGE,

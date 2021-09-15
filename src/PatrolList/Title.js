@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 
 const PatrolListTitle = (props) => {
   const { /* onPatrolJumpClick */ patrolFilter } = props;
-  
+
   const dateRangeModified = useMemo(() => isDateFilterModified(patrolFilter), [patrolFilter]);
   const textContext = useMemo(() => calcPatrolListTitleFromFilter(patrolFilter), [patrolFilter]);
 

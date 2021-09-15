@@ -11,14 +11,14 @@ import { hidePopup } from '../ducks/popup';
 import { addModal } from '../ducks/modals';
 
 import { usePermissions } from '../hooks';
-import {PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import styles from './styles.module.scss';
 
 const isReverse = true;
 
 const SubjectMessagesPopup = (props) => {
-  const  { data: { properties } } = props; 
+  const  { data: { properties } } = props;
 
   const hasMessagingWritePermissions = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.CREATE);
 

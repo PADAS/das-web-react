@@ -11,7 +11,7 @@ const heatmapSubjectIDs = ({ view: { heatmapSubjectIDs } }) => heatmapSubjectIDs
 export const subjectTrackState = ({ view: { subjectTrackState } }) => subjectTrackState;
 export const tracks = ({ data: { tracks } }) => tracks;
 const trackLength = ({ view: { trackLength } }) => trackLength;
-export const getPatrols = ({ data: { patrols: { results }} }) => results;
+export const getPatrols = ({ data: { patrols: { results } } }) => results;
 const getPatrolTrackIds = ({ view: { patrolTrackState }, data: { patrolStore } }) => uniq(
   [...patrolTrackState.visible, ...patrolTrackState.pinned]
     .map(patrolId => patrolStore[patrolId])
@@ -37,9 +37,9 @@ const visibleTrackData = createSelector(
   },
 );
 
-export const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEventFilterDateRange], 
+export const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEventFilterDateRange],
   (trackLength, timeSliderState, eventFilterDateRange) => {
-    const { virtualDate, active:timeSliderActive } = timeSliderState;
+    const { virtualDate, active: timeSliderActive } = timeSliderState;
     const { lower } = eventFilterDateRange;
     const { origin, length } = trackLength;
 

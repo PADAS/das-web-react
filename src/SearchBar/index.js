@@ -27,7 +27,7 @@ const SearchBar = (props) => {
       // event.originalEvent.stopPropagation();
     }
   };
-  
+
   const onClearClick = (e) => {
     onClear(e);
   };
@@ -35,11 +35,11 @@ const SearchBar = (props) => {
   return <label className={`${styles.search} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
     <input placeholder={placeholder} value={value} type="text"
-      onKeyDown={onKeyDown} 
+      onKeyDown={onKeyDown}
       onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur}/>
     <button className={styles.clearButton} onClick={onClearClick}>
       <ClearIcon title='Clear search bar' className={styles.clearIcon} />
-    </button>    
+    </button>
   </label>;
 };
 

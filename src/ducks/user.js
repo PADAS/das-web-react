@@ -8,7 +8,7 @@ export const CURRENT_USER_API_URL = `${USER_API_URL}/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
 
 // actions
-const FETCH_CURRENT_USER_SUCCESS = 'FETCH_CURRENT_USER_SUCCESS'; 
+const FETCH_CURRENT_USER_SUCCESS = 'FETCH_CURRENT_USER_SUCCESS';
 const FETCH_USER_PROFILES_SUCCESS = 'FETCH_USER_PROFILES_SUCCESS';
 
 const SET_USER_PROFILE = 'SET_USER_PROFILE';
@@ -25,7 +25,7 @@ export const fetchCurrentUser = (config = {}) => (dispatch, getState) => axios.g
     const { data: { selectedUserProfile } } = getState();
     if (selectedUserProfile?.id && selectedUserProfile.id !== data.id) {
       return axios.get(`${USER_API_URL}/${selectedUserProfile.id}`)
-        .then(({ data: { data:profileUser } }) => {
+        .then(({ data: { data: profileUser } }) => {
           dispatch(setUserProfile(profileUser));
         });
     }
@@ -59,15 +59,15 @@ export const setUserProfile = (profile = {}, setCookie) => (dispatch, getState) 
 
 const clearProfileCookie = () => {
   document.cookie = 'userProfile=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'; // expire profile cookie
-}; 
+};
 
 export const clearUserProfile = () => (dispatch) => {
   clearProfileCookie(); // expire profile cookie
   dispatch({
     type: CLEAR_USER_PROFILE,
   });
-}; 
- 
+};
+
 const fetchUserSuccess = payload => ({
   type: FETCH_CURRENT_USER_SUCCESS,
   payload,
@@ -83,7 +83,7 @@ const fetchUserProfileSuccess = payload => ({
 const INITIAL_USER_STATE = {};
 export default (state = INITIAL_USER_STATE, action = {}) => {
   const { type, payload } = action;
-  
+
   switch (type) {
   case (FETCH_CURRENT_USER_SUCCESS): {
     return payload;
@@ -98,7 +98,7 @@ export default (state = INITIAL_USER_STATE, action = {}) => {
 const INITIAL_USER_PROFILE_STATE = [];
 export const userProfilesReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
-  
+
   switch (type) {
   case (FETCH_USER_PROFILES_SUCCESS): {
     return payload;
@@ -112,7 +112,7 @@ export const userProfilesReducer = globallyResettableReducer((state, action = {}
 const INITIAL_SELECTED_PROFILE_STATE = {};
 export const selectedUserProfileReducer = globallyResettableReducer((state, action = {}) => {
   const { type, payload } = action;
-  
+
   switch (type) {
   case (SET_USER_PROFILE): {
     return payload;

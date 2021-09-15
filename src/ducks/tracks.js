@@ -4,7 +4,7 @@ import isEqual from 'react-fast-compare';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { API_URL } from '../constants';
 import { SOCKET_SUBJECT_STATUS } from './subjects';
-import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints, trackHasDataWithinTimeRange} from '../utils/tracks';
+import { addSocketStatusUpdateToTrack, convertTrackFeatureCollectionToPoints, trackHasDataWithinTimeRange } from '../utils/tracks';
 
 const TRACKS_API_URL = id => `${API_URL}subject/${id}/tracks/`;
 
@@ -158,7 +158,7 @@ export const trackDateRangeReducer = globallyResettableReducer((state, { type, p
   }
   if (type === SET_TRACK_LENGTH) {
     return {
-      ...state, length: payload, 
+      ...state, length: payload,
     };
   }
 

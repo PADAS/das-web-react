@@ -23,7 +23,7 @@ const Footer = (props) => {
   const { onCancel, readonly, cancelTitle = 'Cancel', onSave, onStateToggle, data, isActiveState, saveDisabled } = props;
 
   const SaveButtonComponent = !!onStateToggle ? SplitButton : Button;
-  
+
   return <div className={styles.formButtons}>
     <Button type="button" onClick={onCancel} variant="secondary">{cancelTitle}</Button>
     {!readonly && <SaveButtonComponent className={styles.saveButton} disabled={saveDisabled} drop='down' variant='primary' type='submit' title='Save' onClick={onSave}>

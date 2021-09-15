@@ -73,7 +73,7 @@ const validAddReportTypes = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible, 
+  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible,
     setReportHeatmapVisibility, sidebarOpen, } = props;
 
   const { filter: { overlap } } = patrolFilter;
@@ -121,10 +121,10 @@ const SideBar = (props) => {
   const patrolFetchRef = useRef(null);
 
   useEffect(() => {
-    if (!optionalFeedProps.exclude_contained) { 
+    if (!optionalFeedProps.exclude_contained) {
       setFeedEvents(events.results);
     }
-    else {  
+    else {
       /* guard code against new events being pushed into the feed despite not matching the exclude_contained filter. 
       this happens as relationships can be established outside the state awareness of the feed. */
       const containedEventIdsToRemove = uniq(events.results
@@ -206,7 +206,7 @@ const SideBar = (props) => {
         setPatrolLoadState(false);
         patrolFetchRef.current = null;
       });
-      
+
   }, [fetchPatrols]);
 
   const addReportPopoverPlacement = isExtraLargeLayout
@@ -274,7 +274,7 @@ const SideBar = (props) => {
                 <ErrorMessage message='Could not load reports. Please try again.' details={events.error} />
                 <Button type='button' variant='primary' onClick={loadFeedEvents}>
                   <RefreshIcon />
-                Try again
+                  Try again
                 </Button>
               </div>}
               {!events.error && <EventFeed
@@ -291,7 +291,7 @@ const SideBar = (props) => {
             </ErrorBoundary>
           </Tab>
           {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
-            <PatrolFilter className={styles.patrolFilter} /> 
+            <PatrolFilter className={styles.patrolFilter} />
             <PatrolList map={map} patrols={patrols.results} loading={loadingPatrols}/>
           </Tab>}
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">

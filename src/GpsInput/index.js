@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
 const GpsInput = (props) => {
-  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch:_dispatch, ...rest } = props;
+  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest } = props;
 
   const lngLat = originalLngLat ? [...originalLngLat] : null;
   const hasLocation = !!lngLat && lngLat.length === 2;

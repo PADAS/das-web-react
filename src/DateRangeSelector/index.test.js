@@ -29,13 +29,13 @@ describe('presets', () => {
     });
     test('the lower value is the beginning of yesterday', () => {
       const { lower } = lastCall[0];
-      
+
       expect(lower).toEqual(generateDaysAgoDate(1));
     });
 
     test('the upper value is the last second of yesterday', () => {
       const { upper } = lastCall[0];
-      
+
       expect(expect(upper).toEqual(subSeconds(generateDaysAgoDate(0), 1)));
     });
   });

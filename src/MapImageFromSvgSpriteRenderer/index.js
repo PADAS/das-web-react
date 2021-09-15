@@ -7,7 +7,7 @@ import { addImageToMapIfNecessary } from '../ducks/map-images';
 
 import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
-export const calcSvgImageIconId = ({icon_id, priority, height, width}) => {
+export const calcSvgImageIconId = ({ icon_id, priority, height, width }) => {
   let string = `${icon_id}`;
 
   [priority, height, width]
@@ -19,7 +19,7 @@ export const calcSvgImageIconId = ({icon_id, priority, height, width}) => {
   return string;
 };
 
-const fetchSpriteImage = (icon_id) => axios.get(`${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`, 
+const fetchSpriteImage = (icon_id) => axios.get(`${process.env.REACT_APP_DAS_HOST}/static/sprite-src/${icon_id}.svg`,
   {
     headers: {
       Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
@@ -32,7 +32,7 @@ const imageElFromSvgString = (svgString, report) => {
 
   const { height, priority, width = MAP_ICON_SIZE } = report;
   const color = calcIconColorByPriority(priority);
-  
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(svgString, 'image/svg+xml');
   const svgEl = doc.documentElement;
@@ -50,7 +50,7 @@ const imageElFromSvgString = (svgString, report) => {
   var xml = (new XMLSerializer()).serializeToString(svgEl);
   const withStyleElRemoved = xml.replace(/<style>.*?<\/style>/g, '');
 
-  const blob = new Blob([withStyleElRemoved], {type: 'image/svg+xml'});
+  const blob = new Blob([withStyleElRemoved], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
 
   return imgElFromSrc(
@@ -58,7 +58,7 @@ const imageElFromSvgString = (svgString, report) => {
     width * MAP_ICON_SCALE,
     (height ? (height * MAP_ICON_SCALE) : undefined),
   );
-}; 
+};
 
 const getImageAssemblyDataFromReport = (report) => {
   const reportTypeIconId = report.icon_id || 'generic';
@@ -93,7 +93,7 @@ const MapImageFromSvgSpriteRenderer = (props) => {
     if (!ongoingRequests.current[reportTypeIconId]) {
       ongoingRequests.current[reportTypeIconId] = fetchSpriteImage(reportTypeIconId);
     }
-      
+
     ongoingRequests.current[reportTypeIconId]
       .then((response) => {
         spriteCache.current[reportTypeIconId] = response.data;
@@ -121,8 +121,8 @@ const MapImageFromSvgSpriteRenderer = (props) => {
             .catch((error) => {
               console.warn('imgElFromSrc error', error);
             });
-            
-            
+
+
         } else {
           delete spriteCache.current[reportTypeIconId];
           console.warn('error generating image for report', error);
@@ -145,7 +145,7 @@ const MapImageFromSvgSpriteRenderer = (props) => {
   });
 
   return null;
-  
+
 };
 
 const mapStateToProps = ({ view: { mapImages } }) => ({

@@ -19,21 +19,21 @@ import styles from '../TrackLegend/styles.module.scss';
 
 
 const TitleElement = memo((props) => { // eslint-disable-line
-  const { coverageLength, displayTitle, iconId, patrolData, onRemovePatrolClick } = props;
+  const { displayTitle, iconId, patrolData, onRemovePatrolClick } = props;
 
   const convertPatrolTrackToDetailItem = useCallback(({ patrol, trackData, leader }) => {
     const title = displayTitleForPatrol(
       patrol,
       leader,
     );
-    
+
     const iconId = iconTypeForPatrol(patrol);
     const { id } = patrol;
 
     const trackLength = `${trackData ? length(trackData.track).toFixed(2): 0.00}km`;
 
     return <li key={id}>
-      <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} /> 
+      <DasIcon type='events' iconId={iconId} className={styles.svgIcon} title={`Icon for ${title}`} />
       <div className={styles.listItemDetails}>
         <span>{title}</span>
         <small>{trackLength} covered</small>
@@ -66,7 +66,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
 
 const PatrolTrackLegend = (props) => {
-  const { dispatch:_dispatch, patrolData, updateTrackState, trackState, ...rest } = props;
+  const { dispatch: _dispatch, patrolData, updateTrackState, trackState, ...rest } = props;
 
   const hasData = !!patrolData.length;
   const isMulti = patrolData.length > 1;

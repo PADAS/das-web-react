@@ -17,7 +17,7 @@ export const fetchBaseLayers = () => async (dispatch) => {
   });
 
   try {
-    const { data: { data:results } } = await get(BASE_LAYER_API_URL);
+    const { data: { data: results } } = await get(BASE_LAYER_API_URL);
     dispatch({
       type: FETCH_BASE_LAYERS_SUCCESS,
       payload: results,

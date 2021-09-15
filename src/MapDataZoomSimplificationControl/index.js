@@ -6,12 +6,12 @@ import { trackEvent } from '../utils/analytics';
 const labelString = 'Simplify Map Data on Zoom';
 
 const MapTrackTimepointsControl = (props) => {
-  const { simplifyMapDataOnZoom: { enabled:shouldSimplify }, toggleMapDataSimplificationOnZoom } = props;
+  const { simplifyMapDataOnZoom: { enabled: shouldSimplify }, toggleMapDataSimplificationOnZoom } = props;
 
   const handleChange = () => {
     toggleMapDataSimplificationOnZoom();
 
-    trackEvent('Map Interaction', 
+    trackEvent('Map Interaction',
       `${shouldSimplify? 'Uncheck' : 'Check'} '${labelString}' checkbox`, null);
   };
 

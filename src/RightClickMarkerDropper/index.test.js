@@ -7,9 +7,7 @@ import { Provider } from 'react-redux';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import {within} from '@testing-library/dom';
-import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, render } from '@testing-library/react';
 
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import { MapContext } from '../App';
@@ -52,13 +50,13 @@ test('showing a popup on map right click', () => {
   expect(popupCall).toEqual({ type: 'SHOW_POPUP', payload: {
     type: 'dropped-marker',
     data: {
-      location: { 
-        lng: 10.012, lat: 11.666 
-      }, 
-      coordinates: [10.012, 11.666], 
+      location: {
+        lng: 10.012, lat: 11.666
+      },
+      coordinates: [10.012, 11.666],
       popupAttrsOverride: {
         offset: [0, 0],
-      } 
+      }
     }
   }
   });

@@ -7,7 +7,7 @@ const ErrorMessage = ({ message = 'An error has occured', details = 'hoopy doopy
   const [detailsShown, showDetails] = useState(false);
 
   const toggleShowDetails = () => showDetails(!detailsShown);
-  
+
   return <Fragment>
     <h6>{message} {details && <Button onClick={toggleShowDetails} variant='link'>{detailsShown ? 'Hide' : 'Show'} Details</Button>}</h6>
     {details && detailsShown && <Alert variant='danger'>

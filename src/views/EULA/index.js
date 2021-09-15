@@ -22,7 +22,7 @@ const { Dialog, Header, Title, Body, Footer } = Modal;
 const EulaPage = (props) => {
   const { acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, history, location, user, temporaryAccessToken } = props;
 
-  const { eula_url, version:eula_version, id:eula_id } = eula;
+  const { eula_url, version: eula_version, id: eula_id } = eula;
 
   const [pageLoaded, setPageLoadState] = useState(false);
   const [formAccepted, setFormAccepted] = useState(false);
@@ -31,7 +31,7 @@ const EulaPage = (props) => {
   const [rerouteOnSuccess, setRerouteOnSuccess] = useState(REACT_APP_ROUTE_PREFIX);
   const [formError, setFormError] = useState(false);
 
-  const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted=')) ? 
+  const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted=')) ?
     document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted='))
       .replace('routeAfterEulaAccepted=', '').replace('"', '').replace(';', '').replace('/"', '/') : null;
 
@@ -48,12 +48,12 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     fetchCurrentUser(generateTempAuthHeaderIfNecessary())
-    .catch((error) => {
-      history.push({
-        pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-        search: location.search,
+      .catch((error) => {
+        history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: location.search,
+        });
       });
-    });
     ;
     fetchEula(generateTempAuthHeaderIfNecessary());
   }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary, history, location.search]);
@@ -84,9 +84,9 @@ const EulaPage = (props) => {
   }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   useEffect(() => () => {
-      deleteCookie('routeAfterEulaAccepted');
-      deleteCookie('temporaryAccessToken');
-    }, []);
+    deleteCookie('routeAfterEulaAccepted');
+    deleteCookie('temporaryAccessToken');
+  }, []);
 
   const onSubmit = useCallback((event, ...rest) => {
     event.preventDefault();
@@ -116,7 +116,7 @@ const EulaPage = (props) => {
         const errorObject = JSON.parse(JSON.stringify(error));
         console.warn('error fetching EULA', errorObject);
         setFormError(true);
-      });  
+      });
 
   }, [acceptEula, eula_id, fetchCurrentUser, formAccepted, generateTempAuthHeaderIfNecessary, user.id]);
 

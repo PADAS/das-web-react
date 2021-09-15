@@ -6,7 +6,7 @@ import { GPS_FORMATS } from '../utils/location';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import {within} from '@testing-library/dom';
+import { within } from '@testing-library/dom';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 

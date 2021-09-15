@@ -57,7 +57,7 @@ const DateTimePicker = (props) => {
         firstTimeInputRef.current.select();
       }
     }, 100);
-    
+
     onChange(newValue);
   }, [onChange, timeInputValue]);
 

@@ -34,7 +34,7 @@ export const isFilterModified = ({ state, filter: { priority, reported_by, text 
 
 export const calcSortParamForEventFilter = (sortConfig) => {
   const [direction, sortProp] = sortConfig;
-  
+
   return `${direction === '-' ? direction : ''}${sortProp.value}`;
 };
 
@@ -79,7 +79,7 @@ export const calcEventFilterForRequest = (options = {}, sortConfig = ['-', EVENT
 
   /* "show all event types" doesn't require an event_type param. 
       delete it for that case, to not overburden the query. */
-  if (eventTypes 
+  if (eventTypes
     && cleaned.filter.event_type
     && eventTypes.length === cleaned.filter.event_type.length) {
     delete cleaned.filter.event_type;
@@ -89,6 +89,6 @@ export const calcEventFilterForRequest = (options = {}, sortConfig = ['-', EVENT
 
   if (format === 'string') return objectToParamString(cleaned);
   if (format === 'object') return cleaned;
-  
+
   throw new Error('invalid format specified');
 };

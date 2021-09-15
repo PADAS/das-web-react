@@ -60,7 +60,7 @@ const PathNormalizationRouteComponent = (props) => {
 
   if (process.env.NODE_ENV !== 'production') {
     return <GoToHomepage />;
-  } 
+  }
 
   const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === props.location.pathname);
   if (!localMatch) {
@@ -68,7 +68,7 @@ const PathNormalizationRouteComponent = (props) => {
   }
 
 
-  return <a href={localMatch} style={{opacity: 0}} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
+  return <a href={localMatch} style={{ opacity: 0 }} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
 };
 
 ReactDOM.render(

@@ -33,7 +33,7 @@ const SelectField = (props) => {
 
   const SelectContainer = ({ children, ...props }) => {
     return (
-      <div ref={containerRef}> 
+      <div ref={containerRef}>
         <components.SelectContainer {...props}>
           {children}
         </components.SelectContainer>
@@ -80,7 +80,7 @@ const SelectField = (props) => {
   }, [onChange]);
 
   return <Select
-    components={{SelectContainer}}
+    components={{ SelectContainer }}
     isDisabled={disabled}
     id={id}
     ref={selectRef}
@@ -149,7 +149,7 @@ const DateTimeField = (props) => {
           return setPopoverState(false);
         }
 
-        const { offsets, placement:newPlacement } = calcPlacementForFixedDateTimeField(props.registry.formContext.scrollContainer, labelRef.current);
+        const { offsets, placement: newPlacement } = calcPlacementForFixedDateTimeField(props.registry.formContext.scrollContainer, labelRef.current);
 
         if (placement !== newPlacement) {
           setPlacement(newPlacement);
@@ -180,7 +180,7 @@ const DateTimeField = (props) => {
     onChange(newVal ? newVal.toISOString() : newVal);
   }, [onChange]);
 
-  useEffect(() =>{
+  useEffect(() => {
     if (!!popoverOpen) {
       scrollEventRef.current();
     }
@@ -226,12 +226,12 @@ const CustomCheckboxes = (props) => {
         .filter((option) => {
           const itemDisabled =
           schema.inactive_enum && schema.inactive_enum.includes(option.value);
-          
-          return !itemDisabled || 
+
+          return !itemDisabled ||
           (!!itemDisabled && !!originalValues.includes(option.value));
         })
         .map((option, index) => {
-        
+
           const disabledCls =
           (disabled || readonly) ? 'disabled' : '';
           const inputId = `${id}_${instanceId}_${index}`;
@@ -300,7 +300,7 @@ export const ObjectFieldTemplate = (props) => {
 
   const [instanceId] = useState(uuid());
 
-  return <div className='container' style={{padding: 0}}>
+  return <div className='container' style={{ padding: 0 }}>
     {(props.title || props.uiSchema['ui:title']) && (
       <TitleField
         id={`${props.idSchema.$id}__title`}
@@ -343,9 +343,9 @@ const createGroupedFields = ({ instanceId, properties, groups, props }) => {
       }
       return null;
     } else if (typeof g === 'object') {
-      
+
       const _properties = Object.entries(g).reduce((acc, [key, field]) => {
-        if (key.startsWith('ui:') 
+        if (key.startsWith('ui:')
         || !Array.isArray(field)) {
           return acc;
         }

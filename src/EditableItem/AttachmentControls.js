@@ -19,9 +19,9 @@ import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import styles from './styles.module.scss';
 
 const AttachmentButton = memo(({ title, icon: Icon, ...rest }) => <button title={title} type='button' {...rest}>  {/* eslint-disable-line react/display-name */}
-  <Icon /> 
+  <Icon />
   <span>{title}</span>
-</button>);  
+</button>);
 
 const AttachmentControls = (props) => {
   const { addModal, analyticsMetadata, children, allowMultipleFiles, onAddFiles,
@@ -83,7 +83,7 @@ const AttachmentControls = (props) => {
   return (
     <div className={styles.attachmentControls} ref={attachmentControlsRef}>
       <input
-        style={{display: 'none'}}
+        style={{ display: 'none' }}
         accept='image/*, .doc, .docx, .xml, .xlsx, .csv, .pdf, text/plain, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ref={fileInputRef} type='file'
         multiple={allowMultipleFiles}

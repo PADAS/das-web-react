@@ -62,7 +62,7 @@ const animateResize = (map) => {
     if (count === numberOfFrames) {
       clearInterval(mapResizeAnimation);
     }
-    
+
   }, (transitionLength / numberOfFrames));
 
   return mapResizeAnimation;
@@ -70,7 +70,7 @@ const animateResize = (map) => {
 
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, 
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
     sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
   const [map, setMap] = useState(null);
 
@@ -153,7 +153,7 @@ const App = (props) => {
     });
     initZenDesk();
     hideZenDesk();
-    
+
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -164,7 +164,7 @@ const App = (props) => {
       window.addEventListener('resize', resizeAnimation);
       return () => {
         window.removeEventListener('resize', resizeAnimation);
-      }; 
+      };
     }
   }, [map]);
 
@@ -172,14 +172,14 @@ const App = (props) => {
     if (map) {
       animateResize(map);
     }
-  }, [map, sidebarOpen]); 
+  }, [map, sidebarOpen]);
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
       <PrintTitle />
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        
+
         {/* <ErrorBoundary> */}
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
         {/* </ErrorBoundary> */}

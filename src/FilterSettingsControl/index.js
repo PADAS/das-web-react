@@ -33,13 +33,13 @@ const FilterSettingsControl = forwardRef((props, ref) => {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyDown, handleOutsideClick, isOpen]); 
+  }, [handleKeyDown, handleOutsideClick, isOpen]);
 
   return <div>
     <Overlay show={isOpen} target={target.current} container={container.current} placement='bottom' >
       <Popover id="patrol-filter-settings" className={styles.popover}>
         <Popover.Content ref={ref}>
-          {children} 
+          {children}
         </Popover.Content>
       </Popover>
     </Overlay>

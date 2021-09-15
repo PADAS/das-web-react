@@ -19,9 +19,9 @@ const StateManagedSocketConsumer = (props) => {
       const unbindSocketHandler = () => {
         socket.off(type, socketHandler);
       };
-  
+
       const socketHandler = (payload) => {
-        const { mid:newMid } = payload;
+        const { mid: newMid } = payload;
         if (!validateSocketIncrement(newMid)) {
           onStateMismatch(payload);
         } else {
