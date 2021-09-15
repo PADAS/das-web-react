@@ -308,15 +308,6 @@ const ReportForm = (props) => {
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Location');
   }, [is_collection, report]);
 
-  const goToParentCollection = () => {
-    const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Go to Incident\' button');
-    return fetchEvent(incidentID).then(({ data: { data } }) => {
-      removeModal();
-      openModalForReport(data, map);
-    });
-  };
-
   const onIncidentReportClick = (report) => {
     trackEvent('Incident Report', 
       `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
