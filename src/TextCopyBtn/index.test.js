@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 Object.defineProperty(global.navigator, 'clipboard', { value: {
-  writeText: jest.fn().mockImplementation(() => Promise.resolve()),
+  writeText: jest.fn().mockReturnValue(Promise.resolve()),
 }, configurable: true });
 
 const testString = 'i am being copied';
