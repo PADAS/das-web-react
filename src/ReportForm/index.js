@@ -75,7 +75,7 @@ const ReportForm = (props) => {
       if (!topRatedReportAndType) return report.priority;
 
       return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-        topRatedReportAndType.related_event.priority 
+        topRatedReportAndType.related_event.priority
         : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
           topRatedReportAndType.event_type.default_priority
           : report.priority;
@@ -166,7 +166,7 @@ const ReportForm = (props) => {
         });
     };
     if (saving) {
-      
+
       onSubmit();
     }
   }, [saving]); // eslint-disable-line
@@ -187,7 +187,7 @@ const ReportForm = (props) => {
 
   const onAddFiles = files => {
     const uploadableFiles = filterDuplicateUploadFilenames([...reportFiles, ...filesToUpload], files);
-    
+
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
     goToBottomOfForm();
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Added Attachment');
@@ -245,20 +245,20 @@ const ReportForm = (props) => {
     };
 
     if (selection
-      && selection.last_position 
-      && selection.last_position.geometry 
+      && selection.last_position
+      && selection.last_position.geometry
       && selection.last_position.geometry.coordinates) {
       updates.location = {
         latitude: selection.last_position.geometry.coordinates[1],
         longitude: selection.last_position.geometry.coordinates[0],
       };
     }
-    
+
     updateStateReport({
       ...report,
       ...updates,
     });
-    
+
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Report By');
   };
 
@@ -309,8 +309,8 @@ const ReportForm = (props) => {
   }, [is_collection, report]);
 
   const onIncidentReportClick = (report) => {
-    trackEvent('Incident Report', 
-      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
+    trackEvent('Incident Report',
+      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`,
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       openModalForReport(data, map, { navigateRelationships: false });
@@ -334,7 +334,7 @@ const ReportForm = (props) => {
   const onClickFile = async (file) => {
     if (file.file_type === 'image') {
       const fileData = await fetchImageAsBase64FromUrl(file.images.original);
-        
+
       addModal({
         content: ImageModal,
         src: fileData,
@@ -446,11 +446,11 @@ const ReportForm = (props) => {
   const styles = {};
 
   return <ContextProvider value={report}>
-  
+
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
-    <Header 
+    <Header
       analyticsMetadata={{
         category: 'Report Modal',
         location: 'report modal',
@@ -458,13 +458,13 @@ const ReportForm = (props) => {
       icon={<EventIcon title={reportTypeTitle} report={report} />}
       menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority} readonly={schema.readonly}
-      title={reportTitle} onTitleChange={onReportTitleChange} 
+      title={reportTitle} onTitleChange={onReportTitleChange}
     />
 
-    <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
+    <div ref={reportedBySelectPortalRef} style={{ padding: 0 }}></div>
 
     <Body ref={scrollContainerRef}>
-      {is_collection && <IncidentReportsList reports={report.contains} 
+      {is_collection && <IncidentReportsList reports={report.contains}
         onReportClick={onIncidentReportClick}>
         <AttachmentList
           files={filesToList}
@@ -498,7 +498,7 @@ const ReportForm = (props) => {
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
-          <button ref={submitButtonRef} type='submit' style={{display: 'none'}}>Submit</button>
+          <button ref={submitButtonRef} type='submit' style={{ display: 'none' }}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }

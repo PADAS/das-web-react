@@ -28,7 +28,7 @@ export function withMap(Component) {
 
 const EarthRangerMap = (props) => {
   const { currentBaseLayer, children, controls, onMapLoaded, ...rest } = props;
-  
+
   const [mapStyle, setMapStyle] = useState(REACT_APP_BASE_MAP_STYLES);
 
   const onLoad = (map) => {
@@ -44,7 +44,7 @@ const EarthRangerMap = (props) => {
   const id = useRef(uuid());
 
   const onZoomControlClick = (map, zoomDiff) => {
-    zoomDiff > 0? 
+    zoomDiff > 0?
       map.zoomIn({ level: map.getZoom() + zoomDiff }) :
       map.zoomOut({ level: map.getZoom() - zoomDiff });
     trackEvent('Map Interaction', `Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
@@ -77,7 +77,7 @@ const EarthRangerMap = (props) => {
   </MapboxMap>;
 };
 
-const mapStateToProps = ({ view: { currentBaseLayer }}) => ({
+const mapStateToProps = ({ view: { currentBaseLayer } }) => ({
   currentBaseLayer,
 });
 

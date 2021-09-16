@@ -38,7 +38,7 @@ afterAll(() => server.close());
 test('rendering without crashing', () => {
   render(<Provider store={store} >
     <SocketProvider>
-      <NotificationMenu /> 
+      <NotificationMenu />
     </SocketProvider>
   </Provider>);
 });
@@ -78,7 +78,7 @@ describe('listing news items', () => {
 
   test('showing a badge with the count of unread items', async () => {
     const unreadBadge = await screen.findByTestId('unread-count');
-    
+
     expect(unreadBadge.textContent).toEqual(mockNewsData.filter(n => !n.read).length.toString());
   });
 
@@ -97,7 +97,7 @@ describe('listing news items', () => {
     };
     beforeEach(async () => {
       store = mockStore(() => storeWithUserNotification);
-    
+
       rendered.unmount();
 
       rendered = render(<Provider store={store}>
@@ -146,7 +146,7 @@ describe('listing news items', () => {
   test('marks unread news items as "read" when the menu is closed after being viewed', async () => {
     const unreadBadge = await screen.findByTestId('unread-count');
     expect(unreadBadge.textContent).toEqual(`${mockNewsData.filter(n => !n.read).length}`);
-    
+
     /* menu is open from the `beforeEach setup`, click again to close */
     const toggle = await screen.findByTestId('notification-toggle');
     userEvent.click(toggle);

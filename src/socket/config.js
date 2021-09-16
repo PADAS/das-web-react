@@ -1,6 +1,5 @@
 import { SOCKET_HEALTHY_STATUS, SOCKET_UNHEALTHY_STATUS, SOCKET_WARNING_STATUS, SOCKET_SERVICE_STATUS } from '../ducks/system-status';
 import { SOCKET_SUBJECT_STATUS } from '../ducks/subjects';
-import { socketEventData } from '../ducks/events';
 import { socketUpdatePatrol, socketCreatePatrol, socketDeletePatrol } from '../ducks/patrols';
 import { refreshTrackOnBulkObservationUpdateIfNecessary } from '../ducks/tracks';
 import { updateMessageFromRealtime } from '../ducks/messaging';

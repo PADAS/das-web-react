@@ -21,13 +21,13 @@ import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
-import { PATROL_CARD_STATES } from '../constants'; 
+import { PATROL_CARD_STATES } from '../constants';
 
 import styles from './styles.module.scss';
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { container, isOpen, map, onPatrolChange, patrolData, patrolState, patrolTrackState, subjectTrackState,
-    target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch:_dispatch, ...rest } = props;
+    target, updatePatrolTrackState, updateTrackState, toggleTrackState, togglePatrolTrackState, dispatch: _dispatch, ...rest } = props;
 
   const { leader, patrol, startStopGeometries, trackData } = patrolData;
 
@@ -45,7 +45,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const isActivePatrol = useMemo(() => patrolState === PATROL_CARD_STATES.ACTIVE, [patrolState]);
 
   const isScheduledPatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.READY_TO_START 
+    return patrolState === PATROL_CARD_STATES.READY_TO_START
     || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
   }, [patrolState]);
@@ -65,7 +65,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   && subjectLastPosition.properties
   && subjectLastPosition.properties.last_voice_call_start_at
     )
-  ), 
+  ),
   [leader, subjectLastPosition]);
 
   const hasDetails = !!subjectLastVoiceCall.getTime() || !!subjectTimeAtLastPosition.getTime();
@@ -78,12 +78,12 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
     const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
     const leaderTrackHidden = !leader || !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
-      
+
     if (canShowTrack) {
       if (patrolTrackHidden) {
         togglePatrolTrackState(patrol.id);
       }
-      
+
       if (leaderTrackHidden && !!leader) {
         toggleTrackState(leader.id);
       }
@@ -106,7 +106,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const onLocationClick = useCallback(() => {
     trackEvent('Patrol Card', 'Click "jump to location" from patrol card popover');
-    
+
     fitMapBoundsForAnalyzer(map, patrolBounds);
   }, [map, patrolBounds]);
 
@@ -130,7 +130,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
             {!!subjectLastVoiceCall.getTime() && <span>Mic activity: <TimeAgo date={subjectLastVoiceCall} /></span>} {/* radio activity */}
             {!!subjectTimeAtLastPosition.getTime() && <span>Time since last movement (est.): <TimeAgo date={subjectTimeAtLastPosition} showSuffix={false} /></span>} {/* time at position */}
           </div>}
-  
+
         </Fragment>
         }
 
@@ -141,7 +141,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
       </Popover.Content>
     </Popover>
-  </Overlay>; 
+  </Overlay>;
 });
 
 const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });

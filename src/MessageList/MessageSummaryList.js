@@ -63,10 +63,10 @@ const MessageSummaryList = (props) => {
   }, [state.results]);
 
   useEffect(() => {
-    const handleRealtimeMessage = ({ data:msg }) => {
+    const handleRealtimeMessage = ({ data: msg }) => {
       dispatch(updateMessageFromRealtime(msg));
     };
-    
+
     socket.on('radio_message', handleRealtimeMessage);
 
     return () => {
@@ -94,7 +94,7 @@ const MessageSummaryList = (props) => {
     {loading && <LoadingOverlay className={styles.summaryLoadingOverlay} />}
     <MessageList emptyMessage={loading ? 'Loading messages...' : undefined} type={MESSAGE_LIST_TYPES.SUMMARY} senderDetailStyle={SENDER_DETAIL_STYLES.SUBJECT} className={styles.summaryList} containerRef={containerRef} hasMore={!!state.next} onScroll={loadMoreMessages} messages={mostRecentMessagesPerSubject} {...props} />
   </div>;
-};  
+};
 
 const WithContext = (props) => <WithMessageContext>
   <MessageSummaryList {...props} />

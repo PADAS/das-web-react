@@ -83,7 +83,7 @@ export const fetchPatrolsSuccess = (patrols) => (dispatch) => {
     payload: patrols,
   });
   dispatch(updatePatrolStore(patrols));
-}; 
+};
 
 export const socketDeletePatrol = (payload) => (dispatch) => {
   const { patrol_id, matches_current_filter } = payload;
@@ -283,7 +283,7 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
       results: payload.results.map(p => p.id),
     };
   }
-  
+
 
   if (type === CREATE_PATROL_REALTIME) {
     const match = state.results.includes(payload.id);
@@ -302,7 +302,7 @@ const patrolsReducer = (state = INITIAL_PATROLS_STATE, action) => {
       results: state.results.filter(id => id !== payload),
     };
   }
-  
+
   return state;
 };
 
@@ -321,7 +321,7 @@ export const patrolStoreReducer = (state = INITIAL_STORE_STATE, { type, payload 
   }
 
 
-  if (type === UPDATE_PATROL_SUCCESS 
+  if (type === UPDATE_PATROL_SUCCESS
     || type === UPDATE_PATROL_REALTIME
     || type ===CREATE_PATROL_REALTIME) {
     return {

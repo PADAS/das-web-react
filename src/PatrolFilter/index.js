@@ -54,7 +54,7 @@ const PatrolFilter = (props) => {
 
   const onFilterSettingsOptionChange = useCallback((e) => {
     const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
-    updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap }});
+    updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap } });
     trackEvent('Patrol Filter', patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
   }, [updatePatrolFilter]);
 
@@ -77,7 +77,7 @@ const PatrolFilter = (props) => {
 
   // const onReportedByChange = useCallback((values) => {
   //   const hasValue = values && !!values.length;
-    
+
   //   if (hasValue) {
   //     updatePatrolFilter({
   //       filter: {
@@ -97,7 +97,7 @@ const PatrolFilter = (props) => {
   const updatePatrolFilterDebounced = useRef(debounce(function (update) {
     updatePatrolFilter(update);
   }, 200));
-  
+
 
   /*   const onStateSelect = useCallback(({ value }) => {
     updatePatrolFilter({ status: value });

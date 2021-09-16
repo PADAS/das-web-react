@@ -32,7 +32,7 @@ const HeatmapStyleControls = (props) => {
   const cancelRadiusEdit = useCallback(() => {
     setRadiusEditState(false);
   }, []);
-  
+
   const onRadiusChange = useCallback((value) => {
     const updateValue = parseFloat(value) || MINIMUM_RADIUS;
     trackEventDebounced.current('Map Interaction', 'Set Heatmap Radius', `${updateValue} meters`);
@@ -70,7 +70,7 @@ const HeatmapStyleControls = (props) => {
     <label htmlFor='heatmap-radius-input'>
       <span>Radius (in meters):</span>
       <InlineEditable step='1' onCancel={cancelRadiusEdit}
-        editing={editingRadius} onClick={startRadiusEdit} onEsc={cancelRadiusEdit} 
+        editing={editingRadius} onClick={startRadiusEdit} onEsc={cancelRadiusEdit}
         showCancel={false} onSave={onRadiusSave} min={MINIMUM_RADIUS} max={MAXIMUM_RADIUS}
         value={radiusInMeters} onChange={onRadiusChange} /><span className={styles.unit}>m</span>
     </label>

@@ -77,11 +77,11 @@ const SubjectControls = (props) => {
     setHeatmapLoadingState(false);
 
     if (subjectIsInHeatmap) {
-      trackEvent('Map Layers', 'Uncheck Subject Heatmap button', 
+      trackEvent('Map Layers', 'Uncheck Subject Heatmap button',
         `Subject Type:${subject.subject_type}`);
       return removeHeatmapSubjects(id);
     } else {
-      trackEvent('Map Layers', 'Check Subject Heatmap button', 
+      trackEvent('Map Layers', 'Check Subject Heatmap button',
         `Subject Type:${subject.subject_type}`);
       return addHeatmapSubjects(id);
     }
@@ -93,13 +93,13 @@ const SubjectControls = (props) => {
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
     {isMessageable && <SubjectMessagesPopover className={styles.messagingButton} subject={subject} />}
-    {showTrackButton && <TrackToggleButton loading={loadingTracks} 
-      onClick={onTrackButtonClick} trackVisible={tracksVisible} 
+    {showTrackButton && <TrackToggleButton loading={loadingTracks}
+      onClick={onTrackButtonClick} trackVisible={tracksVisible}
       trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap} 
+    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap}
       onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
-    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates} 
-      map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button', 
+    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates}
+      map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button',
         `Subject Type:${subject.subject_type}`]} />}
     {children}
   </div>;

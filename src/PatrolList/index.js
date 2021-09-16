@@ -24,7 +24,7 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
 
   const onPatrolChange = useCallback((value) => {
     const merged = merge(patrol, value);
-    
+
     delete merged.updates;
     updatePatrol(merged);
   }, [patrol, updatePatrol]);

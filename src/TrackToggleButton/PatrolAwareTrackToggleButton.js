@@ -10,7 +10,7 @@ import { trackEvent } from '../utils/analytics';
 import TrackToggleButton from './';
 
 const PatrolAwareTrackToggleButton = (props) => {
-  const { dispatch:_dispatch, patrolData, subjectStore, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
+  const { dispatch: _dispatch, patrolData, subjectStore, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
 
   const { patrol, leader } = patrolData;
 
@@ -32,7 +32,7 @@ const PatrolAwareTrackToggleButton = (props) => {
       : patrolTrackHidden
         ? 'visible'
         : 'pinned';
-    
+
     if (!leader) return;
     if (isEqual(patrolToggleStates, subjectToggleStates)) {
       toggleTrackState(leader.id);
@@ -58,7 +58,7 @@ const PatrolAwareTrackToggleButton = (props) => {
     }
   }, [leader, patrol.id, patrolToggleStates, patrolTrackHidden, patrolTrackPinned, patrolTrackVisible, subjectToggleStates, subjectTrackHidden, subjectTrackPinned, subjectTrackVisible, togglePatrolTrackState, toggleTrackState]);
 
-  
+
 
   return <TrackToggleButton disabled={!leader} trackVisible={patrolTrackVisible || subjectTrackVisible} trackPinned={patrolTrackPinned && subjectTrackPinned} onClick={onTrackButtonClick} {...rest} />;
 };

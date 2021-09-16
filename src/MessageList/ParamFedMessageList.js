@@ -71,12 +71,12 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
   }, [params, dispatch, setListScrollPosition]);
 
   useEffect(() => {
-    const consumeMessage = (msg) => { 
+    const consumeMessage = (msg) => {
       dispatch(updateMessageFromRealtime(msg));
       setListScrollPosition();
     };
 
-    const handleRealtimeMessage = ({ data:msg }) => {
+    const handleRealtimeMessage = ({ data: msg }) => {
       if (!params?.subject_id) {
         consumeMessage(msg);
       }
@@ -85,7 +85,7 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
         consumeMessage(msg);
       }
     };
-    
+
     socket.on('radio_message', handleRealtimeMessage);
 
     return () => {

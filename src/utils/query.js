@@ -12,7 +12,7 @@ import { point } from '@turf/helpers';
 export const getBboxParamsFromMap = (map, asString = true) => {
 
   const mapBounds = map.getBounds();
-  
+
   const asArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, lng, lat], []);
   const asPointArray = Object.entries(mapBounds).reduce((accumulator, [, { lng, lat }]) => [...accumulator, point([lng, lat])], []);
 
@@ -21,7 +21,7 @@ export const getBboxParamsFromMap = (map, asString = true) => {
     Math.min(
       (distance(asPointArray[0], asPointArray[1]) / 10), 10
     ), 0.333,
-  ); 
+  );
   const withBuffer = buffer(asPolygon, bufferPadding);
 
   const finalBounds = bbox(withBuffer);
@@ -29,13 +29,13 @@ export const getBboxParamsFromMap = (map, asString = true) => {
   return asString ? toString(finalBounds) : finalBounds;
 };
 
-export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) => 
+export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) =>
   initialQuery
     .then((response) => {
       if (response) {
         const { data: { data: res } } = response;
         const { results, next } = res;
-        
+
         onEach && onEach(results);
 
         const config = {};
@@ -44,7 +44,7 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
         if (next) {
           return recursivePaginatedQuery(get(next, config), cancelToken, onEach, [...resultsToDate, ...results]);
         }
-        
+
         return [...resultsToDate, ...results];
       }
     })
@@ -72,13 +72,13 @@ export const cleanedUpFilterObject = (filter) =>
           [key]: value,
         };
       }
-      
+
       return accumulator;
     }, {});
 
 export const objectToParamString = (obj) => {
   const props = Object.entries(obj);
-  
+
   return props.reduce((params, [key, value], _index) => {
     if (Array.isArray(value)) {
       value.forEach((v, i) => {

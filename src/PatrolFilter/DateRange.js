@@ -10,8 +10,8 @@ import FeedDateFilter from '../FeedDateFilter';
 const EventFilterDateRangeSelector = (props) => {
   const { patrolFilter, onFilterSettingsToggle, updateGlobalDateRange, placement, filterSettings } = props;
 
-  const { filter: { date_range:dateRange } } = patrolFilter;
-  
+  const { filter: { date_range: dateRange } } = patrolFilter;
+
   const afterClickPreset = useCallback((label) => {
     trackEvent('Patrol Filter', 'Select Date Range Preset', `Date Range: ${label}`);
   }, []);
@@ -24,7 +24,7 @@ const EventFilterDateRangeSelector = (props) => {
     trackEvent('Patrol Filter', 'Change Start Date Filter');
   }, []);
 
-  return <FeedDateFilter 
+  return <FeedDateFilter
     dateRange={dateRange}
     defaultFriendlyString='Showing Current Patrols'
     defaultRange={INITIAL_FILTER_STATE.filter.date_range}

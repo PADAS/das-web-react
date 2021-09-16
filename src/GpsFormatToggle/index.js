@@ -29,10 +29,10 @@ const GpsFormatToggle = (props) => {
     <div className={`${styles.container} ${className}`} {...rest}>
       <ul className={styles.choices}>
         {gpsFormats.map(gpsFormat =>
-          <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''} 
+          <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''}
             onClick={() => onGpsFormatClick(gpsFormat)}>{gpsFormat}</li>
         )}
-      </ul> 
+      </ul>
       {displayGpsString && <div className={styles.gpsStringWrapper}>
         <span className={styles.value}>{displayGpsString}</span>
         {showCopyControl && <TextCopyBtn text={displayGpsString} />}

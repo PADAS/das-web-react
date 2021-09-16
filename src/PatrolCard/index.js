@@ -22,7 +22,7 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import styles from './styles.module.scss';
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, pickingLocationOnMap, dispatch:_dispatch, ...rest } = props;
+  const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, pickingLocationOnMap, dispatch: _dispatch, ...rest } = props;
 
   const { patrol, leader } = patrolData;
 
@@ -49,7 +49,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   const patrolStateTitle = useMemo(() => {
     if (patrolState === PATROL_CARD_STATES.DONE) {
       return patrolState.title + ' ' + patrolStateDetailsEndTime(patrol);
-    } 
+    }
     if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
       return patrolState.title + ' ' + patrolStateDetailsOverdueStartTime(patrol);
     }
@@ -84,7 +84,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
-  const isScheduledPatrol = patrolState === PATROL_CARD_STATES.READY_TO_START 
+  const isScheduledPatrol = patrolState === PATROL_CARD_STATES.READY_TO_START
     || patrolState === PATROL_CARD_STATES.SCHEDULED
     || patrolState === PATROL_CARD_STATES.START_OVERDUE;
 
@@ -95,7 +95,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   const patrolStatusStyle = `status-${patrolState.status}`;
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
- 
+
   const hoverTitle = useMemo(() => {
     return patrol.serial_number + ' ' + displayTitle;
   }, [displayTitle, patrol]);
@@ -135,7 +135,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyDown, handleOutsideClick, hidePopover, popoverOpen]); 
+  }, [handleKeyDown, handleOutsideClick, hidePopover, popoverOpen]);
 
   useEffect(() => {
     if (patrolIsCancelled) {
@@ -173,16 +173,16 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
     {patrolIconId && <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />}
     <div className={styles.header}>
       <h3 onClick={onTitleClick} title={hoverTitle}>{displayTitle}</h3>
-    </div>  
+    </div>
     <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onClickOpen={onTitleClick} />
     <div className={styles.statusInfo} onClick={togglePopoverIfPossible}>
-      {isScheduledPatrol && <Fragment> 
+      {isScheduledPatrol && <Fragment>
         <p>Scheduled: <span>{scheduledStartTime}</span></p>
       </Fragment>}
-      {isPatrolActiveOrDone && <Fragment> 
+      {isPatrolActiveOrDone && <Fragment>
         <p><span>{patrolElapsedTime}</span> | <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span></p>
       </Fragment>}
-      {isCancelledPatrol && <Fragment> 
+      {isCancelledPatrol && <Fragment>
         <p>No Patrol: <span>{scheduledStartTime}</span></p>
       </Fragment>}
     </div>

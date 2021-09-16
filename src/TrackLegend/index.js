@@ -27,8 +27,8 @@ const getIconForTrack = (track, subjectStore) => {
 
   return (
     storeMatch
-    && storeMatch.last_position 
-    && storeMatch.last_position.properties 
+    && storeMatch.last_position
+    && storeMatch.last_position.properties
     && storeMatch.last_position.properties.image
   ) || image;
 };
@@ -58,7 +58,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
         {displayTitle}
         {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
         {subjectCount > 1 &&
-    <OverlayTrigger trigger="click" rootClose
+        <OverlayTrigger trigger="click" rootClose
       onExited={() => trackEvent('Map Interaction', 'Close Tracks Legend Subject List')}
       onEntered={() => trackEvent('Map Interaction', 'Show Tracks Legend Subject List')}
       placement="right" overlay={
@@ -68,10 +68,10 @@ const TitleElement = memo((props) => { // eslint-disable-line
           </ul>
         </Popover>
       }>
-      <button type="button" className={styles.infoButton}>
-        <InfoIcon className={styles.infoIcon} />
-      </button>
-    </OverlayTrigger>}
+          <button type="button" className={styles.infoButton}>
+            <InfoIcon className={styles.infoIcon} />
+          </button>
+        </OverlayTrigger>}
       </h6>
       <span>{trackPointCount} points over {trackDuration}</span>
     </div>
@@ -92,7 +92,7 @@ const TrackLegend = (props) => {
     if (subjectCount !== 1) {
       return `${subjectCount} subjects`;
     }
-    
+
     return trackData[0].track.features[0].properties.title;
   }, [hasTrackData, subjectCount, trackData]);
 
@@ -118,12 +118,12 @@ const TrackLegend = (props) => {
   return !!subjectCount && hasTrackData && <MapLegend
     titleElement={
       <TitleElement displayTitle={displayTitle} iconSrc={iconSrc} onRemoveTrackClick={onRemoveTrackClick}
-        subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData} 
+        subjectCount={subjectCount} subjectStore={subjectStore} trackData={trackData}
         trackPointCount={trackPointCount} trackDuration={displayTrackLength} />
     }
     onClose={onClose}
-    settingsComponent={<TrackLengthControls />} 
-  >
+    settingsComponent={<TrackLengthControls />}
+    >
   </MapLegend>;
 };
 

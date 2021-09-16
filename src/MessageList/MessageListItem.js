@@ -36,7 +36,7 @@ const MESSAGE_ICON_MAP = {
 };
 
 const MessageListItem = (props) => {
-  
+
   const { currentPopup, messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null,
     showPopup, subject, subjectTrackState, toggleTrackState, unreadMessageClassName, readMessageClassName, ...rest } = props;
   const map = useContext(MapContext);
@@ -65,7 +65,7 @@ const MessageListItem = (props) => {
 
           showPopup('subject-message', { subject, message, coordinates });
         };
-        
+
 
         return <li key={message.id}  onClick={handleClick} {...rest}>
           <div className={`${styles.messageDetails} ${message.read ? readMessageClassName : unreadMessageClassName}`}>
@@ -75,7 +75,7 @@ const MessageListItem = (props) => {
               <DateTime date={message.message_time} className={styles.messageTime} />
             </div>
           </div>
-          {message.device_location && <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />} 
+          {message.device_location && <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />}
         </li>;
 
       })}
@@ -83,7 +83,7 @@ const MessageListItem = (props) => {
   </li>;
 
 
-  
+
 };
 
 const mapStateToProps = ({ data: { subjectStore }, view: { popup, subjectTrackState } }, ownProps) => {

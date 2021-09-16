@@ -10,9 +10,9 @@ const MapImagesLayer = (props) => {
   useEffect(() => {
     setImages(Object.entries(mapImages).map(([id, { image, options }]) => ({ id, image, options })));
   }, [mapImages]);
-  
+
   return images.map(({ id, image, options }) => <Image id={id} data={image} options={options} key={id} />);
-  
+
 };
 
 const mapStateToProps = ({ view: { mapImages } }) => ({

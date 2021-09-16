@@ -31,7 +31,7 @@ describe('binding handlers', () => {
 
   it('invokes the callback if the message received is next-in-line', () => {
     const testPayload = { mid: 1 };
-    
+
     mockedSocket.socketClient.emit(TYPE, testPayload);
 
     expect(callback).toHaveBeenCalledWith(testPayload);
@@ -41,7 +41,7 @@ describe('binding handlers', () => {
 
   it('invokes the `onStateMismatch` handler if the message received is out of order', () => {
     const testPayload = { mid: 666 };
-    
+
     mockedSocket.socketClient.emit(TYPE, testPayload);
 
     expect(onStateMismatch).toHaveBeenCalledWith(testPayload);

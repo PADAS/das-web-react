@@ -10,7 +10,7 @@ const { Toggle, Menu, Item, Divider } = Dropdown;
 const UserMenu = (props) => {
   const { user, selectedUserProfile, userProfiles, onProfileClick, onLogOutClick, ...rest } = props;
   const displayUser = selectedUserProfile.username ? selectedUserProfile : user;
-  
+
   const cookieSettingsRef = useRef();
 
   const onDropdownToggle = (isOpen) => {

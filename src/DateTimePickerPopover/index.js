@@ -31,7 +31,7 @@ const DateTimePickerPopover = (props, ref) => {
   const canShowClearButton = useMemo(() => (
     inputValue !== BLANK_VALUE)
     && (!!inputValue)
-    && !required, 
+    && !required,
   [inputValue, required],
   );
 
@@ -39,7 +39,7 @@ const DateTimePickerPopover = (props, ref) => {
     const dateAsMs = setSeconds(date, 0).getTime();
     let minCondition = true;
     let maxCondition = true;
-    
+
     if (minDate) minCondition = (dateAsMs >= new Date(minDate).getTime());
     if (maxDate) maxCondition = (dateAsMs <= new Date(setSeconds(maxDate, 0)).getTime());
 
@@ -103,13 +103,13 @@ const DateTimePickerPopover = (props, ref) => {
     if (value && dateIsValid(value)) {
       if (!timeValuesAreEqualToTheMinute(value, inputValue)) {
         setInputValue(
-          format(value, DATEPICKER_DEFAULT_CONFIG.format) 
+          format(value, DATEPICKER_DEFAULT_CONFIG.format)
         );
       }
     } else {
       setInputValue('');
     }
-    
+
 
   }, [value]); /* eslint-disable-line */
 
@@ -131,7 +131,7 @@ const DateTimePickerPopover = (props, ref) => {
     }
 
     const newDate = new Date(inputValue.replace(/_/g, ''));
-    
+
     if (
       (!dateIsValid(newDate))
       || !dateIsWithinTimeRange(newDate)
@@ -141,7 +141,7 @@ const DateTimePickerPopover = (props, ref) => {
     }
 
     const isCompleteValue = (
-      !!inputValue 
+      !!inputValue
       && inputValue.split('_').length - 1 === 0
     );
 
@@ -178,7 +178,7 @@ const DateTimePickerPopover = (props, ref) => {
       <DateTimePopover {...props}  />
     </Overlay>
   </div>;
-  
+
 };
 
 const DateTimePopover = forwardRef((props, ref) => {  /* eslint-disable-line react/display-name */
@@ -197,7 +197,7 @@ DateTimePickerPopover.propTypes = {
   popperConfig: PropTypes.object,
   onPopoverToggle: PropTypes.func,
   minDate: PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]),
-  maxDate:  PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]),
+  maxDate: PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]),
   onChange: PropTypes.func.isRequired,
   required: PropTypes.bool,
   value: PropTypes.oneOf([PropTypes.instanceOf(Date), PropTypes.oneOf([null])]).isRequired,

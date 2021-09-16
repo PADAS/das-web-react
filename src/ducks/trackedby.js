@@ -11,23 +11,23 @@ const FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS = 'FETCH_PATROL_TRACKEDBY_SCHEMA_SUC
 const { get } = axios;
 
 export const fetchTrackedBySchema = () => dispatch => get(PATROL_TRACKEDBY_SCHEMA_API_URL)
-    .then(({ data: { data } }) => {
-        dispatch(fetchTrackedBySuccess(data));
-    });
+  .then(({ data: { data } }) => {
+    dispatch(fetchTrackedBySuccess(data));
+  });
 
 const fetchTrackedBySuccess = payload => ({
-    type: FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS,
-    payload,
+  type: FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS,
+  payload,
 });
 
 
 const patrolTrackedBySchemaReducer = (state, action) => {
-    const { type, payload } = action;
+  const { type, payload } = action;
 
-    if (type === FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS) {
-        return { ...state, trackedbySchema: payload };
-    };
-    return state;
+  if (type === FETCH_PATROL_TRACKEDBY_SCHEMA_SUCCESS) {
+    return { ...state, trackedbySchema: payload };
+  };
+  return state;
 };
 
 

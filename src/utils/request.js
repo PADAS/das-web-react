@@ -24,7 +24,7 @@ const errorIsRequestError = error => !!error.request; // aka trouble communicati
 export const generateErrorMessageForRequest = (error) => {
   if (errorIsRequestError(error)) return 'No response from the server.';
   if (errorHasAResponseStatusCode(error)) {
-    switch(error.response.status.code) {
+    switch (error.response.status.code) {
     case 400: {
       return 'Bad request issued. Please contact your administrator (400).';
     }

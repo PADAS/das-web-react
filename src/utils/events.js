@@ -67,7 +67,7 @@ export const eventHasLocation = (evt) => {
 export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;
 export const eventBelongsToPatrol = evt => !!evt?.patrols?.length && !!evt?.patrols?.[0];
 
-export const uniqueEventIds = (value, index, self) => { 
+export const uniqueEventIds = (value, index, self) => {
   return self.indexOf(value) === index;
 };
 
@@ -115,7 +115,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   const time = data && data.time;
 
   const reported_by = reporter ? reporter : null;
-  
+
   return {
     event_type,
     icon_id,
@@ -202,7 +202,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
   const reportMatchesDateFilter = () => {
     const { filter: { date_range: { lower, upper } } } = eventFilter;
     const { updated_at } = report;
-    
+
     const updateDate = new Date(updated_at);
 
 
@@ -219,7 +219,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     }
 
     return true;
-    
+
   };
 
   const reportMatchesStateFilter = () => {
@@ -245,7 +245,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     const toTest = JSON.stringify({ notes, serial_number, title, event_details }).toLowerCase();
 
     return toTest.includes(text.toLowerCase());
-    
+
   };
 
   const reportMatchesPriorityFilter = () => {
@@ -258,7 +258,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
 
     if (!!eventFilter.filter.reported_by.length
     && !report.reported_by) return false;
-    
+
     return eventFilter.filter.reported_by.includes(report.reported_by.id);
   };
 
@@ -272,7 +272,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
 
 export const addPatrolSegmentToEvent = (segment_id, event_id, event) => {
   const segmentPayload = { patrol_segments: [segment_id] };
-  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
+  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)
     .then(function (response) {
       console.log('add segment response', response);
     })

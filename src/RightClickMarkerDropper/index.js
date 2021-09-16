@@ -8,7 +8,7 @@ import { MapContext } from '../App';
 
 const RightClickMarkerDropper = (props) => {
   const { showPopup } = props;
-  
+
   const map = useContext(MapContext);
 
   useEffect(() => {

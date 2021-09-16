@@ -19,11 +19,11 @@ const FriendlyEventFilterString = (props) => {
   const hasSortConfig = !!sortConfig;
   const sortModified = hasSortConfig && !isEqual(sortConfig, DEFAULT_EVENT_SORT);
   const sortTypeMatch = hasSortConfig && EVENT_SORT_OPTIONS.find(option => option.value === sortConfig[1].value);
-  
-  
-  const sortTypeName = hasSortConfig && sortTypeMatch.label.toLowerCase(); 
 
-  return <span style={{lineHeight: 'normal'}} className={className || ''}>
+
+  const sortTypeName = hasSortConfig && sortTypeMatch.label.toLowerCase();
+
+  return <span style={{ lineHeight: 'normal' }} className={className || ''}>
     Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
       ?<span>, sorted {sortConfig[0] === '+' ? ' ascending' : ''}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>

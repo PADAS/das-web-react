@@ -13,8 +13,8 @@ export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
 const getPatrolFromProps = (_state, { patrol }) => patrol;
 export const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
-  !!patrol.patrol_segments 
-  && !!patrol.patrol_segments.length 
+  !!patrol.patrol_segments
+  && !!patrol.patrol_segments.length
   && !!patrol.patrol_segments[0].leader
   && tracks[patrol.patrol_segments[0].leader.id];
 export const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
@@ -112,9 +112,9 @@ export const visibleTrackDataWithPatrolAwareness = createSelector(
   (trackData, patrolsWithTrackShown) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
     const hasPatrolTrackMatch = patrolsWithTrackShown.some(p =>
-      p.patrol_segments 
-      && !!p.patrol_segments.length 
-      && p.patrol_segments[0].leader 
+      p.patrol_segments
+      && !!p.patrol_segments.length
+      && p.patrol_segments[0].leader
       && p.patrol_segments[0].leader.id === trackSubjectId
     );
     return {

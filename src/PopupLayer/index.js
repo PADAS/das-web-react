@@ -100,8 +100,8 @@ const PopupLayer = ({ popup, ...rest }) => {
   const finalPopupAttrs = {
     ...popupAttrs,
     ...popupAttrsOverride,
-  }; 
-  
+  };
+
   return <Popup coordinates={coordinates} {...finalPopupAttrs} key={id}>
     <Component data={data} {...rest} />
   </Popup>;

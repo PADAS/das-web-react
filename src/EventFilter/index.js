@@ -82,8 +82,8 @@ const EventFilter = (props) => {
 
   const onReportCategoryToggle = ({ value }) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
-    const allShown = eventTypeFilterEmpty 
-      ? true 
+    const allShown = eventTypeFilterEmpty
+      ? true
       : (intersection(currentFilterReportTypes, toToggle).length === toToggle.length);
     if (allShown) {
       trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
@@ -91,14 +91,14 @@ const EventFilter = (props) => {
     } else {
       trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
       const updatedValue = uniq([...currentFilterReportTypes, ...toToggle]);
-      
+
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
   };
 
   const onReportedByChange = (values) => {
     const hasValue = values && !!values.length;
-    
+
     if (hasValue) {
       updateEventFilter({
         filter: {
@@ -149,7 +149,7 @@ const EventFilter = (props) => {
   const updateEventFilterDebounced = useRef(debounce(function (update) {
     updateEventFilter(update);
   }, 200));
-  
+
 
   const onStateSelect = ({ value }) => {
     updateEventFilter({ state: value });
@@ -325,6 +325,6 @@ const mapStateToProps = (state) =>
     eventFilter: state.data.eventFilter,
     eventTypes: state.data.eventTypes,
     reporters: reportedBy(state),
-  }); 
+  });
 
 export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));

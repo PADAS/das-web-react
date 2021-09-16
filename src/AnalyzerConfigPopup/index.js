@@ -10,7 +10,7 @@ import { hidePopup } from '../ducks/popup';
 
 const AnalyzerConfigPopup = (props) => {
 
-  const { data: { geometry, properties } } = props;
+  const { data: { properties } } = props;
 
   const iconForCategory = category => {
     if (category === 'geofence') return <GeofenceIcon className={styles.typeIcon} />;

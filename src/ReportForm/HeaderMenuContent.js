@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 
 const ReportHeaderPopover = (props, ref) => {
   const { data, onPrioritySelect, onStartAddToIncident, onStartAddToPatrol, isPatrolReport, ...rest } = props;
-  const eventOrIncidentReport = `${data.is_collection? 'Incident' : 'Event'} Report`;  
+  const eventOrIncidentReport = `${data.is_collection? 'Incident' : 'Event'} Report`;
 
   const linkToReport = useCallback(() => {
     try {
@@ -37,19 +37,19 @@ const ReportHeaderPopover = (props, ref) => {
       {canAddToIncident && <Fragment>
         <hr />
         <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToIncident}>
-          <AddToIncidentIcon style={{height: '2rem', width: '2rem'}} />Add to Incident
+          <AddToIncidentIcon style={{ height: '2rem', width: '2rem' }} />Add to Incident
         </Button>
       </Fragment>
       }
       {!isPatrolReport && <Button className={styles.addToIncidentBtn} variant='link' onClick={onStartAddToPatrol}>
         <DasIcon type='events' iconId='routine-patrol-icon' color='gray' className={styles.patrolIcon} />
-          Add to Patrol
+        Add to Patrol
       </Button>}
-      {hasExternalLink && <Fragment> 
+      {hasExternalLink && <Fragment>
         <hr />
         <Button className={styles.addToIncidentBtn} variant='secondary' onClick={linkToReport}>
-          <img src={data.external_source.icon_url} style={{height: '2rem', width: '2rem'}} alt={data.external_source.text} /> {data.external_source.text}
-          <ExternalLinkIcon style={{height: '1rem', width: '1rem', marginLeft: '0.1rem'}} />
+          <img src={data.external_source.icon_url} style={{ height: '2rem', width: '2rem' }} alt={data.external_source.text} /> {data.external_source.text}
+          <ExternalLinkIcon style={{ height: '1rem', width: '1rem', marginLeft: '0.1rem' }} />
         </Button>
       </Fragment>
       }

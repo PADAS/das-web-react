@@ -38,7 +38,7 @@ const CursorGpsDisplay = (props) => {
     <Toggle className={styles.container}>
       {isValidLocation && calcGpsDisplayString(coords.lat, coords.lng, gpsFormat)}
     </Toggle>
-    <Menu className={styles.menu}> 
+    <Menu className={styles.menu}>
       <GpsFormatToggle className={styles.gpsFormatSelect} showGpsString={false} />
     </Menu>
   </Dropdown>;

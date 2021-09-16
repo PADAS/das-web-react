@@ -12,7 +12,7 @@ const TotalReportCountString = ({ className, eventFilter, totalFeedEventCount, .
 
   const resultString = `${totalFeedEventCount} result${totalFeedEventCount === 1 ? '' : 's'}`;
 
-  return <span className={className || ''} style={{lineHeight: 'normal'}}>{resultString}</span>;
+  return <span className={className || ''} style={{ lineHeight: 'normal' }}>{resultString}</span>;
 };
 
 export default connect(mapStateToProps, null)(memo(TotalReportCountString));

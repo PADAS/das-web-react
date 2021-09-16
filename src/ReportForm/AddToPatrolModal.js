@@ -81,7 +81,7 @@ const activePatrolsFeedRecuer = (state, action) => {
 const AddToPatrolModal = (props) => {
   const { id, removeModal, onAddToPatrol, updatePatrolStore, patrolStore,
   } = props;
-  
+
   const scrollRef = useRef(null);
   const [loaded, setLoadedState] = useState(false);
   const [patrols, dispatch] = useReducer(activePatrolsFeedRecuer, INITIAL_PATROLS_STATE);
@@ -93,9 +93,9 @@ const AddToPatrolModal = (props) => {
     ), [patrolStore, patrols.results]);
 
   const fetchFeedPatrols = useCallback(() => {
-    const params = calcPatrolFilterForRequest({ params: { page_size: 75, state:['active', 'done'] } });
+    const params = calcPatrolFilterForRequest({ params: { page_size: 75, state: ['active', 'done'] } });
     return get(`${PATROLS_API_URL}?${params}`)
-      .then(({ data: { data:patrols } }) => {
+      .then(({ data: { data: patrols } }) => {
         updatePatrolStore(patrols);
         setLoadedState(true);
         dispatch(fetchFeedSuccess(patrols));
@@ -160,10 +160,10 @@ const AddToPatrolModal = (props) => {
     <Header>
       <Title>Add to Patrol</Title>
     </Header>
-    <Body style={{minHeight: '10rem'}}>
+    <Body style={{ minHeight: '10rem' }}>
       {!loaded && <LoadingOverlay />}
       <div>
-        {!!loaded && !!listPatrols.length && <h6 style={{textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic'}}>Start time</h6>}
+        {!!loaded && !!listPatrols.length && <h6 style={{ textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic' }}>Start time</h6>}
         <div ref={scrollRef} className={styles.incidentScrollList}>
           <InfiniteScroll
             element='ul'
@@ -171,13 +171,13 @@ const AddToPatrolModal = (props) => {
             loadMore={onScroll}
             useWindow={false}
             getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
-          
+
             {listPatrols.map((patrol, index) => {
               const cardState = calcPatrolCardState(patrol);
-  
+
               const priority = cardState === PATROL_CARD_STATES.ACTIVE ? 100 : 0;
               const title = displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader);
-              
+
               return <ReportListItem
                 className={styles.listItem}
                 showJumpButton={false}
@@ -190,7 +190,7 @@ const AddToPatrolModal = (props) => {
                 onIconClick={onClickPatrol} />;
             })}
             {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
-            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{marginTop: '0.5rem'}} key='no-more-events-to-load'>No more patrols to display.</li>}
+            {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>No more patrols to display.</li>}
           </InfiniteScroll>
         </div>
       </div>

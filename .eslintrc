@@ -28,7 +28,6 @@
     "key-spacing": [
       "error",
       {
-        "beforeColon": true,
         "afterColon": true
       }
     ],
@@ -38,8 +37,15 @@
     ],
     "indent": [
       "error",
-      2
+      2,
+      {
+        "ignoredNodes": [
+          "TemplateLiteral",
+          "JSXElement *"
+        ]
+      }
     ],
+    "template-curly-spacing": "off",
     "react/jsx-indent": [
       "error",
       2

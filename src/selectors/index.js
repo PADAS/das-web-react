@@ -19,7 +19,7 @@ const feedIncidents = ({ data: { feedIncidents } }) => feedIncidents;
 const eventStore = ({ data: { eventStore } }) => eventStore;
 const hiddenFeatureIDs = ({ view: { hiddenFeatureIDs } }) => hiddenFeatureIDs;
 const hiddenAnalyzerIDs = ({ view: { hiddenAnalyzerIDs } }) => hiddenAnalyzerIDs;
-const getReportSchemas = ({ data: { eventSchemas } }, { data:report }) => eventSchemas[report.event_type];
+const getReportSchemas = ({ data: { eventSchemas } }, { data: report }) => eventSchemas[report.event_type];
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;

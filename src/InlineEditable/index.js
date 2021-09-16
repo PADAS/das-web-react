@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 import Checkmark from '../Checkmark';
 
 const InlineEditable = (props) => {
-  const { editing, onEsc, onClick, validationFunc, value:originalValue, onCancel, onSave, onChange, showCancel, showEditButton, ...rest } = props;
+  const { editing, onEsc, onClick, validationFunc, value: originalValue, onCancel, onSave, onChange, showCancel, showEditButton, ...rest } = props;
   const inputRef = useRef(null);
 
   const [valid, setValidationState] = useState(validationFunc(originalValue));

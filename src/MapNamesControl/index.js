@@ -11,7 +11,7 @@ const MapNamesControl = (props) => {
   const handleChange = (e) => {
     toggleMapNameState(!showMapNames);
 
-    trackEvent('Map Interaction', 
+    trackEvent('Map Interaction',
       `${showMapNames? 'Uncheck' : 'Check'} 'Show Names' checkbox`, null);
   };
 
@@ -21,8 +21,8 @@ const MapNamesControl = (props) => {
   </label>;
 };
 
-const mapStateToProps = ( {view:{showMapNames}} ) => {
-  return {showMapNames};
+const mapStateToProps = ( { view: { showMapNames } } ) => {
+  return { showMapNames };
 };
 
-export default connect(mapStateToProps, {toggleMapNameState})(MapNamesControl);
+export default connect(mapStateToProps, { toggleMapNameState })(MapNamesControl);

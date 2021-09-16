@@ -95,7 +95,7 @@ const TimeSlider = (props) => {
     return <Popover {...rest} className={`${styles.popover} ${props.className}`}>
       <Title className={styles.popoverTitle}>
         <ClockIcon />
-      Date Range
+        Date Range
         <Button type="button" variant='light' size='sm' disabled={!dateRangeModified} onClick={clearDateRange}>Reset</Button>
       </Title>
       <Content className={styles.popoverBody}>
@@ -115,10 +115,10 @@ const TimeSlider = (props) => {
     </OverlayTrigger>
     <div className={styles.wrapper_slider}>
       <input className={styles.slider} type='range' min='0' max='1' step='any' onChange={onSliderChange} value={value} />
-      <span ref={handleTextRef} className={styles.handleText} style={{left: `calc(${sliderPositionValue}% - ${handleOffset}px)`}}>
+      <span ref={handleTextRef} className={styles.handleText} style={{ left: `calc(${sliderPositionValue}% - ${handleOffset}px)` }}>
         <ClockIcon className={`${styles.icon} ${virtualDate ? styles.activeIcon : ''}`} />
         {(until || virtualDate) ? <span>{format(currentDate, STANDARD_DATE_FORMAT)}</span> :
-          <span style={{color: '#6d6d6d' }}>Timeslider</span>}
+        <span style={{ color: '#6d6d6d' }}>Timeslider</span>}
       </span>
     </div>
     <OverlayTrigger target={rightPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={RightPopoverContent} flip={true}>
