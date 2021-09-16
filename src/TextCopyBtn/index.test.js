@@ -5,10 +5,9 @@ import TextCopyBtn from './';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-global.navigator.clipboard = {
-  ...global.navigator.clipboard,
-  writeText: jest.fn().mockImplementation(() => Promise.resolve()),
-};
+Object.defineProperty(global.navigator, 'clipboard', { value: {
+  writeText: jest.fn().mockReturnValue(Promise.resolve()),
+}, configurable: true });
 
 const testString = 'i am being copied';
 

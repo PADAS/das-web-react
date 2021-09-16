@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 
+import MapTerrain from '../MapTerrain';
+import SkyLayer from '../SkyLayer';
+
 import { trackEvent } from '../utils/analytics';
 
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
@@ -10,7 +13,6 @@ import mapLabel from '../common/images/icons/symbol-label-outline.png';
 import { REACT_APP_MAPBOX_TOKEN, REACT_APP_BASE_MAP_STYLES, MIN_ZOOM, MAX_ZOOM, MAPBOX_STYLE_LAYER_SOURCE_TYPES } from '../constants';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
-// import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import '../Map/Map.scss';
 import BaseLayerRenderer from '../BaseLayerRenderer';
 import Attribution from './Attribution';
@@ -64,6 +66,8 @@ const EarthRangerMap = (props) => {
     onStyleLoad={onLoad}>
     <MapContext.Consumer>
       {(map) => map && <Fragment>
+        <MapTerrain map={map} />
+        <SkyLayer map={map} />
         <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>

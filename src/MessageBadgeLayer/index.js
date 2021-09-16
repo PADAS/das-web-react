@@ -133,23 +133,28 @@ const MessageBadgeLayer = (props) => {
   useEffect(() => {
     if (!!canViewMessages) {
 
-      const requestMapMessages = () => {
-        if (subjectFeatureCollection.features.length) {
-          const mapBboxPolygon = bboxPolygon(getBboxParamsFromMap(map, false));
+      const requestMapMessages = async () => {
+        try {
+          if (subjectFeatureCollection.features.length) {
+            const mapBboxParams = await getBboxParamsFromMap(map, false);
+            const mapBboxPolygon = bboxPolygon(mapBboxParams);
 
-          const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
-            .filter(feature => booleanContains(mapBboxPolygon, feature))
-            .map(({ properties: { id } }) => id)
-            .join(',');
+            const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
+              .filter(feature => booleanContains(mapBboxPolygon, feature))
+              .map(({ properties: { id } }) => id)
+              .join(',');
 
 
-          if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
-            fetchMessages({ read: false, subject_id: toRequest })
-              .then((response) => {
-                dispatch(fetchMessagesSuccess(response?.data?.data));
-              });
+            if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
+              fetchMessages({ read: false, subject_id: toRequest })
+                .then((response) => {
+                  dispatch(fetchMessagesSuccess(response?.data?.data));
+                });
+            }
+            lastRequestedSubjectIdList.current = toRequest;
           }
-          lastRequestedSubjectIdList.current = toRequest;
+        } catch (e) {
+          console.warn('error getting messages', e);
         }
       };
 

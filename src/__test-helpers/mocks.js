@@ -13,6 +13,7 @@ export const createMapMock = (override = {}) => {
     hasImage: jest.fn(),
     getSource: jest.fn().mockReturnValue({ setData: jest.fn() }),
     project: jest.fn(),
+    setTerrain: jest.fn(),
     ...override,
     __test__: {
       fireHandlers: (handlerName, eventObj) => {
