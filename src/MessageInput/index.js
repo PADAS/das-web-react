@@ -29,7 +29,7 @@ const MessageInput = (props) => {
 
     const data = new FormData(formRef.current);
     const value = data.get(`chat-${subject.id}`);
-    
+
 
     const { url } = subject.messaging[0];
     const msg = generateNewMessage({ geometry: subject?.last_position, properties: subject }, { text: value, read: true });

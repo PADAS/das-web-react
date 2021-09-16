@@ -13,10 +13,10 @@ function LabeledPatrolSymbolLayer(
     'text-offset': [1.1, -1.1],
   };
 
-  return <LabeledSymbolLayer 
+  return <LabeledSymbolLayer
     id={id}
     layout={symbolLayout}
-    {...rest} 
+    {...rest}
   />;
 }
 

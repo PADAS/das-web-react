@@ -65,7 +65,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     transformErrors={transformErrors}
     uiSchema={uiSchema}
     {...rest}
-  >
+    >
     {children}
   </Form>;
 });

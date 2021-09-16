@@ -19,9 +19,9 @@ export const generateNewMessage = ({ geometry, properties }, config = {}) => {
 
   return {
     sender,
-    message_type: 'outbox', 
+    message_type: 'outbox',
     message_time: new Date().toISOString(),
-    device_location: hasCoords ? { latitude: geometry?.coordinates?.[1], longitude: geometry?.coordinates?.[0] } : null, 
+    device_location: hasCoords ? { latitude: geometry?.coordinates?.[1], longitude: geometry?.coordinates?.[0] } : null,
     ...config,
   };
 };

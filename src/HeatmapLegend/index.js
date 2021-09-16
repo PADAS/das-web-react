@@ -14,7 +14,7 @@ const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
     trackEvent('Map Interaction', 'Close Heatmap');
     onClose(e);
   };
-  
+
   const titleElement = isValidElement(title) ? title : <h6>{title}</h6>;
   const settingsComponent = <HeatmapStyleControls showCancel={false} />;
 
@@ -31,7 +31,7 @@ const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
     onClose={onLegendClose}
     settingsComponent={settingsComponent}
     {...rest} >
-    
+
   </MapLegend>;
 };
 

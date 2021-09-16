@@ -5,7 +5,7 @@ const EULA_API_URL = `${API_URL}user/eula`;
 const ACCEPT_EULA_API_URL = `${EULA_API_URL}/accept`;
 
 // actions
-const FETCH_EULA_SUCCESS = 'FETCH_EULA_SUCCESS'; 
+const FETCH_EULA_SUCCESS = 'FETCH_EULA_SUCCESS';
 const ACCEPT_EULA_SUCCESS = 'ACCEPT_EULA_SUCCESS';
 
 
@@ -45,7 +45,7 @@ const acceptEulaSuccess = payload => ({
 const INITIAL_USER_STATE = {};
 export default (state = INITIAL_USER_STATE, action = {}) => {
   const { type, payload } = action;
-  
+
   switch (type) {
   case (FETCH_EULA_SUCCESS): {
     return payload;

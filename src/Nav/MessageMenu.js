@@ -38,7 +38,7 @@ const MessageMenu = (props) => {
     setSelectedSubject(subject);
   }, []);
 
-  const handleRealtimeMessage = useCallback(({ data:msg }) => {
+  const handleRealtimeMessage = useCallback(({ data: msg }) => {
     dispatch(updateMessageFromRealtime(msg));
   }, [dispatch]);
 
@@ -74,7 +74,7 @@ const MessageMenu = (props) => {
     </Toggle>
     <Menu className={styles.messageMenu}>
       <MessagesModal showClose={false} onSelectSubject={onSelectSubject} selectedSubject={selectedSubject} />
-     
+
     </Menu>
     <StateManagedSocketConsumer type={RADIO_MESSAGE_REALTIME} callback={handleRealtimeMessage} onStateMismatch={fetchMenuMessages} />
     <SleepDetector onSleepDetected={fetchMenuMessages} interval={SLEEP_DETECTION_INTERVAL} />

@@ -59,7 +59,7 @@ export const fetchFeaturesets = () => async (dispatch) => {
   }
 };
 
-const INITIAL_FEATURESET_STATE = {data: []};
+const INITIAL_FEATURESET_STATE = { data: [] };
 // reducer
 export default globallyResettableReducer((state, action) => {
   const { payload, type } = action;

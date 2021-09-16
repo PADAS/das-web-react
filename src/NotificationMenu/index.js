@@ -17,9 +17,9 @@ import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import BadgeIcon from '../Badge';
 
-import { STATUSES } from '../constants';  
+import { STATUSES } from '../constants';
 
-import styles from './styles.module.scss'; 
+import styles from './styles.module.scss';
 
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
@@ -67,7 +67,7 @@ const NotificationItem = (item, index) => {
         {item.date && <DateTime className={styles.dateTime} date={item.date} showElapsed={false} />}
       </div>
     </div>}
-    
+
     <h6>{displayMessage}</h6>
     {!!infolink && <div><a href={infolink} target='_blank' rel='noopener noreferrer' onClick={onShowMoreInfo}>More information</a></div>}
     <div className={styles.buttons}>
@@ -78,7 +78,7 @@ const NotificationItem = (item, index) => {
   </Item>;
 };
 
-const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_dispatch, ...rest }) => {
+const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _dispatch, ...rest }) => {
   const [news, setNews] = useState(null);
   const [newsFetchError, setNewsFetchError] = useState(null);
   const menuRef = useRef(null);
@@ -122,7 +122,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
         setTimeout(() => {
           menuRef.current.scrollTop = 0;
         });
-      } 
+      }
     }
   };
 
@@ -141,7 +141,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
       const consumeMessage = ({ data: msg }) => {
         return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
       };
- 
+
       socket.on('new_announcement', consumeMessage);
 
       return () => {
@@ -160,12 +160,12 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch:_di
       {!!notifications.length && notifications.map(NotificationItem)}
       {!!news?.length && !newsFetchError && <Fragment>
         <Divider />
-        <Item href='https://community.earthranger.com/tag/er-notify' rel='noreferrer' target='_blank'><Button variant='link' style={{marginLeft: 'auto'}}>See all news &gt;</Button></Item>
+        <Item href='https://community.earthranger.com/tag/er-notify' rel='noreferrer' target='_blank'><Button variant='link' style={{ marginLeft: 'auto' }}>See all news &gt;</Button></Item>
       </Fragment>
       }
       {newsFetchError && <Fragment>
         <Divider />
-        <h6 data-testid='error-message' className={styles.newsFetchErrorMessage}>Error fetching recent announcements. 
+        <h6 data-testid='error-message' className={styles.newsFetchErrorMessage}>Error fetching recent announcements.
           <Button data-testid='news-fetch-retry-btn' size='sm' className={styles.button} variant='info' onClick={onClickRetryFetchNews}>
             <RefreshIcon />
             <span>Try again</span>

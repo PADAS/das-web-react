@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'; /* eslint-disable-line no-unused-vars */
 import { connect } from 'react-redux';
 
-export const DEFAULT_TERRAIN_CONFIG = {'source': 'mapbox-dem', 'exaggeration': 1.5};
+export const DEFAULT_TERRAIN_CONFIG = { 'source': 'mapbox-dem', 'exaggeration': 1.5 };
 
 const MapTerrain = (props) => {
   const { enable3D, map } = props;

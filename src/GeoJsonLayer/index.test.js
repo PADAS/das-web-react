@@ -1,6 +1,6 @@
 
 it('renders without crashing', () => {
-  
+
 });
 
 it('adds a source and layer based on the id provided', () => {

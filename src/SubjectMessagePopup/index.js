@@ -11,7 +11,7 @@ import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg
 
 
 const SubjectMessagePopup = (props) => {
-  const  { map, data: { subject, message } } = props; 
+  const  { map, data: { subject, message } } = props;
 
   const onTitleClick = () => {
     const coordinates = getSubjectLastPositionCoordinates(subject);
@@ -20,7 +20,7 @@ const SubjectMessagePopup = (props) => {
 
   return <>
     <h6 onClick={onTitleClick}><ChatIcon /> {subject.name}</h6>
-    <p style={{marginBottom: '0.25rem'}}>{message.text}</p>
+    <p style={{ marginBottom: '0.25rem' }}>{message.text}</p>
     <DateTime date={message.message_time}  />
     <GpsFormatToggle lng={message.device_location.longitude} lat={message.device_location.latitude} />
   </>;

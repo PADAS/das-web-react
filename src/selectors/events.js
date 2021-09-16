@@ -13,12 +13,12 @@ export const getMapEventFeatureCollectionWithVirtualDate = createSelector(
     const { active: timeSliderActive, virtualDate } = timeSliderState;
     if (!timeSliderActive) return mapEventFeatureCollection;
 
-    const { lower:eventFilterSince, upper: eventFilterUntil } = eventFilterDateRange;
+    const { lower: eventFilterSince, upper: eventFilterUntil } = eventFilterDateRange;
     const eventFilterDateRangeLength = (eventFilterUntil ? new Date(eventFilterUntil) : new Date()) - new Date(eventFilterSince);
 
     return addDistanceFromVirtualDatePropertyToEventFeatureCollection(
       mapEventFeatureCollection,
-      virtualDate, 
+      virtualDate,
       eventFilterDateRangeLength,
       true,
     );
@@ -28,7 +28,7 @@ export const getMapEventFeatureCollectionWithVirtualDate = createSelector(
 export const displayEventTypes = createSelector(
   [getEventTypes, getPatrolTypes],
   (eventTypes, patrolTypes) => {
-    console.log({ eventTypes, patrolTypes});
+    console.log({ eventTypes, patrolTypes });
     return [...eventTypes, ...patrolTypes];
   }
 );

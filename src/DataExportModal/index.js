@@ -19,7 +19,7 @@ const { Header, Title, Body, Footer } = Modal;
 const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url, children }) => {
   const [downloading, setDownloadState] = useState(false);
   const [downloadCancelToken, setCancelToken] = useState(CancelToken.source());
-  
+
   const DOWNLOAD_URL = `${API_URL}${url}${paramString.length ? `?${paramString}` : ''}`;
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
     downloadFileFromUrl(DOWNLOAD_URL, { params }, downloadCancelToken)
       .catch((e) => {
         console.warn('error downloading file', e);
-      }) 
+      })
       .then(() => {
         removeModal(id);
       })
@@ -47,12 +47,12 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
   const onFormSubmit = (e) => {
     e.preventDefault();
     triggerDownload();
-    trackEvent('Report Export', 'Click \'Export\' button');    
+    trackEvent('Report Export', 'Click \'Export\' button');
   };
 
   const onFormCancel = () => {
     removeModal(id);
-    trackEvent('Report Export', 'Click \'Cancel\' button');    
+    trackEvent('Report Export', 'Click \'Cancel\' button');
   };
 
   return <Fragment>

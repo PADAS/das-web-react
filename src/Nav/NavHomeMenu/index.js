@@ -27,14 +27,14 @@ const NavHomeMenu = function NavHomeMenu(props) {
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>
-          <Item as="button" active={selectedMap.id === map.id ? 'active' : null} 
-            className={styles.listItem} key={map.id} 
-            onClick={()=>onMapSelect(map)}>
+          <Item as="button" active={selectedMap.id === map.id ? 'active' : null}
+            className={styles.listItem} key={map.id}
+            onClick={() => onMapSelect(map)}>
             <NavHomeItem {...map} />
           </Item>)}
         {userLocationCanBeShown && <Fragment>
           <Divider />
-          <Item className={styles.currentLocationJump} 
+          <Item className={styles.currentLocationJump}
             onClick={() => onCurrentLocationClick(userLocation)}>
             <h6>
               <GpsLocationIcon /> My Current Location

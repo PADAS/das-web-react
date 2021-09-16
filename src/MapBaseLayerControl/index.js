@@ -63,9 +63,9 @@ const BaseLayerControl = (props) => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  
+
   }, [popoverOpen]); // eslint-disable-line
-  
+
 
   return <div className={styles.wrapper} ref={wrapperRef}>
     <button title='Set Map Base Layer' type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
@@ -79,8 +79,8 @@ const BaseLayerControl = (props) => {
 
             return <li key={`${layer.id}`}>
               <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer.id ? styles.active : ''}>
-              	<img src={logoSrc} alt={`${layer.name} logo`} />
-              	{layer.name}
+                <img src={logoSrc} alt={`${layer.name} logo`} />
+                {layer.name}
               </button>
             </li>;
           })}

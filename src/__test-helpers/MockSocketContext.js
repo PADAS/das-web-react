@@ -19,4 +19,4 @@ export default MockSocketContext;
 jest.doMock('../withSocketConnection', () => ({
   SocketContext,
   default: MockSocketContext,
-})); 
+}));

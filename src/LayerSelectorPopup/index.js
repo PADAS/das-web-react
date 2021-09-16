@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
-  const { layers:layerList, onSelectSubject, onSelectEvent, coordinates } = data;
+  const { layers: layerList, onSelectSubject, onSelectEvent } = data;
   const [filter, setFilter] = useState('');
 
   const onFilterChange = useCallback(({ target: { value } }) => {
@@ -31,8 +31,8 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [filter, layerList]);
 
   const itemCountString = useMemo(() => {
-    const subjectCount = layers.filter(({ layer: { id:layerID }}) => !layerID.includes(EVENT_SYMBOLS)).length;
-    const eventCount = layers.filter(({ layer: { id:layerID }}) => layerID.includes(EVENT_SYMBOLS)).length;
+    const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
+    const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
 
     let string = '';
 
@@ -56,7 +56,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     }
   }, [showFilterInput]);
 
-  const handleClick = useCallback((event, { layer: { id:layerID }, properties, geometry }) => {
+  const handleClick = useCallback((event, { layer: { id: layerID }, properties, geometry }) => {
     const layerData = { geometry, properties };
     const layerType = layerID.includes(EVENT_SYMBOLS) ? 'event' : 'subject';
     const handler = layerType === 'event' ? onSelectEvent : onSelectSubject;
@@ -75,7 +75,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
         const imgSrc = imageinStore ?
           imageinStore.image.src
           : calcUrlForImage(layer.properties.image);
-      
+
         return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
           <img alt={layer.properties.display_title || layer.properties.name} src={imgSrc} />
           <span>{layer.properties.display_title || layer.properties.name}</span>

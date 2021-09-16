@@ -28,16 +28,16 @@ const TriggerComponent = memo((props) => { // eslint-disable-line react/display-
   return <div className={listStyles.trigger}>
     {listLevel === 0 && <h5>{name}</h5>}
     {listLevel > 0 && <h6>{name}</h6>}
-    {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks} 
-      heatmapVisible={groupIsFullyHeatmapped} 
-      heatmapPartiallyVisible={groupIsPartiallyHeatmapped} 
+    {showHeatmapControl && <HeatmapToggleButton className={listStyles.toggleButton} loading={loadingTracks}
+      heatmapVisible={groupIsFullyHeatmapped}
+      heatmapPartiallyVisible={groupIsPartiallyHeatmapped}
       onButtonClick={onGroupHeatmapToggle} showLabel={false} />}
   </div>;
 });
 
 const ContentComponent = (props) => {
-  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick, 
-    hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter, 
+  const { subgroups, subjects, name, map, onGroupCheckClick, onSubjectCheckClick,
+    hiddenSubjectIDs, subjectIsVisible, subjectFilterEnabled, subjectMatchesFilter,
     addHeatmapSubjects, removeHeatmapSubjects, showHeatmapControl, listLevel,
     groupIsFullyHeatmapped, groupIsPartiallyHeatmapped, unloadedSubjectTrackIDs } = props;
 
@@ -79,12 +79,12 @@ const ContentComponent = (props) => {
       trackEvent('Map Layers', 'Uncheck Group Heatmap checkbox', `Group:${name}`);
       return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
     }
-    
+
     setTrackLoadingState(true);
     if (unloadedSubjectTrackIDs.length) {
       await fetchTracksIfNecessary(unloadedSubjectTrackIDs);
     }
-    
+
     setTrackLoadingState(false);
 
     trackEvent('Map Layers', 'Check Group Heatmap checkbox', `Group:${name}`);

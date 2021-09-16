@@ -23,7 +23,7 @@ const TimeRangeAlert = (props) => {
     <Body className={styles.modal}>
       <div>
         <p>
-          This patrol can not be saved. The end time of a patrol must be later than the 
+          This patrol can not be saved. The end time of a patrol must be later than the
           start time. Please correct the start or end patrol time.
         </p>
       </div>

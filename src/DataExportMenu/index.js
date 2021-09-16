@@ -27,9 +27,9 @@ const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject
 
 const DataExportMenu = (props) => {
 
-  const { addModal, addUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled }, 
-    eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences, 
-    staticContext:_staticContext, fetchTableauDashboard, token, ...rest } = props;
+  const { addModal, addUserNotification, systemConfig: { zendeskEnabled, alerts_enabled, tableau_enabled },
+    eventTypes, eventFilter, history, location, shownTableauNotification, updateUserPreferences,
+    staticContext: _staticContext, fetchTableauDashboard, token, ...rest } = props;
 
   const [isOpen, setOpenState] = useState(false);
 
@@ -89,17 +89,17 @@ const DataExportMenu = (props) => {
   };
 
   const onModalClick = useCallback((modal, analyticsTitle = 'Report Export') => {
-    addModal({...modal});
+    addModal({ ...modal });
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
-  });
+  }, [addModal]);
 
   const openTableauReport = (analyticsTitle) => {
     fetchTableauDashboard()
       .then( ({ display_url }) => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
-        trackEvent(analyticsTitle, 'Click Analysis (via Tableau) menu item');    
-      }); 
+        trackEvent(analyticsTitle, 'Click Analysis (via Tableau) menu item');
+      });
   };
 
   const onContactSupportClick = () => {
@@ -142,7 +142,7 @@ const DataExportMenu = (props) => {
       <Header>Exports</Header>
       {modals.map((modal, index) =>
         <Item key={index} onClick={() => onModalClick(modal)}>
-          <span>{modal.title}</span> 
+          <span>{modal.title}</span>
         </Item>
       )}
       <Divider />

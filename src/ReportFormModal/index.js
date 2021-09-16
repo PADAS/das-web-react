@@ -15,8 +15,8 @@ import ReportForm from '../ReportForm';
 import styles from './styles.module.scss';
 
 const ReportFormModal = (props) => {
-  const { report, id:modalId, eventSchemas, eventStore, onSaveError, onSaveSuccess, fetchEventTypeSchema,
-    removeModal, fetchEvent, navigateRelationships, relationshipButtonDisabled, map, hidePatrols} = props;
+  const { report, id: modalId, eventSchemas, eventStore, onSaveError, onSaveSuccess, fetchEventTypeSchema,
+    removeModal, fetchEvent, navigateRelationships, relationshipButtonDisabled, map, hidePatrols } = props;
 
   const { id: report_id, event_type } = report;
 
@@ -74,7 +74,7 @@ const ReportFormModal = (props) => {
         onSaveSuccess={onSaveSuccess}
         hidePatrols={hidePatrols}
         isPatrolReport={isPatrolReport}
-        formProps={{navigateRelationships, relationshipButtonDisabled}}
+        formProps={{ navigateRelationships, relationshipButtonDisabled }}
         map={map}
       />
     </EditableItem.Modal>
@@ -84,7 +84,7 @@ const ReportFormModal = (props) => {
 const mapStatetoProps = ({ data: { eventSchemas, eventStore } }) => ({ eventSchemas, eventStore });
 
 export default connect(mapStatetoProps, {
-  fetchEventTypeSchema: (...args) => fetchEventTypeSchema(...args), 
+  fetchEventTypeSchema: (...args) => fetchEventTypeSchema(...args),
   fetchEvent: (...args) => fetchEvent(...args), removeModal })(memo(withMap(ReportFormModal)));
 
 ReportFormModal.propTypes = {

@@ -28,7 +28,7 @@ const PatrolFilterSettings = (props) => {
     <form>
       <fieldset>
         <div>
-          <OverlayTrigger placement="top" overlay={startInfo} delay={{show: 1000}}>
+          <OverlayTrigger placement="top" overlay={startInfo} delay={{ show: 1000 }}>
             <span>
               <input
                 type="radio"
@@ -41,7 +41,7 @@ const PatrolFilterSettings = (props) => {
           </OverlayTrigger>
         </div>
         <div>
-          <OverlayTrigger placement="top" overlay={overlapInfo} delay={{show: 1000}}>
+          <OverlayTrigger placement="top" overlay={overlapInfo} delay={{ show: 1000 }}>
             <span>
               <input
                 type="radio"

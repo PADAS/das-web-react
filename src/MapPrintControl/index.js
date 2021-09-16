@@ -66,12 +66,12 @@ const MapPrintControl = (props) => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  
+
   }, [active]); // eslint-disable-line
-  
+
   return <div className={styles.wrapper} ref={wrapperRef}>
     <button onClick={toggleActiveState} ref={buttonRef}
-      type='button' title='Print map' 
+      type='button' title='Print map'
       className={`${styles.button} ${active ? styles.active : ''}`} >
       <PrinterIcon />
     </button>
@@ -85,7 +85,7 @@ const MapPrintControl = (props) => {
               <input type='text' value={printTitle} onChange={onInputChange} />
             </label>
             <Button size='sm' variant='dark' type='submit'>
-            Print map
+              Print map
             </Button>
             <small>Adjust the &quot;scale&quot; setting when printing for best results</small>
           </form>

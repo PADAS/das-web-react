@@ -45,8 +45,8 @@ const DetectOffline = () => {
         () => {
           toastId.current = toast(<div>
             <p>You are currently offline.
-          EarthRanger may not function as expected.
-      Please check your network connection.</p>
+              EarthRanger may not function as expected.
+              Please check your network connection.</p>
           </div>, {
             autoClose: false,
             closeOnClick: false,

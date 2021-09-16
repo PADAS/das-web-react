@@ -22,7 +22,7 @@ export const getMapSubjectFeatureCollection = createSelector(
       .filter(id => !hiddenSubjectIDs.includes(id))
       .map(id => subjectStore[id])
       .filter(item => !!item);
-    
+
     const mapSubjectCollection = createFeatureCollectionFromSubjects(fromStore);
     if (showInactiveRadios) return mapSubjectCollection;
     return filterInactiveRadiosFromCollection(mapSubjectCollection);
@@ -56,7 +56,7 @@ export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelect
   [getMapSubjectFeatureCollection, getSystemConfig, getUserPermissions, (...args) => tracks(...args), (...args) => getTimeSliderState(...args)],
   (mapSubjectFeatureCollection, systemConfig, userPermissions, tracks, timeSliderState) => {
     const patrolsEnabled = !!systemConfig?.[FEATURE_FLAGS.PATROL_MANAGEMENT] && (userPermissions[PERMISSION_KEYS.PATROLS] || []).includes(PERMISSIONS.READ);
-    
+
     const mapSubjectFeatureCollection_ = patrolsEnabled ? markSubjectFeaturesWithActivePatrols(mapSubjectFeatureCollection) : mapSubjectFeatureCollection;
 
     const { active: timeSliderActive, virtualDate } = timeSliderState;

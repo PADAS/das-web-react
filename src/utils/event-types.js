@@ -20,7 +20,7 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 
   const sorted = reportsWithTypes
     .sort((a, b) => calcPriorityRatingForEventAndEventType(b) - calcPriorityRatingForEventAndEventType(a));
-    
+
   return sorted[0];
 };
 
@@ -43,7 +43,7 @@ export const calcIconColorByPriority = (priority) => {
 };
 
 export const mapReportTypesToCategories = eventTypes => eventTypes
-  
+
   .filter(reportType => reportType.category.value !== 'hidden')
   .reduce((accumulator, reportType) => {
     const cat = accumulator.find(item => item.value === reportType.category.value);

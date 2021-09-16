@@ -66,7 +66,7 @@ const createSchemaGroups = (schema, definitions) => {
         },
       ];
     }
-    
+
     if (isFirst) {
       return [
         ...accumulator,
@@ -105,9 +105,9 @@ const createSchemaGroups = (schema, definitions) => {
 export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions, schema: originalSchema }) => {
   const withEnums = convertSchemaEnumNameObjectsIntoArray({ ...originalSchema });
 
-  const { 
-    schema:schemaFromDefinitions,
-    uiSchema:uiSchemaFromDefinitions 
+  const {
+    schema: schemaFromDefinitions,
+    uiSchema: uiSchemaFromDefinitions
   } = convertDefinitionsToSchemas(definitions, withEnums);
 
   const uiSchemasForSelectFields = addCustomSelectFieldForEnums(withEnums);
@@ -122,7 +122,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
   schema.required = requiredProperties;
 
   uiSchema['ui:groups'] = groupsForSchema;
-  
+
   return {
     schema,
     uiSchema,
@@ -225,8 +225,8 @@ export const convertSchemaEnumNameObjectsIntoArray = (schema) => {
 };
 
 const generateSchemaAndUiSchemaForCheckbox = (definition, schema) => {
-  const { key, title:definitionTitle, titleMap:definitionTitleMap } = definition;
-  const { titleMap:schemaTitleMap, title:schemaTitle } = schema.properties[key];
+  const { key, title: definitionTitle, titleMap: definitionTitleMap } = definition;
+  const { titleMap: schemaTitleMap, title: schemaTitle } = schema.properties[key];
 
   const title = schemaTitle || definitionTitle;
   const titleMap = schemaTitleMap || definitionTitleMap;
@@ -304,7 +304,7 @@ const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properti
       return merge(accumulator, {
         [key]: {
           'ui:field': customSchemaFields.externalUri,
-        }, 
+        },
       });
     }
     if (value.type === 'object') {

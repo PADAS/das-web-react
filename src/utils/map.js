@@ -95,13 +95,13 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   return featureCollection([]);
 };
 
-export const addTitleWithDateToGeoJson = (geojson, title) => { 
+export const addTitleWithDateToGeoJson = (geojson, title) => {
   const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
   return (geojson.properties.display_title = displayTitle) && geojson;
 };
 
-const setUpEventGeoJson = (events, eventTypes) => 
-  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => 
+const setUpEventGeoJson = (events, eventTypes) =>
+  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event =>
     copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => {
     const displayTitle = title || getEventTypeTitle(eventTypes, event_type);
     return addTitleWithDateToGeoJson(geojson, displayTitle);
@@ -124,7 +124,7 @@ const setUpSubjectGeoJson = subjects =>
       geojson
     );
 
-const featureCollectionFromGeoJson = geojson_collection => 
+const featureCollectionFromGeoJson = geojson_collection =>
   featureCollection(
     geojson_collection
       .filter(({ geometry, properties }) => !!geometry && !!properties)

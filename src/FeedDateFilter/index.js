@@ -24,7 +24,7 @@ const FeedDateFilter = (props) => {
       lower,
       upper: upper === null ? nullUpperOverride : upper,
     };
-    
+
     updateFilter(dateRangeUpdate);
     afterClickPreset && afterClickPreset(label);
   }, [afterClickPreset, nullUpperOverride, updateFilter]);
@@ -34,8 +34,8 @@ const FeedDateFilter = (props) => {
       ...dateRange,
       upper: dateIsValid(val)
         ? val.toISOString()
-        : val === null 
-          ? nullUpperOverride 
+        : val === null
+          ? nullUpperOverride
           : val,
     };
     updateFilter(dateRangeUpdate);

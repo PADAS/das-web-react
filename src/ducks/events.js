@@ -79,7 +79,7 @@ export const socketEventData = (payload) => (dispatch) => {
     dispatch({
       type: EVENTS_COUNT_INCREMENT
     });
-  } 
+  }
 
   dispatch({
     type: UPDATE_EVENT_STORE,
@@ -95,12 +95,12 @@ const fetchNamedFeedActionCreator = (name) => {
   const fetchFn = (config, paramString) => (dispatch, getState) => {
     cancelToken.cancel();
     cancelToken = CancelToken.source();
-  
+
     dispatch({
       name,
       type: FEED_FETCH_START,
     });
-  
+
     return axios.get(`${EVENTS_API_URL}?${paramString}`, {
       ...config,
       cancelToken: cancelToken.token,
@@ -119,7 +119,7 @@ const fetchNamedFeedActionCreator = (name) => {
             type: FEED_FETCH_SUCCESS,
             payload: response.data.data,
           });
-        } 
+        }
         return response;
       })
       .catch((error) => {
@@ -135,7 +135,7 @@ const fetchNamedFeedActionCreator = (name) => {
   const fetchNextPageFn = url => dispatch => {
     cancelToken.cancel();
     cancelToken = CancelToken.source();
-    
+
     return axios.get(url, {
       cancelToken: cancelToken.token,
     })
@@ -340,26 +340,26 @@ const cancelableMapEventsFetch = () => {
       if (!map) {
         lastKnownBbox = getState().data.mapEvents.bbox;
       }
-      
+
       if (!map && !lastKnownBbox) return Promise.reject();
-      
+
       const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
       const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
-      
+
       dispatch({
         type: FETCH_MAP_EVENTS_START,
         payload: { bbox },
       });
-      
+
       const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
-      
+
       cancelToken.cancel();
       cancelToken = CancelToken.source();
-      
+
       const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
         cancelToken: cancelToken.token,
       });
-      
+
       return recursivePaginatedQuery(request, cancelToken.token, onEachRequest)
         .then((finalResults) =>
           finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
@@ -413,18 +413,18 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
   if (type === CLEAR_EVENT_DATA) {
     return { ...INITIAL_EVENT_FEED_STATE };
   }
-  
+
   if (type === EVENTS_COUNT_INCREMENT) {
     return reducer(state, action);
   }
 
   /* socket changes and event updates should affect all feeds */
   if (
-    type === UPDATE_EVENT_SUCCESS || 
+    type === UPDATE_EVENT_SUCCESS ||
     type === SOCKET_EVENT_DATA
   ) {
 
-    const id = 
+    const id =
       (type === UPDATE_EVENT_SUCCESS)
         ? payload.id
         : payload.event_data.id;
@@ -450,7 +450,7 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
     return INITIAL_EVENT_FEED_STATE;
   }
   if (type === FEED_FETCH_SUCCESS
-  
+
   ) {
     return {
       ...payload,
@@ -473,7 +473,7 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
       results: [...state.results, ...events.map(event => event.id)].filter( uniqueEventIds ),
     };
   }
-  
+
   return reducer(state, action);
 }, INITIAL_EVENT_FEED_STATE);
 
@@ -540,7 +540,7 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
         ...state,
         results: state.results.filter(id => id !== payload.event_data.id),
       };
-    } 
+    }
   } else if (type === EVENTS_COUNT_INCREMENT) {
     return {
       ...state,
@@ -552,7 +552,7 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
 
 export const incidentFeedReducer = namedFeedReducer(INCIDENT_FEED_NAME, (state, { type, payload }) => {
   if (type === SOCKET_EVENT_DATA) {
-    
+
     if (!payload.event_data.is_collection) {
       return {
         ...state,
@@ -577,7 +577,7 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
   if (type === CLEAR_EVENT_DATA) {
     return { ...INITIAL_MAP_EVENTS_STATE };
   }
-  
+
   if (type === FETCH_MAP_EVENTS_START) {
     const { bbox } = payload;
     return {

@@ -29,7 +29,7 @@ const cancelableMapSubjectsFetch = () => {
   const fetchFn = (map, params) => async (dispatch, getState) => {
     try {
 
-    
+
       let lastKnownBbox;
 
       if (!map) {
@@ -37,7 +37,7 @@ const cancelableMapSubjectsFetch = () => {
       }
 
       if (!map && !lastKnownBbox) return Promise.reject();
-  
+
       const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
 
       dispatch({
@@ -47,7 +47,7 @@ const cancelableMapSubjectsFetch = () => {
 
       cancelToken.cancel();
       cancelToken = CancelToken.source();
-  
+
       return axios.get(SUBJECTS_API_URL, {
         cancelToken: cancelToken.token,
         params: {
@@ -184,7 +184,7 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
 
     const cloned = { ...payload };
     cloned.properties.image = calcUrlForImage(cloned.properties.image);
-    
+
     const { properties: { id } } = cloned;
 
     if (!state[id]) return state;

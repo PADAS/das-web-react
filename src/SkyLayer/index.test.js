@@ -16,5 +16,5 @@ test('adding a sky layer to the map', () => {
   render( <SkyLayer map={map} />);
 
   expect(map.addLayer).toHaveBeenCalledWith(DEFAULT_SKY_LAYER_CONFIG);
-  
+
 });

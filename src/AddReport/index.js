@@ -28,7 +28,7 @@ export const STORAGE_KEY = 'selectedAddReportTab';
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
-const CategoryList = ({ category, showTitle, onClickReportType }) => 
+const CategoryList = ({ category, showTitle, onClickReportType }) =>
   <div>
     {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
     <ul key={category.value} className={styles.reportTypeMenu}>
@@ -49,7 +49,7 @@ const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react
 
   const filteredCategories = categories
     .reduce((accumulator, category) => {
-      
+
       if (!category.types.length) return accumulator;
 
       if (category.display.toLowerCase().includes(filterText)) {
@@ -133,7 +133,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
     }
   }, [activeTab, hasPatrols]);
 
-  return <Popover {...rest} ref={ref} className={styles.popover}> 
+  return <Popover {...rest} ref={ref} className={styles.popover}>
     <Popover.Content>
       <Tabs activeKey={activeTab} onSelect={onTabSelect} className={styles.tabBar}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
@@ -175,10 +175,10 @@ const AddReport = (props) => {
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
 
   const patrolsEnabled = !!patrolFlagEnabled
-    && !!hasPatrolWritePermissions 
-    && !!patrolTypes.length 
+    && !!hasPatrolWritePermissions
+    && !!patrolTypes.length
     && !hidePatrols;
-  
+
   const patrolCategories = useMemo(() => patrolsEnabled && [generatePseudoReportCategoryForPatrolTypes(patrolTypes)], [patrolTypes, patrolsEnabled]);
 
   const targetRef = useRef(null);
@@ -236,13 +236,13 @@ const AddReport = (props) => {
     /* END PATROL_SCAFFOLD */
 
     const newReport = createNewReportForEventType(reportType, reportData);
-    
+
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
   }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
   return hasEventCategories &&
-  
+
   <PatrolTypesContext.Provider value={patrolCategories}>
     <ReportTypesContext.Provider value={eventsByCategory}>
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>

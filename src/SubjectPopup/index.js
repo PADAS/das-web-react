@@ -62,8 +62,6 @@ const SubjectPopup = (props) => {
 
   const reportedById = properties.id;
 
-  const time = new Date(properties.last_position_date);
-
   return <>
     <div className={styles.header}>
       <h4>{properties.name}</h4>
@@ -94,7 +92,7 @@ const SubjectPopup = (props) => {
       <Fragment>
         <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
         <div className={styles.controls}>
-          <AddReport 
+          <AddReport
             analyticsMetadata={{
               category: 'Map Interaction',
               location: 'subject popover',

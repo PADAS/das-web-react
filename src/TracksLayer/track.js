@@ -35,7 +35,7 @@ const timepointLayerLayout = {
 };
 
 const timepointLayerPaint = {
-  'icon-opacity':[
+  'icon-opacity': [
     'case',
     ['==', ['get', 'index'], 0], 0,
     1,
@@ -43,7 +43,7 @@ const timepointLayerPaint = {
 };
 
 const TrackLayer = (props) => {
-  const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch:_dispatch, ...rest } = props;
+  const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch, ...rest } = props;
 
   const trackLinePaint = useMemo(() => ({
     ...trackLayerLinePaint,
@@ -58,9 +58,9 @@ const TrackLayer = (props) => {
   const layerBefore = useMemo(() => before || SUBJECT_SYMBOLS, [before]);
 
 
-  const { track:trackCollection, points:trackPointCollection } = trackData;
+  const { track: trackCollection, points: trackPointCollection } = trackData;
   const trackId = id || trackCollection.features[0].properties.id;
-  
+
   const onSymbolMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onSymbolMouseLeave = () => map.getCanvas().style.cursor = '';
 
@@ -74,7 +74,7 @@ const TrackLayer = (props) => {
     type: 'geojson',
     data: trackPointCollection,
   }), [trackPointCollection]);
-  
+
   if (!trackData.track) return null;
 
   const sourceId = `track-source-${trackId}`;

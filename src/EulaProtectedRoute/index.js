@@ -14,7 +14,7 @@ import { fetchSystemStatus } from '../ducks/system-status';
 import PrivateRoute from '../PrivateRoute';
 
 const EulaProtectedRoute = (props) => {
-  const { dispatch:_dispatch, history, fetchCurrentUser, fetchSystemStatus, location, user, ...rest } = props;
+  const { dispatch: _dispatch, history, fetchCurrentUser, fetchSystemStatus, location, user, ...rest } = props;
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
@@ -37,7 +37,7 @@ const EulaProtectedRoute = (props) => {
   useEffect(() => {
     // null check to distinguish from eulaEnabled = false
     if (user.id && !(eulaEnabled == null)) {
-      const accepted = user.hasOwnProperty('accepted_eula') 
+      const accepted = user.hasOwnProperty('accepted_eula')
         ? user.accepted_eula
         : true;
       const ignoreEula = (eulaEnabled === false);

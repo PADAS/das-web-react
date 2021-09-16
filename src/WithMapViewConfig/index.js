@@ -7,7 +7,7 @@ const withMapViewConfig = Component => connect(mapStatetoProps, null)(({ showMap
 
   const mapUserLayoutConfig = {
     'icon-allow-overlap': simplifyMapDataOnZoom.enabled ? DEFAULT_SYMBOL_LAYOUT['icon-allow-overlap'] : true,
-    'text-allow-overlap' :  simplifyMapDataOnZoom.enabled ? DEFAULT_SYMBOL_LAYOUT['text-allow-overlap'] : true,
+    'text-allow-overlap': simplifyMapDataOnZoom.enabled ? DEFAULT_SYMBOL_LAYOUT['text-allow-overlap'] : true,
   };
 
   if (!showMapNames) {

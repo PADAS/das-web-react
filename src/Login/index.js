@@ -59,7 +59,7 @@ class LoginPage extends Component {
 
         const errorMessage = errorObject
           && errorObject.message
-          && errorObject.message.includes('400') ? 'Invalid credentials given. Please try again.' 
+          && errorObject.message.includes('400') ? 'Invalid credentials given. Please try again.'
           : 'An error has occured. Please try again.';
 
         !this.isCancelled && this.setState({
@@ -83,10 +83,10 @@ class LoginPage extends Component {
 
 
   render() {
-    const {systemConfig, eula: { eula_url } } = this.props;
+    const { systemConfig, eula: { eula_url } } = this.props;
 
     const eulaEnabled = systemConfig?.[FEATURE_FLAGS.EULA];
-     
+
     return <div className={styles.container}>
       <EarthRangerLogo className={styles.logo} />
       <Form name='login' className={styles.form} onSubmit={this.onFormSubmit}>

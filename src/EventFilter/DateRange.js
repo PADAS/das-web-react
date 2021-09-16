@@ -9,8 +9,8 @@ import FeedDateFilter from '../FeedDateFilter';
 const EventFilterDateRangeSelector = (props) => {
   const { eventFilter, updateGlobalDateRange, placement, popoverClassName } = props;
 
-  const { filter: { date_range:dateRange } } = eventFilter;
-  
+  const { filter: { date_range: dateRange } } = eventFilter;
+
   const afterClickPreset = useCallback((label) => {
     trackEvent('Event Filter', 'Select Date Range Preset', `Date Range: ${label}`);
   }, []);
@@ -23,7 +23,7 @@ const EventFilterDateRangeSelector = (props) => {
     trackEvent('Event Filter', 'Change Start Date Filter');
   }, []);
 
-  return <FeedDateFilter 
+  return <FeedDateFilter
     dateRange={dateRange}
     placement={placement}
     popoverClassName={popoverClassName}

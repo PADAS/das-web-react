@@ -73,7 +73,7 @@ const GeoJsonLayer = (props) => {
         setStateHandlers(eventHandlers);
 
         map.setFilter(layerId, filter);
-      } 
+      }
     }
   }, [before, data, filter, layerId, layout, map, paint, props, sourceId, type]);
 
@@ -81,7 +81,7 @@ const GeoJsonLayer = (props) => {
   useEffect(() => {
     if (canHandleLayerUpdate) {
       const eventHandlers = convertEventsToHandlers(props);
-  
+
       if (!isEqual(eventHandlers, stateHandlers)) {
         setStateHandlers(eventHandlers);
       }
@@ -149,7 +149,7 @@ const GeoJsonLayer = (props) => {
   useEffect(() => {
     if (map) {
       const layer = map.getLayer(layerId);
-      
+
       if (!!layer) {
         if (!isEqual(stateBefore, before)) {
           map.moveLayer(layerId, before);

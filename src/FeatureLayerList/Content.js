@@ -19,7 +19,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 };
 
 const Content = (props) => {
-  const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map, 
+  const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map,
     featureFilterEnabled } = props;
 
   if (featureFilterEnabled && !featuresByType.length) return null;
@@ -34,11 +34,11 @@ const Content = (props) => {
   const onCheckToggle = (type) => {
     const featureIDs = getUniqueIDsFromFeatures(...type.features);
     if (allVisible(type)) {
-      trackEvent('Map Layers', 'Uncheck Feature Set Type checkbox', 
+      trackEvent('Map Layers', 'Uncheck Feature Set Type checkbox',
         `Feature Set Type:${type.name}`);
       return hideFeatures(...featureIDs);
     } else {
-      trackEvent('Map Layers', 'Check Feature Set Type checkbox', 
+      trackEvent('Map Layers', 'Check Feature Set Type checkbox',
         `Feature Set Type:${type.name}`);
       return showFeatures(...featureIDs);
     }

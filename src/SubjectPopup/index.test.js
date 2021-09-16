@@ -18,34 +18,34 @@ import { GPS_FORMATS } from '../utils/location';
 import SubjectPopup from './';
 
 const store = mockStore({
-  data: { 
+  data: {
     eventFilter: {
       filter: {
         date_range: {
           lower: null,
           upper: null,
-        },     
+        },
       },
     },
     tracks: {},
-  }, 
-  view: { 
+  },
+  view: {
     heatmapSubjectIDs: [],
-    timeSliderState: { 
-      active: false, 
-      virtualDate: null, 
-    }, 
+    timeSliderState: {
+      active: false,
+      virtualDate: null,
+    },
     trackLength: {
       origin: 'customLength',
       length: 21,
     },
-    subjectTrackState: { 
+    subjectTrackState: {
       visible: [],
-      pinned: [], 
+      pinned: [],
     },
-    patrolTrackState: { 
+    patrolTrackState: {
       visible: [],
-      pinned: [], 
+      pinned: [],
     },
     userPreferences: {
       gpsFormat: GPS_FORMATS.DEG,

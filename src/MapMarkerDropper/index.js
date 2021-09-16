@@ -23,7 +23,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 
   const isValidLocation = location.lng && location.lat && validateLngLat(location.lng, location.lat);
   const shouldShowMarkerLayer = moving || isValidLocation;
-  
+
   const cleanupMarkerStateFromMap = () => {
     hideMarker();
     setCleanupState(false);
@@ -74,7 +74,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
     stopMovingReportMarker();
     setCleanupState(true);
   };
-  
+
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -91,7 +91,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
       document.removeEventListener('keydown', handleKeyDown);
     }
     return () => document.removeEventListener('keydown', handleKeyDown);
-  
+
   }, [moving]); // eslint-disable-line
 
 

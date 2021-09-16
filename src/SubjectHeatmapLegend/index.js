@@ -48,7 +48,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
   </h6>;
 });
 
-const SubjectHeatmapLegend = ({ trackData, trackLength: { length:track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
+const SubjectHeatmapLegend = ({ trackData, trackLength: { length: track_days }, onClose, heatmapSubjectIDs, updateHeatmapSubjects }) => {
   const subjectCount = trackData.length;
   const trackPointCount = trackData.reduce((accumulator, item) => accumulator + item.points.features.length, 0);
   let displayTitle, iconSrc;

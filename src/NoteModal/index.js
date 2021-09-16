@@ -27,7 +27,7 @@ const NoteModal = (props) => {
     trackEvent('Report Note', 'Click \'Cancel\' Button');
     removeModal(id);
   };
-  
+
   const onNoteFormSubmit = (e) => {
     e.preventDefault();
     trackEvent('Report Note', 'Click \'Save\' Button');

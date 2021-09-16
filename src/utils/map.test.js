@@ -34,7 +34,7 @@ describe('waitForMapBounds', () => {
     const getBoundsMock = jest.fn().mockImplementation(() => {
       throw errorObj;
     });
-    
+
     map = createMapMock({ getBounds: getBoundsMock });
 
     waitForMapBounds(map);

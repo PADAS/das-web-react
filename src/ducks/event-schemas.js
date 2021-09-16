@@ -42,7 +42,7 @@ const eventSchemasReducer = (state, action) => {
   if (type === FETCH_EVENT_TYPE_SCHEMA_SUCCESS) {
     const { name, schema  } = payload;
 
-    const { uiSchema, schema:newSchema } = generateFormSchemasFromEventTypeSchema(schema);
+    const { uiSchema, schema: newSchema } = generateFormSchemasFromEventTypeSchema(schema);
 
     return { ...state, [name]: {
       definition: schema.definition,

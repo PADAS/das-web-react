@@ -40,7 +40,7 @@ const RelationshipButton = (props) => {
     const [patrolId] = report.patrols;
 
     trackEvent(`${report.is_collection?'Incident':'Event'} Report`, 'Click \'Go to Patrol\' button');
-    
+
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       removeModal();
       openModalForPatrol(data, map);
@@ -52,15 +52,15 @@ const RelationshipButton = (props) => {
       {isPatrolReport && <AttachmentButton icon={PatrolIcon} title='Go To Patrol' onClick={goToParentPatrol} />}
       {isCollectionChild && <AttachmentButton icon={FieldReportIcon} title='Go To Collection' onClick={goToParentCollection} />}
     </Fragment>}
-    {(isCollection || (!isPatrolReport && !isCollectionChild)) && <AddReport 
+    {(isCollection || (!isPatrolReport && !isCollectionChild)) && <AddReport
       analyticsMetadata={{
         category: 'Report Modal',
         location: 'report modal',
       }}
       map={map}
       formProps={{
-        hidePatrols: hidePatrols, 
-        relationshipButtonDisabled:true, 
+        hidePatrols: hidePatrols,
+        relationshipButtonDisabled: true,
         onSaveSuccess: onNewReportSaved,
       }}
     />}

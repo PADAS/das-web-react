@@ -9,7 +9,7 @@ const defaultDateRange = {
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(
   defaultDateRange
 );
-  
+
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
 const RESET_PATROL_FILTER = 'RESET_PAROL_FILTER';

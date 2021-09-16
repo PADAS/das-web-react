@@ -35,7 +35,7 @@ test('rendering without crashing', () => {
 
 describe('ColumnSort control', () => {
   let sortHeader, rendered;
-  
+
   beforeEach(async () => {
     rendered = render(<ColumnSort options={SORT_OPTIONS} value={['-', SORT_OPTIONS[0]]} onChange={onSortChange} />);
 

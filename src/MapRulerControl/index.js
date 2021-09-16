@@ -64,7 +64,7 @@ const MapRulerControl = (props) => {
     const isPointClick = !!map.queryRenderedFeatures(e.point, {
       layers: [RULER_POINTS_LAYER_ID],
     }).length;
-    
+
     if (!isPointClick) {
       setActiveState(false);
       map.off('click', nextClickResetsState.current);
@@ -75,7 +75,7 @@ const MapRulerControl = (props) => {
     e.preventDefault();
     e.originalEvent.stopPropagation();
 
-    const pointMatch = points.find(p => 
+    const pointMatch = points.find(p =>
       isEqual(
         p.map(l =>
           l.toFixed(2)
@@ -138,7 +138,7 @@ const MapRulerControl = (props) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  
+
   }, [active]); // eslint-disable-line
 
   useEffect(() => {
@@ -171,7 +171,7 @@ const MapRulerControl = (props) => {
       setActiveState(false);
       unbindRulerMapEvents();
     };
-  
+
     return () => onComponentUnmount();
   }, []); // eslint-disable-line
 
@@ -185,12 +185,12 @@ const MapRulerControl = (props) => {
 
   return <Fragment>
     <div className={styles.buttons}>
-      <button type='button' title='Map ruler' 
-        className={`${styles.button} ${active ? 'active' : ''}`} 
+      <button type='button' title='Map ruler'
+        className={`${styles.button} ${active ? 'active' : ''}`}
         onClick={toggleActiveState}>
         <RulerIcon />
       </button>
-      {active && <Button variant='dark' size='sm' id='cancel-location-select' 
+      {active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}
@@ -217,7 +217,7 @@ const PointPopup = (props) => {
 
   const distanceFromStart = useMemo(() => {
     if (isFirstPoint) return null;
-    
+
     const clonedPoints = [...points];
     clonedPoints.length = (pointIndex + 1);
 
@@ -239,8 +239,8 @@ const PointPopup = (props) => {
 
 
   return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
-    
-    
+
+
     {!drawing && <Fragment>
       <GpsFormatToggle lng={point[0]} lat={point[1]} />
       {points.length > 1 && !isFirstPoint && <Fragment>
@@ -249,7 +249,7 @@ const PointPopup = (props) => {
           <strong>Distance from start:</strong> {distanceFromStart}
         </p>
       </Fragment>}
-      <AddReport 
+      <AddReport
         analyticsMetadata={{
           category: 'Map Interaction',
           location: 'map ruler popup',

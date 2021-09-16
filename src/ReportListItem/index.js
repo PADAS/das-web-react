@@ -8,7 +8,7 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import { displayEventTypes } from '../selectors/events';
 
-import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations, 
+import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
@@ -21,7 +21,7 @@ const ReportListItem = (props) => {
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
-  
+
 
   const locationClicked = useRef(false);
 
@@ -37,7 +37,7 @@ const ReportListItem = (props) => {
       if (!topRatedReportAndType) return report.priority;
 
       return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-        topRatedReportAndType.related_event.priority 
+        topRatedReportAndType.related_event.priority
         : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
           topRatedReportAndType.event_type.default_priority
           : report.priority;
@@ -58,9 +58,9 @@ const ReportListItem = (props) => {
       // clear the current prop, in the case where its the same ids
       setBounceEventIDs([]);
       setTimeout(() => {
-        setBounceEventIDs(bounceIDs);   
+        setBounceEventIDs(bounceIDs);
       }, 100);
-      
+
     }
     locationClicked.current = true;
   };

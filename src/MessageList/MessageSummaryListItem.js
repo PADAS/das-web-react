@@ -14,7 +14,7 @@ import { calcUrlForImage } from '../utils/img';
 import styles from './styles.module.scss';
 
 const MessageSummaryListItem = (props) => {
-  
+
   const { messageGroup, senderDetailStyle = SENDER_DETAIL_STYLES.SUBJECT, unreadMessageClassName, readMessageClassName, onClick = () => null, subjectStore, ...rest } = props;
 
 
@@ -25,7 +25,7 @@ const MessageSummaryListItem = (props) => {
     const subject = subjectStore[messageSubject.id];
 
     if (!subject) return null;
-    
+
     const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
 
     return <li key={message.id} className={`${isOutgoing ? styles.outgoingMessage : styles.incomingMessage} ${radioImage ? styles.hasImage : ''}`} onClick={handleClick} {...rest}>

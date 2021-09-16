@@ -27,7 +27,7 @@ const calcMapMessages = (messages = [], subjectFeatureCollection) => {
 
   const subjectFeaturesWithUnreadMessages =
     subjectFeatureCollection.features
-      .map(feature => 
+      .map(feature =>
         ({ feature, messages: messages
           .filter(msg =>
             extractSubjectFromMessage(msg)?.id === feature.properties.id
@@ -79,7 +79,7 @@ const MessageBadgeLayer = (props) => {
 
   useEffect(() => {
     if (!!canViewMessages) {
-      const handleRealtimeMessage = ({ data:msg }) => {
+      const handleRealtimeMessage = ({ data: msg }) => {
         if (!!lastRequestedSubjectIdList.current &&
         lastRequestedSubjectIdList.current.includes(extractSubjectFromMessage(msg)?.id)
         ) {
@@ -90,7 +90,7 @@ const MessageBadgeLayer = (props) => {
           }
         }
       };
-    
+
       socket.on('radio_message', handleRealtimeMessage);
 
       return () => {
@@ -126,27 +126,27 @@ const MessageBadgeLayer = (props) => {
           layout: messageBadgeLayout,
           paint: messageBadgePaint,
         });
-      } 
+      }
     }
   }, [canViewMessages, map, state.results, subjectFeatureCollection]);
 
   useEffect(() => {
     if (!!canViewMessages) {
-      
+
       const requestMapMessages = async () => {
         try {
           if (subjectFeatureCollection.features.length) {
             const mapBboxParams = await getBboxParamsFromMap(map, false);
             const mapBboxPolygon = bboxPolygon(mapBboxParams);
-            
+
             const toRequest = subjectFeatureCollection.features /* only request messages for subjects within the current bbox */
               .filter(feature => booleanContains(mapBboxPolygon, feature))
               .map(({ properties: { id } }) => id)
               .join(',');
-            
-            
+
+
             if (toRequest.length && (toRequest !== lastRequestedSubjectIdList.current)) {
-              fetchMessages({ read: false, subject_id: toRequest})
+              fetchMessages({ read: false, subject_id: toRequest })
                 .then((response) => {
                   dispatch(fetchMessagesSuccess(response?.data?.data));
                 });
@@ -164,7 +164,7 @@ const MessageBadgeLayer = (props) => {
       };
     }
   }, [canViewMessages, map, subjectFeatureCollection.features]);
-  
+
 
 
   useEffect(() => {
@@ -188,7 +188,7 @@ const MessageBadgeLayer = (props) => {
       };
     }
   }, [canViewMessages, map, onBadgeClick]);
-  
+
   return null;
 };
 

@@ -71,7 +71,7 @@ const StartStopLayer = (props) => {
 
     }
   }, [map, patrolData]);
-  
+
   const layoutConfig = allowOverlap ? {
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
@@ -104,7 +104,7 @@ const StartStopLayer = (props) => {
 
   if (!points && !lines) return null;
 
-  const layerSymbolPaint = { ...symbolPaint, 'text-color':  ['get', 'stroke'] };
+  const layerSymbolPaint = { ...symbolPaint, 'text-color': ['get', 'stroke'] };
   const layerLabelPaint = { ...labelPaint, 'icon-color': ['get', 'stroke'] };
 
   const layerLinePaint = { ...linePaint, 'line-color': ['get', 'stroke'] };

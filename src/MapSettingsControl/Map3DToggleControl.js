@@ -9,7 +9,7 @@ const Map3DToggleControl = (props) => {
   const set3DMapEnabled = useCallback(() => {
     updateUserPreferences({ enable3D: !enable3D });
   }, [enable3D, updateUserPreferences]);
-  
+
 
   return <label>
     <input type='checkbox' id='mapname' name='mapname' checked={enable3D} onChange={set3DMapEnabled}/>

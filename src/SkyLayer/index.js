@@ -30,7 +30,7 @@ const SkyLayer = (props) => {
     if (!map.getLayer(DEFAULT_SKY_LAYER_CONFIG.id)) {
       map.addLayer(DEFAULT_SKY_LAYER_CONFIG);
     }
-    
+
   }, [map]);
 
   return null;

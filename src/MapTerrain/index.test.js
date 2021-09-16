@@ -23,7 +23,7 @@ test('setting 3D terrain if enabled in user preferences', () => {
 
   expect(map.addSource).toHaveBeenCalledTimes(1);
   expect(map.setTerrain).toHaveBeenCalledWith(DEFAULT_TERRAIN_CONFIG);
-  
+
 });
 
 test('setting 2D terrain if disabled in user preferences', () => {
@@ -36,5 +36,5 @@ test('setting 2D terrain if disabled in user preferences', () => {
   </Provider>);
 
   expect(map.addSource).toHaveBeenCalledTimes(1);
-  expect(map.setTerrain).toHaveBeenCalledWith() /* expect it to be an empty call, which clears the style value */; 
+  expect(map.setTerrain).toHaveBeenCalledWith() /* expect it to be an empty call, which clears the style value */;
 });

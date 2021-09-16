@@ -139,7 +139,7 @@ const createSocket = (url = SOCKET_URL) => {
   };
 
   bindSocketEvents(socket, store);
-  
+
   console.log('created socket', socket);
   return socket;
 };

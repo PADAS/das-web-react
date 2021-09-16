@@ -23,7 +23,7 @@ const DelayedUnmount = (props) => {
   }, [isMounted, mounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return mounted && children;
-  
+
 };
 
 DelayedUnmount.propTypes = {

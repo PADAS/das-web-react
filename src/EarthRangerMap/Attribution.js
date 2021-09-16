@@ -13,7 +13,7 @@ const EarthRangerMapAttribution = (props) => {
     }
   }, [currentBaseLayer]);
 
-  
+
   return <div {...rest}>
     <p>{attribution}</p>
   </div>;

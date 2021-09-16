@@ -2,17 +2,17 @@ import { calcSortParamForEventFilter, sortEventsBySortConfig } from './event-fil
 import { events } from '../__test-helpers/fixtures/events';
 
 test('calcSortParamForEventFilter', () => {
-  const sortConfigPositive = ['+', {label: 'Sort option', value: 'neato'}];
-  const sortConfigNegative = ['-', {label: 'Sort option', value: 'mosquito'}];
+  const sortConfigPositive = ['+', { label: 'Sort option', value: 'neato' }];
+  const sortConfigNegative = ['-', { label: 'Sort option', value: 'mosquito' }];
 
   expect(calcSortParamForEventFilter(sortConfigPositive)).toEqual('neato');
   expect(calcSortParamForEventFilter(sortConfigNegative)).toEqual('-mosquito');
-  
+
 });
 
 describe('sortEventsBySortConfig', () => {
   test('sorting by event.time', () => {
-    const testEvents = [{...events[0]}, {...events[1]}, {...events[2]}];
+    const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
     const testSortConfig = ['+', {
       label: 'Report Date',
       value: 'event_time',
@@ -28,7 +28,7 @@ describe('sortEventsBySortConfig', () => {
     expect(results[2].time).toBe('2021-08-08T23:05:57.732Z');
   });
   test('sorting by event.created_at', () => {
-    const testEvents = [{...events[0]}, {...events[1]}, {...events[2]}];
+    const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
     const testSortConfig = ['+', {
       label: 'Report Date',
       value: 'event_time',
@@ -54,7 +54,7 @@ describe('sortEventsBySortConfig', () => {
 
   });
   test('sorting by event.updated_at', () => {
-    const testEvents = [{...events[0]}, {...events[1]}, {...events[2]}];
+    const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
     const testSortConfig = ['+', {
       label: 'Updated',
       value: 'updated_at',
@@ -78,7 +78,7 @@ describe('sortEventsBySortConfig', () => {
     expect(results2[2].updated_at).toBe('2021-07-29T23:05:57.732Z');
   });
   test('sorting by event.created_at', () => {
-    const testEvents = [{...events[0]}, {...events[1]}, {...events[2]}];
+    const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
     const testSortConfig = ['+', {
       label: 'Created',
       value: 'created_at',
