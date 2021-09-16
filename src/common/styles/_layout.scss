@@ -1,8 +1,10 @@
-$lg-layout-width-max: calc(#{$xl-layout-width-min} - 1px);
-$lg-layout-width-min: 48rem;
-$md-layout-width-max: calc(#{$lg-layout-width-min} - 1px);
-$md-layout-width-min: 31.75rem;
 $xl-layout-width-min: 67.3125rem;
+
+$lg-layout-width-min: 48rem;
+$lg-layout-width-max: calc(#{$xl-layout-width-min} - 1px);
+
+$md-layout-width-min: 31.75rem;
+$md-layout-width-max: calc(#{$lg-layout-width-min} - 1px);
 
 $sm-height-max: 31.25rem;
 $md-height-min: 31.3125rem;
