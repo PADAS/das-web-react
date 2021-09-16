@@ -11,8 +11,8 @@ const Map3DToggleControl = (props) => {
   }, [enable3D, updateUserPreferences]);
 
 
-  return <label>
-    <input type='checkbox' id='mapname' name='mapname' checked={enable3D} onChange={set3DMapEnabled}/>
+  return <label htmlFor='3dterraintoggle'>
+    <input type='checkbox' id='3dterraintoggle' name='3dterraintoggle' checked={enable3D} onChange={set3DMapEnabled}/>
     <span> 3D Map Terrain</span>
   </label>;
 };
