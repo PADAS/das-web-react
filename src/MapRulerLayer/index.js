@@ -48,7 +48,7 @@ const circlePaint = {
 const MapRulerLayer = (props) => {
   const { drawing, map, onPointClick, pointerLocation, points } = props;
   const showLayer = pointerLocation || points.length;
-  const cursorPopupCoords = pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1];
+  const cursorPopupCoords = useMemo(() => pointerLocation ? [pointerLocation.lng, pointerLocation.lat] : points[points.length - 1], [pointerLocation, points]);
 
   const onCircleMouseEnter = () => map.getCanvas().style.cursor = 'pointer';
   const onCircleMouseLeave = () => map.getCanvas().style.cursor = '';
