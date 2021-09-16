@@ -56,10 +56,10 @@
     "build-sw": "node ./src/sw-build.js",
     "clean-cra-sw": "rm -f build/precache-manifest.*.js && rm -f build/service-worker.js",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run build-sw && npm run clean-cra-sw",
-    "test": "react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen",
+    "test": "react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
     "eject": "react-scripts eject",
     "lint": "CI=true eslint src",
-    "test-ci": "CI=true react-scripts test --verbose  --transformIgnorePatterns \"node_modules/(?!geodesy)/\" --env=jest-environment-jsdom-sixteen"
+    "test-ci": "CI=true react-scripts test --verbose  --transformIgnorePatterns \"node_modules/(?!geodesy)/\""
   },
   "devDependencies": {
     "@babel/runtime": "^7.7.4",
@@ -72,7 +72,6 @@
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^1.6.0",
-    "jest-environment-jsdom-sixteen": "^2.0.0",
     "jest-webgl-canvas-mock": "^0.2.3",
     "madge": "^5.0.1",
     "msw": "^0.32.0",
