@@ -52,7 +52,7 @@ const MessageSummaryList = (props) => {
           message,
         ];
       } else {
-        const messageIsNewerThanExistingEntry = (new Date(message.message_time) - new Date(accumulator[itemIndex].message_time)) < 0;
+        const messageIsNewerThanExistingEntry = (new Date(message.message_time) - new Date(accumulator[itemIndex].message_time)) > 0;
         if (messageIsNewerThanExistingEntry) {
           accumulator[itemIndex] = message;
         }
