@@ -135,8 +135,8 @@ export const IF_IS_GENERIC = (ifGeneric, ifNonGeneric) => ['case',
 
 export const SYMBOL_ICON_SIZE_EXPRESSION = [
   'interpolate', ['exponential', 0.5], ['zoom'],
-  0, IF_IS_GENERIC(0.1 / MAP_ICON_SCALE, 0.2 / MAP_ICON_SCALE),
-  14, IF_IS_GENERIC(0.5 / MAP_ICON_SCALE, 1 / MAP_ICON_SCALE),
+  0, IF_IS_GENERIC(0.1/MAP_ICON_SCALE, 0.2/MAP_ICON_SCALE),
+  14, IF_IS_GENERIC(0.5/MAP_ICON_SCALE, 1/MAP_ICON_SCALE),
   // MAX_ZOOM, IF_IS_GENERIC(0.75/MAP_ICON_SCALE, 1.1/MAP_ICON_SCALE),
 ];
 
