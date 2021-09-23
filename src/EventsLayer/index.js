@@ -20,7 +20,7 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, 
 
 export const CLUSTER_CONFIG = {
   cluster: true,
-  clusterMaxZoom: MAX_ZOOM -1, // Max zoom to cluster points on
+  clusterMaxZoom: MAX_ZOOM - 1, // Max zoom to cluster points on
   clusterRadius: 40,
 };
 
