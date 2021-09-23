@@ -3,14 +3,12 @@ import * as toastUtils from '../utils/toast';
 import store from '../store';
 
 const { showFilterMismatchToastForHiddenReports } = socketHandlers;
-const { showErrorToast } = toastUtils;
 
 const MOCK_USER_ID = '12312-adsfsadf-e413-666';
 
 jest.mock('../store');
 
 beforeEach(() => {
-  jest.spyOn(socketHandlers, 'showFilterMismatchToastForHiddenReports');
   jest.spyOn(toastUtils, 'showErrorToast');
 
   store.getState.mockReturnValue({
@@ -20,6 +18,10 @@ beforeEach(() => {
       }, eventTypes: [],
     }
   });
+});
+
+afterEach(() => {
+  toastUtils.showErrorToast.mockRestore();
 });
 
 test('showing a warning toast when a new event does not match the current report filter', () => {
@@ -33,9 +35,18 @@ test('showing a warning toast when a new event does not match the current report
         }
       }
     ]
-  }, event_id: '2-dasdf-23113', };
+  }, matches_current_filter: false };
 
+  const filterMatchMsg = {
+    ...msg,
+    matches_current_filter: true,
+  };
+
+  /* the toast is shown for a recent non-matching item */
   showFilterMismatchToastForHiddenReports(msg);
+  expect(toastUtils.showErrorToast).toHaveBeenCalledTimes(1);
 
-  expect(showErrorToast).toHaveBeenCalled();
+  /* the toast is not shown for a recent matching item */
+  showFilterMismatchToastForHiddenReports(filterMatchMsg);
+  expect(toastUtils.showErrorToast).toHaveBeenCalledTimes(1);
 });

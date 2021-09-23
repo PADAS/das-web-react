@@ -14,7 +14,7 @@ import ReportFormModal from '../ReportFormModal';
 import { EVENT_API_URL } from '../ducks/events';
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
-  const creationDetails = event?.updates?.at(-1);
+  const creationDetails = event?.updates?.[event?.updates?.length - 1];
   const creationUserId = creationDetails?.user?.id;
 
   if (creationUserId !== currentUser.id) return false;
