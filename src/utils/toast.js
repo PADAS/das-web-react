@@ -6,8 +6,6 @@ import { DEFAULT_TOAST_CONFIG } from '../constants';
 
 import ErrorMessage from '../ErrorMessage';
 
-const { POSITION } = toast;
-
 export default (content, config = {}) => toast(content, {
   ...DEFAULT_TOAST_CONFIG, ...config,
 });
