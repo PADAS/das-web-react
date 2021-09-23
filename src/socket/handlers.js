@@ -20,4 +20,4 @@ export const showFilterMismatchToastForHiddenReports = (msg) => {
       variant: 'warning',
     });
   }
-}
+};
