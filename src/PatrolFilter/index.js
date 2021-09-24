@@ -18,8 +18,8 @@ import { caseInsensitiveCompare } from '../utils/string';
 import PatrolFilterDateRangeSelector from '../PatrolFilter/DateRange';
 import PatrolFilterSettings from '../PatrolFilter/PatrolFilterSettings';
 // import ReportedBySelect from '../ReportedBySelect';
-/* import SearchBar from '../SearchBar';
-import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg'; */
+import SearchBar from '../SearchBar';
+// import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 // import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
@@ -155,6 +155,8 @@ const PatrolFilter = (props) => {
     trackEvent('Reports', 'Filters Icon Clicked');
   }, []);
 
+  */
+
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
     trackEvent('Patrol Filter', 'Change Search Text Filter');
@@ -164,7 +166,7 @@ const PatrolFilter = (props) => {
     e.stopPropagation();
     setFilterText('');
     trackEvent('Patrol Filter', 'Clear Search Text Filter');
-  }, []); */
+  }, []);
 
   useEffect(() => {
     if (filterText && !caseInsensitiveCompare(filterText, text)) {
@@ -237,8 +239,8 @@ const PatrolFilter = (props) => {
           <span>Dates</span>
         </span>
       </OverlayTrigger>
-      {/*  <SearchBar className={styles.search} placeholder='Search Patrols...' value={filterText}
-        onChange={onSearchChange} onClear={onSearchClear} /> */}
+      <SearchBar className={styles.search} placeholder='Search Patrols...' value={filterText}
+        onChange={onSearchChange} onClear={onSearchClear} />
       {children}
     </div>
   </form>;
