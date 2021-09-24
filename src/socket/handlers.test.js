@@ -24,8 +24,8 @@ afterEach(() => {
   toastUtils.showErrorToast.mockRestore();
 });
 
-test('showing a warning toast when a new event does not match the current report filter', () => {
-  const msg = { event_data: {
+const msg = {
+  event_data: {
     title: 'howdy',
     updates: [
       {
@@ -35,18 +35,20 @@ test('showing a warning toast when a new event does not match the current report
         }
       }
     ]
-  }, matches_current_filter: false };
+  }, matches_current_filter: false
+};
 
+test('showing a warning toast when a new event does not match the current report filter', () => {
+  showFilterMismatchToastForHiddenReports(msg);
+  expect(toastUtils.showErrorToast).toHaveBeenCalledTimes(1);
+});
+
+test('not showing a warning toast when a new event does match the current filter', () => {
   const filterMatchMsg = {
     ...msg,
     matches_current_filter: true,
   };
 
-  /* the toast is shown for a recent non-matching item */
-  showFilterMismatchToastForHiddenReports(msg);
-  expect(toastUtils.showErrorToast).toHaveBeenCalledTimes(1);
-
-  /* the toast is not shown for a recent matching item */
   showFilterMismatchToastForHiddenReports(filterMatchMsg);
-  expect(toastUtils.showErrorToast).toHaveBeenCalledTimes(1);
+  expect(toastUtils.showErrorToast).not.toHaveBeenCalled();
 });
