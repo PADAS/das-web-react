@@ -9,7 +9,6 @@ import SleepDetector from '../SleepDetector';
 import Badge from '../Badge';
 
 import { allSubjects } from '../selectors/subjects';
-import { messageIsValidForDisplay } from '../utils/messaging';
 
 import MessagesModal from '../MessagesModal';
 
@@ -25,7 +24,7 @@ const SLEEP_DETECTION_INTERVAL = 60000;
 const { Toggle, Menu } = Dropdown;
 
 const MessageMenu = (props) => {
-  const { subjects, subjectStore } = props;
+  const { subjects } = props;
   const [selectedSubject, setSelectedSubject] = useState(null);
 
   const onDropdownToggle = () => {
@@ -57,8 +56,7 @@ const MessageMenu = (props) => {
   }, [dispatch, fetchMenuMessages]);
 
   const unreads = state.results
-    .filter(msg => !msg.read)
-    .filter(msg => messageIsValidForDisplay(msg, subjectStore));
+    .filter(msg => !msg.read);
 
   const badgeCount = unreads.length > 9 ? '9+' : unreads.length;
 
@@ -83,7 +81,6 @@ const MessageMenu = (props) => {
 
 const mapStateToProps = (state) => ({
   subjects: allSubjects(state),
-  subjectStore: state.data.subjectStore,
 });
 
 const WithContext = (props) => <WithMessageContext>

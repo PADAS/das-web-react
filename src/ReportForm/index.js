@@ -139,6 +139,7 @@ const ReportForm = (props) => {
     return executeSaveActions(actions)
       .then((results) => {
         onSaveSuccess(results);
+
         if (report.is_collection && toSubmit.state) {
           return Promise.all(report.contains
             .map(contained => contained.related_event.id)
