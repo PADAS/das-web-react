@@ -15,19 +15,3 @@ $lg-height-min: 48.875rem;
 $whenPageIsMediumHeightAndWidth: '(min-height: #{$md-height-min}) and (min-width: #{$md-layout-width-min})';
 $whenPageIsTallAndMediumWidth: '(min-width: #{$md-layout-width-min}) and (min-height: #{$lg-height-min})';
 $whenPageIsIsTallAndWide: '(min-width: #{$lg-layout-width-min}) and (min-height: #{$lg-height-min})';
-
-
-/* webpack export statement exposes these variables to our JS files */
-:export {
-  extraLargeWidthMin: $xl-layout-width-min;
-  largeHeightMin: $lg-height-min;
-  largeWidthMin: $lg-layout-width-min;
-  mediumHeightMax: $md-height-max;
-  mediumHeightMin: $md-height-min;
-  mediumWidthMin: $md-layout-width-min;
-  mediumWidthMax: $md-layout-width-max;
-  pageIsAtMediumHeightAndWidth: $whenPageIsMediumHeightAndWidth;
-  pageIsTallAndMediumWidth: $whenPageIsTallAndMediumWidth;
-  pageIsTallAndWide: $whenPageIsIsTallAndWide;
-  smallHeightMax: $sm-height-max;
-}

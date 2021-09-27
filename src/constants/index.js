@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { buildbranch, buildnum } from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
-import layoutVariables from '../common/styles/_layout.scss';
+import layoutVariables from '../common/styles/layout.module.scss';
 
 const { POSITION: TOAST_POSITIONS, Slide } = toast;
 
