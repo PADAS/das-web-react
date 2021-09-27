@@ -3,9 +3,9 @@ import { toast } from 'react-toastify';
 import { buildbranch, buildnum } from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
-import layoutVariables from '../common/styles/_layout.scss';
+import layoutVariables from '../common/styles/layout.module.scss';
 
-const { POSITION: TOAST_POSITIONS } = toast;
+const { POSITION: TOAST_POSITIONS, Slide } = toast;
 
 export const {
   REACT_APP_DAS_HOST,
@@ -246,6 +246,7 @@ export const GEOLOCATOR_OPTIONS = {
 
 export const DEFAULT_TOAST_CONFIG = {
   position: TOAST_POSITIONS.TOP_CENTER,
+  transition: Slide,
 };
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];

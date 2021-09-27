@@ -6,18 +6,16 @@ $secondary-medium-gray: #63666a;
 $secondary-medium-light-gray: #888b8d;
 $secondary-light-gray: #b1b3b3;
 
-
-$amber: #FFAB24;
+$amber: #ffab24;
 $bright-blue: #006cd9;
 $bright-green: #7fd320;
-$bright-red: #D0031B;
+$bright-red: #d0031b;
 $light-blue: #268cfb;
-$green: #4F8317;
+$green: #4f8317;
 $mustard-yellow: #d1c22e;
 
-
 $off-white: #fbfbfb;
-$off-black: #333333;
+$off-black: #333;
 $dark-gray: darken($secondary-medium-gray, 20%);
 $medium-light-gray: $secondary-medium-light-gray;
 $light-gray: lighten($secondary-light-gray, 25%);
@@ -79,16 +77,14 @@ $priorities: (
   ))
 );
 
-
-$patrol-ready-bg: #FFFBB5;
+$patrol-ready-bg: #fffbb5;
 $patrol-ready-border:#746d6d;
-$patrol-active-bg: #EBFCE3;
+$patrol-active-bg: #ebfce3;
 $patrol-active-border: green;
-$patrol-overdue-bg: #FFF1F1;
+$patrol-overdue-bg: #fff1f1;
 $patrol-overdue-border: red;
 $patrol-overdue-status: #d41e21;
 $patrol-cancelled-border: #b3b3b0;
 $patrol-cancelled-bg: #efefef;
 $patrol-done-border: black;
 $patrol-done-bg: white;
-

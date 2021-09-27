@@ -10,6 +10,8 @@ import { clearAuth } from '../ducks/auth';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { socketEventData } from '../ducks/events';
 
+import { showFilterMismatchToastForHiddenReports } from './handlers';
+
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
 
 const updateSocketStateTrackerForEventType = ({ type, mid = 0, timestamp = new Date().toISOString() }) => {
@@ -101,6 +103,7 @@ const bindSocketEvents = (socket, store) => {
           });
         });
       });
+      socket.on('new_event', showFilterMismatchToastForHiddenReports);
     }
     eventsBound = true;
 
