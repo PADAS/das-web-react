@@ -1,0 +1,11 @@
+/* webpack export statement exposes these variables to our JS files
+we have to do this in a separate *.module.scss file because of this bug https://github.com/facebook/create-react-app/issues/10047 */
+
+@import './colors';
+
+:export {
+  amber: $amber;
+  red: $bright-red;
+  green: $green;
+  gray: $medium-light-gray;
+}
