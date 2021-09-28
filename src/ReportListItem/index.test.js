@@ -12,7 +12,7 @@ import { render, screen } from '@testing-library/react';
 let store = mockStore({ data: { eventTypes, patrolTypes: [] } });
 
 describe('list item icons', () => {
-  test('showing a patrol indicator for patrol-affiliated reports', async () => {
+/*   test('showing a patrol indicator for patrol-affiliated reports', async () => {
 
     render(
       <Provider store={store}>
@@ -21,7 +21,7 @@ describe('list item icons', () => {
 
     const icon = await screen.findByRole('img');
     expect(icon).toHaveTextContent('p');
-  });
+  }); */
 
   test('not showing a patrol indicator for non-patrol-affiliated reports', async () => {
 
