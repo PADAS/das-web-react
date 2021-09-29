@@ -6,7 +6,7 @@ import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
 
-import { displayEventTypes } from '../selectors/events';
+import { displayEventTypes } from '../selectors/event-types';
 
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
@@ -26,6 +26,7 @@ const ReportListItem = (props) => {
   const locationClicked = useRef(false);
 
   const iconClickHandler = onIconClick || onTitleClick;
+  const hasPatrols = !!report?.patrols?.length;
 
 
   const displayPriority = useMemo(() => {
@@ -66,8 +67,9 @@ const ReportListItem = (props) => {
   };
 
   return <li title={displayTitle} className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
-    <button type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
+    <button role='img' type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
       <EventIcon report={report} />
+      {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
     </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
     <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitle}</button>
