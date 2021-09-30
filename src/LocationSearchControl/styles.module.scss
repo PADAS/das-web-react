@@ -1,0 +1,128 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+
+$unfiltered-color : $secondary-light-gray;
+$filtered-color : $highlight-color;
+
+.wrapper {
+    position: relative;
+    [class*=bs-popover] {
+      width: 23.4375rem;
+    }
+}
+
+.button {
+  @include mapboxControlButton;
+  svg path {
+    fill: #333;
+  }
+}
+
+.search {
+  --transition-timing: 0.15s;
+  align-items: center;
+  display: flex;
+  position: relative;
+  input {
+    border: none;
+    border-bottom: 1px solid $unfiltered-color;
+    border-radius: 0px;
+    flex-grow: 1;
+    padding: 0.25rem;
+    padding-left: 1.25rem;
+    &::placeholder {
+      color: $unfiltered-color;
+    }
+  }
+  .searchIcon {
+    --dimensions: 1.1rem;
+    height: var(--dimensions);
+    margin-right: -1rem;
+    position: relative;
+    top: -0.1rem;
+    width: var(--dimensions);
+    circle {
+      fill: none;
+      stroke: $unfiltered-color;
+      stroke-width: 1rem;
+    }
+    path {
+      fill: $unfiltered-color;
+    }
+    * {
+      transition: var(--transition-timing) linear stroke, fill;
+    }
+  }
+  .clearButton {
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
+    position: absolute;
+    outline: none;
+    border: none;
+    background: none;
+    visibility: hidden;
+    right: 0;
+    cursor: pointer;
+    &:hover > svg * {
+      stroke: $filtered-color;
+    }
+    > svg {
+      height: 100%;
+      position: relative;
+      top: -0.25rem;
+      width: 100%;
+    }
+  }
+  &.isFiltered {
+    input {
+      border-bottom: 1px solid $filtered-color;
+      transition: var(--transition-timing) linear border-bottom;
+    }
+    .searchIcon {
+      circle {
+        stroke: $filtered-color;
+      }
+      path {
+        fill: $filtered-color;
+      }
+    }
+    .clearButton {
+      visibility: visible;
+    }
+  }
+  &.isActive:not(.isFiltered), &:hover:not(.isFiltered) {
+    input {
+      border-bottom: 1px solid darken($unfiltered-color, 30%);
+    }
+    .searchIcon {
+      circle {
+        stroke: darken($unfiltered-color, 30%);
+      }
+      path {
+        fill: darken($unfiltered-color, 30%);
+      }
+    }
+  }
+}
+
+.searchButton {
+  align-items: center;
+  position: relative;
+  circle {
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.8rem;
+  }
+  path {
+    fill: #333;
+  }
+}
+
+.suggestion {
+  list-style: none;
+}
+
+li:hover {
+  cursor: pointer;
+}
