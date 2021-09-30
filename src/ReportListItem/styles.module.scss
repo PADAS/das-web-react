@@ -8,18 +8,22 @@
   display: flex;
   line-height: normal;
   padding: 0 0.5rem 0 0;
+
   + .listItem {
     border-top: 1px solid $light-gray-border;
   }
+
   > * {
     padding: 0.75rem 0.5rem;
     align-items: center;
     display: flex;
     justify-content: center;
   }
+
   > .icon {
     padding: 0.5rem 1rem;
   }
+
   > button:last-child {
     margin: 0.25rem 0 0.25rem 0.5rem;
     padding: 0;
@@ -27,22 +31,24 @@
 }
 
 @each $priority,
-$colors in $priorities {
+  $colors in $priorities {
   .priority-#{$priority} {
     $background-color: map-get($colors, 'background');
 
     background-color: $background-color;
+
     &:hover {
       background-color: lighten($background-color, 5%);
     }
+
     .icon {
       $color: map-get($colors, 'base');
 
       background-color: $color;
+
       &:hover {
         background-color: lighten($color, 4%);
       }
-     
     }
   }
 }
@@ -54,12 +60,16 @@ $colors in $priorities {
   justify-content: center;
   padding: 0.5rem 1rem;
   width: 3.75rem;
-  svg, svg > svg {
+
+  svg,
+  svg > svg {
     --dimensions: 2rem;
-    --half-size: calc(var(--dimensions)/2);
+    --half-size: calc(var(--dimensions) / 2);
+
     fill: white;
     height: var(--dimensions);
     width: var(--dimensions);
+
     &[class*=generic] {
       height: var(--half-size);
       width: var(--half-size);
@@ -72,6 +82,7 @@ $colors in $priorities {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   color: $secondary-medium-gray;
+
   @media (min-width: $md-layout-width-min) {
     display: flex;
   }
@@ -87,7 +98,8 @@ $colors in $priorities {
   white-space: nowrap;
 }
 
-.title, .icon {
+.title,
+.icon {
   @include unstyledButton;
 }
 

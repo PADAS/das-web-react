@@ -31,20 +31,6 @@
   }
 }
 
-.reportTypeMenu {
-  align-items: center;
-  display: flex;
-  line-height: normal;
-  margin-bottom: 0;
-  width: 100%;
-
-  button {
-    @include unstyledButton;
-
-    font-weight: bold;
-  }
-}
-
 .categoryTitle {
   background: $light-gray-background;
   line-height: normal;
@@ -155,6 +141,11 @@ nav.tabBar {
 
 .reportTypeMenu {
   flex-wrap: wrap;
+  align-items: center;
+  display: flex;
+  line-height: normal;
+  margin-bottom: 0;
+  width: 100%;
 
   &:first-child {
     border-top: thin solid $light-gray-border;
@@ -168,6 +159,9 @@ nav.tabBar {
   }
 
   button {
+    @include unstyledButton;
+
+    font-weight: bold;
     border: thin solid $light-gray-border;
     border-top: none;
     height: 100%;
