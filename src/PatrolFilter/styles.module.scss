@@ -4,12 +4,18 @@
 .form {
   align-items: center;
   display: flex;
-  padding: 1.25rem 0.5rem 0.5rem;
+  padding: 1.25rem 0.5rem 0.5rem 0.75rem;
   width: 100%;
 }
 
 .search {
-  max-width: 40%;
+  margin-bottom: 0;
+  margin-right: 0.75rem;
+  width: 40%;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
 }
 
 .dateFilterButton {

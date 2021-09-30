@@ -233,14 +233,14 @@ const PatrolFilter = (props) => {
           <span>Filter</span>
         </span>
       </OverlayTrigger> */}
+    <SearchBar className={`${styles.search} ${patrolFilterStyles.search}`} placeholder='Search Patrols...' value={filterText}
+        onChange={onSearchChange} onClear={onSearchClear} />
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
       <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`} onClick={onDateFilterIconClicked}>
         <ClockIcon className={styles.clockIcon} />
         <span>Dates</span>
       </Button>
     </OverlayTrigger>
-    <SearchBar className={`${styles.search} ${patrolFilterStyles.search}`} placeholder='Search Patrols...' value={filterText}
-        onChange={onSearchChange} onClear={onSearchClear} />
     {children}
   </div>;
 };

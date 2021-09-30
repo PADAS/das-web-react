@@ -5,6 +5,7 @@
 
 .addReport {
   @include unstyledButton;
+
   align-items: center;
   display: flex;
   flex-flow: column;
@@ -13,13 +14,16 @@
   justify-content: center;
   position: relative;
   width: 100%;
+
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
   }
+
   svg {
     height: 1.25rem;
     margin-bottom: 0.25rem;
     width: 1.25rem;
+
     @media (min-width: $md-layout-width-min) {
       height: 2.25rem;
       width: 2.25rem;
@@ -33,12 +37,13 @@
   line-height: normal;
   margin-bottom: 0;
   width: 100%;
+
   button {
     @include unstyledButton;
+
     font-weight: bold;
   }
 }
-
 
 .categoryTitle {
   background: $light-gray-background;
@@ -52,9 +57,11 @@ div.popover {
   padding: 0;
   max-width: 20rem;
   width: 100vw;
+
   @media (min-width: $md-layout-width-min) {
     max-width: 30rem;
   }
+
   [class*=popover-body] {
     align-items: center;
     display: flex;
@@ -63,9 +70,11 @@ div.popover {
     padding: 0;
     position: relative;
   }
+
   [class*=popover-header] {
     @include popoverTitle;
   }
+
   [class*=tab-content] {
     width: 100%;
   }
@@ -76,6 +85,7 @@ div.popover {
   display: flex;
   margin: 0.5rem 0;
   padding: 0 1rem;
+
   > * {
     flex-grow: 1;
   }
@@ -87,7 +97,9 @@ div.popover {
 
 nav.tabBar {
   $tab-header-color: $bright-blue;
-  width: 100%;  
+
+  width: 100%;
+
   [class*=nav-link] {
     border: none;
     font-size: 1rem;
@@ -96,14 +108,18 @@ nav.tabBar {
     padding: 0.5rem;
     text-align: center;
     text-transform: uppercase;
+
     &:only-child {
       cursor: default;
       pointer-events: none;
     }
-    &:not([class*=active]), &:only-child {
+
+    &:not([class*=active]),
+    &:only-child {
       background: $tab-header-color;
       color: white;
-      }
+    }
+
     &[class*=active]:not(:only-child) {
       background: white;
       color: $tab-header-color;
@@ -118,6 +134,18 @@ nav.tabBar {
 .search {
   margin-bottom: 0;
   max-width: 13rem;
+
+  input {
+    height: 2.275rem;
+  }
+
+  > svg {
+    top: 0.666rem;
+  }
+
+  > button {
+    top: 0.6rem;
+  }
 }
 
 .reportTypeContainer {
@@ -127,27 +155,34 @@ nav.tabBar {
 
 .reportTypeMenu {
   flex-wrap: wrap;
+
   &:first-child {
     border-top: thin solid $light-gray-border;
   }
+
   li {
     font-size: 0.8rem;
     height: 6rem;
     margin-bottom: auto;
     width: 25%;
   }
+
   button {
     border: thin solid $light-gray-border;
     border-top: none;
     height: 100%;
     width: 100%;
+
     &:hover {
       text-decoration: underline;
     }
-    &:hover, &:active {
+
+    &:hover,
+    &:active {
       border: thin solid $light-gray-border;
       border-top: none;
     }
+
     span {
       align-items: center;
       display: flex;
@@ -155,11 +190,12 @@ nav.tabBar {
       justify-content: center;
     }
   }
+
   svg {
     --dimensions: 1.666rem;
+
     height: var(--dimensions);
-    margin-bottom: .25rem;
+    margin-bottom: 0.25rem;
     width: var(--dimensions);
   }
-
 }

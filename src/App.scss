@@ -219,7 +219,7 @@ aside {
   }
 
   @media (min-width: $md-layout-width-min) {
-    max-width: 22rem;
+    max-width: 25rem;
     right: 4.5rem;
     top: 0.5rem;
   }
@@ -531,6 +531,11 @@ aside {
 .btn-primary {
   background-color: $primary-button-color;
   border-color: $primary-button-color;
+}
+
+.btn-light {
+  background: $light-gray;
+  color: $secondary-medium-gray;
 }
 
 .app-container h1,
