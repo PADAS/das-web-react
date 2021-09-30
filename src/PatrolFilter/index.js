@@ -170,7 +170,7 @@ const PatrolFilter = (props) => {
   }, []);
 
   useEffect(() => {
-    if (filterText && !caseInsensitiveCompare(filterText, text)) {
+    if (!caseInsensitiveCompare(filterText, text)) {
       if (!!filterText.length) {
         updatePatrolFilterDebounced.current({
           filter: { text: filterText },
@@ -184,7 +184,7 @@ const PatrolFilter = (props) => {
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (filterText && !caseInsensitiveCompare(filterText, text)) {
+    if (!caseInsensitiveCompare(filterText, text)) {
       setFilterText(text);
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
