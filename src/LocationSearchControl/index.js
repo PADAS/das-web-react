@@ -20,6 +20,7 @@ const LocationSearch = () => {
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null); /* eslint-disable-line no-unused-vars */
   const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const toggleActiveState = useCallback(() => setActiveState(!active), [active]);
 
@@ -60,10 +61,9 @@ const LocationSearch = () => {
 
   // listens to onChange events
   const handleSearchChange = (e) => {
-    setQuery(e.target.value);
-    if (query && query.length > 1) {
-      fetchLocation();
-    }
+    const searchWord = e.target.value;
+    setQuery(searchWord);
+    if (query.length > 1) { fetchLocation(); };
   };
 
   // invoked when clear button is clicked
@@ -78,7 +78,7 @@ const LocationSearch = () => {
       event.preventDefault();
       if (query && locations.length !== 0) {
         jumpToLocation(map, coords);
-        addMarker();
+        // addMarker();
         setLocations([]);
         setQuery('');
       } else {
@@ -89,6 +89,7 @@ const LocationSearch = () => {
 
   // make api call to google geocode api
   const fetchLocation = async() => {
+    setIsLoading(true);
     const url = `${API_URL}coordinates?query=${query}`;
     const response = await axios.get(url);
     const { data: { data } } = response;
@@ -96,9 +97,11 @@ const LocationSearch = () => {
       if (res.placeName && res.coordinates) {
         setLocations(data);
         setErrors([]);
+        setIsLoading(false);
       } else {
         setErrors(data);
         setLocations([]);
+        setIsLoading(false);
       }
     });
   };
@@ -106,11 +109,11 @@ const LocationSearch = () => {
   // extract coordinates from api response
   const coords = locations.map(coord => {
     if (coord) {
-      const coordinates = [ coord.coordinates[1], coord.coordinates[0]];
+      const coordinates = { lng: coord.coordinates[1], lat: coord.coordinates[0] };
       // convert the returned objects to array
-      // const arrayOfCoords = Object.values(coordinates);
-      console.log(coordinates);
-      return coordinates;
+      const arrayOfCoords = Object.values(coordinates);
+      console.log(arrayOfCoords);
+      return arrayOfCoords;
     } else {
       return null;
     }
@@ -143,7 +146,7 @@ const LocationSearch = () => {
       jumpToLocation(map, coords);
       const resultIndex = parseInt(e.target.id);
       setSelectedLocation(locations[resultIndex]);
-      addMarker(resultIndex);
+      // addMarker(resultIndex);
       setLocations([]);
       setQuery('');
     };
@@ -184,8 +187,13 @@ const LocationSearch = () => {
             value={query}
           />
           <div style={{ overflowY: 'scroll', height: '20vh' }}>
-            { query && locations.length > 0 && <ul>{ querySuggestions}</ul> }
             { query && !locations.length && errorMessages }
+            { query
+              && !locations.length
+              && !errors.length
+              && isLoading && <p className='loading'> Fetching... </p>
+            }
+            { query && locations.length > 0 && <ul>{ querySuggestions}</ul> }
           </div>
         </Popover.Content>
       </Popover>
