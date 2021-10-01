@@ -301,20 +301,19 @@ const EventFilter = (props) => {
 
   return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
     <div className={styles.controls}>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
-          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} />
-          <span>Filters</span>
-        </span>
-      </OverlayTrigger>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
-          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
-          <span>Dates</span>
-        </span>
-      </OverlayTrigger>
       <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
         onChange={onSearchChange} onClear={onSearchClear} />
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
+        <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger}>
+          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
+        </Button>
+      </OverlayTrigger>
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
+        <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger}>
+          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
+          <span>Dates</span>
+        </Button>
+      </OverlayTrigger>
       {children}
     </div>
   </form>;
