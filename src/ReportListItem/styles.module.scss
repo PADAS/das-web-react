@@ -2,6 +2,53 @@
 @import '../common/styles/buttons';
 @import '../common/styles/layout';
 
+.icon {
+  align-items: center;
+  display: flex;
+  height: 3.05rem;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  position: relative;
+  width: 3.75rem;
+
+  svg,
+  svg > svg {
+    --dimensions: 2rem;
+    --half-size: calc(var(--dimensions) / 2);
+
+    fill: white;
+    height: var(--dimensions);
+    width: var(--dimensions);
+
+    &[class*=generic] {
+      height: var(--half-size);
+      width: var(--half-size);
+    }
+  }
+
+  .patrolIndicator {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 500;
+    height: 1.125rem;
+    justify-content: center;
+    left: 0;
+    line-height: 1em;
+    position: absolute;
+    top: 0;
+    text-transform: uppercase;
+    width: 1.125rem;
+  }
+}
+
+.title,
+.icon {
+  @include unstyledButton;
+}
+
 .listItem {
   align-items: center;
   color: $primary-font-color;
@@ -53,30 +100,6 @@
   }
 }
 
-.icon {
-  align-items: center;
-  display: flex;
-  height: 3.05rem;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  width: 3.75rem;
-
-  svg,
-  svg > svg {
-    --dimensions: 2rem;
-    --half-size: calc(var(--dimensions) / 2);
-
-    fill: white;
-    height: var(--dimensions);
-    width: var(--dimensions);
-
-    &[class*=generic] {
-      height: var(--half-size);
-      width: var(--half-size);
-    }
-  }
-}
-
 .serialNumber {
   display: none;
   padding-left: 0.5rem;
@@ -96,11 +119,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.title,
-.icon {
-  @include unstyledButton;
 }
 
 .date {

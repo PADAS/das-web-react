@@ -5,7 +5,7 @@ import isObject from 'lodash/isObject';
 
 import DasIcon from '../DasIcon';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
-import { displayEventTypes } from '../selectors/events';
+import { displayEventTypes } from '../selectors/event-types';
 
 import styles from './styles.module.scss';
 
@@ -19,14 +19,13 @@ const EventIcon = forwardRef(({ report, eventTypes, color, ...rest }, ref) => { 
      ( isPatrol ? report?.patrol_segments?.[0]?.patrol_type : report.event_type));
     if (matchingEventType) iconId = matchingEventType.icon_id;
     return <DasIcon type='events' iconId={iconId} {...rest} />;
-
   }
 
   const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
 
   return <span ref={ref} className={styles.wrapper}>
     <DasIcon type='events' iconId='incident_collection'  {...rest}  />
-    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events'  {...rest}
+    {topRatedReportAndType && topRatedReportAndType.event_type && <DasIcon type='events' {...rest}
       style={{
         fill: 'white',
       }}
