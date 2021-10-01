@@ -458,7 +458,6 @@ const ReportForm = (props) => {
   return <ContextProvider value={report}>
 
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
-    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
     <Header
       analyticsMetadata={{
@@ -471,6 +470,7 @@ const ReportForm = (props) => {
       title={reportTitle} onTitleChange={onReportTitleChange}
     />
 
+    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
     <div ref={reportedBySelectPortalRef} style={{ padding: 0 }}></div>
 
     <Body ref={scrollContainerRef}>
