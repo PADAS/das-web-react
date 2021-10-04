@@ -31,6 +31,6 @@ const ReportFormErrorMessages = (props) => {
 export default memo(ReportFormErrorMessages);
 
 ReportFormErrorMessages.propTypes = {
-  errorData: PropTypes.object.isRequired,
+  errorData: PropTypes.array.isRequired,
   onClose: PropTypes.func,
 };
