@@ -1,7 +1,7 @@
 import mapboxgl from 'mapbox-gl';
 import React, { Fragment, forwardRef, memo, useRef, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, MapContext } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 
 import MapTerrain from '../MapTerrain';
