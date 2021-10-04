@@ -1,15 +1,16 @@
-import axios from 'axios';
-import sample from 'lodash/sample';
-import subDays from 'date-fns/sub_days';
-import { store } from '../';
-import { API_URL } from '../constants';
-
-const MESSAGING_API_URL = `${API_URL}messaging`;
-
-const { get, post } = axios;
+import store from '../store';
 
 export const extractSubjectFromMessage = (message) =>
   message.message_type === 'inbox' ? message.sender : message.receiver;
+
+export const messageIsValidForDisplay = (message, subjectStore) => {
+  const subject = extractSubjectFromMessage(message);
+  const { id } = subject;
+
+  const subjectFromStore = subjectStore[id];
+
+  return !!subjectFromStore?.messaging?.length;
+};
 
 export const generateNewMessage = ({ geometry, properties }, config = {}) => {
   const sender = store.getState().data.subjectStore[properties.id];
@@ -18,9 +19,9 @@ export const generateNewMessage = ({ geometry, properties }, config = {}) => {
 
   return {
     sender,
-    message_type: 'outbox', 
+    message_type: 'outbox',
     message_time: new Date().toISOString(),
-    device_location: hasCoords ? { latitude: geometry?.coordinates?.[1], longitude: geometry?.coordinates?.[0] } : null, 
+    device_location: hasCoords ? { latitude: geometry?.coordinates?.[1], longitude: geometry?.coordinates?.[0] } : null,
     ...config,
   };
 };

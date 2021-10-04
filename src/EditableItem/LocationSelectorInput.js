@@ -13,6 +13,7 @@ import { calcGpsDisplayString } from '../utils/location';
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
 import GeoLocator from '../GeoLocator';
+import TextCopyBtn from '../TextCopyBtn';
 
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
@@ -47,7 +48,7 @@ const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-lin
 }));
 
 const LocationSelectorInput = (props) => {
-  const { label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
+  const { copyable = true, label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
@@ -66,7 +67,7 @@ const LocationSelectorInput = (props) => {
     event.stopPropagation();
     setGpsPopoverState(!gpsPopoverOpen);
   }, [gpsPopoverOpen]);
-  
+
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -83,7 +84,7 @@ const LocationSelectorInput = (props) => {
     setModalVisibilityState(false);
     updateUserPreferences({ sidebarOpen: false });
   }, [setModalVisibilityState, sidebarOpen, updateUserPreferences]);
-  
+
   const onLocationSelectFromMapCancel = () => {
     if (sidebarOpenBeforeGpsSelectStart.current) {
       updateUserPreferences({ sidebarOpen: true });
@@ -115,7 +116,7 @@ const LocationSelectorInput = (props) => {
 
   const handleEscapePress = useCallback((event) => {
     const { key } = event;
-    if (key === 'Escape' 
+    if (key === 'Escape'
     && gpsPopoverOpen) {
       event.preventDefault();
       event.stopPropagation();
@@ -134,8 +135,16 @@ const LocationSelectorInput = (props) => {
     return popoverClassName ? `${styles.gpsPopover} ${popoverClassName}` : styles.gpsPopover;
   }, [popoverClassName]);
 
-  
-  return <label ref={gpsInputLabelRef} onKeyDown={handleEscapePress} className={styles.locationSelectionLabel}>
+  const displayString = location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : placeholder;
+  const showCopyBtn = copyable && (displayString !== placeholder);
+
+  const stopEventBubbling = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+
+  return <label onClick={stopEventBubbling} ref={gpsInputLabelRef} onKeyDown={handleEscapePress} className={styles.locationSelectionLabel}>
     {iconPlacement === 'label' && <LocationIcon className={styles.icon} />}
     {!!label && <span>{label}</span>}
     <Overlay shouldUpdatePosition={true} show={gpsPopoverOpen} target={gpsInputAnchorRef.current} rootClose onHide={hideGpsPopover} container={gpsInputLabelRef.current}>
@@ -154,9 +163,10 @@ const LocationSelectorInput = (props) => {
         onGeoLocationSuccess={onGeoLocationSuccess} />
     </Overlay>
       <a href="#" onClick={onClickLocationAnchor} className={`${styles.locationAnchor} ${!!location ? '' : 'empty'}`} ref={gpsInputAnchorRef}> {/* eslint-disable-line */}
-      {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
-      {location ? calcGpsDisplayString(location[1], location[0], gpsFormat) : placeholder}
-    </a>
+        {iconPlacement === 'input' && <LocationIcon className={styles.icon} />}
+        {displayString}
+        {showCopyBtn && <TextCopyBtn text={displayString} className={styles.locationCopyBtn} />}
+      </a>
   </label>;
 };
 

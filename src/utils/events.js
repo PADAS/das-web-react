@@ -1,21 +1,31 @@
 import axios from 'axios';
 
-import { store } from '../';
+import store from '../store';
 import { getEventReporters } from '../selectors';
 
-import isNil from 'lodash/isNil';
-import merge from 'lodash/merge';
 import isObject from 'lodash/isObject';
 import isEqual from 'react-fast-compare';
 
 import { addModal } from '../ducks/modals';
 
-import { generateMonthsAgoDate } from './datetime';
-import { objectToParamString, cleanedUpFilterObject } from './query';
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import ReportFormModal from '../ReportFormModal';
 import { EVENT_API_URL } from '../ducks/events';
+
+export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
+  const eventCreationDetails = event?.updates?.[event?.updates?.length - 1];
+  const eventCreationUserId = eventCreationDetails?.user?.id;
+
+  if (eventCreationUserId !== currentUser.id) return false;
+
+  const isRecentlyCreated = Math.abs(new Date() - new Date(eventCreationDetails.time)) < 60000; /* did it happen less than a minute ago? */
+
+  if (!isRecentlyCreated) return false;
+
+  return true;
+
+};
 
 export const eventTypeTitleForEvent = (event, eventTypes = []) => {
   const isPatrol = !!event?.patrol_segments?.length && isObject(event.patrol_segments[0]);
@@ -69,44 +79,10 @@ export const eventHasLocation = (evt) => {
 };
 
 export const eventBelongsToCollection = evt => !!evt.is_contained_in && !!evt.is_contained_in.length;
+export const eventBelongsToPatrol = evt => !!evt?.patrols?.length && !!evt?.patrols?.[0];
 
-export const uniqueEventIds = (value, index, self) => { 
+export const uniqueEventIds = (value, index, self) => {
   return self.indexOf(value) === index;
-};
-
-export const calcEventFilterForRequest = (options = {}) => {
-  const { data: { eventFilter, eventTypes } } = store.getState();
-  const { params, format = 'string' } = options;
-
-  const toClean = merge({}, eventFilter, params);
-
-  const cleaned = {
-    ...cleanedUpFilterObject(toClean),
-    filter: {
-      ...cleanedUpFilterObject(toClean.filter),
-      date_range: {
-        ...cleanedUpFilterObject(toClean.filter.date_range),
-        lower: isNil(toClean.filter.date_range.lower) ? generateMonthsAgoDate(1).toISOString() : toClean.filter.date_range.lower,
-      },
-    },
-  };
-
-  if (cleaned.filter.text) {
-    cleaned.filter.text = cleaned.filter.text.toLowerCase();
-  }
-
-  /* "show all event types" doesn't require an event_type param. 
-      delete it for that case, to not overburden the query. */
-  if (eventTypes 
-    && cleaned.filter.event_type
-    && eventTypes.length === cleaned.filter.event_type.length) {
-    delete cleaned.filter.event_type;
-  }
-
-  if (format === 'string') return objectToParamString(cleaned);
-  if (format === 'object') return cleaned;
-  
-  throw new Error('invalid format specified');
 };
 
 export const calcFriendlyEventTypeFilterString = (eventTypes, eventFilter) => {
@@ -153,7 +129,7 @@ export const createNewReportForEventType = ({ value: event_type, icon_id, defaul
   const time = data && data.time;
 
   const reported_by = reporter ? reporter : null;
-  
+
   return {
     event_type,
     icon_id,
@@ -240,7 +216,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
   const reportMatchesDateFilter = () => {
     const { filter: { date_range: { lower, upper } } } = eventFilter;
     const { updated_at } = report;
-    
+
     const updateDate = new Date(updated_at);
 
 
@@ -257,7 +233,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     }
 
     return true;
-    
+
   };
 
   const reportMatchesStateFilter = () => {
@@ -283,7 +259,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     const toTest = JSON.stringify({ notes, serial_number, title, event_details }).toLowerCase();
 
     return toTest.includes(text.toLowerCase());
-    
+
   };
 
   const reportMatchesPriorityFilter = () => {
@@ -296,7 +272,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
 
     if (!!eventFilter.filter.reported_by.length
     && !report.reported_by) return false;
-    
+
     return eventFilter.filter.reported_by.includes(report.reported_by.id);
   };
 
@@ -310,7 +286,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
 
 export const addPatrolSegmentToEvent = (segment_id, event_id, event) => {
   const segmentPayload = { patrol_segments: [segment_id] };
-  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)  
+  return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)
     .then(function (response) {
       console.log('add segment response', response);
     })

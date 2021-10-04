@@ -14,7 +14,7 @@ import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
 import { default as TimeAgo } from 'react-timeago';
 
-import { store } from '../';
+import store from '../store';
 import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
@@ -32,7 +32,8 @@ export const openModalForPatrol = (patrol, map, config = {}) => {
 
   const state = store.getState();
 
-  const patrolPermissions = state?.data?.user?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
 
   const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
@@ -151,7 +152,7 @@ export const displayStartTimeForPatrol = (patrol) => {
 
   const { time_range: { start_time }, scheduled_start } = firstLeg;
 
-  return (start_time || scheduled_start) 
+  return (start_time || scheduled_start)
     ? new Date((start_time || scheduled_start))
     : null;
 };
@@ -215,10 +216,10 @@ export const getReportIdsForPatrol = (patrol) => {
   // this is only grabbibng the first segment for now
   const [firstLeg] = patrol.patrol_segments;
   const { events } = firstLeg;
-  const eventIds = 
+  const eventIds =
     events?.reduce((accumulator, { id }) =>
-      id 
-        ? [...accumulator, id] 
+      id
+        ? [...accumulator, id]
         : accumulator, []
     );
   return eventIds || [];
@@ -227,7 +228,7 @@ export const getReportIdsForPatrol = (patrol) => {
 export const getPatrolsForLeaderId = (leaderId) => {
   const { data: { patrolStore } } = store.getState();
 
-  return Object.values(patrolStore).filter(patrol => 
+  return Object.values(patrolStore).filter(patrol =>
     !!patrol.patrol_segments.length
     &&  !!patrol.patrol_segments[0].leader
     && patrol.patrol_segments[0].leader.id === leaderId
@@ -246,10 +247,10 @@ export const getActivePatrolsForLeaderId = (leaderId) => {
 };
 
 export const extractAttachmentUpdates = (collection) => {
-  const extractedUpdates = 
+  const extractedUpdates =
     collection.reduce((accumulator, { updates }) =>
-      updates 
-        ? [...accumulator, ...updates] 
+      updates
+        ? [...accumulator, ...updates]
         : accumulator, []
     );
   return extractedUpdates;
@@ -263,7 +264,7 @@ export const displayDurationForPatrol = (patrol) => {
     || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
     return '0:00';
   }
-  
+
   const now = new Date();
   const nowTime = now.getTime();
 
@@ -333,14 +334,14 @@ export const isSegmentOverdue = (patrolSegment) => {
   const { time_range: { start_time }, scheduled_start } = patrolSegment;
   return !start_time
     && !!scheduled_start
-    && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
+    && addMinutes(new Date(scheduled_start).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime();
 };
 
 export const isSegmentOverdueToEnd = (patrolSegment) => {
   const { time_range: { end_time }, scheduled_end } = patrolSegment;
   return !end_time
     && !!scheduled_end
-    && addMinutes(new Date(scheduled_end).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime(); 
+    && addMinutes(new Date(scheduled_end).getTime(), DELTA_FOR_OVERDUE) < new Date().getTime();
 };
 export const isSegmentPending = (patrolSegment) => {
   const { time_range: { start_time } } = patrolSegment;
@@ -358,7 +359,7 @@ export const isSegmentActive = (patrolSegment) => {
     && (
       !end_time
       || (!!end_time && new Date(end_time).getTime() > nowTime)
-    );   
+    );
 };
 
 export const isSegmentFinished = (patrolSegment) => {
@@ -379,7 +380,7 @@ export const  isPatrolCancelled = (patrol) => {
 };
 
 export const isPatrolDone = (patrol) => {
-  return (patrol.state === 'done'); 
+  return (patrol.state === 'done');
 };
 
 export const patrolStateDetailsOverdueStartTime = (patrol) => {
@@ -422,25 +423,25 @@ export const patrolStateDetailsEndTime = patrol =>
 
 export const calcPatrolCardState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
-    return CANCELLED; 
+    return CANCELLED;
   }
   if (isPatrolDone(patrol)) {
-    return DONE; 
+    return DONE;
   }
   const { patrol_segments } = patrol;
   if (!patrol_segments.length) return INVALID;
 
   const [segment]  = patrol_segments;
-  if(isSegmentFinished(segment)) {
+  if (isSegmentFinished(segment)) {
     return DONE;
   }
-  if(isSegmentOverdue(segment)) {
+  if (isSegmentOverdue(segment)) {
     return START_OVERDUE;
   }
-  if(isSegmentActive(segment)) {
+  if (isSegmentActive(segment)) {
     return ACTIVE;
   }
-  if(isSegmentPending(segment)) {
+  if (isSegmentPending(segment)) {
     const happensToday = isToday(displayStartTimeForPatrol(patrol));
     return happensToday ? READY_TO_START : SCHEDULED;
   }
@@ -461,7 +462,7 @@ export const canEndPatrol = (patrol) => {
 
 export const sortPatrolCards = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
-  
+
   const sortFunc = (patrol) => {
     const cardState = calcPatrolCardState(patrol);
 
@@ -536,7 +537,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
       let lastTrackPointMatchesEndTime = new Date(lastTrackPoint.properties.time).getTime() === endTime.getTime();
 
       if (!lastTrackPointMatchesEndTime
-        && !!trackData.indices 
+        && !!trackData.indices
         && !isUndefined(trackData.indices.until)
         && trackData.indices.until > 0) {
         const nextPointAfterTrimmedData = rawTrack.points.features[trackData.indices.until - 1];
@@ -563,7 +564,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
   if (!!patrol_points.start_location && !patrol_points.end_location &&
   isPatrolDone) {
-    patrol_points.end_location = cloneDeep(patrol_points.start_location); 
+    patrol_points.end_location = cloneDeep(patrol_points.start_location);
     patrol_points.end_location.properties.title = 'Patrol End (Est)';
   }
 
@@ -583,7 +584,7 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
 export const drawLinesBetweenPatrolTrackAndPatrolPoints = (patrolPoints, trackData) => {
   if (!patrolPoints || !trackData) return null;
-  
+
   const { end_location, start_location } = patrolPoints;
   const { points: { features } } = trackData;
 
@@ -631,7 +632,7 @@ export const patrolTimeRangeIsValid = (patrol) => {
   }
 
   return false;
-  
+
 };
 
 
@@ -656,18 +657,18 @@ export const patrolShouldBeMarkedDone = (patrol) => {
 
 export const getBoundsForPatrol = ((patrolData) => {
   const { leader, trackData, patrol, startStopGeometries } = patrolData;
-  
+
   const hasSegments = !!patrol.patrol_segments && !!patrol.patrol_segments.length;
   const hasGeoData = patrolHasGeoDataToDisplay(trackData, startStopGeometries);
 
   if (!hasSegments || !hasGeoData) return null;
 
   const [firstLeg] = patrol.patrol_segments;
-  
+
   const hasEvents = !!firstLeg.events && !!firstLeg.events.length;
   const hasLeaderPosition = !!leader && !!leader.last_position;
 
-  const { start_location:patrolStartPoint, end_location:patrolEndPoint } = startStopGeometries?.points || {};
+  const { start_location: patrolStartPoint, end_location: patrolEndPoint } = startStopGeometries?.points || {};
   const patrolEvents = hasEvents && firstLeg.events.map(({ geojson }) => geojson);
   const patrolLeaderPosition = hasLeaderPosition && leader.last_position;
   const patrolTrack = !!trackData && trackData.track;

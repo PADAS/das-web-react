@@ -1,14 +1,16 @@
 import io from 'socket.io-client';
 import isFunction from 'lodash/isFunction';
 
-import { store } from '../index';
+import store from '../store';
 import { REACT_APP_DAS_HOST } from '../constants';
 import { events } from './config';
 import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
-import { calcEventFilterForRequest } from '../utils/events';
+import { calcEventFilterForRequest } from '../utils/event-filter';
 import { socketEventData } from '../ducks/events';
+
+import { showFilterMismatchToastForHiddenReports } from './handlers';
 
 const SOCKET_URL = `${REACT_APP_DAS_HOST}/das`;
 
@@ -101,6 +103,7 @@ const bindSocketEvents = (socket, store) => {
           });
         });
       });
+      socket.on('new_event', showFilterMismatchToastForHiddenReports);
     }
     eventsBound = true;
 
@@ -139,7 +142,7 @@ const createSocket = (url = SOCKET_URL) => {
   };
 
   bindSocketEvents(socket, store);
-  
+
   console.log('created socket', socket);
   return socket;
 };

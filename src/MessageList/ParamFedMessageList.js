@@ -76,7 +76,7 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
       setListScrollPosition();
     };
 
-    const handleRealtimeMessage = ({ data:msg }) => {
+    const handleRealtimeMessage = ({ data: msg }) => {
       if (!params?.subject_id) {
         consumeMessage(msg);
       }
@@ -85,17 +85,13 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
         consumeMessage(msg);
       }
     };
-    
+
     socket.on('radio_message', handleRealtimeMessage);
 
     return () => {
       socket.off('radio_message', handleRealtimeMessage);
     };
   }, [dispatch, isReverse, params, setListScrollPosition, socket]);
-
-  useEffect(() => {
-    setListScrollPosition();
-  }, [setListScrollPosition]);
 
   useEffect(() => {
     if (!!unreads.length) {
@@ -108,6 +104,5 @@ const ParamFedMessageList = (props) => { /* eslint-disable-line react/display-na
     <MessageList emptyMessage={loading ? <LoadingOverlay message='Loading messages...' /> : undefined} containerRef={containerRef} hasMore={!!state.next} onScroll={onScroll} isReverse={isReverse} messages={messages} {...rest} />
   </div>;
 };
-
 
 export default memo(ParamFedMessageList);

@@ -19,18 +19,19 @@ import { showPopup, hidePopup } from '../ducks/popup';
 import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../utils/map';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
-import { calcEventFilterForRequest, openModalForReport } from '../utils/events';
+import { openModalForReport } from '../utils/events';
+import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEvent } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
-import { getAnalyzerFeatureCollectionsByType } from '../selectors';
+import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
-import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
+import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
 import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
@@ -57,7 +58,6 @@ import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';
 // import IsochroneLayer from '../IsochroneLayer';
-import SpideredReportMarkers from '../SpideredReportMarkers';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
@@ -68,20 +68,15 @@ import MapMarkerDropper from '../MapMarkerDropper';
 import MapBaseLayerControl from '../MapBaseLayerControl';
 import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
-import MapNavigator from '../MapNavigator';
+import CursorGpsDisplay from '../CursorGpsDisplay';
+import RightClickMarkerDropper from '../RightClickMarkerDropper';
+import LocationSearch from '../LocationSearchControl';
 
 import './Map.scss';
 
-const REPORT_SPIDER_THRESHOLD = MAX_ZOOM - 2;
 
 class Map extends Component {
-  state = {
-    reportSpiderConfig: {
-      reports: null,
-      coordinates: null,
-    },
-  };
-  
+
   constructor(props) {
     super(props);
     this.setMap = this.setMap.bind(this);
@@ -108,12 +103,11 @@ class Map extends Component {
     this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
     this.fetchMapData = this.fetchMapData.bind(this);
     this.onRotationControlClick = this.onRotationControlClick.bind(this);
-    this.unspiderfy = this.unspiderfy.bind(this);
     this.trackRequestCancelToken = CancelToken.source();
     this.onSleepDetected = this.onSleepDetected.bind(this);
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
-    
+
     this.fetchingMapData = false;
 
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
@@ -126,7 +120,7 @@ class Map extends Component {
       this.props.history.push(newLocation);
     }
   }
- 
+
 
   get mapCenter() {
     return this.lngLatFromParams || this.props.homeMap.center;
@@ -137,9 +131,7 @@ class Map extends Component {
   }
 
   onMapZoom = debounce((e) => {
-    if (!!this.state.reportSpiderConfig.reports) {
-      this.unspiderfy();
-    }
+
     if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
       this.props.hidePopup(this.props.popup.id);
     }
@@ -200,7 +192,7 @@ class Map extends Component {
     if ((this.props.heatmapSubjectIDs !== prev.heatmapSubjectIDs) && !!this.props.heatmapSubjectIDs.length && this.props.showReportHeatmap) {
       this.onCloseReportHeatmap();
     }
-    
+
     if (!!this.props.timeSliderState.active && !!this.props.popup
       && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
     ) {
@@ -211,6 +203,7 @@ class Map extends Component {
           this.props.showPopup('subject', {
             geometry: subjectMatch.geometry,
             properties: subjectMatch.properties,
+            coordinates: subjectMatch.geometry.coordinates,
           });
         }
       }
@@ -230,15 +223,6 @@ class Map extends Component {
     }
   }
 
-  unspiderfy() {
-    this.setState({
-      reportSpiderConfig: {
-        coordinates: null,
-        reports: null,
-      },
-    });
-  }
-
   setTrackLengthToEventFilterLowerValue() {
     this.props.setTrackLength(differenceInCalendarDays(
       new Date(),
@@ -247,7 +231,7 @@ class Map extends Component {
   }
   onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
-    this.props.showPopup('timepoint', { geometry, properties });
+    this.props.showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   })
 
   onMapMoveStart() {
@@ -300,10 +284,10 @@ class Map extends Component {
 
   fetchMapSubjects() {
     const args = [this.props.map];
-    const timeSliderActive =  this.props.timeSliderState.active;
+    const timeSliderActive = this.props.timeSliderState.active;
 
     if (timeSliderActive) {
-      const { lower:updated_since, upper:updated_until } = this.props.eventFilter.filter.date_range;
+      const { lower: updated_since, upper: updated_until } = this.props.eventFilter.filter.date_range;
 
       args.push({
         updated_since, updated_until,
@@ -318,13 +302,14 @@ class Map extends Component {
   }
   handleMultiFeaturesAtSameLocationClick(event, layers) {
     this.props.showPopup('multi-layer-select',
-      { layers,
+      {
+        layers,
         coordinates: [event.lngLat.lng, event.lngLat.lat],
         onSelectSubject: this.onMapSubjectClick,
         onSelectEvent: this.onEventSymbolClick,
       },
     );
-  
+
   }
   fetchMapSubjectTracksForTimeslider(subjects) {
     this.resetTrackRequestCancelToken();
@@ -350,7 +335,7 @@ class Map extends Component {
     if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
     }
-    
+
     if (clickedLayersOfInterest.length > 1) {
       if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
         this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
@@ -366,18 +351,15 @@ class Map extends Component {
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
       if (!showingMultiPopup) {
-        this.props.hidePopup(this.props.popup.id); 
+        this.props.hidePopup(this.props.popup.id);
       }
     }
     this.hideUnpinnedTrackLayers(map, event);
-    if (!!this.state.reportSpiderConfig.reports) {
-      this.unspiderfy();
-    }
   })
 
-  onEventSymbolClick = this.withLocationPickerState(({ event:clickEvent, layer: { properties } }) => {
+  onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
     if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
-    
+
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
@@ -390,7 +372,9 @@ class Map extends Component {
   });
 
   onFeatureSymbolClick = this.withLocationPickerState(({ geometry, properties }) => {
-    this.props.showPopup('feature-symbol', { geometry, properties });
+    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
+
+    this.props.showPopup('feature-symbol', { geometry, properties, coordinates });
     trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   })
 
@@ -421,12 +405,12 @@ class Map extends Component {
     setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
     const properties = features[0].properties;
     const geometry = e.lngLat;
-    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id);
-    this.props.showPopup('analyzer-config', { geometry, properties, analyzerId });
+    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, this.props.analyzerFeatures);
+    this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
   })
 
   hideUnpinnedTrackLayers(map, event) {
-    const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible:visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
+    const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible: visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
     if (!visible.length) return;
 
     const clickedLayerIDs = map.queryRenderedFeatures(event.point)
@@ -454,26 +438,11 @@ class Map extends Component {
     clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
 
-      if (zoom > REPORT_SPIDER_THRESHOLD) {
-        clusterSource.getClusterLeaves(clusterId, 100, 0, (err, features) => {
-          if (err) return;
-
-          const reports = features.map(feature => feature.properties);
-
-          this.setState({
-            reportSpiderConfig: {
-              coordinates: [lngLat.lng, lngLat.lat],
-              reports,
-            }
-          });
-        });
-      }
-
       const mapZoom = this.props.map.getZoom();
-      const newMapZoom = (zoom > REPORT_SPIDER_THRESHOLD) ? REPORT_SPIDER_THRESHOLD : zoom;
+      const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
 
-      if (mapZoom < REPORT_SPIDER_THRESHOLD
-      && mapZoom < zoom) {
+      if (mapZoom < MAX_ZOOM
+        && mapZoom < zoom) {
         this.props.map.easeTo({
           center: features[0].geometry.coordinates,
           zoom: newMapZoom
@@ -483,18 +452,18 @@ class Map extends Component {
   })
 
   onCurrentUserLocationClick = this.withLocationPickerState((location) => {
-    this.props.showPopup('current-user-location', { location });
+    this.props.showPopup('current-user-location', { location, coordinates: [location.coords.longitude, location.coords.latitude] });
     trackEvent('Map Interaction', 'Click Current User Location Icon');
   })
 
   onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
     if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
-    
+
     const { geometry, properties } = layer;
     const { id, tracks_available } = properties;
     const { updateTrackState, subjectTrackState } = this.props;
 
-    this.props.showPopup('subject', { geometry, properties });
+    this.props.showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
 
     await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
 
@@ -509,7 +478,7 @@ class Map extends Component {
   onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {
     const { geometry, properties } = layer;
 
-    this.props.showPopup('subject-messages', { geometry, properties });
+    this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
   })
 
   setMap(map) {
@@ -520,11 +489,11 @@ class Map extends Component {
       } else {
         map.setZoom(this.props.homeMap.zoom);
       }
-    };   
+    };
     window.map = map;
-    
+
     this.props.onMapLoad(map);
-    this.debouncedFetchMapData(); 
+    this.debouncedFetchMapData();
   }
 
   onSubjectHeatmapClose() {
@@ -547,7 +516,9 @@ class Map extends Component {
   }
 
   onReportMarkerDrop(location) {
-    this.props.showPopup('dropped-marker', { location });
+    const coordinates = [location.lng, location.lat];
+
+    this.props.showPopup('dropped-marker', { location, coordinates });
   }
 
   onTrackLengthChange() {
@@ -571,7 +542,7 @@ class Map extends Component {
     const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
     const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
     const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
-    
+
     if (!maps.length) return null;
 
     const enableEventClustering = timeSliderActive ? false : true;
@@ -581,7 +552,7 @@ class Map extends Component {
         center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
-          <MapNavigator map={map}/>
+          <LocationSearch />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
@@ -602,8 +573,8 @@ class Map extends Component {
 
             <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
               <EventsLayer
-                enableClustering={enableEventClustering} 
-                events={mapEventFeatureCollection} 
+                enableClustering={enableEventClustering}
+                events={mapEventFeatureCollection}
                 mapImages={mapImages}
                 onEventClick={this.onEventSymbolClick}
                 onClusterClick={this.onClusterClick}
@@ -630,33 +601,40 @@ class Map extends Component {
                 <FriendlyEventFilterString className='map-report-filter-details' />
               </div>
             </DelayedUnmount>
-                
+
 
             <div className='map-legends'>
               {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
               {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
               {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
-              <span className={'compass-wrapper'} onClick={this.onRotationControlClick}><RotationControl style={{position: 'relative', top: 'auto', width: '1.75rem', margin: '0.5rem'}} /></span>
+              <span className='compass-wrapper' onClick={this.onRotationControlClick} >
+                <RotationControl
+                  className='rotation-control'
+                  style={{
+                    position: 'relative',
+                    top: 'auto',
+                    margin: '0.5rem 0 0 0.5rem',
+                    borderStyle: 'none',
+                    borderRadius: '0.25rem',
+                  }}
+                />
+                <CursorGpsDisplay />
+              </span>
             </div>
+
+            <RightClickMarkerDropper />
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
             {showReportHeatmap && <ReportsHeatLayer />}
 
             {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
             {patrolTracksVisible && <PatrolStartStopLayer />}
-            
+
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 
             {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
             {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
-
-
-            {!!this.state.reportSpiderConfig.coordinates && 
-              <SpideredReportMarkers clusterCoordinates={this.state.reportSpiderConfig.coordinates} 
-                mapImages={this.props.mapImages} eventTypes={this.props.eventTypes} 
-                reports={this.state.reportSpiderConfig.reports} onReportClick={this.onClusterLeafClick} />
-            }
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
@@ -686,6 +664,7 @@ const mapStatetoProps = (state, props) => {
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
+    analyzerFeatures: analyzerFeatures(state),
     maps,
     eventTypes,
     heatmapSubjectIDs,
@@ -723,7 +702,6 @@ export default connect(mapStatetoProps, {
   fetchMapEvents,
   hidePopup,
   addModal,
-  removeUserNotification,
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,

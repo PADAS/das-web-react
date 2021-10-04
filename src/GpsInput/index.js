@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
 const GpsInput = (props) => {
-  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch:_dispatch, ...rest } = props;
+  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest } = props;
 
   const lngLat = originalLngLat ? [...originalLngLat] : null;
   const hasLocation = !!lngLat && lngLat.length === 2;
@@ -82,13 +82,13 @@ const GpsInput = (props) => {
     }
   };
 
-  const handleValidChange = useCallback(() => {
+  const handleValidChange = () => {
     if (!initialized) {
       setInitState(true);
     } else {
       onValidChange(lastKnownValidValue);
     }
-  }, [initialized, lastKnownValidValue, onValidChange]);
+  };
 
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);
@@ -98,7 +98,7 @@ const GpsInput = (props) => {
   return <div className={styles.wrapper}>
     {showFormatToggle &&
       <Fragment>
-        <GpsFormatToggle lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
+        <GpsFormatToggle showGpsString={false} lng={hasLocation ? parseFloat(lngLat[0]) : 0} lat={hasLocation ? parseFloat(lngLat[1]) : 0} />
         <small>Example: {GPS_FORMAT_EXAMPLES[gpsFormat]}</small>
       </Fragment>
     }

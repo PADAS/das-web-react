@@ -3,9 +3,9 @@ import { toast } from 'react-toastify';
 import { buildbranch, buildnum } from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
-import layoutVariables from '../common/styles/_layout.scss';
+import layoutVariables from '../common/styles/layout.module.scss';
 
-const { POSITION: TOAST_POSITIONS } = toast;
+const { POSITION: TOAST_POSITIONS, Slide } = toast;
 
 export const {
   REACT_APP_DAS_HOST,
@@ -16,7 +16,6 @@ export const {
   REACT_APP_GA_TRACKING_ID,
   REACT_APP_BASE_MAP_STYLES,
   SEARCH_URL,
-  
 } = process.env;
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
@@ -50,13 +49,13 @@ export const STATUSES = {
 };
 
 export const PATROL_CARD_STATES = {
-  SCHEDULED: {title: 'Scheduled', status: 'scheduled'},
-  READY_TO_START: {title: 'Ready to Start', status: 'ready'},
-  ACTIVE: {title: 'Active', status: 'open'},
-  DONE: {title: 'Done', status: 'done'},
-  START_OVERDUE: {title: 'Start Overdue', status: 'start-overdue'},
-  CANCELLED: {title: 'Cancelled', status: 'cancelled'},
-  INVALID: {title: 'Invalid Configuration', status: 'cancelled'},
+  SCHEDULED: { title: 'Scheduled', status: 'scheduled' },
+  READY_TO_START: { title: 'Ready to Start', status: 'ready' },
+  ACTIVE: { title: 'Active', status: 'open' },
+  DONE: { title: 'Done', status: 'done' },
+  START_OVERDUE: { title: 'Start Overdue', status: 'start-overdue' },
+  CANCELLED: { title: 'Cancelled', status: 'cancelled' },
+  INVALID: { title: 'Invalid Configuration', status: 'cancelled' },
 };
 
 export const PATROL_API_STATES = {
@@ -81,10 +80,10 @@ const lgLayoutWidthMin = `(min-width: ${layoutVariables.largeWidthMin})`;
 const xlLayoutWidthMin = `(min-width: ${layoutVariables.extraLargeWidthMin})`;
 
 export const BREAKPOINTS = {
-  screenIsMediumLayoutOrLarger: matchMedia(mdLayoutWidthMin),
-  screenIsSmallerThanLargeLayout: matchMedia(mdLayoutWidthMax),
-  screenIsLargeLayoutOrLarger: matchMedia(lgLayoutWidthMin),
-  screenIsExtraLargeWidth: matchMedia(xlLayoutWidthMin),
+  screenIsMediumLayoutOrLarger: window.matchMedia(mdLayoutWidthMin),
+  screenIsSmallerThanLargeLayout: window.matchMedia(mdLayoutWidthMax),
+  screenIsLargeLayoutOrLarger: window.matchMedia(lgLayoutWidthMin),
+  screenIsExtraLargeWidth: window.matchMedia(xlLayoutWidthMin),
 };
 
 export const LAYER_IDS = {
@@ -110,7 +109,7 @@ export const LAYER_IDS = {
 export const LAYER_PICKER_IDS = [
   LAYER_IDS.ANALYZER_POLYS_WARNING_SOURCE, LAYER_IDS.ANALYZER_POLYS_CRITICAL_SOURCE,
   LAYER_IDS.ANALYZER_LINES_CRITICAL_SOURCE, LAYER_IDS.ANALYZER_LINES_WARNING_SOURCE,
-  LAYER_IDS.SUBJECT_SYMBOLS, `${LAYER_IDS.EVENT_SYMBOLS}-labels`, `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`
+  LAYER_IDS.EVENT_SYMBOLS, LAYER_IDS.SUBJECT_SYMBOLS, `${LAYER_IDS.EVENT_SYMBOLS}-labels`, `${LAYER_IDS.SUBJECT_SYMBOLS}-labels`
 ];
 
 export const FEATURE_FLAGS = {
@@ -248,6 +247,7 @@ export const GEOLOCATOR_OPTIONS = {
 
 export const DEFAULT_TOAST_CONFIG = {
   position: TOAST_POSITIONS.TOP_CENTER,
+  transition: Slide,
 };
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];

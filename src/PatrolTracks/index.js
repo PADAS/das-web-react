@@ -7,7 +7,7 @@ import { trackTimeEnvelope } from '../selectors/tracks';
 import PatrolTrackLayer from '../PatrolTrackLayer';
 
 const PatrolTracks = (props) => {
-  const { patrols, dispatch:_dispatch, ...rest } = props;
+  const { patrols, dispatch: _dispatch, ...rest } = props;
 
   return <Fragment>
     {patrols

@@ -26,43 +26,45 @@ export const SOCKET_SUBJECT_STATUS = 'SOCKET_SUBJECT_STATUS';
 
 const cancelableMapSubjectsFetch = () => {
   let cancelToken = CancelToken.source();
-  const fetchFn = (map, params) => (dispatch, getState) => {
-    let lastKnownBbox;
+  const fetchFn = (map, params) => async (dispatch, getState) => {
+    try {
 
-    if (!map) {
-      lastKnownBbox = getState().data.mapSubjects.bbox;
-    }
 
-    if (!map && !lastKnownBbox) return Promise.reject();
-  
-    const bbox = map ? getBboxParamsFromMap(map) : lastKnownBbox;
+      let lastKnownBbox;
 
-    dispatch({
-      type: FETCH_MAP_SUBJECTS_START,
-      payload: { bbox },
-    });
-
-    cancelToken.cancel();
-    cancelToken = CancelToken.source();
-  
-    return axios.get(SUBJECTS_API_URL, {
-      cancelToken: cancelToken.token,
-      params: {
-        bbox,
-        ...params,
+      if (!map) {
+        lastKnownBbox = getState().data.mapSubjects.bbox;
       }
-    })
-      .then((response) => {
-        if (response) {
-          dispatch(fetchMapSubjectsSuccess(response));
-          return response.data.data;
-        }
-        return [];
+
+      if (!map && !lastKnownBbox) return Promise.reject();
+
+      const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
+
+      dispatch({
+        type: FETCH_MAP_SUBJECTS_START,
+        payload: { bbox },
       });
-    /* .catch(error => {
-        dispatch(fetchMapSubjectsError(error));
-        return Promise.reject(error);
-      }); */
+
+      cancelToken.cancel();
+      cancelToken = CancelToken.source();
+
+      return axios.get(SUBJECTS_API_URL, {
+        cancelToken: cancelToken.token,
+        params: {
+          bbox,
+          ...params,
+        }
+      })
+        .then((response) => {
+          if (response) {
+            dispatch(fetchMapSubjectsSuccess(response));
+            return response.data.data;
+          }
+          return [];
+        });
+    } catch (e) {
+      return Promise.reject(e);
+    }
   };
   return [fetchFn, cancelToken];
 };
@@ -182,7 +184,7 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
 
     const cloned = { ...payload };
     cloned.properties.image = calcUrlForImage(cloned.properties.image);
-    
+
     const { properties: { id } } = cloned;
 
     if (!state[id]) return state;

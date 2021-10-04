@@ -10,6 +10,14 @@
   box-sizing: border-box;
 }
 
+div.mapboxgl-canvas-container.mapboxgl-interactive {
+  cursor: crosshair;
+}
+
+.Toastify__toast--warning {
+  background: $amber;
+}
+
 $map-canvas: '.mapboxgl-canvas';
 $non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cancel-location-select)';
 
@@ -36,20 +44,21 @@ ol {
   margin: unset;
 }
 
-
 body {
   // disallow overscroll on iOS
   overflow: hidden;
   position: fixed;
 }
 
-.App, #root {
+.App,
+#root {
   height: 100%;
 }
 
 .App {
   display: flex;
   flex-flow: column;
+
   &.picking-location {
     #{$non-map-top-level-components} {
       cursor: not-allowed !important;
@@ -79,7 +88,6 @@ aside {
   }
 }
 
-
 #reportTypeIconSprite {
   display: none;
 }
@@ -93,7 +101,8 @@ aside {
   min-height: 100%;
 }
 
-.event-form-modal, .patrol-form-modal {
+.event-form-modal,
+.patrol-form-modal {
   .modal-dialog {
     align-items: center;
     max-height: 90vh;
@@ -108,13 +117,14 @@ aside {
       max-height: 80vh;
     }
 
-    >div>*:not(form):not([class*=formScrollContainer]) {
+    >div > *:not(form):not([class*=formScrollContainer]) {
       padding: 1rem 0.5rem;
     }
 
-    >div>form {
+    >div > form {
       padding: 1rem 1rem 11.5rem;
     }
+
     [class*=loadingOverlay] [class*=spinner] {
       top: 0;
     }
@@ -125,28 +135,40 @@ aside {
   .modal-dialog {
     max-width: 46rem;
   }
+
   &.readonly .modal-content > [class*=wrapper] {
     cursor: not-allowed;
+
     > *:not([class*=formButtons]) {
       pointer-events: none;
+
       [class*=empty] {
         opacity: 0;
       }
     }
-    > [class*=formButtons], > [class*=formHeader] [class*=history], [class*=locationAnchor]:not([class*=empty]), [class*=gpsPopover] [class*=choices] {
+
+    > [class*=formButtons],
+    > [class*=formHeader] [class*=history],
+    [class*=locationAnchor]:not([class*=empty]),
+    [class*=gpsPopover] [class*=choices] {
       pointer-events: all;
     }
+
     [class*=gpsPopover] [class*=locationButtons] {
       display: none;
     }
+
     > [class*=attachmentControls] {
       display: none;
     }
+
     > [class*=formHeader] [class*=history] {
       cursor: pointer;
     }
+
     > [class*=formButtons] {
       cursor: default;
+
       &::before {
         color: $light-font-color;
         content: 'You only have permission to view patrols, and may not edit them.';
@@ -155,6 +177,7 @@ aside {
         padding: 1rem;
         width: 100%;
       }
+
       [class*=saveButton] {
         display: none;
       }
@@ -172,6 +195,7 @@ aside {
 
 .floating-report-filter {
   @include fade-in;
+
   background: rgba(255, 255, 255, 0.85);
   border-radius: 0.666rem;
   line-height: normal;
@@ -183,9 +207,11 @@ aside {
   transition: all 0.3s linear;
   width: 100vw;
   z-index: 7;
+
   form {
     border: none;
     padding: 0;
+
     @media (min-width: $md-layout-width-min) {
       border-bottom: 1px solid $gray-border;
       padding-bottom: 0.25rem;
@@ -193,17 +219,20 @@ aside {
   }
 
   @media (min-width: $md-layout-width-min) {
-    max-width: 22rem;
+    max-width: 25rem;
     right: 4.5rem;
     top: 0.5rem;
   }
+
   [class*=search] {
     input {
       background: transparent;
     }
-  } 
+  }
+
   .map-report-filter-details {
     display: none;
+
     @media (min-width: $md-layout-width-min) {
       display: block;
       font-size: 0.75rem;
@@ -217,29 +246,34 @@ aside {
   border-radius: 0.25rem;
   box-shadow: 0 0 3px $light-gray-border;
   padding: 0.5rem;
+
   .react-calendar__month-view__days {
     button {
       border-radius: 100%;
       height: 3rem;
       width: 3rem;
-  
+
       &:not(:disabled):hover,
       &.react-calendar__tile--active,
       &.react-calendar__tile--now {
         border: 1px solid $light-gray-border;
       }
+
       &.react-calendar__tile--now {
         background: none;
       }
+
       &.react-calendar__tile--active {
         background: $primary-button-color;
         color: white;
       }
     }
   }
+
   .react-calendar__navigation__label {
     font-weight: bold;
   }
+
   .react-calendar__tile:disabled {
     background: none;
     opacity: 0.5;
@@ -256,6 +290,12 @@ aside {
   width: 100vw;
   z-index: 1;
 
+  .mapboxgl-map {
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+    width: 100vw;
+  }
+
   &.sidebar-open {
     .floating-report-filter {
       opacity: 0;
@@ -270,7 +310,7 @@ aside {
     }
 
     .mapbox-scale-ctrl {
-      transform: translate(0rem, -0.9rem);
+      transform: translate(0, -0.9rem);
     }
 
     .mapbox-zoom-ctrl {
@@ -280,15 +320,10 @@ aside {
     .mapboxgl-map {
       width: calc(100vw - var(--sidebar-width));
     }
+
     .mapboxgl-ctrl-attrib.er-map {
       right: 0;
     }
-  }
-
-  .mapboxgl-map {
-    height: 100%;
-    transition: width .3s ease-in-out;
-    width: 100vw;
   }
 }
 
@@ -298,14 +333,14 @@ aside {
 
 .side-menu {
   background: white;
-  box-shadow: 0 0 .25rem rgb(38, 38, 38);
+  box-shadow: 0 0 0.25rem rgb(38, 38, 38);
   display: flex;
   flex-flow: column;
   flex-grow: 0;
   height: 100%;
   position: absolute;
   right: 0;
-  transition: transform .3s ease-in-out;
+  transition: transform 0.3s ease-in-out;
   transform: translateX(var(--sidebar-width));
   top: 0;
   width: var(--sidebar-width);
@@ -320,9 +355,11 @@ aside {
 
   .bs-popover-left {
     .arrow {
-      &::after, &::before {
+      &::after,
+      &::before {
         top: -3rem;
       }
+
       &::after {
         border-left-color: $bright-blue;
       }
@@ -331,11 +368,14 @@ aside {
 
   .bs-popover-bottom {
     margin-top: 0;
+
     .arrow::after {
       border-bottom-color: $popover-header-color;
     }
   }
-  .bs-popover-bottom .popover-header::before, .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
+
+  .bs-popover-bottom .popover-header::before,
+  .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
     display: none;
   }
 
@@ -345,14 +385,13 @@ aside {
     border-radius: 0;
   }
 
-
   .nav-tabs .nav-link {
     border: none;
     border-radius: 0;
   }
 
   .nav-link {
-    background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 48%, #ffffff 100%);
+    background: linear-gradient(to bottom, #fff 0%, #f0f0f0 48%, #fff 100%);
   }
 
   .nav-item {
@@ -369,7 +408,9 @@ aside {
       &:hover {
         text-decoration: underline;
       }
-      &:hover, &:focus {
+
+      &:hover,
+      &:focus {
         border: none;
       }
     }
@@ -377,22 +418,26 @@ aside {
 
   .handle {
     @include unstyledButton;
+
     background-color: $off-black;
     border: 1px solid lighten($off-black, 30%);
     border-right: none;
     border-radius: 0.5rem 0 0 0.5rem;
     color: white;
-    font-size: .75rem;
+    font-size: 0.75rem;
     height: 3.9rem;
     width: 1.5rem;
     left: -1.5rem;
     top: 45.1%;
     transition: 0.2s border-color linear, 0.2s background-color linear;
     position: absolute;
-    &:hover, &:active {
+
+    &:hover,
+    &:active {
       border: 1px solid lighten($off-black, 25%);
       border-right: none;
     }
+
     &:hover {
       background-color: darken($off-black, 10%);
     }
@@ -404,7 +449,7 @@ aside {
     span {
       display: block;
       transform: rotate(180deg);
-      transition: transform .2s .3s ease-in-out;
+      transition: transform 0.2s 0.3s ease-in-out;
 
       svg {
         width: 0.75rem;
@@ -427,8 +472,7 @@ aside {
 .mapboxgl-ctrl-bottom-right,
 .mapbox-scale-ctrl,
 .mapbox-zoom-ctrl {
-  transition: transform .3s ease-in-out;
-
+  transition: transform 0.3s ease-in-out;
 }
 
 .mapboxgl-ctrl-attrib:not(.er-map) {
@@ -444,9 +488,11 @@ aside {
   position: absolute;
   text-align: right;
   z-index: 2;
+
   p {
     margin: 0;
   }
+
   @media (min-width: $md-layout-width-min) {
     right: 4rem;
   }
@@ -455,6 +501,7 @@ aside {
 .mapboxgl-ctrl-bottom-left {
   pointer-events: none;
   transform: translate(-0.25rem, -0.25rem) scale(0.7);
+
   .mapboxgl-ctrl {
     margin: 0;
   }
@@ -470,7 +517,7 @@ aside {
 }
 
 .mapbox-zoom-ctrl {
-  transform: scale(1.25) translate(0rem, -1rem);
+  transform: scale(1.25) translate(0, -1rem);
 
   @media (min-width: $md-layout-width-min) {
     transform: scale(1.25) translate(-3.5rem, -1rem);
@@ -481,12 +528,15 @@ aside {
   margin-right: 2rem;
 }
 
-
 .btn-primary {
   background-color: $primary-button-color;
   border-color: $primary-button-color;
 }
 
+.btn-light {
+  background: $light-gray;
+  color: $secondary-medium-gray;
+}
 
 .app-container h1,
 h2,
@@ -499,7 +549,7 @@ h6 {
 }
 
 div.mapboxgl-popup-content {
-  background: rgba(255,255,255, .88);
+  background: rgba(255, 255, 255, 0.88);
   border-radius: 0.5rem;
   text-align: center;
   width: 13rem;
@@ -507,6 +557,7 @@ div.mapboxgl-popup-content {
   h5 {
     margin-bottom: 0.5rem;
   }
+
   hr {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -514,7 +565,7 @@ div.mapboxgl-popup-content {
 }
 
 div.mapboxgl-popup-tip {
-  border-top-color: rgba(255,255, 255,.88);
+  border-top-color: rgba(255, 255, 255, 0.88);
 }
 
 .modal-dialog {
@@ -522,23 +573,24 @@ div.mapboxgl-popup-tip {
   top: 0;
 }
 
-
 .modal[role=dialog] {
   @include fade-in;
+
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
   display: flex !important;
   justify-content: center;
-  &[style*='display: none'], &[style*='display:none'] {
+
+  &[style*='display: none'],
+  &[style*='display:none'] {
     z-index: -1;
   }
 }
 
-
-
 @media (min-width: $md-layout-width-min) {
-  .event-form-modal, .patrol-form-modal {
-    &+.modal-backdrop+.event-form-modal .modal-dialog {
+  .event-form-modal,
+  .patrol-form-modal {
+    & + .modal-backdrop + .event-form-modal .modal-dialog {
       left: 1rem;
       top: 1rem;
     }
@@ -552,7 +604,7 @@ div.mapboxgl-popup-tip {
 .dropdown-item {
   align-items: center;
   display: flex;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   user-select: text;
 
   &:active,
@@ -569,14 +621,21 @@ div.mapboxgl-popup-tip {
     margin: 0.5cm;
     size: auto;
   }
+
   .primary-nav .rightMenus > div {
-    &:first-child, &:last-child {
+    &:first-child,
+    &:last-child {
       display: none !important;
     }
   }
-  .side-menu, .map-controls-container, .mapbox-zoom-ctrl, .mapboxgl-ctrl-top-left {
+
+  .side-menu,
+  .map-controls-container,
+  .mapbox-zoom-ctrl,
+  .mapboxgl-ctrl-top-left {
     display: none !important;
   }
+
   .primary-nav {
     color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
@@ -591,6 +650,7 @@ div.mapboxgl-popup-tip {
     right: unset;
     top: 0.785rem;
   }
+
   .spinner-icon {
     animation: nprogress-spinner 800ms linear infinite;
     height: 1rem;
@@ -602,15 +662,18 @@ div.mapboxgl-popup-tip {
   align-items: flex-start;
   display: flex !important;
   justify-content: center;
+
   .modal-dialog {
     margin: 0 0.5rem;
     max-width: 64rem;
     width: 100%;
   }
+
   .modal-content {
     border-radius: 1rem;
     height: 90vh;
   }
+
   iframe {
     border: none;
     outline: none;
@@ -619,7 +682,8 @@ div.mapboxgl-popup-tip {
   }
 }
 
-.daily-report-modal, .kml-export-modal {
+.daily-report-modal,
+.kml-export-modal {
   .modal-dialog {
     margin-top: -5rem;
   }
@@ -628,6 +692,7 @@ div.mapboxgl-popup-tip {
 .modal.messaging-modal {
   background: none;
   pointer-events: none;
+
   .modal-dialog {
     position: absolute;
     right: 5vw;
@@ -637,31 +702,39 @@ div.mapboxgl-popup-tip {
     bottom: unset;
     width: 90vw;
     font-size: 0.95rem;
+
     @media (min-width: $md-layout-width-min) {
       right: 4rem;
       width: 33rem;
     }
+
     @media (min-width: $lg-layout-width-min) {
       right: 11.5rem;
     }
   }
+
   .modal-content {
-    box-shadow: 0px 0px 3px $light-gray;
+    box-shadow: 0 0 3px $light-gray;
   }
+
   .modal-header {
     align-items: center;
     height: 4rem;
+
     h5 {
       margin: 0;
     }
   }
+
   .modal-body {
     height: 20rem;
     padding: 0.25rem 0 0;
   }
+
   .modal-footer {
     align-items: flex-start;
     justify-content: space-between;
+
     *:only-child {
       margin-left: auto;
     }
@@ -673,9 +746,11 @@ div.mapboxgl-popup-tip {
     height: 80vh;
     width: 90vw;
   }
+
   .modal-content {
     width: 90vw;
   }
+
   .modal-dialog {
     margin-left: 5vw;
   }

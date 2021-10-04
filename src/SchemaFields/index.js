@@ -27,13 +27,13 @@ const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, hei
 };
 
 const SelectField = (props) => {
-  const { id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
+  const { disabled, id, value, placeholder, required, onChange, schema, options: { enumOptions } } = props;
   const selectRef = useRef(null);
   const containerRef = useRef(null);
 
   const SelectContainer = ({ children, ...props }) => {
     return (
-      <div ref={containerRef}> 
+      <div ref={containerRef}>
         <components.SelectContainer {...props}>
           {children}
         </components.SelectContainer>
@@ -80,7 +80,8 @@ const SelectField = (props) => {
   }, [onChange]);
 
   return <Select
-    components={{SelectContainer}}
+    components={{ SelectContainer }}
+    isDisabled={disabled}
     id={id}
     ref={selectRef}
     required={required}
@@ -117,7 +118,7 @@ const calcPlacementForFixedDateTimeField = (scrollContainer, element) => {
 
 
 const DateTimeField = (props) => {
-  const { idSchema: { id }, schema: { title: label }, onChange, required, maxDate, formData } = props;
+  const { disabled, idSchema: { id }, schema: { title: label }, onChange, required, maxDate, formData } = props;
   const labelRef = useRef(null);
   const [localCss, setStyles] = useState({ display: 'none' });
   const [popoverOpen, setPopoverState] = useState(false);
@@ -148,7 +149,7 @@ const DateTimeField = (props) => {
           return setPopoverState(false);
         }
 
-        const { offsets, placement:newPlacement } = calcPlacementForFixedDateTimeField(props.registry.formContext.scrollContainer, labelRef.current);
+        const { offsets, placement: newPlacement } = calcPlacementForFixedDateTimeField(props.registry.formContext.scrollContainer, labelRef.current);
 
         if (placement !== newPlacement) {
           setPlacement(newPlacement);
@@ -179,15 +180,15 @@ const DateTimeField = (props) => {
     onChange(newVal ? newVal.toISOString() : newVal);
   }, [onChange]);
 
-  useEffect(() =>{
+  useEffect(() => {
     if (!!popoverOpen) {
       scrollEventRef.current();
     }
   }, [popoverOpen]);
 
   return <Fragment>
-    <label ref={labelRef} htmlFor={id}>{label}</label>
-    <DateTimePickerPopover placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
+    <label ref={labelRef} htmlFor={id}>{label}{required ? '*' : ''}</label>
+    <DateTimePickerPopover disabled={disabled} placement={placement} popoverClassName={styles.datepicker} popoverStyles={localCss}
       id={id} required={required}  maxDate={maxDate || new Date('2050')} value={date} popoverOpen={popoverOpen} onPopoverToggle={onPopoverToggle}
       onChange={handleChange} defaultTimeValue='00:00' />
   </Fragment>;
@@ -225,12 +226,12 @@ const CustomCheckboxes = (props) => {
         .filter((option) => {
           const itemDisabled =
           schema.inactive_enum && schema.inactive_enum.includes(option.value);
-          
-          return !itemDisabled || 
+
+          return !itemDisabled ||
           (!!itemDisabled && !!originalValues.includes(option.value));
         })
         .map((option, index) => {
-        
+
           const disabledCls =
           (disabled || readonly) ? 'disabled' : '';
           const inputId = `${id}_${instanceId}_${index}`;
@@ -299,7 +300,7 @@ export const ObjectFieldTemplate = (props) => {
 
   const [instanceId] = useState(uuid());
 
-  return <div className='container' style={{padding: 0}}>
+  return <div className='container' style={{ padding: 0 }}>
     {(props.title || props.uiSchema['ui:title']) && (
       <TitleField
         id={`${props.idSchema.$id}__title`}
@@ -342,9 +343,9 @@ const createGroupedFields = ({ instanceId, properties, groups, props }) => {
       }
       return null;
     } else if (typeof g === 'object') {
-      
+
       const _properties = Object.entries(g).reduce((acc, [key, field]) => {
-        if (key.startsWith('ui:') 
+        if (key.startsWith('ui:')
         || !Array.isArray(field)) {
           return acc;
         }

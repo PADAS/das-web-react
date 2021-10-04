@@ -29,7 +29,7 @@ const PatrolDateInput = (props) => {
 
   const commitTimeChange = useCallback(() => {
     const auto = !canShowAutoCheck ? true : isAuto;
-    
+
     onChange(stateTime, auto);
 
     setTempPopoverProps({ popoverOpen: false });
@@ -38,7 +38,7 @@ const PatrolDateInput = (props) => {
 
   const onTimeChange = useCallback((val) => {
     setStateTime(
-      !!val 
+      !!val
         ? setSeconds(new Date(val), 0)
         : null
     );
@@ -86,16 +86,16 @@ const PatrolDateInput = (props) => {
 
   return <DateTimePickerPopover
     {...DATEPICKER_DEFAULT_CONFIG}
-    value={stateTime} 
-    className={timeClassName} 
-    {...tempPopoverProps} 
-    onHide={onHide} 
+    value={stateTime}
+    className={timeClassName}
+    {...tempPopoverProps}
+    onHide={onHide}
     onEnterKeyPress={commitTimeChange}
     onPopoverClosed={onPopoverClosed}
     onPopoverOpened={onPopoverOpened}
     onChange={onTimeChange}
     {...rest}
-  >  
+    >
     <div className={styles.dateTimePickerChildren}>
       <Button variant='primary' type='button' onClick={commitTimeChange}>
         {buttonTitle}
@@ -105,7 +105,7 @@ const PatrolDateInput = (props) => {
       </label>}
     </div>
   </DateTimePickerPopover>;
- 
+
 };
 
 export default memo(PatrolDateInput);

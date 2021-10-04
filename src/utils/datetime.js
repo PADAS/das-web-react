@@ -66,7 +66,7 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
       new Date(date),
       0),
     0);
-  
+
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
 

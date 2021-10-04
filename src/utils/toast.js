@@ -10,8 +10,9 @@ export default (content, config = {}) => toast(content, {
   ...DEFAULT_TOAST_CONFIG, ...config,
 });
 
-export const showErrorToast = (message, details) => {
-  toast(<ErrorMessage message={message} details={details} />, {
-    type: toast.TYPE.ERROR,
+export const showErrorToast = ({ message, variant, details }) => {
+  toast(<ErrorMessage message={message} details={details} variant={variant} />, {
+    ...DEFAULT_TOAST_CONFIG,
+    type: toast.TYPE.WARNING,
   });
-}
+};

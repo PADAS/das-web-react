@@ -7,7 +7,7 @@ import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
 
 import { trackEvent } from '../utils/analytics';
-import { canStartPatrol, canEndPatrol, calcPatrolCardState } from '../utils/patrols';
+import { canEndPatrol, calcPatrolCardState } from '../utils/patrols';
 
 import styles from './styles.module.scss';
 
@@ -31,7 +31,7 @@ const PatrolMenu = (props) => {
   const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
   const canRestorePatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.DONE 
+    return patrolState === PATROL_CARD_STATES.DONE
     || patrolState === PATROL_CARD_STATES.CANCELLED;
   }, [patrolState]);
 
@@ -50,7 +50,7 @@ const PatrolMenu = (props) => {
   const patrolCancelRestoreCanBeToggled = useMemo(() => {
     return canRestorePatrol || canCancelPatrol;
   }, [canCancelPatrol, canRestorePatrol]);
-  
+
   const patrolStartStopTitle = useMemo(() => {
     if (canEnd || patrolIsCancelled || patrolIsDone) return 'End Patrol';
     return 'Start Patrol';
@@ -63,7 +63,7 @@ const PatrolMenu = (props) => {
 
   const togglePatrolCancelationState = useCallback(() => {
     trackEvent('Patrol Card', `${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol card kebab menu`);
-    
+
     if (canRestorePatrol) {
       onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
     } else {
@@ -73,7 +73,7 @@ const PatrolMenu = (props) => {
 
   const togglePatrolStartStopState = useCallback(() => {
     trackEvent('Patrol Card', `${patrolStartStopTitle} from patrol card kebab menu`);
-    
+
     if (canEnd) {
       onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });
     } else {
@@ -82,12 +82,12 @@ const PatrolMenu = (props) => {
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
   return  <Dropdown alignRight className={styles.kebabMenu}>
-    <Toggle as="button">
+    <Toggle as="button" className={styles.kebabToggle}>
       <KebabMenuIcon />
     </Toggle>
     <Menu ref={menuRef}>
       {canEditPatrol && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
-      <Item disabled={patrolIsCancelled} onClick={()=>onClickOpen(patrol)}>Open Patrol</Item>
+      <Item disabled={patrolIsCancelled} onClick={() => onClickOpen(patrol)}>Open Patrol</Item>
       {canEditPatrol && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
     </Menu>
   </Dropdown>;

@@ -22,7 +22,7 @@ const AddToIncidentModal = (props) => {
   const { id, incidents, removeModal,
     fetchIncidentFeed, fetchNextIncidentFeedPage, onAddToExistingIncident, onAddToNewIncident
   } = props;
-  
+
   const scrollRef = useRef(null);
   const [loaded, setLoadedState] = useState(false);
 
@@ -30,7 +30,7 @@ const AddToIncidentModal = (props) => {
     removeModal(id);
   };
 
- 
+
 
   useEffect(() => {
     const fetchFeed = async () => {
@@ -45,7 +45,7 @@ const AddToIncidentModal = (props) => {
     hideModal();
     trackEvent('Add To Incident', 'Click Add to Existing Incident');
   };
-  
+
   const onClickAddNewIncident = () => {
     onAddToNewIncident();
     hideModal();
@@ -72,7 +72,7 @@ const AddToIncidentModal = (props) => {
           loadMore={onScroll}
           useWindow={false}
           getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
-        
+
           {incidents.results.map((report, index) =>
             <ReportListItem
               className={styles.listItem}

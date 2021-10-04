@@ -14,7 +14,7 @@ const TimeSliderMapControl = ({ active, dateSet, setTimeSliderState }) => {
     setTimeSliderState(!active);
     trackEvent('Map Interaction', `${!active ? 'Open' : 'Close'} 'Time Slider' control`);
   };
-  
+
   return <button className={styles.mapControl} type="button" onClick={toggleState}>
     <TimeSliderIcon className={`${styles.icon} ${active ? styles.activeIcon : ''} ${dateSet ? styles.warningIcon : ''}`} />
   </button>;

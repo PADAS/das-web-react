@@ -14,7 +14,7 @@ const MapLayerFilter = (props) => {
   const onClearSearch = (e) => {
     e.stopPropagation();
     updateMapLayerFilter({
-      filter: {text: ''}
+      filter: { text: '' }
     });
     trackEvent('Map Layers', 'Clear Search Text Filter');
   };
@@ -29,8 +29,7 @@ const MapLayerFilter = (props) => {
   };
 
   return <form className={styles.form} onSubmit={e => e.preventDefault()}>
-    <span className={styles.searchLabel}>Display on map:</span>
-    <SearchBar className={styles.search} placeholder='Search Layers...' value={text || ''} 
+    <SearchBar className={styles.search} placeholder='Search Layers...' value={text || ''}
       onChange={onSearchChange} onClear={onClearSearch}/>
   </form>;
 };

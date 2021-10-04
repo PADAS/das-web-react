@@ -6,8 +6,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { usePermissions } from './hooks';
-import { STATUSES, PERMISSION_KEYS, PERMISSIONS } from './constants';
+import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
@@ -19,7 +18,6 @@ import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
-import { fetchMessages }  from './ducks/messaging';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 
@@ -38,7 +36,7 @@ import { trackEvent } from './utils/analytics';
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
-const MapContext = createContext(null);
+export const MapContext = createContext(null);
 
 // use this block to do direct map event binding.
 // useful for API gaps between react-mapbox-gl and mapbox-gl.
@@ -64,7 +62,7 @@ const animateResize = (map) => {
     if (count === numberOfFrames) {
       clearInterval(mapResizeAnimation);
     }
-    
+
   }, (transitionLength / numberOfFrames));
 
   return mapResizeAnimation;
@@ -72,13 +70,11 @@ const animateResize = (map) => {
 
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchMessages, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap, 
+  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
     sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
-
-  const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const socket = useContext(SocketContext);
 
@@ -135,10 +131,10 @@ const App = (props) => {
         }
         if (track_length) {
           const { defaultCustomTrackLength, length } = trackLength;
-          if(defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
+          if (defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
             setTrackLength(track_length);
             setDefaultCustomTrackLength(track_length);
-          } else if(track_length !== defaultCustomTrackLength) {
+          } else if (track_length !== defaultCustomTrackLength) {
             setDefaultCustomTrackLength(track_length);
           }
         }
@@ -157,14 +153,9 @@ const App = (props) => {
     });
     initZenDesk();
     hideZenDesk();
-    
+
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (canViewMessages) {
-      fetchMessages();
-    }
-  }, [canViewMessages, fetchMessages]);
 
   useEffect(() => {
     if (map) {
@@ -181,14 +172,14 @@ const App = (props) => {
     if (map) {
       animateResize(map);
     }
-  }, [map, sidebarOpen]); 
+  }, [map, sidebarOpen]);
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
       <PrintTitle />
       <Nav map={map} />
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        
+
         {/* <ErrorBoundary> */}
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
         {/* </ErrorBoundary> */}
@@ -211,7 +202,7 @@ const App = (props) => {
 };
 
 const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
-const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchMessages, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
+const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 const AppWithSocketContext = (props) => <WithSocketContext>
   <ConnectedApp />
@@ -221,5 +212,3 @@ const AppWithSocketContext = (props) => <WithSocketContext>
 
 
 export default AppWithSocketContext;
-
-export { MapContext };

@@ -33,17 +33,22 @@ const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based 
     return !!match && !match.enum;
   });
 
+const filterOutRequiredValueOnSchemaPropErrors = errors => errors.filter(err => !JSON.stringify(err).includes('required should be array'));
+
 const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react/display-name
   const { formData, formScrollContainer, children, schema, uiSchema, onChange, onSubmit, ...rest } = props;
 
-  const transformErrors = useCallback((errors) =>
-    filterOutEnumErrors(errors, schema), [schema]
+  const transformErrors = useCallback((errors) => {
+    const errs = filterOutRequiredValueOnSchemaPropErrors(
+      filterOutEnumErrors(errors, schema));
+    return errs;
+  }, [schema]
   );
 
 
   return <Form
     additionalMetaSchemas={additionalMetaSchemas}
-    className={`${styles.form} ${schema.readonly ? styles.readonly : ''}`}
+    className={styles.form}
     disabled={schema.readonly}
     formData={formData}
     liveValidate={true}
@@ -60,7 +65,7 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     transformErrors={transformErrors}
     uiSchema={uiSchema}
     {...rest}
-  >
+    >
     {children}
   </Form>;
 });

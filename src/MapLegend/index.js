@@ -9,13 +9,13 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const MapLegend = (props) => {
-  const { onClose, settingsComponent, titleElement:Title, children, ...rest } = props;
+  const { onClose, settingsComponent, titleElement: Title, children, ...rest } = props;
   return <div className={`${styles.legend} ${styles.closedLegend}`} {...rest}>
     {Title}
     <button className={styles.close} onClick={onClose}>
       <CloseIcon />
     </button>
-    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom' 
+    {settingsComponent && <OverlayTrigger trigger="click" rootClose placement='bottom'
       onEntered={() => trackEvent('Map Interaction', 'Heatmap Settings Clicked')} overlay={
         <Popover className={styles.controlPopover}>
           {settingsComponent}

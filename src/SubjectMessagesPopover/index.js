@@ -3,7 +3,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 import { usePermissions } from '../hooks';
-import {PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
 
 import ParamFedMessageList from '../MessageList/ParamFedMessageList';
 import MessageInput from '../MessageInput';

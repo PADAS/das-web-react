@@ -7,7 +7,7 @@ import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 const RequestConfigManager = (props) => {
-  const {clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
+  const { clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
   const userProfileHeaderInterceptor = useRef(null);
   const masterRequestCancelTokenManager = useRef(null);
   const onAuthFailure = useRef(null);
@@ -31,9 +31,9 @@ const RequestConfigManager = (props) => {
       axios.interceptors.request.eject(userProfileHeaderInterceptor.current);
     }
     userProfileHeaderInterceptor.current = axios.interceptors.request.use(addUserProfileHeaderIfNecessary);
-  }, [user, selectedUserProfile]); 
+  }, [user, selectedUserProfile]);
   /* end profile header */
-  
+
 
   /* master cancel token */
   useEffect(() => {

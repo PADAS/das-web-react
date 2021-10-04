@@ -6,12 +6,14 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString, GPS_FORMATS } from '../utils/location';
 import { trackEvent } from '../utils/analytics';
 
+import TextCopyBtn from '../TextCopyBtn';
+
 import styles from './styles.module.scss';
 
 const gpsFormats = Object.values(GPS_FORMATS);
 
 const GpsFormatToggle = (props) => {
-  const { updateUserPreferences, lat, lng, currentFormat, className, ...rest } = props;
+  const { updateUserPreferences, showGpsString = true, showCopyControl = showGpsString, lat, lng, currentFormat, className, ...rest } = props;
 
   const onGpsFormatClick = (gpsFormat) => {
     trackEvent('GPS Format', 'Change GPS Format', `GPS Format:${gpsFormat}`);
@@ -20,24 +22,32 @@ const GpsFormatToggle = (props) => {
     });
   };
 
+  const gpsString = showGpsString && calcGpsDisplayString(lat, lng, currentFormat);
+  const displayGpsString = gpsString || null;
+
   return (
     <div className={`${styles.container} ${className}`} {...rest}>
       <ul className={styles.choices}>
         {gpsFormats.map(gpsFormat =>
-          <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''} 
+          <li key={gpsFormat} className={gpsFormat === currentFormat ? styles.active : ''}
             onClick={() => onGpsFormatClick(gpsFormat)}>{gpsFormat}</li>
         )}
       </ul>
-      <span className={styles.value}>{calcGpsDisplayString(lat, lng, currentFormat)}</span>
+      {displayGpsString && <div className={styles.gpsStringWrapper}>
+        <span className={styles.value}>{displayGpsString}</span>
+        {showCopyControl && <TextCopyBtn text={displayGpsString} />}
+      </div>
+      }
     </div>
   );
 };
 
 
 GpsFormatToggle.propTypes = {
-  lat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  lng: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  lat: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  lng: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   currentFormat: PropTypes.string.isRequired,
+  showGpsString: PropTypes.bool,
 };
 
 const mapStateToProps = ({ view: { userPreferences: { gpsFormat } } }) => ({ currentFormat: gpsFormat });

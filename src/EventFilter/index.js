@@ -82,8 +82,8 @@ const EventFilter = (props) => {
 
   const onReportCategoryToggle = ({ value }) => {
     const toToggle = eventTypes.filter(({ category: { value: v } }) => v === value).map(({ id }) => id);
-    const allShown = eventTypeFilterEmpty 
-      ? true 
+    const allShown = eventTypeFilterEmpty
+      ? true
       : (intersection(currentFilterReportTypes, toToggle).length === toToggle.length);
     if (allShown) {
       trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
@@ -91,14 +91,14 @@ const EventFilter = (props) => {
     } else {
       trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
       const updatedValue = uniq([...currentFilterReportTypes, ...toToggle]);
-      
+
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
   };
 
   const onReportedByChange = (values) => {
     const hasValue = values && !!values.length;
-    
+
     if (hasValue) {
       updateEventFilter({
         filter: {
@@ -149,7 +149,7 @@ const EventFilter = (props) => {
   const updateEventFilterDebounced = useRef(debounce(function (update) {
     updateEventFilter(update);
   }, 200));
-  
+
 
   const onStateSelect = ({ value }) => {
     updateEventFilter({ state: value });
@@ -301,23 +301,21 @@ const EventFilter = (props) => {
 
   return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
     <div className={styles.controls}>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
-          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} />
-          <span>Filters</span>
-        </span>
-      </OverlayTrigger>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`}>
-          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
-          <span>Dates</span>
-        </span>
-      </OverlayTrigger>
       <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
         onChange={onSearchChange} onClear={onSearchClear} />
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
+        <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger}>
+          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
+        </Button>
+      </OverlayTrigger>
+      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
+        <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger}>
+          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
+          <span>Dates</span>
+        </Button>
+      </OverlayTrigger>
       {children}
     </div>
-    {/* <FriendlyEventFilterString className={styles.filterDetails} /> */}
   </form>;
 };
 
@@ -326,6 +324,6 @@ const mapStateToProps = (state) =>
     eventFilter: state.data.eventFilter,
     eventTypes: state.data.eventTypes,
     reporters: reportedBy(state),
-  }); 
+  });
 
 export default connect(mapStateToProps, { updateEventFilter, resetGlobalDateRange })(memo(EventFilter));

@@ -58,7 +58,7 @@ const externalReportingReducer = (state = INITIAL_EXTERNAL_REPORTING_STATE, acti
       tableauDashboard: null
     };
   }
-  
+
   return state;
 };
 

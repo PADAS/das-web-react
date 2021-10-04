@@ -31,6 +31,9 @@ div.datePopover {
   [class*=locationAnchor][class*=empty] {
     color: white;
   }
+  [class*=clearIcon] {
+    display: none;
+  }
 }
 
 

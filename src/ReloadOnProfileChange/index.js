@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 const ReloadOnProfileChange = (props) => {
   const { selectedUserProfile } = props;
-  
+
   const [initialized, setInit] = useState(false);
 
   useEffect(() => {

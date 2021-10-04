@@ -1,3 +1,5 @@
+import colorVariables from '../common/styles/vars/colors.module.scss';
+
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;
 
@@ -20,7 +22,7 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 
   const sorted = reportsWithTypes
     .sort((a, b) => calcPriorityRatingForEventAndEventType(b) - calcPriorityRatingForEventAndEventType(a));
-    
+
   return sorted[0];
 };
 
@@ -28,22 +30,22 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 export const calcIconColorByPriority = (priority) => {
   switch (priority) {
   case 300: {
-    return '#D0021B';
+    return colorVariables.red;
   }
   case 200: {
-    return '#FFAB24';
+    return colorVariables.amber;
   }
   case 100: {
-    return '#4F8317';
+    return colorVariables.green;
   }
   default: {
-    return 'gray';
+    return colorVariables.gray;
   }
   }
 };
 
 export const mapReportTypesToCategories = eventTypes => eventTypes
-  
+
   .filter(reportType => reportType.category.value !== 'hidden')
   .reduce((accumulator, reportType) => {
     const cat = accumulator.find(item => item.value === reportType.category.value);

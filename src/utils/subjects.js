@@ -16,9 +16,11 @@ export const subjectIsAMobileRadio = subject => MOBILE_RADIO_SUBTYPES.includes(s
 
 export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
   return subjectIsARadio(properties)
-    && !!properties.last_voice_call_start_at 
+    && !!properties.last_voice_call_start_at
     && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
 };
+
+export const subjectIsStatic = (s) => !!s?.static_position;
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
@@ -74,7 +76,7 @@ export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubj
   .filter(canShowTrackForSubject);
 
 export const getSubjectLastPositionCoordinates = subject => {
-  return subject.last_position && subject.last_position.geometry ? subject.last_position.geometry.coordinates 
+  return subject.last_position && subject.last_position.geometry ? subject.last_position.geometry.coordinates
     : subject.geometry ? subject.geometry.coordinates : null;
 };
 
@@ -187,16 +189,16 @@ export const filterSubjects = (s, isMatch) => {
 const filterSubjectsHelper = (s, isMatch) => {
   let newS = [];
   if (s.subjects) { // filter the subjects array:
-    newS = {...s, subjects: s.subjects.filter(isMatch)};
+    newS = { ...s, subjects: s.subjects.filter(isMatch) };
   }
   if (s.subgroups) { // filter subgroups array:
     newS = {
-      ...newS, 
+      ...newS,
       subgroups: newS.subgroups
         .map(sg => filterSubjectsHelper(sg, isMatch))
-        .filter(sg=> !!sg.subjects.length || !!sg.subgroups.length)
+        .filter(sg => !!sg.subjects.length || !!sg.subgroups.length)
     };
-  } 
+  }
   return newS;
 };
 

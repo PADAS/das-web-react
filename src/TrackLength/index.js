@@ -24,9 +24,11 @@ function TrackLength(props) {
 
 }
 
-const mapStateToProps = (state, props) => ({
-  tracks: trimmedVisibleTrackData(state),
-});
+const mapStateToProps = (state, props) => {
+  return {
+    tracks: trimmedVisibleTrackData(state),
+  };
+};
 
 export default connect(mapStateToProps, null)(TrackLength);
 
@@ -34,4 +36,4 @@ TrackLength.propTypes = {
   trackId: PropTypes.string.isRequired,
   tracks: PropTypes.array,
   className: PropTypes.string,
-}; 
+};

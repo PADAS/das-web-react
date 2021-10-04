@@ -1,0 +1,35 @@
+@import '../common/styles/vars/colors';
+
+.dropdown {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  justify-content: end;
+}
+
+a.listItem, div.header {
+  display: block;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.toggle {
+  &::after {
+    display: none;
+  }
+}
+
+.sortDirection {
+  margin-left: 0.5rem;
+}
+
+.columnWrapper {
+  align-items: center;
+  display: flex;
+  position: relative;
+  z-index: 1;
+  a, button {
+    color: $link-color;
+    font-size: 0.8rem;
+  }
+}

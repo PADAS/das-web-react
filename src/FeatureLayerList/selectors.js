@@ -1,10 +1,11 @@
 import uniq from 'lodash/uniq';
+import { createSelector } from 'reselect';
 
-import { featureSets, analyzerFeatures, createSelector } from '../selectors';
+import { featureSets, analyzerFeatures } from '../selectors';
 import { getBoundsForAnalyzerFeatures } from '../utils/analyzers';
 
 export const getFeatureLayerListState = createSelector(
-  [featureSets],
+  [(state, props) => featureSets(state, props)],
   (featureSets) => featureSets.map((set) => {
     const typeNames = uniq(set.geojson.features.map(f => f.properties.type_name));
     const featuresByType = typeNames.map((name) => ({
@@ -20,7 +21,7 @@ export const getFeatureLayerListState = createSelector(
 );
 
 export const getAnalyzerListState = createSelector(
-  [analyzerFeatures],
+  [(state, props) => analyzerFeatures(state, props)],
   (analyzerFeatures) => {
     const features = (analyzerFeatures).map((analyzer) => {
       // aggregate the feature ids, and store them in the first feature,

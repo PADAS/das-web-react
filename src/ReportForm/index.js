@@ -7,7 +7,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
@@ -37,17 +37,19 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-import styles from './styles.module.scss';
-
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
+const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Footer } = EditableItem;
 
 const ReportForm = (props) => {
-  const { eventTypes, map, data: originalReport, fetchPatrol, removeModal, onSaveSuccess, onSaveError, relationshipButtonDisabled,
+  const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
 
+  const { navigateRelationships, relationshipButtonDisabled } = formProps;
+
   const formRef = useRef(null);
+  const submitButtonRef = useRef(null);
   const reportedBySelectPortalRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
@@ -73,7 +75,7 @@ const ReportForm = (props) => {
       if (!topRatedReportAndType) return report.priority;
 
       return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-        topRatedReportAndType.related_event.priority 
+        topRatedReportAndType.related_event.priority
         : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
           topRatedReportAndType.event_type.default_priority
           : report.priority;
@@ -119,6 +121,11 @@ const ReportForm = (props) => {
       if (changes.notes) {
         toSubmit.notes = report.notes;
       }
+
+      /* the API doesn't handle PATCHes of `contains` prop for incidents */
+      if (toSubmit.contains) {
+        delete toSubmit.contains;
+      }
     }
 
     if (toSubmit.hasOwnProperty('location') && !toSubmit.location) {
@@ -132,6 +139,7 @@ const ReportForm = (props) => {
     return executeSaveActions(actions)
       .then((results) => {
         onSaveSuccess(results);
+
         if (report.is_collection && toSubmit.state) {
           return Promise.all(report.contains
             .map(contained => contained.related_event.id)
@@ -159,15 +167,13 @@ const ReportForm = (props) => {
         });
     };
     if (saving) {
-      
+
       onSubmit();
     }
   }, [saving]); // eslint-disable-line
 
   const reportFiles = Array.isArray(report.files) ? report.files : [];
   const reportNotes = Array.isArray(report.notes) ? report.notes : [];
-
-  const disableAddReport = relationshipButtonDisabled;
 
   const onCancel = () => {
     removeModal();
@@ -182,7 +188,7 @@ const ReportForm = (props) => {
 
   const onAddFiles = files => {
     const uploadableFiles = filterDuplicateUploadFilenames([...reportFiles, ...filesToUpload], files);
-    
+
     updateFilesToUpload([...filesToUpload, ...uploadableFiles]);
     goToBottomOfForm();
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Added Attachment');
@@ -240,20 +246,20 @@ const ReportForm = (props) => {
     };
 
     if (selection
-      && selection.last_position 
-      && selection.last_position.geometry 
+      && selection.last_position
+      && selection.last_position.geometry
       && selection.last_position.geometry.coordinates) {
       updates.location = {
         latitude: selection.last_position.geometry.coordinates[1],
         longitude: selection.last_position.geometry.coordinates[0],
       };
     }
-    
+
     updateStateReport({
       ...report,
       ...updates,
     });
-    
+
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Report By');
   };
 
@@ -303,22 +309,12 @@ const ReportForm = (props) => {
     trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Change Report Location');
   }, [is_collection, report]);
 
-  const goToParentCollection = () => {
-    const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
-    trackEvent(`${is_collection?'Incident':'Event'} Report`, 'Click \'Go to Incident\' button');
-    return fetchEvent(incidentID).then(({ data: { data } }) => {
-      removeModal();
-      openModalForReport(data, map);
-      // removeModal();
-    });
-  };
-
   const onIncidentReportClick = (report) => {
-    trackEvent('Incident Report', 
-      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, 
+    trackEvent('Incident Report',
+      `Open ${report.is_collection?'Incident':'Event'} Report from Incident`,
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
-      openModalForReport(data, map, { relationshipButtonDisabled: true });
+      openModalForReport(data, map, { navigateRelationships: false });
     });
   };
 
@@ -326,12 +322,20 @@ const ReportForm = (props) => {
     setSavingState(true);
   };
 
+  const startSubmitForm = useCallback(() => {
+    if (is_collection) {
+      startSave();
+    } else if (submitButtonRef.current) {
+      submitButtonRef.current.click();
+    }
+  }, [is_collection]);
+
   const clearErrors = () => setSaveErrorState(null);
 
   const onClickFile = async (file) => {
     if (file.file_type === 'image') {
       const fileData = await fetchImageAsBase64FromUrl(file.images.original);
-        
+
       addModal({
         content: ImageModal,
         src: fileData,
@@ -433,31 +437,37 @@ const ReportForm = (props) => {
 
   const onUpdateStateReportToggle = useCallback((state) => {
     updateStateReport({ ...report, state });
+    startSubmitForm();
     trackEvent(`${is_collection?'Incident':'Event'} Report`, `Click '${state === 'resolved'?'Resolve':'Reopen'}' button`);
-  }, [is_collection, report]);
+  }, [is_collection, report, startSubmitForm]);
 
   const filesToList = [...reportFiles, ...filesToUpload];
   const notesToList = [...reportNotes, ...notesToAdd];
 
   const styles = {};
 
-  return <EditableItem.ContextProvider value={report}>
-  
+  return <ContextProvider value={report}>
+
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
     {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
-    <EditableItem.Header 
+    <Header
+      analyticsMetadata={{
+        category: 'Report Modal',
+        location: 'report modal',
+      }}
       icon={<EventIcon title={reportTypeTitle} report={report} />}
       menuContent={schema.readonly ? null : <HeaderMenuContent onPrioritySelect={onPrioritySelect} onStartAddToIncident={onStartAddToIncident} onStartAddToPatrol={onStartAddToPatrol} isPatrolReport={isPatrolReport}  />}
       priority={displayPriority} readonly={schema.readonly}
-      title={reportTitle} onTitleChange={onReportTitleChange} />
+      title={reportTitle} onTitleChange={onReportTitleChange}
+    />
 
-    <div ref={reportedBySelectPortalRef} style={{padding: 0}}></div>
+    <div ref={reportedBySelectPortalRef} style={{ padding: 0 }}></div>
 
-    <EditableItem.Body ref={scrollContainerRef}>
-      {is_collection && <IncidentReportsList reports={report.contains} 
+    <Body ref={scrollContainerRef}>
+      {is_collection && <IncidentReportsList reports={report.contains}
         onReportClick={onIncidentReportClick}>
-        <EditableItem.AttachmentList
+        <AttachmentList
           files={filesToList}
           notes={notesToList}
           onClickFile={onClickFile}
@@ -482,37 +492,39 @@ const ReportForm = (props) => {
           onSubmit={startSave}
           schema={schema}
           uiSchema={uiSchema}>
-          <EditableItem.AttachmentList
+          <AttachmentList
             files={filesToList}
             notes={notesToList}
             onClickFile={onClickFile}
             onClickNote={startEditNote}
             onDeleteNote={onDeleteNote}
             onDeleteFile={onDeleteFile} />
+          <button ref={submitButtonRef} type='submit' style={{ display: 'none' }}>Submit</button>
         </ReportFormBody>
       </Fragment>
       }
-    </EditableItem.Body>
+    </Body>
     {/* bottom controls */}
-    {!schema.readonly && <EditableItem.AttachmentControls
+    {!schema.readonly && <AttachmentControls
       onAddFiles={onAddFiles}
       onSaveNote={onSaveNote} >
 
-      <RelationshipButton
+      {!relationshipButtonDisabled && <RelationshipButton
         isCollection={is_collection}
+        removeModal={removeModal}
         map={map}
+        navigateRelationships={navigateRelationships}
         isCollectionChild={eventBelongsToCollection(report)}
-        onGoToCollection={goToParentCollection}
-        formProps={{relationshipButtonDisabled: disableAddReport}}
+        isPatrolReport={eventBelongsToPatrol(report)}
         hidePatrols={true}
         onNewReportSaved={onReportAdded}
-      />
+      />}
 
-    </EditableItem.AttachmentControls>}
+    </AttachmentControls>}
 
-    <EditableItem.Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSave} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
+    <Footer readonly={schema.readonly} onCancel={onCancel} onSave={startSubmitForm} onStateToggle={onUpdateStateReportToggle} isActiveState={reportIsActive(report.state)}/>
     {schema.readonly && <h6>This entry is &quot;read only&quot; and may not be edited.</h6>}
-  </EditableItem.ContextProvider>;
+  </ContextProvider>;
 };
 
 const mapStateToProps = (state, props) => ({
@@ -538,7 +550,7 @@ export default memo(
 );
 
 ReportForm.defaultProps = {
-  relationshipButtonDisabled: false,
+  formProps: {},
   onSaveSuccess() {
   },
   onSaveError(e) {
@@ -547,7 +559,7 @@ ReportForm.defaultProps = {
 };
 
 ReportForm.propTypes = {
-  relationshipButtonDisabled: PropTypes.bool,
+  formProps: PropTypes.object,
   data: PropTypes.object.isRequired,
   map: PropTypes.object.isRequired,
   onSubmit: PropTypes.func,

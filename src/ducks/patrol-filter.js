@@ -9,7 +9,7 @@ const defaultDateRange = {
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(
   defaultDateRange
 );
-  
+
 // ACTIONS
 const UPDATE_PATROL_FILTER = 'UPDATE_PATROL_FILTER';
 const RESET_PATROL_FILTER = 'RESET_PAROL_FILTER';
@@ -29,7 +29,7 @@ export const INITIAL_FILTER_STATE = {
     date_range: defaultDateRange,
     patrols_overlap_daterange: false,
     // patrol_type: [],
-    // text: '',
+    text: '',
     // leader: [],
   },
 };

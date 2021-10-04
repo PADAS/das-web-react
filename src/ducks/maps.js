@@ -29,7 +29,7 @@ const setHomeMapIfNecessary = (maps) => (dispatch, getState) => {
 
   if (!homeMap) {
     return dispatch(setHomeMap(defaultMap));
-  } 
+  }
 
   const homeMapClone = { ...homeMap };
   const homeMapFromApi = maps.find(map => map.id === homeMapClone.id);
@@ -45,12 +45,12 @@ const fetchMapsSuccess = (response) => dispatch => {
   const maps = response.data.data;
 
   dispatch(setHomeMapIfNecessary(maps));
-  
+
   dispatch({
     type: FETCH_MAPS_SUCCESS,
     payload: maps,
   });
-}; 
+};
 
 
 

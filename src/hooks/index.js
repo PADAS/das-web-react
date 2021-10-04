@@ -3,14 +3,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
-const useFeatureFlag = flag => 
+const useFeatureFlag = flag =>
   useSelector(state =>
     !!state?.view?.systemConfig?.[flag]
   );
 
 const usePermissions = (permissionKey, ...permissions) =>  {
   const permissionSet = useSelector(state => {
-    return state?.data?.user?.permissions?.[permissionKey];
+    const permissionsSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+
+    return permissionsSource?.permissions?.[permissionKey];
   }
   )
   || [];

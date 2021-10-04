@@ -1,9 +1,9 @@
 .main-map {
   h5 {
     line-height: normal;
-    margin: .1rem 0 0;
+    margin: 0.1rem 0 0;
   }
-  
+
   .mapboxgl-popup {
     z-index: 4 !important;
   }
@@ -13,10 +13,13 @@
     display: flex;
     flex-direction: column;
   }
-  .subject-marker-icon, .event-marker-icon {
+
+  .subject-marker-icon,
+  .event-marker-icon {
     height: 2rem;
     width: 2rem;
   }
+
   &.locked {
     div.mapbox-zoom-ctrl {
       pointer-events: none;
@@ -31,16 +34,20 @@
   left: 0.5rem;
   position: absolute;
   z-index: 6;
+
   > * {
     margin-bottom: 0.5rem;
   }
+
   .mapboxgl-popup {
     z-index: -1 !important;
   }
-  [type=button]:first-child {
+
+  [type="button"]:first-child {
     background: rgba(white, 0.8);
     // border-radius: 0.333rem;
-    &:hover, &:active {
+    &:hover,
+    &:active {
       background: white;
     }
   }
@@ -57,5 +64,18 @@
 .timeslider-active {
   .mapbox-scale-ctrl {
     display: none !important;
+  }
+}
+
+.compass-wrapper {
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.rotation-control {
+  > * {
+    height: 2.25rem !important;
+    width: 2.25rem !important;
   }
 }

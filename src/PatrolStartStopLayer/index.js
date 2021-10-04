@@ -9,7 +9,7 @@ import { patrolsWithTrackShown } from '../selectors/patrols';
 import StartStopLayer from './layer';
 
 
-const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props}) => {
+const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props }) => {
   const onSymbolClick = () => {};
 
   return <Fragment>

@@ -25,7 +25,7 @@ const ReportedBySelect = (props) => {
     selections
       .filter(({ id }) =>
         !recentRadios
-          .some(({ id:radioId }) =>
+          .some(({ id: radioId }) =>
             radioId === id
           )
       ), [recentRadios, selections]);
@@ -41,20 +41,20 @@ const ReportedBySelect = (props) => {
   };
 
   const selected = useMemo(() => {
+    if (!Boolean(value)) return null;
+
     if (isMulti) {
-      !!value && !!value.length &&
+      return value.length ?
         value.map(item =>
           item.hidden
             ? item
-            : selections.find(selections => selections.id === item.id)
-        );
+            : selections.find(selection => selection.id === item.id)
+        ) : value;
     }
 
-    return !!value
-      ? value.hidden
-        ? value
-        : selections.find(selections => selections.id === value.id)
-      : null;
+    return value.hidden
+      ? value
+      : selections.find(selection => selection.id === value.id);
 
   }, [isMulti, selections, value]);
 

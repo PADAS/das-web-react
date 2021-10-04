@@ -21,8 +21,8 @@ const InactiveRadioControl = (props) => {
   </label>;
 };
 
-const mapStateToProps = ( {view:{showInactiveRadios}} ) => {
-  return {showInactiveRadios};
+const mapStateToProps = ( { view: { showInactiveRadios } } ) => {
+  return { showInactiveRadios };
 };
 
-export default connect(mapStateToProps, {toggleShowInactiveRadioState})(withMap(InactiveRadioControl));
+export default connect(mapStateToProps, { toggleShowInactiveRadioState })(withMap(InactiveRadioControl));

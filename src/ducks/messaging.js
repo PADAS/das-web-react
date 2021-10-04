@@ -1,7 +1,12 @@
 import axios from 'axios';
 import unionBy from 'lodash/unionBy';
 
+import store from '../store';
+
 import { API_URL } from '../constants';
+
+
+import { messageIsValidForDisplay } from '../utils/messaging';
 
 const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
@@ -20,7 +25,7 @@ export const fetchMessagesSuccess = (payload, refresh = false) => ({
 export const updateMessageFromRealtime = payload => ({
   type: SOCKET_MESSAGE_UPDATE,
   payload,
-}); 
+});
 
 export const removeMessageById = id => ({
   type: REMOVE_MESSAGE,
@@ -59,15 +64,23 @@ export const messageListReducer = (state = INITIAL_MESSAGE_LIST_STATE, action) =
   const { refresh, type, payload } = action;
 
   if (type === FETCH_MESSAGES_SUCCESS) {
-    if (refresh) return payload;
+
+    const withOnlyValidMessages = {
+      ...payload,
+      results: payload.results.filter(msg => messageIsValidForDisplay(msg, store.getState().data.subjectStore)),
+    };
+
+    if (refresh) return withOnlyValidMessages;
 
     return {
       ...payload,
-      results: unionBy(state.results || [], payload.results, 'id')
+      results: unionBy(state.results || [], withOnlyValidMessages.results, 'id')
     };
   }
 
   if (type === SOCKET_MESSAGE_UPDATE) {
+    if (!messageIsValidForDisplay(payload, store.getState().data.subjectStore)) return state;
+
     return {
       ...state,
       results: unionBy([payload], state.results || [], 'id'),

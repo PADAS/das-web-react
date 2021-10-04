@@ -30,7 +30,7 @@ const AnalyzerListItem = memo((props) => {
     }, 200);
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
-    props.showPopup('analyzer-config', { geometry, properties, analyzerId: id, });
+    props.showPopup('analyzer-config', { geometry, properties, analyzerId: id, coordinates: geometry });
     trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
       `Feature Type:${properties.type_name}`);
   };

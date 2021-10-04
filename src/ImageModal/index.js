@@ -35,7 +35,7 @@ const ImageModal = (props) => {
       {!error && <img style={{ display: loaded ? 'block' : 'none' }} onError={setImageError} onLoad={setImageLoaded} src={src} alt={title} />}
       {error && <Fragment>
         <h5>Error loading image.</h5>
-        <h6>If you uploaded this file recently, please wait a minute and try again.</h6> 
+        <h6>If you uploaded this file recently, please wait a minute and try again.</h6>
       </Fragment>}
     </Body>
   </Fragment>;

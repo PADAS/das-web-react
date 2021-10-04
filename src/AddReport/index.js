@@ -1,4 +1,4 @@
-import React, { Fragment, forwardRef, memo, createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
+import React, { forwardRef, memo, createContext, useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Popover from 'react-bootstrap/Popover';
@@ -28,6 +28,19 @@ export const STORAGE_KEY = 'selectedAddReportTab';
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
+const CategoryList = ({ category, showTitle, onClickReportType }) =>
+  <div>
+    {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
+    <ul key={category.value} className={styles.reportTypeMenu}>
+      {category.types
+        .map(type => <li key={type.id}>
+          <button type='button' onClick={() => onClickReportType(type)}>
+            <EventTypeListItem {...type} />
+          </button>
+        </li>)}
+    </ul>
+  </div>;
+
 
 const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { categories, filter = '', onClickReportType } = props;
@@ -36,7 +49,7 @@ const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react
 
   const filteredCategories = categories
     .reduce((accumulator, category) => {
-      
+
       if (!category.types.length) return accumulator;
 
       if (category.display.toLowerCase().includes(filterText)) {
@@ -60,24 +73,11 @@ const ReportTypeList = forwardRef((props, ref) => { /* eslint-disable-line react
 
     }, []);
 
-  const createList = useCallback((category, showTitle) => 
-    <div>
-      {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
-      <ul key={category.value} className={styles.reportTypeMenu}>
-        {category.types
-          .filter(t => !t.readonly)
-          .map(type => <li key={type.id}>
-          <button type='button' onClick={() => onClickReportType(type)}>
-            <EventTypeListItem {...type} />
-          </button>
-        </li>)}
-      </ul>
-    </div>
-  , [onClickReportType]);
+
 
   return <div className={styles.reportTypeContainer} ref={ref}>
     {filteredCategories
-      .map(category => createList(category, categories.length > 1))}
+      .map(category => <CategoryList category={category} key={`${category.id}${category.value}`} showTitle={categories.length > 1} onClickReportType={onClickReportType} />)}
   </div>;
 });
 
@@ -133,7 +133,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
     }
   }, [activeTab, hasPatrols]);
 
-  return <Popover {...rest} ref={ref} className={styles.popover}> 
+  return <Popover {...rest} ref={ref} className={styles.popover}>
     <Popover.Content>
       <Tabs activeKey={activeTab} onSelect={onTabSelect} className={styles.tabBar}>
         <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
@@ -143,7 +143,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
             <Select
               className={styles.quickJumpSelect}
               value={quickJumpOption}
-              isSearchable={false}
+              isSearchable={true}
               onChange={onQuickJumpChange}
               options={eventsByCategory}
               placeholder='Jump to...'
@@ -175,10 +175,10 @@ const AddReport = (props) => {
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
 
   const patrolsEnabled = !!patrolFlagEnabled
-    && !!hasPatrolWritePermissions 
-    && !!patrolTypes.length 
+    && !!hasPatrolWritePermissions
+    && !!patrolTypes.length
     && !hidePatrols;
-  
+
   const patrolCategories = useMemo(() => patrolsEnabled && [generatePseudoReportCategoryForPatrolTypes(patrolTypes)], [patrolTypes, patrolsEnabled]);
 
   const targetRef = useRef(null);
@@ -236,13 +236,13 @@ const AddReport = (props) => {
     /* END PATROL_SCAFFOLD */
 
     const newReport = createNewReportForEventType(reportType, reportData);
-    
+
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
   }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
   return hasEventCategories &&
-  
+
   <PatrolTypesContext.Provider value={patrolCategories}>
     <ReportTypesContext.Provider value={eventsByCategory}>
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>

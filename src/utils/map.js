@@ -4,13 +4,39 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import format from 'date-fns/format';
 
 
-import { store } from '../';
+import store from '../store';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
 import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
+
+
+export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
+  let timeoutRemaining = MAX_TIMEOUT;
+
+  const tryToGetMapBounds = () => {
+    try {
+      const bounds = map.getBounds();
+      window.clearInterval(interval);
+      resolve(bounds);
+    } catch (error) {
+      if (timeoutRemaining < INTERVAL_LENGTH) {
+        window.clearInterval(interval);
+        return reject(error);
+      }
+    }
+  };
+
+  tryToGetMapBounds();
+
+  const interval = window.setInterval(() => {
+    timeoutRemaining = (timeoutRemaining-INTERVAL_LENGTH);
+    tryToGetMapBounds();
+  }, [INTERVAL_LENGTH]);
+});
+
 
 export const copyResourcePropertiesToGeoJsonByKey = (item, key) => {
   const clone = { ...item };
@@ -69,13 +95,13 @@ export const filterInactiveRadiosFromCollection = (subjects) => {
   return featureCollection([]);
 };
 
-export const addTitleWithDateToGeoJson = (geojson, title) => { 
+export const addTitleWithDateToGeoJson = (geojson, title) => {
   const displayTitle = geojson.properties.datetime ? title + '\n' + formatEventSymbolDate(geojson.properties.datetime) : title;
   return (geojson.properties.display_title = displayTitle) && geojson;
 };
 
-const setUpEventGeoJson = (events, eventTypes) => 
-  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event => 
+const setUpEventGeoJson = (events, eventTypes) =>
+  addIdToCollectionItemsGeoJsonByKey(events, 'geojson').map(event =>
     copyResourcePropertiesToGeoJsonByKey(event, 'geojson')).map(({ geojson, title, event_type }) => {
     const displayTitle = title || getEventTypeTitle(eventTypes, event_type);
     return addTitleWithDateToGeoJson(geojson, displayTitle);
@@ -98,7 +124,7 @@ const setUpSubjectGeoJson = subjects =>
       geojson
     );
 
-const featureCollectionFromGeoJson = geojson_collection => 
+const featureCollectionFromGeoJson = geojson_collection =>
   featureCollection(
     geojson_collection
       .filter(({ geometry, properties }) => !!geometry && !!properties)

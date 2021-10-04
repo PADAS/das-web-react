@@ -7,7 +7,7 @@ import buffer from '@turf/buffer';
 import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
-import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
+import { addMapImage } from '../utils/map';
 import { addBounceToEventMapFeatures } from '../utils/events';
 
 import { withMap } from '../EarthRangerMap';
@@ -20,7 +20,7 @@ import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, IF_IS_GENERIC, 
 
 export const CLUSTER_CONFIG = {
   cluster: true,
-  clusterMaxZoom: MAX_ZOOM, // Max zoom to cluster points on
+  clusterMaxZoom: MAX_ZOOM - 1, // Max zoom to cluster points on
   clusterRadius: 40,
 };
 
@@ -93,7 +93,7 @@ const EventsLayer = (props) => {
 
   useEffect(() => {
     setBounceIDs(bounceEventIDs ? bounceEventIDs : []);
-    setAnimationState({frame: 1, scale: 0.0, isRendering: (bounceEventIDs.length > 0)});
+    setAnimationState({ frame: 1, scale: 0.0, isRendering: (bounceEventIDs.length > 0) });
   }, [bounceEventIDs]);
 
   const handleClusterClick = (e) => {
@@ -110,7 +110,7 @@ const EventsLayer = (props) => {
   useEffect(() => {
     setMapEventFeatureCollection({
       ...eventsWithBounce,
-      features: eventsWithBounce.features.filter(feature => 
+      features: eventsWithBounce.features.filter(feature =>
         !map.hasImage(
           calcSvgImageIconId(feature)
         )
@@ -137,7 +137,7 @@ const EventsLayer = (props) => {
         addMapImage({ src: ClusterIcon, id: 'event-cluster-icon' });
       }
     };
-    
+
     addClusterIconToMap();
   }, [map]);
 
@@ -155,12 +155,12 @@ const EventsLayer = (props) => {
           if (results && results.length > 2) {
             try {
               const concaved = concave(featureCollection(results));
-              
+
               if (!concaved) return;
-              
+
               const buffered = buffer(concaved, 0.2);
               const simplified = simplify(buffered, { tolerance: 0.005 });
-              
+
               setClusterBufferPolygon(simplified);
             } catch (e) {
               /* there are plenty of reasons a feature collection, coerced through this chain of transformations, may error. it may make an illegal shape, create a
@@ -173,7 +173,7 @@ const EventsLayer = (props) => {
       }
     }
   }, [clusterGeometryIsSet, map]);
-  
+
   const onClusterMouseLeave = useCallback(() => {
     setClusterBufferPolygon(featureCollection([]));
   }, []);
@@ -190,14 +190,14 @@ const EventsLayer = (props) => {
     const updatedScale = Math.sin(ANIMATION_INTERVAL * currFrame);
     if (bounceIDs.length) {
       // assumes first increment of animation curve val> 0
-      if(Math.abs(updatedScale) > 1e-8)
+      if (Math.abs(updatedScale) > 1e-8)
       {
         setTimeout(() => {
-          setAnimationState({frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true});
+          setAnimationState({ frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true });
         } , 1000 / FRAMES_PER_SECOND);
       } else {
         setBounceIDs([]);
-        setAnimationState({frame: 1, scale: 0.0, isRendering: false});
+        setAnimationState({ frame: 1, scale: 0.0, isRendering: false });
       }
     }
   }, [animationState.frame, bounceIDs.length]);
@@ -226,10 +226,10 @@ const EventsLayer = (props) => {
     'icon-size': [
       'interpolate', ['exponential', 0.5], ['zoom'],
       0, IF_IS_GENERIC(
-        SCALE_ICON_IF_BOUNCED(0.125/MAP_ICON_SCALE, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(0.125/MAP_ICON_SCALE, ICON_SCALE_RATE),
         SCALE_ICON_IF_BOUNCED(0.25/MAP_ICON_SCALE, ICON_SCALE_RATE)),
       12, IF_IS_GENERIC(
-        SCALE_ICON_IF_BOUNCED(0.5/MAP_ICON_SCALE, ICON_SCALE_RATE), 
+        SCALE_ICON_IF_BOUNCED(0.5/MAP_ICON_SCALE, ICON_SCALE_RATE),
         SCALE_ICON_IF_BOUNCED(1/MAP_ICON_SCALE, ICON_SCALE_RATE)),
     ],
     'icon-image': ['concat',
@@ -244,7 +244,7 @@ const EventsLayer = (props) => {
         ],
         ''],
       ['case',
-        ['has', 'height'], 
+        ['has', 'height'],
         [ 'concat',
           '-',
           ['get', 'height'],
@@ -300,7 +300,7 @@ const EventsLayer = (props) => {
       />
 
       <Layer minZoom={minZoom} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
-        filter={['has', 'point_count']} onClick={handleClusterClick} layout={{...clusterSymbolLayout, 'visibility': enableClustering ? 'visible' : 'none'}} paint={clusterSymbolPaint}
+        filter={['has', 'point_count']} onClick={handleClusterClick} layout={{ ...clusterSymbolLayout, 'visibility': enableClustering ? 'visible' : 'none' }} paint={clusterSymbolPaint}
         onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave} />
 
       <Layer minZoom={minZoom} maxZoom={MAX_ZOOM - 2} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />

@@ -31,12 +31,12 @@ const DailyReportModal = (props) => {
     }
   };
 
-  const setParamsForYesterday = () => { 
+  const setParamsForYesterday = () => {
     setParamsFor('yesterday');
     trackEvent('Report Export', 'Click \'Yesterday\'s Report\' button', null);
   };
 
-  const setParamsForToday = () => { 
+  const setParamsForToday = () => {
     setParamsFor('today');
     trackEvent('Report Export', 'Click \'Today\'s Report\' button', null);
   };
@@ -59,7 +59,7 @@ const DailyReportModal = (props) => {
     handleInputChange('end', value);
   };
 
-  const exportParams = {before: customEndDate, since: customStartDate};
+  const exportParams = { before: customEndDate, since: customStartDate };
 
   return <DataExportModal {...props} title='Daily Report' url='reports/sitrep.docx' params={exportParams}>
     <div className={styles.controls}>
@@ -67,7 +67,7 @@ const DailyReportModal = (props) => {
       <Button type="button" onClick={setParamsForToday}>Today&apos;s Report</Button>
     </div>
     <DateRangeSelector
-      className={styles.controls} 
+      className={styles.controls}
       popoverClassName={styles.popovers}
       maxDate={today}
       startDate={customStartDate}

@@ -1,7 +1,8 @@
 import uniq from 'lodash/uniq';
 import isAfter from 'date-fns/is_after';
+import { createSelector } from 'reselect';
 
-import { createSelector, createEqualitySelector, getTimeSliderState } from './';
+import { createEqualitySelector, getTimeSliderState } from './';
 import { getSubjectStore } from './subjects';
 
 import { trimmedVisibleTrackData, tracks } from './tracks';
@@ -12,8 +13,8 @@ export const getPatrolStore = ({ data: { patrolStore } }) => patrolStore;
 const getPatrols = ({ data: { patrols } }) => patrols;
 const getPatrolFromProps = (_state, { patrol }) => patrol;
 export const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
-  !!patrol.patrol_segments 
-  && !!patrol.patrol_segments.length 
+  !!patrol.patrol_segments
+  && !!patrol.patrol_segments.length
   && !!patrol.patrol_segments[0].leader
   && tracks[patrol.patrol_segments[0].leader.id];
 export const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
@@ -93,7 +94,7 @@ export const patrolsWithTrackShown = createSelector(
 
 
 export const visibleTrackedPatrolData = createSelector(
-  [tracks, patrolsWithTrackShown, getSubjectStore, getTimeSliderState],
+  [(...args) => tracks(...args), patrolsWithTrackShown, getSubjectStore, (...args) => getTimeSliderState(...args)],
   (tracks, patrols, subjectStore, timeSliderState) => {
 
     return patrols
@@ -107,13 +108,13 @@ export const visibleTrackedPatrolData = createSelector(
 );
 
 export const visibleTrackDataWithPatrolAwareness = createSelector(
-  [trimmedVisibleTrackData, patrolsWithTrackShown],
+  [(...args) => trimmedVisibleTrackData(...args), patrolsWithTrackShown],
   (trackData, patrolsWithTrackShown) => trackData.map((t) => {
     const trackSubjectId = t.track.features[0].properties.id;
     const hasPatrolTrackMatch = patrolsWithTrackShown.some(p =>
-      p.patrol_segments 
-      && !!p.patrol_segments.length 
-      && p.patrol_segments[0].leader 
+      p.patrol_segments
+      && !!p.patrol_segments.length
+      && p.patrol_segments[0].leader
       && p.patrol_segments[0].leader.id === trackSubjectId
     );
     return {

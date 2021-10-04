@@ -17,10 +17,9 @@ import { trackEvent } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const EditableItemHeader = (props) => {
-  const { /* addModal,  */analyticsMetadata, readonly, afterMenuToggle, children, priority, icon:Icon, menuContent: MenuContent, title:titleProp, onTitleChange, /* onAddToNewIncident, onAddToExistingIncident */ } = props;
+  const { analyticsMetadata, readonly, afterMenuToggle, children, priority, icon: Icon, menuContent: MenuContent, title: titleProp, onTitleChange, maxTitleLength } = props;
 
   const data = useContext(FormDataContext);
-  
   const menuRef = useRef(null);
   const historyRef = useRef(null);
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
@@ -56,7 +55,7 @@ const EditableItemHeader = (props) => {
 
   const handleEscapePress = (event) => {
     const { key } = event;
-    if (key === 'Escape' 
+    if (key === 'Escape'
     && (headerPopoverOpen || historyPopoverOpen)) {
       event.preventDefault();
       event.stopPropagation();
@@ -64,13 +63,13 @@ const EditableItemHeader = (props) => {
       setHistoryPopoverState(false);
     }
   };
-  
+
   const onHamburgerMenuIconClick = () => {
     setHeaderPopoverState(!headerPopoverOpen);
     afterMenuToggle && afterMenuToggle(!headerPopoverOpen);
     !!analyticsMetadata && trackEvent(analyticsMetadata.category, `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`);
   };
-  
+
 
   const onHistoryClick = () => {
     setHistoryPopoverState(!historyPopoverOpen);
@@ -110,7 +109,7 @@ const EditableItemHeader = (props) => {
         </span>
       }
       {data.serial_number && <span>{data.serial_number}</span>}
-      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} />
+      <InlineEditable editing={editingTitle} onClick={startTitleEdit} onChange={onTitleChange} onEsc={cancelTitleEdit} onCancel={cancelTitleEdit} value={title} onSave={onSaveTitle} maxLength={maxTitleLength} />
       {children}
       <div className={styles.headerDetails}>
         {!!MenuContent && <Fragment>
@@ -135,7 +134,7 @@ const EditableItemHeader = (props) => {
 export default memo(EditableItemHeader);
 
 EditableItemHeader.propTypes = {
-  analyticsMetadata: CustomPropTypes.analyticsMetaData,
+  analyticsMetadata: CustomPropTypes.analyticsMetadata,
   afterMenuToggle: PropTypes.func,
   data: PropTypes.object,
   title: PropTypes.string,
@@ -147,5 +146,6 @@ EditableItemHeader.propTypes = {
   MenuContent: PropTypes.oneOfType([
     PropTypes.element, PropTypes.node,
   ]),
+  maxTitleLength: PropTypes.number,
 };
 

@@ -15,11 +15,11 @@ import styles from './styles.module.scss';
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
-  const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation, 
-    zoom, updateUserPreferences, iconOverride, className, setBounceEventIDs, dispatch:_dispatch, ...rest } = props;
+  const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation,
+    zoom, updateUserPreferences, iconOverride, className, setBounceEventIDs, dispatch: _dispatch, ...rest } = props;
 
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
-  
+
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
       coordinates.every(coords => validateLngLat(coords[0], coords[1]))
@@ -41,7 +41,7 @@ const LocationJumpButton = (props) => {
     closeSidebarForSmallViewports();
   };
 
-  const defaultIcon = isMulti? 
+  const defaultIcon = isMulti?
     <Fragment><MarkerIcon /><MarkerIcon /></Fragment> : <MarkerIcon />;
 
   return isValidLocation && <button title="Jump to this location" type="button"

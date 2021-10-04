@@ -7,7 +7,7 @@ import isThisYear from 'date-fns/is_this_year';
 
 import { displayEndTimeForPatrol, displayStartTimeForPatrol, isPatrolCancelled } from './patrols';
 import { objectToParamString } from './query';
-import { store } from '../';
+import store from '../store';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 
@@ -19,12 +19,12 @@ export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INI
 
 export const calcPatrolFilterForRequest = (options = {}) => {
   const { data: { patrolFilter } } = store.getState();
-  const { filter: { patrols_overlap_daterange }} = patrolFilter;
+  const { filter: { patrols_overlap_daterange } } = patrolFilter;
   const { params } = options;
   const  filterParams = merge({}, patrolFilter, params);
   // only apply current filter settings if it is modified, otherwise allow overlap
   filterParams.filter.patrols_overlap_daterange = isDateFilterModified(patrolFilter) ? patrols_overlap_daterange : true;
-  return objectToParamString(filterParams);  
+  return objectToParamString(filterParams);
 };
 
 export const validatePatrolAgainstPatrolFilter = (patrol) => {
@@ -37,7 +37,7 @@ export const validatePatrolAgainstPatrolFilter = (patrol) => {
 
     const patrolStartDateBeforeUpperRange = () => (upper && patrolStart &&
       (patrolStart.getTime() >= new Date(upper).getTime()));
-    
+
     const patrolEndDateAfterLowerRange = () => (upper && patrolEnd &&
       (patrolEnd.getTime() > new Date(lower).getTime()));
 
@@ -54,14 +54,14 @@ export const validatePatrolAgainstPatrolFilter = (patrol) => {
     };
 
     return patrolStartDateBeforeUpperRange()
-      && (patrolEndDateAfterLowerRange() 
-      || patrolEndDateBeforeLowerRange() 
+      && (patrolEndDateAfterLowerRange()
+      || patrolEndDateBeforeLowerRange()
       || patrolEndDateBeforeToLowerAndNotDoneOrCancelled()
       || patrolEndDateUndefinedAndNotCancelled());
 
   };
 
-  return patrolMatechesDateFilter(); 
+  return patrolMatechesDateFilter();
 };
 
 
@@ -84,7 +84,7 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
   };
 
   const rangeIsWithinCurrentYear = isThisYear(lowerDate) && isThisYear(upperDate);
-  
+
 
   if (isSameDay(lowerDate, upperDate)) {
     const titleDateFormatString = `D MMMM${rangeIsWithinCurrentYear ? '' : ' YYYY'}`;
@@ -112,6 +112,6 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
     returnValue.title = `Patrols: ${format(lowerDate, titleDateFormatString)} - ${format(upperDate, titleDateFormatString)}`;
     returnValue.details = `${format(lowerDate, detailsDateFormatString)} - ${format(upperDate, detailsDateFormatString)}`;
   }
-  
+
   return returnValue;
 };

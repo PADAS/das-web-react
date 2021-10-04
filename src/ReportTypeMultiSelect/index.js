@@ -33,15 +33,15 @@ const filterEventTypes = (eventTypes, filterText) =>
 
 
 const ReportTypeMultiSelect = (props) => {
-  const { eventTypes, filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
+  const { eventTypes = [], filter, onFilterChange, onCategoryToggle, selectedReportTypeIDs, onTypeToggle, onFilteredItemsSelect } = props;
 
   const noEventTypeSetInFilter = !selectedReportTypeIDs.length;
 
-  const onSearchValueChange = ({ target: { value } }) => { 
+  const onSearchValueChange = ({ target: { value } }) => {
     onFilterChange(value);
   };
 
-  const onFilterClear = () => { 
+  const onFilterClear = () => {
     onFilterChange('');
     trackEvent('Event Filter', 'Clear Report Type Text Filter');
   };
