@@ -70,7 +70,7 @@ body {
     }
 
     .mapboxgl-ctrl-bottom-right,
-    .mapbox-scale-ctrl,
+    .mapboxgl-ctrl-scale,
     .mapbox-zoom-ctrl {
       display: none !important;
     }
@@ -309,8 +309,8 @@ aside {
       }
     }
 
-    .mapbox-scale-ctrl {
-      transform: translate(0, -0.9rem);
+    .mapboxgl-ctrl-scale {
+      transform: translate(0, -0.8rem);
     }
 
     .mapbox-zoom-ctrl {
@@ -470,7 +470,7 @@ aside {
 }
 
 .mapboxgl-ctrl-bottom-right,
-.mapbox-scale-ctrl,
+.mapboxgl-ctrl-scale,
 .mapbox-zoom-ctrl {
   transition: transform 0.3s ease-in-out;
 }
@@ -507,12 +507,12 @@ aside {
   }
 }
 
-.mapbox-scale-ctrl {
+.mapboxgl-ctrl-scale {
   opacity: 0.6;
-  transform: translate(-0.55rem, -0.9rem);
+  transform: translate(-0.55rem, -0.8rem);
 
   @media (min-width: $md-layout-width-min) {
-    transform: translate(-5.05rem, -0.9rem);
+    transform: translate(-7.05rem, -0.8rem);
   }
 }
 
@@ -524,7 +524,7 @@ aside {
   }
 }
 
-.mapbox-scale-ctrl {
+.mapboxgl-ctrl-scale {
   margin-right: 2rem;
 }
 
