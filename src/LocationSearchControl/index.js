@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useRef, useState, useEffect, useContext, useCallback, memo } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
@@ -12,9 +13,11 @@ import { MapContext } from '../App';
 import { showPopup } from '../ducks/popup';
 import styles from './styles.module.scss';
 
-const LocationSearch = () => {
+const LocationSearch = (props) => {
+  const { showPopup } = props;
   const buttonRef = useRef(null);
   const wrapperRef = useRef(null);
+  const inputRef = useRef();
   const [active, setActiveState] = useState(false);
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState('');
@@ -59,11 +62,16 @@ const LocationSearch = () => {
     };
   }, [active, toggleActiveState]);
 
-  // listens to onChange events
+  // debouncing the API call
+  useEffect(() => {
+    inputRef.current = _.debounce(fetchLocation, 500);
+  }, []);
+
+  // listens to Change events
   const handleSearchChange = (e) => {
     const searchWord = e.target.value;
     setQuery(searchWord);
-    if (query.length > 1) { fetchLocation(); };
+    inputRef.current(searchWord);
   };
 
   // invoked when clear button is clicked
@@ -88,7 +96,7 @@ const LocationSearch = () => {
   };
 
   // make api call to google geocode api
-  const fetchLocation = async() => {
+  const fetchLocation = async(query) => {
     setIsLoading(true);
     const url = `${API_URL}coordinates?query=${query}`;
     const response = await axios.get(url);
@@ -146,25 +154,12 @@ const LocationSearch = () => {
       jumpToLocation(map, coords);
       const resultIndex = parseInt(e.target.id);
       setSelectedLocation(locations[resultIndex]);
-      // addMarker(resultIndex);
+      const point = locations[resultIndex];
+      const coordinates = { lng: point.coordinates[1], lat: point.coordinates[0] };
+      showPopup('marker', { coordinates } );
       setLocations([]);
       setQuery('');
     };
-  };
-
-  // add marker function
-  const addMarker = (index) => {
-    // on search result item click
-    const point = locations[index];
-    if (point) {
-      const coordinates = [point.coordinates[1], point.coordinates[0]];
-      showPopup('dropped-marker', { coordinates });
-    } else {
-      locations.forEach(point => {
-        const coordinates = [point.coordinates[1], point.coordinates[0]];
-        showPopup('dropped-marker', { coordinates });
-      });
-    }
   };
 
   return <div className={styles.wrapper} ref={wrapperRef}>

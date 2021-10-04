@@ -125,4 +125,10 @@ $filtered-color : $highlight-color;
 
 li:hover {
   cursor: pointer;
+  background-color: lightgrey;
+  border-radius: 5px;
+}
+
+li {
+  margin: 3px;
 }
