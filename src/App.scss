@@ -219,7 +219,7 @@ aside {
   }
 
   @media (min-width: $md-layout-width-min) {
-    max-width: 22rem;
+    max-width: 25rem;
     right: 4.5rem;
     top: 0.5rem;
   }
@@ -290,6 +290,12 @@ aside {
   width: 100vw;
   z-index: 1;
 
+  .mapboxgl-map {
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+    width: 100vw;
+  }
+
   &.sidebar-open {
     .floating-report-filter {
       opacity: 0;
@@ -318,12 +324,6 @@ aside {
     .mapboxgl-ctrl-attrib.er-map {
       right: 0;
     }
-  }
-
-  .mapboxgl-map {
-    height: 100%;
-    transition: width 0.3s ease-in-out;
-    width: 100vw;
   }
 }
 
@@ -531,6 +531,11 @@ aside {
 .btn-primary {
   background-color: $primary-button-color;
   border-color: $primary-button-color;
+}
+
+.btn-light {
+  background: $light-gray;
+  color: $secondary-medium-gray;
 }
 
 .app-container h1,

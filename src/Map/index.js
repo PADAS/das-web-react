@@ -612,7 +612,11 @@ class Map extends Component {
                 <RotationControl
                   className='rotation-control'
                   style={{
-                    position: 'relative', top: 'auto', margin: '0.5rem 0 0 0.5rem', borderStyle: 'none', borderRadius: '0.25rem'
+                    position: 'relative',
+                    top: 'auto',
+                    margin: '0.5rem 0 0 0.5rem',
+                    borderStyle: 'none',
+                    borderRadius: '0.25rem',
                   }}
                 />
                 <CursorGpsDisplay />

@@ -29,7 +29,7 @@ export const INITIAL_FILTER_STATE = {
     date_range: defaultDateRange,
     patrols_overlap_daterange: false,
     // patrol_type: [],
-    // text: '',
+    text: '',
     // leader: [],
   },
 };

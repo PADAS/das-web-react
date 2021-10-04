@@ -12,7 +12,8 @@
   padding: 0.5rem;
   position: relative;
   z-index: 2;
-  .filterDetails { 
+
+  .filterDetails {
     font-size: 75%;
     line-height: normal;
     margin-top: 0.5rem;
@@ -24,10 +25,11 @@
 .search {
   margin-bottom: 0;
   margin-right: 0.5rem;
-  width: 50%;
+  width: 40%;
+
   @media (min-width: $md-layout-width-min) {
     margin-right: unset;
-    width: 62%;
+    width: 50%;
   }
 }
 
@@ -36,27 +38,31 @@
   flex-wrap: wrap;
   position: relative;
   z-index: 1;
+
   > label {
     width: 100%;
     padding-right: 0.25rem;
+
     + label {
       padding-left: 0.25rem;
     }
+
     @media (min-width: $md-layout-width-min) {
       width: 50%;
     }
   }
 }
 
-
 .filterPopover {
   > [class*=arrow]::after {
     border-bottom-color: $popover-header-color;
   }
+
   [class*=popover-header] {
     background: $highlight-color;
     color: white;
-    padding: 1.0rem;
+    padding: 1rem;
+
     &::before {
       display: none;
     }
@@ -65,24 +71,30 @@
 
 div.filterPopover {
   --content-height: 32rem;
+
   max-height: var(--content-height);
   max-width: 29rem;
   width: 90vw;
+
   &[class*=bs-popover-bottom] {
     @media (min-width: $md-layout-width-min) {
       margin-left: -5rem;
+
       > [class*=arrow] {
         margin-left: 5rem;
       }
     }
   }
+
   [class*=popover-body] {
     overflow: hidden;
     padding: 0;
   }
+
   [class*=Collapsible__trigger] {
     cursor: pointer;
   }
+
   &.filters {
     overflow: hidden;
   }
@@ -96,6 +108,26 @@ div.filterPopover {
 }
 
 .popoverTrigger {
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    margin-right: 0.5rem;
+
+    * {
+      stroke: gray;
+    }
+  }
+
+  &[class*=btn-primary] {
+    svg {
+      * {
+        stroke: white;
+      }
+    }
+  }
+}
+
+/* .popoverTrigger {
   --transition-timing: 0.15s;
   align-items: center;
   color: lighten($primary-font-color, 22.5%);
@@ -144,13 +176,15 @@ div.filterPopover {
       }
     }
   }
-}
+} */
 
-.filterTitle, .popoverTitle {
+.filterTitle,
+.popoverTitle {
   align-items: center;
   display: flex;
   line-height: normal;
   width: 100%;
+
   button {
     margin-left: auto;
   }
@@ -158,22 +192,27 @@ div.filterPopover {
 
 .popoverTitle {
   --dimensions: 1.5rem;
+
   background: $highlight-color;
+
   svg {
     height: var(--dimensions);
-    margin-right: 1.0rem;
+    margin-right: 1rem;
     width: var(--dimensions);
+
     * {
       stroke: white;
     }
   }
 }
 
-.closedFilterDrawer, .openedFilterDrawer {
+.closedFilterDrawer,
+.openedFilterDrawer {
   border-bottom: 1px solid $gray-border;
 }
 
-.closedFilterDrawer, .openedFilterDrawer {
+.closedFilterDrawer,
+.openedFilterDrawer {
   &:last-of-type {
     border: none;
   }
@@ -199,6 +238,7 @@ div.filterPopover {
   font-size: 0.3rem;
   height: 1.5rem;
   margin-right: 0.5rem;
+
   span {
     margin-left: -0.25rem;
   }
@@ -217,9 +257,11 @@ div.filterPopover {
     max-height: 24rem;
     overflow-y: auto !important;
   }
+
   &.reportTypeDrawer {
     [class*=Collapsible__contentOuter] {
       overflow-y: hidden !important;
+
       [class*=Collapsible__contentInner] {
         height: 70vh;
         max-height: 24rem;
@@ -228,7 +270,8 @@ div.filterPopover {
   }
 }
 
-.filterRow, .stateList {
+.filterRow,
+.stateList {
   align-items: center;
   display: flex;
 }
@@ -241,27 +284,32 @@ div.filterPopover {
   font-weight: 600;
 }
 
-
 .filterRow {
   border-bottom: 1px solid $gray-border;
   justify-content: space-between;
   padding: 0.5rem;
+
   > svg {
     --dimensions: 1.5rem;
+
     height: var(--dimensions);
     width: var(--dimensions);
   }
+
   label {
     margin-bottom: 0;
   }
+
   &.priorityRow {
     label {
       display: none;
+
       @media (min-width: $md-layout-width-min) {
         display: initial;
       }
     }
   }
+
   &.reportTypeRow {
     flex-flow: column;
     height: 20rem;
@@ -270,7 +318,9 @@ div.filterPopover {
   }
 }
 
-.reportedBySelect, .stateList, .priorityPicker {
+.reportedBySelect,
+.stateList,
+.priorityPicker {
   flex: 1;
   flex-flow: row;
   margin-left: 0.5rem;
@@ -278,6 +328,7 @@ div.filterPopover {
 
 .priorityPicker {
   margin-left: 0;
+
   @media (min-width: $md-layout-width-min) {
     margin-left: 0.5rem;
   }
@@ -287,9 +338,11 @@ div.filterPopover {
   font-size: 0.65rem;
   white-space: nowrap;
   width: 25%;
+
   button {
     width: 100%;
   }
+
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
     white-space: initial;

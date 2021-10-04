@@ -1,56 +1,43 @@
 @import '../common/styles/layout';
 @import '../common/styles/vars/colors';
 
-.dateSelect {
+.form {
+  align-items: center;
   display: flex;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
-  > label {
-    width: 100%;
-    padding-right: 0.25rem;
-    + label {
-      padding-left: 0.25rem;
+  padding: 1.25rem 0.5rem 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.search {
+  margin-bottom: 0;
+  margin-right: 0.75rem;
+  width: 40%;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
+}
+
+.dateFilterButton {
+  margin-right: 0.75rem;
+}
+
+.popoverTrigger {
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    margin-right: 0.5rem;
+
+    * {
+      stroke: gray;
     }
-    @media (min-width: $md-layout-width-min) {
-      width: 50%;
+  }
+
+  &[class*=btn-primary] {
+    svg {
+      * {
+        stroke: white;
+      }
     }
   }
 }
-
-.filterSelection {
-  div {
-    display: block;
-    clear: both;
-  }
-  span {
-    display: block;
-    padding-left: 20px;
-    cursor: inherit;
-  }
-  label {
-    margin-top: 0.25rem;
-    margin-left: 0.25;
-  }
-  input {
-    float: left;
-    width: 20px;
-    margin-left: -20px;
-    margin-top: 0.55rem; 
-    padding: 0;
-    -webkit-appearance: radio;
-  }
-}
-
-.filterTooltip {
-  [class$=inner] {
-    background: white;
-    color: black;
-    border: 1px solid $light-gray-border;
-  }
-  [class$=arrow] {
-    display: none !important;
-  }
-}
-
-

@@ -18,12 +18,13 @@ import { caseInsensitiveCompare } from '../utils/string';
 import PatrolFilterDateRangeSelector from '../PatrolFilter/DateRange';
 import PatrolFilterSettings from '../PatrolFilter/PatrolFilterSettings';
 // import ReportedBySelect from '../ReportedBySelect';
-/* import SearchBar from '../SearchBar';
-import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg'; */
+import SearchBar from '../SearchBar';
+// import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 // import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from '../EventFilter/styles.module.scss';
+import patrolFilterStyles from './styles.module.scss';
 
 /* const PATROL_STATUS_CHOICES = [
   { value: 'cancelled', 
@@ -45,7 +46,7 @@ import styles from '../EventFilter/styles.module.scss';
 ]; */
 
 const PatrolFilter = (props) => {
-  const { children, className, patrolFilter, /* reporters, */ resetGlobalDateRange, updatePatrolFilter } = props;
+  const { children, className = '', patrolFilter, /* reporters, */ resetGlobalDateRange, updatePatrolFilter } = props;
   const { /* status, */ filter: { date_range, /* patrol_type: currentFilterReportTypes, */ /* leader, */ text } } = patrolFilter;
 
   // const patrolTypeFilterEmpty = currentFilterReportTypes && !currentFilterReportTypes.length;
@@ -155,6 +156,8 @@ const PatrolFilter = (props) => {
     trackEvent('Reports', 'Filters Icon Clicked');
   }, []);
 
+  */
+
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
     trackEvent('Patrol Filter', 'Change Search Text Filter');
@@ -164,10 +167,10 @@ const PatrolFilter = (props) => {
     e.stopPropagation();
     setFilterText('');
     trackEvent('Patrol Filter', 'Clear Search Text Filter');
-  }, []); */
+  }, []);
 
   useEffect(() => {
-    if (filterText && !caseInsensitiveCompare(filterText, text)) {
+    if (!caseInsensitiveCompare(filterText, text)) {
       if (!!filterText.length) {
         updatePatrolFilterDebounced.current({
           filter: { text: filterText },
@@ -181,7 +184,7 @@ const PatrolFilter = (props) => {
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (filterText && !caseInsensitiveCompare(filterText, text)) {
+    if (!caseInsensitiveCompare(filterText, text)) {
       setFilterText(text);
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -223,25 +226,23 @@ const PatrolFilter = (props) => {
   //   </Popover.Content>
   // </Popover>;
 
-  return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
-    <div className={styles.controls}  ref={containerRef}>
-      {/* <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
+  return <div ref={containerRef} className={`${patrolFilterStyles.form} ${className}`} onSubmit={e => e.preventDefault()}>
+    {/* <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
         <span className={`${styles.popoverTrigger} ${filterModified ? styles.modified : ''}`}>
           <FilterIcon className={styles.filterIcon} onClick={onPatrolFilterIconClicked} />
           <span>Filter</span>
         </span>
       </OverlayTrigger> */}
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-        <span className={`${styles.popoverTrigger} ${dateRangeModified ? styles.modified : ''}`} onClick={onDateFilterIconClicked}>
-          <ClockIcon className={styles.clockIcon} />
-          <span>Dates</span>
-        </span>
-      </OverlayTrigger>
-      {/*  <SearchBar className={styles.search} placeholder='Search Patrols...' value={filterText}
-        onChange={onSearchChange} onClear={onSearchClear} /> */}
-      {children}
-    </div>
-  </form>;
+    <SearchBar className={`${styles.search} ${patrolFilterStyles.search}`} placeholder='Search Patrols...' value={filterText}
+        onChange={onSearchChange} onClear={onSearchClear} />
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
+      <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`} onClick={onDateFilterIconClicked}>
+        <ClockIcon className={styles.clockIcon} />
+        <span>Dates</span>
+      </Button>
+    </OverlayTrigger>
+    {children}
+  </div>;
 };
 
 const mapStateToProps = (state) =>
