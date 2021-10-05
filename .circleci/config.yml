@@ -35,6 +35,7 @@ executors:
   gcloud:
     docker:
       - image: "google/cloud-sdk:269.0.0"
+    resource_class: xlarge
 
 jobs:
   production_build:
