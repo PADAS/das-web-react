@@ -30,20 +30,17 @@ export const getBboxParamsFromMap = async (map, asString = true) => {
   return asString ? toString(finalBounds) : finalBounds;
 };
 
-export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, onEach = null, resultsToDate = []) =>
-  initialQuery
+export const recursivePaginatedQuery = async (initialQuery, onEach = null, resultsToDate = []) => {
+  return initialQuery
     .then((response) => {
       if (response) {
-        const { data: { data: res } } = response;
+        const { data: { data: res }, config } = response;
         const { results, next } = res;
 
         onEach && onEach(results);
 
-        const config = {};
-        if (cancelToken) config.cancelToken = cancelToken;
-
         if (next) {
-          return recursivePaginatedQuery(get(next, config), cancelToken, onEach, [...resultsToDate, ...results]);
+          return recursivePaginatedQuery(get(next, config), onEach, [...resultsToDate, ...results]);
         }
 
         return [...resultsToDate, ...results];
@@ -54,6 +51,7 @@ export const recursivePaginatedQuery = async (initialQuery, cancelToken = null, 
         console.warn('recursive query failure', e);
       }
     });
+};
 
 export const cleanedUpFilterObject = (filter) =>
   Object.entries(filter)

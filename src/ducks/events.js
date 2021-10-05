@@ -331,51 +331,60 @@ const [fetchIncidentFeed, fetchNextIncidentFeedPage] = fetchNamedFeedActionCreat
 
 export { fetchEventFeed, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextIncidentFeedPage };
 
-const cancelableMapEventsFetch = () => {
-  let cancelToken = CancelToken.source();
-  const fetchFn = (map) => async (dispatch, getState) => {
-    try {
+const generateNewCancelToken = () => new CancelToken(function executor(cancelFn) {
+  mapEventsCancelFn = cancelFn;
+});
 
-      let lastKnownBbox;
-      if (!map) {
-        lastKnownBbox = getState().data.mapEvents.bbox;
-      }
+let mapEventsCancelFn;
 
-      if (!map && !lastKnownBbox) return Promise.reject();
-
-      const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-      const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
-
-      dispatch({
-        type: FETCH_MAP_EVENTS_START,
-        payload: { bbox },
-      });
-
-      const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
-
-      cancelToken.cancel();
-      cancelToken = CancelToken.source();
-
-      const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-        cancelToken: cancelToken.token,
-      });
-
-      return recursivePaginatedQuery(request, cancelToken.token, onEachRequest)
-        .then((finalResults) =>
-          finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
-        )
-        .catch((error) => {
-          dispatch(fetchMapEventsError(error));
-          return Promise.reject(error);
-        });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-  return [fetchFn, cancelToken];
+export const cancelMapEventsFetch = () => {
+  if (mapEventsCancelFn) {
+    mapEventsCancelFn();
+  }
 };
 
-export const [fetchMapEvents, mapEventsFetchCancelToken] = cancelableMapEventsFetch();
+export const fetchMapEvents = (map) => async (dispatch, getState) => {
+  try {
+
+    let lastKnownBbox;
+    if (!map) {
+      lastKnownBbox = getState().data.mapEvents.bbox;
+    }
+
+    if (!map && !lastKnownBbox) return Promise.reject();
+
+    const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
+    const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
+
+    dispatch({
+      type: FETCH_MAP_EVENTS_START,
+      payload: { bbox },
+    });
+
+    const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
+
+    cancelMapEventsFetch();
+
+    const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
+      cancelToken: generateNewCancelToken(),
+    });
+
+    return recursivePaginatedQuery(request, onEachRequest)
+      .then((finalResults) =>
+        finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
+      )
+      .catch((error) => {
+        dispatch(fetchMapEventsError(error));
+        return Promise.reject(error);
+      });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+
+
+
+// export const [fetchMapEvents, cancelMapEventsFetch] = cancelableMapEventsFetch();
 
 const fetchMapEventsSucess = results => (dispatch) => {
   dispatch({
