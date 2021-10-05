@@ -1,6 +1,7 @@
+import mapboxgl from 'mapbox-gl';
 import React, { Fragment, forwardRef, memo, useRef, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import ReactMapboxGl, { ZoomControl, ScaleControl, MapContext } from 'react-mapbox-gl';
+import ReactMapboxGl, { ZoomControl, MapContext } from 'react-mapbox-gl';
 import { uuid } from '../utils/string';
 
 import MapTerrain from '../MapTerrain';
@@ -39,7 +40,15 @@ const EarthRangerMap = (props) => {
         sdf: true,
       });
 
+      const scale = new mapboxgl.ScaleControl({
+        maxWidth: 80,
+        unit: 'imperial'
+      });
+
+      map.addControl(scale, 'bottom-right');
+
     });
+
     onMapLoaded && onMapLoaded(map);
   };
 
@@ -68,7 +77,6 @@ const EarthRangerMap = (props) => {
       {(map) => map && <Fragment>
         <MapTerrain map={map} />
         <SkyLayer map={map} />
-        <ScaleControl className="mapbox-scale-ctrl" position='bottom-right' />
         <ZoomControl className="mapbox-zoom-ctrl" position='bottom-right' onControlClick={onZoomControlClick}/>
         <div className='map-controls-container'>
           {controls}
