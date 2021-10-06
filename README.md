@@ -4,7 +4,13 @@ This is the web interface for EarthRanger. It is built with React (whose bootstr
 ## Setting up for development
 To start developing within this repo, you need to have [Docker](https://www.docker.com/get-started) installed. Once docker is up and running, `cd` into the root of this project repository and run the following command: `docker-compose up --build`.
 
-This will build two images, for development and testing, and run them simultaneously. Once up and running, you may view the web application at http://localhost:9000/.
+This will build three images: one is the developer build of the application, one is an nginx instance serving that application up, and one is running the test environment. Once up and running, you may view the web application at http://localhost:9000/. It will auto-refresh in sync with your local changes as you edit the code. New tests, or tests related to any changed files during your development, will auto-run on every save.
+
+## Linting
+Run `yarn` at the project root to install the developer dependencies. This project uses `eslint` for its JavaScript and `stylelint` for its SCSS. For a more seamless experience, install the appropriate matching developer extensions into your IDE of choice; otherwise you'll need to run `yarn lint` and `node ./node_modules/stylelint/bin/stylelint.js ./` respectively to lint your project 
+
+## Testing
+This project uses [Jest](https://jestjs.io/) as its test runner and assertion library, and [Testing Library](https://testing-library.com/) for test utilities, rendering, and to extend assertions. 
 
 <EOF>
 
