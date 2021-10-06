@@ -6,31 +6,30 @@ import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
-import uniq from 'lodash/uniq';
+// import uniq from 'lodash/uniq';
 import isUndefined from 'lodash/isUndefined';
 
 import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
-import { openModalForReport } from '../utils/events';
-import { calcEventFilterForRequest, EVENT_SORT_OPTIONS, DEFAULT_EVENT_SORT } from '../utils/event-filter';
+// import { openModalForReport } from '../utils/events';
+// import { calcEventFilterForRequest, EVENT_SORT_OPTIONS, DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { getFeedEvents } from '../selectors';
 import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
+import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { fetchPatrols } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { setReportHeatmapVisibility } from '../ducks/map-ui';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
-import EventFeed from '../EventFeed';
+// import EventFeed from '../EventFeed';
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
-import HeatmapToggleButton from '../HeatmapToggleButton';
 import DelayedUnmount from '../DelayedUnmount';
 import ColumnSort from '../ColumnSort';
 
@@ -38,14 +37,14 @@ import SleepDetector from '../SleepDetector';
 import { trackEvent } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 
+import ReportsTab from './ReportsTab';
 import styles from './styles.module.scss';
 
-import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import ClearAllControl from '../ClearAllControl';
 import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-import ErrorMessage from '../ErrorMessage';
+// import ErrorMessage from '../ErrorMessage';
 import PatrolList from '../PatrolList';
 import TotalReportCountString from '../EventFilter/TotalReportCountString';
 import { cloneDeep } from 'lodash-es';
@@ -73,43 +72,37 @@ const validAddReportTypes = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
-  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, reportHeatmapVisible,
-    setReportHeatmapVisibility, sidebarOpen, } = props;
+  const { events, patrols, eventFilter, patrolFilter, fetchEventFeed, fetchPatrols, fetchNextEventFeedPage, map, onHandleClick, sidebarOpen } = props;
 
   const { filter: { overlap } } = patrolFilter;
 
-  const [loadingEvents, setEventLoadState] = useState(false);
+  // const [loadingEvents, setEventLoadState] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
-  const [feedEvents, setFeedEvents] = useState([]);
+  // const [feedEvents, setFeedEvents] = useState([]);
   const [activeTab, dispatch] = useReducer(undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE), calcInitialUndoableState(activeTabReducer));
-  const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
+  // const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
 
-  const onFeedSortChange = useCallback((newVal) => {
-    setFeedSort(newVal);
-  }, []);
+  // const onFeedSortChange = useCallback((newVal) => {
+  //   setFeedSort(newVal);
+  // }, []);
 
-  const resetFeedSort = useCallback(() => {
-    setFeedSort(DEFAULT_EVENT_SORT);
-  }, []);
+  // const resetFeedSort = useCallback(() => {
+  //   setFeedSort(DEFAULT_EVENT_SORT);
+  // }, []);
 
-  const onScroll = useCallback(() => {
-    if (events.next) {
-      fetchNextEventFeedPage(events.next);
-    }
-  }, [events.next, fetchNextEventFeedPage]);
+  // const onScroll = useCallback(() => {
+  //   if (events.next) {
+  //     fetchNextEventFeedPage(events.next);
+  //   }
+  // }, [events.next, fetchNextEventFeedPage]);
 
-  const toggleReportHeatmapVisibility = () => {
-    setReportHeatmapVisibility(!reportHeatmapVisible);
-    trackEvent('Reports', `${reportHeatmapVisible ? 'Hide' : 'Show'} Reports Heatmap`);
-  };
-
-  const optionalFeedProps = useMemo(() => {
-    let value = {};
-    if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
-      value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
-    }
-    return value;
-  }, [eventFilter]);
+  // const optionalFeedProps = useMemo(() => {
+  //   let value = {};
+  //   if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+  //     value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
+  //   }
+  //   return value;
+  // }, [eventFilter]);
 
   const patrolFilterParams = useMemo(() => {
     const filterParams = cloneDeep(patrolFilter);
@@ -120,22 +113,22 @@ const SideBar = (props) => {
   const activeTabPreClose = useRef(null);
   const patrolFetchRef = useRef(null);
 
-  useEffect(() => {
-    if (!optionalFeedProps.exclude_contained) {
-      setFeedEvents(events.results);
-    }
-    else {
-      /* guard code against new events being pushed into the feed despite not matching the exclude_contained filter. 
-      this happens as relationships can be established outside the state awareness of the feed. */
-      const containedEventIdsToRemove = uniq(events.results
-        .filter(({ is_collection }) => !!is_collection)
-        .reduce((accumulator, item) => [
-          ...accumulator,
-          ...item.contains.map(({ related_event: { id } }) => id),
-        ], []));
-      setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
-    }
-  }, [events.results, optionalFeedProps.exclude_contained]);
+  // useEffect(() => {
+  //   if (!optionalFeedProps.exclude_contained) {
+  //     setFeedEvents(events.results);
+  //   }
+  //   else {
+  //     /* guard code against new events being pushed into the feed despite not matching the exclude_contained filter. 
+  //     this happens as relationships can be established outside the state awareness of the feed. */
+  //     const containedEventIdsToRemove = uniq(events.results
+  //       .filter(({ is_collection }) => !!is_collection)
+  //       .reduce((accumulator, item) => [
+  //         ...accumulator,
+  //         ...item.contains.map(({ related_event: { id } }) => id),
+  //       ], []));
+  //     setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
+  //   }
+  // }, [events.results, optionalFeedProps.exclude_contained]);
 
   useEffect(() => {
     if (validAddReportTypes.includes(activeTab.current)) {
@@ -143,10 +136,10 @@ const SideBar = (props) => {
     }
   }, [activeTab]);
 
-  const onEventTitleClick = (event) => {
-    openModalForReport(event, map);
-    trackEvent('Feed', `Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
-  };
+  // const onEventTitleClick = (event) => {
+  //   openModalForReport(event, map);
+  //   trackEvent('Feed', `Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
+  // };
 
   const onTabsSelect = (eventKey) => {
     dispatch(setActiveTab(eventKey));
@@ -158,17 +151,17 @@ const SideBar = (props) => {
     trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
   };
 
-  const loadFeedEvents = useCallback(() => {
-    setEventLoadState(true);
-    return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }, feedSort))
-      .then(() => {
-        setEventLoadState(false);
-      });
-  }, [feedSort, fetchEventFeed, optionalFeedProps]);
+  // const loadFeedEvents = useCallback(() => {
+  //   setEventLoadState(true);
+  //   return fetchEventFeed({}, calcEventFilterForRequest({ params: optionalFeedProps }, feedSort))
+  //     .then(() => {
+  //       setEventLoadState(false);
+  //     });
+  // }, [feedSort, fetchEventFeed, optionalFeedProps]);
 
-  useEffect(() => {
-    loadFeedEvents();
-  }, [eventFilter, feedSort]); // eslint-disable-line
+  // useEffect(() => {
+  //   loadFeedEvents();
+  // }, [eventFilter, feedSort]); // eslint-disable-line
 
   // fetch patrols if filter settings has changed
   useEffect(() => {
@@ -218,11 +211,11 @@ const SideBar = (props) => {
       : 'auto'
     );
 
-  useEffect(() => {
-    if (loadingEvents && events.error) {
-      setEventLoadState(false);
-    }
-  }, [events.error, loadingEvents]);
+  // useEffect(() => {
+  //   if (loadingEvents && events.error) {
+  //     setEventLoadState(false);
+  //   }
+  // }, [events.error, loadingEvents]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -250,12 +243,11 @@ const SideBar = (props) => {
         </div>}
         <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
           <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
-            <DelayedUnmount isMounted={sidebarOpen}>
+            <ReportsTab map={map} sidebarOpen={sidebarOpen}/>
+            {/* <DelayedUnmount isMounted={sidebarOpen}>
               <ErrorBoundary>
                 <div className={styles.filterWrapper}>
-                  <EventFilter className={styles.eventFilter}>
-                    <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} />
-                  </EventFilter>
+                  <EventFilter className={styles.eventFilter}/>
                   <div className={styles.filterStringWrapper}>
                     <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} />
                     <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
@@ -263,12 +255,14 @@ const SideBar = (props) => {
                 </div>
               </ErrorBoundary>
               <div className={styles.sortWrapper}>
+                <Button type="button" variant='light' size='sm'><RefreshIcon /> Reset</Button>
                 <div className={styles.sortReset}>
                   {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
                 </div>
                 <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
               </div>
             </DelayedUnmount>
+            
             <ErrorBoundary>
               {!!events.error && <div className={styles.feedError}>
                 <ErrorMessage message='Could not load reports. Please try again.' details={events.error} />
@@ -288,17 +282,20 @@ const SideBar = (props) => {
                 onTitleClick={onEventTitleClick}
               />
               }
-            </ErrorBoundary>
+            </ErrorBoundary> */}
           </Tab>
+
           {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
             <PatrolFilter />
             <PatrolList map={map} patrols={patrols.results} loading={loadingPatrols}/>
           </Tab>}
+
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
             <ErrorBoundary>
               <MapLayerFilter />
               <div className={styles.mapLayers}>
-                <ReportMapControl />
+                <ReportMapControl/>
+                {/* <HeatmapToggleButton className={styles.heatmapButton} onButtonClick={toggleReportHeatmapVisibility} showLabel={false} heatmapVisible={reportHeatmapVisible} /> */}
                 <SubjectGroupList map={map} />
                 <FeatureLayerList map={map} />
                 <AnalyzerLayerList map={map} />
@@ -311,7 +308,7 @@ const SideBar = (props) => {
           </Tab>
         </Tabs>
       </aside>
-      <SleepDetector onSleepDetected={loadFeedEvents} />
+      {/* <SleepDetector onSleepDetected={loadFeedEvents} /> */}
     </MapContext.Provider>
   </ErrorBoundary>;
 };
@@ -322,10 +319,9 @@ const mapStateToProps = (state) => ({
   patrols: getPatrolList(state),
   patrolFilter: state.data.patrolFilter,
   sidebarOpen: state.view.userPreferences.sidebarOpen,
-  reportHeatmapVisible: state.view.showReportHeatmap,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols, setReportHeatmapVisibility })(memo(SideBar));
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, fetchPatrols })(memo(SideBar));
 
 SideBar.propTypes = {
   events: PropTypes.shape({
