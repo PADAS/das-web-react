@@ -382,10 +382,6 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
   }
 };
 
-
-
-// export const [fetchMapEvents, cancelMapEventsFetch] = cancelableMapEventsFetch();
-
 const fetchMapEventsSucess = results => (dispatch) => {
   dispatch({
     type: FETCH_MAP_EVENTS_SUCCESS,
