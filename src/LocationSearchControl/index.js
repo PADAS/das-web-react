@@ -117,10 +117,10 @@ const LocationSearch = (props) => {
   // extract coordinates from api response
   const coords = locations.map(coord => {
     if (coord) {
-      const coordinates = { lng: coord.coordinates[1], lat: coord.coordinates[0] };
+      const coordinates = { lng: coord.coordinates.lng, lat: coord.coordinates.lat };
       // convert the returned objects to array
       const arrayOfCoords = Object.values(coordinates);
-      console.log(arrayOfCoords);
+      console.log('array of coords', arrayOfCoords);
       return arrayOfCoords;
     } else {
       return null;
@@ -147,6 +147,8 @@ const LocationSearch = (props) => {
     </li>
   ));
 
+  console.log('locations', locations);
+
   // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
     e.preventDefault();
@@ -155,8 +157,8 @@ const LocationSearch = (props) => {
       const resultIndex = parseInt(e.target.id);
       setSelectedLocation(locations[resultIndex]);
       const point = locations[resultIndex];
-      const coordinates = { lng: point.coordinates[1], lat: point.coordinates[0] };
-      showPopup('marker', { coordinates } );
+      const location = [ point.coordinates.lng, point.coordinates.lat ];
+      showPopup('dropped-marker', { location } );
       setLocations([]);
       setQuery('');
     };

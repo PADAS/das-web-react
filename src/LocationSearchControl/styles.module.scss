@@ -4,6 +4,8 @@
 $unfiltered-color : $secondary-light-gray;
 $filtered-color : $highlight-color;
 
+* { box-sizing: border-box; };
+
 .wrapper {
     position: relative;
     [class*=bs-popover] {
@@ -24,12 +26,13 @@ $filtered-color : $highlight-color;
   display: flex;
   position: relative;
   input {
-    border: none;
-    border-bottom: 1px solid $unfiltered-color;
-    border-radius: 0px;
+    border-radius: 0.25rem;
     flex-grow: 1;
     padding: 0.25rem;
-    padding-left: 1.25rem;
+    padding-left: 1.75rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid $unfiltered-color;
+    
     &::placeholder {
       color: $unfiltered-color;
     }
