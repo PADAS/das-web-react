@@ -20,10 +20,6 @@ import DelayedUnmount from '../DelayedUnmount';
 import ErrorBoundary from '../ErrorBoundary';
 import EventFilter from '../EventFilter';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-<<<<<<< HEAD
-=======
-import TotalReportCountString from '../EventFilter/TotalReportCountString';
->>>>>>> 89c0334c (abtraction for reports tab to reduce the size of the file)
 import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
@@ -109,21 +105,12 @@ const ReportsTab = (props) => {
         <div className={styles.filterWrapper}>
           <EventFilter className={styles.eventFilter}/>
           <div className={styles.filterStringWrapper}>
-<<<<<<< HEAD
             <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} totalFeedEventCount={events.count} />
             <Button type="button" variant='light' size='sm'><RefreshIcon /> Reset</Button>
-=======
-            <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} />
-            <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
->>>>>>> 89c0334c (abtraction for reports tab to reduce the size of the file)
           </div>
         </div>
       </ErrorBoundary>
       <div className={styles.sortWrapper}>
-<<<<<<< HEAD
-=======
-        <Button type="button" variant='light' size='sm'><RefreshIcon /> Reset</Button>
->>>>>>> 89c0334c (abtraction for reports tab to reduce the size of the file)
         <div className={styles.sortReset}>
           {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
         </div>
