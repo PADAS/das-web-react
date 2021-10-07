@@ -11,9 +11,16 @@ const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
 
 
 const FriendlyEventFilterString = (props) => {
-  const { children, eventFilter, sortConfig, className } = props;
+  const { children, eventFilter, totalFeedEventCount, sortConfig, className } = props;
 
   const { filter: { date_range } } = eventFilter;
+  let resultString;
+
+  if (totalFeedEventCount) {
+    resultString = `${totalFeedEventCount} result${totalFeedEventCount === 1 ? '' : 's'}`;
+  } else {
+    resultString = 'Results';
+  }
 
   const filterModified = isFilterModified(eventFilter);
   const hasSortConfig = !!sortConfig;
@@ -23,12 +30,13 @@ const FriendlyEventFilterString = (props) => {
 
   const sortTypeName = hasSortConfig && sortTypeMatch.label.toLowerCase();
 
-  return <span style={{ lineHeight: 'normal' }} className={className || ''}>
-    Showing {filterModified && 'filtered'} reports updated from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
+  return <p style={{ lineHeight: 'normal', marginBottom: 0 }} className={className || ''}>
+    <span>{resultString}</span>
+    {filterModified && 'filtered'} from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
       ?<span>, sorted {sortConfig[0] === '+' ? ' ascending' : ''}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>
       : ''}
-  </span>;
+  </p>;
 };
 
 export default connect(mapStateToProps, null)(memo(FriendlyEventFilterString));

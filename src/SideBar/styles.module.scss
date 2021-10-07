@@ -281,6 +281,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
+  padding: 0.3rem;
 }
 
 .eventFilter {
@@ -295,15 +296,6 @@
   padding: 0.5rem 0.5rem 0.5rem;
   transition: 0.3s all linear;
   width: 73.5%;
-}
-
-.totalReportCountString {
-  display: block;
-  font-size: 0.75rem;
-  line-height: normal;
-  padding: 0.5rem 0.5rem 0.5rem;
-  transition: 0.3s all linear;
-  text-align: right;
 }
 
 .sidebarEventFeed {

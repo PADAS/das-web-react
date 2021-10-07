@@ -20,7 +20,6 @@ import DelayedUnmount from '../DelayedUnmount';
 import ErrorBoundary from '../ErrorBoundary';
 import EventFilter from '../EventFilter';
 import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
-import TotalReportCountString from '../EventFilter/TotalReportCountString';
 import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
@@ -106,13 +105,12 @@ const ReportsTab = (props) => {
         <div className={styles.filterWrapper}>
           <EventFilter className={styles.eventFilter}/>
           <div className={styles.filterStringWrapper}>
-            <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} />
-            <TotalReportCountString className={styles.totalReportCountString} totalFeedEventCount={events.count} />
+            <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} totalFeedEventCount={events.count} />
+            <Button type="button" variant='light' size='sm'><RefreshIcon /> Reset</Button>
           </div>
         </div>
       </ErrorBoundary>
       <div className={styles.sortWrapper}>
-        <Button type="button" variant='light' size='sm'><RefreshIcon /> Reset</Button>
         <div className={styles.sortReset}>
           {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
         </div>
