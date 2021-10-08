@@ -10,8 +10,10 @@ import { openModalForReport } from '../utils/events';
 
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS } from '../utils/event-filter';
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
+import { isFilterModified } from '../utils/event-filter';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
@@ -25,14 +27,13 @@ import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map } = props;
+  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, updateEventFilter, resetGlobalDateRange } = props;
+
+  const filterModified = isFilterModified(eventFilter);
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
-
-  console.log('%c events', 'font-size:20px; color:red;', events);
-  console.log('%c eventFilter', 'font-size:12px; color:pink;', eventFilter);
 
   const onFeedSortChange = useCallback((newVal) => {
     setFeedSort(newVal);
@@ -44,8 +45,6 @@ const ReportsTab = (props) => {
 
   const optionalFeedProps = useMemo(() => {
     let value = {};
-    console.log('%c eventFilter', 'font-size:12px; color:blue;', eventFilter);
-    console.log('%c INITIAL_FILTER_STATE', 'font-size:12px; color:green;', INITIAL_FILTER_STATE);
 
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
@@ -99,6 +98,20 @@ const ReportsTab = (props) => {
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
 
+  const resetAllFilters = () => {
+    updateEventFilter({
+      state: INITIAL_FILTER_STATE.state,
+      filter: {
+        event_type: INITIAL_FILTER_STATE.filter.event_type,
+        priority: INITIAL_FILTER_STATE.filter.priority,
+        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+      },
+    });
+    resetGlobalDateRange();
+    trackEvent('Event Filter', 'Click Reset All Filters');
+  };
+
+
   return <>
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
@@ -106,7 +119,7 @@ const ReportsTab = (props) => {
           <EventFilter className={styles.eventFilter}/>
           <div className={styles.filterStringWrapper}>
             <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} totalFeedEventCount={events.count} />
-            <Button type="button" variant='light' size='sm'><RefreshIcon /> Reset</Button>
+            {filterModified && <Button type="button" variant='light' size='sm' onClick={resetAllFilters}><RefreshIcon /> Reset</Button>}
           </div>
         </div>
       </ErrorBoundary>
@@ -146,7 +159,7 @@ const mapStateToProps = (state) => ({
   events: getFeedEvents(state),
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage })(memo(ReportsTab));
+export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, updateEventFilter, resetGlobalDateRange })(memo(ReportsTab));
 
 ReportsTab.propTypes = {
   fetchEventFeed: PropTypes.func.isRequired,
