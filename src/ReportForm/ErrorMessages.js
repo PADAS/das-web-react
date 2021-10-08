@@ -12,14 +12,14 @@ const ReportFormErrorMessages = (props) => {
   return <Alert onClose={onClose} dismissible={true} className={styles.saveErrorAlert} >
     <Accordion>
       <span>Error saving report.</span>
-      <Accordion.Toggle as={Button} variant="link" eventKey="0" className={styles.saveErrorAlertLink}>
+      <Accordion.Toggle as={Button} variant="link" eventKey="0" className={styles.saveErrorAlertLink} data-testid='error-details-btn'>
         See details
       </Accordion.Toggle>
 
-      <Accordion.Collapse eventKey="0">
+      <Accordion.Collapse eventKey="0" data-testid='errors-details-list'>
         <ul>
           {errorData.map(item =>
-            <li key={`${item.label} ${item.message}`}>
+            <li key={`${item.label} ${item.message}`} data-testid='error-message'>
               <strong>{item.label}</strong>: <span>{item.message}</span>
             </li>)}
         </ul>
