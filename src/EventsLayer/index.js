@@ -196,7 +196,7 @@ const EventsLayer = (props) => {
       {
         setTimeout(() => {
           setAnimationState({ frame: ++currFrame, scale: 1.0 + updatedScale, isRendering: true });
-        } , 1000 / FRAMES_PER_SECOND);
+        }, 1000 / FRAMES_PER_SECOND);
       } else {
         setBounceIDs([]);
         setAnimationState({ frame: 1, scale: 0.0, isRendering: false });

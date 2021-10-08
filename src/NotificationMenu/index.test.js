@@ -184,3 +184,64 @@ describe('handling failed news requests', () => {
     expect(items[0]).toHaveTextContent(mockNewsData[0].description);
   });
 });
+
+describe('reminding users of unread messages', () => {
+  const numberOfUnreadItems = mockNewsData.filter(n => !n.read).length;
+  let rendered;
+
+  beforeEach(async () => {
+    rendered = render(<Provider store={store}>
+      <SocketProvider>
+        <NotificationMenu />
+      </SocketProvider>
+    </Provider>);
+
+    const toggle = await screen.findByTestId('notification-toggle');
+    userEvent.click(toggle);
+  });
+
+  afterEach(() => {
+    store = mockStore({ view: { } });
+    rendered.unmount();
+  });
+
+  test('showing a popup if notifications have aged without being read', async () => {
+    const popup = await screen.findByRole('alert');
+    expect(popup).toHaveTextContent(`You have ${numberOfUnreadItems} notifications`);
+  });
+
+  test('not showing a popup if notifications are relatively recent', () => {
+    rendered.unmount();
+
+    const newsItemsWithRecentMessages = mockNewsData.reduce((accumulator, item) => {
+      if (item.read) return [...accumulator, item];
+      return [
+        ...accumulator,
+        {
+          ...item,
+          additional: {
+            ...item.additional,
+            created_at: new Date().toISOString(),
+          }
+        }
+      ];
+    }, []);
+
+    server.use(
+      rest.get(NEWS_API_URL, (req, res, ctx) => {
+        return res.once(ctx.json( { data: {
+          results: newsItemsWithRecentMessages,
+        } }));
+      })
+    );
+
+    rendered = render(<Provider store={store}>
+      <SocketProvider>
+        <NotificationMenu />
+      </SocketProvider>
+    </Provider>);
+
+    const popup = screen.queryByRole('alert');
+    expect(popup).not.toBeInTheDocument();
+  });
+});

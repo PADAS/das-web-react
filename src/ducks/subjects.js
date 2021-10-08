@@ -167,14 +167,14 @@ export const subjectStoreReducer = globallyResettableReducer((state = SUBJECT_ST
       return subject;
     });
 
-    const asObject = newSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }) , {});
+    const asObject = newSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }), {});
 
     return merge({}, state, asObject);
   }
 
   if (type === FETCH_SUBJECT_GROUPS_SUCCESS) {
     const subjectGroupSubjects = getUniqueSubjectGroupSubjects(...payload);
-    const asObject = subjectGroupSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }) , {});
+    const asObject = subjectGroupSubjects.reduce((accumulator, item) => ({ ...accumulator, [item.id]: item }), {});
 
     return merge({}, state, asObject);
   }

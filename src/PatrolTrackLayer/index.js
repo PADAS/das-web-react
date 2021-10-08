@@ -10,7 +10,7 @@ import TrackLayer from '../TracksLayer/track';
 
 
 const linePaint = {
-  'line-width': ['step', ['zoom'], 2, 8, ['+',['get', 'stroke-width'], 1.5]],
+  'line-width': ['step', ['zoom'], 2, 8, ['+', ['get', 'stroke-width'], 1.5]],
   'line-offset': -0.75,
   'line-opacity': 1,
 };
