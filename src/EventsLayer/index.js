@@ -71,7 +71,7 @@ const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [] } = props;
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
@@ -85,14 +85,16 @@ const EventsLayer = (props) => {
   });
 
   useEffect(() => {
-    setEventsWithBounce({
-      ...events,
-      features: addBounceToEventMapFeatures(events.features, bounceEventIDs),
-    });
+    if (bounceEventIDs.length) {
+      setEventsWithBounce({
+        ...events,
+        features: addBounceToEventMapFeatures(events.features, bounceEventIDs),
+      });
+    }
   }, [bounceEventIDs, events]);
 
   useEffect(() => {
-    setBounceIDs(bounceEventIDs ? bounceEventIDs : []);
+    setBounceIDs(bounceEventIDs);
     setAnimationState({ frame: 1, scale: 0.0, isRendering: (bounceEventIDs.length > 0) });
   }, [bounceEventIDs]);
 
