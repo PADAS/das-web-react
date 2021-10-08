@@ -11,6 +11,8 @@ import { API_URL } from '../constants';
 import { validateLngLat } from '../utils/location';
 import { MapContext } from '../App';
 import { showPopup } from '../ducks/popup';
+import { addMapImage } from '../utils/map';
+import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import styles from './styles.module.scss';
 
 const LocationSearch = (props) => {
@@ -62,7 +64,7 @@ const LocationSearch = (props) => {
     };
   }, [active, toggleActiveState]);
 
-  // debouncing the API call
+  // debouncing the API response
   useEffect(() => {
     inputRef.current = _.debounce(fetchLocation, 500);
   }, []);
@@ -86,7 +88,7 @@ const LocationSearch = (props) => {
       event.preventDefault();
       if (query && locations.length !== 0) {
         jumpToLocation(map, coords);
-        // addMarker();
+        addMarker();
         setLocations([]);
         setQuery('');
       } else {
@@ -120,7 +122,6 @@ const LocationSearch = (props) => {
       const coordinates = { lng: coord.coordinates.lng, lat: coord.coordinates.lat };
       // convert the returned objects to array
       const arrayOfCoords = Object.values(coordinates);
-      console.log('array of coords', arrayOfCoords);
       return arrayOfCoords;
     } else {
       return null;
@@ -147,8 +148,6 @@ const LocationSearch = (props) => {
     </li>
   ));
 
-  console.log('locations', locations);
-
   // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
     e.preventDefault();
@@ -156,12 +155,27 @@ const LocationSearch = (props) => {
       jumpToLocation(map, coords);
       const resultIndex = parseInt(e.target.id);
       setSelectedLocation(locations[resultIndex]);
-      const point = locations[resultIndex];
-      const location = [ point.coordinates.lng, point.coordinates.lat ];
-      showPopup('dropped-marker', { location } );
+      addMarker(resultIndex);
       setLocations([]);
       setQuery('');
     };
+  };
+
+  // add marker and marker popup
+  const addMarker = (index) => {
+    // on search result item click
+    if (index) {
+      const point = locations[index];
+      const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
+      showPopup('dropped-marker', { location: point.coordinates, coordinates } );
+
+    } else {
+      // on press Enter key
+      locations.forEach(point => {
+        const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
+        showPopup('dropped-marker', { location: point.coordinates, coordinates } );
+      });
+    }
   };
 
   return <div className={styles.wrapper} ref={wrapperRef}>
