@@ -21,11 +21,11 @@ import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import BadgeIcon from '../Badge';
 
-import { STATUSES } from '../constants'; // days
+import { STATUSES } from '../constants';
 
 import styles from './styles.module.scss';
 
-const NOTIFICATION_REMINDER_AGE_THRESHOLD = 7;
+const NOTIFICATION_REMINDER_AGE_THRESHOLD = 7; // days
 
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
