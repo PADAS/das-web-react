@@ -146,8 +146,9 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
   const outdatedUnreadNotifications = useMemo(() =>
     notifications
       .filter(i =>
-        !!i.date
-          && differenceInCalendarDays(new Date(), new Date(i.date)) > NOTIFICATION_REMINDER_AGE_THRESHOLD
+        !i.read
+        && !!i.date
+        && differenceInCalendarDays(new Date(), new Date(i.date)) > NOTIFICATION_REMINDER_AGE_THRESHOLD
       ),
   [notifications]);
 
@@ -177,7 +178,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
       <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
       {!!unreadCount && <BadgeIcon data-testid='unread-count' className={styles.badge} count={unreadCount} />}
     </Toggle>
-    {showOutdatedNotificationPopover && <Popover target={toggleBtnRef.current} role='alert' id="overlay-example" >
+    {showOutdatedNotificationPopover && <Popover className={styles.unreadNotificationsPopover} placement='bottom' target={toggleBtnRef.current} role='alert' id='overlay-example' >
       {outdatedNotificationString}
     </Popover>}
     <Menu className={styles.menu} ref={menuRef}>

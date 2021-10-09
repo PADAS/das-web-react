@@ -116,6 +116,10 @@ describe('listing news items', () => {
       userNotificationListItem = screen.getAllByRole('listitem')[0];
     });
 
+    afterEach(() => {
+      store = mockStore({ view: { } });
+    });
+
     test('user notifications are listed above news items', async () => {
       expect(userNotificationListItem).toHaveTextContent('howdy doody');
 
@@ -186,7 +190,7 @@ describe('handling failed news requests', () => {
 });
 
 describe('reminding users of unread messages', () => {
-  const numberOfUnreadItems = mockNewsData.filter(n => !n.read).length;
+  const unread = mockNewsData.filter(n => n.hasOwnProperty('read') && !n.read);
   let rendered;
 
   beforeEach(async () => {
@@ -195,19 +199,15 @@ describe('reminding users of unread messages', () => {
         <NotificationMenu />
       </SocketProvider>
     </Provider>);
-
-    const toggle = await screen.findByTestId('notification-toggle');
-    userEvent.click(toggle);
   });
 
   afterEach(() => {
-    store = mockStore({ view: { } });
     rendered.unmount();
   });
 
   test('showing a popup if notifications have aged without being read', async () => {
     const popup = await screen.findByRole('alert');
-    expect(popup).toHaveTextContent(`You have ${numberOfUnreadItems} notifications`);
+    expect(popup).toHaveTextContent(`You have ${unread.length} notifications`);
   });
 
   test('not showing a popup if notifications are relatively recent', () => {
