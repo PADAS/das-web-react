@@ -11,8 +11,7 @@ import { API_URL } from '../constants';
 import { validateLngLat } from '../utils/location';
 import { MapContext } from '../App';
 import { showPopup } from '../ducks/popup';
-import { addMapImage } from '../utils/map';
-import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
+import { withMap } from '../EarthRangerMap';
 import styles from './styles.module.scss';
 
 const LocationSearch = (props) => {
@@ -129,8 +128,9 @@ const LocationSearch = (props) => {
   });
 
   // // validate coordinates
-  // const validatedCoords = coords && validateLngLat(coords[0], coords[1]);
-  // if (!validatedCoords) { return null; };
+  const validatedCoords = locations.every(coord =>
+    validateLngLat(coord.coordinates.lng, coord.coordinates.lat)
+  );
 
   // extract error messages for display
   const errorMessages = errors.map((err, index) => (
@@ -167,13 +167,12 @@ const LocationSearch = (props) => {
     if (index) {
       const point = locations[index];
       const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
-      showPopup('dropped-marker', { location: point.coordinates, coordinates } );
-
+      validatedCoords && showPopup('dropped-marker', { location: point.coordinates, coordinates } );
     } else {
       // on press Enter key
-      locations.forEach(point => {
-        const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
-        showPopup('dropped-marker', { location: point.coordinates, coordinates } );
+      locations.forEach(points => {
+        const coordinates = [ points.coordinates.lng, points.coordinates.lat ];
+        validatedCoords && showPopup('dropped-marker', { location: points.coordinates, coordinates } );
       });
     }
   };
@@ -212,4 +211,4 @@ const LocationSearch = (props) => {
   </div>;
 };
 
-export default connect(null, { showPopup })(memo(LocationSearch));
+export default connect(null, { showPopup })(withMap(memo(LocationSearch)));
