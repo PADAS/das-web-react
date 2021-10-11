@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 const ReportFormErrorMessages = (props) => {
   const { errorData, onClose } = props;
 
-  return <Alert onClose={onClose} dismissible={true} className={styles.saveErrorAlert} >
+  return <Alert onClose={onClose} dismissible={true} className={styles.saveErrorAlert} data-testid='errors-alert' >
     <Accordion>
       <span>Error saving report.</span>
       <Accordion.Toggle as={Button} variant="link" eventKey="0" className={styles.saveErrorAlertLink} data-testid='error-details-btn'>

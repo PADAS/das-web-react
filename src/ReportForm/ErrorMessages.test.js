@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import ErrorMessages from './ErrorMessages';
 
@@ -34,10 +34,13 @@ const ERROR_DATA = [{
   ],
   'label': 'checkbox TEST with query'
 }];
+const clearErrors = jest.fn();
+
+test('rendering without crashing', () => {
+  render(<ErrorMessages onClose={clearErrors} errorData={ERROR_DATA} />);
+});
 
 describe('Error messages', () => {
-  const clearErrors = jest.fn();
-
   beforeEach(async () => {
     render(<ErrorMessages onClose={clearErrors} errorData={ERROR_DATA} />);
   });
@@ -46,22 +49,32 @@ describe('Error messages', () => {
     clearErrors.mockClear();
   });
 
-  test('rendering without crashing', () => {
-    render(<ErrorMessages onClose={clearErrors} errorData={ERROR_DATA} />);
-  });
 
-  test('it should show the same amount of errors in the list of details', () => {
+  test('it should format the errors with the label of the form field followed by the error message', () => {
     const sortOptionsContainer = screen.queryAllByTestId('error-message');
 
-    expect(sortOptionsContainer.length).toEqual(3);
+    // example: "National Park: is a required property"
+    expect(sortOptionsContainer[0].textContent).toEqual(`${ERROR_DATA[0].label}: ${ERROR_DATA[0].message}`);
+    expect(sortOptionsContainer[1].textContent).toEqual(`${ERROR_DATA[1].label}: ${ERROR_DATA[1].message}`);
+    expect(sortOptionsContainer[2].textContent).toEqual(`${ERROR_DATA[2].label}: ${ERROR_DATA[2].message}`);
   });
 
   test('The errors list should be hidden, but displayed only if the user clicks on see details', async () => {
-    const detailsButton = await screen.findByTestId('error-details-btn');
-    const errorsList = await screen.findByTestId('errors-details-list');
+    const detailsButton = await screen.getByTestId('error-details-btn');
+    const errorsList = await screen.getByTestId('errors-details-list');
 
     expect(errorsList.className).toEqual(expect.stringContaining('collapse'));
     await detailsButton.click();
     expect(errorsList.className).toEqual(expect.not.stringContaining('collapse'));
+  });
+
+  test('clicking on close icon should dismiss the alert', () => {
+    const errorAlert = screen.getByTestId('errors-alert');
+    const closeButton = within(errorAlert).getAllByRole('button');
+
+    userEvent.click(closeButton[0]);
+
+    expect(clearErrors).toHaveBeenCalledTimes(1);
+
   });
 });
