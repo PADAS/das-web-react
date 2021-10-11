@@ -153,7 +153,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
   [notifications]);
 
   const showOutdatedNotificationPopover = !!outdatedUnreadNotifications.length && !menuIsOpen;
-  const outdatedNotificationString = showOutdatedNotificationPopover && `You have ${outdatedUnreadNotifications.length} ${pluralize('notification', outdatedUnreadNotifications.length)}`;
+  const outdatedNotificationString = showOutdatedNotificationPopover && `You have ${unreadCount} ${pluralize('notification', unreadCount)}`;
 
   useEffect(() => {
     fetchNewsForMenu();
