@@ -26,7 +26,6 @@ import { STATUSES } from '../constants';
 import styles from './styles.module.scss';
 
 const NOTIFICATION_REMINDER_AGE_THRESHOLD = 7; // days
-
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
 const { Divider, Toggle, Menu, Item } = Dropdown;
