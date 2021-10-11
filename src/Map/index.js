@@ -12,7 +12,7 @@ import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
-import { clearEventData, fetchMapEvents, mapEventsFetchCancelToken } from '../ducks/events';
+import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
@@ -82,6 +82,7 @@ class Map extends Component {
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
     this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
+    this.debouncedFetchMapEvents = this.debouncedFetchMapEvents.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
     this.onMapClick = this.onMapClick.bind(this);
@@ -170,11 +171,12 @@ class Map extends Component {
 
     if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
       this.props.socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
-      this.debouncedFetchMapData();
       if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
         && !isEqual(prev.eventFilter.filter.date_range.lower, this.props.eventFilter.filter.date_range.lower)) {
         this.setTrackLengthToEventFilterLowerValue();
+
       }
+      this.debouncedFetchMapEvents();
     }
     if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       this.setTrackLengthToEventFilterLowerValue();
@@ -235,7 +237,7 @@ class Map extends Component {
 
   onMapMoveStart() {
     mapSubjectsFetchCancelToken.cancel();
-    mapEventsFetchCancelToken.cancel();
+    cancelMapEventsFetch();
   }
 
   onMapMoveEnd() {
@@ -280,6 +282,7 @@ class Map extends Component {
   }
 
   debouncedFetchMapData = debounce(this.fetchMapData, 500)
+  debouncedFetchMapEvents = debounce(this.fetchMapEvents, 300);
 
   fetchMapSubjects() {
     const args = [this.props.map];
