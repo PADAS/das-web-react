@@ -1,12 +1,8 @@
 
 
-import { createMapMock } from '../__test-helpers/mocks'; /* eslint-disable-line no-unused-vars */
-// import ReactMapboxGl from 'react-mapbox-gl';
 import React from 'react';
 import { Provider } from 'react-redux';
-// import ReactGA from 'react-ga';
 
-import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
 
