@@ -85,12 +85,10 @@ const EventsLayer = (props) => {
   });
 
   useEffect(() => {
-    if (bounceEventIDs.length) {
-      setEventsWithBounce({
-        ...events,
-        features: addBounceToEventMapFeatures(events.features, bounceEventIDs),
-      });
-    }
+    setEventsWithBounce({
+      ...events,
+      features: addBounceToEventMapFeatures(events.features, bounceEventIDs),
+    });
   }, [bounceEventIDs, events]);
 
   useEffect(() => {
