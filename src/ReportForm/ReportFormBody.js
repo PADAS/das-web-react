@@ -9,7 +9,8 @@ import styles from './styles.module.scss';
 const additionalMetaSchemas = [draft4JsonSchema];
 
 const getLinearErrorPropTree = (errorProperty) => {
-  return errorProperty.replace(/'|\.properties|\[|\]|\.enumNames|\.enum/g, '.')
+  const nonPropAccessorNotations = /'|\.properties|\[|\]|\.enumNames|\.enum/g;
+  return errorProperty.replace(nonPropAccessorNotations, '.')
     .split('.')
     .filter(p => !!p)
     .map(item => isNaN(item) ? item : parseFloat(item));
