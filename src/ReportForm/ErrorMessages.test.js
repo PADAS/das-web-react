@@ -61,7 +61,7 @@ describe('Error messages', () => {
 
   test('The errors list should be hidden, but displayed only if the user clicks on see details', async () => {
     const detailsButton = await screen.getByTestId('error-details-btn');
-    const notExpandedAccordion = screen.getByRole('menuitem', { expanded: false });
+    let notExpandedAccordion = screen.getByRole('menuitem', { expanded: false });
     expect(notExpandedAccordion).toBeTruthy();
 
     userEvent.click(detailsButton);
@@ -70,7 +70,8 @@ describe('Error messages', () => {
     expect(expandedAccordion).toBeTruthy();
 
     userEvent.click(detailsButton);
-    expect(screen.getByRole('menuitem', { expanded: false })).toBeTruthy();
+    notExpandedAccordion = screen.getByRole('menuitem', { expanded: false });
+    expect(notExpandedAccordion).toBeTruthy();
   });
 
   test('clicking on close icon should dismiss the alert', () => {
