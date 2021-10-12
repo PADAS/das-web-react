@@ -68,6 +68,9 @@ describe('Error messages', () => {
 
     const expandedAccordion = screen.getByRole('menuitem', { expanded: true });
     expect(expandedAccordion).toBeTruthy();
+
+    userEvent.click(detailsButton);
+    expect(screen.getByRole('menuitem', { expanded: false })).toBeTruthy();
   });
 
   test('clicking on close icon should dismiss the alert', () => {
