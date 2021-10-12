@@ -61,11 +61,13 @@ describe('Error messages', () => {
 
   test('The errors list should be hidden, but displayed only if the user clicks on see details', async () => {
     const detailsButton = await screen.getByTestId('error-details-btn');
-    const errorsList = await screen.getByTestId('errors-details-list');
+    const notExpandedAccordion = screen.getByRole('menuitem', { expanded: false });
+    expect(notExpandedAccordion).toBeTruthy();
 
-    expect(errorsList.className).toEqual(expect.stringContaining('collapse'));
-    await detailsButton.click();
-    expect(errorsList.className).toEqual(expect.not.stringContaining('collapse'));
+    userEvent.click(detailsButton);
+
+    const expandedAccordion = screen.getByRole('menuitem', { expanded: true });
+    expect(expandedAccordion).toBeTruthy();
   });
 
   test('clicking on close icon should dismiss the alert', () => {

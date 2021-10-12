@@ -16,7 +16,7 @@ const ReportFormErrorMessages = (props) => {
         See details
       </Accordion.Toggle>
 
-      <Accordion.Collapse eventKey="0" data-testid='errors-details-list'>
+      <Accordion.Collapse eventKey="0" role="menuitem" aria-expanded='false' >
         <ul>
           {errorData.map(item =>
             <li key={`${item.label} ${item.message}`} data-testid='error-message'>
