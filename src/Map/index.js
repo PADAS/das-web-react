@@ -46,6 +46,7 @@ import FeatureLayer from '../FeatureLayer';
 import AnalyzerLayer from '../AnalyzersLayer';
 import PopupLayer from '../PopupLayer';
 import SubjectHeatLayer from '../SubjectHeatLayer';
+import StaticSensorLayer from '../StaticSensorLayer';
 import UserCurrentLocationLayer from '../UserCurrentLocationLayer';
 import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import SubjectTrackLegend from '../SubjectTrackLegend';
@@ -625,6 +626,8 @@ class Map extends Component {
             </div>
 
             <RightClickMarkerDropper />
+
+            <StaticSensorLayer map={map} />
 
             {subjectHeatmapAvailable && <SubjectHeatLayer />}
             {showReportHeatmap && <ReportsHeatLayer />}
