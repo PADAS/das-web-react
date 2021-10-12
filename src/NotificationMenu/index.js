@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useContext, useRef, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, memo, useContext, useRef, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
@@ -136,20 +136,16 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
     }
   };
 
-  const notifications = useMemo(() => {
-    return [...userNotifications, ...(news || [])];
-  }, [news, userNotifications]);
+  const notifications = [...userNotifications, ...(news || [])];
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreads = notifications.filter(n => !n.read);
+  const unreadCount = unreads.length;
 
-  const outdatedUnreadNotifications = useMemo(() =>
-    notifications
-      .filter(i =>
-        !i.read
-        && !!i.date
-        && differenceInCalendarDays(new Date(), new Date(i.date)) > NOTIFICATION_REMINDER_AGE_THRESHOLD
-      ),
-  [notifications]);
+  const outdatedUnreadNotifications = unreads
+    .filter(item =>
+      !!item.date
+      && differenceInCalendarDays(new Date(), new Date(item.date)) > NOTIFICATION_REMINDER_AGE_THRESHOLD
+    );
 
   const showOutdatedNotificationPopover = !!outdatedUnreadNotifications.length && !menuIsOpen;
   const outdatedNotificationString = showOutdatedNotificationPopover && `You have ${unreadCount} ${pluralize('notification', unreadCount)}`;
