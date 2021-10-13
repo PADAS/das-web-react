@@ -51,7 +51,6 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import SubjectTrackLegend from '../SubjectTrackLegend';
 import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
-import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
@@ -529,7 +528,7 @@ class Map extends Component {
   }
 
   render() {
-    const { children, maps, map, feedEvents, mapImages, popup, mapSubjectFeatureCollection,
+    const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
       patrolTrackState, subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
@@ -599,7 +598,6 @@ class Map extends Component {
             <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
                 <EventFilter />
-                <FriendlyEventFilterString className='map-report-filter-details' totalFeedEventCount={feedEvents.count}/>
               </div>
             </DelayedUnmount>
 
@@ -660,7 +658,7 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, eventTypes, feedEvents } = data;
+  const { maps, tracks, eventFilter, eventTypes } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
@@ -668,7 +666,6 @@ const mapStatetoProps = (state, props) => {
     analyzerFeatures: analyzerFeatures(state),
     maps,
     eventTypes,
-    feedEvents,
     heatmapSubjectIDs,
     tracks,
     hiddenAnalyzerIDs,

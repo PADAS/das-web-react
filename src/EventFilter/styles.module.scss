@@ -127,57 +127,6 @@ div.filterPopover {
   }
 }
 
-/* .popoverTrigger {
-  --transition-timing: 0.15s;
-  align-items: center;
-  color: lighten($primary-font-color, 22.5%);
-  cursor: pointer;
-  display: flex;
-  flex-flow: column;
-  line-height: normal;
-  transition: var(--transition-timing) linear color;
-  svg {
-    --dimensions: 1rem;
-    height: var(--dimensions);
-    width: var(--dimensions);
-    + span {
-      font-size: 0.75rem;
-      margin-left: 0.25rem;
-    }
-    @media (min-width: $md-layout-width-min) {
-      --dimensions: 1.333rem;
-    }
-    * {
-      shape-rendering: geometricprecision;
-      stroke: lighten($primary-font-color, 15%);
-      transition: var(--transition-timing) linear stroke;
-    }
-  }
-  &:hover {
-    color: $primary-font-color;
-    svg * {
-      stroke: $primary-font-color;
-    }
-  }
-  &.modified {
-    color: $highlight-color;
-    svg * {
-      stroke: $highlight-color;
-    }
-    svg.filterIcon * {
-      fill: $highlight-color;
-    }
-    &:hover {
-      svg * {
-        stroke: darken($highlight-color, 6%);
-      }
-      svg.filterIcon * {
-        fill: darken($highlight-color, 6%);
-      }
-    }
-  }
-} */
-
 .filterTitle,
 .popoverTitle {
   align-items: center;
@@ -347,4 +296,20 @@ div.filterPopover {
     font-size: 1rem;
     white-space: initial;
   }
+}
+
+.filterStringWrapper {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem;
+}
+
+.friendlyFilterString {
+  display: block;
+  font-size: 0.75rem;
+  line-height: normal;
+  margin: 0.5rem 0.5rem 0.5rem;
+  transition: 0.3s all linear;
+  width: 73.5%;
 }

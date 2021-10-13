@@ -277,25 +277,9 @@
   transition: var(--animation-duration) all linear;
 }
 
-.filterStringWrapper {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  padding: 0.3rem;
-}
-
 .eventFilter {
   padding-left: 0.75rem;
   padding-top: 1.25rem;
-}
-
-.friendlyFilterString {
-  display: block;
-  font-size: 0.75rem;
-  line-height: normal;
-  margin: 0.5rem 0.5rem 0.5rem;
-  transition: 0.3s all linear;
-  width: 73.5%;
 }
 
 .sidebarEventFeed {

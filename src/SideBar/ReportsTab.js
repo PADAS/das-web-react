@@ -99,29 +99,25 @@ const ReportsTab = (props) => {
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
 
-  const resetAllFilters = () => {
-    updateEventFilter({
-      state: INITIAL_FILTER_STATE.state,
-      filter: {
-        event_type: INITIAL_FILTER_STATE.filter.event_type,
-        priority: INITIAL_FILTER_STATE.filter.priority,
-        reported_by: INITIAL_FILTER_STATE.filter.reported_by,
-      },
-    });
-    resetGlobalDateRange();
-    trackEvent('Event Filter', 'Click Reset All Filters');
-  };
+  // const resetAllFilters = () => {
+  //   updateEventFilter({
+  //     state: INITIAL_FILTER_STATE.state,
+  //     filter: {
+  //       event_type: INITIAL_FILTER_STATE.filter.event_type,
+  //       priority: INITIAL_FILTER_STATE.filter.priority,
+  //       reported_by: INITIAL_FILTER_STATE.filter.reported_by,
+  //     },
+  //   });
+  //   resetGlobalDateRange();
+  //   trackEvent('Event Filter', 'Click Reset All Filters');
+  // };
 
 
   return <>
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
-        <div className={styles.filterWrapper}>
-          <EventFilter className={styles.eventFilter}/>
-          <div className={styles.filterStringWrapper}>
-            <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} totalFeedEventCount={events.count} />
-            {(filterModified || dateFilterModified) && isDateFilterModified && <Button type="button" variant='light' size='sm' onClick={resetAllFilters}><RefreshIcon /> Reset</Button>}
-          </div>
+        <div className={styles.filterWrapper} data-testid='filter-wrapper'>
+          <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort}/>
         </div>
       </ErrorBoundary>
       <div className={styles.sortWrapper}>
