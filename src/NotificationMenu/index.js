@@ -25,7 +25,7 @@ import { STATUSES } from '../constants';
 
 import styles from './styles.module.scss';
 
-const NOTIFICATION_REMINDER_AGE_THRESHOLD = 7; // days
+const NOTIFICATION_REMINDER_DAYS_THRESHOLD = 7; // days
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
 const { Divider, Toggle, Menu, Item } = Dropdown;
@@ -144,7 +144,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
   const outdatedUnreadNotifications = unreads
     .filter(item =>
       !!item.date
-      && differenceInCalendarDays(new Date(), new Date(item.date)) > NOTIFICATION_REMINDER_AGE_THRESHOLD
+      && differenceInCalendarDays(new Date(), new Date(item.date)) > NOTIFICATION_REMINDER_DAYS_THRESHOLD
     );
 
   const showOutdatedNotificationPopover = !!outdatedUnreadNotifications.length && !menuIsOpen;
