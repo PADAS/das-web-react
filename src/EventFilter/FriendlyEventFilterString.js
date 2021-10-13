@@ -30,7 +30,7 @@ const FriendlyEventFilterString = (props) => {
 
   const sortTypeName = hasSortConfig && sortTypeMatch.label.toLowerCase();
 
-  return <p style={{ lineHeight: 'normal', marginBottom: 0 }} className={className || ''}>
+  return <p style={{ lineHeight: 'normal' }} className={className || ''}>
     <span>{resultString}</span>
     {filterModified && 'filtered'} from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
