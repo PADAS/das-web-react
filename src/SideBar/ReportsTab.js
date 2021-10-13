@@ -13,7 +13,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
-import { isFilterModified } from '../utils/event-filter';
+import { isFilterModified, isDateFilterModified } from '../utils/event-filter';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
@@ -30,6 +30,7 @@ const ReportsTab = (props) => {
   const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, updateEventFilter, resetGlobalDateRange } = props;
 
   const filterModified = isFilterModified(eventFilter);
+  const dateFilterModified = isDateFilterModified(eventFilter);
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -119,7 +120,7 @@ const ReportsTab = (props) => {
           <EventFilter className={styles.eventFilter}/>
           <div className={styles.filterStringWrapper}>
             <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={feedSort} totalFeedEventCount={events.count} />
-            {filterModified && <Button type="button" variant='light' size='sm' onClick={resetAllFilters}><RefreshIcon /> Reset</Button>}
+            {(filterModified || dateFilterModified) && isDateFilterModified && <Button type="button" variant='light' size='sm' onClick={resetAllFilters}><RefreshIcon /> Reset</Button>}
           </div>
         </div>
       </ErrorBoundary>
