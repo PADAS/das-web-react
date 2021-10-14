@@ -1,8 +1,12 @@
-import React, { Fragment, memo, useContext, useRef, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, memo, useContext, useRef, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Dropdown from 'react-bootstrap/Dropdown';
 import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Popover from 'react-bootstrap/Popover';
+import pluralize from 'pluralize';
+
+import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import Badge from '../Badge';
 import DateTime from '../DateTime';
@@ -21,6 +25,7 @@ import { STATUSES } from '../constants';
 
 import styles from './styles.module.scss';
 
+const NOTIFICATION_REMINDER_DAYS_THRESHOLD = 7; // days
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
 const { Divider, Toggle, Menu, Item } = Dropdown;
@@ -43,6 +48,7 @@ const formatUnreadNewsItemsAsNotifications = (news = []) =>
 const onShowMoreInfo = (e) => {
   e.stopPropagation();
 };
+
 
 const NotificationItem = (item, index) => {
   const { message, infolink, onConfirm, confirmText, onDismiss } = item;
@@ -81,7 +87,9 @@ const NotificationItem = (item, index) => {
 const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _dispatch, ...rest }) => {
   const [news, setNews] = useState(null);
   const [newsFetchError, setNewsFetchError] = useState(null);
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
   const menuRef = useRef(null);
+  const toggleBtnRef = useRef(null);
   const socket = useContext(SocketContext);
 
 
@@ -105,6 +113,8 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
   const onToggle = (isOpen) => {
     trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} Notification Menu`);
 
+    setMenuIsOpen(isOpen);
+
     if (!isOpen) {
       const unreadNews = (news || []).filter(i => !i.read);
       if (!!unreadNews.length) {
@@ -126,11 +136,19 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
     }
   };
 
-  const notifications = useMemo(() => {
-    return [...userNotifications, ...(news || [])];
-  }, [news, userNotifications]);
+  const notifications = [...userNotifications, ...(news || [])];
 
-  const unreadCount = userNotifications.length + (news || []).filter(n => !n.read).length;
+  const unreads = notifications.filter(n => !n.read);
+  const unreadCount = unreads.length;
+
+  const outdatedUnreadNotifications = unreads
+    .filter(item =>
+      !!item.date
+      && differenceInCalendarDays(new Date(), new Date(item.date)) > NOTIFICATION_REMINDER_DAYS_THRESHOLD
+    );
+
+  const showOutdatedNotificationPopover = !!outdatedUnreadNotifications.length && !menuIsOpen;
+  const outdatedNotificationString = showOutdatedNotificationPopover && `You have ${unreadCount} ${pluralize('notification', unreadCount)}`;
 
   useEffect(() => {
     fetchNewsForMenu();
@@ -151,10 +169,13 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
   }, [news, socket]);
 
   return <Dropdown onToggle={onToggle} alignRight className={styles.dropdown} {...rest}>
-    <Toggle as='div' data-testid='notification-toggle'>
+    <Toggle ref={toggleBtnRef} as='div' data-testid='notification-toggle'>
       <BellIcon className={`${styles.icon} ${!!notifications.length ? styles.activeIcon : ''}`} />
       {!!unreadCount && <BadgeIcon data-testid='unread-count' className={styles.badge} count={unreadCount} />}
     </Toggle>
+    {showOutdatedNotificationPopover && <Popover className={styles.unreadNotificationsPopover} placement='bottom' target={toggleBtnRef.current} role='alert' id='overlay-example' >
+      {outdatedNotificationString}
+    </Popover>}
     <Menu className={styles.menu} ref={menuRef}>
       {!notifications.length && <h6 className={styles.noItems}>No new notifications at this time.</h6>}
       {!!notifications.length && notifications.map(NotificationItem)}

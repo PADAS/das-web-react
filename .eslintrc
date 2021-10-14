@@ -18,6 +18,12 @@
         "after": true
       }
     ],
+    "comma-spacing": [
+      "error", 
+      { "before": false,
+        "after": true 
+      }
+    ],
     "arrow-spacing": [
       "error",
       {
