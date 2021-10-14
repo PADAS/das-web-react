@@ -13,7 +13,6 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
-import { isFilterModified, isDateFilterModified } from '../utils/event-filter';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
@@ -21,16 +20,12 @@ import styles from './styles.module.scss';
 import DelayedUnmount from '../DelayedUnmount';
 import ErrorBoundary from '../ErrorBoundary';
 import EventFilter from '../EventFilter';
-import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, updateEventFilter, resetGlobalDateRange } = props;
-
-  const filterModified = isFilterModified(eventFilter);
-  const dateFilterModified = isDateFilterModified(eventFilter);
+  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, } = props;
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -98,19 +93,6 @@ const ReportsTab = (props) => {
       setFeedEvents(events.results.filter(event => !containedEventIdsToRemove.includes(event.id)));
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
-
-  // const resetAllFilters = () => {
-  //   updateEventFilter({
-  //     state: INITIAL_FILTER_STATE.state,
-  //     filter: {
-  //       event_type: INITIAL_FILTER_STATE.filter.event_type,
-  //       priority: INITIAL_FILTER_STATE.filter.priority,
-  //       reported_by: INITIAL_FILTER_STATE.filter.reported_by,
-  //     },
-  //   });
-  //   resetGlobalDateRange();
-  //   trackEvent('Event Filter', 'Click Reset All Filters');
-  // };
 
 
   return <>
