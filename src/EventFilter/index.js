@@ -250,7 +250,7 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
+  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
@@ -263,7 +263,7 @@ const EventFilter = (props) => {
     </Popover.Content>
   </Popover>;
 
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover'>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover' data-testid='filter-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         Report Filters
@@ -313,12 +313,12 @@ const EventFilter = (props) => {
         <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
         onChange={onSearchChange} onClear={onSearchClear} />
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
-          <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} role='general-filter-btn'>
+          <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
           </Button>
         </OverlayTrigger>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-          <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} role='date-filter-btn'>
+          <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='date-filter-btn'>
             <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
             <span>Dates</span>
           </Button>
@@ -326,9 +326,9 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    <div className={`${styles.filterStringWrapper} ${className}`} style={{ paddingTop: '0.5rem' }}>
+    <div className={`${styles.filterStringWrapper} ${className}`} style={{ paddingTop: '0.5rem' }} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
-      {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters}><RefreshIcon /> Reset</Button>}
+      {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>
   </>;
 };
