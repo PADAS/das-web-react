@@ -207,7 +207,7 @@ describe('reminding users of unread messages', () => {
 
   test('showing a popup if notifications have aged without being read', async () => {
     const popup = await screen.findByRole('alert');
-    expect(popup).toHaveTextContent(`You have ${unread.length} notifications`);
+    expect(popup).toHaveTextContent(`You have ${unread.length} unread notifications.`);
   });
 
   test('not showing a popup if notifications are relatively recent', () => {
