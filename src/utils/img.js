@@ -15,7 +15,7 @@ export const imgElFromSrc = (src, width = 30, height = null) => new Promise((res
   let img = new Image();
   img.setAttribute('crossorigin', 'anonymous');
 
-  img.addEventListener('load',() => {
+  img.addEventListener('load', () => {
     if (width && height) {
       img.width = width;
       img.height = height;

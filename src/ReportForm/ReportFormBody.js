@@ -8,14 +8,17 @@ import styles from './styles.module.scss';
 
 const additionalMetaSchemas = [draft4JsonSchema];
 
+const getLinearErrorPropTree = (errorProperty) => {
+  const nonPropAccessorNotations = /'|\.properties|\[|\]|\.enumNames|\.enum/g;
+  return errorProperty.replace(nonPropAccessorNotations, '.')
+    .split('.')
+    .filter(p => !!p)
+    .map(item => isNaN(item) ? item : parseFloat(item));
+};
+
 const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based errors, as it's a type conflict between the property having type='string' when our API returns strings but expecting objects in the POSTs.
   .filter((error) => {
-    const linearErrorPropTree = error.property
-      .replace(/'|\.properties|\[|\]|\.enumNames|\.enum/g, '.')
-      .split('.')
-      .filter(p => !!p)
-      .map(item => isNaN(item) ? item : parseFloat(item));
-
+    const linearErrorPropTree = getLinearErrorPropTree(error.property);
     let match;
 
     if (linearErrorPropTree.length === 1) {
@@ -30,7 +33,7 @@ const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based 
         }, schema);
     }
 
-    return !!match && !match.enum;
+    return !!match || match?.enum?.length;
   });
 
 const filterOutRequiredValueOnSchemaPropErrors = errors => errors.filter(err => !JSON.stringify(err).includes('required should be array'));
@@ -41,7 +44,10 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
   const transformErrors = useCallback((errors) => {
     const errs = filterOutRequiredValueOnSchemaPropErrors(
       filterOutEnumErrors(errors, schema));
-    return errs;
+    return errs.map(err => ({
+      ...err,
+      linearProperty: getLinearErrorPropTree(err.property)
+    }));
   }, [schema]
   );
 
@@ -51,21 +57,15 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
     className={styles.form}
     disabled={schema.readonly}
     formData={formData}
-    liveValidate={true}
     onChange={onChange}
-    formContext={
-      {
-        scrollContainer: formScrollContainer,
-      }
-    }
+    formContext={{ scrollContainer: formScrollContainer }}
     onSubmit={onSubmit}
     ref={ref}
     schema={schema}
     ObjectFieldTemplate={ObjectFieldTemplate}
     transformErrors={transformErrors}
     uiSchema={uiSchema}
-    {...rest}
-    >
+    {...rest}>
     {children}
   </Form>;
 });
