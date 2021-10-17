@@ -9,8 +9,26 @@ $filtered-color : $highlight-color;
 .wrapper {
     position: relative;
     [class*=bs-popover] {
-      width: 23.4375rem;
+      max-width: unset;
     }
+}
+
+.popover {
+  display: flex;
+  flex-wrap: wrap;
+  line-height: normal;
+  position: relative;
+  max-width: 20rem;
+  width: 100vw;
+  .results {
+    overflow-y: scroll;
+    height: 20vh;
+    width: 100%;
+  }
+}
+
+.loading_indicator, .zero_results {
+  font-weight: bold;
 }
 
 .button {
@@ -25,6 +43,7 @@ $filtered-color : $highlight-color;
   align-items: center;
   display: flex;
   position: relative;
+  width: 100%;
   input {
     border-radius: 0.25rem;
     flex-grow: 1;
@@ -124,14 +143,12 @@ $filtered-color : $highlight-color;
 
 .suggestion {
   list-style: none;
+  text-align: center;
+  padding: 0.25rem;
 }
 
 li:hover {
   cursor: pointer;
   background-color: lightgrey;
   border-radius: 5px;
-}
-
-li {
-  margin: 3px;
 }

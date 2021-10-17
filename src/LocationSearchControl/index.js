@@ -134,13 +134,13 @@ const LocationSearch = (props) => {
 
   // extract error messages for display
   const errorMessages = errors.map((err, index) => (
-    <p key={index}> {err.noResults} </p>
+    <p  className={styles.zero_results} key={index}> {err.noResults} </p>
   ));
 
   // iterate on data array of objects and displays query suggestions
   const querySuggestions = locations.map((location, index) => (
     <li
-      className='suggestion'
+      className={styles.suggestion}
       key={index}
       id={index}
       onClick={(e) => onQueryResultClick(e) }>
@@ -188,22 +188,24 @@ const LocationSearch = (props) => {
       container={wrapperRef.current} placement='right'>
       <Popover placement='right'>
         <Popover.Content>
-          <SearchBar
-            className={styles.search}
-            placeholder='Search Location ...'
-            onChange={handleSearchChange}
-            onClear={handleClearSearch}
-            onKeyDown={onKeyDown}
-            value={query}
-          />
-          <div style={{ overflowY: 'scroll', height: '20vh' }}>
-            { query && !locations.length && errorMessages }
-            { query
-              && !locations.length
-              && !errors.length
-              && isLoading && <p className='loading'> Fetching... </p>
-            }
-            { query && locations.length > 0 && <ul>{ querySuggestions}</ul> }
+          <div className={styles.popover}>
+            <SearchBar
+              className={styles.search}
+              placeholder='Search Location ...'
+              onChange={handleSearchChange}
+              onClear={handleClearSearch}
+              onKeyDown={onKeyDown}
+              value={query}
+            />
+            <div className={styles.results}>
+              { query && !locations.length && errorMessages }
+              { query
+                && !locations.length
+                && !errors.length
+                && isLoading && <p className={styles.loading_indicator}> Fetching ... </p>
+              }
+              { query && locations.length > 0 && <ul>{ querySuggestions}</ul> }
+            </div>
           </div>
         </Popover.Content>
       </Popover>
