@@ -37,7 +37,7 @@ import styles from './styles.module.scss';
 const debouncedAnalytics = debouncedTrackEvent();
 
 const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT } = props;
+  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -51,6 +51,7 @@ const EventFilter = (props) => {
   const someReportTypesChecked = !eventTypeFilterEmpty && !!reportTypesCheckedCount;
   const noReportTypesChecked = !eventTypeFilterEmpty && !someReportTypesChecked;
 
+  const isSortModified = !isEqual(DEFAULT_EVENT_SORT, sortConfig);
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
   const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
@@ -181,6 +182,7 @@ const EventFilter = (props) => {
   const resetAllFilters = () => {
     if (filterModified) resetPopoverFilters();
     if (dateRangeModified) clearDateRange();
+    onResetAll();
   };
 
   const resetStateFilter = (e) => {
@@ -328,7 +330,7 @@ const EventFilter = (props) => {
     </form>
     <div className={`${styles.filterStringWrapper} ${className}`} style={{ paddingTop: '0.5rem' }} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
-      {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
+      {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>
   </>;
 };
