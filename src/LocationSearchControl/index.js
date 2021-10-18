@@ -63,7 +63,7 @@ const LocationSearch = (props) => {
     };
   }, [active, toggleActiveState]);
 
-  // debouncing the API response
+  // debouncing the API call
   useEffect(() => {
     inputRef.current = _.debounce(fetchLocation, 500);
   }, []);
@@ -72,7 +72,9 @@ const LocationSearch = (props) => {
   const handleSearchChange = (e) => {
     const searchWord = e.target.value;
     setQuery(searchWord);
-    inputRef.current(searchWord);
+    if (searchWord.length > 2) {
+      inputRef.current(searchWord);
+    }
   };
 
   // invoked when clear button is clicked
@@ -134,7 +136,7 @@ const LocationSearch = (props) => {
 
   // extract error messages for display
   const errorMessages = errors.map((err, index) => (
-    <p  className={styles.zero_results} key={index}> {err.noResults} </p>
+    <p className={styles.zero_results} key={index}> {err.noResults} </p>
   ));
 
   // iterate on data array of objects and displays query suggestions
