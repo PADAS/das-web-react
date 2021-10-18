@@ -8,7 +8,7 @@ import uniq from 'lodash/uniq';
 import { getFeedEvents } from '../selectors';
 import { openModalForReport } from '../utils/events';
 
-import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS } from '../utils/event-filter';
+import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../utils/event-filter';
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -94,20 +94,15 @@ const ReportsTab = (props) => {
     }
   }, [events.results, optionalFeedProps.exclude_contained]);
 
-
   return <>
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
         <div className={styles.filterWrapper} data-testid='filter-wrapper'>
-          <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort}/>
+          <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort} onResetAll={resetFeedSort}>
+            <ColumnSort className={styles.dateSort} sortOptions={EVENT_SORT_OPTIONS} orderOptions={EVENT_SORT_ORDER_OPTIONS} value={feedSort} onChange={onFeedSortChange}/>
+          </EventFilter>
         </div>
       </ErrorBoundary>
-      <div className={styles.sortWrapper}>
-        <div className={styles.sortReset}>
-          {!isEqual(feedSort, DEFAULT_EVENT_SORT) && <Button className={styles.feedSortResetBtn} onClick={resetFeedSort} size='sm' variant='light'>Reset</Button>}
-        </div>
-        <ColumnSort className={styles.dateSort} options={EVENT_SORT_OPTIONS} value={feedSort} onChange={onFeedSortChange} />
-      </div>
     </DelayedUnmount>
 
     <ErrorBoundary>

@@ -9,16 +9,27 @@ import store from '../store';
 
 export const EVENT_SORT_OPTIONS = [
   {
-    label: 'Last Updated',
+    label: 'Date Updated',
     value: 'updated_at',
   },
   {
-    label: 'Creation Time',
+    label: 'Date Created',
     value: 'created_at',
   },
   {
-    label: 'Report Date',
+    label: 'Date of Report',
     value: 'event_time',
+  },
+];
+
+export const EVENT_SORT_ORDER_OPTIONS = [
+  {
+    label: 'Newest to Oldest',
+    value: '-',
+  },
+  {
+    label: 'Oldest to Newest',
+    value: '+',
   },
 ];
 
