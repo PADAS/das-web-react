@@ -8,6 +8,7 @@ import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
+import noop from 'lodash/noop';
 
 import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
@@ -37,7 +38,7 @@ import styles from './styles.module.scss';
 const debouncedAnalytics = debouncedTrackEvent();
 
 const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll } = props;
+  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll = noop } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
