@@ -28,13 +28,27 @@ export const STORAGE_KEY = 'selectedAddReportTab';
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
+export const calculatePopoverPlacement = (coordinates) => {
+  const mainMapWidth = document.querySelector('.main-map').clientWidth;
+  const mainMapHeight = document.querySelector('.main-map').clientHeight;
+  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
+
+  if (coordinates && coordinates.right / mainMapWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'left';
+  }
+  if (coordinates && coordinates.bottom / mainMapHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'right';
+  }
+  return 'auto';
+};
+
 const CategoryList = ({ category, showTitle, onClickReportType }) =>
   <div>
     {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
     <ul key={category.value} className={styles.reportTypeMenu}>
       {category.types
         .map(type => <li key={type.id}>
-          <button type='button' onClick={() => onClickReportType(type)}>
+          <button type='button' onClick={() => onClickReportType(type)} data-testid='categoryList-button'>
             <EventTypeListItem {...type} />
           </button>
         </li>)}
@@ -164,10 +178,9 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
-    map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
+    map, popoverPlacement, showLabel, showIcon, title, clickSideEffect } = props;
 
   const { hidePatrols } = formProps;
 
@@ -241,18 +254,27 @@ const AddReport = (props) => {
     setPopoverState(false);
   }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
+  const containerCoordinates = containerRef?.current?.getBoundingClientRect();
+  const popoverBestPlacement = popoverPlacement || calculatePopoverPlacement(containerCoordinates);
+
   return hasEventCategories &&
 
   <PatrolTypesContext.Provider value={patrolCategories}>
     <ReportTypesContext.Provider value={eventsByCategory}>
-      <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
-        <button title={title} className={styles.addReport} ref={targetRef}
-          type='button' onClick={onButtonClick}>
+      <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
+        <button
+          title={title}
+          className={styles.addReport}
+          ref={targetRef}
+          type='button'
+          onClick={onButtonClick}
+          data-testid='addReport-button'
+        >
           {showIcon && <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
-        <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
-          <AddReportPopover placement={popoverPlacement}  onClickReportType={startEditNewReport} />
+        <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverBestPlacement}>
+          <AddReportPopover placement={popoverBestPlacement} onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>
@@ -272,6 +294,7 @@ AddReport.defaultProps = {
     category: 'Feed',
     location: null,
   },
+  popoverPlacement: null,
   showIcon: true,
   showLabel: true,
   title: 'Add',

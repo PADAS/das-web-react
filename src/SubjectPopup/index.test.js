@@ -53,6 +53,13 @@ const store = mockStore({
   },
 });
 
+beforeEach(() => {
+  jest.spyOn(document, 'querySelector').mockImplementation(() => ({
+    clientHeight: 1000,
+    clientWidth: 1000,
+  }));
+});
+
 test('rendering without crashing', () => {
 
   render(<Provider store={store}>
