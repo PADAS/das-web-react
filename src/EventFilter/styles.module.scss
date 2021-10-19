@@ -30,6 +30,10 @@
   @media (min-width: $md-layout-width-min) {
     margin-right: unset;
     width: 35%;
+    
+    &.wider {
+      width: 56%;
+    };
   }
 }
 
@@ -304,6 +308,7 @@ div.filterPopover {
   display: flex;
   justify-content: space-between;
   padding: 0.3rem;
+  padding-top: 0.5rem !important;
 }
 
 .friendlyFilterString {

@@ -45,6 +45,7 @@ const EventFilter = (props) => {
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
 
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
+  const [childrenCount, setChildrenCount] = useState();
   const [reportTypeFilterText, setReportTypeFilterText] = useState('');
 
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
@@ -60,7 +61,6 @@ const EventFilter = (props) => {
   const filterModified = priorityFilterModified || !eventTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
 
   const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
-
     eventFilter.filter.reported_by
       .map(id =>
         reporters.find(r => r.id === id)
@@ -252,6 +252,13 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const currentCount = React.Children.count(children);
+    if (childrenCount !== currentCount) {
+      setChildrenCount(currentCount);
+    }
+  }, [children]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
@@ -312,8 +319,7 @@ const EventFilter = (props) => {
   return <>
     <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
       <div className={styles.controls}>
-        <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
-        onChange={onSearchChange} onClear={onSearchClear} />
+        <SearchBar className={`${styles.search} ${!childrenCount ? styles.wider : ''}`} placeholder='Search Reports...' value={filterText} onChange={onSearchChange} onClear={onSearchClear} />
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
           <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
@@ -328,7 +334,7 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    <div className={`${styles.filterStringWrapper} ${className}`} style={{ paddingTop: '0.5rem' }} data-testid='general-reset-wrapper'>
+    <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
       {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>
