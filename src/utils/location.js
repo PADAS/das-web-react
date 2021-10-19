@@ -2,8 +2,10 @@ import Dms from 'geodesy/dms';
 import Utm, { LatLon as LatLon_Utm } from 'geodesy/utm';
 import Mgrs, { LatLon as Latlon_Utm_Mgrs } from 'geodesy/mgrs';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
-
 import bearing from '@turf/bearing';
+
+const LNG_LAT_DECIMAL_PRECISION = 6;
+
 
 export const GPS_FORMATS = {
   DEG: 'DEG',
@@ -34,21 +36,21 @@ const degToLngLat = (deg) => {
   const locationSplit = deg.split(',');
   const lat = locationSplit[0].trim();
   const lng = locationSplit[1].trim();
-  return `${parseFloat(parseFloat(lng).toFixed(5))}, ${parseFloat(parseFloat(lat).toFixed(5))}`;
+  return `${parseFloat(parseFloat(lng).toFixed(LNG_LAT_DECIMAL_PRECISION))}, ${parseFloat(parseFloat(lat).toFixed(LNG_LAT_DECIMAL_PRECISION))}`;
 };
 
 const dmsToLngLat = (dms) => {
   const locationSplit = dms.split(', ');
   const lat = Dms.parse(locationSplit[0]);
   const lng = Dms.parse(locationSplit[1]);
-  return `${parseFloat(parseFloat(lng).toFixed(5))}, ${parseFloat(parseFloat(lat).toFixed(5))}`;
+  return `${parseFloat(parseFloat(lng).toFixed(LNG_LAT_DECIMAL_PRECISION))}, ${parseFloat(parseFloat(lat).toFixed(LNG_LAT_DECIMAL_PRECISION))}`;
 };
 
 const ddmToLngLat = (ddm) => {
   const locationSplit = ddm.split(', ');
   const lat = Dms.parse(locationSplit[0]);
   const lng = Dms.parse(locationSplit[1]);
-  return `${parseFloat(parseFloat(lng).toFixed(5))}, ${parseFloat(parseFloat(lat).toFixed(5))}`;
+  return `${parseFloat(parseFloat(lng).toFixed(LNG_LAT_DECIMAL_PRECISION))}, ${parseFloat(parseFloat(lat).toFixed(LNG_LAT_DECIMAL_PRECISION))}`;
 };
 
 const utmToLngLat = (utm) => {
@@ -96,13 +98,13 @@ export const calcGpsDisplayString = (lat, lng, gpsFormat) => {
   if (position) {
     switch (gpsFormat) {
     case GPS_FORMATS.DEG:
-      return position.toString('n', 4).split(',').map(item => item += '°').join(', ');
+      return position.toString('n', LNG_LAT_DECIMAL_PRECISION).split(',').map(item => item += '°').join(', ');
 
     case GPS_FORMATS.DMS:
-      return position.toString('dms', 4);
+      return position.toString('dms', LNG_LAT_DECIMAL_PRECISION);
 
     case GPS_FORMATS.DDM:
-      return position.toString('dm', 4);
+      return position.toString('dm', LNG_LAT_DECIMAL_PRECISION);
 
     case GPS_FORMATS.UTM:
       const posUtm = new LatLon_Utm(lat, lng).toUtm();
