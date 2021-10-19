@@ -257,7 +257,7 @@ const EventFilter = (props) => {
     if (childrenCount !== currentCount) {
       setChildrenCount(currentCount);
     }
-  }, [children]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [children, childrenCount]);
 
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>

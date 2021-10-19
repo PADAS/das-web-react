@@ -44,14 +44,14 @@ const ColumnSort = (props) => {
       </div>
     </Title>
     <Content className="styles.sortList">
-      <ListGroup className="styles.listGroup">
+      <ListGroup className="styles.listGroup" data-testid="sort-options">
         {sortOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => onClickSortOption(option)}>
           {option.value === selectedOption.value && <CheckIcon className={styles.checkIcon}/>}
           {option.label}
         </Item>)}
 
       </ListGroup>
-      <ListGroup className="styles.listGroup">
+      <ListGroup className="styles.listGroup" data-testid="order-options">
         {orderOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => toggleSortDirection(option.value)}>
           {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
           {option.label}
@@ -63,7 +63,7 @@ const ColumnSort = (props) => {
 
   return <span className={`${styles.columnWrapper} ${className}`}>
     <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={SortPopover} flip={true} rootCloseEvent='click'>
-      <Button size='sm' variant={isSortModified ? 'primary' : 'light'} className={styles.popoverTrigger}>
+      <Button size='sm' variant={isSortModified ? 'primary' : 'light'} className={styles.popoverTrigger} data-testid="sort-popover-trigger">
         <SortLines/>
         <span> {selectedOption.label} </span>
       </Button>

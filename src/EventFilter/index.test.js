@@ -13,13 +13,13 @@ import EventFilter from './';
 
 ReactGA.initialize('dummy', { testMode: true });
 const feedSort = DEFAULT_EVENT_SORT;
-
+const resetMock = jest.fn();
 
 
 test('rendering without crashing', () => {
   render(
     <Provider store={store}>
-      <EventFilter sortConfig={feedSort}/>
+      <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
     </Provider>
   );
 });
@@ -30,7 +30,7 @@ describe('default filters state', () => {
 
     render(
       <Provider store={store}>
-        <EventFilter sortConfig={feedSort}/>
+        <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
       </Provider>
     );
   });
@@ -74,7 +74,7 @@ describe('After filters being applied', () => {
   beforeEach(async () => {
     render(
       <Provider store={store}>
-        <EventFilter sortConfig={feedSort}/>
+        <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
       </Provider>
     );
 
@@ -117,5 +117,13 @@ describe('After filters being applied', () => {
 
     const currentFilterState = await store.getState().data.eventFilter;
     expect(currentFilterState).toEqual(INITIAL_FILTER_STATE);
+  });
+
+  test('clicking on reset button should call onResetAll', async () => {
+    const resetWrapper = await screen.getByTestId('general-reset-wrapper');
+    const resetButton = await within(resetWrapper).queryByText('Reset');
+    fireEvent.click(resetButton);
+
+    expect(resetMock).toHaveBeenCalledTimes(1);
   });
 });
