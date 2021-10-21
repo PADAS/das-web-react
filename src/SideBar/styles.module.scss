@@ -277,11 +277,6 @@
   transition: var(--animation-duration) all linear;
 }
 
-.eventFilter {
-  padding-left: 0.75rem;
-  padding-top: 1.25rem;
-}
-
 .sidebarEventFeed {
   margin-top: 0.75rem;
 }
@@ -291,6 +286,7 @@
     border-bottom: 1px solid $light-gray-border;
     height: var(--height);
     margin-bottom: -0.75rem;
+    padding-top: 0.5rem;
   }
 }
 

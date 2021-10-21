@@ -99,7 +99,7 @@ const ReportsTab = (props) => {
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
         <div className={styles.filterWrapper} data-testid='filter-wrapper'>
-          <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort}/>
+          <EventFilter data-testid='reports-filter' sortConfig={feedSort}/>
         </div>
       </ErrorBoundary>
       <div className={styles.sortWrapper}>

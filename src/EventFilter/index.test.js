@@ -14,8 +14,6 @@ import EventFilter from './';
 ReactGA.initialize('dummy', { testMode: true });
 const feedSort = DEFAULT_EVENT_SORT;
 
-
-
 test('rendering without crashing', () => {
   render(
     <Provider store={store}>
@@ -66,8 +64,6 @@ describe('default filters state', () => {
     const generalResetButton = within(resetWrapper).queryByText('Reset');
     expect(generalResetButton).toBeNull();
   });
-
-
 });
 
 describe('After filters being applied', () => {

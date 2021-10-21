@@ -326,7 +326,7 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    <div className={`${styles.filterStringWrapper} ${className}`} style={{ paddingTop: '0.5rem' }} data-testid='general-reset-wrapper'>
+    <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
       {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>
