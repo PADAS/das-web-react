@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useRef, useState, useEffect, useContext, useCallback, memo } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { connect } from 'react-redux';
-import _ from 'lodash';
+import debounce from 'lodash/debounce';
 import Popover from 'react-bootstrap/Popover';
 import SearchBar from '../SearchBar';
 import { jumpToLocation } from '../utils/map';
@@ -11,14 +11,13 @@ import { API_URL } from '../constants';
 import { validateLngLat } from '../utils/location';
 import { MapContext } from '../App';
 import { showPopup } from '../ducks/popup';
-import { withMap } from '../EarthRangerMap';
 import styles from './styles.module.scss';
 
 const LocationSearch = (props) => {
   const { showPopup } = props;
   const buttonRef = useRef(null);
   const wrapperRef = useRef(null);
-  const inputRef = useRef();
+  const debouncedApiCall = useRef();
   const [active, setActiveState] = useState(false);
   const [locations, setLocations] = useState([]);
   const [query, setQuery] = useState('');
@@ -65,17 +64,19 @@ const LocationSearch = (props) => {
 
   // debouncing the API call
   useEffect(() => {
-    inputRef.current = _.debounce(fetchLocation, 500);
+    debouncedApiCall.current = debounce(fetchLocation, 500);
   }, []);
 
   // listens to Change events
   const handleSearchChange = (e) => {
-    const searchWord = e.target.value;
-    setQuery(searchWord);
-    if (searchWord.length > 2) {
-      inputRef.current(searchWord);
-    }
+    setQuery(e.target.value);
   };
+
+  useEffect(() => {
+    if (query.length > 1) {
+      debouncedApiCall.current(query);
+    }
+  }, [query]);
 
   // invoked when clear button is clicked
   const handleClearSearch = () => {
@@ -215,4 +216,4 @@ const LocationSearch = (props) => {
   </div>;
 };
 
-export default connect(null, { showPopup })(withMap(memo(LocationSearch)));
+export default connect(null, { showPopup })(memo(LocationSearch));
