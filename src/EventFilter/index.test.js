@@ -38,7 +38,7 @@ describe('default filters state', () => {
     expect(filterBtn.className).toEqual(expect.stringContaining('btn-light'));
   });
 
-  test('the default state for "Date" button, should be gray and change to blue if any filter is applied', () => {
+  test('the default state for "Date" button, should be gray', () => {
     const dateFilterBtn = screen.getByTestId('date-filter-btn');
     expect(dateFilterBtn.className).toEqual(expect.stringContaining('btn-light'));
   });
