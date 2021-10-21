@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useRef, useState, useEffect, useContext, useCallback, memo } from 'react';
+import React, { useRef, useState, useEffect, useContext, useCallback, memo, useMemo } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
@@ -27,7 +27,6 @@ const LocationSearch = (props) => {
 
   const toggleActiveState = useCallback(() => setActiveState(!active), [active]);
 
-  // use context
   const map = useContext(MapContext);
 
   useEffect(() => {
@@ -40,14 +39,12 @@ const LocationSearch = (props) => {
       }
     };
 
-    // invoked when there is a click event outside the element
     const handleOutsideClick = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         toggleActiveState();
       }
     };
 
-    // bind the eventlistener
     if (active) {
       document.addEventListener('mousedown', handleOutsideClick);
       document.addEventListener('keydown', handleKeyDown);
@@ -55,19 +52,16 @@ const LocationSearch = (props) => {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleKeyDown);
     }
-    // unbind the eventlistener during cleanup
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [active, toggleActiveState]);
 
-  // debouncing the API call
   useEffect(() => {
     debouncedApiCall.current = debounce(fetchLocation, 500);
   }, []);
 
-  // listens to Change events
   const handleSearchChange = (e) => {
     setQuery(e.target.value);
   };
@@ -78,12 +72,10 @@ const LocationSearch = (props) => {
     }
   }, [query]);
 
-  // invoked when clear button is clicked
   const handleClearSearch = () => {
     setQuery('');
   };
 
-  // navigate to location on the map when Enter key is pressed
   const onKeyDown = (event) => {
     const { key } = event;
     if (key === 'Enter') {
@@ -99,7 +91,6 @@ const LocationSearch = (props) => {
     }
   };
 
-  // make api call to google geocode api
   const fetchLocation = async(query) => {
     setIsLoading(true);
     try {
@@ -128,29 +119,24 @@ const LocationSearch = (props) => {
     };
   };
 
-  // extract coordinates from api response
-  const coords = locations.map(coord => {
+  const coords = useMemo(() => locations.map(coord => {
     if (coord) {
       const coordinates = { lng: coord.coordinates.lng, lat: coord.coordinates.lat };
-      // convert the returned objects to array
       const arrayOfCoords = Object.values(coordinates);
       return arrayOfCoords;
     } else {
       return null;
     }
-  });
+  }), [locations]);
 
-  // // validate coordinates
   const validatedCoords = locations.every(coord =>
     validateLngLat(coord.coordinates.lng, coord.coordinates.lat)
   );
 
-  // extract error messages for display
   const errorMessages = errors.map((err, index) => (
     <p className={styles.zero_results} key={index}> {err.noResults} </p>
   ));
 
-  // iterate on data array of objects and displays query suggestions
   const querySuggestions = locations.map((location, index) => (
     <li
       className={styles.suggestion}
@@ -161,7 +147,6 @@ const LocationSearch = (props) => {
     </li>
   ));
 
-  // invoked when user clicks on a suggestion item
   const onQueryResultClick = (e) => {
     e.preventDefault();
     if (query) {
@@ -174,15 +159,12 @@ const LocationSearch = (props) => {
     };
   };
 
-  // add marker and marker popup
   const addMarker = (index) => {
-    // on search result item click
     if (index) {
       const point = locations[index];
       const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
       validatedCoords && showPopup('dropped-marker', { location: point.coordinates, coordinates } );
     } else {
-      // on press Enter key
       locations.forEach(points => {
         const coordinates = [ points.coordinates.lng, points.coordinates.lat ];
         validatedCoords && showPopup('dropped-marker', { location: points.coordinates, coordinates } );
