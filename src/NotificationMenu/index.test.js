@@ -116,6 +116,10 @@ describe('listing news items', () => {
       userNotificationListItem = screen.getAllByRole('listitem')[0];
     });
 
+    afterEach(() => {
+      store = mockStore({ view: { } });
+    });
+
     test('user notifications are listed above news items', async () => {
       expect(userNotificationListItem).toHaveTextContent('howdy doody');
 
@@ -182,5 +186,62 @@ describe('handling failed news requests', () => {
 
     const items = await waitFor(() => screen.getAllByRole('listitem'));
     expect(items[0]).toHaveTextContent(mockNewsData[0].description);
+  });
+});
+
+describe('reminding users of unread messages', () => {
+  const unread = mockNewsData.filter(n => n.hasOwnProperty('read') && !n.read);
+  let rendered;
+
+  beforeEach(async () => {
+    rendered = render(<Provider store={store}>
+      <SocketProvider>
+        <NotificationMenu />
+      </SocketProvider>
+    </Provider>);
+  });
+
+  afterEach(() => {
+    rendered.unmount();
+  });
+
+  test('showing a popup if notifications have aged without being read', async () => {
+    const popup = await screen.findByRole('alert');
+    expect(popup).toHaveTextContent(`You have ${unread.length} unread notifications.`);
+  });
+
+  test('not showing a popup if notifications are relatively recent', () => {
+    rendered.unmount();
+
+    const newsItemsWithRecentMessages = mockNewsData.reduce((accumulator, item) => {
+      if (item.read) return [...accumulator, item];
+      return [
+        ...accumulator,
+        {
+          ...item,
+          additional: {
+            ...item.additional,
+            created_at: new Date().toISOString(),
+          }
+        }
+      ];
+    }, []);
+
+    server.use(
+      rest.get(NEWS_API_URL, (req, res, ctx) => {
+        return res.once(ctx.json( { data: {
+          results: newsItemsWithRecentMessages,
+        } }));
+      })
+    );
+
+    rendered = render(<Provider store={store}>
+      <SocketProvider>
+        <NotificationMenu />
+      </SocketProvider>
+    </Provider>);
+
+    const popup = screen.queryByRole('alert');
+    expect(popup).not.toBeInTheDocument();
   });
 });

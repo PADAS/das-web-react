@@ -19,7 +19,7 @@ const ReportHeaderPopover = (props, ref) => {
   const linkToReport = useCallback(() => {
     try {
       const url = data.external_source.url;
-      window.open(url,'_blank');
+      window.open(url, '_blank');
     } catch (e) {
       console.log('error occured while opening external data', e);
     }
