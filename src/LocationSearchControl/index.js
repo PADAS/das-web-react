@@ -102,20 +102,30 @@ const LocationSearch = (props) => {
   // make api call to google geocode api
   const fetchLocation = async(query) => {
     setIsLoading(true);
-    const url = `${API_URL}coordinates?query=${query}`;
-    const response = await axios.get(url);
-    const { data: { data } } = response;
-    data.forEach(res => {
-      if (res.placeName && res.coordinates) {
-        setLocations(data);
-        setErrors([]);
-        setIsLoading(false);
+    try {
+      const url = `${API_URL}coordinates?query=${query}`;
+      const response = await axios.get(url);
+      const { data: { data } } = response;
+      data.forEach(res => {
+        if (res.placeName && res.coordinates) {
+          setLocations(data);
+          setErrors([]);
+          setIsLoading(false);
+        } else {
+          setErrors(data);
+          setLocations([]);
+          setIsLoading(false);
+        }
+      });
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      } else if (error.request) {
+        console.log(error.request);
       } else {
-        setErrors(data);
-        setLocations([]);
-        setIsLoading(false);
+        console.log(error.message);
       }
-    });
+    };
   };
 
   // extract coordinates from api response
