@@ -60,7 +60,7 @@ const LabeledSymbolLayer = (
     'icon-image': 'name-label-78-sdf',
     'icon-size': 1,
     'icon-text-fit': 'both',
-    'icon-text-fit-padding': [5,8,5,8],
+    'icon-text-fit-padding': [5, 8, 5, 8],
     'text-anchor': 'top',
     ...mapUserLayoutConfig,
     'text-offset': [0, 1.1],

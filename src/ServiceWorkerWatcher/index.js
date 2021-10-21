@@ -8,8 +8,8 @@ const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dis
   useEffect(() => {
     const onCodeUpdateAvailable = () => {
       if (!hasCodeUpdateNotification) {
-
         addUserNotification({
+          date: new Date().toISOString(),
           message: 'A new version of EarthRanger is available. It will be loaded the next time you refresh your browser.',
           onConfirm(_e, item) {
             setHasCodeUpdateNotification(false);

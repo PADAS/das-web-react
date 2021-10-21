@@ -1,6 +1,6 @@
 /* eslint-disable */
 if ('function' === typeof importScripts) {
-  importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js'); 
+  importScripts('https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js');
 
   // Global workbox
   if (workbox) {
@@ -14,8 +14,8 @@ if ('function' === typeof importScripts) {
     });
 
     self.addEventListener('activate', function(event) {
-    event.waitUntil(self.clients.claim()); // Become available to all pages
-});
+      event.waitUntil(self.clients.claim()); // Become available to all pages
+    });
 
     workbox.core.clientsClaim();
 
@@ -72,4 +72,7 @@ if ('function' === typeof importScripts) {
   } else {
     console.error('Workbox could not be loaded. No offline support');
   }
+
+  workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
+
 }
