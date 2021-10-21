@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import isEqual from 'react-fast-compare';
 import { connect } from 'react-redux';
+import pluralize from 'pluralize';
 
 import { calcFriendlyDurationString } from '../utils/datetime';
 import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS } from '../utils/event-filter';
@@ -17,7 +18,7 @@ const FriendlyEventFilterString = (props) => {
   let resultString;
 
   if (totalFeedEventCount) {
-    resultString = `${totalFeedEventCount} result${totalFeedEventCount === 1 ? '' : 's'}`;
+    resultString = `${totalFeedEventCount} ${pluralize('result', totalFeedEventCount)} `;
   } else {
     resultString = 'Results';
   }
@@ -30,7 +31,7 @@ const FriendlyEventFilterString = (props) => {
 
   const sortTypeName = hasSortConfig && sortTypeMatch.label.toLowerCase();
 
-  return <p style={{ lineHeight: 'normal' }} className={className || ''}>
+  return <p className={className || ''}>
     <span>{resultString}</span>
     {filterModified && 'filtered'} from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
