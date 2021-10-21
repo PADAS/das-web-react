@@ -11,6 +11,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
+import { calculatePopoverPlacement } from '../utils/map';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
@@ -28,27 +29,13 @@ export const STORAGE_KEY = 'selectedAddReportTab';
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
-export const calculatePopoverPlacement = (coordinates) => {
-  const mainMapWidth = document.querySelector('.main-map').clientWidth;
-  const mainMapHeight = document.querySelector('.main-map').clientHeight;
-  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
-
-  if (coordinates && coordinates.right / mainMapWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
-    return 'left';
-  }
-  if (coordinates && coordinates.bottom / mainMapHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
-    return 'right';
-  }
-  return 'auto';
-};
-
 const CategoryList = ({ category, showTitle, onClickReportType }) =>
   <div>
     {showTitle && <h4 className={styles.categoryTitle} id={`${category.value}-quick-select`}>{category.display}</h4>}
     <ul key={category.value} className={styles.reportTypeMenu}>
       {category.types
         .map(type => <li key={type.id}>
-          <button type='button' onClick={() => onClickReportType(type)} data-testid='categoryList-button'>
+          <button type='button' onClick={() => onClickReportType(type)} data-testid={`categoryList-button-${type.id}`}>
             <EventTypeListItem {...type} />
           </button>
         </li>)}
@@ -255,7 +242,7 @@ const AddReport = (props) => {
   }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
   const containerCoordinates = containerRef?.current?.getBoundingClientRect();
-  const popoverBestPlacement = popoverPlacement || calculatePopoverPlacement(containerCoordinates);
+  const popoverBestPlacement = popoverPlacement || calculatePopoverPlacement(map, containerCoordinates);
 
   return hasEventCategories &&
 

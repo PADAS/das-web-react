@@ -1,6 +1,6 @@
 import { createMapMock } from '../__test-helpers/mocks';
 
-import { waitForMapBounds } from './map';
+import { calculatePopoverPlacement, waitForMapBounds } from './map';
 
 let map;
 const errorObj = new Error('invalid LngLat');
@@ -71,4 +71,39 @@ describe('waitForMapBounds', () => {
 
     await expect(waitForMapBounds(map)).rejects.toEqual(errorObj);
   }); */
+});
+
+describe('calculatePopoverPlacement', () => {
+  beforeEach(() => {
+    map = createMapMock();
+  });
+
+  test('returns "left" if coordinates are more than 70% to the right of the map', async () => {
+    map.getContainer.mockImplementation(() => ({ clientHeight: 1000, clientWidth: 1000 }));
+    expect(calculatePopoverPlacement(map, { bottom: 0, right: 701 })).toBe('left');
+
+    map.getContainer.mockImplementation(() => ({ clientHeight: 500, clientWidth: 500 }));
+
+    expect(calculatePopoverPlacement(map, { bottom: 0, right: 351 })).toBe('left');
+  });
+
+  test('returns "right" if coordinates are more than 70% to the bottom of the map', async () => {
+    map.getContainer.mockImplementation(() => ({ clientHeight: 1000, clientWidth: 1000 }));
+    expect(calculatePopoverPlacement(map, { bottom: 701, right: 0 })).toBe('right');
+
+    map.getContainer.mockImplementation(() => ({ clientHeight: 500, clientWidth: 500 }));
+
+    expect(calculatePopoverPlacement(map, { bottom: 351, right: 0 })).toBe('right');
+  });
+
+  test('returns "auto" by default', async () => {
+    map.getContainer.mockImplementation(() => ({ clientHeight: 1000, clientWidth: 1000 }));
+    expect(calculatePopoverPlacement(map, { bottom: 0, right: 0 })).toBe('auto');
+    expect(calculatePopoverPlacement(map, { bottom: 700, right: 700 })).toBe('auto');
+
+    map.getContainer.mockImplementation(() => ({ clientHeight: 500, clientWidth: 500 }));
+
+    expect(calculatePopoverPlacement(map, { bottom: 0, right: 0 })).toBe('auto');
+    expect(calculatePopoverPlacement(map, { bottom: 350, right: 350 })).toBe('auto');
+  });
 });

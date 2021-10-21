@@ -284,3 +284,20 @@ export const metersPerPixel = (lat, zoom) => {
   var latitudeRadians = lat * (Math.PI/180);
   return earthCircumference * Math.cos(latitudeRadians) / Math.pow(2, zoom + 8);
 };
+
+export const calculatePopoverPlacement = (map, popoverCoordinates) => {
+  if (!map) return 'auto';
+
+  const mapContainer = map.getContainer();
+  const mainMapWidth = mapContainer.clientWidth;
+  const mainMapHeight = mapContainer.clientHeight;
+  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
+
+  if (popoverCoordinates && popoverCoordinates.right / mainMapWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'left';
+  }
+  if (popoverCoordinates && popoverCoordinates.bottom / mainMapHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'right';
+  }
+  return 'auto';
+};

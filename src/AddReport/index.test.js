@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import ReactGA from 'react-ga';
 
-import AddReport, { calculatePopoverPlacement } from './';
+import AddReport from './';
 import { createMapMock } from '../__test-helpers/mocks';
 import { createNewReportForEventType, openModalForReport } from '../utils/events';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
@@ -22,11 +22,6 @@ describe('AddReport', () => {
   beforeEach(() => {
     map = createMapMock();
     store = mockStore({ data: { eventTypes } });
-
-    jest.spyOn(document, 'querySelector').mockImplementation(() => ({
-      clientHeight: 1000,
-      clientWidth: 1000,
-    }));
 
     render(
       <Provider store={store}>
@@ -97,56 +92,12 @@ describe('AddReport', () => {
       expect(openModalForReportMock).toHaveBeenCalledTimes(0);
     });
 
-    const categoryListButton = await screen.findAllByTestId('categoryList-button');
+    const categoryListButton = await screen.findAllByTestId('categoryList-button-d0884b8c-4ecb-45da-841d-f2f8d6246abf');
     fireEvent.click(categoryListButton[0]);
 
     await waitFor(() => {
       expect(createNewReportForEventType).toHaveBeenCalled();
       expect(openModalForReportMock).toHaveBeenCalled();
     });
-  });
-});
-
-describe('calculatePopoverPlacement', () => {
-  beforeEach(() => {
-    jest.spyOn(document, 'querySelector').mockImplementation(() => ({
-      clientHeight: 1000,
-      clientWidth: 1000,
-    }));
-  });
-
-  test('returns "left" if coordinates are more than 70% to the right of the map', async () => {
-    expect(calculatePopoverPlacement({ bottom: 0, right: 701 })).toBe('left');
-
-    jest.spyOn(document, 'querySelector').mockImplementation(() => ({
-      clientHeight: 500,
-      clientWidth: 500,
-    }));
-
-    expect(calculatePopoverPlacement({ bottom: 0, right: 351 })).toBe('left');
-  });
-
-  test('returns "right" if coordinates are more than 70% to the bottom of the map', async () => {
-    expect(calculatePopoverPlacement({ bottom: 701, right: 0 })).toBe('right');
-
-    jest.spyOn(document, 'querySelector').mockImplementation(() => ({
-      clientHeight: 500,
-      clientWidth: 500,
-    }));
-
-    expect(calculatePopoverPlacement({ bottom: 351, right: 0 })).toBe('right');
-  });
-
-  test('returns "auto" by default', async () => {
-    expect(calculatePopoverPlacement({ bottom: 0, right: 0 })).toBe('auto');
-    expect(calculatePopoverPlacement({ bottom: 700, right: 700 })).toBe('auto');
-
-    jest.spyOn(document, 'querySelector').mockImplementation(() => ({
-      clientHeight: 500,
-      clientWidth: 500,
-    }));
-
-    expect(calculatePopoverPlacement({ bottom: 0, right: 0 })).toBe('auto');
-    expect(calculatePopoverPlacement({ bottom: 350, right: 350 })).toBe('auto');
   });
 });
