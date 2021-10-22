@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, within, act, fireEvent } from '@testing-library/react';
@@ -33,12 +31,12 @@ describe('default filters state', () => {
     );
   });
 
-  test('the default state for "Filter" button should be gray', async () => {
+  test('the default state for "Filter" button should be light', async () => {
     const filterBtn = screen.getByTestId('filter-btn');
     expect(filterBtn.className).toEqual(expect.stringContaining('btn-light'));
   });
 
-  test('the default state for "Date" button, should be gray', () => {
+  test('the default state for "Date" button, should be light', () => {
     const dateFilterBtn = screen.getByTestId('date-filter-btn');
     expect(dateFilterBtn.className).toEqual(expect.stringContaining('btn-light'));
   });
