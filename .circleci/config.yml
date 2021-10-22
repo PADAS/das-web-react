@@ -40,7 +40,7 @@ executors:
 jobs:
   production_build:
     executor: node/default
-    resource_class: large
+    resource_class: xlarge
     steps:
       - "setup_remote_docker"
       - "docker_login"
