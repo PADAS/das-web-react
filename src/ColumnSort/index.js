@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import {  DEFAULT_EVENT_SORT } from '../utils/event-filter';
+import {  DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
 import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down.svg';
@@ -17,12 +17,12 @@ const { Item } = ListGroup;
 const ColumnSort = (props) => {
 
   const { className = '', sortOptions, orderOptions, value, onChange } = props;
-  const [isSortUp, setSortDirection] = useState(value === '+');
+  const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
   const [direction, selectedOption] = value;
   const isSortModified = !DEFAULT_EVENT_SORT.includes(selectedOption);
 
   const toggleSortDirection = () => {
-    const newDir = direction === '+' ? '-' : '+';
+    const newDir = direction === SORT_DIRECTION.up ? SORT_DIRECTION.down : SORT_DIRECTION.up;
 
     onChange([newDir, selectedOption]);
   };
@@ -32,7 +32,7 @@ const ColumnSort = (props) => {
   };
 
   useEffect(() => {
-    setSortDirection(direction === '+');
+    setSortDirection(direction === SORT_DIRECTION.up);
   }, [direction]);
 
   const sortDirectionIcon = isSortUp ? <ArrowUp /> : <ArrowDown />;
