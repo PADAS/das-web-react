@@ -25,7 +25,7 @@ describe('adding images to the map', () => {
   test('adding new images', () => {
     map.hasImage.mockImplementation(() => false);
 
-    store = mockStore(() => ({
+    const state = {
       view: {
         mapImages: {
           id1: {
@@ -38,20 +38,22 @@ describe('adding images to the map', () => {
           },
         },
       }
-    }));
+    };
+
+    store = mockStore(() => state);
 
     render(<Provider store={store}>
       <MapImagesLayer map={map} />
     </Provider>);
 
-    expect(map.addImage).toHaveBeenCalledWith('id1', 'in_real_life_i_am_a_base64_string_or_HtmlImgElement', {});
-    expect(map.addImage).toHaveBeenCalledWith('id2', 'neato', { width: 100 });
+    expect(map.addImage).toHaveBeenCalledWith('id1', state.view.mapImages.id1.image, state.view.mapImages.id1.options);
+    expect(map.addImage).toHaveBeenCalledWith('id2', state.view.mapImages.id2.image, state.view.mapImages.id2.options);
   });
 
   test('not adding previously-loaded images', () => {
     const EXISTING_IMG_ID = 'i_am_already_here_great';
 
-    store = mockStore(() => ({
+    const state = {
       view: {
         mapImages: {
           [EXISTING_IMG_ID]: {
@@ -64,7 +66,9 @@ describe('adding images to the map', () => {
           }
         },
       }
-    }));
+    };
+
+    store = mockStore(() => state);
 
     map.hasImage.mockImplementation((id) => {
 
@@ -76,8 +80,8 @@ describe('adding images to the map', () => {
       <MapImagesLayer map={map} />
     </Provider>);
 
-    expect(map.addImage).toHaveBeenCalledWith('id2', 'yes_indeed', { height: 666 });
-    expect(map.addImage).not.toHaveBeenCalledWith(EXISTING_IMG_ID, 'in_real_life_i_am_a_base64_string_or_HtmlImgElement', { width: 0.111 });
+    expect(map.addImage).toHaveBeenCalledWith('id2', state.view.mapImages.id2.image, state.view.mapImages.id2.options);
+    expect(map.addImage).not.toHaveBeenCalledWith(EXISTING_IMG_ID, state.view.mapImages[EXISTING_IMG_ID].image, state.view.mapImages[EXISTING_IMG_ID].options);
   });
 
 });
