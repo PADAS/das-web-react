@@ -46,7 +46,7 @@ const EventFilter = (props) => {
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
 
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
-  const [childrenCount, setChildrenCount] = useState();
+  const [hasChildrenComponents, setChildrenComponentsStatus] = useState();
   const [reportTypeFilterText, setReportTypeFilterText] = useState('');
 
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
@@ -254,11 +254,12 @@ const EventFilter = (props) => {
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const currentCount = React.Children.count(children);
-    if (childrenCount !== currentCount) {
-      setChildrenCount(currentCount);
+    const childrenComponentsCount = React.Children.count(children);
+    // does the prop children has something to render? this can affect the style
+    if (hasChildrenComponents !== childrenComponentsCount?.length) {
+      setChildrenComponentsStatus(childrenComponentsCount);
     }
-  }, [children, childrenCount]);
+  }, [children, hasChildrenComponents]);
 
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
@@ -320,7 +321,7 @@ const EventFilter = (props) => {
   return <>
     <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
       <div className={styles.controls}>
-        <SearchBar className={`${styles.search} ${!childrenCount ? styles.wider : ''}`} placeholder='Search Reports...' value={filterText} onChange={onSearchChange} onClear={onSearchClear} />
+        <SearchBar className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`} placeholder='Search Reports...' value={filterText} onChange={onSearchChange} onClear={onSearchClear} />
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
           <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
