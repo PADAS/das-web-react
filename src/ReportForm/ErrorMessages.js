@@ -6,6 +6,7 @@ import Alert from 'react-bootstrap/Alert';
 
 import styles from './styles.module.scss';
 
+const MAX_ERRORS_TO_SHOW = 5;
 const ReportFormErrorMessages = (props) => {
   const { errorData, onClose } = props;
 
@@ -18,7 +19,7 @@ const ReportFormErrorMessages = (props) => {
 
       <Accordion.Collapse eventKey="0" role="menuitem" aria-expanded='false' >
         <ul>
-          {errorData.map(item =>
+          {errorData.slice(0, MAX_ERRORS_TO_SHOW).map(item =>
             <li key={`${item.label} ${item.message}`} data-testid='error-message'>
               <strong>{item.label}</strong>: <span>{item.message}</span>
             </li>)}
