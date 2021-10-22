@@ -24,7 +24,6 @@ const SearchBar = (props) => {
     const { key } = event;
     if (key === 'Enter') {
       event.preventDefault();
-      // event.originalEvent.stopPropagation();
     }
   };
 
@@ -34,8 +33,8 @@ const SearchBar = (props) => {
 
   return <label className={`${styles.search} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
-    <input placeholder={placeholder} value={value} type="text" onKeyDown={onKeyDown} onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur}/>
-    <button className={styles.clearButton} onClick={onClearClick}>
+    <input placeholder={placeholder} value={value} type="text" onKeyDown={onKeyDown} onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur} data-testid='search-input'/>
+    <button className={styles.clearButton} onClick={onClearClick} data-testid='reset-search-button'>
       <ClearIcon title='Clear search bar' className={styles.clearIcon} />
     </button>
   </label>;

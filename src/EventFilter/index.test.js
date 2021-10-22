@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, within, act, fireEvent } from '@testing-library/react';
+import { render, screen, within, fireEvent } from '@testing-library/react';
 import ReactGA from 'react-ga';
 import store from '../store';
 
