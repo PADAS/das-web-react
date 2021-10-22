@@ -1,9 +1,9 @@
-import { calcSortParamForEventFilter, sortEventsBySortConfig } from './event-filter';
+import { calcSortParamForEventFilter, sortEventsBySortConfig, SORT_DIRECTION } from './event-filter';
 import { events } from '../__test-helpers/fixtures/events';
 
 test('calcSortParamForEventFilter', () => {
-  const sortConfigPositive = ['+', { label: 'Sort option', value: 'neato' }];
-  const sortConfigNegative = ['-', { label: 'Sort option', value: 'mosquito' }];
+  const sortConfigPositive = [SORT_DIRECTION.up, { label: 'Sort option', value: 'neato' }];
+  const sortConfigNegative = [SORT_DIRECTION.down, { label: 'Sort option', value: 'mosquito' }];
 
   expect(calcSortParamForEventFilter(sortConfigPositive)).toEqual('neato');
   expect(calcSortParamForEventFilter(sortConfigNegative)).toEqual('-mosquito');
@@ -13,7 +13,7 @@ test('calcSortParamForEventFilter', () => {
 describe('sortEventsBySortConfig', () => {
   test('sorting by event.time', () => {
     const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
-    const testSortConfig = ['+', {
+    const testSortConfig = [SORT_DIRECTION.up, {
       label: 'Report Date',
       value: 'event_time',
     }];
@@ -29,7 +29,7 @@ describe('sortEventsBySortConfig', () => {
   });
   test('sorting by event.created_at', () => {
     const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
-    const testSortConfig = ['+', {
+    const testSortConfig = [SORT_DIRECTION.up, {
       label: 'Report Date',
       value: 'event_time',
     }];
@@ -43,7 +43,7 @@ describe('sortEventsBySortConfig', () => {
     expect(results[0].time).toBe('2021-07-29T23:05:57.732Z');
     expect(results[2].time).toBe('2021-08-08T23:05:57.732Z');
 
-    const results2 = sortEventsBySortConfig(results, ['-', {
+    const results2 = sortEventsBySortConfig(results, [SORT_DIRECTION.down, {
       label: 'Report Date',
       value: 'event_time',
     }]);
@@ -55,7 +55,7 @@ describe('sortEventsBySortConfig', () => {
   });
   test('sorting by event.updated_at', () => {
     const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
-    const testSortConfig = ['+', {
+    const testSortConfig = [SORT_DIRECTION.up, {
       label: 'Updated',
       value: 'updated_at',
     }];
@@ -69,7 +69,7 @@ describe('sortEventsBySortConfig', () => {
     expect(results[0].updated_at).toBe('2021-07-29T23:05:57.732Z');
     expect(results[2].updated_at).toBe('2021-08-08T23:05:57.732Z');
 
-    const results2 = sortEventsBySortConfig(results, ['-', {
+    const results2 = sortEventsBySortConfig(results, [SORT_DIRECTION.down, {
       label: 'Updated',
       value: 'updated_at',
     }]);
@@ -79,7 +79,7 @@ describe('sortEventsBySortConfig', () => {
   });
   test('sorting by event.created_at', () => {
     const testEvents = [{ ...events[0] }, { ...events[1] }, { ...events[2] }];
-    const testSortConfig = ['+', {
+    const testSortConfig = [SORT_DIRECTION.up, {
       label: 'Created',
       value: 'created_at',
     }];
@@ -93,7 +93,7 @@ describe('sortEventsBySortConfig', () => {
     expect(results[0].created_at).toBe('2021-07-29T23:05:57.732Z');
     expect(results[2].created_at).toBe('2021-08-08T23:05:57.732Z');
 
-    const results2 = sortEventsBySortConfig(results, ['-', {
+    const results2 = sortEventsBySortConfig(results, [SORT_DIRECTION.down, {
       label: 'Created',
       value: 'created_at',
     }]);

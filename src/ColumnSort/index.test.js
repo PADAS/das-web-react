@@ -1,11 +1,10 @@
 import React from 'react';
 
-
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import ArrowUp from '../common/images/icons/arrow-up.svg';
+import {  EVENT_SORT_ORDER_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
 import ColumnSort from './';
 
 const SORT_OPTIONS = [
@@ -22,16 +21,8 @@ const SORT_OPTIONS = [
     value: 'option_3',
   },
 ];
-const ORDER_OPTIONS = [
-  {
-    label: 'Newest to oldest',
-    value: '-',
-  },
-  {
-    label: 'Oldest to newest',
-    value: '+',
-  },
-];
+
+const ORDER_OPTIONS = EVENT_SORT_ORDER_OPTIONS;
 
 const onSortChange = jest.fn();
 
@@ -41,14 +32,14 @@ afterEach(() => {
 });
 
 test('rendering without crashing', () => {
-  render(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={['+', SORT_OPTIONS[0]]} onChange={onSortChange} />);
+  render(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={[SORT_DIRECTION.down, SORT_OPTIONS[0]]} onChange={onSortChange} />);
 });
 
 describe('ColumnSort control', () => {
   let sortPopoverTrigger, rendered;
 
   beforeEach(async () => {
-    rendered = render(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={['-', SORT_OPTIONS[0]]} onChange={onSortChange} />);
+    rendered = render(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={[SORT_DIRECTION.up, SORT_OPTIONS[0]]} onChange={onSortChange} />);
 
     sortPopoverTrigger = await screen.findByTestId('sort-popover-trigger');
   });
@@ -77,7 +68,7 @@ describe('ColumnSort control', () => {
 
       userEvent.click(sortOptions[2]);
 
-      expect(onSortChange).toHaveBeenCalledWith(['-', SORT_OPTIONS[2]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[2]]);
 
     });
   });
@@ -94,22 +85,22 @@ describe('ColumnSort control', () => {
 
       userEvent.click(orderOptions[1]);
 
-      expect(onSortChange).toHaveBeenCalledWith(['+', SORT_OPTIONS[0]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
     });
 
     test('positive sorting', () => {
       const sortDirectionControl = screen.getByTestId('sort-direction-toggle');
 
       userEvent.click(sortDirectionControl);
-      expect(onSortChange).toHaveBeenCalledWith(['+', SORT_OPTIONS[0]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
     });
 
     test('negative sorting', () => {
-      rendered.rerender(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={['+', SORT_OPTIONS[2]]} onChange={onSortChange} />);
+      rendered.rerender(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={[SORT_DIRECTION.down, SORT_OPTIONS[2]]} onChange={onSortChange} />);
       const sortDirectionControl = screen.getByTestId('sort-direction-toggle');
 
       userEvent.click(sortDirectionControl);
-      expect(onSortChange).toHaveBeenCalledWith(['-', SORT_OPTIONS[2]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[2]]);
     });
   });
 
