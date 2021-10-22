@@ -285,18 +285,21 @@ export const metersPerPixel = (lat, zoom) => {
   return earthCircumference * Math.cos(latitudeRadians) / Math.pow(2, zoom + 8);
 };
 
-export const calculatePopoverPlacement = (map, popoverCoordinates) => {
-  if (!map) return 'auto';
+export const calculatePopoverPlacement = (map, popoverLocation) => {
+  if (!map || !popoverLocation) return 'auto';
 
-  const mapContainer = map.getContainer();
-  const mainMapWidth = mapContainer.clientWidth;
-  const mainMapHeight = mapContainer.clientHeight;
   const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
 
-  if (popoverCoordinates && popoverCoordinates.right / mainMapWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  const mapBounds = map.getBounds();
+  const mapRelativeWidth = mapBounds._ne.lng - mapBounds._sw.lng;
+  const mapRelativeHeight = mapBounds._sw.lat - mapBounds._ne.lat;
+  const popoverRelativeCoordinateX = popoverLocation.lng - mapBounds._sw.lng;
+  const popoverRelativeCoordinateY = popoverLocation.lat - mapBounds._ne.lat;
+
+  if (popoverRelativeCoordinateX / mapRelativeWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'left';
   }
-  if (popoverCoordinates && popoverCoordinates.bottom / mainMapHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if (popoverRelativeCoordinateY / mapRelativeHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'right';
   }
   return 'auto';

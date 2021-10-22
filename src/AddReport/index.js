@@ -11,7 +11,6 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
-import { calculatePopoverPlacement } from '../utils/map';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
@@ -241,9 +240,6 @@ const AddReport = (props) => {
     setPopoverState(false);
   }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
-  const containerCoordinates = containerRef?.current?.getBoundingClientRect();
-  const popoverBestPlacement = popoverPlacement || calculatePopoverPlacement(map, containerCoordinates);
-
   return hasEventCategories &&
 
   <PatrolTypesContext.Provider value={patrolCategories}>
@@ -260,8 +256,8 @@ const AddReport = (props) => {
           {showIcon && <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
-        <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverBestPlacement}>
-          <AddReportPopover placement={popoverBestPlacement} onClickReportType={startEditNewReport} />
+        <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
+          <AddReportPopover placement={popoverPlacement} onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>
@@ -281,7 +277,7 @@ AddReport.defaultProps = {
     category: 'Feed',
     location: null,
   },
-  popoverPlacement: null,
+  popoverPlacement: 'auto',
   showIcon: true,
   showLabel: true,
   title: 'Add',

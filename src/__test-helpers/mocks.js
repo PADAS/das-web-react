@@ -1,7 +1,10 @@
 export const createMapMock = (override = {}) => {
   const mockMap = {
     addSource: jest.fn(),
-    getContainer: jest.fn().mockReturnValue({ clientHeight: 1000, clientWidth: 1000 }),
+    getBounds: jest.fn().mockReturnValue({
+      _ne: { lat: -2.8749870286402768, lng: 37.55610681436622 },
+      _sw: { lat: -3.480332977332381, lng: 36.96196978906826 },
+    }),
     removeSource: jest.fn(),
     addLayer: jest.fn(),
     on: jest.fn(),

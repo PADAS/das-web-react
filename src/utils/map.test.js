@@ -79,31 +79,51 @@ describe('calculatePopoverPlacement', () => {
   });
 
   test('returns "left" if coordinates are more than 70% to the right of the map', async () => {
-    map.getContainer.mockImplementation(() => ({ clientHeight: 1000, clientWidth: 1000 }));
-    expect(calculatePopoverPlacement(map, { bottom: 0, right: 701 })).toBe('left');
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2, lng: 39 },
+      _sw: { lat: -3, lng: 37 },
+    }));
 
-    map.getContainer.mockImplementation(() => ({ clientHeight: 500, clientWidth: 500 }));
+    expect(calculatePopoverPlacement(map, { lat: -2.5, lng: 38.5 })).toBe('left');
 
-    expect(calculatePopoverPlacement(map, { bottom: 0, right: 351 })).toBe('left');
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2.5, lng: 38 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+
+    expect(calculatePopoverPlacement(map, { lat: -3, lng: 37.71 })).toBe('left');
   });
 
   test('returns "right" if coordinates are more than 70% to the bottom of the map', async () => {
-    map.getContainer.mockImplementation(() => ({ clientHeight: 1000, clientWidth: 1000 }));
-    expect(calculatePopoverPlacement(map, { bottom: 701, right: 0 })).toBe('right');
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2, lng: 39 },
+      _sw: { lat: -3, lng: 37 },
+    }));
 
-    map.getContainer.mockImplementation(() => ({ clientHeight: 500, clientWidth: 500 }));
+    expect(calculatePopoverPlacement(map, { lat: -2.8, lng: 38 })).toBe('right');
 
-    expect(calculatePopoverPlacement(map, { bottom: 351, right: 0 })).toBe('right');
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2.5, lng: 38 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+
+    expect(calculatePopoverPlacement(map, { lat: -2.9, lng: 37.5 })).toBe('right');
   });
 
   test('returns "auto" by default', async () => {
-    map.getContainer.mockImplementation(() => ({ clientHeight: 1000, clientWidth: 1000 }));
-    expect(calculatePopoverPlacement(map, { bottom: 0, right: 0 })).toBe('auto');
-    expect(calculatePopoverPlacement(map, { bottom: 700, right: 700 })).toBe('auto');
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2, lng: 39 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+    expect(calculatePopoverPlacement(map, { lat: -2, lng: 37 })).toBe('auto');
+    expect(calculatePopoverPlacement(map, { lat: -2.5, lng: 38 })).toBe('auto');
 
-    map.getContainer.mockImplementation(() => ({ clientHeight: 500, clientWidth: 500 }));
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2.5, lng: 38 },
+      _sw: { lat: -3, lng: 37 },
+    }));
 
-    expect(calculatePopoverPlacement(map, { bottom: 0, right: 0 })).toBe('auto');
-    expect(calculatePopoverPlacement(map, { bottom: 350, right: 350 })).toBe('auto');
+    expect(calculatePopoverPlacement(map, { lat: -2.5, lng: 37 })).toBe('auto');
+    expect(calculatePopoverPlacement(map, { lat: -2.7, lng: 37.5 })).toBe('auto');
   });
 });
