@@ -37,7 +37,7 @@ const visibleTrackData = createSelector(
   },
 );
 
-export const trackTimeEnvelope = createSelector([trackLength, getTimeSliderState, getEventFilterDateRange],
+export const trackTimeEnvelope = createSelector([trackLength, (...args) => getTimeSliderState(...args), (...args) => getEventFilterDateRange(...args) ],
   (trackLength, timeSliderState, eventFilterDateRange) => {
     const { virtualDate, active: timeSliderActive } = timeSliderState;
     const { lower } = eventFilterDateRange;
