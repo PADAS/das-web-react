@@ -8,4 +8,4 @@ export const extractObjectDifference = (object, original) => transform(object, (
   }
 });
 
-export const removeNullAndUndefinedValuesFromObject = obj => Object.entries(obj).reduce((a,[k,v]) => (v == null ? a : { ...a, [k]: v }), {});
+export const removeNullAndUndefinedValuesFromObject = obj => Object.entries(obj).reduce((a, [k, v]) => (v == null ? a : { ...a, [k]: v }), {});
