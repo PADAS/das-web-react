@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, within, fireEvent } from '@testing-library/react';
@@ -14,7 +12,6 @@ import EventFilter from './';
 ReactGA.initialize('dummy', { testMode: true });
 const feedSort = DEFAULT_EVENT_SORT;
 const resetMock = jest.fn();
-
 
 test('rendering without crashing', () => {
   render(
@@ -35,12 +32,12 @@ describe('default filters state', () => {
     );
   });
 
-  test('the default state for "Filter" button should be gray', async () => {
+  test('the default state for "Filter" button should be light', async () => {
     const filterBtn = screen.getByTestId('filter-btn');
     expect(filterBtn.className).toEqual(expect.stringContaining('btn-light'));
   });
 
-  test('the default state for "Date" button, should be gray and change to blue if any filter is applied', () => {
+  test('the default state for "Date" button, should be light', () => {
     const dateFilterBtn = screen.getByTestId('date-filter-btn');
     expect(dateFilterBtn.className).toEqual(expect.stringContaining('btn-light'));
   });
@@ -66,8 +63,6 @@ describe('default filters state', () => {
     const generalResetButton = within(resetWrapper).queryByText('Reset');
     expect(generalResetButton).toBeNull();
   });
-
-
 });
 
 describe('After filters being applied', () => {

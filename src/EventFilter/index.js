@@ -256,7 +256,7 @@ const EventFilter = (props) => {
   useEffect(() => {
     const childrenComponentsCount = React.Children.count(children);
     // does the prop children has something to render? this can affect the style
-    if (hasChildrenComponents !== childrenComponentsCount?.length) {
+    if (hasChildrenComponents !== childrenComponentsCount) {
       setChildrenComponentsStatus(childrenComponentsCount);
     }
   }, [children, hasChildrenComponents]);

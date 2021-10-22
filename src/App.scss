@@ -200,7 +200,6 @@ aside {
   border-radius: 0.666rem;
   line-height: normal;
   max-width: 18rem;
-  padding: 0.5rem 0.333rem 0.333rem;
   position: absolute;
   right: 0;
   top: 0;
@@ -208,6 +207,10 @@ aside {
   width: 100vw;
   z-index: 7;
   flex-wrap: wrap;
+
+  .report-filter {
+    padding: 0.333rem;
+  }
 
   form {
     border: none;

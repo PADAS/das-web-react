@@ -597,7 +597,7 @@ class Map extends Component {
 
             <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
-                <EventFilter />
+                <EventFilter className='report-filter'/>
               </div>
             </DelayedUnmount>
 
