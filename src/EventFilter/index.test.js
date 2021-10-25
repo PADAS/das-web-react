@@ -1,8 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, within, fireEvent } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import ReactGA from 'react-ga';
 import store from '../store';
+import userEvent from '@testing-library/user-event';
 
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
@@ -74,10 +75,10 @@ describe('After filters being applied', () => {
     );
 
     const filterBtn = await screen.getByTestId('filter-btn');
-    fireEvent.click(filterBtn);
+    userEvent.click(filterBtn);
     const filterPopover = await screen.getByTestId('filter-popover');
     const resolvedOptionBtn = await within(filterPopover).queryByText('Resolved');
-    fireEvent.click(resolvedOptionBtn);
+    userEvent.click(resolvedOptionBtn);
   });
 
   test('the state color for "Filter" button after filters being applied should be primary', async () => {
@@ -87,10 +88,10 @@ describe('After filters being applied', () => {
 
   test('the state color for "Date" button after filters being applied should be primary', async () => {
     const dateFilterBtn = await screen.getByTestId('date-filter-btn');
-    fireEvent.click(dateFilterBtn);
+    userEvent.click(dateFilterBtn);
     const dateFilterPopover = await screen.getByTestId('filter-date-popover');
     const todayOptionBtn = await within(dateFilterPopover).queryByText('Today');
-    fireEvent.click(todayOptionBtn);
+    userEvent.click(todayOptionBtn);
 
     expect(dateFilterBtn.className).toEqual(expect.stringContaining('btn-primary'));
   });
@@ -100,7 +101,7 @@ describe('After filters being applied', () => {
     const resetButton = await within(resetWrapper).queryByText('Reset');
     expect(resetButton).toBeDefined();
 
-    fireEvent.click(resetButton);
+    userEvent.click(resetButton);
     const resetButtonAgain = await within(resetWrapper).queryByText('Reset');
     expect(resetButtonAgain).toBeNull();
   });
@@ -108,7 +109,7 @@ describe('After filters being applied', () => {
   test('all the applied filters disappear when the reset button is clicked', async () => {
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const resetButton = await within(resetWrapper).queryByText('Reset');
-    fireEvent.click(resetButton);
+    userEvent.click(resetButton);
 
     const currentFilterState = await store.getState().data.eventFilter;
     expect(currentFilterState).toEqual(INITIAL_FILTER_STATE);
@@ -117,7 +118,7 @@ describe('After filters being applied', () => {
   test('clicking on reset button should call onResetAll', async () => {
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const resetButton = await within(resetWrapper).queryByText('Reset');
-    fireEvent.click(resetButton);
+    userEvent.click(resetButton);
 
     expect(resetMock).toHaveBeenCalledTimes(1);
   });

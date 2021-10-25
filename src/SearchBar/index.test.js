@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-// import userEvent from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 
 import SearchBar from './';
 
@@ -29,13 +29,13 @@ describe('searching and reset', () => {
 
   test('it should call onChange', () => {
     const searchInput = screen.getByTestId('search-input');
-    fireEvent.change(searchInput, { target: { value: 'test' } });
+    userEvent.change(searchInput, { target: { value: 'test' } });
     expect(changeMock).toHaveBeenCalledTimes(1);
   });
 
   test('it should clear the search input after clicking the reset button', async () => {
     const resetButton = await screen.getByTestId('reset-search-button');
-    fireEvent.click(resetButton);
+    userEvent.click(resetButton);
     expect(clearMock).toHaveBeenCalledTimes(1);
   });
 });
