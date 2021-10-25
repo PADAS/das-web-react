@@ -128,6 +128,7 @@ div.datePopover {
 
 .saveErrorAlert {
   @include fade-in;
+  padding: 1rem 0.5rem 0rem !important;
   border-radius: 0 !important;
   background-color: rgba(253, 242, 244, 0.95);
   box-shadow: rgba(0, 0, 0, 0.45) 0rem 1.5rem 1.2rem -1.2rem;
@@ -153,6 +154,12 @@ div.datePopover {
   &:hover {
     color: $bright-red !important;
   }
+}
+
+.saveErrorAlertList {
+  max-height: 6.9rem;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .reportControls {
@@ -281,13 +288,9 @@ div.datePopover {
   h4 {
     align-items: center;
     display: flex;
-    //font-size: 1rem;
     width: 100%;
     > span, > form {
       margin-left: 0.5rem;
-    }
-    @media #{$whenPageIsMediumHeightAndWidth} {
-      //font-size: 1.5rem;
     }
   }
   
