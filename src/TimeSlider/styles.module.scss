@@ -81,10 +81,14 @@ $contrast: 25%;
   width: 75%;
   z-index: 10;
   @media (min-width: $md-layout-width-min) {
-    width: 87.5%;
+    width: 80.5%;
   }
   @media (min-width: $lg-layout-width-min) {
     left:4rem;
+    width: 82%;
+  }
+  @media (min-width: $xl-layout-width-min) {
+    width: 85%;
   }
   @media print {
     display: none;

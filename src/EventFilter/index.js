@@ -68,7 +68,7 @@ const EventFilter = (props) => {
       ).filter(item => !!item)
     : [];
 
-  const isMediumLayout = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
 
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
@@ -330,7 +330,7 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    {isMediumLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
+    {isLargeLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
       {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>}
