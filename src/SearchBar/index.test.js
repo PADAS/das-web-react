@@ -29,8 +29,8 @@ describe('searching and reset', () => {
 
   test('it should call onChange', () => {
     const searchInput = screen.getByTestId('search-input');
-    userEvent.change(searchInput, { target: { value: 'test' } });
-    expect(changeMock).toHaveBeenCalledTimes(1);
+    userEvent.type(searchInput, 'ER');
+    expect(changeMock).toHaveBeenCalledTimes(2);
   });
 
   test('it should clear the search input after clicking the reset button', async () => {
