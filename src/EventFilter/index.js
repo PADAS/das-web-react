@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useEffect, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -46,7 +46,6 @@ const EventFilter = (props) => {
   const eventTypeFilterEmpty = !currentFilterReportTypes.length;
 
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
-  const [hasChildrenComponents, setChildrenComponentsStatus] = useState();
   const [reportTypeFilterText, setReportTypeFilterText] = useState('');
 
   const reportTypesCheckedCount = intersection(eventTypeIDs, currentFilterReportTypes).length;
@@ -60,6 +59,8 @@ const EventFilter = (props) => {
   const reportedByFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by);
 
   const filterModified = priorityFilterModified || !eventTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
+
+  const hasChildrenComponents = useMemo(() => !!React.Children.count(children), [children]);
 
   const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
     eventFilter.filter.reported_by
@@ -253,13 +254,13 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    const childrenComponentsCount = React.Children.count(children);
-    // does the prop children has something to render? this can affect the style
-    if (hasChildrenComponents !== childrenComponentsCount) {
-      setChildrenComponentsStatus(childrenComponentsCount);
-    }
-  }, [children, hasChildrenComponents]);
+  // useEffect(() => {
+  //   const childrenComponentsCount = React.Children.count(children);
+  //   // does the prop children has something to render? this can affect the style
+  //   if (hasChildrenComponents !== childrenComponentsCount) {
+  //     setChildrenComponentsStatus(childrenComponentsCount);
+  //   }
+  // }, [children, hasChildrenComponents]);
 
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
