@@ -211,6 +211,10 @@ aside {
   @media (min-width: $md-layout-width-min) {
     right: 4.5rem;
     top: 0.5rem;
+    max-width: 18rem;
+  }
+
+  @media (min-width: $lg-layout-width-min) {
     max-width: 22rem;
   }
 
