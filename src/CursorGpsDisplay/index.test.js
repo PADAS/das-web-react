@@ -55,7 +55,7 @@ test('showing coordinates on mouse move', async () => {
   act(() => {
     map.__test__.fireHandlers('mousemove', { lngLat: { lng: 10.012657, lat: 11.666666 } });
   });
-  await screen.findByText('11.666666, 10.012657');
+  await screen.findByText('11.666666°, 10.012657°');
 });
 
 test('showing the GPS format toggler on click', async () => {
