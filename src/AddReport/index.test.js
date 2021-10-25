@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import ReactGA from 'react-ga';
 
 import AddReport from './';
 import { createMapMock } from '../__test-helpers/mocks';
@@ -14,8 +13,6 @@ jest.mock('../utils/events', () => ({
   createNewReportForEventType: jest.fn(),
   openModalForReport: jest.fn(),
 }));
-
-ReactGA.initialize('dummy', { testMode: true });
 
 describe('AddReport', () => {
   let map, store;
@@ -78,7 +75,7 @@ describe('AddReport', () => {
     });
   });
 
-  test('starts the edition of a new report', async () => {
+  test('starts the addition of a new report', async () => {
     const createNewReportForEventTypeMock = jest.fn();
     createNewReportForEventType.mockImplementation(createNewReportForEventTypeMock);
     const openModalForReportMock = jest.fn();
