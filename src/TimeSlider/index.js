@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import format from 'date-fns/format';
@@ -6,6 +6,7 @@ import TimeAgo from '../TimeAgo';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
+import debounce from 'lodash/debounce';
 
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
@@ -51,7 +52,7 @@ const TimeSlider = (props) => {
     trackEvent('Map Interaction', `Click '${direction} Time Slider Anchor'`);
   };
 
-  const onRangeChange = ({ target: { value } }) => {
+  const onRangeChange = useCallback(({ target: { value } }) => {
     // slight 'snap' at upper limit
     if (value >= .99999) {
       until ? setVirtualDate(until) : clearVirtualDate();
@@ -68,7 +69,7 @@ const TimeSlider = (props) => {
     }
 
 
-  };
+  }, [clearVirtualDate, endDate, setVirtualDate, startDate, until]);
 
   const onSliderChange = (event) => {
     onRangeChange(event);
@@ -90,6 +91,19 @@ const TimeSlider = (props) => {
   useEffect(() => {
     onRangeChange({ target: { value: 1 } });
   }, [since, until]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const handleResize = () => {
+      onRangeChange({ target: { value } });
+    };
+
+    const debouncedHandler = debounce(handleResize, 300);
+
+    window.addEventListener('resize', debouncedHandler);
+    return () => {
+      window.removeEventListener('resize', debouncedHandler);
+    };
+  }, [onRangeChange, value]);
 
   const PopoverContent = ({ popoverClassName, ...rest }) => {
     return <Popover {...rest} className={`${styles.popover} ${props.className}`}>
