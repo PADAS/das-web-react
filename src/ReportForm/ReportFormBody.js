@@ -4,17 +4,13 @@ import draft4JsonSchema from 'ajv/lib/refs/json-schema-draft-04.json';
 
 import { ObjectFieldTemplate } from '../SchemaFields';
 
+import { getLinearErrorPropTree, filterOutErrorsForHiddenProperties } from '../utils/event-schemas';
+
 import styles from './styles.module.scss';
 
 const additionalMetaSchemas = [draft4JsonSchema];
 
-const getLinearErrorPropTree = (errorProperty) => {
-  const nonPropAccessorNotations = /'|\.properties|\[|\]|\.enumNames|\.enum/g;
-  return errorProperty.replace(nonPropAccessorNotations, '.')
-    .split('.')
-    .filter(p => !!p)
-    .map(item => isNaN(item) ? item : parseFloat(item));
-};
+
 
 const filterOutEnumErrors = (errors, schema) => errors // filter out enum-based errors, as it's a type conflict between the property having type='string' when our API returns strings but expecting objects in the POSTs.
   .filter((error) => {
@@ -42,13 +38,16 @@ const ReportFormBody = forwardRef((props, ref) => { // eslint-disable-line react
   const { formData, formScrollContainer, children, schema, uiSchema, onChange, onSubmit, ...rest } = props;
 
   const transformErrors = useCallback((errors) => {
-    const errs = filterOutRequiredValueOnSchemaPropErrors(
-      filterOutEnumErrors(errors, schema));
+    const errs =
+    filterOutErrorsForHiddenProperties(
+      filterOutRequiredValueOnSchemaPropErrors(
+        filterOutEnumErrors(errors, schema))
+      , uiSchema);
     return errs.map(err => ({
       ...err,
       linearProperty: getLinearErrorPropTree(err.property)
     }));
-  }, [schema]
+  }, [schema, uiSchema]
   );
 
 
