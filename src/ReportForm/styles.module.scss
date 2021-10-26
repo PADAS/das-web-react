@@ -128,18 +128,30 @@ div.datePopover {
 
 .saveErrorAlert {
   @include fade-in;
-  border-radius: 0;
-  bottom: -1rem;
-  box-shadow: 0 0 .25rem rgb(38, 38, 38);
-  min-height: 10rem;
-  position: absolute;
+  border-radius: 0 !important;
+  background-color: rgba(253, 242, 244, 0.95);
+  box-shadow: rgba(0, 0, 0, 0.45) 0rem 1.5rem 1.2rem -1.2rem;
+  color: $bright-red;
+  font-weight: 500;
+  position: absolute !important;
   width: 100%;
   z-index: 5;
-  h5 {
+  span {
     margin-bottom: 1rem;
   }
   ul {
     margin: 0;
+  }
+}
+
+.saveErrorAlertLink {
+  display: inline;
+  color: $bright-red !important;
+  padding-top: 0.22rem !important;
+  text-decoration: underline !important;
+  
+  &:hover {
+    color: $bright-red !important;
   }
 }
 
