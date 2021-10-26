@@ -38,13 +38,39 @@ describe('filterOutErrorsForHiddenProperties', () => {
     'schemaPath': '#/properties/enum/minItems'
   };
 
-  const errors = [error1, error2];
+  const error3 = {
+    'name': 'minItems',
+    'property': '.properties[\'i_belong_elsewhere\'].enum',
+    'message': 'should NOT have fewer than 1 items',
+    'params': {
+      'limit': 1
+    },
+    'stack': '.properties[\'i_belong_elsewhere\'].enum should NOT have fewer than 1 items',
+    'schemaPath': '#/properties/enum/minItems'
+  };
+
+  const error4 = {
+    'name': 'minItems',
+    'property': '.properties[\'yesPleaseOk\'].enum',
+    'message': 'should NOT have fewer than 1 items',
+    'params': {
+      'limit': 1
+    },
+    'stack': '.properties[\'yesPleaseOk\'].enum should NOT have fewer than 1 items',
+    'schemaPath': '#/properties/enum/minItems'
+  };
+
+  const errors = [error1, error2, error3, error4];
 
   const uiSchema = {
     'ui:groups': [
       {
         origin: 'fieldset',
-        items: ['howdyThere']
+        items: ['howdyThere', 'yesPleaseOk']
+      },
+      {
+        origin: 'fieldset',
+        items: ['i_belong_elsewhere']
       }
     ]
   };
@@ -52,7 +78,7 @@ describe('filterOutErrorsForHiddenProperties', () => {
   const filtered = filterOutErrorsForHiddenProperties(errors, uiSchema);
 
   test('keeping an error if its value is included in the ui:groups', () => {
-    expect(filtered).toEqual(expect.arrayContaining([error2]));
+    expect(filtered).toEqual(expect.arrayContaining([error2, error3, error4]));
   });
   test('removing an error if its value is NOT included in the ui:groups', () => {
     expect(filtered).not.toEqual(expect.arrayContaining([error1]));
