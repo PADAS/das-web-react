@@ -1,4 +1,4 @@
-import { getLinearErrorPropTree, filterOutErrorsForHiddenProperties } from './event-schemas';
+import { filterOutRequiredValueOnSchemaPropErrors, getLinearErrorPropTree, filterOutErrorsForHiddenProperties } from './event-schemas';
 
 describe('getLinearErrorPropTree', () => {
   const errorPropTree = '.properties[\'reportcounty\'].enum';
@@ -56,5 +56,32 @@ describe('filterOutErrorsForHiddenProperties', () => {
   });
   test('removing an error if its value is NOT included in the ui:groups', () => {
     expect(filtered).not.toEqual(expect.arrayContaining([error1]));
+  });
+});
+
+describe('filterOutRequiredValueOnSchemaPropErrors', () => {
+  const error1 = {
+    'name': 'minItems',
+    'property': '.properties[\'reportcounty\'].enum',
+    'message': 'should NOT have fewer than 1 items',
+    'params': {
+      'limit': 1
+    },
+    'stack': '.properties[\'reportcounty\'].enum should NOT have fewer than 1 items',
+    'schemaPath': '#/properties/enum/minItems'
+  };
+
+  const error2 = {
+    'name': 'requiredArray',
+    'property': '.properties[\'howdyThere\']',
+    'message': 'required should be array',
+    'stack': '.properties[\'howdyThere\'].enum should be an array',
+    'schemaPath': '#/properties/requiredArray'
+  };
+
+  const filtered = filterOutRequiredValueOnSchemaPropErrors([error1, error2]);
+
+  it('removes invalid "required should be an array" validation messages', () => {
+    expect(filtered).not.toEqual(expect.arrayContaining([error2]));
   });
 });

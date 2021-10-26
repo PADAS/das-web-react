@@ -110,6 +110,8 @@ export const getLinearErrorPropTree = (errorProperty) => {
     .map(item => isNaN(item) ? item : parseFloat(item));
 };
 
+export const filterOutRequiredValueOnSchemaPropErrors = errors => errors.filter(err => !JSON.stringify(err).includes('required should be array'));
+
 export const filterOutErrorsForHiddenProperties = (errors, uiSchema) => {
   const propsInForm =
       uiSchema['ui:groups']
