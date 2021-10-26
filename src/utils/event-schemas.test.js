@@ -81,7 +81,11 @@ describe('filterOutRequiredValueOnSchemaPropErrors', () => {
 
   const filtered = filterOutRequiredValueOnSchemaPropErrors([error1, error2]);
 
-  it('removes invalid "required should be an array" validation messages', () => {
+  test('removing invalid "required should be an array" validation messages', () => {
     expect(filtered).not.toEqual(expect.arrayContaining([error2]));
+  });
+
+  test('preserving other error messages', () => {
+    expect(filtered).toEqual(expect.arrayContaining([error1]));
   });
 });
