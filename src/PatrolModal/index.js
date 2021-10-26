@@ -104,14 +104,14 @@ const PatrolModal = (props) => {
     // don't show the contained reports, which are also bound to the segment
     const allReports = [...addedReports, ...patrolReports];
     const incidents = allReports.filter(report => report.is_collection);
-    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])],[]);
+    const incidentIds = incidents.reduce((accumulator, incident) => [...accumulator, ...(getEventIdsForCollection(incident)|| [])], []);
     const topLevelReports = allReports.filter(report =>
       !incidentIds.includes(report.id));
 
     return orderBy(topLevelReports, [
       (item) => {
         return new Date(item.updated_at);
-      }],['acs']);
+      }], ['acs']);
   }, [addedReports, patrolReports]);
 
   const allPatrolReportIds = useMemo(() => {
@@ -474,7 +474,7 @@ const PatrolModal = (props) => {
     return orderBy(allUpdates, [
       (item) => {
         return new Date(item.time);
-      }],['desc']);
+      }], ['desc']);
   }, [statePatrol]);
 
   const patrolWithFlattenedHistory = useMemo(() => {

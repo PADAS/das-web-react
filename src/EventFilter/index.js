@@ -11,6 +11,7 @@ import uniq from 'lodash/uniq';
 
 import { EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
@@ -23,9 +24,11 @@ import PriorityPicker from '../PriorityPicker';
 import ReportedBySelect from '../ReportedBySelect';
 import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
+import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 
 import { debouncedTrackEvent } from '../utils/analytics';
 
@@ -34,7 +37,7 @@ import styles from './styles.module.scss';
 const debouncedAnalytics = debouncedTrackEvent();
 
 const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, reporters, resetGlobalDateRange, updateEventFilter } = props;
+  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -170,9 +173,14 @@ const EventFilter = (props) => {
   };
 
   const clearDateRange = (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     resetGlobalDateRange();
     trackEvent('Event Filter', 'Click Reset Date Range Filter');
+  };
+
+  const resetAllFilters = () => {
+    if (filterModified) resetPopoverFilters();
+    if (dateRangeModified) clearDateRange();
   };
 
   const resetStateFilter = (e) => {
@@ -242,7 +250,7 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
+  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
@@ -255,7 +263,7 @@ const EventFilter = (props) => {
     </Popover.Content>
   </Popover>;
 
-  const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover'>
+  const FilterPopover = <Popover className={`${styles.filterPopover} ${styles.filters}`} id='filter-popover' data-testid='filter-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         Report Filters
@@ -299,30 +307,37 @@ const EventFilter = (props) => {
     </Popover.Content>
   </Popover>;
 
-  return <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
-    <div className={styles.controls}>
-      <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
+  return <>
+    <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
+      <div className={styles.controls}>
+        <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
         onChange={onSearchChange} onClear={onSearchClear} />
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
-        <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger}>
-          <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
-        </Button>
-      </OverlayTrigger>
-      <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-        <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger}>
-          <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
-          <span>Dates</span>
-        </Button>
-      </OverlayTrigger>
-      {children}
+        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
+          <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
+            <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
+          </Button>
+        </OverlayTrigger>
+        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
+          <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='date-filter-btn'>
+            <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
+            <span>Dates</span>
+          </Button>
+        </OverlayTrigger>
+        {children}
+      </div>
+    </form>
+    <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
+      <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
+      {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>
-  </form>;
+  </>;
 };
 
 const mapStateToProps = (state) =>
   ({
     eventFilter: state.data.eventFilter,
     eventTypes: state.data.eventTypes,
+    feedEvents: state.data.feedEvents,
     reporters: reportedBy(state),
   });
 

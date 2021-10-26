@@ -7,7 +7,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
-import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent  } from '../utils/events';
+import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
@@ -86,7 +86,7 @@ const ReportForm = (props) => {
 
   const handleSaveError = useCallback((e) => {
     setSavingState(false);
-    setSaveErrorState(e);
+    setSaveErrorState(generateErrorListForApiResponseDetails(e));
     onSaveError && onSaveError(e);
     setTimeout(clearErrors, 7000);
   }, [onSaveError]);
@@ -322,6 +322,15 @@ const ReportForm = (props) => {
     setSavingState(true);
   };
 
+  const showError = (err) => {
+    const formattedErrors = err.map(e => ({
+      ...e,
+      label: schema?.properties?.[e.linearProperty]?.title ?? e.linearProperty,
+    }));
+
+    setSaveErrorState([...formattedErrors]);
+  };
+
   const startSubmitForm = useCallback(() => {
     if (is_collection) {
       startSave();
@@ -449,7 +458,6 @@ const ReportForm = (props) => {
   return <ContextProvider value={report}>
 
     {saving && <LoadingOverlay message='Saving...' className={styles.loadingOverlay} />}
-    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
 
     <Header
       analyticsMetadata={{
@@ -462,6 +470,7 @@ const ReportForm = (props) => {
       title={reportTitle} onTitleChange={onReportTitleChange}
     />
 
+    {saveError && <ReportFormErrorMessages onClose={clearErrors} errorData={saveError} />}
     <div ref={reportedBySelectPortalRef} style={{ padding: 0 }}></div>
 
     <Body ref={scrollContainerRef}>
@@ -490,6 +499,7 @@ const ReportForm = (props) => {
           formScrollContainer={scrollContainerRef.current}
           onChange={onDetailChange}
           onSubmit={startSave}
+          onError={showError}
           schema={schema}
           uiSchema={uiSchema}>
           <AttachmentList
