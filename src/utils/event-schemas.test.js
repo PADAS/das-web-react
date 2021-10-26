@@ -54,7 +54,7 @@ describe('filterOutErrorsForHiddenProperties', () => {
   it('keeps an error if its value is included in the ui:groups', () => {
     expect(filtered).toEqual(expect.arrayContaining([error2]));
   });
-  it('removes an error if its value is included in the ui:groups', () => {
+  it('removes an error if its value is NOT included in the ui:groups', () => {
     expect(filtered).not.toEqual(expect.arrayContaining([error1]));
   });
 });
