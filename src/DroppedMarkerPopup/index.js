@@ -10,33 +10,37 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 const AddReport = withMap(AR);
 
-const DroppedMarkerPopup = ({ data: { location }, id, hidePopup, ...rest }) => {
+const DroppedMarkerPopup = ({ data: { location }, id, hidePopup, popoverPlacement }) => {
   const containerRef = useRef(null);
   const onComplete = () => {
     hidePopup(id);
   };
 
-  return <>
-    <GpsFormatToggle lng={location.lng} lat={location.lat} />
-    <hr ref={containerRef} />
-    <AddReport showLabel={false}
-      analyticsMetadata={{
-        category: 'Map Interaction',
-        location: 'dropped marker on map',
-      }}
-      reportData={{
-        location: {
-          latitude: location.lat,
-          longitude: location.lng,
-        }
+  return (
+    <>
+      <GpsFormatToggle lng={location.lng} lat={location.lat} />
+      <hr ref={containerRef} />
+      <AddReport
+        showLabel={false}
+        analyticsMetadata={{
+          category: 'Map Interaction',
+          location: 'dropped marker on map',
+        }}
+        reportData={{
+          location: {
+            latitude: location.lat,
+            longitude: location.lng,
+          }
 
-      }}
-      formProps={{
-        onSaveSuccess: onComplete,
-        onSaveError: onComplete,
-      }}
-    />
-  </>;
+        }}
+        formProps={{
+          onSaveSuccess: onComplete,
+          onSaveError: onComplete,
+        }}
+        popoverPlacement={popoverPlacement}
+      />
+    </>
+  );
 };
 
 DroppedMarkerPopup.propTypes = {
