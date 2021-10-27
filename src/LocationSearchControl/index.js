@@ -23,7 +23,6 @@ const LocationSearch = (props) => {
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null); /* eslint-disable-line no-unused-vars */
   const [errors, setErrors] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const toggleActiveState = useCallback(() => setActiveState(!active), [active]);
@@ -73,19 +72,8 @@ const LocationSearch = (props) => {
     }
   }, [query]);
 
-  useEffect(() => {
-    if (query.length > 1) {
-      const matches = locations.filter(match => {
-        return match.placeName.toLowerCase().includes(query.toLocaleLowerCase());
-      });
-      console.log('suggestions', matches);
-      setSuggestions(matches);
-    }
-  }, [query, locations]);
-
   const handleClearSearch = () => {
     setQuery('');
-    setLocations([]);
   };
 
   const onKeyDown = (event) => {
@@ -99,7 +87,6 @@ const LocationSearch = (props) => {
         setQuery('');
       } else {
         setQuery('');
-        setLocations([]);
       }
     }
   };
@@ -150,7 +137,7 @@ const LocationSearch = (props) => {
     <p className={styles.zero_results} key={index}> {err.noResults} </p>
   ));
 
-  const querySuggestions = suggestions.map((location, index) => (
+  const querySuggestions = locations.map((location, index) => (
     <li
       className={styles.suggestion}
       key={index}
