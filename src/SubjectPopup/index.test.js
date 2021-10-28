@@ -1,13 +1,10 @@
 
 
-import { createMapMock } from '../__test-helpers/mocks';
-// import ReactMapboxGl from 'react-mapbox-gl';
 import React from 'react';
 import { Provider } from 'react-redux';
-// import ReactGA from 'react-ga';
 
-import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
+import { createMapMock } from '../__test-helpers/mocks';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
 
 import { render, screen, within } from '@testing-library/react';

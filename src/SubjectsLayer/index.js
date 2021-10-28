@@ -44,15 +44,6 @@ const SubjectsLayer = (props) => {
   useEffect(() => {
     setMapSubjectFeatures({
       ...subjects,
-      /* features: subjects.features.filter((feature) => {
-        return !!mapImages[
-          calcImgIdFromUrlForMapImages(
-            feature.properties.last_position 
-              ? feature.properties.last_position.image 
-              : (feature.properties.image || feature.properties.image_url)
-            , feature.properties.width, feature.properties.height)
-        ];
-      }), */
     });
   }, [subjects, mapImages]);
 

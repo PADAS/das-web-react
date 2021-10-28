@@ -581,7 +581,7 @@ class Map extends Component {
                 bounceEventIDs={bounceEventIDs} />
             </DelayedUnmount>
 
-            <MapImagesLayer />
+            <MapImagesLayer map={map} />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
