@@ -60,8 +60,8 @@
     "eject": "react-scripts eject",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true react-scripts test --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
-    "test-cov": "yarn test-ci --coverage --silent --coverageReporters=json-summary",
+    "test-ci": "CI=true react-scripts test --silent --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "test-cov": "yarn test-ci --coverage --coverageReporters=json-summary",
     "posttest-cov": "jest-coverage-thresholds-bumper --margin=1",
     "postinstall": "sh setUpLocalGitConfig.sh"
   },
