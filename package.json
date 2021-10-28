@@ -60,7 +60,8 @@
     "eject": "react-scripts eject",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true react-scripts test --verbose  --transformIgnorePatterns \"node_modules/(?!geodesy)/\""
+    "test-ci": "CI=true react-scripts test --coverage --coverageReporters=json-summary --verbose  --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "posttest-ci": "jest-coverage-thresholds-bumper --margin=1"
   },
   "devDependencies": {
     "@babel/runtime": "^7.7.4",
@@ -73,6 +74,7 @@
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^1.6.0",
+    "jest-coverage-thresholds-bumper": "^1.0.1",
     "jest-webgl-canvas-mock": "^0.2.3",
     "madge": "^5.0.1",
     "msw": "^0.32.0",
@@ -83,6 +85,16 @@
     "stylelint-config-css-modules": "^2.2.0",
     "stylelint-config-standard": "^22.0.0",
     "stylelint-scss": "^3.21.0"
+  },
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 13,
+        "functions": 12,
+        "lines": 28,
+        "statements": 27
+      }
+    }
   },
   "browserslist": [
     "last 1 chrome version",
