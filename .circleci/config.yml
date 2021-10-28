@@ -101,10 +101,10 @@ workflows:
   version: 2
   docker_build_workflow:
     jobs:
-      - execute_smoke_tests
-      - production_build:
-          requires:
-            - execute_smoke_tests
+      # - execute_smoke_tests
+      - production_build
+          # requires:
+          #   - execute_smoke_tests
       - push_to_storage:
           requires:
             - production_build
