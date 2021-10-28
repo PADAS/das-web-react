@@ -13,7 +13,7 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 const AddReport = withMap(AR);
 
-const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, ...rest }) => {
+const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, popoverPlacement }) => {
   const { coords, timestamp } = location;
   const lastRead = new Date(timestamp);
 
@@ -27,20 +27,22 @@ const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, ...rest }
     <p>Accurate to within {coords.accuracy} meters</p>
     <p>Last checked <TimeAgo date={lastRead} /></p>
     <hr />
-    <AddReport  analyticsMetadata={{
-      category: 'Map Interaction',
-      location: 'current user location',
-    }} reportData={{
-      location: {
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      }
-    }}
-    showLabel={false}
-    formProps={{
-      onSaveSuccess: onComplete,
-      onSaveError: onComplete,
-    }}
+    <AddReport
+      analyticsMetadata={{
+        category: 'Map Interaction',
+        location: 'current user location',
+      }} reportData={{
+        location: {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        }
+      }}
+      showLabel={false}
+      formProps={{
+        onSaveSuccess: onComplete,
+        onSaveError: onComplete,
+      }}
+      popoverPlacement={popoverPlacement}
     />
   </>;
 };

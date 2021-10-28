@@ -56,7 +56,7 @@
     "build-sw": "node ./src/sw-build.js",
     "clean-cra-sw": "rm -f build/precache-manifest.*.js && rm -f build/service-worker.js",
     "build": "GENERATE_SOURCEMAP=false react-scripts build && npm run build-sw && npm run clean-cra-sw",
-    "test": "react-scripts test  --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
     "eject": "react-scripts eject",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
