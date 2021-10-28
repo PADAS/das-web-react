@@ -199,14 +199,18 @@ aside {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 0.666rem;
   line-height: normal;
-  max-width: 17rem;
-  padding: 0.5rem 0.333rem 0.333rem;
+  max-width: 18rem;
   position: absolute;
   right: 0;
   top: 0;
   transition: all 0.3s linear;
   width: 100vw;
   z-index: 7;
+  flex-wrap: wrap;
+
+  .report-filter {
+    padding: 0.333rem;
+  }
 
   form {
     border: none;
@@ -219,7 +223,7 @@ aside {
   }
 
   @media (min-width: $md-layout-width-min) {
-    max-width: 25rem;
+    max-width: 28rem;
     right: 4.5rem;
     top: 0.5rem;
   }

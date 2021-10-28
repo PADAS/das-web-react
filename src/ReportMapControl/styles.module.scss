@@ -4,14 +4,19 @@
 .container {
   align-items: center;
   display: flex;
-  justify-content: flex-start;
-  padding: 1rem;
+  justify-content: space-between;
+  padding: 1rem 3rem 1rem 1rem;
   border-bottom: 1px solid #d8d9d9;
-  h5 {
-    font-weight: 600;
-    margin: 0 0 0 1rem;
-  }
-  svg {
-    cursor: pointer;
+
+  > div {
+    display: flex;
+
+    h5 {
+      font-weight: 600;
+      margin: 0 0 0 1rem;
+    }
+    svg {
+      cursor: pointer;
+    }
   }
 }

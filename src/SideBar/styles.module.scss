@@ -30,13 +30,6 @@
   }
 }
 
-.heatmapButton {
-  --dimensions: 1.75rem;
-
-  height: var(--dimensions);
-  width: var(--dimensions);
-}
-
 .tabBar {
   height: 3rem;
   margin-left: 4rem;
@@ -284,35 +277,6 @@
   transition: var(--animation-duration) all linear;
 }
 
-.filterStringWrapper {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
-
-.eventFilter {
-  padding-left: 0.75rem;
-  padding-top: 1.25rem;
-}
-
-.friendlyFilterString {
-  display: block;
-  font-size: 0.75rem;
-  line-height: normal;
-  padding: 0.5rem 0.5rem 0.5rem;
-  transition: 0.3s all linear;
-  width: 73.5%;
-}
-
-.totalReportCountString {
-  display: block;
-  font-size: 0.75rem;
-  line-height: normal;
-  padding: 0.5rem 0.5rem 0.5rem;
-  transition: 0.3s all linear;
-  text-align: right;
-}
-
 .sidebarEventFeed {
   margin-top: 0.75rem;
 }
@@ -322,6 +286,7 @@
     border-bottom: 1px solid $light-gray-border;
     height: var(--height);
     margin-bottom: -0.75rem;
+    padding-top: 0.5rem;
   }
 }
 

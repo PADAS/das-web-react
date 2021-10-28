@@ -51,7 +51,6 @@ import SubjectHeatmapLegend from '../SubjectHeatmapLegend';
 import SubjectTrackLegend from '../SubjectTrackLegend';
 import PatrolTrackLegend from '../PatrolTrackLegend';
 import EventFilter from '../EventFilter';
-import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
 import TimeSlider from '../TimeSlider';
 import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
@@ -582,7 +581,7 @@ class Map extends Component {
                 bounceEventIDs={bounceEventIDs} />
             </DelayedUnmount>
 
-            <MapImagesLayer />
+            <MapImagesLayer map={map} />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
@@ -598,8 +597,7 @@ class Map extends Component {
 
             <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
               <div className='floating-report-filter'>
-                <EventFilter />
-                <FriendlyEventFilterString className='map-report-filter-details' />
+                <EventFilter className='report-filter'/>
               </div>
             </DelayedUnmount>
 
@@ -660,7 +658,7 @@ class Map extends Component {
 
 const mapStatetoProps = (state, props) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, eventTypes, } = data;
+  const { maps, tracks, eventFilter, eventTypes } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
