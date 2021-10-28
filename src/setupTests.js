@@ -1,5 +1,8 @@
+import ReactGA from 'react-ga';
 import 'jest-webgl-canvas-mock';
 import '@testing-library/jest-dom/extend-expect';
+
+ReactGA.initialize('dummy', { testMode: true });
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
