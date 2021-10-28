@@ -106,8 +106,10 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
       onLocationSelectStart={startMovingReportMarker}
       onLocationSelect={onLocationSelect} />
 
-    {shouldShowMarkerLayer && <MouseMarkerLayer location={location} {...rest} />}
-    {shouldShowMarkerLayer && showMarkerPopup && moving && <MouseMarkerPopup location={location} />}
+    {shouldShowMarkerLayer && <>
+      <MouseMarkerLayer location={location} {...rest} />
+      {showMarkerPopup && moving && <MouseMarkerPopup location={location} />}
+    </>}
   </Fragment>;
 };
 

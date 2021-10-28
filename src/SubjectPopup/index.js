@@ -22,7 +22,7 @@ import styles from './styles.module.scss';
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = (props) => {
-  const { data, map, showPopup } = props;
+  const { data, map, popoverPlacement, showPopup } = props;
   const  { geometry, properties } = data;
 
   const device_status_properties =
@@ -81,8 +81,8 @@ const SubjectPopup = (props) => {
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>:&nbsp;
-          <span>
-            {value}<span className={styles.unit}> {units}</span>
+          <span data-testid='additional-props-value'>
+            {value.toString()}<span className={styles.unit}> {units}</span>
           </span>
         </li>
       )}
@@ -97,7 +97,11 @@ const SubjectPopup = (props) => {
               category: 'Map Interaction',
               location: 'subject popover',
             }}
-            className={styles.addReport} reportData={{ location: locationObject, reportedById }} showLabel={false} />
+            className={styles.addReport}
+            reportData={{ location: locationObject, reportedById }}
+            showLabel={false}
+            popoverPlacement={popoverPlacement}
+          />
           {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
             <ChatIcon className={styles.messagingIcon} />
           </Button>}
