@@ -7,7 +7,7 @@ import GpsFormatToggle from '../GpsFormatToggle';
 
 export default class TimepointPopup extends PureComponent {
   render() {
-    const { data: { geometry, properties } } = this.props;
+    const { data: { geometry, properties }, popoverPlacement } = this.props;
 
     const locationObject = {
       longitude: geometry.coordinates[0],
@@ -24,10 +24,15 @@ export default class TimepointPopup extends PureComponent {
         {properties.time && <DateTime date={properties.time} />}
         <GpsFormatToggle lng={locationObject.longitude} lat={locationObject.latitude} />
         <hr />
-        <AddReport  analyticsMetadata={{
-          category: 'Map Interaction',
-          location: 'track timepoint',
-        }} reportData={{ location: locationObject, reportedById, time }} showLabel={false} />
+        <AddReport
+          analyticsMetadata={{
+            category: 'Map Interaction',
+            location: 'track timepoint',
+          }}
+          reportData={{ location: locationObject, reportedById, time }}
+          showLabel={false}
+          popoverPlacement={popoverPlacement}
+        />
       </>
     );
   }
