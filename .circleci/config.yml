@@ -54,6 +54,11 @@ jobs:
           environment:
             NODE_OPTIONS: --max_old_space_size=8192 
       - run:
+          command: npm rebuild node-sass
+          name: Rebuild node-sass
+          environment:
+            NODE_OPTIONS: --max_old_space_size=8192
+      - run:
           command: CI=false npm run build
           name: Build Production Artefact
           environment:
