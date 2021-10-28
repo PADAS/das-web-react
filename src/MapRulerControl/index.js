@@ -7,6 +7,7 @@ import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 
+import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import MapRulerLayer from '../MapRulerLayer';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
@@ -197,8 +198,8 @@ const MapRulerControl = (props) => {
     </div>
     {active && <Fragment>
       {points.length > 1 && <Fragment>
-        {!completed && <MemoizedPointPopup points={points} point={points[points.length - 1]} drawing={!completed} onClickFinish={onClickFinish} />}
-        {completed && !!selectedPoint && <MemoizedPointPopup points={points} point={selectedPoint} drawing={!completed} />}
+        {!completed && <MemoizedPointPopup map={map} points={points} point={points[points.length - 1]} drawing={!completed} onClickFinish={onClickFinish} />}
+        {completed && !!selectedPoint && <MemoizedPointPopup map={map} points={points} point={selectedPoint} drawing={!completed} />}
       </Fragment>}
       <MapRulerLayer drawing={!completed} onPointClick={onPointClick} points={points} pointerLocation={pointerLocation}  />
     </Fragment>}
@@ -209,7 +210,7 @@ export default connect(null, { setPickingMapLocationState })(memo(withMap(MapRul
 
 
 const PointPopup = (props) => {
-  const { drawing, onClickFinish, point, points } = props;
+  const { drawing, map, onClickFinish, point, points } = props;
   const pointIndex = points.findIndex(p => isEqual(p, point));
   const isFirstPoint = pointIndex === 0;
   const popupOffset = [0, -4];
@@ -237,6 +238,7 @@ const PointPopup = (props) => {
     return calcPositiveBearing(prevPoint, point).toFixed(2);
   }, [isFirstPoint, point, pointIndex, points]);
 
+  const popoverPlacement = calculatePopoverPlacement(map, { lat: point[1], lng: point[0] });
 
   return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
 
@@ -259,7 +261,9 @@ const PointPopup = (props) => {
             latitude: point[1],
             longitude: point[0],
           }
-        }} />
+        }}
+        popoverPlacement={popoverPlacement}
+      />
     </Fragment>}
     {
       drawing && <p onClick={onClickFinish} className={styles.finishButton}>

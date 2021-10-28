@@ -34,7 +34,7 @@ const CategoryList = ({ category, showTitle, onClickReportType }) =>
     <ul key={category.value} className={styles.reportTypeMenu}>
       {category.types
         .map(type => <li key={type.id}>
-          <button type='button' onClick={() => onClickReportType(type)}>
+          <button type='button' onClick={() => onClickReportType(type)} data-testid={`categoryList-button-${type.id}`}>
             <EventTypeListItem {...type} />
           </button>
         </li>)}
@@ -164,10 +164,9 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
-    map, popoverPlacement = 'auto', showLabel, showIcon, title, clickSideEffect } = props;
+    map, popoverPlacement, showLabel, showIcon, title, clickSideEffect } = props;
 
   const { hidePatrols } = formProps;
 
@@ -245,14 +244,20 @@ const AddReport = (props) => {
 
   <PatrolTypesContext.Provider value={patrolCategories}>
     <ReportTypesContext.Provider value={eventsByCategory}>
-      <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className}>
-        <button title={title} className={styles.addReport} ref={targetRef}
-          type='button' onClick={onButtonClick}>
+      <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
+        <button
+          title={title}
+          className={styles.addReport}
+          ref={targetRef}
+          type='button'
+          onClick={onButtonClick}
+          data-testid='addReport-button'
+        >
           {showIcon && <AddButtonIcon />}
           {showLabel && <span>{title}</span>}
         </button>
         <Overlay show={popoverOpen} container={containerRef.current} target={targetRef.current} placement={popoverPlacement}>
-          <AddReportPopover placement={popoverPlacement}  onClickReportType={startEditNewReport} />
+          <AddReportPopover placement={popoverPlacement} onClickReportType={startEditNewReport} />
         </Overlay>
       </div>
     </ReportTypesContext.Provider>
@@ -272,6 +277,7 @@ AddReport.defaultProps = {
     category: 'Feed',
     location: null,
   },
+  popoverPlacement: 'auto',
   showIcon: true,
   showLabel: true,
   title: 'Add',
