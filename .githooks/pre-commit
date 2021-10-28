@@ -50,15 +50,4 @@
 
 yarn test-cov
 yarn lint
-yarn audit --groups=dependencies --level=critical
-
-if [ $? == 1 ]
-  then
-    exit 1
-elif [ $? \< 16 ]
-  then
-    exit 0
-  else
-    echo "\033[33mCommit failed, critical security vulnerability found in one of the project's dependencies. Please resolve as per the audit report above, then re-commit.\033[0m"
-    exit 1
-fi
+yarn audit; [[ $? -ge 16 ]] && exit $? || exit 0
