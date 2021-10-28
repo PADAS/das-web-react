@@ -254,14 +254,6 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // useEffect(() => {
-  //   const childrenComponentsCount = React.Children.count(children);
-  //   // does the prop children has something to render? this can affect the style
-  //   if (hasChildrenComponents !== childrenComponentsCount) {
-  //     setChildrenComponentsStatus(childrenComponentsCount);
-  //   }
-  // }, [children, hasChildrenComponents]);
-
   const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
