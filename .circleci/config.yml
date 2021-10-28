@@ -79,7 +79,23 @@ jobs:
     steps:
       - checkout
       - trigger_downstream_builds:
-        name: "Trigger downstream builds"
+          name: "Trigger downstream builds"
+  execute_smoke_tests:
+    docker:
+      - image: docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
+    steps:
+      - run: 'npm run test:cloud'
+      - run: 'npm run report:cloud'
+      - run: |
+          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+          gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+      - run: |
+          gsutil cp -r ./_results_/allure-raw gs://er-report-test/
+
 
 workflows:
   version: 2
