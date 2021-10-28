@@ -57,4 +57,4 @@ if [ $? -ge 16 ]
 fi
 
 yarn test-cov
-yarn lint
+yarn lint --quiet
