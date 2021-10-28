@@ -74,6 +74,8 @@ const LocationSearch = (props) => {
 
   const handleClearSearch = () => {
     setQuery('');
+    setLocations([]);
+    setErrors([]);
   };
 
   const onKeyDown = (event) => {
@@ -87,6 +89,16 @@ const LocationSearch = (props) => {
         setQuery('');
       } else {
         setQuery('');
+        setErrors([]);
+        setLocations([]);
+      }
+    }
+    if (key === 'Backspace' || key === 'Delete') {
+      event.preventDefault();
+      if (query) {
+        setQuery('');
+        setLocations([]);
+        setErrors([]);
       }
     }
   };
