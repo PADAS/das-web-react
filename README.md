@@ -2,6 +2,8 @@
 This is the web interface for EarthRanger. It is built with React (whose bootstrapping documentation is kept inline at the end of this document), using Redux for state management and Mapbox GL for map rendering. For an exhaustive list of 3rd-party dependencies, please review the package.json file at the root of this project.
 
 ## Setting up for development
+Once you have cloned this repository, execute the `setupLocalGitConfig.sh` command to ensure you are using this project's hooks and custom git config. This is a one-time-only step.
+
 To start developing within this repo, you need to have [Docker](https://www.docker.com/get-started), [Node](https://nodejs.org/), and [Yarn](https://yarnpkg.com/) installed. Once docker is up and running, `cd` into the root of this project repository and run the following command: `docker-compose up --build`.
 
 This will build three images: one is the developer build of the application, one is an nginx instance serving that application up, and one is running the test environment. Once up and running, you may view the web application at http://localhost:9000/. It will auto-refresh in sync with your local changes as you edit the code. New tests, or tests related to any changed files during your development, will auto-run on every save.
