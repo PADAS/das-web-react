@@ -50,6 +50,8 @@
 
 yarn audit --groups=dependencies --level=critical
 
+echo $?
+
 if [ $? == 1 ]
   then
     exit 1
