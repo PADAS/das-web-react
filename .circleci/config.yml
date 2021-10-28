@@ -79,7 +79,7 @@ jobs:
     steps:
       - checkout
       - trigger_downstream_builds:
-          name: "Trigger downstream builds"
+        name: "Trigger downstream builds"
   execute_smoke_tests:
     docker:
       - image: docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
