@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 
+import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 
 import SubjectPopup from '../SubjectPopup';
@@ -87,7 +88,7 @@ const templates = {
   },
 };
 
-const PopupLayer = ({ popup, ...rest }) => {
+const PopupLayer = ({ popup, map, ...rest }) => {
   const { id, type, data } = popup;
   const template = templates[type];
 
@@ -102,8 +103,13 @@ const PopupLayer = ({ popup, ...rest }) => {
     ...popupAttrsOverride,
   };
 
+  const popoverPlacement = calculatePopoverPlacement(map, {
+    lng: coordinates && coordinates[0],
+    lat: coordinates && coordinates[1],
+  });
+
   return <Popup coordinates={coordinates} {...finalPopupAttrs} key={id}>
-    <Component data={data} {...rest} />
+    <Component data={data} map={map} popoverPlacement={popoverPlacement} {...rest} />
   </Popup>;
 };
 
