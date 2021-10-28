@@ -82,7 +82,7 @@ jobs:
         name: "Trigger downstream builds"
   execute_smoke_tests:
     docker:
-      - image: docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
+      - image: gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
         auth:
           username: _json_key
           password: $GCLOUD_SERVICE_KEY
@@ -102,7 +102,9 @@ workflows:
   docker_build_workflow:
     jobs:
       - execute_smoke_tests
-      - production_build
+      - production_build:
+          requires:
+            - execute_smoke_tests
       - push_to_storage:
           requires:
             - production_build
