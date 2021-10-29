@@ -85,7 +85,7 @@ jobs:
       - image: gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
         auth:
           username: _json_key
-          password: $ENCODED_GCR_KEY
+          password: $GCLOUD_SERVICE_KEY
     steps:
       - run: 'npm run test:cloud'
       - run: 'npm run report:cloud'
