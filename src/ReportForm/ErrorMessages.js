@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
@@ -8,15 +8,16 @@ import styles from './styles.module.scss';
 
 const ReportFormErrorMessages = (props) => {
   const { errorData, onClose } = props;
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   return <Alert onClose={onClose} dismissible={true} className={styles.saveErrorAlert} data-testid='errors-alert' >
-    <Accordion>
+    <Accordion onSelect={selection => setIsDetailsOpen(!!selection)}>
       <span>Error saving report.</span>
-      <Accordion.Toggle as={Button} variant="link" eventKey="0" className={styles.saveErrorAlertLink} data-testid='error-details-btn'>
-        See details
+      <Accordion.Toggle as={Button} variant="link" eventKey="1" className={styles.saveErrorAlertLink} data-testid='error-details-btn'>
+        {isDetailsOpen ? 'Hide details' : 'See details'}
       </Accordion.Toggle>
 
-      <Accordion.Collapse eventKey="0" role="menuitem" aria-expanded='false' >
+      <Accordion.Collapse eventKey="1" role="menuitem" aria-expanded='false' className={styles.saveErrorAlertList}>
         <ul>
           {errorData.map(item =>
             <li key={`${item.label} ${item.message}`} data-testid='error-message'>
