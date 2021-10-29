@@ -21,6 +21,8 @@ import styles from './styles.module.scss';
 
 const { Title, Content } = Popover;
 
+const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
+
 const TimeSlider = (props) => {
   const { sidebarOpen, timeSliderState, since, until, clearVirtualDate, setVirtualDate, resetGlobalDateRange } = props;
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
@@ -97,7 +99,7 @@ const TimeSlider = (props) => {
       onRangeChange({ target: { value } });
     };
 
-    const debouncedHandler = debounce(handleResize, 300);
+    const debouncedHandler = debounce(handleResize, WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY);
 
     window.addEventListener('resize', debouncedHandler);
     return () => {
