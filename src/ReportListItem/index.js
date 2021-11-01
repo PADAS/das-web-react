@@ -66,6 +66,8 @@ const ReportListItem = (props) => {
     locationClicked.current = true;
   };
 
+  const dateTimeProp = displayTime || report.updated_at || report.time;
+
   return <li title={displayTitle} className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
     <button role='img' type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
       <EventIcon report={report} />
@@ -73,10 +75,10 @@ const ReportListItem = (props) => {
     </button>
     <span className={styles.serialNumber}>{report.serial_number}</span>
     <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitle}</button>
-    <span className={styles.date}>
-      <DateTime date={displayTime || report.updated_at || report.time} />
+    {dateTimeProp && <span className={styles.date}>
+      <DateTime date={dateTimeProp} />
       {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
-    </span>
+    </span>}
     {coordinates && !!coordinates.length && showJumpButton &&
       <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} onClick = {onClick}
         clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />

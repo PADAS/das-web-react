@@ -12,7 +12,7 @@ import uniq from 'lodash/uniq';
 import { PATROL_CARD_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
 import { trackEvent } from '../utils/analytics';
-import { calcPatrolCardState, displayTitleForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { calcPatrolCardState, displayTitleForPatrol, patrolStateAllowsTrackDisplay, displayStartTimeForPatrol, patrolStateDetailsOverdueStartTime, patrolStateDetailsEndTime } from '../utils/patrols';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
 import LoadingOverlay from '../LoadingOverlay';
@@ -76,6 +76,18 @@ const activePatrolsFeedRecuer = (state, action) => {
     };
   }
   return state;
+};
+
+const calcPatrolListItemDisplayTime = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+
+  if (patrolState === PATROL_CARD_STATES.DONE) {
+    patrolStateDetailsEndTime(patrol);
+  }
+  if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    patrolStateDetailsOverdueStartTime(patrol);
+  }
+  return displayStartTimeForPatrol(patrol);
 };
 
 const AddToPatrolModal = (props) => {
@@ -177,6 +189,7 @@ const AddToPatrolModal = (props) => {
 
               const priority = cardState === PATROL_CARD_STATES.ACTIVE ? 100 : 0;
               const title = displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader);
+              const displayTime = calcPatrolListItemDisplayTime(patrol);
 
               return <ReportListItem
                 className={styles.listItem}
@@ -185,7 +198,7 @@ const AddToPatrolModal = (props) => {
                 key={`${id}-${index}`}
                 title={title}
                 priority={priority}
-                displayTime={patrol.patrol_segments[0].time_range.start_time}
+                displayTime={displayTime}
                 onTitleClick={onClickPatrol}
                 onIconClick={onClickPatrol} />;
             })}
