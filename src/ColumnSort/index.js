@@ -21,9 +21,11 @@ const ColumnSort = (props) => {
   const [direction, selectedOption] = value;
   const isSortModified = !DEFAULT_EVENT_SORT.includes(selectedOption);
 
-  const toggleSortDirection = () => {
+  const toggleSortDirection = (e, value = null) => {
+    if (value) {
+      return onChange([SORT_DIRECTION[value], selectedOption]);
+    }
     const newDir = direction === SORT_DIRECTION.up ? SORT_DIRECTION.down : SORT_DIRECTION.up;
-
     onChange([newDir, selectedOption]);
   };
 
@@ -52,7 +54,7 @@ const ColumnSort = (props) => {
 
       </ListGroup>
       <ListGroup className="styles.listGroup" data-testid="order-options">
-        {orderOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => toggleSortDirection(option.value)}>
+        {orderOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => toggleSortDirection(Event, option.value)}>
           {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
           {option.label}
         </Item>)}

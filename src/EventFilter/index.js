@@ -162,8 +162,10 @@ const EventFilter = (props) => {
 
 
   const onStateSelect = ({ value }) => {
-    updateEventFilter({ state: value });
-    trackEvent('Event Filter', `Select '${value}' State Filter`);
+    if (!isEqual(state, value)){
+      updateEventFilter({ state: value });
+      trackEvent('Event Filter', `Select '${value}' State Filter`);
+    }
   };
 
   const resetPopoverFilters = () => {

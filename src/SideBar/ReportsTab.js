@@ -32,8 +32,10 @@ const ReportsTab = (props) => {
   const [feedEvents, setFeedEvents] = useState([]);
 
   const onFeedSortChange = useCallback((newVal) => {
-    setFeedSort(newVal);
-  }, []);
+    if (!isEqual(feedSort, newVal)){
+      setFeedSort(newVal);
+    }
+  }, [feedSort]);
 
   const resetFeedSort = useCallback(() => {
     setFeedSort(DEFAULT_EVENT_SORT);

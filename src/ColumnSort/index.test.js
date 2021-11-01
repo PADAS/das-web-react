@@ -85,6 +85,17 @@ describe('ColumnSort control', () => {
 
       userEvent.click(orderOptions[1]);
 
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[0]]);
+    });
+
+    test('it should not change the sort option if the user clicks on same option in the popover', () => {
+      const orderOptionsContainer = screen.getByTestId('order-options');
+      const orderOptions = within(orderOptionsContainer).getAllByRole('button');
+
+      userEvent.click(orderOptions[0]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
+
+      userEvent.click(orderOptions[0]);
       expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
     });
 
