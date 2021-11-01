@@ -23,20 +23,24 @@
 }
 
 .search {
-  flex-basis: 100%;
-  margin-bottom: 0.5rem;
-  margin-right: 0.5rem;
+  flex-basis: 100%;  
+  margin-bottom: 0;
+  margin-right: 0.2rem;
   width: 50%;
 
   @media (min-width: $md-layout-width-min) {
     margin-right: unset;
-    width: 45%;
+    width: 35%;
+    
+    &.wider {
+      width: 56%;
+    };
   }
 
   @media (min-width: $lg-layout-width-min) {
     flex-basis: initial;
     margin-bottom: 0;
-    width: 52%;
+    width: 35%;
   }
 }
 
@@ -127,6 +131,7 @@ div.filterPopover {
   }
 
   svg {
+    display: inline-block;
     height: var(--iconDimensions);
     width: var(--iconDimensions);
     margin-right: 0.5rem;
@@ -328,7 +333,8 @@ div.filterPopover {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem;
+  padding: 0.3rem;
+  padding-top: 0.5rem !important;
 }
 
 .friendlyFilterString {

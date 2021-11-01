@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import {  DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../utils/event-filter';
 
 import styles from './styles.module.scss';
+import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down.svg';
+import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up.svg';
+import { ReactComponent as SortLines } from '../common/images/icons/sort-lines.svg';
+import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
-const { Header, Toggle, Menu, Item } = Dropdown;
+const { Title, Content } = Popover;
+const { Item } = ListGroup;
 
 const ColumnSort = (props) => {
 
-  const { className = '', options, value, onChange } = props;
-
-  const [open, setOpen] = useState(false);
-
+  const { className = '', sortOptions, orderOptions, value, onChange } = props;
+  const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
   const [direction, selectedOption] = value;
-
-  const onDropdownToggle = () => setOpen(!open);
+  const isSortModified = !DEFAULT_EVENT_SORT.includes(selectedOption);
 
   const toggleSortDirection = () => {
-    const newDir = direction === '+' ? '-' : '+';
+    const newDir = direction === SORT_DIRECTION.up ? SORT_DIRECTION.down : SORT_DIRECTION.up;
 
     onChange([newDir, selectedOption]);
   };
@@ -26,23 +31,44 @@ const ColumnSort = (props) => {
     onChange([direction, option]);
   };
 
-  const sortDirectionCharacter = direction === '+' ? '▲' : '▼';
+  useEffect(() => {
+    setSortDirection(direction === SORT_DIRECTION.up);
+  }, [direction]);
 
-  return <span className={styles.columnWrapper}>
-    <Dropdown onToggle={onDropdownToggle} className={`${styles.dropdown} ${className}`}>
-      <span className={styles.toggleWrapper}>
-        <Toggle data-testid='sort-header' size='sm' className={styles.toggle} variant='light'>
-          <span>{selectedOption.label} </span>
-        </Toggle>
-      </span>
-      <Menu data-testid='sort-options'>
-        <Header className={styles.header}>Sort by:</Header>
-        {
-          options.map(option => <Item className={styles.listItem} key={option.value} onClick={() => onClickSortOption(option)}>{option.label}</Item>)
-        }
-      </Menu>
-    </Dropdown>
-    <Button size='sm' variant='light' className={styles.sortDirection} data-testid='sort-direction-toggle' onClick={toggleSortDirection}>{sortDirectionCharacter}</Button>
+  const sortDirectionIcon = isSortUp ? <ArrowUp /> : <ArrowDown />;
+
+  const SortPopover = <Popover className={styles.sortPopover} id='sort-popover'>
+    <Title>
+      <div className={styles.popoverTitle}>
+        Sort by:
+      </div>
+    </Title>
+    <Content className="styles.sortList">
+      <ListGroup className="styles.listGroup" data-testid="sort-options">
+        {sortOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => onClickSortOption(option)}>
+          {option.value === selectedOption.value && <CheckIcon className={styles.checkIcon}/>}
+          {option.label}
+        </Item>)}
+
+      </ListGroup>
+      <ListGroup className="styles.listGroup" data-testid="order-options">
+        {orderOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => toggleSortDirection(option.value)}>
+          {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
+          {option.label}
+        </Item>)}
+
+      </ListGroup>
+    </Content>
+  </Popover>;
+
+  return <span className={`${styles.columnWrapper} ${className}`}>
+    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={SortPopover} flip={true} rootCloseEvent='click'>
+      <Button size='sm' variant={isSortModified ? 'primary' : 'light'} className={styles.popoverTrigger} data-testid="sort-popover-trigger">
+        <SortLines/>
+        <span> {selectedOption.label} </span>
+      </Button>
+    </OverlayTrigger>
+    <Button size='sm' variant={isSortUp ? 'primary' : 'light'} className={styles.sortDirection} data-testid='sort-direction-toggle' onClick={toggleSortDirection}>{sortDirectionIcon}</Button>
   </span>;
 };
 
