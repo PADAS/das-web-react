@@ -9,8 +9,10 @@ import debounce from 'lodash/debounce';
 import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 import noop from 'lodash/noop';
+import { useMatchMedia } from '../hooks';
 
-import { EVENT_STATE_CHOICES } from '../constants';
+
+import { BREAKPOINTS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -68,6 +70,8 @@ const EventFilter = (props) => {
         reporters.find(r => r.id === id)
       ).filter(item => !!item)
     : [];
+
+  const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
 
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
@@ -329,10 +333,10 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
+    {isLargeLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
       {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
-    </div>
+    </div>}
   </>;
 };
 

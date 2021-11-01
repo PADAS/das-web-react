@@ -5,6 +5,7 @@
   position: relative;
   [class*=dropdown-menu] {
     border: none;
+    margin-right: -1rem;
     padding: 0;
   }
   &.active {

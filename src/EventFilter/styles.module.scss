@@ -23,6 +23,7 @@
 }
 
 .search {
+  flex-basis: 100%;  
   margin-bottom: 0;
   margin-right: 0.2rem;
   width: 50%;
@@ -34,6 +35,12 @@
     &.wider {
       width: 56%;
     };
+  }
+
+  @media (min-width: $lg-layout-width-min) {
+    flex-basis: initial;
+    margin-bottom: 0;
+    width: 35%;
   }
 }
 
@@ -81,7 +88,7 @@ div.filterPopover {
   width: 90vw;
 
   &[class*=bs-popover-bottom] {
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: $lg-layout-width-min) {
       margin-left: -5rem;
 
       > [class*=arrow] {
@@ -107,16 +114,27 @@ div.filterPopover {
 .controls {
   align-items: center;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   width: 100%;
+
+  @media (min-width: $lg-layout-width-min) {
+    flex-wrap: initial;
+    justify-content: space-between;
+  }
 }
 
 .popoverTrigger {
+  --iconDimensions: 0.8rem;
+
+  @media (min-width: $md-layout-width-min) {
+    --iconDimensions: 1.25rem;
+  }
+
   svg {
     display: inline-block;
-    height: 0.875rem;
-    width: 0.875rem;
-    margin-right: 0.2rem;
+    height: var(--iconDimensions);
+    width: var(--iconDimensions);
+    margin-right: 0.5rem;
 
     * {
       stroke: gray;
@@ -128,6 +146,14 @@ div.filterPopover {
       * {
         stroke: white;
       }
+    }
+  }
+
+  span {
+    font-size: 0.725rem;
+
+    @media (min-width: $md-layout-width-min) {
+      font-size: 0.875rem;
     }
   }
 }
@@ -315,7 +341,7 @@ div.filterPopover {
   display: block;
   font-size: 0.75rem;
   line-height: normal;
-  margin: 0.5rem 0rem 0.5rem;
+  margin: 0.5rem 0 0.5rem;
   transition: 0.3s all linear;
   width: 73.5%;
 }
