@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
@@ -20,9 +20,10 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 
 import { getReporterById } from './events';
 
-import PatrolModal from '../PatrolModal';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
+
+const PatrolModal = lazy(() => import(/* webpackChunkName: "PatrolModal" */ '../PatrolModal'));
 
 const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
