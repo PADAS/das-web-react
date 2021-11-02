@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
+import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -140,14 +140,15 @@ const AddToPatrolModal = (props) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    socket.on('new_patrol', onPatrolSocketMessage);
-    socket.on('update_patrol', onPatrolSocketMessage);
+    if (socket) {
+      socket.on('new_patrol', onPatrolSocketMessage);
+      socket.on('update_patrol', onPatrolSocketMessage);
 
-    return () => {
-      socket.off('new_patrol', onPatrolSocketMessage);
-      socket.off('update_patrol', onPatrolSocketMessage);
-    };
-
+      return () => {
+        socket.off('new_patrol', onPatrolSocketMessage);
+        socket.off('update_patrol', onPatrolSocketMessage);
+      };
+    }
   }, [onPatrolSocketMessage, socket]);
 
   useEffect(() => {
@@ -168,14 +169,14 @@ const AddToPatrolModal = (props) => {
 
   const hasMore = !!patrols.next;
 
-  return <Fragment>
+  return <>
     <Header>
       <Title>Add to Patrol</Title>
     </Header>
     <Body style={{ minHeight: '10rem' }}>
       {!loaded && <LoadingOverlay />}
-      <div>
-        {!!loaded && !!listPatrols.length && <h6 style={{ textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic' }}>Start time</h6>}
+      {!!loaded && <div data-testid='patrol-feed-container'>
+        {!!listPatrols.length && <h6 style={{ textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic' }}>Start time</h6>}
         <div ref={scrollRef} className={styles.incidentScrollList}>
           <InfiniteScroll
             element='ul'
@@ -206,12 +207,12 @@ const AddToPatrolModal = (props) => {
             {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>No more patrols to display.</li>}
           </InfiniteScroll>
         </div>
-      </div>
+      </div>}
     </Body>
     <Footer>
       <Button type='button' variant='secondary' onClick={hideModal}>Cancel</Button>
     </Footer>
-  </Fragment>;
+  </>;
 };
 
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
