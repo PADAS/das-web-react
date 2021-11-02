@@ -2,7 +2,7 @@
 @import '../common/styles/buttons';
 @import '../common/styles/layout';
 
-.icon {
+.iconContainer {
   align-items: center;
   display: flex;
   height: 3.05rem;
@@ -25,42 +25,33 @@
       width: var(--half-size);
     }
   }
+}
 
-  .patrolIndicator {
+.listItem {
+  align-items: center;
+  color: $primary-font-color;
+  display: flex;
+  line-height: normal;
+  padding: 0 0.5rem 0 0;
+
+  + .listItem {
+    border-top: 1px solid $light-gray-border;
+  }
+
+  > * {
+    padding: 0.75rem 0.5rem;
     align-items: center;
-    background: rgba(0, 0, 0, 0.25);
-    color: white;
     display: flex;
-    font-size: 0.75rem;
-    font-weight: 500;
-    height: 1.125rem;
     justify-content: center;
-    left: 0;
-    line-height: 1em;
-    position: absolute;
-    top: 0;
-    text-transform: uppercase;
-    width: 1.125rem;
   }
-}
 
-.title,
-.icon {
-  @include unstyledButton;
-}
-
-.serialNumber {
-  display: none;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  color: $secondary-medium-gray;
-
-  @media (min-width: $md-layout-width-min) {
-    display: flex;
+  > .iconContainer {
+    padding: 0.5rem 1rem;
   }
+
 }
 
-.title {
+.titleContainer {
   display: block;
   flex: 1;
   justify-content: flex-start;
@@ -70,7 +61,7 @@
   white-space: nowrap;
 }
 
-.date {
+.dateContainer {
   align-items: flex-end;
   cursor: default;
   flex-flow: column;
@@ -78,9 +69,4 @@
   max-height: 3rem;
   padding-right: 0;
   text-align: right;
-}
-
-.resolved {
-  font-size: 0.65rem;
-  font-style: italic;
 }
