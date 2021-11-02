@@ -88,6 +88,20 @@ const calcPatrolListItemDisplayTime = (patrol) => {
   return displayStartTimeForPatrol(patrol);
 };
 
+const calcPatrolListItemDisplayPriority = (patrol) => {
+  const patrolState = calcPatrolCardState(patrol);
+
+  if (patrolState === PATROL_CARD_STATES.ACTIVE) {
+    return 100;
+  }
+
+  if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    return 300;
+  }
+
+  return 0;
+};
+
 const AddToPatrolModal = (props) => {
   const { id, removeModal, onAddToPatrol, updatePatrolStore, patrolStore,
   } = props;
@@ -185,9 +199,7 @@ const AddToPatrolModal = (props) => {
             getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
 
             {listPatrols.map((patrol, index) => {
-              const cardState = calcPatrolCardState(patrol);
-
-              const priority = cardState === PATROL_CARD_STATES.ACTIVE ? 100 : 0;
+              const priority = calcPatrolListItemDisplayPriority(patrol);
               const title = displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader);
               const displayTime = calcPatrolListItemDisplayTime(patrol);
 
