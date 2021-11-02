@@ -19,7 +19,6 @@ import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
-import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
 

@@ -53,7 +53,7 @@ const activePatrolsFeedRecuer = (state, action) => {
   if (type === FETCH_FEED_SUCCESS) {
     return {
       ...payload,
-      results: payload.results.map(event => event.id),
+      results: payload.results.map(patrol => patrol.id),
     };
   }
   if (type === FEED_FETCH_NEXT_PAGE_SUCCESS) {
@@ -82,11 +82,13 @@ const calcPatrolListItemDisplayTime = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
   if (patrolState === PATROL_CARD_STATES.DONE) {
-    patrolStateDetailsEndTime(patrol);
+    return patrolStateDetailsEndTime(patrol);
   }
+
   if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
-    patrolStateDetailsOverdueStartTime(patrol);
+    return patrolStateDetailsOverdueStartTime(patrol);
   }
+
   return displayStartTimeForPatrol(patrol);
 };
 
@@ -98,8 +100,9 @@ const AddToPatrolModal = (props) => {
   const [loaded, setLoadedState] = useState(false);
   const [patrols, dispatch] = useReducer(activePatrolsFeedRecuer, INITIAL_PATROLS_STATE);
 
-  const listPatrols = useMemo(() =>  patrols.results
+  const listPatrols = useMemo(() => patrols.results
     .map(p => patrolStore[p])
+    .filter(item => !!item)
     .sort((p1, p2) =>
       (new Date(p2.patrol_segments[0].time_range.start_time).getTime() - new Date(p1.patrol_segments[0].time_range.start_time).getTime())
     ), [patrolStore, patrols.results]);
@@ -108,9 +111,9 @@ const AddToPatrolModal = (props) => {
     const params = calcPatrolFilterForRequest({ params: { page_size: 75 } });
     return get(`${PATROLS_API_URL}?${params}`)
       .then(({ data: { data: patrols } }) => {
-        updatePatrolStore(patrols);
-        setLoadedState(true);
         dispatch(fetchFeedSuccess(patrols));
+        setLoadedState(true);
+        updatePatrolStore(patrols);
       })
       .catch((error) => {
         console.warn({ error });
@@ -174,7 +177,7 @@ const AddToPatrolModal = (props) => {
       <Title>Add to Patrol</Title>
     </Header>
     <Body style={{ minHeight: '10rem' }}>
-      {!loaded && <LoadingOverlay />}
+      {!loaded && <LoadingOverlay data-testid='patrol-feed-loading-overlay' />}
       {!!loaded && <div data-testid='patrol-feed-container'>
         {!!listPatrols.length && <h6 style={{ textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic' }}>Start time</h6>}
         <div ref={scrollRef} className={styles.incidentScrollList}>
@@ -196,6 +199,7 @@ const AddToPatrolModal = (props) => {
                 className={styles.listItem}
                 showJumpButton={false}
                 report={patrol}
+                data-testid={`patrol-list-item-${index}`}
                 key={`${id}-${index}`}
                 title={title}
                 priority={priority}
@@ -210,14 +214,14 @@ const AddToPatrolModal = (props) => {
       </div>}
     </Body>
     <Footer>
-      <Button type='button' variant='secondary' onClick={hideModal}>Cancel</Button>
+      <Button type='button' data-testid='close-modal-button' variant='secondary' onClick={hideModal}>Cancel</Button>
     </Footer>
   </>;
 };
 
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
 
-export default connect(mapStateToProps, { removeModal, updatePatrolStore })(memo(AddToPatrolModal));
+export default connect(mapStateToProps, { removeModal: id => removeModal(id), updatePatrolStore: patrols => updatePatrolStore(patrols) })(memo(AddToPatrolModal));
 
 AddToPatrolModal.propTypes = {
   onAddToPatrol: PropTypes.func.isRequired,
