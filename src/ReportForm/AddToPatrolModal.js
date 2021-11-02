@@ -85,10 +85,6 @@ const calcPatrolListItemDisplayTime = (patrol) => {
     return patrolStateDetailsEndTime(patrol);
   }
 
-  if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
-    return patrolStateDetailsOverdueStartTime(patrol);
-  }
-
   return displayStartTimeForPatrol(patrol);
 };
 
