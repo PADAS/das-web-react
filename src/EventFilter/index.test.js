@@ -72,7 +72,8 @@ describe('default filters state', () => {
     beforeEach(() => {
       filterBtn = screen.getByTestId('filter-btn');
       filterBtn.click();
-      stateFilterOptions = screen.getAllByTestId('state-filter-option');
+      const optionsContainer = screen.getByTestId('state-filter-options');
+      stateFilterOptions = within(optionsContainer).getAllByRole('listitem');
     });
 
     test('it should not change the state if the same option is selected', async () => {

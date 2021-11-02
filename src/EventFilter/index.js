@@ -211,12 +211,11 @@ const EventFilter = (props) => {
     trackEvent('Event Filter', 'Click Reset Reported By Filter');
   };
 
-  const StateSelector = () => <ul className={styles.stateList}>
+  const StateSelector = () => <ul className={styles.stateList} data-testid="state-filter-options">
     {EVENT_STATE_CHOICES.map(choice =>
       <li
         key={choice.value}
         onClick={() => onStateSelect(choice)}
-        data-testid="state-filter-option"
         className={isEqual(choice.value, state) ? styles.activeState : ''}>
         <Button variant='link'>
           {choice.label}
