@@ -213,8 +213,11 @@ const EventFilter = (props) => {
 
   const StateSelector = () => <ul className={styles.stateList}>
     {EVENT_STATE_CHOICES.map(choice =>
-      <li className={isEqual(choice.value, state) ? styles.activeState : ''}
-        key={choice.value} onClick={() => onStateSelect(choice)}>
+      <li
+        key={choice.value}
+        onClick={() => onStateSelect(choice)}
+        data-testid="state-filter-option"
+        className={isEqual(choice.value, state) ? styles.activeState : ''}>
         <Button variant='link'>
           {choice.label}
         </Button>

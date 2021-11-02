@@ -64,6 +64,32 @@ describe('default filters state', () => {
     const generalResetButton = within(resetWrapper).queryByText('Reset');
     expect(generalResetButton).toBeNull();
   });
+
+  describe('state filter', () => {
+    let filterBtn;
+    let stateFilterOptions;
+
+    beforeEach(() => {
+      filterBtn = screen.getByTestId('filter-btn');
+      filterBtn.click();
+      stateFilterOptions = screen.getAllByTestId('state-filter-option');
+    });
+
+    test('it should not change the state if the same option is selected', async () => {
+      const currentStateFilter = await store.getState().data.eventFilter.state;
+      stateFilterOptions[0].click();
+
+      const newStateFilter = await store.getState().data.eventFilter.state;
+      expect(newStateFilter).toEqual(currentStateFilter);
+    });
+
+    test('it should change the state if a different option is selected', async () => {
+      const currentStateFilter = await store.getState().data.eventFilter.state;
+      stateFilterOptions[1].click();
+      const newStateFilter = await store.getState().data.eventFilter.state;
+      expect(newStateFilter).not.toEqual(currentStateFilter);
+    });
+  });
 });
 
 describe('After filters being applied', () => {
