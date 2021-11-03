@@ -30,7 +30,7 @@ import ReportsTab from './ReportsTab';
 
 import styles from './styles.module.scss';
 
-const PatrolsTab = lazy(() => import(/* webpackChunkName: "PatrolsTab" */ './PatrolsTab'));
+const PatrolsTab = lazy(() => import('./PatrolsTab'));
 
 const SET_TAB = 'SET_TAB';
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';

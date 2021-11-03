@@ -13,7 +13,7 @@ import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { EVENT_API_URL } from '../ducks/events';
 
-const ReportFormModal = lazy(() => import(/* webpackChunkName: "ReportFormModal" */ '../ReportFormModal'));
+const ReportFormModal = lazy(() => import('../ReportFormModal'));
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[event?.updates?.length - 1];

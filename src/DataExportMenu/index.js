@@ -11,11 +11,11 @@ import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 
-const AlertsModal = lazy(() => import(/* webpackChunkName: "AlertsModal" */ '../AlertsModal'));
-const AboutModal = lazy(() => import(/* webpackChunkName: "AboutModal" */ '../AboutModal'));
-const DailyReportModal = lazy(() => import(/* webpackChunkName: "DailyReportModal" */ '../DailyReportModal'));
-const DataExportModal = lazy(() => import(/* webpackChunkName: "DataExportModal" */ '../DataExportModal'));
-const KMLExportModal = lazy(() => import(/* webpackChunkName: "KMLExportModal" */ '../KMLExportModal'));
+const AlertsModal = lazy(() => import('../AlertsModal'));
+const AboutModal = lazy(() => import('../AboutModal'));
+const DailyReportModal = lazy(() => import('../DailyReportModal'));
+const DataExportModal = lazy(() => import('../DataExportModal'));
+const KMLExportModal = lazy(() => import('../KMLExportModal'));
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
@@ -91,12 +91,12 @@ const DataExportMenu = ({
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   }, [addModal]);
 
-  const openTableauReport = (analyticsTitle) => {
+  const openTableauReport = () => {
     fetchTableauDashboard()
       .then(({ display_url }) => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
-        trackEvent(analyticsTitle, 'Click Analysis (via Tableau) menu item');
+        trackEvent('Analysis (via Tableau)', 'Click Analysis (via Tableau) menu item');
       });
   };
 
@@ -136,12 +136,12 @@ const DataExportMenu = ({
   const hamburgerToggle = useRef();
   return (
     <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
-      <Toggle as="div" ref={hamburgerToggle} data-testid='dataexport-dropdowntoggle'>
+      <Toggle as="div" ref={hamburgerToggle} data-testid='dataExport-dropdown-toggle'>
         <HamburgerMenuIcon isOpen={isOpen} />
       </Toggle>
 
       <Menu>
-        {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau)</Item>}
+        {!!tableau_enabled && <Item onClick={() => openTableauReport()}>Analysis (via Tableau)</Item>}
         {!!alerts_enabled && !!eventTypes.length && <Item onClick={onOpenAlertsModalClick}>Alerts</Item>}
         <Header>Exports</Header>
         {modals.map((modal, index) =>

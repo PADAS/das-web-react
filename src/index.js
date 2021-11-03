@@ -29,12 +29,13 @@ import RequestConfigManager from './RequestConfigManager';
 
 import { setClientReleaseIdentifier } from './utils/analytics';
 
+import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import PrivateRoute from './PrivateRoute';
 import EulaProtectedRoute from './EulaProtectedRoute';
 
-const App = lazy(() => import(/* webpackChunkName: "App" */ './App'));
-const EulaPage = lazy(() => import(/* webpackChunkName: "EULA" */ './views/EULA'));
-const Login = lazy(() => import(/* webpackChunkName: "Login" */ './Login'));
+const App = lazy(() => import('./App'));
+const EulaPage = lazy(() => import('./views/EULA'));
+const Login = lazy(() => import('./Login'));
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
@@ -66,7 +67,7 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
         <RequestConfigManager />
-        <Suspense fallback={null}>
+        <Suspense fallback={<LoadingOverlay />}>
           <Switch>
             <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />

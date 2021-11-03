@@ -29,7 +29,7 @@ const ModalRenderer = ({ canShowModals, map, modals, removeModal }) => {
               dialogClassName={canShowModals ? styles.show : styles.hide}
               enforceFocus={false}
               key={id}
-              show={true}
+              show
               style={style}
               {...modalProps}
               onHide={() => removeModal(id)}

@@ -20,7 +20,7 @@ import NotificationMenu from '../NotificationMenu';
 
 import './Nav.scss';
 
-const MessageMenu = lazy(() => import(/* webpackChunkName: "MessageMenu" */ './MessageMenu'));
+const MessageMenu = lazy(() => import('./MessageMenu'));
 
 const Nav = ({
   clearAuth,

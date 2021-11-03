@@ -48,7 +48,7 @@ describe('DataExportMenu', () => {
       expect(screen.getAllByRole('button')[0].classList).toMatchObject({ 0: 'hamburger' });
     });
 
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(() => {
@@ -57,7 +57,7 @@ describe('DataExportMenu', () => {
   });
 
   test('does not render the Tableau button if it is not enabled', async () => {
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(() => {
@@ -74,7 +74,7 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(() => {
@@ -94,7 +94,7 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -113,7 +113,7 @@ describe('DataExportMenu', () => {
   });
 
   test('does not render the Alerts button if it is not enabled', async () => {
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(() => {
@@ -130,7 +130,7 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -162,7 +162,7 @@ describe('DataExportMenu', () => {
   });
 
   test('adds a modal if any other dropdown modal button is clicked', async () => {
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -186,7 +186,7 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -204,7 +204,7 @@ describe('DataExportMenu', () => {
 
   test('opens an email window with the support contact data if zendesk is not active', async () => {
     global.open = jest.fn();
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -222,7 +222,7 @@ describe('DataExportMenu', () => {
 
   test('opens a new window redirecting to the community site', async () => {
     global.open = jest.fn();
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -240,7 +240,7 @@ describe('DataExportMenu', () => {
 
   test('opens a new window redirecting to the documentation site', async () => {
     global.open = jest.fn();
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
@@ -257,7 +257,7 @@ describe('DataExportMenu', () => {
   });
 
   test('adds a modal if the about button is clicked', async () => {
-    const dropdownToggle = await screen.getByTestId('dataexport-dropdowntoggle');
+    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
