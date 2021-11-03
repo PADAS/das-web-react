@@ -9,7 +9,7 @@ const FeedListItem = (props) => {
   const { IconComponent, TitleComponent, DateComponent, ControlsComponent, themeColor, className, key, ...rest } = props;
 
   const iconSectionColor = themeColor;
-  const bodyBackgroundColor = adjustColorLightnessByPercentage(themeColor, 200);
+  const bodyBackgroundColor = adjustColorLightnessByPercentage(themeColor, 225);
 
 
   return <li className={`${styles.listItem} ${className}`} key={key} style={{ backgroundColor: bodyBackgroundColor }} {...rest}>

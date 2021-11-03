@@ -2,34 +2,24 @@
 @import '../common/styles/buttons';
 @import '../common/styles/layout';
 
+
+
+
 .iconContainer {
   align-items: center;
   display: flex;
-  height: 3.05rem;
+  height: 100%;
   justify-content: center;
   padding: 0.5rem 1rem;
   position: relative;
   width: 3.75rem;
-
-  svg,
-  svg > svg {
-    --dimensions: 2rem;
-    --half-size: calc(var(--dimensions) / 2);
-
-    fill: white;
-    height: var(--dimensions);
-    width: var(--dimensions);
-
-    &[class*=generic] {
-      height: var(--half-size);
-      width: var(--half-size);
-    }
-  }
 }
 
 .listItem {
+  --listItemHeight: 3.15rem;
   align-items: center;
   color: $primary-font-color;
+  height: var(--listItemHeight);
   display: flex;
   line-height: normal;
   padding: 0 0.5rem 0 0;
@@ -39,20 +29,20 @@
   }
 
   > * {
-    padding: 0.75rem 0.5rem;
     align-items: center;
     display: flex;
+    height: 100%;
     justify-content: center;
+    padding: 0.25rem 0.5rem;
   }
 
-  > .iconContainer {
-    padding: 0.5rem 1rem;
-  }
+  // > .iconContainer {
+  //   padding: 0.5rem 1rem;
+  // }
 
 }
 
 .titleContainer {
-  display: block;
   flex: 1;
   justify-content: flex-start;
   text-align: left;
@@ -69,4 +59,8 @@
   max-height: 3rem;
   padding-right: 0;
   text-align: right;
+}
+
+.controlsContainer {
+  padding-right: 0;
 }

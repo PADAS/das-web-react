@@ -28,7 +28,7 @@ const PRIORITY_COLOR_MAP = {
 };
 
 const ReportListItem = (props) => {
-  const { eventTypes, priority = null, displayTime = null, title = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, displayTime = null, title = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showJumpButton, className, key, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -68,30 +68,32 @@ const ReportListItem = (props) => {
 
   const dateTimeProp = displayTime || report.updated_at || report.time;
 
-  return <FeedListItem key={key} title={displayTitle} className={`${className}`}
-  themeColor={themeColor}
-  IconComponent={
-    <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>
-      <EventIcon report={report} />
-      {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
-    </button>
-  }
-  TitleComponent={
-    <>
-      <span className={styles.serialNumber}>{report.serial_number}</span>
-      <button className={styles.title} type='button' onClick={() => onTitleClick(report)}>{displayTitle}</button>
-    </>
-  }
-  DateComponent={dateTimeProp && <span>
-    <DateTime date={dateTimeProp} />
-      {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
-    </span>}
-  ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&
-    <LocationJumpButton
-      isMulti={hasMultipleLocations}
-      map={map} coordinates={coordinates} onClick={onClick}
-      clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
+  return <FeedListItem
+    key={key} title={displayTitle} className={`${className}`}
+    themeColor={themeColor}
+    IconComponent={
+      <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>
+        <EventIcon report={report} />
+        {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
+      </button>
     }
+    TitleComponent={
+      <>
+        <span className={styles.serialNumber}>{report.serial_number}</span>
+        <button className={styles.title} type='button' onClick={() => onTitleClick(report)}>{displayTitle}</button>
+      </>
+    }
+    DateComponent={dateTimeProp && <span>
+      <DateTime date={dateTimeProp} />
+        {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
+      </span>}
+    ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&
+      <LocationJumpButton
+        isMulti={hasMultipleLocations}
+        map={map} coordinates={coordinates} onClick={onClick}
+        clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
+      }
+      {...rest}
   />;
 };
 
