@@ -66,19 +66,21 @@ describe('default filters state', () => {
   });
 
   describe('state filter', () => {
-    let filterBtn;
-    let stateFilterOptions;
+    let filterBtn, optionsContainer, stateFilterOptions;
 
     beforeEach(() => {
       filterBtn = screen.getByTestId('filter-btn');
       filterBtn.click();
-      const optionsContainer = screen.getByTestId('state-filter-options');
-      stateFilterOptions = within(optionsContainer).getAllByRole('listitem');
+      optionsContainer = screen.getByTestId('state-filter-options');
+      stateFilterOptions = within(optionsContainer).getAllByRole('button');
     });
 
     test('it should not change the state if the same option is selected', async () => {
       const currentStateFilter = await store.getState().data.eventFilter.state;
       stateFilterOptions[0].click();
+
+      expect(stateFilterOptions[0].classList.contains('activeState')).toBe(true);
+      expect(stateFilterOptions[1].classList.contains('activeState')).toBe(false);
 
       const newStateFilter = await store.getState().data.eventFilter.state;
       expect(newStateFilter).toEqual(currentStateFilter);
@@ -87,6 +89,13 @@ describe('default filters state', () => {
     test('it should change the state if a different option is selected', async () => {
       const currentStateFilter = await store.getState().data.eventFilter.state;
       stateFilterOptions[1].click();
+
+      optionsContainer = screen.getByTestId('state-filter-options');
+      stateFilterOptions = within(optionsContainer).getAllByRole('button');
+
+      expect(stateFilterOptions[0].classList.contains('activeState')).toBe(false);
+      expect(stateFilterOptions[1].classList.contains('activeState')).toBe(true);
+
       const newStateFilter = await store.getState().data.eventFilter.state;
       expect(newStateFilter).not.toEqual(currentStateFilter);
     });
