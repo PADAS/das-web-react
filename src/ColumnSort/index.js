@@ -27,6 +27,17 @@ const ColumnSort = (props) => {
     onChange([direction, option]);
   };
 
+  const toggleSortDirection = () => {
+    const newDir = direction === UP ? DOWN : UP;
+    onChange([newDir, selectedOption]);
+  };
+
+  const changeSortDirection = (value) => {
+    if (direction !== value){
+      onChange([SORT_DIRECTION[value], selectedOption]);
+    }
+  };
+
   useEffect(() => {
     setSortDirection(direction === UP);
   }, [direction]);
@@ -53,7 +64,7 @@ const ColumnSort = (props) => {
             action
             className={styles.listItem}
             key={option.value}
-            onClick={() => direction !== option.value ? onChange([SORT_DIRECTION[option.value], selectedOption]) : () => false}
+            onClick={() => changeSortDirection(option.value)}
           >
             {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
             {option.label}
@@ -76,7 +87,7 @@ const ColumnSort = (props) => {
       data-testid='sort-direction-toggle'
       className={styles.sortDirection}
       variant={isSortUp ? 'primary' : 'light'}
-      onClick={() => onChange([direction === UP ? DOWN : UP, selectedOption])}
+      onClick={() => toggleSortDirection}
     >
       {sortDirectionIcon}
     </Button>
