@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
 const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, onClickOpen, menuRef } = props;
+  const { patrol, onPatrolChange, menuRef } = props;
 
   const patrolState = calcPatrolCardState(patrol);
 
@@ -87,7 +87,6 @@ const PatrolMenu = (props) => {
     </Toggle>
     <Menu ref={menuRef}>
       {canEditPatrol && <Item disabled={!patrolStartEndCanBeToggled || patrolIsCancelled} onClick={togglePatrolStartStopState}>{patrolStartStopTitle}</Item>}
-      <Item disabled={patrolIsCancelled} onClick={() => onClickOpen(patrol)}>Open Patrol</Item>
       {canEditPatrol && <Item disabled={!patrolCancelRestoreCanBeToggled} onClick={togglePatrolCancelationState}>{patrolCancelRestoreTitle}</Item>}
     </Menu>
   </Dropdown>;

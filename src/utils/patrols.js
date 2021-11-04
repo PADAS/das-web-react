@@ -39,7 +39,6 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_STATES.INVALID.status]: colorVariables.patrolCancelledThemeColor,
 };
 
-
 export const calcThemeColorForPatrolListItem = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
