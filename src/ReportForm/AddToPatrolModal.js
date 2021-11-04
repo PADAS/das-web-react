@@ -9,7 +9,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import uniq from 'lodash/uniq';
 
 
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
 import { trackEvent } from '../utils/analytics';
 import { calcPatrolCardState, displayTitleForPatrol, patrolStateAllowsTrackDisplay, displayStartTimeForPatrol, patrolStateDetailsOverdueStartTime, patrolStateDetailsEndTime } from '../utils/patrols';
@@ -81,7 +81,7 @@ const activePatrolsFeedRecuer = (state, action) => {
 const calcPatrolListItemDisplayTime = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
-  if (patrolState === PATROL_CARD_STATES.DONE) {
+  if (patrolState === PATROL_STATES.DONE) {
     return patrolStateDetailsEndTime(patrol);
   }
 
@@ -91,11 +91,11 @@ const calcPatrolListItemDisplayTime = (patrol) => {
 const calcPatrolListItemDisplayPriority = (patrol) => {
   const patrolState = calcPatrolCardState(patrol);
 
-  if (patrolState === PATROL_CARD_STATES.ACTIVE) {
+  if (patrolState === PATROL_STATES.ACTIVE) {
     return 100;
   }
 
-  if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+  if (patrolState === PATROL_STATES.START_OVERDUE) {
     return 300;
   }
 

@@ -21,7 +21,7 @@ import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 import { togglePatrolTrackState, updatePatrolTrackState } from '../ducks/patrols';
 import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_STATES } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -42,12 +42,12 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
-  const isActivePatrol = useMemo(() => patrolState === PATROL_CARD_STATES.ACTIVE, [patrolState]);
+  const isActivePatrol = useMemo(() => patrolState === PATROL_STATES.ACTIVE, [patrolState]);
 
   const isScheduledPatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.READY_TO_START
-    || patrolState === PATROL_CARD_STATES.SCHEDULED
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE;
+    return patrolState === PATROL_STATES.READY_TO_START
+    || patrolState === PATROL_STATES.SCHEDULED
+    || patrolState === PATROL_STATES.START_OVERDUE;
   }, [patrolState]);
 
   const subjectTimeAtLastPosition = useMemo(() => new Date((subjectLastPosition

@@ -47,7 +47,7 @@ export const STATUSES = {
   UNKNOWN_STATUS: 'UNKNOWN',
 };
 
-export const PATROL_CARD_STATES = {
+export const PATROL_STATES = {
   SCHEDULED: { title: 'Scheduled', status: 'scheduled' },
   READY_TO_START: { title: 'Ready to Start', status: 'ready' },
   ACTIVE: { title: 'Active', status: 'open' },

@@ -2,7 +2,7 @@ import React, { memo, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-import { PATROL_CARD_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PATROL_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
 
@@ -21,30 +21,30 @@ const PatrolMenu = (props) => {
   const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
 
   const patrolIsDone = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.DONE;
+    return patrolState === PATROL_STATES.DONE;
   }, [patrolState]);
 
   const patrolIsCancelled = useMemo(() =>
-    patrolState === PATROL_CARD_STATES.CANCELLED
+    patrolState === PATROL_STATES.CANCELLED
   , [patrolState]);
 
   const canEnd = useMemo(() => canEndPatrol(patrol), [patrol]);
 
   const canRestorePatrol = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.DONE
-    || patrolState === PATROL_CARD_STATES.CANCELLED;
+    return patrolState === PATROL_STATES.DONE
+    || patrolState === PATROL_STATES.CANCELLED;
   }, [patrolState]);
 
   const canCancelPatrol = useMemo(() => {
-    return !(patrolState === PATROL_CARD_STATES.DONE
-      || patrolState === PATROL_CARD_STATES.CANCELLED);
+    return !(patrolState === PATROL_STATES.DONE
+      || patrolState === PATROL_STATES.CANCELLED);
   }, [patrolState]);
 
   const patrolStartEndCanBeToggled = useMemo(() => {
-    return (patrolState === PATROL_CARD_STATES.ACTIVE
-      || patrolState === PATROL_CARD_STATES.READY_TO_START
-      || patrolState === PATROL_CARD_STATES.SCHEDULED
-      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+    return (patrolState === PATROL_STATES.ACTIVE
+      || patrolState === PATROL_STATES.READY_TO_START
+      || patrolState === PATROL_STATES.SCHEDULED
+      || patrolState === PATROL_STATES.START_OVERDUE);
   }, [patrolState]);
 
   const patrolCancelRestoreCanBeToggled = useMemo(() => {

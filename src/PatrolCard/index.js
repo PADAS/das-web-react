@@ -9,7 +9,7 @@ import { createPatrolDataSelector } from '../selectors/patrols';
 
 import { trackEvent } from '../utils/analytics';
 
-import { PATROL_CARD_STATES } from '../constants';
+import { PATROL_STATES } from '../constants';
 
 // import AddReport from '../AddReport';
 import PatrolMenu from './PatrolMenu';
@@ -36,7 +36,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   const [patrolState, setPatrolState] = useState(calcPatrolCardState(patrol));
 
   const patrolIsCancelled = useMemo(() =>
-    patrolState === PATROL_CARD_STATES.CANCELLED
+    patrolState === PATROL_STATES.CANCELLED
   , [patrolState]);
 
   const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
@@ -47,10 +47,10 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
   const onPopoverHide = useCallback(() => setPopoverState(false), []);
 
   const patrolStateTitle = useMemo(() => {
-    if (patrolState === PATROL_CARD_STATES.DONE) {
+    if (patrolState === PATROL_STATES.DONE) {
       return patrolState.title + ' ' + patrolStateDetailsEndTime(patrol);
     }
-    if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    if (patrolState === PATROL_STATES.START_OVERDUE) {
       return patrolState.title + ' ' + patrolStateDetailsOverdueStartTime(patrol);
     }
     return patrolState.title;
@@ -84,13 +84,13 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
-  const isScheduledPatrol = patrolState === PATROL_CARD_STATES.READY_TO_START
-    || patrolState === PATROL_CARD_STATES.SCHEDULED
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE;
+  const isScheduledPatrol = patrolState === PATROL_STATES.READY_TO_START
+    || patrolState === PATROL_STATES.SCHEDULED
+    || patrolState === PATROL_STATES.START_OVERDUE;
 
-  const isPatrolActiveOrDone = patrolState === PATROL_CARD_STATES.ACTIVE || patrolState === PATROL_CARD_STATES.DONE;
+  const isPatrolActiveOrDone = patrolState === PATROL_STATES.ACTIVE || patrolState === PATROL_STATES.DONE;
 
-  const isCancelledPatrol = patrolState === PATROL_CARD_STATES.CANCELLED;
+  const isCancelledPatrol = patrolState === PATROL_STATES.CANCELLED;
 
   const patrolStatusStyle = `status-${patrolState.status}`;
 

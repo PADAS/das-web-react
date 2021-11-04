@@ -38,7 +38,6 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
       onSelfManagedStateChange={onStateUpdateFromCard}
       patrol={patrol}
       map={map}
-      themeColor='#000000'
       {...rest} />
   </Flipped>;
 });

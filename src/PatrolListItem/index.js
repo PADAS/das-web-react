@@ -1,24 +1,27 @@
 import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import FeedListItem from '../FeedListItem';
+import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
-import { PATROL_CARD_STATES } from '../constants';
+
+
+import { PATROL_STATES } from '../constants';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
-  calcPatrolCardState, getBoundsForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
+  calcPatrolCardState, calcThemeColorForPatrolListItem, formatPatrolCardStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { trackEvent } from '../utils/analytics';
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
 
-import PatrolMenu from '../PatrolCard/PatrolMenu';
 import DasIcon from '../DasIcon';
-import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
+import FeedListItem from '../FeedListItem';
 import LocationJumpButton from '../LocationJumpButton';
+import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
-
+import PatrolMenu from '../PatrolCard/PatrolMenu';
 
 import styles from './styles.module.scss';
+import { nullLiteral } from '@babel/types';
 
 const PatrolListItem = (props, ref) => {
   const { map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch, ...rest } = props;
@@ -33,13 +36,11 @@ const PatrolListItem = (props, ref) => {
 
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
-  const leaderLastPositionCoordinates = useMemo(() => leader?.last_position?.geometry?.coordinates, [leader]);
-
   const patrolStateTitle = useMemo(() => {
-    if (patrolState === PATROL_CARD_STATES.DONE) {
+    if (patrolState === PATROL_STATES.DONE) {
       return patrolState.title + ' ' + patrolStateDetailsEndTime(patrol);
     }
-    if (patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    if (patrolState === PATROL_STATES.START_OVERDUE) {
       return patrolState.title + ' ' + patrolStateDetailsOverdueStartTime(patrol);
     }
     return patrolState.title;
@@ -59,8 +60,8 @@ const PatrolListItem = (props, ref) => {
     }
   }, [actualEndTime, actualStartTime, leader]);
 
-
   const intervalRef = useRef(null);
+
   useEffect(() => {
     window.clearInterval(intervalRef.current);
 
@@ -84,13 +85,27 @@ const PatrolListItem = (props, ref) => {
 
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
 
-  const isScheduledPatrol = patrolState === PATROL_CARD_STATES.READY_TO_START
-  || patrolState === PATROL_CARD_STATES.SCHEDULED
-  || patrolState === PATROL_CARD_STATES.START_OVERDUE;
+  const themeColor = useMemo(() => calcThemeColorForPatrolListItem(patrol), [patrol]);
 
-  const isPatrolActiveOrDone = patrolState === PATROL_CARD_STATES.ACTIVE || patrolState === PATROL_CARD_STATES.DONE;
+  const isScheduledPatrol = patrolState === PATROL_STATES.READY_TO_START
+  || patrolState === PATROL_STATES.SCHEDULED
+  || patrolState === PATROL_STATES.START_OVERDUE;
 
-  const isCancelledPatrol = patrolState === PATROL_CARD_STATES.CANCELLED;
+  const isPatrolDone = patrolState === PATROL_STATES.DONE;
+  const isPatrolActive = patrolState === PATROL_STATES.ACTIVE;
+  const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
+  const isPatrolCancelled = patrolState === PATROL_STATES.CANCELLED;
+  const isPatrolOverdue = patrolState === PATROL_STATES.START_OVERDUE;
+
+  const patrolCancellationTime = useMemo(() => {
+    if (!isPatrolCancelled) return null;
+
+    const cancellation = patrol.updates.find(update => update.type === 'update_patrol_state' && update.message.includes('cancelled'));
+    if (!cancellation) return null;
+
+    return formatPatrolCardStateTitleDate(new Date(cancellation.time));
+
+  }, [isPatrolCancelled, patrol.updates]);
 
   const canShowTrack = useMemo(() => patrolHasGeoDataToDisplay(trackData, startStopGeometries), [startStopGeometries, trackData]);
 
@@ -113,33 +128,63 @@ const PatrolListItem = (props, ref) => {
   (canShowTrack || !!patrolBounds)
   , [canShowTrack, isScheduledPatrol, patrolBounds]);
 
+
+  const TitleDetailsComponent = useMemo(() => {
+    if (isPatrolActiveOrDone) {
+      return <span className={styles.titleDetails}>
+        <span>{patrolElapsedTime}</span> | <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span>
+      </span>;
+    }
+    if (isScheduledPatrol || isPatrolCancelled) {
+      return <span className={styles.titleDetails}>
+        Scheduled: <span>{scheduledStartTime}</span>
+      </span>;
+    }
+    return null;
+  }, [isPatrolCancelled, isPatrolActiveOrDone, isScheduledPatrol, patrolData, patrolElapsedTime, scheduledStartTime]);
+
+  /*   if (patrolState === PATROL_STATES.DONE) {
+    return patrolStateDetailsEndTime(patrol);
+  }
+
+  return displayStartTimeForPatrol(patrol); */
+
+  const dateComponentDateString = useMemo(() => {
+    if (isPatrolCancelled) return patrolCancellationTime;
+    if (isPatrolDone) return patrolStateDetailsEndTime(patrol);
+    if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrol);
+    if (isPatrolActive || isScheduledPatrol) return formatPatrolCardStateTitleDate(displayStartTimeForPatrol(patrol));
+
+    return null;
+
+  }, [isPatrolActive, isPatrolCancelled, isPatrolDone, isPatrolOverdue, isScheduledPatrol, patrol, patrolCancellationTime]);
+
   return <FeedListItem
     ref={ref}
+    themeColor={themeColor}
     IconComponent={patrolIconId && <button className={styles.icon} type='button'>
       <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />
     </button>}
     TitleComponent={
-      <button type='button' onClick={onTitleClick}>{displayTitle}</button>
+      <>
+        <span className={styles.serialNumber}>{patrol.serial_number}</span>
+        <button className={styles.title} type='button' onClick={onTitleClick}>
+          <span className={styles.mainTitle}>{displayTitle}</span>
+          {TitleDetailsComponent}
+        </button>
+      </>
     }
     DateComponent={
       <div className={styles.statusInfo}>
-        <strong>{patrolStateTitle}</strong>
-        {isScheduledPatrol && <>
-          <p>Scheduled: <span>{scheduledStartTime}</span></p>
-        </>}
-        {isPatrolActiveOrDone && <>
-          <p><span>{patrolElapsedTime}</span> | <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span></p>
-        </>}
-        {isCancelledPatrol && <>
-          <p>No Patrol: <span>{scheduledStartTime}</span></p>
-        </>}
+        <strong>{patrolState.title}</strong>
+        <span>{dateComponentDateString}</span>
       </div>
     }
     ControlsComponent={<>
-      {canShowControls && <div className={styles.controls}>
+      {canShowControls && <>
           {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />}
-          {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} coordinates={leaderLastPositionCoordinates} map={map} />}
-        </div>}
+          {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} />}
+        </>}
       <PatrolMenu patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onClickOpen={onTitleClick} />
     </>
     }

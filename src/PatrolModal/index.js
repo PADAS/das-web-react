@@ -28,7 +28,7 @@ import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, 
 import { trackEvent } from '../utils/analytics';
 
 
-import { BREAKPOINTS, PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { BREAKPOINTS, PATROL_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -539,9 +539,9 @@ const PatrolModal = (props) => {
 
     const patrolState = calcPatrolCardState(statePatrol);
 
-    if (patrolState === PATROL_CARD_STATES.READY_TO_START
-    || patrolState === PATROL_CARD_STATES.SCHEDULED
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    if (patrolState === PATROL_STATES.READY_TO_START
+    || patrolState === PATROL_STATES.SCHEDULED
+    || patrolState === PATROL_STATES.START_OVERDUE) {
       return (displayAutoStart ? AUTO_START_LABEL : SCHEDULED_LABEL);
     }
 

@@ -23,3 +23,35 @@
   }
 }
 
+.title {
+  text-align: left;
+  width: 100%;
+  .mainTitle {
+    display: block;
+    font-weight: 500;
+  }
+}
+
+.titleDetails {
+  font-size: 0.75rem;
+}
+
+.title, .icon {
+  @include unstyledButton;
+}
+
+.statusInfo {
+  display: flex;
+  flex-flow: column;
+  font-size: 0.8rem;
+}
+
+.serialNumber {
+  display: none;
+  padding-right: 0.5rem;
+  color: $secondary-medium-gray;
+
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
+  }
+}

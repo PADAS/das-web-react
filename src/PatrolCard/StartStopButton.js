@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, memo } from 'react';
 
 import { calcPatrolCardState, canStartPatrol, canEndPatrol } from '../utils/patrols';
 
-import { PATROL_CARD_STATES, PATROL_API_STATES } from '../constants';
+import { PATROL_STATES, PATROL_API_STATES } from '../constants';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -14,11 +14,11 @@ const PatrolStartStopButton = (props) => {
   const patrolState = useMemo(() => calcPatrolCardState(patrol), [patrol]);
 
   const patrolIsDone = useMemo(() => {
-    return patrolState === PATROL_CARD_STATES.DONE;
+    return patrolState === PATROL_STATES.DONE;
   }, [patrolState]);
 
   const patrolIsCancelled = useMemo(() =>
-    patrolState === PATROL_CARD_STATES.CANCELLED
+    patrolState === PATROL_STATES.CANCELLED
   , [patrolState]);
 
   const canStart = useMemo(() => canStartPatrol(patrol), [patrol]);

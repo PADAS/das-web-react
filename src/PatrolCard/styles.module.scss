@@ -152,10 +152,6 @@
   }
 }
 
-.kebabToggle {
-  display: none;
-}
-
 .addReport{
   display: none;
   position: absolute;
@@ -174,7 +170,6 @@
 
 .kebabMenu {
   display: flex;
-  position: absolute;
   --hamburger-menu-color: #1a2026;
   align-items: center;
   border-radius: 1rem;
