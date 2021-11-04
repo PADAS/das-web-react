@@ -13,26 +13,33 @@ import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
 const { Title, Content } = Popover;
 const { Item } = ListGroup;
+const UP = SORT_DIRECTION.up;
+const DOWN = SORT_DIRECTION.down;
 
 const ColumnSort = (props) => {
 
   const { className = '', sortOptions, orderOptions, value, onChange } = props;
-  const [isSortUp, setSortDirection] = useState(value === SORT_DIRECTION.up);
+  const [isSortUp, setSortDirection] = useState(value === UP);
   const [direction, selectedOption] = value;
   const isSortModified = !DEFAULT_EVENT_SORT.includes(selectedOption);
-
-  const toggleSortDirection = () => {
-    const newDir = direction === SORT_DIRECTION.up ? SORT_DIRECTION.down : SORT_DIRECTION.up;
-
-    onChange([newDir, selectedOption]);
-  };
 
   const onClickSortOption = (option) => {
     onChange([direction, option]);
   };
 
+  const toggleSortDirection = () => {
+    const newDir = direction === UP ? DOWN : UP;
+    onChange([newDir, selectedOption]);
+  };
+
+  const changeSortDirection = (value) => {
+    if (direction !== value){
+      onChange([SORT_DIRECTION[value], selectedOption]);
+    }
+  };
+
   useEffect(() => {
-    setSortDirection(direction === SORT_DIRECTION.up);
+    setSortDirection(direction === UP);
   }, [direction]);
 
   const sortDirectionIcon = isSortUp ? <ArrowUp /> : <ArrowDown />;
@@ -52,10 +59,17 @@ const ColumnSort = (props) => {
 
       </ListGroup>
       <ListGroup className="styles.listGroup" data-testid="order-options">
-        {orderOptions.map(option => <Item action className={styles.listItem} key={option.value} onClick={() => toggleSortDirection(option.value)}>
-          {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
-          {option.label}
-        </Item>)}
+        {orderOptions.map(option => (
+          <Item
+            action
+            className={styles.listItem}
+            key={option.value}
+            onClick={() => changeSortDirection(option.value)}
+          >
+            {option.value === direction && <CheckIcon className={styles.checkIcon}/>}
+            {option.label}
+          </Item>
+        ))}
 
       </ListGroup>
     </Content>
@@ -68,7 +82,15 @@ const ColumnSort = (props) => {
         <span> {selectedOption.label} </span>
       </Button>
     </OverlayTrigger>
-    <Button size='sm' variant={isSortUp ? 'primary' : 'light'} className={styles.sortDirection} data-testid='sort-direction-toggle' onClick={toggleSortDirection}>{sortDirectionIcon}</Button>
+    <Button
+      size='sm'
+      data-testid='sort-direction-toggle'
+      className={styles.sortDirection}
+      variant={isSortUp ? 'primary' : 'light'}
+      onClick={() => toggleSortDirection}
+    >
+      {sortDirectionIcon}
+    </Button>
   </span>;
 };
 
