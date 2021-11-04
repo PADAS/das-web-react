@@ -17,7 +17,7 @@ export const EVENT_SORT_OPTIONS = [
     value: 'created_at',
   },
   {
-    label: 'Reported Date',
+    label: 'Report Date',
     value: 'event_time',
   },
 ];
