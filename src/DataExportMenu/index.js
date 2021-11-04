@@ -134,30 +134,28 @@ const DataExportMenu = ({
   }, [alertModal, onModalClick, token.access_token]);
 
   const hamburgerToggle = useRef();
-  return (
-    <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
-      <Toggle as="div" ref={hamburgerToggle} data-testid='dataExport-dropdown-toggle'>
-        <HamburgerMenuIcon isOpen={isOpen} />
-      </Toggle>
+  return <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>
+    <Toggle as="div" ref={hamburgerToggle} data-testid='dataExport-dropdown-toggle'>
+      <HamburgerMenuIcon isOpen={isOpen} />
+    </Toggle>
 
-      <Menu>
-        {!!tableau_enabled && <Item onClick={() => openTableauReport()}>Analysis (via Tableau)</Item>}
-        {!!alerts_enabled && !!eventTypes.length && <Item onClick={onOpenAlertsModalClick}>Alerts</Item>}
-        <Header>Exports</Header>
-        {modals.map((modal, index) =>
-          <Item key={index} onClick={() => onModalClick(modal)}>
-            <span>{modal.title}</span>
-          </Item>
-        )}
-        <Divider />
-        <Item onClick={onContactSupportClick}>Contact Support</Item>
-        <Item onClick={onCommunityClick}>Community</Item>
-        <Item onClick={onDocumentationClick}>Documentation</Item>
-        <Divider />
-        <Item onClick={onAboutClick}>About EarthRanger</Item>
-      </Menu>
-    </Dropdown>
-  );
+    <Menu>
+      {!!tableau_enabled && <Item onClick={() => openTableauReport()}>Analysis (via Tableau)</Item>}
+      {!!alerts_enabled && !!eventTypes.length && <Item onClick={onOpenAlertsModalClick}>Alerts</Item>}
+      <Header>Exports</Header>
+      {modals.map((modal, index) =>
+        <Item key={index} onClick={() => onModalClick(modal)}>
+          <span>{modal.title}</span>
+        </Item>
+      )}
+      <Divider />
+      <Item onClick={onContactSupportClick}>Contact Support</Item>
+      <Item onClick={onCommunityClick}>Community</Item>
+      <Item onClick={onDocumentationClick}>Documentation</Item>
+      <Divider />
+      <Item onClick={onAboutClick}>About EarthRanger</Item>
+    </Menu>
+  </Dropdown>;
 };
 
 const mapStateToProps = ({

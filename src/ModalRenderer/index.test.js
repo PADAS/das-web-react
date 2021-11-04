@@ -40,9 +40,7 @@ describe('ModalRenderer', () => {
   });
 
   test('renders the modal container if there is at least one modal', async () => {
-    await waitFor(() => {
-      expect(screen.getByTestId('modalsRenderer-container')).toBeTruthy();
-    });
+    expect(screen.findByTestId('modalsRenderer-container')).toBeTruthy();
   });
 
   test('does not render the modal container if there are no modals', async () => {
@@ -54,14 +52,10 @@ describe('ModalRenderer', () => {
       </Provider>
     );
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('modalsRenderer-container')).toBeNull();
-    });
+    expect(screen.queryByTestId('modalsRenderer-container')).toBeNull();
   });
 
   test('renders the content of the modal in the array', async () => {
-    await waitFor(() => {
-      expect(screen.getByTitle('content-component')).toBeTruthy();
-    });
+    expect(screen.findByTitle('content-component')).toBeTruthy();
   });
 });

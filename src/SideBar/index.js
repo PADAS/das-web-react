@@ -157,13 +157,11 @@ const SideBar = (props) => {
             <ReportsTab map={map} sidebarOpen={sidebarOpen}/>
           </Tab>
 
-          {showPatrols && (
-            <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
-              <Suspense fallback={null}>
-                <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-              </Suspense>
-            </Tab>
-          )}
+          {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+            <Suspense fallback={null}>
+              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+            </Suspense>
+          </Tab>}
 
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
             <ErrorBoundary>

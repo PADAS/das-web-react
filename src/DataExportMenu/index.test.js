@@ -44,23 +44,22 @@ describe('DataExportMenu', () => {
   });
 
   test('opens the hamburger menu', async () => {
-    await waitFor(() => {
-      expect(screen.getAllByRole('button')[0].classList).toMatchObject({ 0: 'hamburger' });
-    });
+    let hamburgerButton = await screen.findByRole('button');
 
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    expect(hamburgerButton.classList).toMatchObject({ 0: 'hamburger' });
+
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
+    hamburgerButton = (await screen.findAllByRole('button'))[0];
 
-    await waitFor(() => {
-      expect(screen.getAllByRole('button')[0].classList).toMatchObject({ 0: 'hamburger', 1: 'open' });
-    });
+    expect(hamburgerButton.classList).toMatchObject({ 0: 'hamburger', 1: 'open' });
   });
 
   test('does not render the Tableau button if it is not enabled', async () => {
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(() => {
+    await waitFor(async () => {
       expect(screen.queryByText('Analysis (via Tableau)')).toBeNull();
     });
   });
@@ -74,12 +73,10 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Analysis (via Tableau)')).toBeTruthy();
-    });
+    expect(screen.findByText('Analysis (via Tableau)')).toBeTruthy();
   });
 
   test('open a new window redirecting to tableau', async () => {
@@ -94,31 +91,27 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(async () => {
-      expect(fetchTableauDashboardMock).toHaveBeenCalledTimes(0);
-      expect(global.open).toHaveBeenCalledTimes(0);
+    expect(fetchTableauDashboardMock).toHaveBeenCalledTimes(0);
+    expect(global.open).toHaveBeenCalledTimes(0);
 
-      const tableauButton = await screen.queryByText('Analysis (via Tableau)');
+    await waitFor(async () => {
+      const tableauButton = await screen.findByText('Analysis (via Tableau)');
       userEvent.click(tableauButton);
     });
 
-    await waitFor(() => {
-      expect(fetchTableauDashboardMock).toHaveBeenCalledTimes(1);
-      expect(global.open).toHaveBeenCalledTimes(1);
-      expect(global.open).toHaveBeenCalledWith('display_url', '_blank', 'noopener,noreferrer');
-    });
+    expect(fetchTableauDashboardMock).toHaveBeenCalledTimes(1);
+    expect(global.open).toHaveBeenCalledTimes(1);
+    expect(global.open).toHaveBeenCalledWith('display_url', '_blank', 'noopener,noreferrer');
   });
 
   test('does not render the Alerts button if it is not enabled', async () => {
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Alerts')).toBeNull();
-    });
+    expect(screen.queryByText('Alerts')).toBeNull();
   });
 
   test('renders the Alerts button if it is enabled', async () => {
@@ -130,12 +123,10 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(() => {
-      expect(screen.queryByText('Alerts')).toBeTruthy();
-    });
+    expect(screen.findByText('Alerts')).toBeTruthy();
   });
 
   test('adds a modal if the alerts button is clicked', async () => {
@@ -147,33 +138,29 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
-      const alertsButton = await screen.queryByText('Alerts');
+      const alertsButton = await screen.findByText('Alerts');
       userEvent.click(alertsButton);
     });
 
-    await waitFor(() => {
-      expect(addModal).toHaveBeenCalledTimes(1);
-      expect(addModal.mock.calls[0][0]).toMatchObject({ title: 'Alerts' });
-    });
+    expect(addModal).toHaveBeenCalledTimes(1);
+    expect(addModal.mock.calls[0][0]).toMatchObject({ title: 'Alerts' });
   });
 
   test('adds a modal if any other dropdown modal button is clicked', async () => {
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
-      const fieldReportsButton = await screen.getAllByRole('button')[1];
+      const fieldReportsButton = (await screen.findAllByRole('button'))[1];
       userEvent.click(fieldReportsButton);
     });
 
-    await waitFor(() => {
-      expect(addModal).toHaveBeenCalledTimes(1);
-      expect(addModal.mock.calls[0][0]).toMatchObject({ title: 'Field Reports' });
-    });
+    expect(addModal).toHaveBeenCalledTimes(1);
+    expect(addModal.mock.calls[0][0]).toMatchObject({ title: 'Field Reports' });
   });
 
   test('opens zendesk when clickin the support button if it is active', async () => {
@@ -186,87 +173,77 @@ describe('DataExportMenu', () => {
       </Provider>
     );
 
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(async () => {
-      expect(global.zE.activate).toHaveBeenCalledTimes(0);
+    expect(global.zE.activate).toHaveBeenCalledTimes(0);
 
+    await waitFor(async () => {
       const contactSupportButton = await screen.getByText('Contact Support');
       userEvent.click(contactSupportButton);
     });
 
-    await waitFor(() => {
-      expect(global.zE.activate).toHaveBeenCalledTimes(1);
-      expect(global.zE.activate).toHaveBeenCalledWith({ hideOnClose: true });
-    });
+    expect(global.zE.activate).toHaveBeenCalledTimes(1);
+    expect(global.zE.activate).toHaveBeenCalledWith({ hideOnClose: true });
   });
 
   test('opens an email window with the support contact data if zendesk is not active', async () => {
     global.open = jest.fn();
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(async () => {
-      expect(global.open).toHaveBeenCalledTimes(0);
+    expect(global.open).toHaveBeenCalledTimes(0);
 
-      const contactSupportButton = await screen.getByText('Contact Support');
+    await waitFor(async () => {
+      const contactSupportButton = await screen.findByText('Contact Support');
       userEvent.click(contactSupportButton);
     });
 
-    await waitFor(() => {
-      expect(global.open).toHaveBeenCalledTimes(1);
-      expect(global.open.mock.calls[0][0].substring(0, 25)).toBe(`mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}`);
-    });
+    expect(global.open).toHaveBeenCalledTimes(1);
+    expect(global.open.mock.calls[0][0].substring(0, 25)).toBe(`mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}`);
   });
 
   test('opens a new window redirecting to the community site', async () => {
     global.open = jest.fn();
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(async () => {
-      expect(global.open).toHaveBeenCalledTimes(0);
+    expect(global.open).toHaveBeenCalledTimes(0);
 
-      const communityButton = await screen.getByText('Community');
+    await waitFor(async () => {
+      const communityButton = await screen.findByText('Community');
       userEvent.click(communityButton);
     });
 
-    await waitFor(() => {
-      expect(global.open).toHaveBeenCalledTimes(1);
-      expect(global.open).toHaveBeenCalledWith(COMMUNITY_SITE_URL, '_blank', 'noopener,noreferrer');
-    });
+    expect(global.open).toHaveBeenCalledTimes(1);
+    expect(global.open).toHaveBeenCalledWith(COMMUNITY_SITE_URL, '_blank', 'noopener,noreferrer');
   });
 
   test('opens a new window redirecting to the documentation site', async () => {
     global.open = jest.fn();
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
-    await waitFor(async () => {
-      expect(global.open).toHaveBeenCalledTimes(0);
+    expect(global.open).toHaveBeenCalledTimes(0);
 
-      const documentationButton = await screen.getByText('Documentation');
+    await waitFor(async () => {
+      const documentationButton = await screen.findByText('Documentation');
       userEvent.click(documentationButton);
     });
 
-    await waitFor(() => {
-      expect(global.open).toHaveBeenCalledTimes(1);
-      expect(global.open).toHaveBeenCalledWith(DOCUMENTATION_SITE_URL, '_blank', 'noopener,noreferrer');
-    });
+    expect(global.open).toHaveBeenCalledTimes(1);
+    expect(global.open).toHaveBeenCalledWith(DOCUMENTATION_SITE_URL, '_blank', 'noopener,noreferrer');
   });
 
   test('adds a modal if the about button is clicked', async () => {
-    const dropdownToggle = await screen.getByTestId('dataExport-dropdown-toggle');
+    const dropdownToggle = await screen.findByTestId('dataExport-dropdown-toggle');
     userEvent.click(dropdownToggle);
 
     await waitFor(async () => {
-      const aboutButton = await screen.queryByText('About EarthRanger');
+      const aboutButton = await screen.findByText('About EarthRanger');
       userEvent.click(aboutButton);
     });
 
-    await waitFor(() => {
-      expect(addModal).toHaveBeenCalledTimes(1);
-    });
+    expect(addModal).toHaveBeenCalledTimes(1);
   });
 });

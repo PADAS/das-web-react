@@ -49,19 +49,15 @@ const EulaProtectedRoute = ({
     }
   }, [eulaEnabled, user]);
 
-  return (
-    <>
-      {!eulaAccepted && <Redirect to={{
-        pathname: `${REACT_APP_ROUTE_PREFIX}eula`,
-        search: location.search,
-      }} />}
-      {eulaAccepted === 'unknown' ? null : (
-        <Suspense fallback={<LoadingOverlay />}>
-          <PrivateRoute {...rest} />
-        </Suspense>
-      )}
-    </>
-  );
+  return <>
+    {!eulaAccepted && <Redirect to={{
+      pathname: `${REACT_APP_ROUTE_PREFIX}eula`,
+      search: location.search,
+    }} />}
+    {eulaAccepted === 'unknown' ? null : <Suspense fallback={<LoadingOverlay />}>
+      <PrivateRoute {...rest} />
+    </Suspense>}
+  </>;
 };
 
 const mapStateToProps = ({ data: { user } }) => ({ user });

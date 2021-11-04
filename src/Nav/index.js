@@ -77,36 +77,34 @@ const Nav = ({
     fetchCurrentUserProfiles();
   }, []); // eslint-disable-line
 
-  return (
-    <nav className="primary-nav">
-      <div className="left-controls">
-        <SystemStatusComponent />
-        <EarthRangerLogo className="logo" />
-      </div>
+  return <nav className="primary-nav">
+    <div className="left-controls">
+      <SystemStatusComponent />
+      <EarthRangerLogo className="logo" />
+    </div>
 
-      {!!maps.length &&
-        <NavHomeMenu
-          maps={maps}
-          selectedMap={homeMap}
-          onMapSelect={onHomeMapSelect}
-          onCurrentLocationClick={onCurrentLocationClick}
-        />}
+    {!!maps.length &&
+      <NavHomeMenu
+        maps={maps}
+        selectedMap={homeMap}
+        onMapSelect={onHomeMapSelect}
+        onCurrentLocationClick={onCurrentLocationClick}
+      />}
 
-      <div className="rightMenus">
-        {!!canViewMessages && <MessageMenu />}
-        <NotificationMenu />
-        <UserMenu
-          user={user}
-          onProfileClick={onProfileClick}
-          userProfiles={userProfiles}
-          selectedUserProfile={selectedUserProfile}
-          onLogOutClick={clearAuth}
-        />
-        <div className="alert-menu"></div>
-        <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
-      </div>
-    </nav>
-  );
+    <div className="rightMenus">
+      {!!canViewMessages && <MessageMenu />}
+      <NotificationMenu />
+      <UserMenu
+        user={user}
+        onProfileClick={onProfileClick}
+        userProfiles={userProfiles}
+        selectedUserProfile={selectedUserProfile}
+        onLogOutClick={clearAuth}
+      />
+      <div className="alert-menu"></div>
+      <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
+    </div>
+  </nav>;
 };
 
 const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) =>

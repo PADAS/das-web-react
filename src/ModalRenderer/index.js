@@ -14,33 +14,29 @@ const ModalRenderer = ({ canShowModals, map, modals, removeModal }) => {
     transition: 'opacity 0.3s linear, display 0 linear 0.3s,'
   };
 
-  return !!modals.length && (
-    <div className={styles.modalBackdrop} data-testid='modalsRenderer-container'>
-      {/* Suspense for lazy loaded modals (avoid the page view suspense to handle them making the whole page blink) */}
-      <Suspense fallback={null}>
-        {modals.map((item) => {
-          const { content: ContentComponent, backdrop = 'static', id, modalProps, ...rest } = item;
+  return !!modals.length && <div className={styles.modalBackdrop} data-testid='modalsRenderer-container'>
+    {/* Suspense for lazy loaded modals (avoid the page view suspense to handle them making the whole page blink) */}
+    <Suspense fallback={null}>
+      {modals.map((item) => {
+        const { content: ContentComponent, backdrop = 'static', id, modalProps, ...rest } = item;
 
-          return !!ContentComponent && (
-            <Modal
-              backdrop={backdrop}
-              backdropClassName={canShowModals ? styles.show : styles.hide}
-              centered
-              dialogClassName={canShowModals ? styles.show : styles.hide}
-              enforceFocus={false}
-              key={id}
-              show
-              style={style}
-              {...modalProps}
-              onHide={() => removeModal(id)}
-            >
-              <ContentComponent id={id} {...rest} map={map} />
-            </Modal>
-          );
-        })}
-      </Suspense>
-    </div>
-  );
+        return !!ContentComponent && <Modal
+          backdrop={backdrop}
+          backdropClassName={canShowModals ? styles.show : styles.hide}
+          centered
+          dialogClassName={canShowModals ? styles.show : styles.hide}
+          enforceFocus={false}
+          key={id}
+          show
+          style={style}
+          {...modalProps}
+          onHide={() => removeModal(id)}
+        >
+          <ContentComponent id={id} {...rest} map={map} />
+        </Modal>;
+      })}
+    </Suspense>
+  </div>;
 };
 
 ModalRenderer.propTypes = {
