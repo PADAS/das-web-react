@@ -87,7 +87,7 @@ const ColumnSort = (props) => {
       data-testid='sort-direction-toggle'
       className={styles.sortDirection}
       variant={isSortUp ? 'primary' : 'light'}
-      onClick={() => toggleSortDirection}
+      onClick={toggleSortDirection}
     >
       {sortDirectionIcon}
     </Button>
