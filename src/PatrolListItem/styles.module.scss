@@ -1,0 +1,25 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+@import '../common/styles/layout';
+
+
+.icon {
+  height: 100%;
+  width: 100%;
+
+  svg,
+  svg > svg {
+    --dimensions: 2rem;
+    --half-size: calc(var(--dimensions) / 2);
+
+    fill: white;
+    height: var(--dimensions);
+    width: var(--dimensions);
+
+    &[class*=generic] {
+      height: var(--half-size);
+      width: var(--half-size);
+    }
+  }
+}
+

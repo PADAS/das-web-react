@@ -13,6 +13,7 @@ import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolCard from '../PatrolCard';
+import ListItem from '../PatrolListItem';
 
 const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
@@ -30,13 +31,14 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
   }, [patrol, updatePatrol]);
 
   return <Flipped flipId={patrol.id}>
-    <PatrolCard
+    <ListItem
       ref={ref}
       onTitleClick={onTitleClick}
       onPatrolChange={onPatrolChange}
       onSelfManagedStateChange={onStateUpdateFromCard}
       patrol={patrol}
       map={map}
+      themeColor='#000000'
       {...rest} />
   </Flipped>;
 });
