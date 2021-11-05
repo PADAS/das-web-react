@@ -81,7 +81,7 @@ jobs:
       - trigger_downstream_builds:
         name: "Trigger downstream builds"
   execute_smoke_tests:
-    executor: node/default
+    executor: gcloud
     steps:
       - "setup_remote_docker"
       - "docker_login"
