@@ -91,8 +91,8 @@ jobs:
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
           gcloud auth configure-docker
           docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
-      # - run: 'npm run test:cloud'
-      # - run: 'npm run reporter:cloud'
+      - run: 'docker run -ti gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest npm run test:cloud'
+      - run: 'docker run -ti gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest npm run reporter:cloud'
       # - run: |
       #     echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
       #     gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
