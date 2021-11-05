@@ -3,11 +3,12 @@ import { connect } from 'react-redux';
 import { hideSubjects, displayReportsOnMapState, updateHeatmapSubjects, updateTrackState } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
 import { INITIAL_TRACK_STATE } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { getSubjectGroups } from '../selectors/subjects';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
 import styles from './styles.module.scss';
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const ClearAllControl = (props) => {
 
@@ -22,8 +23,8 @@ const ClearAllControl = (props) => {
     updateHeatmapSubjects([]);
   };
 
-  const onClearAllClick = (e) => {
-    trackEvent('Map Layer', 'Clicked Clear All link');
+  const onClearAllClick = () => {
+    mapLayerTracker.track('Clicked Clear All link');
     clearAll();
   };
 

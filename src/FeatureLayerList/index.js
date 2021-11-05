@@ -5,7 +5,7 @@ import intersection from 'lodash/intersection';
 
 import { getUniqueIDsFromFeatures, filterFeatures } from '../utils/features';
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
@@ -19,6 +19,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
   transitionTime: 1,
 };
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
 const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
@@ -61,10 +62,10 @@ const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeature
   const onFeatureSetToggle = (set) => {
     const featureIDs = getFeatureSetFeatureIDs(set);
     if (allVisibleInSet(set)) {
-      trackEvent('Map Layers', 'Uncheck Feature Set checkbox', `Feature Set:${set.name}`);
+      mapLayerTracker.track('Uncheck Feature Set checkbox', `Feature Set:${set.name}`);
       return hideFeatures(...featureIDs);
     } else {
-      trackEvent('Map Layers', 'Check Feature Set checkbox', `Feature Set:${set.name}`);
+      mapLayerTracker.track('Check Feature Set checkbox', `Feature Set:${set.name}`);
       return showFeatures(...featureIDs);
     }
   };
@@ -73,10 +74,10 @@ const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeature
     e.stopPropagation();
 
     if (allVisible) {
-      trackEvent('Map Layers', 'Uncheck All Features checkbox');
+      mapLayerTracker.track('Uncheck All Features checkbox');
       return hideAllFeatures();
     } else {
-      trackEvent('Map Layers', 'Check All Features checkbox');
+      mapLayerTracker.track('Check All Features checkbox');
       return showAllFeatures();
     }
   };

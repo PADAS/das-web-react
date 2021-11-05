@@ -4,7 +4,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
 import { setBaseLayer } from '../ducks/layers';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY, BASE_LAYER_CATEGORY } from '../utils/analytics';
 
 import { VALID_LAYER_SOURCE_TYPES, TILE_LAYER_SOURCE_TYPES, MAPBOX_STYLE_LAYER_SOURCE_TYPES, GOOGLE_LAYER_SOURCE_TYPES } from '../constants';
 import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
@@ -13,6 +13,9 @@ import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
 
 import styles from './styles.module.scss';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
 
 const renderLayerLogoSrc = ({ attributes: { type, icon_url } }) => {
   if (icon_url) return icon_url;
@@ -30,12 +33,12 @@ const BaseLayerControl = (props) => {
 
   const togglePopoverState = () => {
     setPopoverOpenState(!popoverOpen);
-    trackEvent('Map Interaction', 'Click Base Layer button');
+    mapInteractionTracker.track('Click Base Layer button');
   };
 
   const onItemClick = (layer) => {
     setBaseLayer(layer);
-    trackEvent('Base Layer', `Select '${layer.name}' Base Layer`);
+    baseLayerTracker.track(`Select '${layer.name}' Base Layer`);
   };
 
   useEffect(() => {
