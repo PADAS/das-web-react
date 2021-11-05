@@ -6,6 +6,9 @@ import Overlay from 'react-bootstrap/Overlay';
 
 import { FormDataContext } from './context';
 
+import { BREAKPOINTS } from '../constants';
+import { useMatchMedia } from '../hooks';
+
 import InlineEditable from '../InlineEditable';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import DateTime from '../DateTime';
@@ -25,6 +28,10 @@ const EditableItemHeader = (props) => {
   const [headerPopoverOpen, setHeaderPopoverState] = useState(false);
   const [historyPopoverOpen, setHistoryPopoverState] = useState(false);
   const [editingTitle, setTitleEditState] = useState(false);
+
+  const isExtraLargeLayout = useMatchMedia(BREAKPOINTS.screenIsExtraLargeWidth);
+
+  const popoverPlacement = isExtraLargeLayout ? 'auto' : 'left';
 
 
   const startTitleEdit = useCallback(() => {
@@ -82,7 +89,7 @@ const EditableItemHeader = (props) => {
     </span>
   </Fragment>;
 
-  const HistoryPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} placement='auto' className={styles.historyPopover}> {/* eslint-disable-line react/display-name */}
+  const HistoryPopover = forwardRef((props, ref) => <Popover {...props} ref={ref} className={styles.historyPopover}> {/* eslint-disable-line react/display-name */}
     <Popover.Title>History</Popover.Title>
     <Popover.Content>
       <ul>
@@ -115,14 +122,14 @@ const EditableItemHeader = (props) => {
         {!!MenuContent && <Fragment>
           <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
           <Overlay show={headerPopoverOpen} target={menuRef.current} shouldUpdatePosition={true} rootClose
-            onHide={() => setHeaderPopoverState(false)} placement='auto' trigger='click'>
+            onHide={() => setHeaderPopoverState(false)} placement={popoverPlacement} trigger='click'>
             {MenuContent}
           </Overlay>
         </Fragment>
         }
         {HistoryLink}
         <Overlay show={historyPopoverOpen} target={historyRef.current} shouldUpdatePosition={true} rootClose
-          onHide={() => setHistoryPopoverState(false)} placement='right' trigger='click'>
+          onHide={() => setHistoryPopoverState(false)} placement={popoverPlacement} trigger='click'>
           <HistoryPopover />
         </Overlay>
         {data.state === 'resolved' && <small>resolved</small>}

@@ -65,10 +65,6 @@ body {
       pointer-events: none !important;
     }
 
-    #{$map-canvas} {
-      cursor: crosshair;
-    }
-
     .mapboxgl-ctrl-bottom-right,
     .mapboxgl-ctrl-scale,
     .mapbox-zoom-ctrl {
@@ -199,14 +195,24 @@ aside {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 0.666rem;
   line-height: normal;
-  max-width: 18rem;
+  max-width: 15rem;
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 0.5rem;
+  top: 0.5rem;
   transition: all 0.3s linear;
   width: 100vw;
   z-index: 7;
   flex-wrap: wrap;
+
+  @media (min-width: $md-layout-width-min) {
+    right: 4.5rem;
+    top: 0.5rem;
+    max-width: 18rem;
+  }
+
+  @media (min-width: $lg-layout-width-min) {
+    max-width: 22rem;
+  }
 
   .report-filter {
     padding: 0.333rem;
@@ -223,7 +229,7 @@ aside {
   }
 
   @media (min-width: $md-layout-width-min) {
-    max-width: 28rem;
+    max-width: 25rem;
     right: 4.5rem;
     top: 0.5rem;
   }
@@ -304,6 +310,13 @@ aside {
     .floating-report-filter {
       opacity: 0;
     }
+
+    div.mapboxgl-canvas-container.mapboxgl-interactive {
+        @media (max-width: $md-layout-width-max) {
+        cursor: pointer;
+      }
+    }
+
 
     .side-menu {
       transform: translateX(0);

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import pluralize from 'pluralize';
 
 import { calcFriendlyDurationString } from '../utils/datetime';
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS } from '../utils/event-filter';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
 import { isFilterModified } from '../utils/event-filter';
 
 const mapStateToProps = ({ data: { eventFilter } }) => ({ eventFilter });
@@ -35,7 +35,7 @@ const FriendlyEventFilterString = (props) => {
     <span>{resultString}</span>
     {filterModified && 'filtered'} from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
-      ?<span>, sorted {sortConfig[0] === '+' ? ' ascending' : ''}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>
+      ?<span>, sorted {sortConfig[0] === SORT_DIRECTION.up ? ' ascending' : ''}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>
       : ''}
   </p>;
 };

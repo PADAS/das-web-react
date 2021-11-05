@@ -34,7 +34,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import { BREAKPOINTS, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
@@ -357,6 +357,10 @@ class Map extends Component {
       }
     }
     this.hideUnpinnedTrackLayers(map, event);
+
+    if (this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
+      this.props.updateUserPreferences({ sidebarOpen: false });
+    }
   })
 
   onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
@@ -583,7 +587,7 @@ class Map extends Component {
                 bounceEventIDs={bounceEventIDs} />
             </DelayedUnmount>
 
-            <MapImagesLayer />
+            <MapImagesLayer map={map} />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
