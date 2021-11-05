@@ -5,7 +5,7 @@ import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'react-bootstrap/Button';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { trimmedHeatmapTrackData } from '../selectors/tracks';
 import { updateHeatmapSubjects } from '../ducks/map-ui';
 
@@ -14,6 +14,7 @@ import HeatmapLegend from '../HeatmapLegend';
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
 import styles from './styles.module.scss';
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const TitleElement = memo((props) => { // eslint-disable-line
   const { displayTitle, iconSrc, subjectCount, trackData, onRemoveTrackClick } = props;
@@ -33,8 +34,8 @@ const TitleElement = memo((props) => { // eslint-disable-line
     {displayTitle}
     {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
     {subjectCount > 1 && <OverlayTrigger
-      onExited={() => trackEvent('Map Interaction', 'Close Heatmap Legend Subject List')}
-      onEntered={() => trackEvent('Map Interaction', 'Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
+      onExited={() => mapInteractionTracker.track('Close Heatmap Legend Subject List')}
+      onEntered={() => mapInteractionTracker.track('Show Heatmap Legend Subject List')} trigger="click" rootClose placement="right" overlay={
         <Popover className={styles.popover} id="track-details">
           <ul>
             {trackData.map(convertTrackToSubjectDetailListItem)}
@@ -62,7 +63,7 @@ const SubjectHeatmapLegend = ({ trackData, trackLength: { length: track_days }, 
   }
 
   const onRemoveTrackClick = ({ target: { value: id } }) => {
-    trackEvent('Map Interaction', 'Remove Subject Tracks Via Heatmap Legend Popover');
+    mapInteractionTracker.track('Remove Subject Tracks Via Heatmap Legend Popover');
     updateHeatmapSubjects(heatmapSubjectIDs.filter(item => item !== id));
   };
 

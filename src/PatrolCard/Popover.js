@@ -12,7 +12,7 @@ import TimeAgo from '../TimeAgo';
 
 import { withMap } from '../EarthRangerMap';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_CARD_CATEGORY } from '../utils/analytics';
 
 import PatrolStartStopButton from './StartStopButton';
 
@@ -24,6 +24,8 @@ import { updateTrackState, toggleTrackState } from '../ducks/map-ui';
 import { PATROL_CARD_STATES } from '../constants';
 
 import styles from './styles.module.scss';
+
+const patrolCardTracker = trackEventFactory(PATROL_CARD_CATEGORY);
 
 const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { container, isOpen, map, onPatrolChange, patrolData, patrolState, patrolTrackState, subjectTrackState,
@@ -74,7 +76,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
 
   const onOverlayOpen = useCallback(() => {
 
-    trackEvent('Patrol Card', 'Open patrol card popover');
+    patrolCardTracker.track('Open patrol card popover');
 
     const patrolTrackHidden = !uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]).includes(patrol.id);
     const leaderTrackHidden = !leader || !uniq([...subjectTrackState.visible, ...subjectTrackState.pinned]).includes(leader.id);
@@ -105,7 +107,7 @@ const PatrolCardPopover = forwardRef((props, ref) => { /* eslint-disable-line re
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
 
   const onLocationClick = useCallback(() => {
-    trackEvent('Patrol Card', 'Click "jump to location" from patrol card popover');
+    patrolCardTracker.track('Click "jump to location" from patrol card popover');
 
     fitMapBoundsForAnalyzer(map, patrolBounds);
   }, [map, patrolBounds]);

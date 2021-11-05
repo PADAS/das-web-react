@@ -11,7 +11,7 @@ import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import MapRulerLayer from '../MapRulerLayer';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 import AddReport from '../AddReport';
@@ -23,6 +23,7 @@ import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
 
 import styles from './styles.module.scss';
 
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapRulerControl = (props) => {
   const { map, setPickingMapLocationState } = props;
@@ -40,8 +41,8 @@ const MapRulerControl = (props) => {
     setActiveState(active => !active);
     setCompletedState(false);
     active ?
-      trackEvent('Map Interaction', 'Dismiss \'Measurement Tool\'') :
-      trackEvent('Map Interaction', 'Click \'Measurement Tool\' button');
+      mapInteractionTracker.track('Dismiss \'Measurement Tool\'') :
+      mapInteractionTracker.track('Click \'Measurement Tool\' button');
   }, [active]);
 
   const onMapClick = (e) => {
@@ -160,9 +161,9 @@ const MapRulerControl = (props) => {
   useEffect(() => {
     if (active) {
       if (points.length === 1) {
-        trackEvent('Map Interaction', 'Place Start of \'Measurement Tool\'');
+        mapInteractionTracker.track('Place Start of \'Measurement Tool\'');
       } else if (points.length === 2) {
-        trackEvent('Map Interaction', 'Place End of \'Measurement Tool\'');
+        mapInteractionTracker.track('Place End of \'Measurement Tool\'');
       }
     }
   }, [points]); // eslint-disable-line
