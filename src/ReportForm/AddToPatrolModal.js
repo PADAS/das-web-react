@@ -93,7 +93,7 @@ const AddToPatrolModal = (props) => {
     ), [patrolStore, patrols.results]);
 
   const fetchFeedPatrols = useCallback(() => {
-    const params = calcPatrolFilterForRequest({ params: { page_size: 75, state: ['active', 'done'] } });
+    const params = calcPatrolFilterForRequest({ params: { page_size: 75 } });
     return get(`${PATROLS_API_URL}?${params}`)
       .then(({ data: { data: patrols } }) => {
         updatePatrolStore(patrols);

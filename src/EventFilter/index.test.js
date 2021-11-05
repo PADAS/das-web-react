@@ -1,8 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, within, act, fireEvent } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import ReactGA from 'react-ga';
 import store from '../store';
+import userEvent from '@testing-library/user-event';
 
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
@@ -11,11 +12,12 @@ import EventFilter from './';
 
 ReactGA.initialize('dummy', { testMode: true });
 const feedSort = DEFAULT_EVENT_SORT;
+const resetMock = jest.fn();
 
 test('rendering without crashing', () => {
   render(
     <Provider store={store}>
-      <EventFilter sortConfig={feedSort}/>
+      <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
     </Provider>
   );
 });
@@ -26,7 +28,7 @@ describe('default filters state', () => {
 
     render(
       <Provider store={store}>
-        <EventFilter sortConfig={feedSort}/>
+        <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
       </Provider>
     );
   });
@@ -62,21 +64,57 @@ describe('default filters state', () => {
     const generalResetButton = within(resetWrapper).queryByText('Reset');
     expect(generalResetButton).toBeNull();
   });
+
+  describe('state filter', () => {
+    let filterBtn, optionsContainer, stateFilterOptions;
+
+    beforeEach(() => {
+      filterBtn = screen.getByTestId('filter-btn');
+      filterBtn.click();
+      optionsContainer = screen.getByTestId('state-filter-options');
+      stateFilterOptions = within(optionsContainer).getAllByRole('button');
+    });
+
+    test('it should not change the state if the same option is selected', async () => {
+      const currentStateFilter = await store.getState().data.eventFilter.state;
+      stateFilterOptions[0].click();
+
+      expect(stateFilterOptions[0].classList.contains('activeState')).toBe(true);
+      expect(stateFilterOptions[1].classList.contains('activeState')).toBe(false);
+
+      const newStateFilter = await store.getState().data.eventFilter.state;
+      expect(newStateFilter).toEqual(currentStateFilter);
+    });
+
+    test('it should change the state if a different option is selected', async () => {
+      const currentStateFilter = await store.getState().data.eventFilter.state;
+      stateFilterOptions[1].click();
+
+      optionsContainer = screen.getByTestId('state-filter-options');
+      stateFilterOptions = within(optionsContainer).getAllByRole('button');
+
+      expect(stateFilterOptions[0].classList.contains('activeState')).toBe(false);
+      expect(stateFilterOptions[1].classList.contains('activeState')).toBe(true);
+
+      const newStateFilter = await store.getState().data.eventFilter.state;
+      expect(newStateFilter).not.toEqual(currentStateFilter);
+    });
+  });
 });
 
 describe('After filters being applied', () => {
   beforeEach(async () => {
     render(
       <Provider store={store}>
-        <EventFilter sortConfig={feedSort}/>
+        <EventFilter sortConfig={feedSort} onResetAll={resetMock}/>
       </Provider>
     );
 
     const filterBtn = await screen.getByTestId('filter-btn');
-    fireEvent.click(filterBtn);
+    userEvent.click(filterBtn);
     const filterPopover = await screen.getByTestId('filter-popover');
     const resolvedOptionBtn = await within(filterPopover).queryByText('Resolved');
-    fireEvent.click(resolvedOptionBtn);
+    userEvent.click(resolvedOptionBtn);
   });
 
   test('the state color for "Filter" button after filters being applied should be primary', async () => {
@@ -86,10 +124,10 @@ describe('After filters being applied', () => {
 
   test('the state color for "Date" button after filters being applied should be primary', async () => {
     const dateFilterBtn = await screen.getByTestId('date-filter-btn');
-    fireEvent.click(dateFilterBtn);
+    userEvent.click(dateFilterBtn);
     const dateFilterPopover = await screen.getByTestId('filter-date-popover');
     const todayOptionBtn = await within(dateFilterPopover).queryByText('Today');
-    fireEvent.click(todayOptionBtn);
+    userEvent.click(todayOptionBtn);
 
     expect(dateFilterBtn.className).toEqual(expect.stringContaining('btn-primary'));
   });
@@ -99,7 +137,7 @@ describe('After filters being applied', () => {
     const resetButton = await within(resetWrapper).queryByText('Reset');
     expect(resetButton).toBeDefined();
 
-    fireEvent.click(resetButton);
+    userEvent.click(resetButton);
     const resetButtonAgain = await within(resetWrapper).queryByText('Reset');
     expect(resetButtonAgain).toBeNull();
   });
@@ -107,9 +145,17 @@ describe('After filters being applied', () => {
   test('all the applied filters disappear when the reset button is clicked', async () => {
     const resetWrapper = await screen.getByTestId('general-reset-wrapper');
     const resetButton = await within(resetWrapper).queryByText('Reset');
-    fireEvent.click(resetButton);
+    userEvent.click(resetButton);
 
     const currentFilterState = await store.getState().data.eventFilter;
     expect(currentFilterState).toEqual(INITIAL_FILTER_STATE);
+  });
+
+  test('clicking on reset button should call onResetAll', async () => {
+    const resetWrapper = await screen.getByTestId('general-reset-wrapper');
+    const resetButton = await within(resetWrapper).queryByText('Reset');
+    userEvent.click(resetButton);
+
+    expect(resetMock).toHaveBeenCalledTimes(1);
   });
 });

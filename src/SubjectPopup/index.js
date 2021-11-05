@@ -81,8 +81,8 @@ const SubjectPopup = (props) => {
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>:&nbsp;
-          <span>
-            {value}<span className={styles.unit}> {units}</span>
+          <span data-testid='additional-props-value'>
+            {value.toString()}<span className={styles.unit}> {units}</span>
           </span>
         </li>
       )}

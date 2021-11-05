@@ -48,11 +48,16 @@ jobs:
       - run: "ci-helpers/makeversion.py"
       - node/install-packages:
           cache-path: ~/project/node_modules
-          override-ci-command: npm install
+          override-ci-command: npm install --ignore-scripts
       - run: 
           command: npm run test-ci
           environment:
             NODE_OPTIONS: --max_old_space_size=8192 
+      - run:
+          command: npm rebuild node-sass
+          name: Rebuild node-sass
+          environment:
+            NODE_OPTIONS: --max_old_space_size=8192
       - run:
           command: CI=false npm run build
           name: Build Production Artefact

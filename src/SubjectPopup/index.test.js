@@ -1,16 +1,13 @@
 
 
-import { createMapMock } from '../__test-helpers/mocks';
-// import ReactMapboxGl from 'react-mapbox-gl';
 import React from 'react';
 import { Provider } from 'react-redux';
-// import ReactGA from 'react-ga';
 
-import '../__test-helpers/MockStore';
 import { mockStore } from '../__test-helpers/MockStore';
+import { createMapMock } from '../__test-helpers/mocks';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { GPS_FORMATS } from '../utils/location';
@@ -100,6 +97,15 @@ describe('SubjectPopup', () => {
       expect(additionalProps).toHaveTextContent(statusProp.label);
       expect(additionalProps).toHaveTextContent(statusProp.units);
       expect(additionalProps).toHaveTextContent(statusProp.value);
+    });
+
+    test('render additional props with boolean values', async () => {
+      render(<Provider store={store}>
+        <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+      </Provider>);
+
+      const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
+      expect(additionalPropsValues[1]).toHaveTextContent('false');
     });
   });
 });
