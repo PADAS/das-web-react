@@ -6,17 +6,16 @@ import merge from 'lodash/merge';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { openModalForPatrol, sortPatrolCards } from '../utils/patrols';
+import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
-import PatrolCard from '../PatrolCard';
 import ListItem from '../PatrolListItem';
 
 const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
+  const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     trackEvent('Patrol Card', 'Click patrol card to open patrol modal');
@@ -35,7 +34,7 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
       ref={ref}
       onTitleClick={onTitleClick}
       onPatrolChange={onPatrolChange}
-      onSelfManagedStateChange={onStateUpdateFromCard}
+      onSelfManagedStateChange={onPatrolSelfManagedStateChange}
       patrol={patrol}
       map={map}
       {...rest} />
@@ -50,12 +49,12 @@ const PatrolList = (props) => {
 
   const [listItems, setListItems] = useState(patrols);
 
-  const onStateUpdateFromCard = useCallback(() => {
-    setListItems(sortPatrolCards(patrols));
+  const onPatrolSelfManagedStateChange = useCallback(() => {
+    setListItems(sortPatrolList(patrols));
   }, [patrols]);
 
   useEffect(() => {
-    setListItems(sortPatrolCards(patrols));
+    setListItems(sortPatrolList(patrols));
   }, [patrols]);
 
 
@@ -68,7 +67,7 @@ const PatrolList = (props) => {
       {listItems.map((item, index) =>
         <ConnectedListItem
           patrol={item}
-          onStateUpdateFromCard={onStateUpdateFromCard}
+          onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}
           map={map}
           key={item.id}/>
       )}

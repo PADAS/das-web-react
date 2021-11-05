@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import { PATROL_API_STATES, PATROL_STATES } from '../constants';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
-  calcPatrolCardState, calcThemeColorForPatrolListItem, formatPatrolCardStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
+  calcPatrolState, calcThemeColorForPatrolState, formatPatrolStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { trackEvent } from '../utils/analytics';
 import { createPatrolDataSelector } from '../selectors/patrols';
@@ -16,7 +16,7 @@ import FeedListItem from '../FeedListItem';
 import LocationJumpButton from '../LocationJumpButton';
 import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
-import PatrolMenu from '../PatrolCard/PatrolMenu';
+import PatrolMenu from './PatrolMenu';
 
 import styles from './styles.module.scss';
 
@@ -29,7 +29,7 @@ const PatrolListItem = (props, ref) => {
   const intervalRef = useRef(null);
   const menuRef = useRef(null);
 
-  const [patrolState, setPatrolState] = useState(calcPatrolCardState(patrol));
+  const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
 
   const isScheduledPatrol = patrolState === PATROL_STATES.READY_TO_START
   || patrolState === PATROL_STATES.SCHEDULED
@@ -47,7 +47,7 @@ const PatrolListItem = (props, ref) => {
   const patrolElapsedTime = useMemo(() => !!patrolState && displayDurationForPatrol(patrol), [patrol, patrolState]);
   const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
-  const themeColor = useMemo(() => calcThemeColorForPatrolListItem(patrol), [patrol]);
+  const themeColor = useMemo(() => calcThemeColorForPatrolState(patrolState), [patrolState]);
   const canShowTrack = useMemo(() => patrolHasGeoDataToDisplay(trackData, startStopGeometries), [startStopGeometries, trackData]);
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
 
@@ -71,7 +71,7 @@ const PatrolListItem = (props, ref) => {
     const cancellation = patrol?.updates?.find(update => update.type === 'update_patrol_state' && update.message.includes('cancelled')) ?? null;
     if (!cancellation) return null;
 
-    return formatPatrolCardStateTitleDate(new Date(cancellation.time));
+    return formatPatrolStateTitleDate(new Date(cancellation.time));
 
   }, [isPatrolCancelled, patrol.updates]);
 
@@ -79,7 +79,7 @@ const PatrolListItem = (props, ref) => {
     if (isPatrolCancelled) return patrolCancellationTime;
     if (isPatrolDone) return patrolStateDetailsEndTime(patrol);
     if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrol);
-    if (isPatrolActive || isScheduledPatrol) return formatPatrolCardStateTitleDate(displayStartTimeForPatrol(patrol));
+    if (isPatrolActive || isScheduledPatrol) return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrol));
 
     return null;
 
@@ -125,7 +125,7 @@ const PatrolListItem = (props, ref) => {
     window.clearInterval(intervalRef.current);
 
     intervalRef.current = window.setInterval(() => {
-      const currentState = calcPatrolCardState(patrol);
+      const currentState = calcPatrolState(patrol);
       if (currentState !== patrolState) {
         setPatrolState(currentState);
         onSelfManagedStateChange(patrol);
@@ -137,7 +137,7 @@ const PatrolListItem = (props, ref) => {
   }, [onSelfManagedStateChange, patrol, patrolState]);
 
   useEffect(() => {
-    setPatrolState(calcPatrolCardState(patrol));
+    setPatrolState(calcPatrolState(patrol));
   }, [patrol]);
 
   return <FeedListItem

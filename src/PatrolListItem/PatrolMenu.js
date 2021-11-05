@@ -7,7 +7,7 @@ import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
 
 import { trackEvent } from '../utils/analytics';
-import { canEndPatrol, calcPatrolCardState } from '../utils/patrols';
+import { canEndPatrol, calcPatrolState } from '../utils/patrols';
 
 import styles from './styles.module.scss';
 
@@ -16,7 +16,7 @@ const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 const PatrolMenu = (props) => {
   const { patrol, onPatrolChange, menuRef } = props;
 
-  const patrolState = calcPatrolCardState(patrol);
+  const patrolState = calcPatrolState(patrol);
 
   const canEditPatrol = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
 

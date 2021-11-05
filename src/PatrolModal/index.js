@@ -21,7 +21,7 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
@@ -537,7 +537,7 @@ const PatrolModal = (props) => {
 
     if (isSegmentActive(firstLeg)) return STARTED_LABEL;
 
-    const patrolState = calcPatrolCardState(statePatrol);
+    const patrolState = calcPatrolState(statePatrol);
 
     if (patrolState === PATROL_STATES.READY_TO_START
     || patrolState === PATROL_STATES.SCHEDULED

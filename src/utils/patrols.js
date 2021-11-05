@@ -39,8 +39,7 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_STATES.INVALID.status]: colorVariables.patrolCancelledThemeColor,
 };
 
-export const calcThemeColorForPatrolListItem = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
+export const calcThemeColorForPatrolState = (patrolState) => {
 
   return PATROL_STATUS_THEME_COLOR_MAP[patrolState.status];
 };
@@ -257,7 +256,7 @@ export const getActivePatrolsForLeaderId = (leaderId) => {
   const patrols = getPatrolsForLeaderId(leaderId);
   const activePatrols = patrols.filter(
     item => {
-      return calcPatrolCardState(item) === PATROL_STATES.ACTIVE;
+      return calcPatrolState(item) === PATROL_STATES.ACTIVE;
     }
   );
 
@@ -275,7 +274,7 @@ export const extractAttachmentUpdates = (collection) => {
 };
 
 export const displayDurationForPatrol = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
+  const patrolState = calcPatrolState(patrol);
 
   if (patrolState === PATROL_STATES.READY_TO_START
     || patrolState === PATROL_STATES.SCHEDULED
@@ -407,7 +406,7 @@ export const patrolStateDetailsOverdueStartTime = (patrol) => {
   return distanceInWords(startTime, currentTime, { includeSeconds: true });
 };
 
-export const formatPatrolCardStateTitleDate = (date) => {
+export const formatPatrolStateTitleDate = (date) => {
   const otherYearFormat = 'D MMM \'YY HH:mm';
   const defaultFormat = 'D MMM HH:mm';
 
@@ -430,16 +429,16 @@ export const displayPatrolEndOverdueTime = (patrol) => {
 };
 
 export const patrolStateDetailsStartTime = patrol =>
-  formatPatrolCardStateTitleDate(
+  formatPatrolStateTitleDate(
     displayStartTimeForPatrol(patrol)
   );
 
 export const patrolStateDetailsEndTime = patrol =>
-  formatPatrolCardStateTitleDate(
+  formatPatrolStateTitleDate(
     displayEndTimeForPatrol(patrol)
   );
 
-export const calcPatrolCardState = (patrol) => {
+export const calcPatrolState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED;
   }
@@ -467,29 +466,29 @@ export const calcPatrolCardState = (patrol) => {
 };
 
 export const canStartPatrol = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
+  const patrolState = calcPatrolState(patrol);
   return (patrolState === PATROL_STATES.READY_TO_START
       || patrolState === PATROL_STATES.SCHEDULED
       || patrolState === PATROL_STATES.START_OVERDUE);
 };
 
 export const canEndPatrol = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
+  const patrolState = calcPatrolState(patrol);
   return patrolState === PATROL_STATES.ACTIVE;
 };
 
-export const sortPatrolCards = (patrols) => {
+export const sortPatrolList = (patrols) => {
   const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_STATES;
 
   const sortFunc = (patrol) => {
-    const cardState = calcPatrolCardState(patrol);
+    const patrolState = calcPatrolState(patrol);
 
-    if (cardState === START_OVERDUE) return 1;
-    if (cardState === READY_TO_START) return 2;
-    if (cardState === ACTIVE) return 3;
-    if (cardState === SCHEDULED) return 4;
-    if (cardState === DONE) return 5;
-    if (cardState === CANCELLED) return 6;
+    if (patrolState === START_OVERDUE) return 1;
+    if (patrolState === READY_TO_START) return 2;
+    if (patrolState === ACTIVE) return 3;
+    if (patrolState === SCHEDULED) return 4;
+    if (patrolState === DONE) return 5;
+    if (patrolState === CANCELLED) return 6;
     return 6;
   };
 
@@ -518,8 +517,8 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
   const hasFeatures = !!trackData?.points?.features?.length;
   const features = hasFeatures && trackData.points.features;
-  const isPatrolActive = calcPatrolCardState(patrol) === PATROL_STATES.ACTIVE;
-  const isPatrolDone = calcPatrolCardState(patrol) === PATROL_STATES.DONE;
+  const isPatrolActive = calcPatrolState(patrol) === PATROL_STATES.ACTIVE;
+  const isPatrolDone = calcPatrolState(patrol) === PATROL_STATES.DONE;
 
   const stroke = features?.[0]?.properties?.stroke
     || leader?.last_position?.properties?.stroke
@@ -704,7 +703,7 @@ export const getBoundsForPatrol = ((patrolData) => {
 
 export const patrolStateAllowsTrackDisplay = (patrol) => {
   const vizualizablePatrolStates = [PATROL_STATES.ACTIVE, PATROL_STATES.DONE];
-  const patrolState = calcPatrolCardState(patrol);
+  const patrolState = calcPatrolState(patrol);
 
   return vizualizablePatrolStates.includes(patrolState);
 };
