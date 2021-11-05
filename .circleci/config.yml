@@ -91,14 +91,15 @@ jobs:
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
           gcloud auth configure-docker
           docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
-      - run: 'docker run -ti gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest npm run test:cloud'
-      - run: 'docker run -ti gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest npm run reporter:cloud'
+      - run: |
+          docker run -ti --name smoke_tests gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest /app/scripts/ci_execute_tests.sh
+          docker cp smoke_tests:/app/_results_/allure-raw $(pwd)/allure-raw
       # - run: |
       #     echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
       #     gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
       #     gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
       # - run: |
-      #     gsutil cp -r ./_results_/allure-raw gs://er-report-test/
+      #     gsutil cp -r ./allure-raw gs://er-report-test/
 
 
 workflows:
