@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
 
 const PatrolMenu = (props) => {
-  const { patrol, onPatrolChange, menuRef } = props;
+  const { patrol, onPatrolChange, menuRef, ...rest } = props;
 
   const patrolState = calcPatrolState(patrol);
 
@@ -81,7 +81,7 @@ const PatrolMenu = (props) => {
     }
   }, [canEnd, onPatrolChange, patrolStartStopTitle]);
 
-  return  <Dropdown alignRight className={styles.kebabMenu}>
+  return  <Dropdown alignRight className={styles.kebabMenu} {...rest}>
     <Toggle as="button" className={styles.kebabToggle}>
       <KebabMenuIcon />
     </Toggle>
