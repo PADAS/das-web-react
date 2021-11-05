@@ -1,22 +1,22 @@
-import React, { memo, useState, useEffect } from 'react';
-import { Image } from 'react-mapbox-gl';
+import React, { memo, useEffect } from 'react';
+import { getUnaddedMapImages } from './selectors';
 import { connect } from 'react-redux';
 
-const MapImagesLayer = (props) => {
-  const { mapImages } = props;
 
-  const [images, setImages] = useState([]);
+const MapImagesLayer = (props) => {
+  const { map, newMapImages } = props;
 
   useEffect(() => {
-    setImages(Object.entries(mapImages).map(([id, { image, options }]) => ({ id, image, options })));
-  }, [mapImages]);
+    newMapImages.forEach(({ id, data: { image, options } }) => {
+      map.addImage(id, image, options);
+    });
+  }, [map, newMapImages]);
 
-  return images.map(({ id, image, options }) => <Image id={id} data={image} options={options} key={id} />);
-
+  return null;
 };
 
-const mapStateToProps = ({ view: { mapImages } }) => ({
-  mapImages,
+const mapStateToProps = (state, props) => ({
+  newMapImages: getUnaddedMapImages(state, props),
 });
 
 export default connect(mapStateToProps, null)(memo(MapImagesLayer));

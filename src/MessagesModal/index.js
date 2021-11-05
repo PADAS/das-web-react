@@ -21,7 +21,8 @@ import { ReactComponent as EditIcon } from '../common/images/icons/edit.svg';
 const bodyStyles ={
   height: '26rem',
   padding: 0,
-  width: '28rem',
+  maxWidth: '28rem',
+  width: '100vw',
 };
 
 const headerStyles = {

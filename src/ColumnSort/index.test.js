@@ -1,10 +1,10 @@
 import React from 'react';
 
-
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
+import {  EVENT_SORT_ORDER_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
 import ColumnSort from './';
 
 const SORT_OPTIONS = [
@@ -22,6 +22,8 @@ const SORT_OPTIONS = [
   },
 ];
 
+const ORDER_OPTIONS = EVENT_SORT_ORDER_OPTIONS;
+
 const onSortChange = jest.fn();
 
 
@@ -30,27 +32,33 @@ afterEach(() => {
 });
 
 test('rendering without crashing', () => {
-  render(<ColumnSort options={SORT_OPTIONS} value={['+', SORT_OPTIONS[0]]} onChange={onSortChange} />);
+  render(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={[SORT_DIRECTION.down, SORT_OPTIONS[0]]} onChange={onSortChange} />);
 });
 
 describe('ColumnSort control', () => {
-  let sortHeader, rendered;
+  let sortPopoverTrigger, rendered;
 
   beforeEach(async () => {
-    rendered = render(<ColumnSort options={SORT_OPTIONS} value={['-', SORT_OPTIONS[0]]} onChange={onSortChange} />);
+    rendered = render(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={[SORT_DIRECTION.up, SORT_OPTIONS[0]]} onChange={onSortChange} />);
 
-    sortHeader = await screen.findByTestId('sort-header');
+    sortPopoverTrigger = await screen.findByTestId('sort-popover-trigger');
   });
 
   test('showing the sort option menu', async () => {
-    sortHeader.click();
+    sortPopoverTrigger.click();
 
     await screen.findByTestId('sort-options');
   });
 
+  test('showing the order option menu', async () => {
+    sortPopoverTrigger.click();
+
+    await screen.findByTestId('order-options');
+  });
+
   describe('changing the sort property', () => {
     beforeEach(async () => {
-      sortHeader.click();
+      sortPopoverTrigger.click();
       await screen.findByTestId('sort-options');
     });
 
@@ -60,25 +68,52 @@ describe('ColumnSort control', () => {
 
       userEvent.click(sortOptions[2]);
 
-      expect(onSortChange).toHaveBeenCalledWith(['-', SORT_OPTIONS[2]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[2]]);
 
     });
   });
 
   describe('changing the sort order', () => {
+    beforeEach(async () => {
+      sortPopoverTrigger.click();
+      await screen.findByTestId('order-options');
+    });
+
+    test('clicking a order option selects a new sort order', () => {
+      const orderOptionsContainer = screen.getByTestId('order-options');
+      const orderOptions = within(orderOptionsContainer).getAllByRole('button');
+
+      userEvent.click(orderOptions[0]);
+
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
+    });
+
+    test('it should not change the sort option if the user clicks on same option in the popover', () => {
+      const orderOptionsContainer = screen.getByTestId('order-options');
+      const orderOptions = within(orderOptionsContainer).getAllByRole('button');
+
+      // by clicking on current selected value
+      userEvent.click(orderOptions[1]);
+      expect(onSortChange).not.toHaveBeenCalled();
+
+      // by clicking in a different value
+      userEvent.click(orderOptions[0]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
+    });
+
     test('positive sorting', () => {
       const sortDirectionControl = screen.getByTestId('sort-direction-toggle');
 
       userEvent.click(sortDirectionControl);
-      expect(onSortChange).toHaveBeenCalledWith(['+', SORT_OPTIONS[0]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
     });
 
     test('negative sorting', () => {
-      rendered.rerender(<ColumnSort options={SORT_OPTIONS} value={['+', SORT_OPTIONS[2]]} onChange={onSortChange} />);
+      rendered.rerender(<ColumnSort sortOptions={SORT_OPTIONS} orderOptions={ORDER_OPTIONS} value={[SORT_DIRECTION.down, SORT_OPTIONS[2]]} onChange={onSortChange} />);
       const sortDirectionControl = screen.getByTestId('sort-direction-toggle');
 
       userEvent.click(sortDirectionControl);
-      expect(onSortChange).toHaveBeenCalledWith(['-', SORT_OPTIONS[2]]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[2]]);
     });
   });
 

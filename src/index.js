@@ -67,7 +67,6 @@ const PathNormalizationRouteComponent = (props) => {
     return <GoToHomepage />;
   }
 
-
   return <a href={localMatch} style={{ opacity: 0 }} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
 };
 

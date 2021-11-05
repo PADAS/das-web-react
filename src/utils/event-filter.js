@@ -9,11 +9,11 @@ import store from '../store';
 
 export const EVENT_SORT_OPTIONS = [
   {
-    label: 'Last Updated',
+    label: 'Updated Date',
     value: 'updated_at',
   },
   {
-    label: 'Creation Time',
+    label: 'Created Date',
     value: 'created_at',
   },
   {
@@ -22,7 +22,23 @@ export const EVENT_SORT_OPTIONS = [
   },
 ];
 
-export const DEFAULT_EVENT_SORT = ['-', EVENT_SORT_OPTIONS[0]];
+export const SORT_DIRECTION = {
+  up: 'up',
+  down: 'down'
+};
+
+export const EVENT_SORT_ORDER_OPTIONS = [
+  {
+    label: 'Newest to Oldest',
+    value: SORT_DIRECTION.down,
+  },
+  {
+    label: 'Oldest to Newest',
+    value: SORT_DIRECTION.up,
+  },
+];
+
+export const DEFAULT_EVENT_SORT = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[0]];
 
 
 export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
@@ -36,8 +52,7 @@ export const isDateFilterModified = ({ state, filter: { date_range } }) => !isEq
 
 export const calcSortParamForEventFilter = (sortConfig) => {
   const [direction, sortProp] = sortConfig;
-
-  return `${direction === '-' ? direction : ''}${sortProp.value}`;
+  return `${direction === SORT_DIRECTION.down ? '-' : ''}${sortProp.value}`;
 };
 
 export const calcTimePropForSortConfig = (sortConfig) => {
@@ -53,12 +68,12 @@ export const sortEventsBySortConfig = (events, sortConfig) => {
     const date1 = new Date(a[comparisonProp]).getTime();
     const date2 = new Date(b[comparisonProp]).getTime();
 
-    if (direction === '+') return date1 - date2;
+    if (direction === SORT_DIRECTION.up) return date1 - date2;
     return date2 - date1;
   });
 };
 
-export const calcEventFilterForRequest = (options = {}, sortConfig = ['-', EVENT_SORT_OPTIONS[0]]) => {
+export const calcEventFilterForRequest = (options = {}, sortConfig = DEFAULT_EVENT_SORT) => {
   const { data: { eventFilter, eventTypes } } = store.getState();
   const { params, format = 'string' } = options;
 
