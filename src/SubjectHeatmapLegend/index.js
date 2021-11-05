@@ -14,6 +14,7 @@ import HeatmapLegend from '../HeatmapLegend';
 import { ReactComponent as InfoIcon } from '../common/images/icons/information.svg';
 
 import styles from './styles.module.scss';
+
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const TitleElement = memo((props) => { // eslint-disable-line

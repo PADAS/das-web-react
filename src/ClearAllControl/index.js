@@ -8,6 +8,7 @@ import { getSubjectGroups } from '../selectors/subjects';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check.svg';
 
 import styles from './styles.module.scss';
+
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const ClearAllControl = (props) => {

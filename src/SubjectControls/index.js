@@ -12,14 +12,15 @@ import TrackToggleButton from '../TrackToggleButton';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 import SubjectMessagesPopover from '../SubjectMessagesPopover';
 import LocationJumpButton from '../LocationJumpButton';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import { getSubjectControlState } from './selectors';
 
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
-
 import styles from './styles.module.scss';
+
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const SubjectControls = (props) => {
   const { subject,
@@ -61,11 +62,11 @@ const SubjectControls = (props) => {
     toggleTrackState(id);
 
     if (tracksPinned) {
-      trackEvent('Map Layers', 'Uncheck Subject Show Tracks button', `Subject:${subject.subject_type}`);
+      mapLayerTracker.track('Uncheck Subject Show Tracks button', `Subject:${subject.subject_type}`);
     } else if (tracksVisible) {
-      trackEvent('Map Layers', 'Pin Subject Show Tracks button', `Subject:${subject.subject_type}`);
+      mapLayerTracker.track('Pin Subject Show Tracks button', `Subject:${subject.subject_type}`);
     } else {
-      trackEvent('Map Layers', 'Check Subject Show Tracks button', `Subject:${subject.subject_type}`);
+      mapLayerTracker.track('Check Subject Show Tracks button', `Subject:${subject.subject_type}`);
     }
   };
 
@@ -77,11 +78,11 @@ const SubjectControls = (props) => {
     setHeatmapLoadingState(false);
 
     if (subjectIsInHeatmap) {
-      trackEvent('Map Layers', 'Uncheck Subject Heatmap button',
+      mapLayerTracker.track('Uncheck Subject Heatmap button',
         `Subject Type:${subject.subject_type}`);
       return removeHeatmapSubjects(id);
     } else {
-      trackEvent('Map Layers', 'Check Subject Heatmap button',
+      mapLayerTracker.track('Check Subject Heatmap button',
         `Subject Type:${subject.subject_type}`);
       return addHeatmapSubjects(id);
     }

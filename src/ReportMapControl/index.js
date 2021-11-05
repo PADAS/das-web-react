@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { displayReportsOnMapState, setReportHeatmapVisibility } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
 
 import CheckMark from '../Checkmark';
 import HeatmapToggleButton from '../HeatmapToggleButton';
@@ -9,18 +9,21 @@ import HeatmapToggleButton from '../HeatmapToggleButton';
 import listStyles from '../SideBar/styles.module.scss';
 import styles from './styles.module.scss';
 
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
+const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
+
 const ReportMapControl = (props) => {
   const { showReportsOnMap, showReportHeatmap, setReportHeatmapVisibility } = props;
 
   const onViewReportsToggle = (e) => {
     e.stopPropagation();
-    trackEvent('Map Layer', 'Clicked Clear All Reports');
+    mapLayerTracker.track('Clicked Clear All Reports');
     props.displayReportsOnMapState(!showReportsOnMap);
   };
 
   const toggleReportHeatmapVisibility = () => {
     setReportHeatmapVisibility(!showReportHeatmap);
-    trackEvent('Reports', `${showReportHeatmap ? 'Hide' : 'Show'} Reports Heatmap`);
+    reportsTracker.track(`${showReportHeatmap ? 'Hide' : 'Show'} Reports Heatmap`);
   };
 
   return <div className={styles.container}>
