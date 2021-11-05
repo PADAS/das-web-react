@@ -14,7 +14,14 @@ import DataExportModal from '../DataExportModal';
 import AlertsModal from '../AlertsModal';
 import AboutModal from '../AboutModal';
 import KMLExportModal from '../KMLExportModal';
-import { trackEvent } from '../utils/analytics';
+import {
+  trackEvent,
+  trackEventFactory,
+  MAIN_TOOLBAR_CATEGORY,
+  REPORT_EXPORT_CATEGORY,
+  TABLEAU_ANALYSIS_CATEGORY,
+  ALERTS_CATEGORY
+} from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -24,6 +31,8 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
 
 const mailTo = (email, subject, message) => window.open(`mailto:${email}?subject=${subject}&body=${message}`, '_self');
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
+const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 const DataExportMenu = (props) => {
 
@@ -85,25 +94,25 @@ const DataExportMenu = (props) => {
 
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
-    trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
+    mainToolbarTracker.track(`${isOpen?'Open':'Close'} Data Export Menu`);
   };
 
-  const onModalClick = useCallback((modal, analyticsTitle = 'Report Export') => {
+  const onModalClick = useCallback((modal, analyticsTitle = REPORT_EXPORT_CATEGORY) => {
     addModal({ ...modal });
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   }, [addModal]);
 
-  const openTableauReport = (analyticsTitle) => {
+  const openTableauReport = () => {
     fetchTableauDashboard()
       .then( ({ display_url }) => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
-        trackEvent(analyticsTitle, 'Click Analysis (via Tableau) menu item');
+        tableuAnalysisTracker.track('Click Analysis (via Tableau) menu item');
       });
   };
 
   const onContactSupportClick = () => {
-    trackEvent('Main Toolbar', 'Click \'Contact Support\'');
+    mainToolbarTracker.track('Click \'Contact Support\'');
     if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
     return mailTo('support@pamdas.org', 'Support request from user', 'How can we help you?');
   };
@@ -111,13 +120,13 @@ const DataExportMenu = (props) => {
   const onCommunityClick = () => {
     const newWindow = window.open('https://Community.EarthRanger.com', '_blank', 'noopener,noreferrer');
     if (newWindow) newWindow.opener = null;
-    trackEvent('Main Toolbar', 'Click \'Community\' menu item');
+    mainToolbarTracker.track('Click \'Community\' menu item');
   };
 
   const onDocumentationClick = () => {
     const newWindow = window.open('https://community.earthranger.com/t/earthranger-users-guide/60', '_blank', 'noopener,noreferrer');
     if (newWindow) newWindow.opener = null;
-    trackEvent('Main Toolbar', 'Click \'Documentation\' menu item');
+    mainToolbarTracker.track('Click \'Documentation\' menu item');
   };
 
 
@@ -127,7 +136,7 @@ const DataExportMenu = (props) => {
 
   const onOpenAlertsModalClick = useCallback(() => {
     document.cookie = `token=${token.access_token};path=/`;
-    onModalClick(alertModal, 'Alerts');
+    onModalClick(alertModal, ALERTS_CATEGORY);
   }, [alertModal, onModalClick, token.access_token]);
 
   const hamburgerToggle = useRef();
@@ -137,7 +146,7 @@ const DataExportMenu = (props) => {
       <HamburgerMenuIcon isOpen={isOpen} />
     </Toggle>
     <Menu>
-      {!!tableau_enabled && <Item onClick={() => openTableauReport('Analysis (via Tableau)')}>Analysis (via Tableau)</Item>}
+      {!!tableau_enabled && <Item onClick={() => openTableauReport()}>Analysis (via Tableau)</Item>}
       {!!alerts_enabled && !!eventTypes.length && <Item onClick={onOpenAlertsModalClick}>Alerts</Item>}
       <Header>Exports</Header>
       {modals.map((modal, index) =>

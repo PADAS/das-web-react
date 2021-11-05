@@ -5,7 +5,7 @@ import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserPr
 import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 import { usePermissions } from '../hooks';
 
@@ -23,18 +23,20 @@ import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import './Nav.scss';
 
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
+
 const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, history, homeMap, location, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
 
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const onHomeMapSelect = (chosenMap) => {
     setHomeMap(chosenMap);
-    trackEvent('Main Toolbar', 'Change Home Area', `Home Area:${chosenMap.title}`);
+    mainToolbarTracker.track('Change Home Area', `Home Area:${chosenMap.title}`);
   };
 
   const onCurrentLocationClick = (location) => {
     jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
-    trackEvent('Main Toolbar', 'Click \'My Current Location\'');
+    mainToolbarTracker.track('Click \'My Current Location\'');
   };
 
   const onProfileClick = (profile) => {
@@ -42,9 +44,9 @@ const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserPr
 
     if (isMainUser) {
       clearUserProfile();
-      trackEvent('Main Toolbar', 'Select to operate as the main user');
+      mainToolbarTracker.track('Select to operate as the main user');
     } else {
-      trackEvent('Main Toolbar', 'Select to operate as a user profile');
+      mainToolbarTracker.track('Select to operate as a user profile');
       setUserProfile(profile, isMainUser ? false : true);
     }
 

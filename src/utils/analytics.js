@@ -19,6 +19,10 @@ export const PATROL_MODAL_CATEGORY = 'Patrol Modal';
 export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const REPORT_EXPORT_CATEGORY = 'Report Export';
 export const REPORTS_CATEGORY = 'Reports';
+export const MAIN_TOOLBAR_CATEGORY = 'Main Toolbar';
+export const TABLEAU_ANALYSIS_CATEGORY = 'Analysis (via Tableau)';
+export const ALERTS_CATEGORY = 'Alerts';
+export const DRAWER_CATEGORY = 'Drawer';
 
 /**
  * Function to emit a GA event.

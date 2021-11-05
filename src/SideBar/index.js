@@ -23,7 +23,7 @@ import EventFilter from '../EventFilter';
 import MapLayerFilter from '../MapLayerFilter';
 import PatrolFilter from '../PatrolFilter';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 
 import ReportsTab from './ReportsTab';
@@ -34,6 +34,8 @@ import ReportMapControl from '../ReportMapControl';
 import ErrorBoundary from '../ErrorBoundary';
 import PatrolList from '../PatrolList';
 import { cloneDeep } from 'lodash-es';
+
+const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 const SET_TAB = 'SET_TAB';
 
@@ -87,7 +89,7 @@ const SideBar = (props) => {
       [TAB_KEYS.LAYERS]: 'Map Layers',
       [TAB_KEYS.PATROLS]: 'Patrols',
     };
-    trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
+    drawerTracker.track(`Click '${tabTitles[eventKey]}' tab`);
   };
 
   // fetch patrols if filter settings has changed

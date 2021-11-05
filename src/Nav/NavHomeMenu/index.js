@@ -11,9 +11,10 @@ import { userLocationCanBeShown } from '../../selectors';
 
 import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
 import styles from './styles.module.scss';
-import { trackEvent } from '../../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 const { Toggle, Menu, Item, Divider } = Dropdown;
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
 const NavHomeMenu = function NavHomeMenu(props) {
   const { maps, onMapSelect, selectedMap, userLocation, userLocationCanBeShown, onCurrentLocationClick } = props;
@@ -21,7 +22,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
   const isMediumLayout = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const onDropdownToggle = (isOpen) => {
-    trackEvent('Main Toolbar', `${isOpen ? 'Open':'Close'} Home Area Menu`);
+    mainToolbarTracker.track(`${isOpen ? 'Open':'Close'} Home Area Menu`);
   };
 
   return (

@@ -7,18 +7,19 @@ import Badge from '../Badge';
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
 import styles from './styles.module.scss';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 const { Toggle, Menu, Item } = Dropdown;
 
 const formatter = (val, unit, suffix) => `${val}${unit.charAt(0)} ${suffix}`;
-
 const TimeAgo = (props) => <TA {...props} formatter={formatter} />;
+
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
 class SystemStatusComponent extends Component {
 
   onDropdownToggle(isOpen) {
-    trackEvent('Main Toolbar', `${isOpen ? 'Open':'Close'} Status Summary Display`);
+    mainToolbarTracker.track(`${isOpen ? 'Open':'Close'} Status Summary Display`);
   }
 
   renderStatusList() {
