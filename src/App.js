@@ -32,7 +32,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 //
 
 import './App.scss';
-import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
+import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 

@@ -32,11 +32,7 @@ export const DRAWER_CATEGORY = 'Drawer';
  * @param {string} [label]  Event label string (optional).
  */
 export function trackEvent(category, action, label=null) {
-  ReactGA.event({
-    category: category,
-    action: action,
-    label: label
-  });
+  ReactGA.event({ category, action, label });
 };
 
 
@@ -44,8 +40,8 @@ export function trackEvent(category, action, label=null) {
  * Function to create a tracker for provided category
  * @param {string} category 
  */
-export function trackEventFactory (category) {
-  const track = (action, label) => trackEvent(category, action, label);
+export function trackEventFactory (category, tracker = trackEvent) {
+  const track = (action, label) => tracker(category, action, label);
 
   return {
     track,

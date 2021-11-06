@@ -11,7 +11,7 @@ import { userLocationCanBeShown } from '../../selectors';
 
 import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps-location-icon.svg';
 import styles from './styles.module.scss';
-import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../../utils/analytics';
 
 const { Toggle, Menu, Item, Divider } = Dropdown;
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
