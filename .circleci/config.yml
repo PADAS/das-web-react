@@ -88,6 +88,8 @@ jobs:
           password: $GCLOUD_SERVICE_KEY  # JSON service account you created, do not encode to base64
     steps:
       - run: 'ls -la'
+      - run: 'pwd'
+      - run: 'exit 1'
   # execute_smoke_tests:
   #   executor: gcloud
   #   steps:
