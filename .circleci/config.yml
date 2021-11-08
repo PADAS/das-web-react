@@ -87,8 +87,8 @@ jobs:
           username: _json_key # default username when using a JSON key file to authenticate
           password: $GCLOUD_SERVICE_KEY
     steps:
-      - "setup_remote_docker"
-      - "docker_login"
+      # - "setup_remote_docker"
+      # - "docker_login"
   #     #TODO rename the site so tests can be executed in each specific site
       - run: |
           cd /app
