@@ -91,6 +91,7 @@ jobs:
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
           gcloud auth configure-docker
           docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
+      #TODO rename the site so tests can be executed in each specific site
       - run: |
           docker run -ti --name smoke_tests gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest /app/scripts/ci_execute_tests.sh
           docker cp smoke_tests:/app/_results_/allure-raw $(pwd)/allure-raw
