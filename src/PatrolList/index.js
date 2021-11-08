@@ -64,7 +64,7 @@ const PatrolList = (props) => {
     <PatrolListTitle />
     {!!listItems.length && <Flipper flipKey={listItems} element='ul' className={styles.patrolList}>
 
-      {listItems.map((item, index) =>
+      {listItems.map((item) =>
         <ConnectedListItem
           patrol={item}
           onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}

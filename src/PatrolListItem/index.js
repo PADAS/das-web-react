@@ -21,7 +21,7 @@ import PatrolMenu from './PatrolMenu';
 import styles from './styles.module.scss';
 
 const PatrolListItem = (props, ref) => {
-  const { map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch, ...rest } = props;
+  const { map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest } = props;
 
   const { patrol, leader, trackData, startStopGeometries } = patrolData;
 
@@ -101,8 +101,8 @@ const PatrolListItem = (props, ref) => {
 
   const StateDependentControls = () => {
     if (isPatrolActiveOrDone) return <div className={styles.patrolTrackControls}>
-      {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} />}
-      {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} />}
+      {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
+      {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
     if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol}>Restore</Button>;
     if (isScheduledPatrol) return  <Button variant='light' size='sm' onClick={startPatrol}>Start</Button>;
