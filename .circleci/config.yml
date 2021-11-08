@@ -81,20 +81,28 @@ jobs:
       - trigger_downstream_builds:
         name: "Trigger downstream builds"
   execute_smoke_tests:
-    executor: gcloud
+    docker:
+      - image: gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
+        auth:
+          username: _json_key  # default username when using a JSON key file to authenticate
+          password: $GCLOUD_SERVICE_KEY  # JSON service account you created, do not encode to base64
     steps:
-      - "setup_remote_docker"
-      - "docker_login"
-      - run: |
-          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-          gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
-          gcloud auth configure-docker
-          docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
-      #TODO rename the site so tests can be executed in each specific site
-      - run: |
-          docker run -ti --name smoke_tests gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest /app/scripts/ci_execute_tests.sh
-          docker cp smoke_tests:/app/_results_/allure-raw $(pwd)/allure-raw
+      - run: 'ls -la'
+  # execute_smoke_tests:
+  #   executor: gcloud
+  #   steps:
+  #     - "setup_remote_docker"
+  #     - "docker_login"
+  #     - run: |
+  #         echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+  #         gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+  #         gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+  #         gcloud auth configure-docker
+  #         docker pull gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
+  #     #TODO rename the site so tests can be executed in each specific site
+  #     - run: |
+  #         docker run -ti --name smoke_tests gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest /app/scripts/ci_execute_tests.sh
+  #         docker cp smoke_tests:/app/_results_/allure-raw $(pwd)/allure-raw
       # - run: |
       #     echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
       #     gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
