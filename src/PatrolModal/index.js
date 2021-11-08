@@ -596,7 +596,7 @@ const PatrolModal = (props) => {
       {isSaving && <LoadingOverlay className={styles.savingOverlay} message='Saving Patrol...' />}
       <Header
         analyticsMetadata={{
-          category: 'Patrol Modal',
+          category: PATROL_MODAL_CATEGORY,
           location: 'patrol modal',
         }}
         icon={<DasIcon type='events' iconId={patrolIconId} />}
@@ -693,14 +693,14 @@ const PatrolModal = (props) => {
       </section>
       <AttachmentControls
         analyticsMetadata={{
-          category: 'Patrol Modal',
+          category: PATROL_MODAL_CATEGORY,
           location: 'patrol modal',
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
         {patrolSegmentId &&<AddReport map={map}
           analyticsMetadata={{
-            category: 'Patrol Modal',
+            category: PATROL_MODAL_CATEGORY,
             location: 'patrol modal',
           }}
           formProps={{

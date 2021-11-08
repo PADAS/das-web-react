@@ -100,7 +100,7 @@ const SubjectControls = (props) => {
     {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap}
       onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
     {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates}
-      map={map} clickAnalytics={['Map Layers', 'Click Jump To Subject Location button',
+      map={map} clickAnalytics={[MAP_LAYERS_CATEGORY, 'Click Jump To Subject Location button',
         `Subject Type:${subject.subject_type}`]} />}
     {children}
   </div>;
