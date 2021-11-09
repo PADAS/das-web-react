@@ -177,7 +177,7 @@ const AddToPatrolModal = (props) => {
               return <PatrolListItem
                 className={styles.listItem}
                 patrol={patrol}
-                data-testid={`patrol-list-item-${index}`}
+                data-testid={`add-patrol-list-item-${index}`}
                 key={`${id}-${index}`}
                 showControls={false}
                 onTitleClick={onClickPatrol} />;

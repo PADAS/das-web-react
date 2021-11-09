@@ -40,14 +40,14 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const defaultStoreValue = { view: { }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE } } };
+const defaultStoreValue = { view: { }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE }, tracks: {} } };
 
 const onAddToPatrol = jest.fn();
 
 
 const store = mockStore({ ...defaultStoreValue });
 
-test.only('rendering without crashing', () => {
+test('rendering without crashing', () => {
   render(<Provider store={store}>
     <SocketProvider>
       <AddtoPatrolModal onAddToPatrol={onAddToPatrol} />
@@ -124,7 +124,7 @@ describe('the "add to patrol" modal within a report form', () => {
 
     await screen.findByTestId('patrol-feed-container');
 
-    const listItems = await screen.findAllByTestId('patrol-list-item', { exact: false }); /* items have testids of patrol-list-item-${index}, this lets us count them all as a collection */
+    const listItems = await screen.findAllByTestId('add-patrol-list-item', { exact: false }); /* items have testids of add-patrol-list-item-${index}, this lets us count them all as a collection */
     expect(listItems).toHaveLength(mockPatrolData.length);
   });
 
@@ -169,7 +169,7 @@ describe('the "add to patrol" modal within a report form', () => {
 
     expect(onAddToPatrol).not.toHaveBeenCalled();
 
-    const firstListItem = await screen.findByTestId('patrol-list-item-0');
+    const firstListItem = await screen.findByTestId('add-patrol-list-item-0');
     const button = firstListItem.querySelector('button');
     userEvent.click(button);
 
