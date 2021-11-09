@@ -104,8 +104,8 @@ const PatrolListItem = (props, ref) => {
       {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
       {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
-    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol}>Restore</Button>;
-    if (isScheduledPatrol) return  <Button variant='light' size='sm' onClick={startPatrol}>Start</Button>;
+    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
+    if (isScheduledPatrol) return  <Button variant='light' size='sm' onClick={startPatrol} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;
     return null;
   };
 
@@ -144,8 +144,8 @@ const PatrolListItem = (props, ref) => {
     ref={ref}
     themeColor={themeColor}
     title={displayTitle}
-    IconComponent={patrolIconId && <button data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
-      <DasIcon type='events' onClick={onTitleClick} iconId={patrolIconId} />
+    IconComponent={patrolIconId && <button onClick={onTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
+      <DasIcon type='events' iconId={patrolIconId} />
     </button>}
     TitleComponent={
       <>
@@ -158,7 +158,7 @@ const PatrolListItem = (props, ref) => {
     }
     DateComponent={
       <div className={styles.statusInfo} data-testid={`patrol-list-item-date-status-${patrol.id}`}>
-        <strong>{patrolState.title}</strong>
+        <strong data-testid={`patrol-list-item-state-title-${patrol.id}`}>{patrolState.title}</strong>
         <span>{dateComponentDateString}</span>
       </div>
     }

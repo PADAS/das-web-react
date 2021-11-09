@@ -6,14 +6,13 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import { PATROL_STATES } from '../constants';
+import { PATROL_API_STATES, PATROL_STATES } from '../constants';
 
 import { mockStore } from '../__test-helpers/MockStore';
 
 import * as trackUtils from '../utils/tracks';
 
 import * as patrolUtils from '../utils/patrols';
-import * as patrolSelectors from '../selectors/patrols';
 import * as customHooks from '../hooks';
 
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
@@ -24,7 +23,29 @@ import PatrolListItem from './';
 
 import { createMapMock } from '../__test-helpers/mocks';
 
-let store = mockStore({ view: { timeSliderState: { active: false }, subjectTrackState: { pinned: [], visible: [] }, patrolTrackState: { pinned: [], visible: [] } }, data: { subjectStore: {}, tracks: {}, patrolTypes, patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p })) } });
+import colorVariables from '../common/styles/vars/colors.module.scss';
+
+const minimumNecessaryStoreStructure = {
+  view: {
+    timeSliderState: {
+      active: false
+    },
+    subjectTrackState: {
+      pinned: [], visible: []
+    },
+    patrolTrackState: {
+      pinned: [], visible: []
+    }
+  },
+  data: {
+    subjectStore: {},
+    tracks: {},
+    patrolTypes,
+    patrolStore: patrols.reduce((p, acc = {}) => ({ ...acc, [p.id]: p }))
+  }
+};
+
+let store = mockStore(minimumNecessaryStoreStructure);
 
 const onTitleClick = jest.fn();
 const onPatrolChange = jest.fn();
@@ -34,6 +55,11 @@ const map = createMapMock();
 jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promise.resolve({}));
 
 let testPatrol;
+
+beforeEach(() => {
+  jest.spyOn(customHooks, 'usePermissions').mockImplementation(() => true); // full permissions for list item read+write access
+  jest.useFakeTimers('modern');
+});
 
 test('rendering without crashing', () => {
   testPatrol = { ...patrols[0] };
@@ -54,6 +80,10 @@ describe('the patrol list item', () => {
     testPatrol = { ...patrols[0] };
     testPatrol.title = TEST_PATROL_TITLE;
 
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
+      return PATROL_STATES.ACTIVE;
+    });
+
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
@@ -72,16 +102,27 @@ describe('the patrol list item', () => {
     expect(title).toHaveTextContent(TEST_PATROL_TITLE);
   });
 
+  test('showing the current state', async () => {
+    const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
+    expect(state).toHaveTextContent(PATROL_STATES.ACTIVE.title);
+  });
+
   test('showing a kebab menu for additional actions', async () => {
     await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
   });
 });
 
 describe('for active patrols', () => {
-  const patrolWithLeader = patrols[1];
+  const patrolWithLeader = { ...patrols[1] };
+  const mockStartDate = new Date('2021-10-09');
+  const mockCurrentDate = new Date('2021-10-10');
 
   beforeEach(() => {
     testPatrol = { ...patrolWithLeader };
+    testPatrol.patrol_segments[0].time_range.start_time = mockStartDate.toISOString();
+
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'patrolHasGeoDataToDisplay').mockImplementation(() => {
       return true;
@@ -94,8 +135,6 @@ describe('for active patrols', () => {
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
       return PATROL_STATES.ACTIVE;
     });
-
-    jest.spyOn(customHooks, 'usePermissions').mockImplementation(() => true);
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
@@ -121,61 +160,238 @@ describe('for active patrols', () => {
 
     const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
     userEvent.click(cancelBtn);
-    expect(onPatrolChange).toHaveBeenCalledWith({ state: 'cancelled' });
+    expect(onPatrolChange).toHaveBeenCalledWith({ state: PATROL_API_STATES.CANCELLED });
   });
 
-  test('ending a patrol from the kebab menu', () => {
+  test('ending a patrol from the kebab menu', async () => {
+    const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    userEvent.click(kebabButton);
 
+    const endBtn = await within(kebabMenu).findByText('End Patrol');
+
+    userEvent.click(endBtn);
+
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
+      state: PATROL_API_STATES.DONE,
+      patrol_segments: [
+        { time_range: {
+          end_time: mockCurrentDate.toISOString(),
+        } }
+      ]
+    }));
+  });
+
+  test('theming', async () => {
+    const iconContainer = await screen.findByRole('img');
+    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolActiveThemeColor}`);
   });
 
 });
 
 describe('for scheduled patrols', () => {
-  test('showing a "start" button which starts the patrol', () => {
+  const mockStartDate = new Date('10-10-2021 11:00');
+  const mockCurrentDate = new Date('10-10-2021 9:00');
 
+  beforeEach(() => {
+    testPatrol = { ...patrols[0] };
+    testPatrol.patrol_segments[0].time_range.scheduled_start = mockStartDate.toISOString();
+
+    jest.setSystemTime(mockCurrentDate.getTime());
+
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
+      return PATROL_STATES.READY_TO_START;
+    });
+
+    render(<Provider store={store}>
+      <PatrolListItem onTitleClick={onTitleClick}
+        onPatrolChange={onPatrolChange}
+        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+        patrol={testPatrol}
+        map={map} />
+    </Provider>);
+  });
+  test('showing a "start" button which starts the patrol', async () => {
+    const startBtn = await screen.findByTestId(`patrol-list-item-start-btn-${testPatrol.id}`);
+    userEvent.click(startBtn);
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
+      state: PATROL_API_STATES.OPEN,
+      patrol_segments: [
+        { time_range: {
+          end_time: null,
+          start_time: mockCurrentDate.toISOString(),
+        } }
+      ]
+    }));
   });
 
-  test('canceling the patrol from the kebab menu', () => {
+  test('canceling the patrol from the kebab menu', async () => {
+    const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    userEvent.click(kebabButton);
 
+    const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
+
+    userEvent.click(cancelBtn);
+
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
+      state: PATROL_API_STATES.CANCELLED,
+    }));
+  });
+
+  test('theming', async () => {
+    const iconContainer = await screen.findByRole('img');
+    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolReadyThemeColor}`);
   });
 
 });
 
 describe('for overdue patrols', () => {
-  test('showing an overdue indicator', () => {
+  const mockStartDate = new Date('10-10-2021 01:00');
+  const mockCurrentDate = new Date('10-10-2021 13:00');
 
+  beforeEach(() => {
+    testPatrol = { ...patrols[0] };
+    testPatrol.patrol_segments[0].time_range.scheduled_start = mockStartDate.toISOString();
+
+    jest.setSystemTime(mockCurrentDate.getTime());
+
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
+      return PATROL_STATES.START_OVERDUE;
+    });
+
+    render(<Provider store={store}>
+      <PatrolListItem onTitleClick={onTitleClick}
+        onPatrolChange={onPatrolChange}
+        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+        patrol={testPatrol}
+        map={map} />
+    </Provider>);
+  });
+
+  test('showing an overdue indicator', async () => {
+    const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
+    expect(stateIndicator).toHaveTextContent(PATROL_STATES.START_OVERDUE.title);
+  });
+
+  test('theming', async () => {
+    const iconContainer = await screen.findByRole('img');
+    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolOverdueThemeColor}`);
   });
 });
 
 describe('for cancelled patrols', () => {
-  test('showing a button to restore the patrol', () => {
+  const mockCurrentDate = new Date('10-10-2021 13:00');
 
+  beforeEach(() => {
+    testPatrol = { ...patrols[0] };
+    testPatrol.state = PATROL_API_STATES.CANCELLED;
+
+    jest.setSystemTime(mockCurrentDate.getTime());
+
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
+      return PATROL_STATES.CANCELLED;
+    });
+
+    render(<Provider store={store}>
+      <PatrolListItem onTitleClick={onTitleClick}
+        onPatrolChange={onPatrolChange}
+        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+        patrol={testPatrol}
+        map={map} />
+    </Provider>);
   });
+
+  test('showing a button to restore the patrol', async () => {
+    const restoreBtn = await screen.findByTestId(`patrol-list-item-restore-btn-${testPatrol.id}`);
+
+    userEvent.click(restoreBtn);
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
+      state: 'open',
+      patrol_segments: [
+        {
+          time_range: {
+            end_time: null,
+          },
+        },
+      ],
+    }));
+  });
+
+  test('restoring the patrol from the kebab menu', async () => {
+    const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    userEvent.click(kebabButton);
+
+    const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
+
+    userEvent.click(restoreBtn);
+
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
+      state: 'open',
+      patrol_segments: [
+        {
+          time_range: {
+            end_time: null,
+          },
+        },
+      ],
+    }));
+  });
+
+  test('theming', async () => {
+    const iconContainer = await screen.findByRole('img');
+    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolCancelledThemeColor}`);
+  });
+
 });
 
 describe('for completed patrols', () => {
-  // what goes here?
-});
+  const mockCurrentDate = new Date('10-10-2021 13:00');
 
-describe('using color to indicate state', () => {
-  test('blue backgrounds for active patrols', () => {
+  beforeEach(() => {
+    testPatrol = { ...patrols[0] };
+    testPatrol.state = PATROL_API_STATES.CANCELLED;
 
+    jest.setSystemTime(mockCurrentDate.getTime());
+
+    jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
+      return PATROL_STATES.CANCELLED;
+    });
+
+    render(<Provider store={store}>
+      <PatrolListItem onTitleClick={onTitleClick}
+        onPatrolChange={onPatrolChange}
+        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+        patrol={testPatrol}
+        map={map} />
+    </Provider>);
   });
 
-  test('green backgrounds for scheduled patrols', () => {
+  test('restoring the patrol from the kebab menu', async () => {
+    const kebabMenu = await screen.findByTestId(`patrol-list-item-kebab-menu-${testPatrol.id}`);
+    const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
+    userEvent.click(kebabButton);
 
+    const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
+
+    userEvent.click(restoreBtn);
+
+    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
+      state: 'open',
+      patrol_segments: [
+        {
+          time_range: {
+            end_time: null,
+          },
+        },
+      ],
+    }));
   });
 
-  test('gray backgrounds for completed patrols', () => {
-
-  });
-
-  test('light gray backgrounds for cancelled patrols', () => {
-
-  });
-
-  test('red backgrounds for overdue patrols', () => {
-
+  test('theming', async () => {
+    const iconContainer = await screen.findByRole('img');
+    expect(iconContainer).toHaveStyle(`background-color: ${colorVariables.patrolDoneThemeColor}`);
   });
 
 });
