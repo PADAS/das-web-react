@@ -21,7 +21,7 @@ import PatrolMenu from './PatrolMenu';
 import styles from './styles.module.scss';
 
 const PatrolListItem = (props, ref) => {
-  const { map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest } = props;
+  const { showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest } = props;
 
   const { patrol, leader, trackData, startStopGeometries } = patrolData;
 
@@ -128,7 +128,7 @@ const PatrolListItem = (props, ref) => {
       const currentState = calcPatrolState(patrol);
       if (currentState !== patrolState) {
         setPatrolState(currentState);
-        onSelfManagedStateChange(patrol);
+        onSelfManagedStateChange && onSelfManagedStateChange(patrol);
       }
     }, 3000);
 
@@ -163,10 +163,10 @@ const PatrolListItem = (props, ref) => {
       </div>
     }
     ControlsComponent={
-      <>
+      showControls ? <>
         <StateDependentControls />
         <PatrolMenu data-testid={`patrol-list-item-kebab-menu-${patrol.id}`} patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onClickOpen={onTitleClick} />
-      </>
+      </> : null
     }
 
   {...rest}

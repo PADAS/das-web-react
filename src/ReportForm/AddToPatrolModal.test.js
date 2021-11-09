@@ -40,14 +40,14 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const defaultStoreValue = { view: { }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, patrols: { ...INITIAL_PATROLS_STATE } } };
+const defaultStoreValue = { view: { }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE } } };
 
 const onAddToPatrol = jest.fn();
 
 
 const store = mockStore({ ...defaultStoreValue });
 
-test('rendering without crashing', () => {
+test.only('rendering without crashing', () => {
   render(<Provider store={store}>
     <SocketProvider>
       <AddtoPatrolModal onAddToPatrol={onAddToPatrol} />

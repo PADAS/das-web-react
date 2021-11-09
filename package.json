@@ -61,7 +61,7 @@
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
     "test-ci": "CI=true react-scripts test --silent --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
-    "test-cov": "yarn test-ci --coverage --coverageReporters=json-summary",
+    "test-cov": "yarn test-ci --coverage",
     "posttest-cov": "jest-coverage-thresholds-bumper --margin=1",
     "postinstall": "sh setUpLocalGitConfig.sh"
   },
@@ -96,7 +96,8 @@
         "lines": 31.89,
         "statements": 30.04
       }
-    }
+    },
+    "coverageReporters": ["html", "json-summary"]
   },
   "browserslist": [
     "last 1 chrome version",

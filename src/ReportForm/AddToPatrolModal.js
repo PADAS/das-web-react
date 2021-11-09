@@ -9,14 +9,13 @@ import InfiniteScroll from 'react-infinite-scroller';
 import uniq from 'lodash/uniq';
 
 
-import { PATROL_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
 import { trackEvent } from '../utils/analytics';
-import { calcPatrolState, displayTitleForPatrol, patrolStateAllowsTrackDisplay, displayStartTimeForPatrol, patrolStateDetailsOverdueStartTime, patrolStateDetailsEndTime } from '../utils/patrols';
+import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
 import LoadingOverlay from '../LoadingOverlay';
-import ReportListItem from '../ReportListItem';
+import PatrolListItem from '../PatrolListItem';
 
 import { INITIAL_PATROLS_STATE, PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
@@ -76,30 +75,6 @@ const activePatrolsFeedRecuer = (state, action) => {
     };
   }
   return state;
-};
-
-const calcPatrolListItemDisplayTime = (patrol) => {
-  const patrolState = calcPatrolState(patrol);
-
-  if (patrolState === PATROL_STATES.DONE) {
-    return patrolStateDetailsEndTime(patrol);
-  }
-
-  return displayStartTimeForPatrol(patrol);
-};
-
-const calcPatrolListItemDisplayPriority = (patrol) => {
-  const patrolState = calcPatrolState(patrol);
-
-  if (patrolState === PATROL_STATES.ACTIVE) {
-    return 100;
-  }
-
-  if (patrolState === PATROL_STATES.START_OVERDUE) {
-    return 300;
-  }
-
-  return 0;
 };
 
 const AddToPatrolModal = (props) => {
@@ -189,7 +164,6 @@ const AddToPatrolModal = (props) => {
     <Body style={{ minHeight: '10rem' }}>
       {!loaded && <LoadingOverlay data-testid='patrol-feed-loading-overlay' />}
       {!!loaded && <div data-testid='patrol-feed-container'>
-        {!!listPatrols.length && <h6 style={{ textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic' }}>Start time</h6>}
         <div ref={scrollRef} className={styles.incidentScrollList}>
           <InfiniteScroll
             element='ul'
@@ -199,21 +173,14 @@ const AddToPatrolModal = (props) => {
             getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
 
             {listPatrols.map((patrol, index) => {
-              const priority = calcPatrolListItemDisplayPriority(patrol);
-              const title = displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader);
-              const displayTime = calcPatrolListItemDisplayTime(patrol);
 
-              return <ReportListItem
+              return <PatrolListItem
                 className={styles.listItem}
-                showJumpButton={false}
-                report={patrol}
+                patrol={patrol}
                 data-testid={`patrol-list-item-${index}`}
                 key={`${id}-${index}`}
-                title={title}
-                priority={priority}
-                displayTime={displayTime}
-                onTitleClick={onClickPatrol}
-                onIconClick={onClickPatrol} />;
+                showControls={false}
+                onTitleClick={onClickPatrol} />;
             })}
             {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
             {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>No more patrols to display.</li>}
