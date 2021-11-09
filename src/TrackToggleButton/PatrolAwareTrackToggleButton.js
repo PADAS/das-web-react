@@ -10,7 +10,7 @@ import { trackEvent } from '../utils/analytics';
 import TrackToggleButton from './';
 
 const PatrolAwareTrackToggleButton = (props) => {
-  const { dispatch: _dispatch, patrolData, subjectStore, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
+  const { dispatch: _dispatch, patrolData, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
 
   const { patrol, leader } = patrolData;
 
@@ -34,6 +34,7 @@ const PatrolAwareTrackToggleButton = (props) => {
         : 'pinned';
 
     if (!leader) return;
+
     if (isEqual(patrolToggleStates, subjectToggleStates)) {
       toggleTrackState(leader.id);
       togglePatrolTrackState(patrol.id);
@@ -58,12 +59,10 @@ const PatrolAwareTrackToggleButton = (props) => {
     }
   }, [leader, patrol.id, patrolToggleStates, patrolTrackHidden, patrolTrackPinned, patrolTrackVisible, subjectToggleStates, subjectTrackHidden, subjectTrackPinned, subjectTrackVisible, togglePatrolTrackState, toggleTrackState]);
 
-
-
   return <TrackToggleButton disabled={!leader} trackVisible={patrolTrackVisible || subjectTrackVisible} trackPinned={patrolTrackPinned && subjectTrackPinned} onClick={onTrackButtonClick} {...rest} />;
 };
 
 
-const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState }, data: { subjectStore } }) => ({ patrolTrackState, subjectStore, subjectTrackState });
+const mapStateToProps = ({ view: { patrolTrackState, subjectTrackState } }) => ({ patrolTrackState, subjectTrackState });
 
 export default connect(mapStateToProps, { togglePatrolTrackState, toggleTrackState })(memo(PatrolAwareTrackToggleButton));
