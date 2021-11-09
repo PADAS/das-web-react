@@ -162,8 +162,10 @@ const EventFilter = (props) => {
 
 
   const onStateSelect = ({ value }) => {
-    updateEventFilter({ state: value });
-    trackEvent('Event Filter', `Select '${value}' State Filter`);
+    if (!isEqual(state, value)){
+      updateEventFilter({ state: value });
+      trackEvent('Event Filter', `Select '${value}' State Filter`);
+    }
   };
 
   const resetPopoverFilters = () => {
@@ -209,15 +211,20 @@ const EventFilter = (props) => {
     trackEvent('Event Filter', 'Click Reset Reported By Filter');
   };
 
-  const StateSelector = () => <ul className={styles.stateList}>
-    {EVENT_STATE_CHOICES.map(choice =>
-      <li className={isEqual(choice.value, state) ? styles.activeState : ''}
-        key={choice.value} onClick={() => onStateSelect(choice)}>
-        <Button variant='link'>
-          {choice.label}
-        </Button>
-      </li>)}
-  </ul>;
+  const StateSelector = () => (
+    <ul className={styles.stateList} data-testid="state-filter-options">
+      {EVENT_STATE_CHOICES.map(choice =>
+        <li key={choice.value}>
+          <Button
+            variant='link'
+            className={isEqual(choice.value, state) ? styles.activeState : ''}
+            onClick={() => onStateSelect(choice)}
+          >
+            {choice.label}
+          </Button>
+        </li>)}
+    </ul>
+  );
 
   const onDateFilterIconClicked = (e) => {
     trackEvent('Reports', 'Dates Icon Clicked');
