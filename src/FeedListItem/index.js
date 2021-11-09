@@ -41,6 +41,6 @@ FeedListItem.propTypes = {
   themeColor: PropTypes.string.isRequired,
   IconComponent: PropTypes.element.isRequired,
   TitleComponent: PropTypes.element.isRequired,
-  DateComponent: PropTypes.element.isRequired,
-  ControlsComponent: PropTypes.element.isRequired,
+  DateComponent: PropTypes.element,
+  ControlsComponent: PropTypes.element,
 };

@@ -144,13 +144,13 @@ const PatrolListItem = (props, ref) => {
     ref={ref}
     themeColor={themeColor}
     title={displayTitle}
-    IconComponent={patrolIconId && <button onClick={onTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
+    IconComponent={patrolIconId && <button onClick={() => onTitleClick(patrol)} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
       <DasIcon type='events' iconId={patrolIconId} />
     </button>}
     TitleComponent={
       <>
         <span className={styles.serialNumber}>{patrol.serial_number}</span>
-        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button' onClick={onTitleClick}>
+        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button' onClick={() => onTitleClick(patrol)}>
           <span className={styles.mainTitle}>{displayTitle}</span>
           {TitleDetailsComponent}
         </button>
@@ -165,7 +165,7 @@ const PatrolListItem = (props, ref) => {
     ControlsComponent={
       showControls ? <>
         <StateDependentControls />
-        <PatrolMenu data-testid={`patrol-list-item-kebab-menu-${patrol.id}`} patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} onClickOpen={onTitleClick} />
+        <PatrolMenu data-testid={`patrol-list-item-kebab-menu-${patrol.id}`} patrol={patrol} menuRef={menuRef} onPatrolChange={onPatrolChange} />
       </> : null
     }
 
