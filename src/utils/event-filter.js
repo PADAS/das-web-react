@@ -9,15 +9,15 @@ import store from '../store';
 
 export const EVENT_SORT_OPTIONS = [
   {
-    label: 'Date Updated',
+    label: 'Updated Date',
     value: 'updated_at',
   },
   {
-    label: 'Date Created',
+    label: 'Created Date',
     value: 'created_at',
   },
   {
-    label: 'Date of Report',
+    label: 'Report Date',
     value: 'event_time',
   },
 ];
