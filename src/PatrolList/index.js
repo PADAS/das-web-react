@@ -45,7 +45,6 @@ const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
 
 const PatrolList = (props) => {
   const { map, patrols = [], loading } = props;
-  // const scrollRef = useRef(null);
 
   const [listItems, setListItems] = useState(patrols);
 

@@ -122,11 +122,10 @@ const PatrolListItem = (props, ref) => {
   }, [actualEndTime, actualStartTime, leader]);
 
   useEffect(() => {
-    window.clearInterval(intervalRef.current);
-
     intervalRef.current = window.setInterval(() => {
       const currentState = calcPatrolState(patrol);
       if (currentState !== patrolState) {
+        console.log('my should should update dudes');
         setPatrolState(currentState);
         onSelfManagedStateChange && onSelfManagedStateChange(patrol);
       }
