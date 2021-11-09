@@ -16,13 +16,13 @@ const FeedListItem = (props) => {
     {IconComponent && <div role='img' className={styles.iconContainer} style={{ backgroundColor: iconSectionColor }}>
       {IconComponent}
     </div>}
-    {TitleComponent && <div className={styles.titleContainer}>
+    {TitleComponent && <div className={styles.titleContainer} data-testid='feed-list-item-title-container'>
       {TitleComponent}
     </div>}
-    {DateComponent && <div className={styles.dateContainer}>
+    {DateComponent && <div className={styles.dateContainer} data-testid='feed-list-item-date-container'>
       {DateComponent}
     </div>}
-    {ControlsComponent && <div className={styles.controlsContainer}>
+    {ControlsComponent && <div className={styles.controlsContainer} data-testid='feed-list-item-controls-container'>
       {ControlsComponent}
     </div>}
   </li>;
