@@ -239,7 +239,15 @@ const PointPopup = (props) => {
     return calcPositiveBearing(prevPoint, point).toFixed(2);
   }, [isFirstPoint, point, pointIndex, points]);
 
-  const popoverPlacement = calculatePopoverPlacement(map, { lat: point[1], lng: point[0] });
+  const [popoverPlacement, setPopoverPlacement] = useState('auto');
+  useEffect(() => {
+    const updatePopoverPlacement = async () => {
+      const updatedPopoverPlacement = await calculatePopoverPlacement(map, { lat: point[1], lng: point[0] });
+      setPopoverPlacement(updatedPopoverPlacement);
+    };
+
+    updatePopoverPlacement();
+  }, [map, point]);
 
   return <Popup className={`${styles.popup} ${drawing ? styles.unfinished : ''}`} offset={popupOffset} coordinates={point} anchor={popupAnchorPosition}>
 

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'react-mapbox-gl';
 
@@ -90,23 +90,29 @@ const templates = {
 
 const PopupLayer = ({ popup, map, ...rest }) => {
   const { id, type, data } = popup;
-  const template = templates[type];
-
-
-  if (!template) return null;
-
   const { coordinates, popupAttrsOverride = {} } = data;
+
+  const [popoverPlacement, setPopoverPlacement] = useState('auto');
+  useEffect(() => {
+    const updatePopoverPlacement = async () => {
+      const updatedPopoverPlacement = await calculatePopoverPlacement(map, {
+        lng: coordinates && coordinates[0],
+        lat: coordinates && coordinates[1],
+      });
+      setPopoverPlacement(updatedPopoverPlacement);
+    };
+
+    updatePopoverPlacement();
+  }, [map, coordinates]);
+
+  const template = templates[type];
+  if (!template) return null;
   const { Component, popupAttrs } = template;
 
   const finalPopupAttrs = {
     ...popupAttrs,
     ...popupAttrsOverride,
   };
-
-  const popoverPlacement = calculatePopoverPlacement(map, {
-    lng: coordinates && coordinates[0],
-    lat: coordinates && coordinates[1],
-  });
 
   return <Popup coordinates={coordinates} {...finalPopupAttrs} key={id}>
     <Component data={data} map={map} popoverPlacement={popoverPlacement} {...rest} />
