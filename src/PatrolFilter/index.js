@@ -9,6 +9,7 @@ import isEqual from 'react-fast-compare';
 import isEmpty from 'lodash/isEmpty';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
+import uniq from 'lodash/uniq';
 
 import { caseInsensitiveCompare } from '../utils/string';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
@@ -18,7 +19,7 @@ import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEvent } from '../utils/analytics';
 
 import FilterDatePopover from './FilterDatePopover';
-import AdvancedFiltersPopover from './AdvancedFiltersPopover';
+import FiltersPopover from './FiltersPopover';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import SearchBar from '../SearchBar';
@@ -40,18 +41,20 @@ const PatrolFilter = ({
 }) => {
   const containerRef = useRef(null);
 
-  const { filter: { date_range, patrol_type: currentFilterReportTypes, leader, text }, /* status */ } = patrolFilter;
+  const { filter: { date_range, patrol_type: currentFilterReportTypes, leaders, text }, /* status */ } = patrolFilter;
 
   // const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.status, status);
-  const trackedByFilterModified = INITIAL_FILTER_STATE.filter.leader !== leader;
-  const advancedFiltersModified = currentFilterReportTypes?.length > 0
+  const trackedByFilterModified = INITIAL_FILTER_STATE.filter.leaders !== leaders;
+  const filtersModified = currentFilterReportTypes?.length > 0
     // || stateFilterModified
     || trackedByFilterModified;
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
 
-  const patrolLeaders = patrolLeaderSchema.trackedbySchema ?
-    patrolLeaderSchema.trackedbySchema.properties.leader.enum_ext.map(({ value }) => value): [];
-  const selectedLeader = reporters.find(rerporter => rerporter.id === patrolFilter.filter.leader);
+  const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
+    || [];
+  const selectedLeaders = !!patrolFilter.filter.leaders?.length ?
+    patrolFilter.filter.leaders.map(id => reporters.find(reporter => reporter.id === id)).filter(item => !!item)
+    : [];
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
@@ -62,11 +65,20 @@ const PatrolFilter = ({
     trackEvent('Patrol Filter', patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
   }, [updatePatrolFilter]);
 
-  const onTrackedByChange = useCallback((trackedBySelected) => {
-    // TODO: Add filter.leader to the request in calcPatrolFilterForRequest once backend supports it
-    updatePatrolFilter({ filter: { leader: trackedBySelected?.id || null } });
+  const onTrackedByChange = useCallback((trackedBySelectedValues) => {
+    // TODO: Add filter.leaders to the request in calcPatrolFilterForRequest once backend supports it
+    const isAnyLeaderSelected = !!trackedBySelectedValues?.length;
+    updatePatrolFilter({
+      filter: {
+        leaders: isAnyLeaderSelected ? uniq(trackedBySelectedValues.map(({ id }) => id)) : [],
+      }
+    });
 
-    trackEvent('Patrol Filter', `${trackedBySelected ? 'Set' : 'Clear'} 'Reported By' Filter`);
+    trackEvent(
+      'Patrol Filter',
+      `${isAnyLeaderSelected ? 'Set' : 'Clear'} 'Tracked By' Filter`,
+      isAnyLeaderSelected ? `${trackedBySelectedValues.length} trackers` : null
+    );
   }, [updatePatrolFilter]);
 
   const onSearchChange = useCallback(({ target: { value } }) => {
@@ -84,12 +96,12 @@ const PatrolFilter = ({
   //   trackEvent('Patrol Filter', `Select '${value}' State Filter`);
   // }, [updatePatrolFilter]);
 
-  const resetAdvancedFilters = useCallback(() => {
+  const resetFilters = useCallback(() => {
     updatePatrolFilter({
       // status: INITIAL_FILTER_STATE.status,
       filter: {
         // patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
-        leader: INITIAL_FILTER_STATE.filter.leader,
+        leaders: INITIAL_FILTER_STATE.filter.leaders,
       },
     });
 
@@ -111,7 +123,7 @@ const PatrolFilter = ({
 
   const resetTrackedByFilter = useCallback((e) => {
     e.stopPropagation();
-    updatePatrolFilter({ filter: { leader: INITIAL_FILTER_STATE.filter.leader } });
+    updatePatrolFilter({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
 
     trackEvent('Patrol Filter', 'Click Reset Reported By Filter');
   }, [updatePatrolFilter]);
@@ -167,15 +179,15 @@ const PatrolFilter = ({
       rootClose
       trigger='click'
       placement='auto'
-      overlay={<AdvancedFiltersPopover
+      overlay={<FiltersPopover
         onTrackedByChange={onTrackedByChange}
         // onStateSelect={onStateSelect}
         patrolLeaders={patrolLeaders}
-        resetAdvancedFilters={resetAdvancedFilters}
+        resetFilters={resetFilters}
         resetTrackedByFilter={resetTrackedByFilter}
         // resetStateFilter={resetStateFilter}
-        selectedLeader={selectedLeader}
-        showResetAdvancedFiltersButton={advancedFiltersModified}
+        selectedLeaders={selectedLeaders}
+        showResetFiltersButton={filtersModified}
         showResetTrackedByButton={trackedByFilterModified}
         // status={status}
         // stateFilterModified={stateFilterModified}
@@ -183,7 +195,7 @@ const PatrolFilter = ({
       flip={true}
     >
       <Button
-        variant={advancedFiltersModified ? 'primary' : 'light'}
+        variant={filtersModified ? 'primary' : 'light'}
         size='sm'
         className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
         onClick={() => trackEvent('Reports', 'Filters Icon Clicked')}
@@ -232,7 +244,7 @@ PatrolFilter.propTypes = {
     filters: PropTypes.shape({
       date_range: PropTypes.object,
       // patrol_type: PropTypes.,
-      leader: PropTypes.string,
+      leaders: PropTypes.arrayOf(PropTypes.string),
       text: PropTypes.string,
     }),
   }).isRequired,

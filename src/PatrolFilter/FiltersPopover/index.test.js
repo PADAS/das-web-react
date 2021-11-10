@@ -3,12 +3,12 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import AdvancedFiltersPopover from './';
+import FiltersPopover from '.';
 import { mockStore } from '../../__test-helpers/MockStore';
 
 describe('PatrolFilter', () => {
   const onTrackedByChange = jest.fn();
-  const resetAdvancedFilters = jest.fn();
+  const resetFilters = jest.fn();
   const resetTrackedByFilter = jest.fn();
   let store;
   beforeEach(() => {
@@ -21,13 +21,13 @@ describe('PatrolFilter', () => {
 
     render(
       <Provider store={mockStore(store)}>
-        <AdvancedFiltersPopover
+        <FiltersPopover
           onTrackedByChange={onTrackedByChange}
-          patrolLeaders={[{ id: 'Leader' }]}
-          resetAdvancedFilters={resetAdvancedFilters}
+          patrolLeaders={[{ id: 'Leader' }, { id: 'Leader2' }]}
+          resetFilters={resetFilters}
           resetTrackedByFilter={resetTrackedByFilter}
-          selectedLeader={{ id: 'Leader' }}
-          showResetAdvancedFiltersButton
+          selectedLeaders={[{ id: 'Leader' }]}
+          showResetFiltersButton
           showResetTrackedByButton
         />
       </Provider>
@@ -42,27 +42,27 @@ describe('PatrolFilter', () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <AdvancedFiltersPopover onTrackedByChange={onTrackedByChange} showResetAdvancedFiltersButton ={false} />
+        <FiltersPopover onTrackedByChange={onTrackedByChange} selectedLeaders={[]} showResetFiltersButton={false} />
       </Provider>
     );
 
     expect(screen.queryByText('Reset All')).toBeNull();
   });
 
-  test('triggers the resetAdvancedFilters callback when user clicks the Reset All button', async () => {
-    expect(resetAdvancedFilters).toHaveBeenCalledTimes(0);
+  test('triggers the resetFilters callback when user clicks the Reset All button', async () => {
+    expect(resetFilters).toHaveBeenCalledTimes(0);
 
     const resetAllButton = await screen.findByText('Reset All');
     userEvent.click(resetAllButton);
 
-    expect(resetAdvancedFilters).toHaveBeenCalledTimes(1);
+    expect(resetFilters).toHaveBeenCalledTimes(1);
   });
 
   test('triggers the onTrackedByChange callback when user selects a tracked by option', async () => {
     expect(onTrackedByChange).toHaveBeenCalledTimes(0);
 
     const trackedBySelect = await screen.findByRole('textbox');
-    userEvent.type(trackedBySelect, 'Leader');
+    userEvent.type(trackedBySelect, 'Leader2');
     userEvent.keyboard('{Enter}');
 
     expect(onTrackedByChange).toHaveBeenCalledTimes(1);
@@ -78,7 +78,7 @@ describe('PatrolFilter', () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <AdvancedFiltersPopover onTrackedByChange={onTrackedByChange} showResetTrackedByButton ={false} />
+        <FiltersPopover onTrackedByChange={onTrackedByChange} selectedLeaders={[]} showResetTrackedByButton ={false} />
       </Provider>
     );
 

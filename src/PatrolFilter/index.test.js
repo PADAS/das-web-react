@@ -5,10 +5,10 @@ import userEvent from '@testing-library/user-event';
 
 import { endOfToday, startOfToday } from '../utils/datetime';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
+import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import PatrolFilter, { PATROL_TEXT_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { updatePatrolFilter } from '../ducks/patrol-filter';
 
 jest.mock('../ducks/trackedby', () => ({
   ...jest.requireActual('../ducks/trackedby'),
@@ -36,14 +36,24 @@ describe('PatrolFilter', () => {
 
     store = {
       data: {
-        eventSchemas: {},
+        eventSchemas: {
+          globalSchema: {
+            properties: {
+              reported_by: {
+                enum_ext: [{
+                  value: { id: 'Leader' },
+                }],
+              },
+            },
+          },
+        },
         patrolFilter: {
           filter: {
             date_range: {
               lower: startOfToday().toISOString(),
               upper: endOfToday().toISOString(),
             },
-            leader: null,
+            leaders: INITIAL_FILTER_STATE.filter.leaders,
             text: '',
           },
         },
@@ -102,16 +112,16 @@ describe('PatrolFilter', () => {
     }, { timeout: PATROL_TEXT_FILTER_DEBOUNCE_TIME });
   });
 
-  test('sets a light background to the advanced filters button', async () => {
-    const advancedFiltersButton = await screen.findByTestId('patrolFilter-filtersButton');
+  test('sets a light variant to the filters button', async () => {
+    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
 
-    expect(advancedFiltersButton.className).toEqual(expect.stringContaining('btn-light'));
+    expect(filtersButton.className).toEqual(expect.stringContaining('btn-light'));
   });
 
-  test('updates the patrol filter when user changes the tracked by in the advanced filters popover', async () => {
+  test('updates the patrol filter when user changes the tracked by in the filters popover', async () => {
     // Open the popover
-    const advancedFiltersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(advancedFiltersButton);
+    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
+    userEvent.click(filtersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
@@ -121,11 +131,11 @@ describe('PatrolFilter', () => {
     userEvent.keyboard('{Enter}');
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leader: 'Leader' } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: ['Leader'] } });
   });
 
-  test('sets a primary background to the advanced filters button if there is a filter applied', async () => {
-    store.data.patrolFilter.filter.leader = 'Leader';
+  test('sets a primary variant to the filters button if there is a filter applied', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -133,13 +143,13 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const advancedFiltersButton = await screen.findByTestId('patrolFilter-filtersButton');
+    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
 
-    expect(advancedFiltersButton.className).toEqual(expect.stringContaining('btn-primary'));
+    expect(filtersButton.className).toEqual(expect.stringContaining('btn-primary'));
   });
 
-  test('resets the advanced filters when user clicks the Reset All button', async () => {
-    store.data.patrolFilter.filter.leader = 'Leader';
+  test('resets the filters when user clicks the Reset All button', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -148,21 +158,21 @@ describe('PatrolFilter', () => {
     );
 
     // Open the popover
-    const advancedFiltersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(advancedFiltersButton);
+    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
+    userEvent.click(filtersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     // Click the Reset All button
-    const resetAdvancedFiltersButton = await screen.findByText('Reset All');
-    userEvent.click(resetAdvancedFiltersButton);
+    const resetFiltersButton = await screen.findByText('Reset All');
+    userEvent.click(resetFiltersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leader: null } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
   });
 
   test('resets the tracked by filter when user clicks the Reset button', async () => {
-    store.data.patrolFilter.filter.leader = 'Leader';
+    store.data.patrolFilter.filter.leaders = ['Leader'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -171,8 +181,8 @@ describe('PatrolFilter', () => {
     );
 
     // Open the popover
-    const advancedFiltersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(advancedFiltersButton);
+    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
+    userEvent.click(filtersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
@@ -181,10 +191,10 @@ describe('PatrolFilter', () => {
     userEvent.click(resetTrackedByButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leader: null } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
   });
 
-  test('sets a light background to the date range button', async () => {
+  test('sets a light variant to the date range button', async () => {
     const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
 
     expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-light'));
@@ -213,6 +223,23 @@ describe('PatrolFilter', () => {
     userEvent.click(resetDateRangeButton);
 
     expect(resetGlobalDateRange).toHaveBeenCalledTimes(1);
+  });
+
+  test('sets a primary variant to the date range button if there is a filter applied', async () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.toISOString();
+    store.data.patrolFilter.filter.date_range.upper = tomorrow;
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <PatrolFilter />
+      </Provider>
+    );
+
+    const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
+
+    expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-primary'));
   });
 
   test('updates the patrol overlap filter', async () => {

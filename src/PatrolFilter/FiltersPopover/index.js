@@ -21,15 +21,15 @@ import styles from '../../EventFilter/styles.module.scss';
 // ];
 
 // eslint-disable-next-line react/display-name
-const AdvancedFiltersPopover = React.forwardRef(({
+const FiltersPopover = React.forwardRef(({
   onTrackedByChange,
   // onStateSelect,
   patrolLeaders,
-  resetAdvancedFilters,
+  resetFilters,
   resetTrackedByFilter,
   // resetStateFilter,
-  selectedLeader,
-  showResetAdvancedFiltersButton,
+  selectedLeaders,
+  showResetFiltersButton,
   showResetTrackedByButton,
   // status,
   // stateFilterModified,
@@ -43,9 +43,9 @@ const AdvancedFiltersPopover = React.forwardRef(({
   <Popover.Title>
     <div className={styles.popoverTitle}>
       Patrol Filters
-      {showResetAdvancedFiltersButton &&
+      {showResetFiltersButton &&
         <Button
-          onClick={resetAdvancedFilters}
+          onClick={resetFilters}
           size='sm'
           type="button"
           variant='light'
@@ -62,10 +62,11 @@ const AdvancedFiltersPopover = React.forwardRef(({
       <div className="select">
         <ReportedBySelect
           className={styles.reportedBySelect}
+          isMulti
           onChange={onTrackedByChange}
           options={patrolLeaders}
           placeholder='Tracked By...'
-          value={selectedLeader}
+          value={selectedLeaders}
         />
         <Button
           className={!showResetTrackedByButton && 'hidden'}
@@ -79,9 +80,9 @@ const AdvancedFiltersPopover = React.forwardRef(({
       </div>
     </div>
 
-    <div className={styles.filterRow}>
+    {/*<div className={styles.filterRow}>
       <label>Status</label>
-      {/* <ul className={styles.stateList}>
+       <ul className={styles.stateList}>
         {PATROL_STATUS_CHOICES.map((choice) => (
           <li
             className={isEqual(choice.value, status) ? styles.activeState : ''}
@@ -102,35 +103,37 @@ const AdvancedFiltersPopover = React.forwardRef(({
         onClick={resetStateFilter}
       >
         Reset
-      </Button> */}
+      </Button>
     </div>
 
     <div className={styles.filterRow}>
       <label>Patrol Type</label>
-    </div>
+    </div>*/}
   </Popover.Content>
 </Popover>);
 
-AdvancedFiltersPopover.propTypes = {
+FiltersPopover.propTypes = {
   patrolLeaders: [],
-  resetAdvancedFilters: null,
+  resetFilters: null,
   resetTrackedByFilter: null,
-  showResetAdvancedFiltersButton: true,
+  showResetFiltersButton: true,
   showResetTrackedByButton: true,
 };
 
-AdvancedFiltersPopover.propTypes = {
+FiltersPopover.propTypes = {
   onTrackedByChange: PropTypes.func.isRequired,
   // onStateSelect,
   patrolLeaders: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string })),
-  resetAdvancedFilters: PropTypes.func,
+  resetFilters: PropTypes.func,
   resetTrackedByFilter: PropTypes.func,
   // resetStateFilter,
-  selectedLeader: PropTypes.shape({ id: PropTypes.string }),
-  showResetAdvancedFiltersButton: PropTypes.bool,
+  selectedLeaders: PropTypes.arrayOf(
+    PropTypes.shape({ id: PropTypes.string })
+  ).isRequired,
+  showResetFiltersButton: PropTypes.bool,
   showResetTrackedByButton: PropTypes.bool,
   // status,
   // stateFilterModified,
 };
 
-export default AdvancedFiltersPopover;
+export default FiltersPopover;

@@ -24,7 +24,7 @@ export const INITIAL_FILTER_STATE = {
     patrols_overlap_daterange: false,
     // patrol_type: [],
     text: '',
-    leader: null,
+    leaders: [],
   },
 };
 
