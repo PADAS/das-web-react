@@ -1,0 +1,67 @@
+@import '../../../../common/styles/vars/colors';
+
+.trackLength {
+  display: block;
+  line-height: normal;
+  margin: 0.5rem 0;
+}
+
+.gpsFormatToggle {
+  margin-bottom: 1rem;
+}
+
+.trackControls {
+  display: flex;
+  justify-content: space-around;
+}
+
+.controls {
+  align-items: center;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.messagingIcon {
+  height: 2rem;
+  width: auto;
+  g {
+    stroke: $primary-font-color;
+  }
+}
+
+.micActivity {
+  align-items: baseline;
+  border-bottom: 1px solid $light-gray-border;
+  border-top: 1px solid $light-gray-border;
+  display: flex;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0 0.25rem;
+  justify-content: center;
+  h5 {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  div {
+    display: flex;
+    flex-flow: column;
+    line-height: normal;
+    margin-left: 0.5rem;
+  }
+}
+
+.addReport {
+  margin-top: 0.25rem;
+}
+
+.header {
+  margin-bottom: 0.5rem;
+}
+
+.additionalProperties { 
+  margin: -0.25rem 0 0;
+  padding: 0;
+}
+
+.toggleAdditionalProps {
+  margin-bottom: 0.5rem;
+}

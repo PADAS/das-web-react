@@ -1,0 +1,51 @@
+@import '../../../common/styles/buttons';
+@import '../../../common/styles/vars/colors';
+
+.wrapper {
+  position: relative;
+  [class*=bs-popover] {
+    max-width: unset;
+  }
+}
+
+.form {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  line-height: normal;
+  position: relative;
+  max-width: 18rem;
+  width: 100vw;
+  button {
+    width: 6rem;
+  }
+  label {
+    width: 62.5%;
+    padding-right: 0.5rem;
+    * {
+      width: 100%;
+    }
+  }
+  small {
+    font-size: 0.65rem;
+    width: 100%;
+  }
+}
+
+.button {
+  @include mapboxControlButton;
+  &.active svg {
+    path, g, rect, polyline {
+      fill: $bright-blue;
+      stroke: $bright-blue;
+    }
+    polyline, polygon {
+      fill: none;
+    }
+  }
+  /* svg {
+    path, g {
+      fill: #333;
+    }
+  } */
+}

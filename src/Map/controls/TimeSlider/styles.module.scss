@@ -1,0 +1,349 @@
+@import '../../../common/styles/buttons';
+@import '../../../common/styles/vars/colors';
+@import '../../../common/styles/layout';
+
+
+$track-color: rgba(white, 0.35);
+$thumb-color: lighten(#CCC, 15%);
+$track-color__active: #3eb2f0;
+
+$thumb-radius: 2.25rem;
+$thumb-height: 2.75rem;
+$thumb-shadow-size: 0.0625rem;
+$thumb-shadow-blur: 0.0625rem;
+$thumb-shadow-color: #111;
+$thumb-border-width: 0.0625rem;
+$thumb-border-color: white;
+
+$track-width: 100%;
+$track-height: 0.333rem;
+$track-shadow-size: 0;
+$track-shadow-blur: 0;
+$track-shadow-color: #222;
+$track-border-width: 0;
+$track-border-color: black;
+
+$track-radius: 5px;
+$contrast: 25%;
+
+@mixin shadow($shadow-size,$shadow-blur,$shadow-color) {
+  box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0px 0px $shadow-size lighten($shadow-color,5%);
+}
+
+.dateRangePopover {
+  top: -16rem;
+}
+
+.rightPopover.sidebarClosed {
+  $adjustment: 13rem;
+  margin-left: -#{$adjustment};
+  > [class*=arrow] {
+    margin-left: $adjustment;
+  }
+}
+
+@mixin track {
+  width: $track-width;
+  height: $track-height;
+  cursor: pointer;
+  animate: 0.2s;
+}
+
+@mixin thumbWidth {
+  --thumb-width: 6rem;
+  @media (min-width: $lg-layout-width-min) {
+    --thumb-width: 9rem;
+  }
+}
+
+@mixin thumb {
+  @include thumbWidth;
+  // @include shadow($thumb-shadow-size,$thumb-shadow-blur,$thumb-shadow-color);
+  border: $thumb-border-width solid $thumb-border-color;
+  height: $thumb-height;
+  width: var(--thumb-width);
+  border-radius: $thumb-radius;
+  background: rgba($thumb-color, 0.85);
+  cursor: pointer;
+  &:hover, &:active, &:focus {
+    background: $thumb-color;
+    outline: none;
+  }
+}
+
+.wrapper {
+  bottom: 1.5rem;
+  display: flex;
+  left: 4rem;
+  position: absolute;
+  width: 75%;
+  z-index: 10;
+  @media (min-width: $md-layout-width-min) {
+    left: 2.5rem;
+    width: 75%;
+  }
+  @media (min-width: $lg-layout-width-min) {
+    left:4rem;
+  }
+  @media (min-width: $xl-layout-width-min) {
+    width: 85%;
+  }
+  @media print {
+    display: none;
+  }
+}
+
+.handle {
+  @include thumbWidth;
+  align-items: center;
+  display: none;
+  flex-flow: column;
+  height: $thumb-height;
+  justify-content: center;
+  padding: 0.5rem;
+  position: relative;
+  top: 0.15rem;
+  width: 10.5rem;
+  @media (min-width: 2560px) {
+     width: 9.8rem;
+   }
+  &::before {
+    background: url('../../../common/images/timeslider-bumper.png') bottom right/var(--thumb-width) $thumb-height no-repeat;
+    background-size: 100% 100%;
+    content: '';
+    cursor: pointer;
+    display: none;
+    height: 100%;
+    opacity: 0.75;
+    position: absolute;
+    top: 0;
+    transition: .1s opacity ease-in-out;
+    width: var(--thumb-width);
+  }
+  time {
+    color: lighten($light-font-color, 25%);
+    font-size: 0.6875rem;
+  }
+  &.left {
+    left: 1.15rem;
+  }
+  &.right {
+    right: 1.15rem;
+    &::before {
+      transform: rotate(180deg);
+    }
+  }
+  &.modified {
+    .handleDate {
+      color: $bright-blue;
+    }
+  }
+  &:hover {
+    &::before {
+      opacity: 0.9;
+    }
+  }
+  > * {
+    @include unstyledButton;
+    cursor: pointer;
+    font-size: 0.5rem;
+    line-height: normal;
+    position: relative;
+    text-align: center;
+  }
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
+    &::before {
+      display: block;
+    }
+    > * {
+      font-size: 0.6rem;
+    }
+  }
+}
+
+.handleDate {
+  color: $light-font-color;
+  display: none;
+  font-size: 0.6875rem;
+  margin-bottom: 0.1rem;
+  @media (min-width: $lg-layout-width-min) {
+    display: initial;
+  }
+}
+
+
+.mapControl {
+  @include mapboxControlButton;
+}
+
+.slider {
+  -webkit-appearance: none;
+  background: none;
+  margin: $thumb-height/2 0;
+  width: $track-width;
+  outline: none;
+
+  &:focus {
+    &::-webkit-slider-runnable-track {
+      background: $track-color__active;
+    }
+    &::-webkit-slider-thumb, &::-moz-range-thumb, &::-ms-thumb {
+      outline: none;
+    }
+  }
+
+  &::-webkit-slider-runnable-track {
+    @include track;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    background: $track-color;
+    border-radius: $track-radius;
+    border: $track-border-width solid $track-border-color;
+  }
+
+  &::-webkit-slider-thumb {
+    @include thumb;
+    -webkit-appearance: none;
+    margin-top: ((-$track-border-width * 2 + $track-height) / 2) - ($thumb-height / 2);
+  }
+
+
+  &:focus::-webkit-slider-runnable-track {
+    background: $track-color__active;
+  }
+
+  &::-moz-range-track {
+    @include track;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    background: $track-color;
+    border-radius: $track-radius;
+     border: $track-border-width solid $track-border-color;
+  }
+  &::-moz-range-thumb {
+     @include thumb;
+  }
+
+  &::-ms-track {
+    @include track;
+    @include thumbWidth;
+    background: transparent;
+    border-color: transparent;
+    border-width: var(--thumb-width) 0;
+    color: transparent;
+  }
+
+  &::-ms-fill-lower {
+    background: darken($track-color, $contrast);
+    border: $track-border-width solid $track-border-color;
+    border-radius: $track-radius*2;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+  }
+  &::-ms-fill-upper {
+    // background: $track-color;
+    border: $track-border-width solid $track-border-color;
+    border-radius: $track-radius*2;
+    // @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+  }
+  &::-ms-thumb {
+    @include thumb;
+  }
+  &:focus::-ms-fill-lower {
+    background: $track-color__active;
+  }
+  &:focus::-ms-fill-upper {
+    background: lighten($track-color, $contrast);
+  }
+}
+
+.handleText {
+  @include thumbWidth;
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  font-size: 0.55rem;
+  justify-content: center;
+  text-align: center;
+  position: absolute;
+  pointer-events: none;
+  top: 15%;
+  white-space: nowrap;
+  width: var(--thumb-width);
+  @media (min-width: $md-layout-width-min) {
+    font-size: 0.7rem;
+  }
+}
+
+.handleText span {
+  margin-left: 0.5rem;
+  color: #6d6d6d;
+
+}
+
+.wrapper_slider {
+  position: relative;
+  width: 100%;
+  z-index: -1;
+}
+
+.icon {
+  --dimensions: 1rem;
+  height: var(--dimensions);
+  width: var(--dimensions);
+  g {
+    stroke: $primary-font-color;
+  }
+  &.iconFill, &.iconFill * {
+    fill: $primary-font-color;
+  }
+  circle, g, path {
+    transition: stroke 0.1s linear;
+  }
+}
+
+.popover {
+  display: flex;
+  flex-flow: column;
+  max-width: unset;
+  padding: 0;
+  width: 24rem;
+  [class*=dateSelectorWrapper] {
+    [class|=react-calendar] {
+      bottom: 0;
+    }
+  }
+}
+
+.popoverTitle {
+  align-items: center;
+  background: $highlight-color;
+  color: white;
+  display: flex;
+  padding: 1rem;
+  svg {
+    height: 1.5rem;
+    margin-right: 1rem;
+    width: 1.5rem;
+    g, path, circle {
+      stroke: white;
+    }
+  }
+  button {
+    margin-left: auto;
+  }
+}
+
+.popoverBody {
+  padding: 1rem 0 0;
+}
+
+.activeIcon {
+  circle, g, path {
+    stroke: $bright-blue;
+  }
+}
+
+.warningIcon {
+  circle, g, path {
+    stroke: $bright-red;
+  }
+}

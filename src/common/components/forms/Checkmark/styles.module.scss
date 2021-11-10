@@ -1,0 +1,29 @@
+@import '../../../styles/vars/colors';
+
+$checkmark-color: $secondary-medium-gray;
+$hover-color: darken($checkmark-color, 12.5%);
+
+.checkmark {
+  --dimensions: 1.5rem;
+  fill: none;
+  flex-shrink: 0;
+  height: --dimensions;
+  stroke: $checkmark-color;
+  stroke-width: calc(var(--dimensions)/6);
+  width: var(--dimensions);
+  &.checked {
+    fill: $checkmark-color;
+    &:hover {
+      fill: $hover-color;
+    }
+  }
+  &.partial {
+    fill: rgba($checkmark-color, 0.3);
+    &:hover {
+      fill: rgba($hover-color, 0.3);
+    }
+  }
+  &:hover {
+     stroke: $hover-color;
+  }
+}

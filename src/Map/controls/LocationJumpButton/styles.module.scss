@@ -1,0 +1,9 @@
+@import '../../../common/styles/buttons';
+
+.jump {
+  @include jumpButton;
+}
+
+.multi {
+  @include multiJumpButton;
+}

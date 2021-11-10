@@ -20,7 +20,7 @@ import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '.
 
 import { getReporterById } from './events';
 
-import PatrolModal from '../PatrolModal';
+import PatrolModal from '../modals/PatrolModal';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
 

@@ -1,4 +1,4 @@
-import customSchemaFields from '../SchemaFields';
+import customSchemaFields from '../common/components/forms/SchemaFields';
 import isUndefined from 'lodash/isUndefined';
 import isString from 'lodash/isString';
 import merge from 'lodash/merge';

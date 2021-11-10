@@ -1,0 +1,68 @@
+@import '../../../common/styles/vars/colors';
+
+
+.wrapper {
+  height: 100%;
+  overflow: hidden;
+  padding-top: 3rem;
+  position: relative;
+  width: 100%;
+}
+
+.searchBar {
+  align-items: center;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  left: 0;
+  padding: 0 0.75rem;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.reportTypeList {
+  height: 100%;
+  margin: 0;
+  overflow-y: auto;
+  > li {
+    background: $light-gray-background;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0.5rem 0.5rem 0;
+
+    ul {
+      background: white;
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+      padding: 0.5rem;
+      width: calc(100% + 1rem);
+    }
+  }
+
+
+  svg {
+    --dimensions: 1.5rem;
+    --half-size: calc(var(--dimensions)/2);
+    cursor: pointer;
+    max-height: var(--dimensions);
+    margin: 0 0.75rem 0.5rem 0;
+    max-width: var(--dimensions);
+    &[class*=generic] {
+      max-width: var(--half-size);
+      max-height: var(--half-size);
+    }
+  }
+}
+
+.category {
+  background: $light-gray-background;
+
+  h6 {
+    padding: 0.5rem;
+  }
+
+  ul {
+    background: white;
+  }
+}

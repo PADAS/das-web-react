@@ -1,0 +1,26 @@
+@import '../../../common/styles/buttons';
+@import '../../../common/styles/vars/colors';
+
+.cbxlabel {
+  padding-left: .4rem;
+}
+
+$feather_dim: 1rem;
+
+.maplock-btn { 
+  @include imageButton('map_unlock');
+  position:absolute;
+  left: 2rem;
+  bottom: 2rem;
+  height: $feather_dim;
+  width: $feather_dim;
+  z-index: 1;
+  &.locked {
+    background: url('../../../common/images/icons/map_lock.svg') no-repeat;
+  }
+  &.unlocked {
+    background: url('../../../common/images/icons/map_unlock.svg') no-repeat;
+  }
+
+  cursor: pointer;
+}

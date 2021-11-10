@@ -1,0 +1,360 @@
+@import '../../../../common/styles/vars/colors';
+@import '../../../../common/styles/layout';
+
+.tab {
+  height: 100%;
+  overflow: hidden;
+
+  &:hover,
+  &:focus {
+    border: none;
+  }
+
+  .mapLayers {
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+    padding-bottom: 4rem;
+
+    > .noItems {
+      visibility: hidden;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    > .noItems:only-child {
+      visibility: visible;
+    }
+  }
+}
+
+.tabBar {
+  height: 3rem;
+  margin-left: 4rem;
+
+  [class*=nav-link] {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    &:not([class*=active]):not(:last-child) {
+      border-right: 1px solid $gray-border;
+
+      &:hover {
+        border-right: 1px solid $gray-border;
+      }
+    }
+
+    &[class*=active] {
+      background: white;
+    }
+  }
+}
+
+.list {
+  display: block;
+  width: 100%;
+  margin-bottom: 0;
+  cursor: pointer;
+
+  li {
+    align-items: flex-start;
+    border-top: 1px solid $light-gray-border;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    &:last-child {
+      border-bottom: 1px solid $light-gray-border;
+    }
+
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+
+    h4,
+    h5,
+    h6 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    [class*=checkmark] {
+      cursor: pointer;
+      left: 1rem;
+      position: absolute;
+      z-index: 3;
+      top: 1.15rem;
+    }
+
+    [class*=Collapsible__trigger],
+    .itemTitle {
+      display: block;
+      padding-left: 3.5rem;
+      padding-right: 2rem;
+      word-break: break-all;
+
+      @media (min-width: $md-layout-width-min) {
+        word-break: initial;
+      }
+    }
+
+    .itemTitle {
+      align-items: center;
+      display: flex;
+      flex-grow: 1;
+
+      img {
+        margin-right: 0.5rem;
+        max-height: 1.5rem;
+        max-width: 1.5rem;
+      }
+    }
+
+    [class*=Collapsible__trigger] {
+      cursor: pointer;
+      padding-bottom: 1rem;
+      padding-top: 1rem;
+      position: relative;
+      z-index: 1;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &::after {
+        content: '<';
+        color: transparent;
+        background-image: url(../../../../common/images/icons/arrow.svg);
+        background-size: 1rem 1rem;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-size: 1.5rem;
+        position: absolute;
+        right: 1rem;
+        top: 20%;
+        transform: inherit;
+        transition: 0.15s transform linear;
+      }
+
+      &[class*=is-disabled] {
+        &::after {
+          color: $medium-light-gray;
+        }
+      }
+
+      &[class*=is-open] {
+        box-shadow: 0 2px 3px $medium-light-gray;
+        min-height: 3.3125rem;
+
+        &::after {
+          transform: rotate(-90deg);
+        }
+      }
+    }
+
+    [class*=Collapsible__contentOuter] {
+      width: 100%;
+    }
+  }
+
+  .list {
+    background: $light-gray-background;
+    border-left: 0.5rem solid $light-gray-border;
+  }
+
+  .itemList {
+    background: lighten($light-gray-background, 3.5%);
+    width: 100%;
+
+    &.compressed {
+      li {
+        padding: 0.5rem 0;
+      }
+    }
+
+    li {
+      padding: 1rem 0;
+
+      > [class*=checkmark] {
+        top: 1rem;
+      }
+    }
+  }
+
+  .reportDesc {
+    background: lighten($light-gray-background, 3.5%);
+    width: 100%;
+  }
+}
+
+.controls {
+  margin: 1rem 0 0 4rem;
+
+  button:not(:last-child) {
+    margin-right: 0.5rem;
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    margin: 0;
+    position: absolute;
+    right: 1rem;
+    top: 0.7rem;
+  }
+}
+
+.toggleButton {
+  margin: -0.5rem 0;
+}
+
+.trigger {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 1rem;
+  align-items: center;
+}
+
+.featureTitle {
+  @extend .trigger;
+
+  align-items: center;
+  padding-left: 3.5rem;
+  width: 100%;
+}
+
+.analyzerTitle {
+  @extend .featureTitle;
+}
+
+.addReportContainer {
+  position: absolute;
+  top: 0.3666rem;
+  left: 0.5rem;
+  z-index: 10;
+}
+
+@mixin slideIn($height, $duration: 0.4s) {
+  @keyframes slideFilterHeight {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: $height;
+    }
+  }
+
+  animation: slideFilterHeight $duration linear;
+}
+
+@mixin slideInMaxHeight($maxHeight, $duration: 0.4s) {
+  @keyframes slideFilterMaxHeight {
+    from {
+      max-height: 0;
+    }
+
+    to {
+      max-height: $maxHeight;
+    }
+  }
+
+  animation: slideFilterMaxHeight $duration linear;
+}
+
+.filterWrapper {
+  --animation-duration: 0.2s;
+  --max-height: 7.5em;
+
+  @include slideInMaxHeight(var(--max-height),  var(--animation-duration));
+
+  height: auto;
+  max-height: var(--max-height);
+  margin-bottom: 0;
+  overflow: hidden;
+  transition: var(--animation-duration) all linear;
+}
+
+.sidebarEventFeed {
+  margin-top: 0.75rem;
+}
+
+.sidebarOpen {
+  .filterWrapper {
+    border-bottom: 1px solid $light-gray-border;
+    height: var(--height);
+    margin-bottom: -0.75rem;
+    padding-top: 0.5rem;
+  }
+}
+
+.mapLayerFooter {
+  background-color: $map-layers-footer;
+  height: 3rem;
+  width: 100%;
+  text-align: left;
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+
+  a {
+    margin-left: 0.5rem;
+  }
+}
+
+.feedError {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  justify-content: center;
+  padding: 1rem;
+
+  h6 {
+    align-items: center;
+    display: flex;
+    margin: 0 0 1rem;
+    min-height: 2.25rem;
+
+    + div {
+      font-size: 0.9rem;
+      font-style: italic;
+      margin: -1rem 0 1rem;
+      padding: 0 1rem;
+      width: 100%;
+    }
+  }
+
+  svg {
+    fill: white;
+    margin-right: 0.25rem;
+  }
+}
+
+.sortWrapper {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.75rem 0 -0.75rem;
+  padding: 0 0.5rem 0 0;
+  height: 2.75rem;
+}
+
+.sortReset {
+  align-items: center;
+  color: white;
+  display: flex;
+  height: 100%;
+  padding: 0.375rem 0.5rem;
+
+  &.hasNewReports {
+    background: $highlight-color;
+  }
+}
+
+.feedSortResetBtn {
+  height: 2rem;
+  margin-top: -0.1rem;
+}

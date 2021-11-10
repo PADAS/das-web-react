@@ -1,0 +1,23 @@
+@import '../../../styles/buttons';
+@import '../../../styles/vars/colors';
+
+.button {
+  svg {
+    height: 1rem;
+    width: 1rem;
+    fill: $primary-font-color;
+    g {
+      stroke: $primary-font-color;
+    }
+    [id*=Inner-Circle] {
+      fill: $primary-font-color;
+    }
+    [id*=Outer-circle] {
+      stroke: $primary-font-color;
+    }
+  }
+}
+
+.loadingOverlay {
+  pointer-events: none;
+}

@@ -1,0 +1,31 @@
+@import '../../common/styles/buttons';
+@import '../../common/styles/layout';
+
+.icon {
+  height: 1rem;
+  width: auto;
+  @media (min-width: $md-layout-width-min) {
+    margin-right: 0.5rem;
+  }
+}
+
+.username {
+  display: none;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
+  @media (min-width: $md-layout-width-min) {
+    display: initial;
+  }
+}
+
+.menu {
+ button[class*=dropdown-toggle] {
+   align-items: center;
+ }
+  button, a {
+    text-align: right;
+  }
+}

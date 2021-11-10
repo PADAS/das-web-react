@@ -1,0 +1,23 @@
+@import '../../../common/styles/vars/colors';
+@import '../../../common/styles/layout';
+
+.form {
+  align-items: center;
+  border-bottom: 1px solid $gray-border;
+  display: flex;
+  flex-flow: row;
+  padding: 1.25rem 0.75rem 0.5rem;
+  position: relative;
+  z-index: 2;
+  justify-content: space-between;
+}
+
+.search {
+  margin-bottom: 0;
+  width: 40%;
+
+  @media (min-width: $md-layout-width-min) {
+    margin-right: unset;
+    width: 50%;
+  }
+}

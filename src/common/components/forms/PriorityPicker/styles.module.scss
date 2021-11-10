@@ -1,0 +1,59 @@
+@import '../../../styles/vars/colors';
+
+.list {
+  align-items: center;
+  border: 1px solid $gray-border;
+  border-radius: 1.5rem;
+  display: flex;
+  margin-bottom: 0;
+  overflow: hidden;
+  li + li {
+    border-left: 1px solid $gray-border;
+  }
+  button {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0.5rem 1rem;
+
+    &:hover {
+      $background-opacity: 0.5;
+      &.highPriority {
+       color: $high-priority;
+      }
+  
+      &.mediumPriority {
+       color: $medium-priority;
+      }
+  
+      &.lowPriority {
+       color: $low-priority;
+      }
+  
+      &.noPriority {
+       color: $no-priority;
+      }
+    }
+
+    &.selected {
+      color: white !important;
+
+      &.highPriority {
+        background: $high-priority;
+      }
+  
+      &.mediumPriority {
+        background: $medium-priority;
+      }
+  
+      &.lowPriority {
+        background: $low-priority;
+      }
+  
+      &.noPriority {
+        background: $no-priority;
+      }
+    }
+  }
+}
+

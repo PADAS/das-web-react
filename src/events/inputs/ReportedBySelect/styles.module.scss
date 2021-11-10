@@ -1,0 +1,26 @@
+@import '../../../common/styles/vars/colors';
+
+.option {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  &:active, &:hover {
+    * {
+      color: white;
+    }
+  }
+  &.hidden {
+    color: $light-font-color;
+    font-style: italic;
+  }
+}
+
+
+.timeAgo {
+  color: $light-font-color;
+  flex-grow: 1;
+  font-size: 0.7rem;
+  font-style: italic;
+  line-height: normal;
+  margin-left: 0.5rem;
+}

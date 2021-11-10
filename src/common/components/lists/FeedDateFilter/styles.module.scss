@@ -1,0 +1,18 @@
+@import '../../../styles/layout';
+
+.dateSelect {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+  > label {
+    width: 100%;
+    padding-right: 0.25rem;
+    + label {
+      padding-left: 0.25rem;
+    }
+    @media (min-width: $md-layout-width-min) {
+      width: 50%;
+    }
+  }
+}

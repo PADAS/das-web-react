@@ -1,0 +1,54 @@
+@import '../../common/styles/buttons';
+
+$background_image_url: '../../common/images/icons/';
+
+@mixin button($image: 'heatmap') {
+  background: url('#{$background-image_url+$image}.svg');
+  background-size: cover;
+  border: none;
+  display: block;
+  filter: saturate(50%) grayscale(100%);
+  height: $square-button-dimension;
+  outline: none;
+  width: $square-button-dimension;
+}
+
+.button {
+  @include button;
+  &.heatmap-on {
+    filter: unset;
+  }
+}
+
+.container {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  position: relative;
+  &.hasLabel {
+    [class*=spinner] {
+      position: relative;
+      top: -16%;
+    }
+  }
+}
+
+.heatmap-on {
+  @include button;
+}
+
+.heatmap-partial {
+  filter: opacity(50%);
+}
+
+div.loadingOverlay {
+  background: none;
+  z-index: 10;
+  [class*=spinner] {
+    height: 1rem;
+    width: 1rem;
+    &::after {
+      background: none;
+    }
+  }
+}

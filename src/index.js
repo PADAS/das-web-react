@@ -17,25 +17,25 @@ import store from './store';
 
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
 
-import registerServiceWorker from './registerServiceWorker';
+import registerServiceWorker from './browser/lifecycle/registerServiceWorker';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 
-import withTracker from './WithTracker';
+import withTracker from './analytics/WithTracker';
 
-import DetectOffline from './DetectOffline';
-import RequestConfigManager from './RequestConfigManager';
+import DetectOffline from './browser/DetectOffline';
+import RequestConfigManager from './http/RequestConfigManager';
 
 import { setClientReleaseIdentifier } from './utils/analytics';
 
 /* LAZY LOAD THESE WITH React.Suspense and React.lazy once the server is config'd to keep old deployment chunks */
 // import LoadingOverlay from './EarthRangerIconLoadingOverlay';
-import App from './App';
-import Login from './Login';
+import App from './views/App';
+import Login from './views/Login';
 import EulaPage from './views/EULA';
-import PrivateRoute from './PrivateRoute';
-import EulaProtectedRoute from './EulaProtectedRoute';
+import PrivateRoute from './routes/PrivateRoute';
+import EulaProtectedRoute from './routes/EulaProtectedRoute';
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);

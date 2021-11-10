@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 
 import { DEFAULT_TOAST_CONFIG } from '../constants';
 
-import ErrorMessage from '../ErrorMessage';
+import ErrorMessage from '../common/components/errors/ErrorMessage';
 
 export default (content, config = {}) => toast(content, {
   ...DEFAULT_TOAST_CONFIG, ...config,

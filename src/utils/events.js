@@ -10,7 +10,7 @@ import { addModal } from '../ducks/modals';
 
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
-import ReportFormModal from '../ReportFormModal';
+import ReportFormModal from '../events/modals/ReportFormModal';
 import { EVENT_API_URL } from '../ducks/events';
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {

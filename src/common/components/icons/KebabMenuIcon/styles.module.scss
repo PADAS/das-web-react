@@ -1,0 +1,19 @@
+@import '../../../styles/buttons';
+
+.kebab {
+  --size: 4px;
+  --line-width: 4px;
+  --spacing: 0.5rem;
+
+  &.open {
+    span {
+      background-color: rgba(0, 0, 0, 0);
+      width: calc(var(--size) - var(--spacing));
+      transform: none;
+
+      &::before, &::after {
+        transform: rotate(0) translateX(calc(var(--spacing) * -1)) translateY(calc(var(--spacing) * -1));
+      }
+    }
+  }
+}

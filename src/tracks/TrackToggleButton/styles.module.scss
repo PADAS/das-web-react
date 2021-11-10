@@ -1,0 +1,54 @@
+@import '../../common/styles/buttons';
+
+$background_image_url: '../../common/images/icons/';
+
+@mixin button($image: 'tracks_on') {
+  background: url('#{$background-image_url+$image}.svg');
+  background-size: cover;
+  border: none;
+  display: block;
+  filter: grayscale(100%);
+  height: $square-button-dimension;
+  outline: none;
+  width: $square-button-dimension;
+}
+
+.button {
+  @include button;
+  &.visible, &.pinned { 
+    filter: unset;
+  }
+}
+
+.container {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
+  position: relative;
+  &.hasLabel {
+    [class*=spinner] {
+      position: relative;
+      top: -16%;
+    }
+  }
+}
+
+.visible {
+  @include button;
+}
+
+.pinned {
+  @include button('tracks_pinned');
+}
+
+div.loadingOverlay {
+  background: none;
+  z-index: 10;
+  [class*=spinner] {
+    height: 1rem;
+    width: 1rem;
+    &::after {
+      background: none;
+    }
+  }
+}
