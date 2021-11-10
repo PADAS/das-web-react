@@ -106,7 +106,7 @@ jobs:
           gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
           gsutil cp -r ./allure-raw gs://er-report-test/
-          if [[ ${TEST_RESULT} == 1 ]]; then; echo "Tests failed"; exit 1; fi
+          if [[ ${TEST_RESULT} == 1 ]]; then echo "Tests failed" && exit 1; fi
 
 
 workflows:
