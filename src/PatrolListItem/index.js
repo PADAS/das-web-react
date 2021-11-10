@@ -2,7 +2,7 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useSt
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
-import { PATROL_API_STATES, PATROL_STATES } from '../constants';
+import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
   calcPatrolState, calcThemeColorForPatrolState, formatPatrolStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
@@ -31,15 +31,15 @@ const PatrolListItem = (props, ref) => {
 
   const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
 
-  const isScheduledPatrol = patrolState === PATROL_STATES.READY_TO_START
-  || patrolState === PATROL_STATES.SCHEDULED
-  || patrolState === PATROL_STATES.START_OVERDUE;
+  const isScheduledPatrol = patrolState === PATROL_UI_STATES.READY_TO_START
+  || patrolState === PATROL_UI_STATES.SCHEDULED
+  || patrolState === PATROL_UI_STATES.START_OVERDUE;
 
-  const isPatrolDone = patrolState === PATROL_STATES.DONE;
-  const isPatrolActive = patrolState === PATROL_STATES.ACTIVE;
+  const isPatrolDone = patrolState === PATROL_UI_STATES.DONE;
+  const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
-  const isPatrolCancelled = patrolState === PATROL_STATES.CANCELLED;
-  const isPatrolOverdue = patrolState === PATROL_STATES.START_OVERDUE;
+  const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
+  const isPatrolOverdue = patrolState === PATROL_UI_STATES.START_OVERDUE;
 
   const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
   const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);

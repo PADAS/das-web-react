@@ -6,7 +6,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
-import { PATROL_API_STATES, PATROL_STATES } from '../constants';
+import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
 import { mockStore } from '../__test-helpers/MockStore';
 
@@ -81,7 +81,7 @@ describe('the patrol list item', () => {
     testPatrol.title = TEST_PATROL_TITLE;
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_STATES.ACTIVE;
+      return PATROL_UI_STATES.ACTIVE;
     });
 
 
@@ -104,7 +104,7 @@ describe('the patrol list item', () => {
 
   test('showing the current state', async () => {
     const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
-    expect(state).toHaveTextContent(PATROL_STATES.ACTIVE.title);
+    expect(state).toHaveTextContent(PATROL_UI_STATES.ACTIVE.title);
   });
 
   test('showing a kebab menu for additional actions', async () => {
@@ -133,7 +133,7 @@ describe('for active patrols', () => {
       return boundingBox;
     });
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_STATES.ACTIVE;
+      return PATROL_UI_STATES.ACTIVE;
     });
 
     render(<Provider store={store}>
@@ -200,7 +200,7 @@ describe('for scheduled patrols', () => {
     jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_STATES.READY_TO_START;
+      return PATROL_UI_STATES.READY_TO_START;
     });
 
     render(<Provider store={store}>
@@ -257,7 +257,7 @@ describe('for overdue patrols', () => {
     jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_STATES.START_OVERDUE;
+      return PATROL_UI_STATES.START_OVERDUE;
     });
 
     render(<Provider store={store}>
@@ -271,7 +271,7 @@ describe('for overdue patrols', () => {
 
   test('showing an overdue indicator', async () => {
     const stateIndicator = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
-    expect(stateIndicator).toHaveTextContent(PATROL_STATES.START_OVERDUE.title);
+    expect(stateIndicator).toHaveTextContent(PATROL_UI_STATES.START_OVERDUE.title);
   });
 
   test('theming', async () => {
@@ -290,7 +290,7 @@ describe('for cancelled patrols', () => {
     jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_STATES.CANCELLED;
+      return PATROL_UI_STATES.CANCELLED;
     });
 
     render(<Provider store={store}>
@@ -356,7 +356,7 @@ describe('for completed patrols', () => {
     jest.setSystemTime(mockCurrentDate.getTime());
 
     jest.spyOn(patrolUtils, 'calcPatrolState').mockImplementation(() => {
-      return PATROL_STATES.CANCELLED;
+      return PATROL_UI_STATES.CANCELLED;
     });
 
     render(<Provider store={store}>
