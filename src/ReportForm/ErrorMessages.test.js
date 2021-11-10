@@ -81,6 +81,15 @@ describe('Error messages', () => {
     userEvent.click(closeButton[0]);
 
     expect(clearErrors).toHaveBeenCalledTimes(1);
+  });
 
+  test('should change the details copy if the list of errors is expanded', async () => {
+    const detailsButton = await screen.getByText('See details', { selector: 'button' });
+    expect(detailsButton).toBeDefined();
+
+    userEvent.click(detailsButton);
+
+    const expandedDetailsButton = await screen.getByText('Hide details', { selector: 'button' });
+    expect(expandedDetailsButton).toBeDefined();
   });
 });

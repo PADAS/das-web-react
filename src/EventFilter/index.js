@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo, useState, useEffect, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -8,8 +8,11 @@ import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
+import noop from 'lodash/noop';
+import { useMatchMedia } from '../hooks';
 
-import { EVENT_STATE_CHOICES } from '../constants';
+
+import { BREAKPOINTS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -37,7 +40,7 @@ import styles from './styles.module.scss';
 const debouncedAnalytics = debouncedTrackEvent();
 
 const EventFilter = (props) => {
-  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT } = props;
+  const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll = noop } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
 
   const eventTypeIDs = eventTypes.map(type => type.id);
@@ -51,6 +54,7 @@ const EventFilter = (props) => {
   const someReportTypesChecked = !eventTypeFilterEmpty && !!reportTypesCheckedCount;
   const noReportTypesChecked = !eventTypeFilterEmpty && !someReportTypesChecked;
 
+  const isSortModified = !isEqual(DEFAULT_EVENT_SORT, sortConfig);
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
   const stateFilterModified = !isEqual(INITIAL_FILTER_STATE.state, state);
   const priorityFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.priority, priority);
@@ -58,13 +62,16 @@ const EventFilter = (props) => {
 
   const filterModified = priorityFilterModified || !eventTypeFilterEmpty || stateFilterModified || reportedByFilterModified;
 
-  const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
+  const hasChildrenComponents = useMemo(() => !!React.Children.count(children), [children]);
 
+  const selectedReporters = eventFilter.filter.reported_by && !!eventFilter.filter.reported_by.length ?
     eventFilter.filter.reported_by
       .map(id =>
         reporters.find(r => r.id === id)
       ).filter(item => !!item)
     : [];
+
+  const isLargeLayout = useMatchMedia(BREAKPOINTS.screenIsLargeLayoutOrLarger);
 
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
@@ -155,8 +162,10 @@ const EventFilter = (props) => {
 
 
   const onStateSelect = ({ value }) => {
-    updateEventFilter({ state: value });
-    trackEvent('Event Filter', `Select '${value}' State Filter`);
+    if (!isEqual(state, value)){
+      updateEventFilter({ state: value });
+      trackEvent('Event Filter', `Select '${value}' State Filter`);
+    }
   };
 
   const resetPopoverFilters = () => {
@@ -181,6 +190,7 @@ const EventFilter = (props) => {
   const resetAllFilters = () => {
     if (filterModified) resetPopoverFilters();
     if (dateRangeModified) clearDateRange();
+    onResetAll();
   };
 
   const resetStateFilter = (e) => {
@@ -201,15 +211,20 @@ const EventFilter = (props) => {
     trackEvent('Event Filter', 'Click Reset Reported By Filter');
   };
 
-  const StateSelector = () => <ul className={styles.stateList}>
-    {EVENT_STATE_CHOICES.map(choice =>
-      <li className={isEqual(choice.value, state) ? styles.activeState : ''}
-        key={choice.value} onClick={() => onStateSelect(choice)}>
-        <Button variant='link'>
-          {choice.label}
-        </Button>
-      </li>)}
-  </ul>;
+  const StateSelector = () => (
+    <ul className={styles.stateList} data-testid="state-filter-options">
+      {EVENT_STATE_CHOICES.map(choice =>
+        <li key={choice.value}>
+          <Button
+            variant='link'
+            className={isEqual(choice.value, state) ? styles.activeState : ''}
+            onClick={() => onStateSelect(choice)}
+          >
+            {choice.label}
+          </Button>
+        </li>)}
+    </ul>
+  );
 
   const onDateFilterIconClicked = (e) => {
     trackEvent('Reports', 'Dates Icon Clicked');
@@ -310,8 +325,7 @@ const EventFilter = (props) => {
   return <>
     <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
       <div className={styles.controls}>
-        <SearchBar className={styles.search} placeholder='Search Reports...' value={filterText}
-        onChange={onSearchChange} onClear={onSearchClear} />
+        <SearchBar className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`} placeholder='Search Reports...' value={filterText} onChange={onSearchChange} onClear={onSearchClear} />
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
           <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
@@ -326,10 +340,10 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
+    {isLargeLayout && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
-      {(filterModified || dateRangeModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
-    </div>
+      {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
+    </div>}
   </>;
 };
 

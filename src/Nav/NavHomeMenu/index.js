@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 
+import { useMatchMedia } from '../../hooks';
+import { BREAKPOINTS } from '../../constants';
 import NavHomeItem from '../NavHomeItem';
 
 import { userLocationCanBeShown } from '../../selectors';
@@ -16,6 +18,8 @@ const { Toggle, Menu, Item, Divider } = Dropdown;
 const NavHomeMenu = function NavHomeMenu(props) {
   const { maps, onMapSelect, selectedMap, userLocation, userLocationCanBeShown, onCurrentLocationClick } = props;
 
+  const isMediumLayout = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+
   const onDropdownToggle = (isOpen) => {
     trackEvent('Main Toolbar', `${isOpen ? 'Open':'Close'} Home Area Menu`);
   };
@@ -23,7 +27,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
   return (
     <Dropdown className="home-select" onToggle={onDropdownToggle} alignRight>
       <Toggle className={styles.toggle}>
-        <NavHomeItem {...selectedMap} showIcon={true} /> <span className={styles.dropdownArrow}>&or;</span>
+        <NavHomeItem {...selectedMap} showIcon={true} /> {isMediumLayout && <span className={styles.dropdownArrow}>&or;</span>}
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>

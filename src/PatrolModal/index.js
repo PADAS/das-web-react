@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { usePermissions } from '../hooks';
+import { useMatchMedia, useMedia, usePermissions } from '../hooks';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
@@ -28,7 +28,7 @@ import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, 
 import { trackEvent } from '../utils/analytics';
 
 
-import { PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { BREAKPOINTS, PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -80,6 +80,8 @@ const PatrolModal = (props) => {
   const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
 
   const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
+
+  const screenIsMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -603,7 +605,7 @@ const PatrolModal = (props) => {
         onTitleChange={onTitleChange}
         maxTitleLength={MAX_TITLE_LENGTH}
       >
-        <StatusBadge />
+        {screenIsMediumLayoutOrLarger && <StatusBadge />}
       </Header>
       <div className={styles.topControls}>
         <label className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>

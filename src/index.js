@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
@@ -29,13 +29,13 @@ import RequestConfigManager from './RequestConfigManager';
 
 import { setClientReleaseIdentifier } from './utils/analytics';
 
-/* LAZY LOAD THESE WITH React.Suspense and React.lazy once the server is config'd to keep old deployment chunks */
-// import LoadingOverlay from './EarthRangerIconLoadingOverlay';
-import App from './App';
-import Login from './Login';
-import EulaPage from './views/EULA';
+import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import PrivateRoute from './PrivateRoute';
 import EulaProtectedRoute from './EulaProtectedRoute';
+
+const App = lazy(() => import('./App'));
+const EulaPage = lazy(() => import('./views/EULA'));
+const Login = lazy(() => import('./Login'));
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
@@ -47,26 +47,17 @@ setClientReleaseIdentifier();
 
 const persistor = persistStore(store);
 
-const PathNormalizationRouteComponent = (props) => {
+export const PathNormalizationRouteComponent = ({ location }) => {
   const externalRedirectRef = useRef(null);
 
   useEffect(() => {
     !!externalRedirectRef.current && externalRedirectRef.current.click();
   });
 
-  const GoToHomepage = () => <Redirect
-    to={REACT_APP_ROUTE_PREFIX}
-  />;
-
-  if (process.env.NODE_ENV !== 'production') {
-    return <GoToHomepage />;
+  const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === location.pathname);
+  if (process.env.NODE_ENV !== 'production' || !localMatch) {
+    return <Redirect to={REACT_APP_ROUTE_PREFIX} />;
   }
-
-  const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === props.location.pathname);
-  if (!localMatch) {
-    return <GoToHomepage />;
-  }
-
 
   return <a href={localMatch} style={{ opacity: 0 }} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
 };
@@ -76,13 +67,14 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
         <RequestConfigManager />
-        <Switch>
-          <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
-          <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
-          <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
-          <Route component={PathNormalizationRouteComponent} />
-
-        </Switch>
+        <Suspense fallback={<LoadingOverlay />}>
+          <Switch>
+            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+            <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
+            <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
+            <Route component={PathNormalizationRouteComponent} />
+          </Switch>
+        </Suspense>
       </BrowserRouter>
       <ToastContainer />
       <DetectOffline />
