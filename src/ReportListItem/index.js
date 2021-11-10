@@ -28,7 +28,7 @@ const PRIORITY_COLOR_MAP = {
 };
 
 const ReportListItem = (props) => {
-  const { eventTypes, displayTime = null, title = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showJumpButton, className, key, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -69,7 +69,7 @@ const ReportListItem = (props) => {
   const dateTimeProp = displayTime || report.updated_at || report.time;
 
   return <FeedListItem
-    key={key} title={displayTitle} className={`${className}`}
+    title={displayTitle} className={`${className}`}
     themeColor={themeColor}
     IconComponent={
       <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>
@@ -100,17 +100,10 @@ const ReportListItem = (props) => {
 const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
 export default connect(mapStateToProps, { setBounceEventIDs })(memo(ReportListItem));
 
-ReportListItem.defaultProps = {
-  showJumpButton: true,
-  showDate: true,
-};
-
 ReportListItem.propTypes = {
-  key: PropTypes.string,
   report: PropTypes.object.isRequired,
   map: PropTypes.object,
   onTitleClick: PropTypes.func,
   onIconClick: PropTypes.func,
   showJumpButton: PropTypes.bool,
-  showDate: PropTypes.bool,
 };
