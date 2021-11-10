@@ -94,7 +94,7 @@ jobs:
           export URL="https://${SITE_DOMAIN}.pamdas.org/login"
           export URL_ADMIN="https://${SITE_DOMAIN}.pamdas.org/admin/login"
           env > .env
-          TEST_RESULT-
+          TEST_RESULT=0
           npm run test:cloud || { TEST_RESULT=1; }
           npm run reporter:cloud
           echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
