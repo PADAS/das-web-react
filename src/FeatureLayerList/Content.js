@@ -6,7 +6,7 @@ import intersection from 'lodash/intersection';
 
 import { hideFeatures, showFeatures } from '../ducks/map-ui';
 import { getUniqueIDsFromFeatures } from '../utils/features';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
 import FeatureTypeListItem from './FeatureTypeListItem';
@@ -17,6 +17,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
   transitionTime: 1,
 };
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const Content = (props) => {
   const { featuresByType, hideFeatures, showFeatures, hiddenFeatureIDs, name, map,
@@ -34,11 +35,11 @@ const Content = (props) => {
   const onCheckToggle = (type) => {
     const featureIDs = getUniqueIDsFromFeatures(...type.features);
     if (allVisible(type)) {
-      trackEvent('Map Layers', 'Uncheck Feature Set Type checkbox',
+      mapLayerTracker.track('Uncheck Feature Set Type checkbox',
         `Feature Set Type:${type.name}`);
       return hideFeatures(...featureIDs);
     } else {
-      trackEvent('Map Layers', 'Check Feature Set Type checkbox',
+      mapLayerTracker.track('Check Feature Set Type checkbox',
         `Feature Set Type:${type.name}`);
       return showFeatures(...featureIDs);
     }

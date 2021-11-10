@@ -15,7 +15,7 @@ import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 import { fetchPatrols } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 
 import ClearAllControl from '../ClearAllControl';
@@ -31,6 +31,8 @@ import ReportsTab from './ReportsTab';
 import styles from './styles.module.scss';
 
 const PatrolsTab = lazy(() => import('./PatrolsTab'));
+
+const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 const SET_TAB = 'SET_TAB';
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
@@ -77,7 +79,7 @@ const SideBar = (props) => {
       [TAB_KEYS.LAYERS]: 'Map Layers',
       [TAB_KEYS.PATROLS]: 'Patrols',
     };
-    trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
+    drawerTracker.track(`Click '${tabTitles[eventKey]}' tab`);
   };
 
   // fetch patrols if filter settings has changed

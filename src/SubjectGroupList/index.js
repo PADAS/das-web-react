@@ -4,13 +4,14 @@ import { connect } from 'react-redux';
 
 import { hideSubjects, showSubjects } from '../ducks/map-ui';
 import { getUniqueSubjectGroupSubjects, filterSubjects } from '../utils/subjects';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { getSubjectGroups } from '../selectors/subjects';
 import CheckableList from '../CheckableList';
 
 import Content from './Content';
 import listStyles from '../SideBar/styles.module.scss';
 
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const SubjectGroupList = (props) => {
   const { subjectGroups, mapLayerFilter, hideSubjects, showSubjects, hiddenSubjectIDs, map } = props;
@@ -46,10 +47,10 @@ const SubjectGroupList = (props) => {
   const onGroupCheckClick = (group) => {
     const subjectIDs = getUniqueSubjectGroupSubjects(group).map(s => s.id);
     if (groupIsFullyVisible(group)) {
-      trackEvent('Map Layers', 'Uncheck Group Map Layer checkbox', `Group:${group.name}`);
+      mapLayerTracker.track('Uncheck Group Map Layer checkbox', `Group:${group.name}`);
       return hideSubjects(...subjectIDs);
     } else {
-      trackEvent('Map Layers', 'Check Group Map Layer checkbox', `Group:${group.name}`);
+      mapLayerTracker.track('Check Group Map Layer checkbox', `Group:${group.name}`);
       return showSubjects(...subjectIDs);
     }
   };

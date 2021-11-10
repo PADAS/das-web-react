@@ -6,7 +6,14 @@ import { FEATURE_FLAGS } from '../constants';
 
 import { addModal } from '../ducks/modals';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
-import { trackEvent } from '../utils/analytics';
+import {
+  trackEvent,
+  trackEventFactory,
+  MAIN_TOOLBAR_CATEGORY,
+  REPORT_EXPORT_CATEGORY,
+  TABLEAU_ANALYSIS_CATEGORY,
+  ALERTS_CATEGORY
+} from '../utils/analytics';
 import { useFeatureFlag } from '../hooks';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
@@ -18,6 +25,9 @@ const DataExportModal = lazy(() => import('../DataExportModal'));
 const KMLExportModal = lazy(() => import('../KMLExportModal'));
 
 const { Toggle, Menu, Item, Header, Divider } = Dropdown;
+
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
+const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
 export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
@@ -83,10 +93,10 @@ const DataExportMenu = ({
 
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
-    trackEvent('Main Toolbar', `${isOpen?'Open':'Close'} Data Export Menu`);
+    mainToolbarTracker.track(`${isOpen?'Open':'Close'} Data Export Menu`);
   };
 
-  const onModalClick = useCallback((modal, analyticsTitle = 'Report Export') => {
+  const onModalClick = useCallback((modal, analyticsTitle = REPORT_EXPORT_CATEGORY) => {
     addModal({ ...modal });
     trackEvent(analyticsTitle, `Click '${modal.title}' menu item`);
   }, [addModal]);
@@ -96,32 +106,26 @@ const DataExportMenu = ({
       .then(({ display_url }) => {
         const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
         if (newWindow) newWindow.opener = null;
-        trackEvent('Analysis (via Tableau)', 'Click Analysis (via Tableau) menu item');
+        tableuAnalysisTracker.track('Click Analysis (via Tableau) menu item');
       });
   };
 
   const onContactSupportClick = () => {
-    trackEvent('Main Toolbar', 'Click \'Contact Support\'');
-    if (zendeskEnabled) {
-      return window.zE.activate({ hideOnClose: true });
-    }
+    mainToolbarTracker.track('Click \'Contact Support\'');
+    if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
     return mailTo(CONTACT_SUPPORT_EMAIL_ADDRESS, 'Support request from user', 'How can we help you?');
   };
 
   const onCommunityClick = () => {
     const newWindow = window.open(COMMUNITY_SITE_URL, '_blank', 'noopener,noreferrer');
-    if (newWindow) {
-      newWindow.opener = null;
-    }
-    trackEvent('Main Toolbar', 'Click \'Community\' menu item');
+    if (newWindow) newWindow.opener = null;
+    mainToolbarTracker.track('Click \'Community\' menu item');
   };
 
   const onDocumentationClick = () => {
     const newWindow = window.open(DOCUMENTATION_SITE_URL, '_blank', 'noopener,noreferrer');
-    if (newWindow) {
-      newWindow.opener = null;
-    }
-    trackEvent('Main Toolbar', 'Click \'Documentation\' menu item');
+    if (newWindow) newWindow.opener = null;
+    mainToolbarTracker.track('Click \'Documentation\' menu item');
   };
 
   const onAboutClick = useCallback(() => {
@@ -130,7 +134,7 @@ const DataExportMenu = ({
 
   const onOpenAlertsModalClick = useCallback(() => {
     document.cookie = `token=${token.access_token};path=/`;
-    onModalClick(alertModal, 'Alerts');
+    onModalClick(alertModal, ALERTS_CATEGORY);
   }, [alertModal, onModalClick, token.access_token]);
 
   const hamburgerToggle = useRef();

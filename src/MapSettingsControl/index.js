@@ -9,10 +9,11 @@ import MapDataZoomSimplificationControl from '../MapDataZoomSimplificationContro
 import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import Map3DToggleControl from './Map3DToggleControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import styles from './styles.module.scss';
 import InactiveRadioControl from '../InactiveRadioControl';
 
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapSettingsControl = (props) => {
   const { hasUserLocation } = props;
@@ -35,7 +36,7 @@ const MapSettingsControl = (props) => {
   );
 
   const onButtonClick = () => {
-    trackEvent('Map Interaction', 'Clicked Map Settings button');
+    mapInteractionTracker.track('Clicked Map Settings button');
   };
 
   return <OverlayTrigger trigger="click" placement="right" rootClose={true} overlay={popover}>

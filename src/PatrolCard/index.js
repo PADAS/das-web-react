@@ -7,19 +7,18 @@ import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPat
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { createPatrolDataSelector } from '../selectors/patrols';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_CARD_CATEGORY } from '../utils/analytics';
 
 import { PATROL_CARD_STATES } from '../constants';
 
-// import AddReport from '../AddReport';
 import PatrolMenu from './PatrolMenu';
 import DasIcon from '../DasIcon';
 import Popover from './Popover';
-
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 
-
 import styles from './styles.module.scss';
+
+const patrolCardTracker = trackEventFactory(PATROL_CARD_CATEGORY);
 
 const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { patrolData, subjectStore, onTitleClick, onPatrolChange, onSelfManagedStateChange, pickingLocationOnMap, dispatch: _dispatch, ...rest } = props;
@@ -107,7 +106,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   const hidePopover = useCallback((provenance) => {
     setPopoverState(false);
-    trackEvent('Patrol Card', `Close patrol card popover${provenance ? ` (${provenance})` : ''}`);
+    patrolCardTracker.track(`Close patrol card popover${provenance ? ` (${provenance})` : ''}`);
   }, []);
 
   const handleKeyDown = useCallback((event) => {
@@ -164,7 +163,7 @@ const PatrolCard = forwardRef((props, ref) => { /* eslint-disable-line react/dis
 
   useEffect(() => {
     if (!!popoverOpen) {
-      trackEvent('Patrol Card', 'Open patrol card popover');
+      patrolCardTracker.track('Open patrol card popover');
     }
   }, [popoverOpen]);
 

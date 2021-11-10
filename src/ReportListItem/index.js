@@ -13,6 +13,8 @@ import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMulti
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
 import { jumpToLocation } from '../utils/map';
+import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
+
 
 import styles from './styles.module.scss';
 
@@ -79,7 +81,7 @@ const ReportListItem = (props) => {
     </span>
     {coordinates && !!coordinates.length && showJumpButton &&
       <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} onClick = {onClick}
-        clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
+        clickAnalytics={[MAP_LAYERS_CATEGORY, 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
     }
   </li>;
 };

@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { updateGlobalDateRange } from '../ducks/global-date-range';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
 import FeedDateFilter from '../FeedDateFilter';
+
+const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const EventFilterDateRangeSelector = (props) => {
   const { patrolFilter, onFilterSettingsToggle, updateGlobalDateRange, placement, filterSettings } = props;
@@ -13,15 +15,15 @@ const EventFilterDateRangeSelector = (props) => {
   const { filter: { date_range: dateRange } } = patrolFilter;
 
   const afterClickPreset = useCallback((label) => {
-    trackEvent('Patrol Filter', 'Select Date Range Preset', `Date Range: ${label}`);
+    patrolFilterTracker.track('Select Date Range Preset', `Date Range: ${label}`);
   }, []);
 
   const afterEndChange = useCallback(() => {
-    trackEvent('Patrol Filter', 'Change End Date Filter');
+    patrolFilterTracker.track('Change End Date Filter');
   }, []);
 
   const afterStartChange = useCallback(() => {
-    trackEvent('Patrol Filter', 'Change Start Date Filter');
+    patrolFilterTracker.track('Change Start Date Filter');
   }, []);
 
   return <FeedDateFilter

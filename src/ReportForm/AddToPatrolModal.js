@@ -11,7 +11,7 @@ import uniq from 'lodash/uniq';
 
 import { PATROL_CARD_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, ADD_TO_PATROL_CATEGORY } from '../utils/analytics';
 import { calcPatrolCardState, displayTitleForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
@@ -28,6 +28,8 @@ import styles from './styles.module.scss';
 const { Header, Title, Body, Footer } = Modal;
 
 const { get } = axios;
+
+const addToPatrolTracker = trackEventFactory(ADD_TO_PATROL_CATEGORY);
 
 const FETCH_FEED_SUCCESS = 'FETCH_FEED_SUCCESS';
 const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
@@ -145,7 +147,7 @@ const AddToPatrolModal = (props) => {
   const onClickPatrol = (patrol) => {
     onAddToPatrol(patrol);
     hideModal();
-    trackEvent('Add To Patrol', 'Click Add to Existing Patrol');
+    addToPatrolTracker.track('Click Add to Existing Patrol');
   };
 
 

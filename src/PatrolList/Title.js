@@ -22,13 +22,6 @@ const PatrolListTitle = (props) => {
       <h3>{textContext.title}</h3>
       <h6>{textContext.details}</h6>
     </div>
-    {/*  <div className={styles.headerControls}>
-      <HeatmapToggleButton showLabel={false} heatmapVisible={false} />
-      <TrackToggleButton showLabel={false} trackVisible={false} trackPinned={false} />
-      <LocationJumpButton iconOverride={<PatrolMarkerIcon />} bypassLocationValidation={true}
-        className={styles.patrolButton} onClick={onPatrolJumpClick} />
-      <KebabMenuIcon className={styles.kebab} />
-    </div> */}
   </div>;
 };
 

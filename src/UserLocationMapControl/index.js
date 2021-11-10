@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import { toggleDisplayUserLocation } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const UserLocationMapControl = (props) => {
 
@@ -10,8 +12,7 @@ const UserLocationMapControl = (props) => {
   const handleChange = () => {
     toggleDisplayUserLocation();
 
-    trackEvent('Map Interaction',
-      `${showUserLocation? 'Uncheck' : 'Check'} 'Show My Current Location' checkbox`, null);
+    mapInteractionTracker.track(`${showUserLocation? 'Uncheck' : 'Check'} 'Show My Current Location' checkbox`);
   };
 
   return <label>
