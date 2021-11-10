@@ -1,3 +1,5 @@
+import { waitFor } from '@testing-library/react';
+
 import { trackEventFactory, MAP_INTERACTION_CATEGORY, REPORTS_CATEGORY } from './analytics';
 let tracker;
 
@@ -13,13 +15,14 @@ test('it will trigger track for provided category', () => {
 });
 
 
-test('it will trigger track after specific delay by calling debouncedTrack', () => {
+test('it will trigger track after specific delay by calling debouncedTrack', async () => {
   const mapInteractionTracker = trackEventFactory(REPORTS_CATEGORY, tracker);
-  const debounceTracker = mapInteractionTracker.debouncedTrack();
+  const debounceTracker = mapInteractionTracker.debouncedTrack(10);
   debounceTracker('my action', 'my label');
 
-  setTimeout(() => {
+  await waitFor(() => {
     expect(tracker).toHaveBeenCalledWith(REPORTS_CATEGORY, 'my action', 'my label');
     expect(tracker).toHaveBeenCalledTimes(1);
-  }, 450);
+  }, { timeout: 60 });
+
 });
