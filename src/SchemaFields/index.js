@@ -6,7 +6,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import debounce from 'lodash/debounce';
 
 import { DEFAULT_SELECT_STYLES } from '../constants';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
 import { uuid } from '../utils/string';
 
 import { ReactComponent as ExternalLinkIcon } from '../common/images/icons/external-link.svg';
@@ -15,6 +15,7 @@ import { getElementPositionDataWithinScrollContainer } from '../utils/layout';
 
 import styles from './styles.module.scss';
 
+const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const scrollSelectIntoViewOnMenuOpenIfNecessary = (scrollContainer, element, heightToAdd) => {
   const { isAboveFold, isBelowFold, eTop, eBottom, cTop, cBottom } = getElementPositionDataWithinScrollContainer(scrollContainer, element, heightToAdd);
@@ -271,11 +272,8 @@ const ExternalLink = (props) => {
   const { idSchema: { id }, schema: { title: label }, formData: value } = props;
 
   const onLinkClick = () => {
-    trackEvent(
-      'Event Report',
-      'Click \'External Source\' link',
-      value.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0]
-    );
+    const urlDomain = value.replace('http://', '').replace('https://', '').split(/[/?#:]/g)[0];
+    eventReportTracker.track('Click \'External Source\' link', urlDomain);
   };
 
   return <div>

@@ -11,6 +11,8 @@ import { withMap } from '../EarthRangerMap';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 
+import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+
 const AddReport = withMap(AR);
 
 const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, popoverPlacement }) => {
@@ -29,7 +31,7 @@ const UserCurrentLocationPopup = ({ data: { location }, id, hidePopup, popoverPl
     <hr />
     <AddReport
       analyticsMetadata={{
-        category: 'Map Interaction',
+        category: MAP_INTERACTION_CATEGORY,
         location: 'current user location',
       }} reportData={{
         location: {

@@ -4,19 +4,20 @@ import { connect } from 'react-redux';
 
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString, GPS_FORMATS } from '../utils/location';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, GPS_FORMAT_CATEGORY } from '../utils/analytics';
 
 import TextCopyBtn from '../TextCopyBtn';
 
 import styles from './styles.module.scss';
 
 const gpsFormats = Object.values(GPS_FORMATS);
+const gpsFormatTracker = trackEventFactory(GPS_FORMAT_CATEGORY);
 
 const GpsFormatToggle = (props) => {
   const { updateUserPreferences, showGpsString = true, showCopyControl = showGpsString, lat, lng, currentFormat, className, ...rest } = props;
 
   const onGpsFormatClick = (gpsFormat) => {
-    trackEvent('GPS Format', 'Change GPS Format', `GPS Format:${gpsFormat}`);
+    gpsFormatTracker.track('Change GPS Format', `GPS Format:${gpsFormat}`);
     updateUserPreferences({
       gpsFormat,
     });
