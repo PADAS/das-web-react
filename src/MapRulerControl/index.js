@@ -254,7 +254,7 @@ const PointPopup = (props) => {
       </Fragment>}
       <AddReport
         analyticsMetadata={{
-          category: 'Map Interaction',
+          category: MAP_INTERACTION_CATEGORY,
           location: 'map ruler popup',
         }}
         reportData={{

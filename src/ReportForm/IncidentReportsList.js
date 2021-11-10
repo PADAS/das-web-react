@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 import ReportListItem from '../ReportListItem';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, INCIDENT_REPORT_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
+const incidentReportTracker = trackEventFactory(INCIDENT_REPORT_CATEGORY);
 
 const IncidentReportsList = (props) => {
   const { eventStore, reports = [], onReportClick, children } = props;
@@ -12,7 +13,8 @@ const IncidentReportsList = (props) => {
 
   const onReportListItemClick = (report) => {
     onReportClick(report);
-    trackEvent('Incident Report', `Open ${report.is_collection?'Incident':'Event'} Report from Incident`, `Event Type:${report.event_type}`);
+    const reportType = report.is_collection ? 'Incident' : 'Event';
+    incidentReportTracker.track(`Open ${reportType} Report from Incident`, `Event Type:${report.event_type}`);
   };
 
   const createReportListItem = report => <ReportListItem

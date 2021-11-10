@@ -5,6 +5,8 @@ import AddReport from '../AddReport';
 import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 
+import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+
 export default class TimepointPopup extends PureComponent {
   render() {
     const { data: { geometry, properties }, popoverPlacement } = this.props;
@@ -26,7 +28,7 @@ export default class TimepointPopup extends PureComponent {
         <hr />
         <AddReport
           analyticsMetadata={{
-            category: 'Map Interaction',
+            category: MAP_INTERACTION_CATEGORY,
             location: 'track timepoint',
           }}
           reportData={{ location: locationObject, reportedById, time }}

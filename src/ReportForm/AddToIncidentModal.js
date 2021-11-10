@@ -9,7 +9,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { getFeedIncidents } from '../selectors';
 import { fetchIncidentFeed, fetchNextIncidentFeedPage } from '../ducks/events';
 import { removeModal } from '../ducks/modals';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, ADD_INCIDENT_CATEGORY } from '../utils/analytics';
 
 import LoadingOverlay from '../LoadingOverlay';
 import ReportListItem from '../ReportListItem';
@@ -17,6 +17,7 @@ import ReportListItem from '../ReportListItem';
 import styles from './styles.module.scss';
 
 const { Header, Title, Body, Footer } = Modal;
+const addIncidentTracker = trackEventFactory(ADD_INCIDENT_CATEGORY);
 
 const AddToIncidentModal = (props) => {
   const { id, incidents, removeModal,
@@ -43,13 +44,13 @@ const AddToIncidentModal = (props) => {
   const onExistingIncidentClick = (report) => {
     onAddToExistingIncident(report);
     hideModal();
-    trackEvent('Add To Incident', 'Click Add to Existing Incident');
+    addIncidentTracker.track('Click Add to Existing Incident');
   };
 
   const onClickAddNewIncident = () => {
     onAddToNewIncident();
     hideModal();
-    trackEvent('Add To Incident', 'Click Add to new Incident');
+    addIncidentTracker.track('Click Add to new Incident');
   };
 
   const onScroll = () => {

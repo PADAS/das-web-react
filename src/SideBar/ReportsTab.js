@@ -12,7 +12,7 @@ import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVE
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
@@ -23,6 +23,8 @@ import EventFilter from '../EventFilter';
 import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
+
+const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
   const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, } = props;
@@ -68,7 +70,8 @@ const ReportsTab = (props) => {
 
   const onEventTitleClick = (event) => {
     openModalForReport(event, map);
-    trackEvent('Feed', `Open ${event.is_collection ? 'Incident' : 'Event'} Report`, `Event Type:${event.event_type}`);
+    const reportType = event.is_collection ? 'Incident' : 'Event';
+    feedTracker.track(`Open ${reportType} Report`, `Event Type:${event.event_type}`);
   };
 
   useEffect(() => {
