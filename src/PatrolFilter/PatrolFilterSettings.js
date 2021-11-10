@@ -36,7 +36,7 @@ const PatrolFilterSettings = (props) => {
                 value="start_dates"
                 checked={!patrols_overlap_daterange}
                 onChange={handleOptionClick}
-              /><label forhtml="start_dates">Filter by start date</label>
+              /><label htmlFor="start_dates">Filter by start date</label>
             </span>
           </OverlayTrigger>
         </div>
