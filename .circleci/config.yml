@@ -94,12 +94,14 @@ jobs:
           export URL="https://${SITE_DOMAIN}.pamdas.org/login"
           export URL_ADMIN="https://${SITE_DOMAIN}.pamdas.org/admin/login"
           env > .env
-          npm run test:cloud || { echo 'Tests failed'; exit 1; }
-          npm run reporter:cloud || { echo 'Report failed'; exit 1; }
+          TEST_RESULT=0
+          npm run test:cloud || { TEST_RESULT=1 }
+          npm run reporter:cloud
           echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
           gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
           gsutil cp -r ./allure-raw gs://er-report-test/
+          if [[ ${TEST_RESULT} == 1 ]]; then; echo "Tests failed"; exit 1; fi
 
 
 workflows:
