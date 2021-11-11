@@ -131,7 +131,7 @@ const PatrolListItem = (props, ref) => {
         setPatrolState(currentState);
         onSelfManagedStateChange && onSelfManagedStateChange(patrol);
       }
-    }, 3000);
+    }, STATE_CHANGE_POLLING_INTERVAL);
 
     return () => window.clearInterval(intervalRef.current);
 
