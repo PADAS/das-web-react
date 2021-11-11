@@ -12,9 +12,9 @@ import { updatePatrol } from '../ducks/patrols';
 import { trackEvent } from '../utils/analytics';
 
 import styles from './styles.module.scss';
-import ListItem from '../PatrolListItem';
+import PatrolListItem from '../PatrolListItem';
 
-const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
@@ -30,7 +30,7 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
   }, [patrol, updatePatrol]);
 
   return <Flipped flipId={patrol.id}>
-    <ListItem
+    <PatrolListItem
       ref={ref}
       onTitleClick={onTitleClick}
       onPatrolChange={onPatrolChange}
@@ -41,7 +41,7 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
+const ConnectedListItem = connect(null, { updatePatrol })(ListItem);
 
 const PatrolList = (props) => {
   const { map, patrols = [], loading } = props;

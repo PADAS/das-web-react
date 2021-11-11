@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import bbox from '@turf/bbox';
 import { lineString } from '@turf/helpers';
-import { cleanup, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { within } from '@testing-library/dom';
 
@@ -11,13 +11,11 @@ import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import * as trackUtils from '../utils/tracks';
-
 import * as patrolUtils from '../utils/patrols';
 import * as customHooks from '../hooks';
 
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
-
 
 import PatrolListItem from './';
 

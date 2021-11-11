@@ -20,6 +20,9 @@ import PatrolMenu from './PatrolMenu';
 
 import styles from './styles.module.scss';
 
+const TRACK_FETCH_DEBOUNCE_DELAY = 150;
+const STATE_CHANGE_POLLING_INTERVAL = 3000;
+
 const PatrolListItem = (props, ref) => {
   const { showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest } = props;
 
@@ -116,7 +119,7 @@ const PatrolListItem = (props, ref) => {
         fetchTracksIfNecessary([leader.id], {
           optionalDateBoundaries: { since: actualStartTime, until: actualEndTime }
         });
-      }, 150);
+      }, TRACK_FETCH_DEBOUNCE_DELAY);
       return () => window.clearTimeout(debouncedTrackFetch.current);
     }
   }, [actualEndTime, actualStartTime, leader]);
@@ -125,7 +128,6 @@ const PatrolListItem = (props, ref) => {
     intervalRef.current = window.setInterval(() => {
       const currentState = calcPatrolState(patrol);
       if (currentState !== patrolState) {
-        console.log('my should should update dudes');
         setPatrolState(currentState);
         onSelfManagedStateChange && onSelfManagedStateChange(patrol);
       }
