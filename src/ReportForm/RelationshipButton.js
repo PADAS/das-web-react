@@ -6,7 +6,7 @@ import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } fr
 import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
 import { FormDataContext } from '../EditableItem/context';
 
@@ -25,27 +25,30 @@ const RelationshipButton = (props) => {
   const isCollection = !!report.is_collection;
   const isCollectionChild = useMemo(() => eventBelongsToCollection(report), [report]);
 
+  const typeOfReportToTrack = isCollection ? INCIDENT_REPORT_CATEGORY : EVENT_REPORT_CATEGORY;
+  const reportTracker = trackEventFactory(typeOfReportToTrack);
+
   const goToParentCollection = useCallback(() => {
     const { is_contained_in: [{ related_event: { id: incidentID } }] } = report;
 
-    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, 'Click \'Go to Incident\' button');
+    reportTracker.track('Click \'Go to Incident\' button');
 
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       openModalForReport(data, map);
     });
-  }, [fetchEvent, map, removeModal, report]);
+  }, [fetchEvent, map, removeModal, report, reportTracker]);
 
   const goToParentPatrol = useCallback(() => {
     const [patrolId] = report.patrols;
 
-    trackEvent(`${report.is_collection?'Incident':'Event'} Report`, 'Click \'Go to Patrol\' button');
+    reportTracker.track('Click \'Go to Patrol\' button');
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       removeModal();
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, map, removeModal, report.is_collection, report.patrols]);
+  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>
@@ -54,7 +57,7 @@ const RelationshipButton = (props) => {
     </Fragment>}
     {(isCollection || (!isPatrolReport && !isCollectionChild)) && <AddReport
       analyticsMetadata={{
-        category: 'Report Modal',
+        category: REPORT_MODAL_CATEGORY,
         location: 'report modal',
       }}
       map={map}

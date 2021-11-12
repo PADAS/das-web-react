@@ -32,7 +32,9 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 //
 
 import './App.scss';
-import { trackEvent } from './utils/analytics';
+import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
+
+const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -95,7 +97,7 @@ const App = (props) => {
 
   const onSidebarHandleClick = useCallback(() => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    trackEvent('Drawer', `${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
+    drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
   }, [sidebarOpen, updateUserPreferences]);
 
 

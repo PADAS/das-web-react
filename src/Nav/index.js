@@ -1,40 +1,55 @@
-import React, { memo, useEffect } from 'react';
+import React, { lazy, memo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 import { usePermissions } from '../hooks';
 
-import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
-import MessageMenu from './MessageMenu';
 import UserMenu from '../UserMenu';
 import EarthRangerLogo from '../EarthRangerLogo';
 import DataExportMenu from '../DataExportMenu';
 import SystemStatusComponent from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
 
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
-
 import './Nav.scss';
 
-const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, history, homeMap, location, map, maps, setHomeMap, selectedUserProfile, setUserProfile, user, userProfiles }) => {
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
+const MessageMenu = lazy(() => import('./MessageMenu'));
 
+const Nav = ({
+  clearAuth,
+  clearUserProfile,
+  fetchCurrentUser,
+  fetchCurrentUserProfiles,
+  history,
+  homeMap,
+  location,
+  map,
+  maps,
+  setHomeMap,
+  selectedUserProfile,
+  setUserProfile,
+  user,
+  userProfiles,
+}) => {
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const onHomeMapSelect = (chosenMap) => {
     setHomeMap(chosenMap);
-    trackEvent('Main Toolbar', 'Change Home Area', `Home Area:${chosenMap.title}`);
+    mainToolbarTracker.track('Change Home Area', `Home Area:${chosenMap.title}`);
   };
 
   const onCurrentLocationClick = (location) => {
     jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
-    trackEvent('Main Toolbar', 'Click \'My Current Location\'');
+    mainToolbarTracker.track('Click \'My Current Location\'');
   };
 
   const onProfileClick = (profile) => {
@@ -42,12 +57,11 @@ const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserPr
 
     if (isMainUser) {
       clearUserProfile();
-      trackEvent('Main Toolbar', 'Select to operate as the main user');
+      mainToolbarTracker.track('Select to operate as the main user');
     } else {
-      trackEvent('Main Toolbar', 'Select to operate as a user profile');
+      mainToolbarTracker.track('Select to operate as a user profile');
       setUserProfile(profile, isMainUser ? false : true);
     }
-
   };
 
   useEffect(() => {
@@ -56,7 +70,7 @@ const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserPr
 
   useEffect(() => {
     fetchCurrentUser()
-      .catch((error) => {
+      .catch(() => {
         history.push({
           pathname: `${REACT_APP_ROUTE_PREFIX}login`,
           search: location.search,
@@ -71,17 +85,34 @@ const Nav = ({ clearAuth, clearUserProfile, fetchCurrentUser, fetchCurrentUserPr
       <EarthRangerLogo className="logo" />
     </div>
 
-    {!!maps.length && <NavHomeMenu maps={maps} selectedMap={homeMap} onMapSelect={onHomeMapSelect} onCurrentLocationClick={onCurrentLocationClick} />}
+    {!!maps.length &&
+      <NavHomeMenu
+        maps={maps}
+        selectedMap={homeMap}
+        onMapSelect={onHomeMapSelect}
+        onCurrentLocationClick={onCurrentLocationClick}
+      />}
+
     <div className="rightMenus">
       {!!canViewMessages && <MessageMenu />}
       <NotificationMenu />
-      <UserMenu user={user} onProfileClick={onProfileClick} userProfiles={userProfiles} selectedUserProfile={selectedUserProfile} onLogOutClick={clearAuth} />
+      <UserMenu
+        user={user}
+        onProfileClick={onProfileClick}
+        userProfiles={userProfiles}
+        selectedUserProfile={selectedUserProfile}
+        onLogOutClick={clearAuth}
+      />
       <div className="alert-menu"></div>
       <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
     </div>
   </nav>;
 };
 
-const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) => ({ homeMap, maps, user, userProfiles, selectedUserProfile });
+const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile }, view: { homeMap } }) =>
+  ({ homeMap, maps, user, userProfiles, selectedUserProfile });
 
-export default connect(mapStatetoProps, { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile })(memo(withRouter(Nav)));
+export default connect(
+  mapStatetoProps,
+  { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile }
+)(memo(withRouter(Nav)));

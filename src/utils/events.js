@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { lazy } from 'react';
 
 import store from '../store';
 import { getEventReporters } from '../selectors';
@@ -10,8 +11,9 @@ import { addModal } from '../ducks/modals';
 
 import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
-import ReportFormModal from '../ReportFormModal';
 import { EVENT_API_URL } from '../ducks/events';
+
+const ReportFormModal = lazy(() => import('../ReportFormModal'));
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
   const eventCreationDetails = event?.updates?.[event?.updates?.length - 1];

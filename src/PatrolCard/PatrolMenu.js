@@ -6,12 +6,13 @@ import { PATROL_CARD_STATES, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } f
 import { usePermissions } from '../hooks';
 import KebabMenuIcon from '../KebabMenuIcon';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_CARD_CATEGORY } from '../utils/analytics';
 import { canEndPatrol, calcPatrolCardState } from '../utils/patrols';
 
 import styles from './styles.module.scss';
 
 const { Toggle, Menu, Item/* , Header, Divider */ } = Dropdown;
+const patrolCardTracker = trackEventFactory(PATROL_CARD_CATEGORY);
 
 const PatrolMenu = (props) => {
   const { patrol, onPatrolChange, onClickOpen, menuRef } = props;
@@ -62,7 +63,7 @@ const PatrolMenu = (props) => {
   }, [canRestorePatrol]);
 
   const togglePatrolCancelationState = useCallback(() => {
-    trackEvent('Patrol Card', `${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol card kebab menu`);
+    patrolCardTracker.track(`${canRestorePatrol ? 'Restore' : 'Cancel'} patrol from patrol card kebab menu`);
 
     if (canRestorePatrol) {
       onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
@@ -72,7 +73,7 @@ const PatrolMenu = (props) => {
   }, [canRestorePatrol, onPatrolChange]);
 
   const togglePatrolStartStopState = useCallback(() => {
-    trackEvent('Patrol Card', `${patrolStartStopTitle} from patrol card kebab menu`);
+    patrolCardTracker.track(`${patrolStartStopTitle} from patrol card kebab menu`);
 
     if (canEnd) {
       onPatrolChange({ state: PATROL_API_STATES.DONE, patrol_segments: [{ time_range: { end_time: new Date().toISOString() } }] });

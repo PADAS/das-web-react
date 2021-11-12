@@ -16,7 +16,7 @@ import { fetchTrackedBySchema } from '../ducks/trackedby';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import { reportedBy } from '../selectors';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
 import FilterDatePopover from './FilterDatePopover';
 import FiltersPopover from './FiltersPopover';
@@ -29,6 +29,8 @@ import styles from '../EventFilter/styles.module.scss';
 
 const PATROL_FILTER_BY_DATE_RANGE_OVERLAP = 'overlap_dates';
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
+
+const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const PatrolFilter = ({
   className,
@@ -62,7 +64,7 @@ const PatrolFilter = ({
     const patrolOverlap = e.currentTarget.value === PATROL_FILTER_BY_DATE_RANGE_OVERLAP;
     updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap } });
 
-    trackEvent('Patrol Filter', patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
+    patrolFilterTracker.track(patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
   }, [updatePatrolFilter]);
 
   const onTrackedByChange = useCallback((trackedBySelectedValues) => {
@@ -74,8 +76,7 @@ const PatrolFilter = ({
       }
     });
 
-    trackEvent(
-      'Patrol Filter',
+    patrolFilterTracker.track(
       `${isAnyLeaderSelected ? 'Set' : 'Clear'} 'Tracked By' Filter`,
       isAnyLeaderSelected ? `${trackedBySelectedValues.length} trackers` : null
     );
@@ -84,7 +85,7 @@ const PatrolFilter = ({
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
 
-    trackEvent('Patrol Filter', 'Change Search Text Filter');
+    patrolFilterTracker.track('Change Search Text Filter');
   }, []);
 
   const updatePatrolFilterDebounced = useRef(debounce((update) => {
@@ -105,14 +106,14 @@ const PatrolFilter = ({
       },
     });
 
-    trackEvent('Patrol Filter', 'Click Reset All Filters');
+    patrolFilterTracker.track('Click Reset All Filters');
   }, [updatePatrolFilter]);
 
   const clearDateRange = useCallback((e) => {
     e.stopPropagation();
     resetGlobalDateRange();
 
-    trackEvent('Patrol Filter', 'Click Reset Date Range Filter');
+    patrolFilterTracker.track('Click Reset Date Range Filter');
   }, [resetGlobalDateRange]);
 
   // const resetStateFilter = useCallback((e) => {
@@ -125,14 +126,14 @@ const PatrolFilter = ({
     e.stopPropagation();
     updatePatrolFilter({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
 
-    trackEvent('Patrol Filter', 'Click Reset Reported By Filter');
+    patrolFilterTracker.track('Click Reset Reported By Filter');
   }, [updatePatrolFilter]);
 
   const onSearchClear = useCallback((e) => {
     e.stopPropagation();
     setFilterText('');
 
-    trackEvent('Patrol Filter', 'Clear Search Text Filter');
+    patrolFilterTracker.track('Clear Search Text Filter');
   }, []);
 
   useEffect(() => {

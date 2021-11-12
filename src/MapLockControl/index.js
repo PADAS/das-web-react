@@ -3,17 +3,18 @@ import { connect } from 'react-redux';
 import { toggleMapLockState } from '../ducks/map-ui';
 import { withMap } from '../EarthRangerMap';
 import { lockMap } from '../utils/map';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
 const MapLockControl = (props) => {
 
   const { mapIsLocked, toggleMapLockState, map } = props;
+  const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
   const onCheckboxChange = (e) => {
     toggleMapLockState(!mapIsLocked);
-    trackEvent('Map Interaction',  `${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
+    mapInteractionTracker.track(`${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
   };
 
   useEffect(() => {

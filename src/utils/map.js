@@ -285,12 +285,12 @@ export const metersPerPixel = (lat, zoom) => {
   return earthCircumference * Math.cos(latitudeRadians) / Math.pow(2, zoom + 8);
 };
 
-export const calculatePopoverPlacement = (map, popoverLocation) => {
+export const calculatePopoverPlacement = async (map, popoverLocation) => {
   if (!map || !popoverLocation) return 'auto';
 
   const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
 
-  const mapBounds = map.getBounds();
+  const mapBounds = await waitForMapBounds(map);
   const mapRelativeWidth = mapBounds._ne.lng - mapBounds._sw.lng;
   const mapRelativeHeight = mapBounds._sw.lat - mapBounds._ne.lat;
   const popoverRelativeCoordinateX = popoverLocation.lng - mapBounds._sw.lng;
