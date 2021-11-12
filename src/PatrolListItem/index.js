@@ -113,7 +113,7 @@ const PatrolListItem = (props, ref) => {
   };
 
   useEffect(() => {
-    if (leader && leader.id) {
+    if (leader?.id) {
       window.clearTimeout(debouncedTrackFetch.current);
       debouncedTrackFetch.current = setTimeout(() => {
         fetchTracksIfNecessary([leader.id], {

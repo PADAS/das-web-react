@@ -100,7 +100,7 @@ describe('the patrol list item', () => {
     expect(title).toHaveTextContent(TEST_PATROL_TITLE);
   });
 
-  test('showing the current state', async () => {
+  test('showing the patrol\'s current state', async () => {
     const state = await screen.findByTestId(`patrol-list-item-state-title-${testPatrol.id}`);
     expect(state).toHaveTextContent(PATROL_UI_STATES.ACTIVE.title);
   });

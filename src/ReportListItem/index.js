@@ -41,7 +41,9 @@ const ReportListItem = (props) => {
 
 
   const themeColor = useMemo(() => {
-    const reportToConsider = report.is_collection ? calcTopRatedReportAndTypeForCollection(report, eventTypes) : report;
+    const reportToConsider = report.is_collection
+      ? calcTopRatedReportAndTypeForCollection(report, eventTypes)?.related_event
+      : report;
 
     return PRIORITY_COLOR_MAP[reportToConsider.priority] || colorVariables.gray;
 
