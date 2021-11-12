@@ -199,7 +199,7 @@ const PatrolFilter = ({
         variant={filtersModified ? 'primary' : 'light'}
         size='sm'
         className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
-        onClick={() => trackEvent('Reports', 'Filters Icon Clicked')}
+        onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
         data-testid="patrolFilter-filtersButton"
       >
         <FilterIcon className={styles.filterIcon} />
@@ -224,7 +224,7 @@ const PatrolFilter = ({
         variant={dateRangeModified ? 'primary' : 'light'}
         size='sm'
         className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`}
-        onClick={() => trackEvent('Patrol Filter', 'Date Filter Popover Toggled')}
+        onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
         data-testid="patrolFilter-dateRangeButton"
       >
         <ClockIcon className={styles.clockIcon} />

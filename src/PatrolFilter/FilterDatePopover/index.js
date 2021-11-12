@@ -2,13 +2,15 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Popover from 'react-bootstrap/Popover';
 
-import { trackEvent } from '../../utils/analytics';
+import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../../utils/analytics';
 
 import PatrolFilterDateRangeSelector from '../../PatrolFilter/DateRange';
 import PatrolFilterSettings from '../../PatrolFilter/PatrolFilterSettings';
 import { ReactComponent as ClockIcon } from '../../common/images/icons/clock-icon.svg';
 
 import styles from '../../EventFilter/styles.module.scss';
+
+const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const FilterDatePopover = ({
   clearDateRange,
@@ -37,7 +39,7 @@ const FilterDatePopover = ({
     <Popover.Content>
       <PatrolFilterDateRangeSelector
         placement='bottom'
-        onFilterSettingsToggle={() => trackEvent('Patrol Filter', 'Click Date Filter Settings button')}
+        onFilterSettingsToggle={() => patrolFilterTracker.track('Click Date Filter Settings button')}
         endDateLabel=''
         startDateLabel=''
         container={containerRef}
