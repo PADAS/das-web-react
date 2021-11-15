@@ -66,25 +66,45 @@ $alert-text: $bright-red;
 
 $highlight-color: $bright-blue;
 
-$priorities: (
-  (0, (
-    base: $no-priority,
-    background: lighten($no-priority, 40%)
-  )),
-  (100, (
-    base: $low-priority,
-    background: lighten($low-priority, 60%)
-  )),
-  (200, (
-    base: $medium-priority,
-    background: lighten($medium-priority, 40%)
-  )),
-  (300, (
-    base: $high-priority,
-    background: lighten($high-priority, 55%)
-  ))
+$report-no-priority-theme: (
+  base: $no-priority,
+  background: lighten($no-priority, 40%),
 );
 
+$report-low-priority-theme: (
+  base: $low-priority,
+  background: lighten($low-priority, 60%)
+);
+
+$report-medium-priority-theme: (
+  base: $medium-priority,
+  background: lighten($medium-priority, 40%)
+);
+
+$report-high-priority-theme: (
+  base: $high-priority,
+  background: lighten($high-priority, 55%)
+);
+
+$patrol-overdue-theme: (
+  base: $violet
+);
+
+$patrol-active-theme: (
+  base: $plum
+);
+
+$patrol-ready-theme: (
+  base: $dark-teal
+);
+
+$patrol-done-theme: (
+  base: $secondary-medium-gray
+);
+
+$patrol-cancelled-theme: (
+  base: $medium-light-gray
+);
 
 $patrol-overdue-theme-color: $violet;
 $patrol-active-theme-color: $plum;

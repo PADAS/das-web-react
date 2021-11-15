@@ -21,10 +21,22 @@ import colorVariables from '../common/styles/vars/colors.module.scss';
 import styles from './styles.module.scss';
 
 const PRIORITY_COLOR_MAP = {
-  300: colorVariables.red,
-  200: colorVariables.amber,
-  100: colorVariables.green,
-  0: colorVariables.gray,
+  300: {
+    base: colorVariables.red,
+    background: colorVariables.redBg,
+  },
+  200: {
+    base: colorVariables.amber,
+    background: colorVariables.amberBg,
+  },
+  100: {
+    base: colorVariables.green,
+    background: colorVariables.greenBg,
+  },
+  0: {
+    base: colorVariables.gray,
+    background: colorVariables.grayBg,
+  },
 };
 
 const ReportListItem = (props) => {
@@ -39,15 +51,15 @@ const ReportListItem = (props) => {
   const iconClickHandler = onIconClick || onTitleClick;
   const hasPatrols = !!report?.patrols?.length;
 
-
-  const themeColor = useMemo(() => {
+  const theme = useMemo(() => {
     const reportToConsider = report.is_collection
       ? calcTopRatedReportAndTypeForCollection(report, eventTypes)?.related_event
       : report;
 
-    return PRIORITY_COLOR_MAP[reportToConsider.priority] || colorVariables.gray;
-
+    return PRIORITY_COLOR_MAP[reportToConsider.priority] || PRIORITY_COLOR_MAP['0'];
   }, [eventTypes, report]);
+
+  const { base: themeColor, background: themeBgColor } = theme;
 
   const displayTitle = title || displayTitleForEvent(report, eventTypes);
 
@@ -72,6 +84,7 @@ const ReportListItem = (props) => {
 
   return <FeedListItem
     title={displayTitle} className={`${className}`}
+    themeBgColor={themeBgColor}
     themeColor={themeColor}
     IconComponent={
       <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>

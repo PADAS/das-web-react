@@ -6,10 +6,10 @@ import { adjustColorLightnessByPercentage } from '../utils/colors';
 import styles from './styles.module.scss';
 
 const FeedListItem = (props) => {
-  const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', className = '', ...rest } = props;
+  const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;
 
   const iconSectionColor = themeColor;
-  const bodyBackgroundColor = useMemo(() => adjustColorLightnessByPercentage(themeColor, 200), [themeColor]);
+  const bodyBackgroundColor = useMemo(() => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200), [themeBgColor, themeColor]);
 
   return <li className={`${styles.listItem} ${className}`} style={{ backgroundColor: bodyBackgroundColor }} {...rest}>
     {IconComponent && <div role='img' className={styles.iconContainer} style={{ backgroundColor: iconSectionColor }}>
@@ -32,6 +32,7 @@ export default memo(FeedListItem);
 FeedListItem.propTypes = {
   className: PropTypes.string,
   themeColor: PropTypes.string.isRequired,
+  themeBgColor: PropTypes.string,
   IconComponent: PropTypes.element,
   TitleComponent: PropTypes.element.isRequired,
   DateComponent: PropTypes.element,
