@@ -112,7 +112,7 @@ describe('PatrolFilter', () => {
     }, { timeout: PATROL_TEXT_FILTER_DEBOUNCE_TIME });
   });
 
-  test('sets a light variant to the filters button', async () => {
+  test('sets a light variant to the filters button if there are no filters applied', async () => {
     const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
 
     expect(filtersButton.className).toEqual(expect.stringContaining('btn-light'));
@@ -194,7 +194,7 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
   });
 
-  test('sets a light variant to the date range button', async () => {
+  test('sets a light variant to the date range button if a different date range is not applied', async () => {
     const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
 
     expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-light'));
@@ -242,7 +242,7 @@ describe('PatrolFilter', () => {
     expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-primary'));
   });
 
-  test('updates the patrol overlap filter', async () => {
+  test('updates the patrol overlap filter when the user clicks the date overlap radio button', async () => {
     // Open the popover
     const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
     userEvent.click(dateRangeButton);

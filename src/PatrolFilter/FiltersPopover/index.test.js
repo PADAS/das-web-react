@@ -34,11 +34,11 @@ describe('PatrolFilter', () => {
     );
   });
 
-  test('shows the Reset All button', async () => {
+  test('shows the Reset All button if the showResetFiltersButton prop is true', async () => {
     expect(screen.findByText('Reset All')).toBeTruthy();
   });
 
-  test('doest not show the Reset All button', async () => {
+  test('doest not show the Reset All button if the showResetFiltersButton prop is false', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -58,7 +58,7 @@ describe('PatrolFilter', () => {
     expect(resetFilters).toHaveBeenCalledTimes(1);
   });
 
-  test('triggers the onTrackedByChange callback when user selects a tracked by option', async () => {
+  test('triggers the onTrackedByChange callback when user selects a leader', async () => {
     expect(onTrackedByChange).toHaveBeenCalledTimes(0);
 
     const trackedBySelect = await screen.findByRole('textbox');
@@ -68,13 +68,13 @@ describe('PatrolFilter', () => {
     expect(onTrackedByChange).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the reset tracked by button', async () => {
+  test('shows the reset tracked by button if the showResetTrackedByButton prop is true', async () => {
     const resetTrackedByButton = await screen.findByText('Reset');
 
     expect(resetTrackedByButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
-  test('hides the reset tracked by button', async () => {
+  test('hides the reset tracked by button if the showResetTrackedByButton prop is false', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
