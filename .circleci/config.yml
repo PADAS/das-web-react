@@ -54,11 +54,6 @@ jobs:
           environment:
             NODE_OPTIONS: --max_old_space_size=8192 
       - run:
-          command: npm rebuild node-sass
-          name: Rebuild node-sass
-          environment:
-            NODE_OPTIONS: --max_old_space_size=8192
-      - run:
           command: CI=false npm run build
           name: Build Production Artefact
           environment:
@@ -85,12 +80,39 @@ jobs:
       - checkout
       - trigger_downstream_builds:
         name: "Trigger downstream builds"
+  execute_smoke_tests:
+    docker:
+      - image: gcr.io/padas-app/circleci/er-web-automation/main:latest
+        auth:
+          username: _json_key # default username when using a JSON key file to authenticate
+          password: $GCLOUD_SERVICE_KEY
+    steps:
+  #     #TODO rename the site so tests can be executed in each specific site
+      - run: |
+          cd /app
+          export SITE_DOMAIN=$(echo "${CIRCLE_BRANCH}" | tr '[:upper:]' '[:lower:]')
+          export URL="https://${SITE_DOMAIN}.pamdas.org/login"
+          export URL_ADMIN="https://${SITE_DOMAIN}.pamdas.org/admin/login"
+          env > .env
+          TEST_RESULT=0
+          npm run smoke:test:cloud || { TEST_RESULT=1; }
+          npm run allure:report:cloud
+          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+          gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+          gsutil cp -r ./_results_/allure-raw gs://er-report-test/
+          gsutil cp -r ./allure-report gs://er-report-test/
+          if [[ ${TEST_RESULT} == 1 ]]; then echo "Tests failed"; fi
+
 
 workflows:
   version: 2
   docker_build_workflow:
     jobs:
-      - production_build
+      - execute_smoke_tests
+      - production_build:
+          requires:
+            - execute_smoke_tests
       - push_to_storage:
           requires:
             - production_build
