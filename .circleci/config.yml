@@ -82,7 +82,7 @@ jobs:
         name: "Trigger downstream builds"
   execute_smoke_tests:
     docker:
-      - image: gcr.io/padas-app/circleci/er-web-automation/feat/add-ci-handling:latest
+      - image: gcr.io/padas-app/circleci/er-web-automation/main:latest
         auth:
           username: _json_key # default username when using a JSON key file to authenticate
           password: $GCLOUD_SERVICE_KEY
@@ -95,8 +95,8 @@ jobs:
           export URL_ADMIN="https://${SITE_DOMAIN}.pamdas.org/admin/login"
           env > .env
           TEST_RESULT=0
-          npm run test:cloud || { TEST_RESULT=1; }
-          npm run reporter:cloud
+          npm run smoke:test:cloud || { TEST_RESULT=1; }
+          npm run allure:report:cloud
           echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
           gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
           gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
