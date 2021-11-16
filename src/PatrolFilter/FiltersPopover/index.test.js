@@ -52,11 +52,11 @@ describe('PatrolFilter', () => {
     );
   });
 
-  test('shows the Reset All button', async () => {
+  test('shows the Reset All button if the showResetFiltersButton prop is true', async () => {
     expect(screen.findByText('Reset All')).toBeTruthy();
   });
 
-  test('doest not show the Reset All button', async () => {
+  test('doest not show the Reset All button if the showResetFiltersButton prop is false', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -90,13 +90,13 @@ describe('PatrolFilter', () => {
     expect(onLeadersFilterChange).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the reset leaders button', async () => {
+  test('shows the reset leaders button if the showResetLeadersFilterButton prop is true', async () => {
     const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
 
     expect(resetLeadersButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
-  test('hides the reset leaders button', async () => {
+  test('hides the reset leaders button if the showResetLeadersFilterButton prop is false', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -131,13 +131,13 @@ describe('PatrolFilter', () => {
     expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the reset patrol types button', async () => {
+  test('shows the reset patrol types button if the showResetPatrolTypesFilterButton prop is true', async () => {
     const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
 
     expect(resetPatrolTypesButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
-  test('hides the reset patrol types button', async () => {
+  test('hides the reset patrol types button if the showResetPatrolTypesFilterButton prop is false', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
