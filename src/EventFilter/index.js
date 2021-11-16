@@ -16,7 +16,7 @@ import { BREAKPOINTS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, EVENT_FILTER_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
 
 import { reportedBy } from '../selectors';
@@ -32,12 +32,10 @@ import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
-
-import { debouncedTrackEvent } from '../utils/analytics';
-
 import styles from './styles.module.scss';
 
-const debouncedAnalytics = debouncedTrackEvent();
+const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
+const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
 
 const EventFilter = (props) => {
   const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll = noop } = props;
@@ -76,16 +74,16 @@ const EventFilter = (props) => {
   const toggleAllReportTypes = (e) => {
     e.stopPropagation();
     if (eventTypeFilterEmpty) {
-      trackEvent('Event Filter', 'Uncheck All Event Types Filter');
+      eventFilterTracker.track('Uncheck All Event Types Filter');
       updateEventFilter({ filter: { event_type: [null] } });
     } else {
-      trackEvent('Event Filter', 'Check All Event Types Filter');
+      eventFilterTracker.track('Check All Event Types Filter');
       updateEventFilter({ filter: { event_type: [] } });
     }
   };
 
   const resetReportTypes = (_e) => {
-    trackEvent('Event Filter', 'Reset Event Types Filter');
+    eventFilterTracker.track('Reset Event Types Filter');
     setReportTypeFilterText('');
     updateEventFilter({ filter: { event_type: [] } });
   };
@@ -96,10 +94,10 @@ const EventFilter = (props) => {
       ? true
       : (intersection(currentFilterReportTypes, toToggle).length === toToggle.length);
     if (allShown) {
-      trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
+      eventFilterTracker.track('Uncheck Event Type Category Filter');
       updateEventFilter({ filter: { event_type: (eventTypeFilterEmpty ? eventTypeIDs : currentFilterReportTypes).filter(id => !toToggle.includes(id)) } });
     } else {
-      trackEvent('Event Filter', 'Uncheck Event Type Category Filter');
+      eventFilterTracker.track('Uncheck Event Type Category Filter');
       const updatedValue = uniq([...currentFilterReportTypes, ...toToggle]);
 
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
@@ -122,7 +120,7 @@ const EventFilter = (props) => {
         }
       });
     }
-    trackEvent('Event Filter', `${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
+    eventFilterTracker.track(`${hasValue ? 'Set' : 'Clear'} 'Reported By' Filter`, hasValue ? `${values.length} reporters` : null);
   };
 
   const onPriorityChange = (value) => {
@@ -131,7 +129,7 @@ const EventFilter = (props) => {
       : [...priority, value];
 
 
-    trackEvent('Event Filter', 'Set Priority Filter', newVal.toString());
+    eventFilterTracker.track('Set Priority Filter', newVal.toString());
 
     updateEventFilter({
       filter: {
@@ -143,10 +141,10 @@ const EventFilter = (props) => {
   const onReportTypeToggle = ({ id }) => {
     const visible = eventTypeFilterEmpty ? true : currentFilterReportTypes.includes(id);
     if (visible) {
-      trackEvent('Event Filter', 'Uncheck Event Type Filter');
+      eventFilterTracker.track('Uncheck Event Type Filter');
       updateEventFilter({ filter: { event_type: (eventTypeFilterEmpty ? eventTypeIDs : currentFilterReportTypes).filter(item => item !== id) } });
     } else {
-      trackEvent('Event Filter', 'Check Event Type Filter');
+      eventFilterTracker.track('Check Event Type Filter');
       const updatedValue = [...currentFilterReportTypes, id];
       updateEventFilter({ filter: { event_type: updatedValue.length === eventTypeIDs.length ? [] : updatedValue } });
     }
@@ -162,8 +160,10 @@ const EventFilter = (props) => {
 
 
   const onStateSelect = ({ value }) => {
-    updateEventFilter({ state: value });
-    trackEvent('Event Filter', `Select '${value}' State Filter`);
+    if (!isEqual(state, value)){
+      updateEventFilter({ state: value });
+      eventFilterTracker.track(`Select '${value}' State Filter`);
+    }
   };
 
   const resetPopoverFilters = () => {
@@ -176,13 +176,13 @@ const EventFilter = (props) => {
       },
     });
     setReportTypeFilterText('');
-    trackEvent('Event Filter', 'Click Reset All Filters');
+    eventFilterTracker.track('Click Reset All Filters');
   };
 
   const clearDateRange = (e) => {
     if (e) e.stopPropagation();
     resetGlobalDateRange();
-    trackEvent('Event Filter', 'Click Reset Date Range Filter');
+    eventFilterTracker.track('Click Reset Date Range Filter');
   };
 
   const resetAllFilters = () => {
@@ -194,48 +194,53 @@ const EventFilter = (props) => {
   const resetStateFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ state: INITIAL_FILTER_STATE.state });
-    trackEvent('Event Filter', 'Click Reset State Filter');
+    eventFilterTracker.track('Click Reset State Filter');
   };
 
   const resetPriorityFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ filter: { priority: INITIAL_FILTER_STATE.filter.priority } });
-    trackEvent('Event Filter', 'Click Reset Priority Filter');
+    eventFilterTracker.track('Click Reset Priority Filter');
   };
 
   const resetReportedByFilter = (e) => {
     e.stopPropagation();
     updateEventFilter({ filter: { reported_by: INITIAL_FILTER_STATE.filter.reported_by } });
-    trackEvent('Event Filter', 'Click Reset Reported By Filter');
+    eventFilterTracker.track('Click Reset Reported By Filter');
   };
 
-  const StateSelector = () => <ul className={styles.stateList}>
-    {EVENT_STATE_CHOICES.map(choice =>
-      <li className={isEqual(choice.value, state) ? styles.activeState : ''}
-        key={choice.value} onClick={() => onStateSelect(choice)}>
-        <Button variant='link'>
-          {choice.label}
-        </Button>
-      </li>)}
-  </ul>;
+  const StateSelector = () => (
+    <ul className={styles.stateList} data-testid="state-filter-options">
+      {EVENT_STATE_CHOICES.map(choice =>
+        <li key={choice.value}>
+          <Button
+            variant='link'
+            className={isEqual(choice.value, state) ? styles.activeState : ''}
+            onClick={() => onStateSelect(choice)}
+          >
+            {choice.label}
+          </Button>
+        </li>)}
+    </ul>
+  );
 
-  const onDateFilterIconClicked = (e) => {
-    trackEvent('Reports', 'Dates Icon Clicked');
+  const onDateFilterIconClicked = () => {
+    reportsTracker.track('Dates Icon Clicked');
   };
 
-  const onEventFilterIconClicked = (e) => {
-    trackEvent('Reports', 'Filters Icon Clicked');
+  const onEventFilterIconClicked = () => {
+    reportsTracker.track('Filters Icon Clicked');
   };
 
   const onSearchChange = ({ target: { value } }) => {
     setFilterText(value);
-    debouncedAnalytics('Event Filter', 'Clear Search Text Filter');
+    eventFilterTracker.debouncedTrack('Clear Search Text Filter');
   };
 
   const onSearchClear = (e) => {
     e.stopPropagation();
     setFilterText('');
-    trackEvent('Event Filter', 'Clear Search Text Filter');
+    eventFilterTracker.track('Clear Search Text Filter');
   };
 
   useEffect(() => {

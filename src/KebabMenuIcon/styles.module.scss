@@ -1,9 +1,56 @@
 @import '../common/styles/buttons';
 
 .kebab {
+  @include unstyledButton;
+  --color:var(--hamburger-menu-color, white);
+  --transition-time: var(--hamburger-menu-transition-speed, .15s);
   --size: 4px;
   --line-width: 4px;
   --spacing: 0.5rem;
+
+  cursor: pointer;
+  height: var(--size);
+  padding: 0;
+  width: var(--size);
+
+  span {
+    --border-radius: 1rem;
+
+    border-radius: var(--border-radius);
+    background-color: var(--color);
+    display: block;
+    border: none;
+    height: var(--line-width);
+    position: relative;
+    transition: all var(--transition-time) ease-in-out;
+    width: var(--size);
+    
+    &::before,
+    &::after {
+      background-color: var(--color);
+      border-radius: var(--border-radius);
+      content: '';
+      display: block;
+      height: var(--line-width);
+      left: 0;
+      position: absolute;
+      transition: transform var(--transition-time) ease-in-out;
+      width: var(--size);
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &::before {
+      bottom: var(--spacing);
+    }
+
+    &::after {
+      top: var(--spacing);
+    }
+
+  }
 
   &.open {
     span {

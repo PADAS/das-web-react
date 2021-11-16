@@ -7,9 +7,10 @@ import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
   calcPatrolState, calcThemeColorForPatrolState, formatPatrolStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
+
 
 import DasIcon from '../DasIcon';
 import FeedListItem from '../FeedListItem';
@@ -19,6 +20,8 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from './PatrolMenu';
 
 import styles from './styles.module.scss';
+
+const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
@@ -53,6 +56,12 @@ const PatrolListItem = (props, ref) => {
   const themeColor = useMemo(() => calcThemeColorForPatrolState(patrolState), [patrolState]);
   const canShowTrack = useMemo(() => patrolHasGeoDataToDisplay(trackData, startStopGeometries), [startStopGeometries, trackData]);
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
+
+  const handleTitleClick = useCallback(() => {
+    patrolListItemTracker.track('Click patrol list item');
+
+    onTitleClick(patrol);
+  }, [onTitleClick, patrol]);
 
   const TitleDetailsComponent = useMemo(() => {
     if (isPatrolActiveOrDone) {
@@ -89,16 +98,18 @@ const PatrolListItem = (props, ref) => {
   }, [isPatrolActive, isPatrolCancelled, isPatrolDone, isPatrolOverdue, isScheduledPatrol, patrol, patrolCancellationTime]);
 
   const onLocationClick = useCallback(() => {
-    trackEvent('Patrol Card', 'Click "jump to location" from patrol card popover');
+    patrolListItemTracker.track('Click "jump to location" from patrol list item');
 
     fitMapBoundsForAnalyzer(map, patrolBounds);
   }, [map, patrolBounds]);
 
   const restorePatrol = useCallback(() => {
+    patrolListItemTracker.track('Restore patrol from patrol list item');
     onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
   }, [onPatrolChange]);
 
   const startPatrol = useCallback(() => {
+    patrolListItemTracker.track('Start patrol from patrol list item');
     onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
   }, [onPatrolChange]);
 
@@ -145,13 +156,13 @@ const PatrolListItem = (props, ref) => {
     ref={ref}
     themeColor={themeColor}
     title={displayTitle}
-    IconComponent={patrolIconId && <button onClick={() => onTitleClick(patrol)} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
+    IconComponent={patrolIconId && <button onClick={handleTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
       <DasIcon type='events' iconId={patrolIconId} />
     </button>}
     TitleComponent={
       <>
         <span className={styles.serialNumber}>{patrol.serial_number}</span>
-        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button' onClick={() => onTitleClick(patrol)}>
+        <button data-testid={`patrol-list-item-title-${patrol.id}`} title={displayTitle} className={styles.title} type='button' onClick={handleTitleClick}>
           <span className={styles.mainTitle}>{displayTitle}</span>
           {TitleDetailsComponent}
         </button>

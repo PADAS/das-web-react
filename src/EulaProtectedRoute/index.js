@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useState } from 'react';
+import React, { lazy, memo, Suspense, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, withRouter } from 'react-router-dom';
 
@@ -7,15 +7,19 @@ import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
 
-/* ADD BACK AFTER LAZY LOADING MISSING CHUNK ERROR IS RESOLVED */
-// import LoadingOverlay from '../EarthRangerIconLoadingOverlay';
-// const PrivateRoute = lazy(() => import('../PrivateRoute'));
+import LoadingOverlay from '../EarthRangerIconLoadingOverlay';
 
-import PrivateRoute from '../PrivateRoute';
+const PrivateRoute = lazy(() => import('../PrivateRoute'));
 
-const EulaProtectedRoute = (props) => {
-  const { dispatch: _dispatch, history, fetchCurrentUser, fetchSystemStatus, location, user, ...rest } = props;
-
+const EulaProtectedRoute = ({
+  dispatch: _dispatch,
+  history,
+  fetchCurrentUser,
+  fetchSystemStatus,
+  location,
+  user,
+  ...rest
+}) => {
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
   useEffect(() => {
@@ -24,7 +28,7 @@ const EulaProtectedRoute = (props) => {
 
   useEffect(() => {
     fetchCurrentUser()
-      .catch((error) => {
+      .catch(() => {
         history.push({
           pathname: `${REACT_APP_ROUTE_PREFIX}login`,
           search: location.search,
@@ -45,18 +49,17 @@ const EulaProtectedRoute = (props) => {
     }
   }, [eulaEnabled, user]);
 
-  return <Fragment>
+  return <>
     {!eulaAccepted && <Redirect to={{
       pathname: `${REACT_APP_ROUTE_PREFIX}eula`,
       search: location.search,
     }} />}
-    {eulaAccepted === 'unknown' ? null : <PrivateRoute {...rest} />}
-  </Fragment>;
+    {eulaAccepted === 'unknown' ? null : <Suspense fallback={<LoadingOverlay />}>
+      <PrivateRoute {...rest} />
+    </Suspense>}
+  </>;
 };
 
-
-const mapStateToProps = ({ data: { user } }) => ({
-  user,
-});
+const mapStateToProps = ({ data: { user } }) => ({ user });
 
 export default connect(mapStateToProps, { fetchCurrentUser, fetchSystemStatus })(memo(withRouter(EulaProtectedRoute)));

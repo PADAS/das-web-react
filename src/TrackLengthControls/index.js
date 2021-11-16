@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-import { debouncedTrackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import { TRACK_LENGTH_ORIGINS, setTrackLength, setTrackLengthRangeOrigin } from '../ducks/tracks';
 
@@ -22,7 +22,7 @@ const FREEHAND_INPUT_ATTRS = {
   max: 365,
 };
 
-const debouncedAnalytics = debouncedTrackEvent();
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const TrackLengthControls = (props) => {
   const { trackLength: { origin, length }, eventFilterTimeRange: { lower, upper }, setTrackLength, setTrackLengthRangeOrigin } = props;
@@ -37,7 +37,7 @@ const TrackLengthControls = (props) => {
   );
 
   const setTrackLengthToEventDateRange = useCallback(() => {
-    debouncedAnalytics('Map Interaction', 'Set Track Length To Match Report Filter');
+    mapInteractionTracker.debouncedTrack('Set Track Length To Match Report Filter');
     setTrackLength(eventFilterDateRangeLength);
   }, [eventFilterDateRangeLength, setTrackLength]);
 
@@ -46,7 +46,7 @@ const TrackLengthControls = (props) => {
     if (rangeIsValid) {
       setCustomLengthValidity(true);
       setTrackLength(customLengthValue);
-      debouncedAnalytics('Map Interaction', 'Set Track Length To Custom Length', `${customLengthValue} days`);
+      mapInteractionTracker.debouncedTrack('Set Track Length To Custom Length', `${customLengthValue} days`);
     } else {
       setCustomLengthValidity(false);
     }

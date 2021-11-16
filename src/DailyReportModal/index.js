@@ -6,12 +6,14 @@ import subDays from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
 import setHours from 'date-fns/set_hours';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, REPORT_EXPORT_CATEGORY } from '../utils/analytics';
 import { removeModal } from '../ducks/modals';
 import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
 
 import styles from './styles.module.scss';
+
+const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 
 const DailyReportModal = (props) => {
   const today = setHours(startOfDay(new Date()), 18);
@@ -33,12 +35,12 @@ const DailyReportModal = (props) => {
 
   const setParamsForYesterday = () => {
     setParamsFor('yesterday');
-    trackEvent('Report Export', 'Click \'Yesterday\'s Report\' button', null);
+    reportExportTracker.track('Click \'Yesterday\'s Report\' button', null);
   };
 
   const setParamsForToday = () => {
     setParamsFor('today');
-    trackEvent('Report Export', 'Click \'Today\'s Report\' button', null);
+    reportExportTracker.track('Click \'Today\'s Report\' button', null);
   };
 
   const handleInputChange = (type, value) => {
@@ -51,11 +53,11 @@ const DailyReportModal = (props) => {
   };
 
   const handleStartDateChange = value => {
-    trackEvent('Report Export', 'Set Report Start Date');
+    reportExportTracker.track('Set Report Start Date');
     handleInputChange('start', value);
   };
   const handleEndDateChange = value => {
-    trackEvent('Report Export', 'Set Report End Date');
+    reportExportTracker.track('Set Report End Date');
     handleInputChange('end', value);
   };
 

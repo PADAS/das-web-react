@@ -71,6 +71,23 @@ describe('ColumnSort control', () => {
       expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[2]]);
 
     });
+
+    test('it should not change the sort option if the user clicks on same option in the popover', () => {
+      const sortOptionsContainer = screen.getByTestId('sort-options');
+      const sortOptions = within(sortOptionsContainer).getAllByRole('button');
+
+      // clicking on current selected value
+      userEvent.click(sortOptions[0]);
+      expect(onSortChange).not.toHaveBeenCalled();
+    });
+
+    test('it should change the sort option if the user clicks in different option in the popover', () => {
+      const sortOptionsContainer = screen.getByTestId('sort-options');
+      const sortOptions = within(sortOptionsContainer).getAllByRole('button');
+      // clicking in a different value
+      userEvent.click(sortOptions[1]);
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.up, SORT_OPTIONS[1]]);
+    });
   });
 
   describe('changing the sort order', () => {
@@ -83,8 +100,21 @@ describe('ColumnSort control', () => {
       const orderOptionsContainer = screen.getByTestId('order-options');
       const orderOptions = within(orderOptionsContainer).getAllByRole('button');
 
-      userEvent.click(orderOptions[1]);
+      userEvent.click(orderOptions[0]);
 
+      expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
+    });
+
+    test('it should not change the order option if the user clicks on same option in the popover', () => {
+      const orderOptionsContainer = screen.getByTestId('order-options');
+      const orderOptions = within(orderOptionsContainer).getAllByRole('button');
+
+      // by clicking on current selected value
+      userEvent.click(orderOptions[1]);
+      expect(onSortChange).not.toHaveBeenCalled();
+
+      // by clicking in a different value
+      userEvent.click(orderOptions[0]);
       expect(onSortChange).toHaveBeenCalledWith([SORT_DIRECTION.down, SORT_OPTIONS[0]]);
     });
 

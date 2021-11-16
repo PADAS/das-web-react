@@ -6,7 +6,7 @@ import Collapsible from 'react-collapsible';
 import intersection from 'lodash/intersection';
 import isEqual from 'react-fast-compare';
 import { hideAnalyzers, showAnalyzers } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import CheckableList from '../CheckableList';
 import { getAnalyzerListState } from './selectors';
@@ -19,6 +19,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
   transitionTime: 1,
 };
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
 const AnalyzerLayerList = memo((props) => {
@@ -66,12 +67,12 @@ const AnalyzerLayerList = memo((props) => {
         return [...accumulator, ...analyzer.features.map(f => f.properties.id)];
       }, []);
 
-      trackEvent('Map Layers', 'Uncheck All Features checkbox');
+      mapLayerTracker.track('Uncheck All Features checkbox');
       analyzerIds.forEach((id) => setAnalyzerFeatureActiveStateForIDs(map, allFeatureIds, false));
 
       return hideAllAnalyzers();
     } else {
-      trackEvent('Map Layers', 'Check All Features checkbox');
+      mapLayerTracker.track('Check All Features checkbox');
 
       return showAllAnalyzers();
     }
@@ -87,11 +88,11 @@ const AnalyzerLayerList = memo((props) => {
     const { id } = item;
 
     if (featureIsVisible(item)) {
-      trackEvent('Map Layer', 'Uncheck Analyzer checkbox');
+      mapLayerTracker.track('Uncheck Analyzer checkbox');
       setAnalyzerFeatureActiveStateForIDs(map, item.features.map(f => f.properties.id), false);
       return hideAnalyzers(id);
     } else {
-      trackEvent('Map Layer', 'Check Analyzer checkbox');
+      mapLayerTracker.track('Check Analyzer checkbox');
       return showAnalyzers(id);
     }
   }, [featureIsVisible, hideAnalyzers, map, showAnalyzers]);

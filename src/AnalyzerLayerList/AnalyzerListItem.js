@@ -4,13 +4,15 @@ import { connect } from 'react-redux';
 import { showFeatures } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
 import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../utils/analyzers';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
 import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
 import LocationJumpButton from '../LocationJumpButton';
 
 import listStyles from '../SideBar/styles.module.scss';
+
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
 const AnalyzerListItem = memo((props) => {
@@ -31,7 +33,7 @@ const AnalyzerListItem = memo((props) => {
     fitMapBoundsForAnalyzer(map, properties.feature_bounds);
     const geometry = getAnalyzerAdminPoint(properties.feature_bounds);
     props.showPopup('analyzer-config', { geometry, properties, analyzerId: id, coordinates: geometry });
-    trackEvent('Map Layers', 'Click Jump To Analyzer Location button',
+    mapLayerTracker.track('Click Jump To Analyzer Location button',
       `Feature Type:${properties.type_name}`);
   };
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { toggleMapDataSimplificationOnZoom } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 const labelString = 'Simplify Map Data on Zoom';
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapTrackTimepointsControl = (props) => {
   const { simplifyMapDataOnZoom: { enabled: shouldSimplify }, toggleMapDataSimplificationOnZoom } = props;
@@ -11,8 +12,7 @@ const MapTrackTimepointsControl = (props) => {
   const handleChange = () => {
     toggleMapDataSimplificationOnZoom();
 
-    trackEvent('Map Interaction',
-      `${shouldSimplify? 'Uncheck' : 'Check'} '${labelString}' checkbox`, null);
+    mapInteractionTracker.track(`${shouldSimplify? 'Uncheck' : 'Check'} '${labelString}' checkbox`);
   };
 
   return <label>

@@ -18,8 +18,9 @@ import { updateTrackState } from '../ducks/map-ui';
 import { trackTimeEnvelope } from '../selectors/tracks';
 
 import styles from './styles.module.scss';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const getIconForTrack = (track, subjectStore) => {
   const { properties: { id, image } } = track.features[0];
@@ -59,8 +60,8 @@ const TitleElement = memo((props) => { // eslint-disable-line
         {iconSrc && <img className={styles.icon} src={iconSrc} alt={`Icon for ${displayTitle}`} />}
         {subjectCount > 1 &&
         <OverlayTrigger trigger="click" rootClose
-      onExited={() => trackEvent('Map Interaction', 'Close Tracks Legend Subject List')}
-      onEntered={() => trackEvent('Map Interaction', 'Show Tracks Legend Subject List')}
+      onExited={() => mapInteractionTracker.track('Close Tracks Legend Subject List')}
+      onEntered={() => mapInteractionTracker.track('Show Tracks Legend Subject List')}
       placement="right" overlay={
         <Popover className={styles.popover} id="track-details">
           <ul>
@@ -108,7 +109,7 @@ const TrackLegend = (props) => {
   }, [hasTrackData, subjectCount, subjectStore, trackData]);
 
   const onRemoveTrackClick = ({ target: { value: id } }) => {
-    trackEvent('Map Interaction', 'Remove Subject Tracks Via Track Legend Popover');
+    mapInteractionTracker.track('Remove Subject Tracks Via Track Legend Popover');
     updateTrackState({
       pinned: trackState.pinned.filter(item => item !== id),
       visible: trackState.visible.filter(item => item !== id),

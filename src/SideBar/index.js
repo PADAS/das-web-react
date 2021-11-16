@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState, memo } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState, memo } from 'react';
 import { MapContext } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
+import { cloneDeep } from 'lodash-es';
 import { connect } from 'react-redux';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
@@ -8,42 +9,38 @@ import isEqual from 'react-fast-compare';
 import isUndefined from 'lodash/isUndefined';
 
 import { BREAKPOINTS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
-import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 
+import { useMatchMedia, useFeatureFlag, usePermissions } from '../hooks';
 import { getPatrolList } from '../selectors/patrols';
 import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
-
 import { fetchPatrols } from '../ducks/patrols';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
+import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
+import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
+
+import ClearAllControl from '../ClearAllControl';
+import ReportMapControl from '../ReportMapControl';
+import ErrorBoundary from '../ErrorBoundary';
 import SubjectGroupList from '../SubjectGroupList';
 import FeatureLayerList from '../FeatureLayerList';
 import AnalyzerLayerList from '../AnalyzerLayerList';
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import MapLayerFilter from '../MapLayerFilter';
-import PatrolFilter from '../PatrolFilter';
-
-import { trackEvent } from '../utils/analytics';
-import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
-
 import ReportsTab from './ReportsTab';
+
 import styles from './styles.module.scss';
 
-import ClearAllControl from '../ClearAllControl';
-import ReportMapControl from '../ReportMapControl';
-import ErrorBoundary from '../ErrorBoundary';
-import PatrolList from '../PatrolList';
-import { cloneDeep } from 'lodash-es';
+const PatrolsTab = lazy(() => import('./PatrolsTab'));
+
+const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 const SET_TAB = 'SET_TAB';
-
-const setActiveTab = (tab) => {
-  return {
-    type: 'SET_TAB',
-    payload: tab,
-  };
-};
-
 const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
+const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
+
+const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
+
+const setActiveTab = (tab) => ({ type: SET_TAB, payload: tab });
 
 const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
   if (action.type === SET_TAB) {
@@ -51,10 +48,6 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
   }
   return state;
 };
-
-const validAddReportTypes = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
-
-const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
 
 const SideBar = (props) => {
   const { patrols, eventFilter, patrolFilter, fetchPatrols, map, onHandleClick, sidebarOpen } = props;
@@ -74,7 +67,7 @@ const SideBar = (props) => {
   const patrolFetchRef = useRef(null);
 
   useEffect(() => {
-    if (validAddReportTypes.includes(activeTab.current)) {
+    if (VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
     }
   }, [activeTab]);
@@ -86,7 +79,7 @@ const SideBar = (props) => {
       [TAB_KEYS.LAYERS]: 'Map Layers',
       [TAB_KEYS.PATROLS]: 'Patrols',
     };
-    trackEvent('Drawer', `Click '${tabTitles[eventKey]}' tab`);
+    drawerTracker.track(`Click '${tabTitles[eventKey]}' tab`);
   };
 
   // fetch patrols if filter settings has changed
@@ -167,8 +160,9 @@ const SideBar = (props) => {
           </Tab>
 
           {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
-            <PatrolFilter />
-            <PatrolList map={map} patrols={patrols.results} loading={loadingPatrols}/>
+            <Suspense fallback={null}>
+              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+            </Suspense>
           </Tab>}
 
           <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 
 import { hideFeatures, showFeatures, openMapFeatureType, closeMapFeatureType } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import CheckableList from '../CheckableList';
 import FeatureListItem from './FeatureListItem';
@@ -16,6 +16,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
   transitionTime: 1,
 };
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const FeatureTypeListItem = (props) => {
   const { name, features, hiddenFeatureIDs, openMapFeatureTypeNames,
@@ -28,10 +29,10 @@ const FeatureTypeListItem = (props) => {
   const onCheckToggle = (item) => {
     const { properties: { id } } = item;
     if (featureIsVisible(item)) {
-      trackEvent('Map Layer', 'Uncheck Feature checkbox');
+      mapLayerTracker.track('Uncheck Feature checkbox');
       return hideFeatures(id);
     } else {
-      trackEvent('Map Layer', 'Check Feature checkbox');
+      mapLayerTracker.track('Check Feature checkbox');
       return showFeatures(id);
     }
   };

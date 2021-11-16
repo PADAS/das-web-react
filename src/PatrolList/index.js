@@ -9,16 +9,18 @@ import PatrolListTitle from './Title';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
+
+const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
-    trackEvent('Patrol Card', 'Click patrol card to open patrol modal');
+    patrolListItemTracker.track('Click patrol list item to open patrol modal');
     openModalForPatrol(patrol, map);
   }, [map, patrol]);
 

@@ -25,7 +25,7 @@ import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, disp
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../utils/analytics';
 
 
 import { BREAKPOINTS, PATROL_UI_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
@@ -58,8 +58,9 @@ const AUTO_START_LABEL = 'Auto Start';
 const AUTO_END_LABEL = 'Auto End';
 
 const MAX_TITLE_LENGTH = 255;
-
+const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
 const { Modal, Header, Body, Footer, AttachmentControls, AttachmentList, LocationSelectorInput } = EditableItem;
+
 const PatrolModal = (props) => {
   const { addModal, patrol, map, id, fetchEvent, fetchTrackedBySchema, removeModal, updateUserPreferences, autoStartPatrols, patrolLeaderSchema, autoEndPatrols, eventStore } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
@@ -147,7 +148,7 @@ const PatrolModal = (props) => {
   const displayTitle = useMemo(() => displayTitleForPatrol(statePatrol), [statePatrol]);
 
   const onTitleChange = useCallback((value) => {
-    trackEvent('Patrol Modal', 'Set patrol title');
+    patrolModalTracker.track('Set patrol title');
 
     setStatePatrol({
       ...statePatrol,
@@ -156,7 +157,7 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onStartLocationChange = useCallback((value) => {
-    trackEvent('Patrol Modal', 'Set patrol start location');
+    patrolModalTracker.track('Set patrol start location');
 
     setStatePatrol({
       ...statePatrol,
@@ -174,7 +175,7 @@ const PatrolModal = (props) => {
 
 
   const onEndLocationChange = useCallback((value) => {
-    trackEvent('Patrol Modal', 'Set patrol end location');
+    patrolModalTracker.track('Set patrol end location');
 
     setStatePatrol({
       ...statePatrol,
@@ -227,7 +228,7 @@ const PatrolModal = (props) => {
   }, [updateUserPreferences]);
 
   const onStartTimeChange = useCallback((value, isAuto) => {
-    trackEvent('Patrol Modal', 'Set patrol start time');
+    patrolModalTracker.track('Set patrol start time');
 
     const [segment] = statePatrol.patrol_segments;
     const updatedValue = new Date(value).toISOString();
@@ -248,7 +249,7 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onEndTimeChange = useCallback((value, isAuto) => {
-    trackEvent('Patrol Modal', 'Set patrol end time');
+    patrolModalTracker.track('Set patrol end time');
 
     const [segment] = statePatrol.patrol_segments;
 
@@ -276,7 +277,7 @@ const PatrolModal = (props) => {
   const onSelectTrackedSubject = useCallback((value) => {
     const patrolIsNew = !statePatrol.id;
 
-    trackEvent('Patrol Modal', `${value ? 'Set' : 'Unset'} patrol tracked subject`);
+    patrolModalTracker.track(`${value ? 'Set' : 'Unset'} patrol tracked subject`);
 
     const update = {
       patrol_segments: [
@@ -318,7 +319,7 @@ const PatrolModal = (props) => {
   const onPrioritySelect = useCallback((priority) => {
     const valueTitle = REPORT_PRIORITIES.find(item => item.value === priority).display;
 
-    trackEvent('Patrol Modal', 'Set patrol priority', valueTitle);
+    patrolModalTracker.track('Set patrol priority', valueTitle);
 
     setStatePatrol({
       ...statePatrol,
@@ -327,7 +328,7 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onAddFiles = useCallback((files) => {
-    trackEvent('Patrol Modal', 'Add attachment to patrol');
+    patrolModalTracker.track('Add attachment to patrol');
 
     const uploadableFiles = filterDuplicateUploadFilenames([...filesToList], files);
 
@@ -335,7 +336,7 @@ const PatrolModal = (props) => {
   }, [filesToList, filesToUpload]);
 
   const onAddReport = useCallback((reportData) => {
-    trackEvent('Patrol Modal', 'Save report to patrol');
+    patrolModalTracker.track('Save report to patrol');
     // report form has different payloads resp for incidents and reports
     const report = reportData.length ? reportData[0] : reportData;
     const { data: { data } } = report;
@@ -354,7 +355,7 @@ const PatrolModal = (props) => {
     const note = { ...noteToSave };
     const noteIsNew = !note.id;
 
-    trackEvent('Patrol Modal', `${noteIsNew ? 'Add' : 'update'} note for patrol`);
+    patrolModalTracker.track(`${noteIsNew ? 'Add' : 'update'} note for patrol`);
 
     if (noteIsNew) {
       const { originalText } = note;
@@ -385,7 +386,7 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onDeleteNote = useCallback((note) => {
-    trackEvent('Patrol Modal', 'Delete note from patrol');
+    patrolModalTracker.track('Delete note from patrol');
 
     const { text } = note;
 
@@ -398,14 +399,14 @@ const PatrolModal = (props) => {
   }, [statePatrol]);
 
   const onDeleteFile = useCallback((file) => {
-    trackEvent('Patrol Modal', 'Delete file from patrol');
+    patrolModalTracker.track('Delete file from patrol');
 
     const { name } = file;
     updateFilesToUpload(filesToUpload.filter(({ name: n }) => n !== name));
   }, [filesToUpload]);
 
   const onClickFile = useCallback(async (file) => {
-    trackEvent('Patrol Modal', 'Click attachment in list of attachments');
+    patrolModalTracker.track('Click attachment in list of attachments');
 
     if (file.file_type === 'image') {
       const fileData = await fetchImageAsBase64FromUrl(file.images.original);
@@ -491,7 +492,7 @@ const PatrolModal = (props) => {
     }
 
     setSaveState(true);
-    trackEvent('Patrol Modal', `Click "save" button for ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
+    patrolModalTracker.track(`Click "save" button for ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
 
     let toSubmit = { ...statePatrol };
 
@@ -518,13 +519,13 @@ const PatrolModal = (props) => {
 
     return executeSaveActions(actions)
       .then((results) => {
-        trackEvent('Patrol Modal', `Saved ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
+        patrolModalTracker.track(`Saved ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
         removeModal(id);
 
         return results;
       })
       .catch((error) => {
-        trackEvent('Patrol Modal', `Error saving ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
+        patrolModalTracker.track(`Error saving ${!!statePatrol.id ? 'existing' : 'new'} patrol`);
         console.warn('failed to save new patrol', error);
       })
       .finally(() => {
@@ -571,13 +572,13 @@ const PatrolModal = (props) => {
   }, [startTimeLabel]);
 
   const onCancel = useCallback(() => {
-    trackEvent('Patrol Modal', 'Click "cancel" button');
+    patrolModalTracker.track('Click "cancel" button');
 
     removeModal(id);
   }, [id, removeModal]);
 
   const onReportListItemClick = useCallback(async (item) => {
-    trackEvent('Patrol Modal', `Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
+    patrolModalTracker.track(`Click ${item.is_collection ? 'incident' : 'report'} list item in patrol modal`);
 
     const needToFetchReport = !eventStore[item.id];
 
@@ -595,7 +596,7 @@ const PatrolModal = (props) => {
       {isSaving && <LoadingOverlay className={styles.savingOverlay} message='Saving Patrol...' />}
       <Header
         analyticsMetadata={{
-          category: 'Patrol Modal',
+          category: PATROL_MODAL_CATEGORY,
           location: 'patrol modal',
         }}
         icon={<DasIcon type='events' iconId={patrolIconId} />}
@@ -692,14 +693,14 @@ const PatrolModal = (props) => {
       </section>
       <AttachmentControls
         analyticsMetadata={{
-          category: 'Patrol Modal',
+          category: PATROL_MODAL_CATEGORY,
           location: 'patrol modal',
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
         {patrolSegmentId &&<AddReport map={map}
           analyticsMetadata={{
-            category: 'Patrol Modal',
+            category: PATROL_MODAL_CATEGORY,
             location: 'patrol modal',
           }}
           formProps={{
