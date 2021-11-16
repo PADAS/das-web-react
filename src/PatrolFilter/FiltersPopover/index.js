@@ -8,8 +8,9 @@ import Popover from 'react-bootstrap/Popover';
 import PropTypes from 'prop-types';
 
 import ReportedBySelect from '../../ReportedBySelect';
+import CheckboxList from '../../CheckboxList';
 
-import patrolFilterStyles from './../styles.module.scss';
+import patrolFiltersPopoverStyles from './styles.module.scss';
 import styles from '../../EventFilter/styles.module.scss';
 
 // const PATROL_STATUS_CHOICES = [
@@ -20,24 +21,27 @@ import styles from '../../EventFilter/styles.module.scss';
 //   { value: 'scheduled', label: 'Scheduled' },
 // ];
 
-// eslint-disable-next-line react/display-name
 const FiltersPopover = React.forwardRef(({
-  onTrackedByChange,
+  onPatrolTypesFilterChange,
+  onLeadersFilterChange,
   // onStateSelect,
-  patrolLeaders,
-  resetFilters,
-  resetTrackedByFilter,
+  patrolLeaderFilterOptions = [],
+  patrolTypeFilterOptions = [],
+  resetFilters = null,
+  resetPatrolTypesFilter = null,
+  resetLeadersFilter = null,
   // resetStateFilter,
-  selectedLeaders,
-  showResetFiltersButton,
-  showResetTrackedByButton,
+  selectedLeaders = [],
+  showResetPatrolTypesFilterButton = false,
+  showResetFiltersButton = false,
+  showResetLeadersFilterButton = false,
   // status,
   // stateFilterModified,
   ...rest
 }, ref) => <Popover
     {...rest}
     ref={ref}
-    className={`${styles.filterPopover} ${styles.filters} ${patrolFilterStyles.popover}`}
+    className={`${styles.filterPopover} ${styles.filters} ${patrolFiltersPopoverStyles.popover}`}
     id='filter-popover'
   >
   <Popover.Title>
@@ -45,6 +49,7 @@ const FiltersPopover = React.forwardRef(({
       Patrol Filters
       {showResetFiltersButton &&
         <Button
+          className={patrolFiltersPopoverStyles.resetAllButton}
           onClick={resetFilters}
           size='sm'
           type="button"
@@ -57,20 +62,20 @@ const FiltersPopover = React.forwardRef(({
   </Popover.Title>
 
   <Popover.Content>
-    <div className={`${styles.filterRow} ${patrolFilterStyles.trackedByContainer}`}>
+    <div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.leadersFilterContainer}`}>
       <label>TRACKED BY</label>
       <div className="select">
         <ReportedBySelect
           className={styles.reportedBySelect}
           isMulti
-          onChange={onTrackedByChange}
-          options={patrolLeaders}
+          onChange={onLeadersFilterChange}
+          options={patrolLeaderFilterOptions}
           placeholder='Tracked By...'
           value={selectedLeaders}
         />
         <Button
-          className={!showResetTrackedByButton && 'hidden'}
-          onClick={resetTrackedByFilter}
+          className={!showResetLeadersFilterButton && 'hidden'}
+          onClick={resetLeadersFilter}
           size='sm'
           type="button"
           variant='light'
@@ -80,8 +85,19 @@ const FiltersPopover = React.forwardRef(({
       </div>
     </div>
 
-    {/*<div className={styles.filterRow}>
-      <label>Status</label>
+    {/*<div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.statusContainer}`}>
+      <div className='header'>
+        <label>Status</label>
+        <Button
+          // className={!showResetLeadersFilterButton && 'hidden'}
+          // onClick={resetLeadersFilter}
+          size='sm'
+          type="button"
+          variant='light'
+        >
+          Reset
+        </Button>
+      </div>
        <ul className={styles.stateList}>
         {PATROL_STATUS_CHOICES.map((choice) => (
           <li
@@ -104,36 +120,51 @@ const FiltersPopover = React.forwardRef(({
       >
         Reset
       </Button>
-    </div>
+        </div> */}
 
-    <div className={styles.filterRow}>
-      <label>Patrol Type</label>
-    </div>*/}
+    <div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.patrolTypeContainer}`}>
+      <div className='header'>
+        <label>Patrol Type</label>
+        <Button
+          className={!showResetPatrolTypesFilterButton && 'hidden'}
+          onClick={resetPatrolTypesFilter}
+          size='sm'
+          type="button"
+          variant='light'
+        >
+          Reset
+        </Button>
+      </div>
+      <CheckboxList
+        items={patrolTypeFilterOptions}
+        onItemClick={onPatrolTypesFilterChange}
+      />
+    </div>
   </Popover.Content>
 </Popover>);
 
 FiltersPopover.propTypes = {
-  patrolLeaders: [],
-  resetFilters: null,
-  resetTrackedByFilter: null,
-  showResetFiltersButton: true,
-  showResetTrackedByButton: true,
-};
-
-FiltersPopover.propTypes = {
-  onTrackedByChange: PropTypes.func.isRequired,
+  onLeadersFilterChange: PropTypes.func.isRequired,
+  onPatrolTypesFilterChange: PropTypes.func.isRequired,
   // onStateSelect,
-  patrolLeaders: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string })),
+  patrolLeaderFilterOptions: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string })),
+  patrolTypeFilterOptions: PropTypes.arrayOf(PropTypes.shape({
+    checked: PropTypes.bool,
+    id: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  })),
   resetFilters: PropTypes.func,
-  resetTrackedByFilter: PropTypes.func,
+  resetLeadersFilter: PropTypes.func,
+  resetPatrolTypesFilter: PropTypes.func,
   // resetStateFilter,
-  selectedLeaders: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string })
-  ).isRequired,
+  selectedLeaders: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string })),
   showResetFiltersButton: PropTypes.bool,
-  showResetTrackedByButton: PropTypes.bool,
+  showResetLeadersFilterButton: PropTypes.bool,
+  showResetPatrolTypesFilterButton: PropTypes.bool,
   // status,
   // stateFilterModified,
 };
+
+FiltersPopover.displayName = 'FiltersPopover';
 
 export default FiltersPopover;

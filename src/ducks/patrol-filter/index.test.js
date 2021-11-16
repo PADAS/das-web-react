@@ -16,6 +16,7 @@ describe('Ducks - Patrol filter', () => {
               upper: new Date().toISOString(),
             },
             patrols_overlap_daterange: true,
+            patrol_types: ['2', '3'],
             text: 'filter text',
             leader: '1',
           },

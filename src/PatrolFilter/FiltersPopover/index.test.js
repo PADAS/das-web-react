@@ -7,9 +7,11 @@ import FiltersPopover from '.';
 import { mockStore } from '../../__test-helpers/MockStore';
 
 describe('PatrolFilter', () => {
-  const onTrackedByChange = jest.fn();
+  const onLeadersFilterChange = jest.fn();
+  const onPatrolTypesFilterChange = jest.fn();
   const resetFilters = jest.fn();
-  const resetTrackedByFilter = jest.fn();
+  const resetLeadersFilter = jest.fn();
+  const resetPatrolTypesFilter = jest.fn();
   let store;
   beforeEach(() => {
     store = {
@@ -22,13 +24,29 @@ describe('PatrolFilter', () => {
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover
-          onTrackedByChange={onTrackedByChange}
-          patrolLeaders={[{ id: 'Leader' }, { id: 'Leader2' }]}
+          onLeadersFilterChange={onLeadersFilterChange}
+          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          patrolLeaderFilterOptions={[{ id: 'Leader 1' }, { id: 'Leader 2' }]}
+          patrolTypeFilterOptions={[{
+            checked: true,
+            id: 'all',
+            value: 'All',
+          }, {
+            checked: false,
+            id: 'dog_patrol',
+            value: <div>Dog Patrol</div>,
+          }, {
+            checked: false,
+            id: 'fence_patrol',
+            value: <div>Fence Patrol</div>,
+          }]}
           resetFilters={resetFilters}
-          resetTrackedByFilter={resetTrackedByFilter}
-          selectedLeaders={[{ id: 'Leader' }]}
+          resetLeadersFilter={resetLeadersFilter}
+          resetPatrolTypesFilter={resetPatrolTypesFilter}
+          selectedLeaders={[{ id: 'Leader 1' }]}
           showResetFiltersButton
-          showResetTrackedByButton
+          showResetLeadersFilterButton
+          showResetPatrolTypesFilterButton
         />
       </Provider>
     );
@@ -42,7 +60,11 @@ describe('PatrolFilter', () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <FiltersPopover onTrackedByChange={onTrackedByChange} selectedLeaders={[]} showResetFiltersButton={false} />
+        <FiltersPopover
+          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onLeadersFilterChange={onLeadersFilterChange}
+          showResetFiltersButton={false}
+        />
       </Provider>
     );
 
@@ -58,41 +80,86 @@ describe('PatrolFilter', () => {
     expect(resetFilters).toHaveBeenCalledTimes(1);
   });
 
-  test('triggers the onTrackedByChange callback when user selects a tracked by option', async () => {
-    expect(onTrackedByChange).toHaveBeenCalledTimes(0);
+  test('triggers the onLeadersFilterChange callback when user selects a leaders option', async () => {
+    expect(onLeadersFilterChange).toHaveBeenCalledTimes(0);
 
-    const trackedBySelect = await screen.findByRole('textbox');
-    userEvent.type(trackedBySelect, 'Leader2');
+    const leadersSelect = await screen.findByRole('textbox');
+    userEvent.type(leadersSelect, 'Leader 2');
     userEvent.keyboard('{Enter}');
 
-    expect(onTrackedByChange).toHaveBeenCalledTimes(1);
+    expect(onLeadersFilterChange).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the reset tracked by button', async () => {
-    const resetTrackedByButton = await screen.findByText('Reset');
+  test('shows the reset leaders button', async () => {
+    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
 
-    expect(resetTrackedByButton.className).not.toEqual(expect.stringContaining('hidden'));
+    expect(resetLeadersButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
-  test('hides the reset tracked by button', async () => {
+  test('hides the reset leaders button', async () => {
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <FiltersPopover onTrackedByChange={onTrackedByChange} selectedLeaders={[]} showResetTrackedByButton ={false} />
+        <FiltersPopover
+          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onLeadersFilterChange={onLeadersFilterChange}
+          showResetLeadersFilterButton={false}
+        />
       </Provider>
     );
 
-    const resetTrackedByButton = await screen.findByText('Reset');
+    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
 
-    expect(resetTrackedByButton.className).toEqual(expect.stringContaining('hidden'));
+    expect(resetLeadersButton.className).toEqual(expect.stringContaining('hidden'));
   });
 
-  test('triggers the resetTrackedByFilter callback when user clicks the Reset button', async () => {
-    expect(resetTrackedByFilter).toHaveBeenCalledTimes(0);
+  test('triggers the resetLeadersFilter callback when user clicks the Reset button', async () => {
+    expect(resetLeadersFilter).toHaveBeenCalledTimes(0);
 
-    const resetTrackedByButton = await screen.findByText('Reset');
-    userEvent.click(resetTrackedByButton);
+    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
+    userEvent.click(resetLeadersButton);
 
-    expect(resetTrackedByFilter).toHaveBeenCalledTimes(1);
+    expect(resetLeadersFilter).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the onPatrolTypesFilterChange callback when user checks a patrol type', async () => {
+    expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(0);
+
+    const dogPatrolCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    userEvent.click(dogPatrolCheckbox);
+
+    expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the reset patrol types button', async () => {
+    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetPatrolTypesButton.className).not.toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('hides the reset patrol types button', async () => {
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover
+          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onLeadersFilterChange={onLeadersFilterChange}
+          showResetPatrolTypesFilterButton={false}
+        />
+      </Provider>
+    );
+
+    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetPatrolTypesButton.className).toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('triggers the resetPatrolTypesFilter callback when user clicks the Reset button', async () => {
+    expect(resetPatrolTypesFilter).toHaveBeenCalledTimes(0);
+
+    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+    userEvent.click(resetPatrolTypesButton);
+
+    expect(resetPatrolTypesFilter).toHaveBeenCalledTimes(1);
   });
 });

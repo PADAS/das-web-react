@@ -1,22 +1,23 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Popover from 'react-bootstrap/Popover';
+import PropTypes from 'prop-types';
 
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../../utils/analytics';
 
-import PatrolFilterDateRangeSelector from '../../PatrolFilter/DateRange';
-import PatrolFilterSettings from '../../PatrolFilter/PatrolFilterSettings';
+import PatrolFilterDateRangeSelector from '../DateRange';
+import PatrolFilterSettings from '../PatrolFilterSettings';
 import { ReactComponent as ClockIcon } from '../../common/images/icons/clock-icon.svg';
 
 import styles from '../../EventFilter/styles.module.scss';
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const FilterDatePopover = ({
-  clearDateRange,
+const DateRangePopover = React.forwardRef(({
   containerRef,
-  dateRangeModified,
   onFilterSettingsOptionChange,
+  resetButtonDisabled,
+  resetDateRange,
   ...rest
 }, ref) => (
   <Popover {...rest} ref={ref} className={styles.filterPopover} id='filter-date-popover'>
@@ -28,8 +29,8 @@ const FilterDatePopover = ({
           type="button"
           variant='light'
           size='sm'
-          onClick={clearDateRange}
-          disabled={!dateRangeModified}
+          onClick={resetDateRange}
+          disabled={resetButtonDisabled}
         >
           Reset
         </Button>
@@ -47,6 +48,20 @@ const FilterDatePopover = ({
       />
     </Popover.Content>
   </Popover>
-);
+));
 
-export default React.forwardRef(FilterDatePopover);
+DateRangePopover.propTypes = {
+  resetButtonDisabled: true,
+  resetDateRange: null,
+};
+
+DateRangePopover.propTypes = {
+  containerRef: PropTypes.any,
+  onFilterSettingsOptionChange: PropTypes.func.isRequired,
+  resetButtonDisabled: PropTypes.bool,
+  resetDateRange: PropTypes.func,
+};
+
+DateRangePopover.displayName = 'DateRangePopover';
+
+export default DateRangePopover;

@@ -98,6 +98,6 @@ export default memo(PatrolMenu);
 
 PatrolMenu.propTypes = {
   patrol: PropTypes.object.isRequired,
-  patrolState: PropTypes.object.isRequired,
+  patrolState: PropTypes.object,
   onPatrolChange: PropTypes.func.isRequired,
 };
