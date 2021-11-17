@@ -58,7 +58,7 @@ const FiltersPopover = React.forwardRef(({
           isMulti
           onChange={onLeadersFilterChange}
           options={leaderFilterOptions}
-          placeholder='Tracked By...'
+          placeholder='Select Device...'
           value={selectedLeaders}
         />
         <Button
