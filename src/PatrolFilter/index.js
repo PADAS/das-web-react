@@ -27,9 +27,35 @@ import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
 
 const PATROL_FILTER_BY_DATE_RANGE_OVERLAP = 'overlap_dates';
+const PATROL_STATUS_OPTIONS = [
+  { color: '#3E35A3', id: 'active', value: 'Active' },
+  { color: '#107283', id: 'scheduled', value: 'Scheduled' },
+  { color: '#B62879', id: 'overdue', value: 'Overdue' },
+  { color: '#888B8D', id: 'done', value: 'Done' },
+  { color: '#E7E7E7', id: 'canceled', value: 'Canceled' },
+];
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
+const CHECKBOX_LIST_ALL_OPTION = { id: 'all', value: 'All' };
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
+
+const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
+  let newCheckedItemsList;
+
+  const uncheckingLastItem = checkedItemIds.length === 1 && checkedItemIds[0] === clickedItemId;
+  if (clickedItemId === CHECKBOX_LIST_ALL_OPTION.id || uncheckingLastItem) {
+    // Only check the All option if user clicks it or unchecks the rest of the items
+    newCheckedItemsList = [CHECKBOX_LIST_ALL_OPTION.id];
+  } else {
+    // Add or remove the clicked item from the new list and make sure "all" is not checked
+    newCheckedItemsList = checkedItemIds.includes(clickedItemId)
+      ? checkedItemIds.filter(checkedItemId => checkedItemId !== clickedItemId)
+      : [...checkedItemIds, clickedItemId];
+    newCheckedItemsList = newCheckedItemsList.filter(checkedItem => checkedItem !== CHECKBOX_LIST_ALL_OPTION.id);
+  }
+
+  return newCheckedItemsList;
+};
 
 const PatrolFilter = ({
   className,
@@ -71,26 +97,25 @@ const PatrolFilter = ({
 
   const onPatrolTypesFilterChange = useCallback((clickedPatrolType) => {
     // TODO: Add filter.patrol_types to the request in calcPatrolFilterForRequest once backend supports it
-    let patrolTypesSelected;
+    const checkedPatrolTypes = calculateNewCheckedItems(clickedPatrolType.id, patrolFilter.filter.patrol_types);
+    updatePatrolFilter({ filter: { patrol_types: checkedPatrolTypes } });
 
-    const uncheckingLastItem = patrolFilter.filter.patrol_types.length === 1
-      && patrolFilter.filter.patrol_types[0] === clickedPatrolType.id;
-    if (clickedPatrolType.id === 'all' || uncheckingLastItem) {
-      patrolTypesSelected = ['all'];
-    } else {
-      // Add or remove the clicked checkbox from the filtering and make sure "all" is not checked
-      patrolTypesSelected = patrolFilter.filter.patrol_types.includes(clickedPatrolType.id)
-        ? patrolFilter.filter.patrol_types.filter(patrolTypeId => patrolTypeId !== clickedPatrolType.id)
-        : [...patrolFilter.filter.patrol_types, clickedPatrolType.id];
-      patrolTypesSelected = patrolTypesSelected.filter(patrolTypeSelected => patrolTypeSelected !== 'all');
-    }
-
-    updatePatrolFilter({ filter: { patrol_types: patrolTypesSelected } });
-
-    const isAnyPatrolTypeSelected = !!patrolFilter.filter.patrol_types.length;
+    const isAnyPatrolTypeChecked = checkedPatrolTypes[0] !== CHECKBOX_LIST_ALL_OPTION.id;
     patrolFilterTracker.track(
-      `${isAnyPatrolTypeSelected ? 'Set' : 'Clear'} 'Patrol Types' Filter`,
-      isAnyPatrolTypeSelected ? `${patrolFilter.filter.patrol_types.length} types` : null
+      `${isAnyPatrolTypeChecked ? 'Set' : 'Clear'} 'Patrol Types' Filter`,
+      isAnyPatrolTypeChecked ? `${patrolFilter.filter.patrol_types.length} types` : null
+    );
+  }, [patrolFilter.filter, updatePatrolFilter]);
+
+  const onStatusFilterChange = useCallback((clickedStatus) => {
+    // TODO: Add filter.status to the request in calcPatrolFilterForRequest once backend supports it
+    const checkedStatus = calculateNewCheckedItems(clickedStatus.id, patrolFilter.filter.status);
+    updatePatrolFilter({ filter: { status: checkedStatus } });
+
+    const isAnyStatusChecked = checkedStatus[0] !== CHECKBOX_LIST_ALL_OPTION.id;
+    patrolFilterTracker.track(
+      `${isAnyStatusChecked ? 'Set' : 'Clear'} 'Status' Filter`,
+      isAnyStatusChecked ? `${patrolFilter.filter.status.length} status` : null
     );
   }, [patrolFilter.filter, updatePatrolFilter]);
 
@@ -103,8 +128,9 @@ const PatrolFilter = ({
   const resetFilters = useCallback(() => {
     updatePatrolFilter({
       filter: {
-        patrol_types: INITIAL_FILTER_STATE.filter.patrol_types,
         leaders: INITIAL_FILTER_STATE.filter.leaders,
+        patrol_types: INITIAL_FILTER_STATE.filter.patrol_types,
+        status: INITIAL_FILTER_STATE.filter.status,
       },
     });
 
@@ -156,10 +182,12 @@ const PatrolFilter = ({
 
   const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leaders, patrolFilter.filter.leaders);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_types, patrolFilter.filter.patrol_types);
-  const filtersModified = patrolTypesFilterModified || leadersFilterModified;
+  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
+  const filtersModified = patrolTypesFilterModified || leadersFilterModified || statusFilterModified;
+
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
-  const patrolLeaderFilterOptions = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
+  const leaderFilterOptions = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
     || [];
   const selectedLeaders = !!patrolFilter.filter.leaders?.length ?
     patrolFilter.filter.leaders.map(id => reporters.find(reporter => reporter.id === id)).filter(item => !!item)
@@ -178,9 +206,23 @@ const PatrolFilter = ({
     };
   });
   patrolTypeFilterOptions.unshift({
-    checked: patrolFilter.filter.patrol_types.includes('all'),
-    id: 'all',
-    value: 'All',
+    checked: patrolFilter.filter.patrol_types.includes(CHECKBOX_LIST_ALL_OPTION.id),
+    id: CHECKBOX_LIST_ALL_OPTION.id,
+    value: CHECKBOX_LIST_ALL_OPTION.value,
+  });
+
+  const statusFilterOptions = PATROL_STATUS_OPTIONS.map(status => ({
+    checked: patrolFilter.filter.status.includes(status.id),
+    id: status.id,
+    value: <div className='statusItem'>
+      {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
+      {status.value}
+    </div>,
+  }));
+  statusFilterOptions.unshift({
+    checked: patrolFilter.filter.status.includes(CHECKBOX_LIST_ALL_OPTION.id),
+    id: CHECKBOX_LIST_ALL_OPTION.id,
+    value: CHECKBOX_LIST_ALL_OPTION.value,
   });
 
   return <div
@@ -204,15 +246,19 @@ const PatrolFilter = ({
       overlay={<FiltersPopover
         onPatrolTypesFilterChange={onPatrolTypesFilterChange}
         onLeadersFilterChange={onLeadersFilterChange}
-        patrolLeaderFilterOptions={patrolLeaderFilterOptions}
+        onStatusFilterChange={onStatusFilterChange}
+        leaderFilterOptions={leaderFilterOptions}
         patrolTypeFilterOptions={patrolTypeFilterOptions}
+        statusFilterOptions={statusFilterOptions}
         resetFilters={resetFilters}
-        resetPatrolTypesFilter={resetFilter('patrol_types')}
         resetLeadersFilter={resetFilter('leaders')}
+        resetPatrolTypesFilter={resetFilter('patrol_types')}
+        resetStatusFilter={resetFilter('status')}
         selectedLeaders={selectedLeaders}
         showResetPatrolTypesFilterButton={patrolTypesFilterModified}
         showResetFiltersButton={filtersModified}
         showResetLeadersFilterButton={leadersFilterModified}
+        showResetStatusFilterButton={statusFilterModified}
       />}
       flip={true}
     >

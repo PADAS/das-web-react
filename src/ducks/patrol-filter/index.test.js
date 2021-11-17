@@ -17,6 +17,7 @@ describe('Ducks - Patrol filter', () => {
             },
             patrols_overlap_daterange: true,
             patrol_types: ['2', '3'],
+            status: ['overdue'],
             text: 'filter text',
             leader: '1',
           },

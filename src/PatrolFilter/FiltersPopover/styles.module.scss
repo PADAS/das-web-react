@@ -70,6 +70,19 @@
   }
 }
 
+.statusContainer {
+  [class*=statusItem] {
+    display: flex;
+    align-items: center;
+
+    svg {
+      height: 0.5rem;
+      width: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
 .patrolTypeContainer {
   [class*=patrolTypeItem] {
     display: flex;

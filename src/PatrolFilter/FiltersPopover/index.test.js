@@ -9,9 +9,11 @@ import { mockStore } from '../../__test-helpers/MockStore';
 describe('PatrolFilter', () => {
   const onLeadersFilterChange = jest.fn();
   const onPatrolTypesFilterChange = jest.fn();
+  const onStatusFilterChange = jest.fn();
   const resetFilters = jest.fn();
   const resetLeadersFilter = jest.fn();
   const resetPatrolTypesFilter = jest.fn();
+  const resetStatusFilter = jest.fn();
   let store;
   beforeEach(() => {
     store = {
@@ -26,7 +28,8 @@ describe('PatrolFilter', () => {
         <FiltersPopover
           onLeadersFilterChange={onLeadersFilterChange}
           onPatrolTypesFilterChange={onPatrolTypesFilterChange}
-          patrolLeaderFilterOptions={[{ id: 'Leader 1' }, { id: 'Leader 2' }]}
+          onStatusFilterChange={onStatusFilterChange}
+          leaderFilterOptions={[{ id: 'Leader 1' }, { id: 'Leader 2' }]}
           patrolTypeFilterOptions={[{
             checked: true,
             id: 'all',
@@ -40,13 +43,28 @@ describe('PatrolFilter', () => {
             id: 'fence_patrol',
             value: <div>Fence Patrol</div>,
           }]}
+          statusFilterOptions={[{
+            checked: true,
+            id: 'all',
+            value: 'All',
+          }, {
+            checked: false,
+            id: 'active',
+            value: <div>Active</div>,
+          }, {
+            checked: false,
+            id: 'overdue',
+            value: <div>Overdue</div>,
+          }]}
           resetFilters={resetFilters}
           resetLeadersFilter={resetLeadersFilter}
           resetPatrolTypesFilter={resetPatrolTypesFilter}
+          resetStatusFilter={resetStatusFilter}
           selectedLeaders={[{ id: 'Leader 1' }]}
           showResetFiltersButton
           showResetLeadersFilterButton
           showResetPatrolTypesFilterButton
+          showResetStatusFilterButton
         />
       </Provider>
     );
@@ -62,6 +80,7 @@ describe('PatrolFilter', () => {
       <Provider store={mockStore(store)}>
         <FiltersPopover
           onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onStatusFilterChange={onStatusFilterChange}
           onLeadersFilterChange={onLeadersFilterChange}
           showResetFiltersButton={false}
         />
@@ -102,6 +121,7 @@ describe('PatrolFilter', () => {
       <Provider store={mockStore(store)}>
         <FiltersPopover
           onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onStatusFilterChange={onStatusFilterChange}
           onLeadersFilterChange={onLeadersFilterChange}
           showResetLeadersFilterButton={false}
         />
@@ -122,17 +142,59 @@ describe('PatrolFilter', () => {
     expect(resetLeadersFilter).toHaveBeenCalledTimes(1);
   });
 
+  test('triggers the onStatusFilterChange callback when user checks a status', async () => {
+    expect(onStatusFilterChange).toHaveBeenCalledTimes(0);
+
+    const activeStatusCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    userEvent.click(activeStatusCheckbox);
+
+    expect(onStatusFilterChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the reset status button if the showResetStatusFilterButton prop is true', async () => {
+    const reseStatusButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(reseStatusButton.className).not.toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('hides the reset patrol types button if the showResetPatrolTypesFilterButton prop is false', async () => {
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover
+          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onStatusFilterChange={onStatusFilterChange}
+          onLeadersFilterChange={onLeadersFilterChange}
+          showResetStatusFilterButton={false}
+        />
+      </Provider>
+    );
+
+    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetStatusButton.className).toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('triggers the resetStatusFilter callback when user clicks the Reset button', async () => {
+    expect(resetStatusFilter).toHaveBeenCalledTimes(0);
+
+    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+    userEvent.click(resetStatusButton);
+
+    expect(resetStatusFilter).toHaveBeenCalledTimes(1);
+  });
+
   test('triggers the onPatrolTypesFilterChange callback when user checks a patrol type', async () => {
     expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(0);
 
-    const dogPatrolCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    const dogPatrolCheckbox = (await screen.findAllByRole('checkbox'))[4];
     userEvent.click(dogPatrolCheckbox);
 
     expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(1);
   });
 
   test('shows the reset patrol types button if the showResetPatrolTypesFilterButton prop is true', async () => {
-    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[2];
 
     expect(resetPatrolTypesButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
@@ -143,13 +205,14 @@ describe('PatrolFilter', () => {
       <Provider store={mockStore(store)}>
         <FiltersPopover
           onPatrolTypesFilterChange={onPatrolTypesFilterChange}
+          onStatusFilterChange={onStatusFilterChange}
           onLeadersFilterChange={onLeadersFilterChange}
           showResetPatrolTypesFilterButton={false}
         />
       </Provider>
     );
 
-    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[2];
 
     expect(resetPatrolTypesButton.className).toEqual(expect.stringContaining('hidden'));
   });
@@ -157,7 +220,7 @@ describe('PatrolFilter', () => {
   test('triggers the resetPatrolTypesFilter callback when user clicks the Reset button', async () => {
     expect(resetPatrolTypesFilter).toHaveBeenCalledTimes(0);
 
-    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[2];
     userEvent.click(resetPatrolTypesButton);
 
     expect(resetPatrolTypesFilter).toHaveBeenCalledTimes(1);
