@@ -52,12 +52,17 @@ jobs:
       - run: 
           command: npm run test-ci
           environment:
-            NODE_OPTIONS: --max_old_space_size=8192 
+            NODE_OPTIONS: --max-old-space-size=8192
+      - run:
+          command: npm rebuild node-sass
+          name: Rebuild node-sass
+          environment:
+            NODE_OPTIONS: --max-old-space-size=8192
       - run:
           command: CI=false npm run build
           name: Build Production Artefact
           environment:
-            NODE_OPTIONS: --max_old_space_size=8192
+            NODE_OPTIONS: --max-old-space-size=8192
       - run: 'make build_and_push descriptive_gcr_path_stem="$CIRCLE_BRANCH" unique_gcr_tag="$CIRCLE_WORKFLOW_ID"'
       - persist_to_workspace:
           root: "./"
@@ -84,10 +89,9 @@ jobs:
     docker:
       - image: gcr.io/padas-app/circleci/er-web-automation/main:latest
         auth:
-          username: _json_key # default username when using a JSON key file to authenticate
+          username: _json_key
           password: $GCLOUD_SERVICE_KEY
     steps:
-  #     #TODO rename the site so tests can be executed in each specific site
       - run: |
           cd /app
           export SITE_DOMAIN=$(echo "${CIRCLE_BRANCH}" | tr '[:upper:]' '[:lower:]')
