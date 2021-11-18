@@ -3,163 +3,265 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import FiltersPopover from '.';
+import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
 
+jest.mock('../../ducks/trackedby', () => ({
+  ...jest.requireActual('../../ducks/trackedby'),
+  fetchTrackedBySchema: jest.fn(),
+}));
+jest.mock('../../ducks/patrol-filter', () => ({
+  ...jest.requireActual('../../ducks/patrol-filter'),
+  updatePatrolFilter: jest.fn(),
+}));
+
 describe('PatrolFilter', () => {
-  const onLeadersFilterChange = jest.fn();
-  const onPatrolTypesFilterChange = jest.fn();
-  const resetFilters = jest.fn();
-  const resetLeadersFilter = jest.fn();
-  const resetPatrolTypesFilter = jest.fn();
-  let store;
+  let fetchTrackedBySchemaMock, store, updatePatrolFilterMock;
   beforeEach(() => {
+    fetchTrackedBySchemaMock = jest.fn(() => () => {});
+    fetchTrackedBySchema.mockImplementation(fetchTrackedBySchemaMock);
+    updatePatrolFilterMock = jest.fn(() => () => {});
+    updatePatrolFilter.mockImplementation(updatePatrolFilterMock);
+
     store = {
       data: {
-        eventSchemas: {},
+        eventSchemas: {
+          globalSchema: {
+            properties: {
+              reported_by: {
+                enum_ext: [{
+                  value: { id: 'Leader 1' },
+                }, {
+                  value: { id: 'Leader 2' },
+                }],
+              },
+            },
+          },
+        },
+        patrolFilter: {
+          filter: {
+            leaders: INITIAL_FILTER_STATE.filter.leaders,
+            patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+          },
+        },
+        patrolLeaderSchema: {
+          trackedbySchema: {
+            properties: {
+              leader: {
+                enum_ext: [{
+                  value: { id: 'Leader 1' },
+                }, {
+                  value: { id: 'Leader 2' },
+                }],
+              },
+            },
+          },
+        },
+        patrolTypes: [{
+          display: 'Dog Patrol',
+          icon_id: 'dog-patrol-icon',
+          id: 'dog_patrol',
+        }, {
+          display: 'Fence Patrol',
+          icon_id: 'fence-patrol-icon',
+          id: 'fence_patrol',
+        }],
         subjectStore: {},
       },
     };
 
     render(
       <Provider store={mockStore(store)}>
-        <FiltersPopover
-          onLeadersFilterChange={onLeadersFilterChange}
-          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
-          patrolLeaderFilterOptions={[{ id: 'Leader 1' }, { id: 'Leader 2' }]}
-          patrolTypeFilterOptions={[{
-            checked: true,
-            id: 'all',
-            value: 'All',
-          }, {
-            checked: false,
-            id: 'dog_patrol',
-            value: <div>Dog Patrol</div>,
-          }, {
-            checked: false,
-            id: 'fence_patrol',
-            value: <div>Fence Patrol</div>,
-          }]}
-          resetFilters={resetFilters}
-          resetLeadersFilter={resetLeadersFilter}
-          resetPatrolTypesFilter={resetPatrolTypesFilter}
-          selectedLeaders={[{ id: 'Leader 1' }]}
-          showResetFiltersButton
-          showResetLeadersFilterButton
-          showResetPatrolTypesFilterButton
-        />
+        <FiltersPopover />
       </Provider>
     );
   });
 
-  test('shows the Reset All button if the showResetFiltersButton prop is true', async () => {
-    expect(screen.findByText('Reset All')).toBeTruthy();
-  });
-
-  test('doest not show the Reset All button if the showResetFiltersButton prop is false', async () => {
+  test('shows the Reset All button if any filter was modified', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader 1'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <FiltersPopover
-          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
-          onLeadersFilterChange={onLeadersFilterChange}
-          showResetFiltersButton={false}
-        />
+        <FiltersPopover />
       </Provider>
     );
 
-    expect(screen.queryByText('Reset All')).toBeNull();
+    await screen.findByText('Reset All');
   });
 
-  test('triggers the resetFilters callback when user clicks the Reset All button', async () => {
-    expect(resetFilters).toHaveBeenCalledTimes(0);
-
-    const resetAllButton = await screen.findByText('Reset All');
-    userEvent.click(resetAllButton);
-
-    expect(resetFilters).toHaveBeenCalledTimes(1);
+  test('does not show the Reset All button if the filters have not been modified', async () => {
+    expect((await screen.queryByText('Reset All'))).toBeNull();
   });
 
-  test('triggers the onLeadersFilterChange callback when user selects a leaders option', async () => {
-    expect(onLeadersFilterChange).toHaveBeenCalledTimes(0);
+  test('resets the filters when user clicks the Reset All button', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    const resetFiltersButton = await screen.findByText('Reset All');
+    userEvent.click(resetFiltersButton);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({
+      filter: { leaders: INITIAL_FILTER_STATE.filter.leaders, patrol_type: INITIAL_FILTER_STATE.filter.patrol_type },
+    });
+  });
+
+  test('updates the patrol filter when user chooses a leader', async () => {
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const leadersSelect = await screen.findByRole('textbox');
+    userEvent.type(leadersSelect, 'Leader 1');
+    userEvent.keyboard('{Enter}');
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: ['Leader 1'] } });
+  });
+
+  test('updates the patrol filter when user chooses a second leader', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
 
     const leadersSelect = await screen.findByRole('textbox');
     userEvent.type(leadersSelect, 'Leader 2');
     userEvent.keyboard('{Enter}');
 
-    expect(onLeadersFilterChange).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: ['Leader 1', 'Leader 2'] } });
   });
 
-  test('shows the reset leaders button if the showResetLeadersFilterButton prop is true', async () => {
+  test('shows the reset leaders button if the there is at least one leader selected', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
     const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
 
     expect(resetLeadersButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
-  test('hides the reset leaders button if the showResetLeadersFilterButton prop is false', async () => {
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <FiltersPopover
-          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
-          onLeadersFilterChange={onLeadersFilterChange}
-          showResetLeadersFilterButton={false}
-        />
-      </Provider>
-    );
-
+  test('hides the reset leaders button if there are no leaders selected', async () => {
     const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
 
     expect(resetLeadersButton.className).toEqual(expect.stringContaining('hidden'));
   });
 
-  test('triggers the resetLeadersFilter callback when user clicks the Reset button', async () => {
-    expect(resetLeadersFilter).toHaveBeenCalledTimes(0);
-
-    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
-    userEvent.click(resetLeadersButton);
-
-    expect(resetLeadersFilter).toHaveBeenCalledTimes(1);
-  });
-
-  test('triggers the onPatrolTypesFilterChange callback when user checks a patrol type', async () => {
-    expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(0);
-
-    const dogPatrolCheckbox = (await screen.findAllByRole('checkbox'))[1];
-    userEvent.click(dogPatrolCheckbox);
-
-    expect(onPatrolTypesFilterChange).toHaveBeenCalledTimes(1);
-  });
-
-  test('shows the reset patrol types button if the showResetPatrolTypesFilterButton prop is true', async () => {
-    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
-
-    expect(resetPatrolTypesButton.className).not.toEqual(expect.stringContaining('hidden'));
-  });
-
-  test('hides the reset patrol types button if the showResetPatrolTypesFilterButton prop is false', async () => {
+  test('resets the leaders filter when user clicks the Reset button', async () => {
+    store.data.patrolFilter.filter.leaders = ['Leader 1'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>
-        <FiltersPopover
-          onPatrolTypesFilterChange={onPatrolTypesFilterChange}
-          onLeadersFilterChange={onLeadersFilterChange}
-          showResetPatrolTypesFilterButton={false}
-        />
+        <FiltersPopover />
       </Provider>
     );
 
-    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    expect(resetPatrolTypesButton.className).toEqual(expect.stringContaining('hidden'));
+    // Click the Reset button
+    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
+    userEvent.click(resetLeadersButton);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
   });
 
-  test('triggers the resetPatrolTypesFilter callback when user clicks the Reset button', async () => {
-    expect(resetPatrolTypesFilter).toHaveBeenCalledTimes(0);
+  test('updates the patrol filter when user checks a patrol type', async () => {
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const dogPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    userEvent.click(dogPatrolTypeCheckbox);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['dog_patrol'] } });
+  });
+
+  test('updates the patrol filter when user checks a second patrol type', async () => {
+    store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const fencePatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[2];
+    userEvent.click(fencePatrolTypeCheckbox);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['dog_patrol', 'fence_patrol'] } });
+  });
+
+  test('updates the patrol filter when user clicks the All option', async () => {
+    store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const fencePatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[0];
+    userEvent.click(fencePatrolTypeCheckbox);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['all'] } });
+  });
+
+  test('shows the reset patrol types button if the there is at least one patrol type selected', async () => {
+    store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetPatrolTypeButton.className).not.toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('hides the reset patrol type button if there are no patrol types selected', async () => {
+    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetPatrolTypeButton.className).toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('resets the patrol types filter when user clicks the Reset button', async () => {
+    store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[1];
     userEvent.click(resetPatrolTypesButton);
 
-    expect(resetPatrolTypesFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: INITIAL_FILTER_STATE.filter.patrol_type } });
   });
 });
