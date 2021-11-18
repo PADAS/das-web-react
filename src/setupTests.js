@@ -19,3 +19,12 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 window.URL.createObjectURL = jest.fn();
+
+
+global.console = {
+  log: console.log,
+  error: jest.fn(),
+  warn: console.warn,
+  info: console.info,
+  debug: console.debug,
+};

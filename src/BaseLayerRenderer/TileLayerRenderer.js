@@ -1,7 +1,9 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo, Fragment, useMemo } from 'react';
 import { Layer, Source } from 'react-mapbox-gl';
 
 import { TILE_LAYER_SOURCE_TYPES, LAYER_IDS } from '../constants';
+
+import { calcZoomForSourceConfig } from '../utils/layers';
 
 const { FEATURE_FILLS } = LAYER_IDS;
 
@@ -16,6 +18,8 @@ const TileLayerRenderer = (props) => {
 
   const activeLayer = layers.find(({ id }) => id === currentBaseLayer.id);
 
+  const zoomConfig = useMemo(() => calcZoomForSourceConfig(currentBaseLayer), [currentBaseLayer]);
+
   return <Fragment>
     {layers
       .filter(layer => TILE_LAYER_SOURCE_TYPES.includes(layer.attributes.type))
@@ -24,6 +28,7 @@ const TileLayerRenderer = (props) => {
         tiles: [
           layer.attributes.url,
         ],
+        ...zoomConfig,
       }} >
       </Source>)}
 
