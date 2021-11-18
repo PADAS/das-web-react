@@ -50,6 +50,9 @@ export const calcImgIdFromUrlForMapImages = (src, width = null, height = null) =
 };
 
 export const calcUrlForImage = imagePath => {
+  if (!imagePath) {
+    return null;
+  }
   if (!imgNeedsHostAppended(imagePath)) {
     return imagePath;
   }
