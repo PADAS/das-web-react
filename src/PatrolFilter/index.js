@@ -21,35 +21,9 @@ import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
 
 const PATROL_FILTER_BY_DATE_RANGE_OVERLAP = 'overlap_dates';
-const PATROL_STATUS_OPTIONS = [
-  { color: '#3E35A3', id: 'active', value: 'Active' },
-  { color: '#107283', id: 'scheduled', value: 'Scheduled' },
-  { color: '#B62879', id: 'overdue', value: 'Overdue' },
-  { color: '#888B8D', id: 'done', value: 'Done' },
-  { color: '#E7E7E7', id: 'canceled', value: 'Canceled' },
-];
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
-const CHECKBOX_LIST_ALL_OPTION = { id: 'all', value: 'All' };
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
-
-const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
-  let newCheckedItemsList;
-
-  const uncheckingLastItem = checkedItemIds.length === 1 && checkedItemIds[0] === clickedItemId;
-  if (clickedItemId === CHECKBOX_LIST_ALL_OPTION.id || uncheckingLastItem) {
-    // Only check the All option if user clicks it or unchecks the rest of the items
-    newCheckedItemsList = [CHECKBOX_LIST_ALL_OPTION.id];
-  } else {
-    // Add or remove the clicked item from the new list and make sure "all" is not checked
-    newCheckedItemsList = checkedItemIds.includes(clickedItemId)
-      ? checkedItemIds.filter(checkedItemId => checkedItemId !== clickedItemId)
-      : [...checkedItemIds, clickedItemId];
-    newCheckedItemsList = newCheckedItemsList.filter(checkedItem => checkedItem !== CHECKBOX_LIST_ALL_OPTION.id);
-  }
-
-  return newCheckedItemsList;
-};
 
 const PatrolFilter = ({
   className,
@@ -71,18 +45,6 @@ const PatrolFilter = ({
 
     patrolFilterTracker.track(patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
   }, [updatePatrolFilter]);
-
-  const onStatusFilterChange = useCallback((clickedStatus) => {
-    // TODO: Add filter.status to the request in calcPatrolFilterForRequest once backend supports it
-    const checkedStatus = calculateNewCheckedItems(clickedStatus.id, patrolFilter.filter.status);
-    updatePatrolFilter({ filter: { status: checkedStatus } });
-
-    const isAnyStatusChecked = checkedStatus[0] !== CHECKBOX_LIST_ALL_OPTION.id;
-    patrolFilterTracker.track(
-      `${isAnyStatusChecked ? 'Set' : 'Clear'} 'Status' Filter`,
-      isAnyStatusChecked ? `${patrolFilter.filter.status.length} status` : null
-    );
-  }, [patrolFilter.filter, updatePatrolFilter]);
 
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
@@ -120,24 +82,10 @@ const PatrolFilter = ({
     }
   }, [patrolFilter.filter.text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const statusFilterOptions = PATROL_STATUS_OPTIONS.map(status => ({
-    checked: patrolFilter.filter.status.includes(status.id),
-    id: status.id,
-    value: <div className='statusItem'>
-      {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
-      {status.value}
-    </div>,
-  }));
-  statusFilterOptions.unshift({
-    checked: patrolFilter.filter.status.includes(CHECKBOX_LIST_ALL_OPTION.id),
-    id: CHECKBOX_LIST_ALL_OPTION.id,
-    value: CHECKBOX_LIST_ALL_OPTION.value,
-  });
-
   const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leaders, patrolFilter.filter.leaders);
-  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type);
-  const filtersModified = patrolTypesFilterModified || leadersFilterModified || statusFilterModified;
+  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
   return <div

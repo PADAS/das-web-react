@@ -44,6 +44,7 @@ describe('PatrolFilter', () => {
           filter: {
             leaders: INITIAL_FILTER_STATE.filter.leaders,
             patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+            status: INITIAL_FILTER_STATE.filter.status,
           },
         },
         patrolLeaderSchema: {
@@ -98,6 +99,7 @@ describe('PatrolFilter', () => {
   test('resets the filters when user clicks the Reset All button', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
+    store.data.patrolFilter.filter.status = ['active'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>
@@ -110,7 +112,11 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({
-      filter: { leaders: INITIAL_FILTER_STATE.filter.leaders, patrol_type: INITIAL_FILTER_STATE.filter.patrol_type },
+      filter: {
+        leaders: INITIAL_FILTER_STATE.filter.leaders,
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        status: INITIAL_FILTER_STATE.filter.status,
+      },
     });
   });
 
@@ -173,7 +179,6 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    // Click the Reset button
     const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
     userEvent.click(resetLeadersButton);
 
@@ -181,10 +186,92 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
   });
 
+  test('updates the patrol filter when user checks a status', async () => {
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const activeStatusCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    userEvent.click(activeStatusCheckbox);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['active'] } });
+  });
+
+  test('updates the patrol filter when user checks a second status', async () => {
+    store.data.patrolFilter.filter.status = ['active'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const overdueStatusCheckbox = (await screen.findAllByRole('checkbox'))[3];
+    userEvent.click(overdueStatusCheckbox);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['active', 'overdue'] } });
+  });
+
+  test('updates the patrol filter when user clicks the All status option', async () => {
+    store.data.patrolFilter.filter.status = ['active'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    const allStatusCheckbox = (await screen.findAllByRole('checkbox'))[0];
+    userEvent.click(allStatusCheckbox);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['all'] } });
+  });
+
+  test('shows the reset status button if the there is at least status type selected', async () => {
+    store.data.patrolFilter.filter.status = ['active'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetStatusButton.className).not.toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('hides the reset status button if there are no status selected', async () => {
+    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+
+    expect(resetStatusButton.className).toEqual(expect.stringContaining('hidden'));
+  });
+
+  test('resets the patrol types filter when user clicks the Reset button', async () => {
+    store.data.patrolFilter.filter.status = ['active'];
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
+
+    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+    userEvent.click(resetStatusButton);
+
+    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: INITIAL_FILTER_STATE.filter.status } });
+  });
+
   test('updates the patrol filter when user checks a patrol type', async () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const dogPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    const dogPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[7];
     userEvent.click(dogPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -202,7 +289,7 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const fencePatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[2];
+    const fencePatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[8];
     userEvent.click(fencePatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -220,8 +307,8 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const fencePatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[0];
-    userEvent.click(fencePatrolTypeCheckbox);
+    const allPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[6];
+    userEvent.click(allPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['all'] } });
@@ -236,13 +323,13 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[1];
+    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[2];
 
     expect(resetPatrolTypeButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
   test('hides the reset patrol type button if there are no patrol types selected', async () => {
-    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[1];
+    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[2];
 
     expect(resetPatrolTypeButton.className).toEqual(expect.stringContaining('hidden'));
   });
@@ -262,6 +349,8 @@ describe('PatrolFilter', () => {
     userEvent.click(resetPatrolTypesButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: INITIAL_FILTER_STATE.filter.patrol_type } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({
+      filter: { patrol_type: INITIAL_FILTER_STATE.filter.patrol_type },
+    });
   });
 });

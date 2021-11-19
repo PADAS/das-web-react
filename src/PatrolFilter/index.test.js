@@ -91,67 +91,6 @@ describe('PatrolFilter', () => {
     expect(filtersButton.className).toEqual(expect.stringContaining('btn-light'));
   });
 
-  test('updates the patrol filter when user checks a status', async () => {
-    // Open the popover
-    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(filtersButton);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
-
-    // Selects the active status checkbos
-    const activeStatusCheckbox = (await screen.findAllByRole('checkbox'))[1];
-    userEvent.click(activeStatusCheckbox);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['active'] } });
-  });
-
-  test('updates the patrol filter when user checks a second status', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <PatrolFilter />
-      </Provider>
-    );
-
-    // Open the popover
-    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(filtersButton);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
-
-    // Selects the overdue status checkbox
-    const overdueStatusCheckbox = (await screen.findAllByRole('checkbox'))[3];
-    userEvent.click(overdueStatusCheckbox);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['active', 'overdue'] } });
-  });
-
-  test('updates the patrol filter when user clicks the All status option', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <PatrolFilter />
-      </Provider>
-    );
-
-    // Open the popover
-    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(filtersButton);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
-
-    // Selects the all status checkbox
-    const allStatusCheckbox = (await screen.findAllByRole('checkbox'))[0];
-    userEvent.click(allStatusCheckbox);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['all'] } });
-  });
-
   test('sets a primary variant to the filters button if there is a filter applied', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
     cleanup();
@@ -164,29 +103,6 @@ describe('PatrolFilter', () => {
     const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
 
     expect(filtersButton.className).toEqual(expect.stringContaining('btn-primary'));
-  });
-
-  test('resets the status filter when user clicks the Reset button', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <PatrolFilter />
-      </Provider>
-    );
-
-    // Open the popover
-    const filtersButton = await screen.findByTestId('patrolFilter-filtersButton');
-    userEvent.click(filtersButton);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
-
-    // Click the Reset button
-    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
-    userEvent.click(resetStatusButton);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: INITIAL_FILTER_STATE.filter.status } });
   });
 
   test('sets a light variant to the date range button if there are no filters applied', async () => {

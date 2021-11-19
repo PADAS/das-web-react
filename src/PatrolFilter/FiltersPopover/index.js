@@ -25,6 +25,33 @@ const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 const CHECKBOX_LIST_ALL_OPTION = { id: 'all', value: 'All' };
 const PATROL_FILTERS_LEADERS_KEY = 'leaders';
 const PATROL_FILTERS_PATROL_TYPE_KEY = 'patrol_type';
+const PATROL_FILTERS_STATUS_KEY = 'status';
+const PATROL_STATUS_OPTIONS = [
+  { color: '#3E35A3', id: 'active', value: 'Active' },
+  { color: '#107283', id: 'scheduled', value: 'Scheduled' },
+  { color: '#B62879', id: 'overdue', value: 'Overdue' },
+  { color: '#888B8D', id: 'done', value: 'Done' },
+  { color: '#E7E7E7', id: 'canceled', value: 'Canceled' },
+];
+
+const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
+  let newCheckedItemIds;
+
+  const uncheckingLastItem = checkedItemIds.length === 1 && checkedItemIds[0] === clickedItemId;
+  const checkingAllItemsOption = clickedItemId === CHECKBOX_LIST_ALL_OPTION.id;
+  if (checkingAllItemsOption || uncheckingLastItem) {
+    newCheckedItemIds = [CHECKBOX_LIST_ALL_OPTION.id];
+  } else {
+    if (checkedItemIds.includes(clickedItemId)) {
+      newCheckedItemIds = checkedItemIds.filter(checkedItemId => checkedItemId !== clickedItemId);
+    } else {
+      newCheckedItemIds = [...checkedItemIds, clickedItemId];
+    }
+    newCheckedItemIds = newCheckedItemIds.filter(newCheckedItemId => newCheckedItemId !== CHECKBOX_LIST_ALL_OPTION.id);
+  }
+
+  return newCheckedItemIds;
+};
 
 const FiltersPopover = React.forwardRef(({
   fetchTrackedBySchema,
@@ -35,7 +62,11 @@ const FiltersPopover = React.forwardRef(({
   updatePatrolFilter,
   ...rest
 }, ref) => {
-  const { leaders: selectedLeaderIds, patrol_type: selectedPatrolTypeIds } = patrolFilter.filter;
+  const {
+    leaders: selectedLeaderIds,
+    patrol_type: selectedPatrolTypeIds,
+    status: selectedStatusIds,
+  } = patrolFilter.filter;
 
   const onLeadersFilterChange = useCallback((leadersSelected) => {
     const isAnyLeaderSelected = !!leadersSelected?.length;
@@ -49,24 +80,20 @@ const FiltersPopover = React.forwardRef(({
     );
   }, [updatePatrolFilter]);
 
+  const onStatusFilterChange = useCallback((clickedStatus) => {
+    const checkedStatus = calculateNewCheckedItems(clickedStatus.id, selectedStatusIds);
+    updatePatrolFilter({ filter: { status: checkedStatus } });
+
+    const isAnyStatusChecked = checkedStatus[0] !== CHECKBOX_LIST_ALL_OPTION.id;
+    patrolFilterTracker.track(
+      `${isAnyStatusChecked ? 'Set' : 'Clear'} 'Status' Filter`,
+      isAnyStatusChecked ? `${selectedStatusIds.length} status` : null
+    );
+  }, [selectedStatusIds, updatePatrolFilter]);
+
   const onPatrolTypesFilterChange = useCallback((clickedPatrolType) => {
-    let newSelectedPatrolTypeIds;
-
-    const uncheckingLastItem = selectedPatrolTypeIds.length === 1 && selectedPatrolTypeIds[0] === clickedPatrolType.id;
-    const checkingAllPatrolTypesOption = clickedPatrolType.id === CHECKBOX_LIST_ALL_OPTION.id;
-    if (checkingAllPatrolTypesOption || uncheckingLastItem) {
-      newSelectedPatrolTypeIds = [CHECKBOX_LIST_ALL_OPTION.id];
-    } else {
-      if (selectedPatrolTypeIds.includes(clickedPatrolType.id)) {
-        newSelectedPatrolTypeIds = selectedPatrolTypeIds.filter(patrolTypeId => patrolTypeId !== clickedPatrolType.id);
-      } else {
-        newSelectedPatrolTypeIds = [...selectedPatrolTypeIds, clickedPatrolType.id];
-      }
-      newSelectedPatrolTypeIds = newSelectedPatrolTypeIds.filter(patrolTypeSelected =>
-        patrolTypeSelected !== CHECKBOX_LIST_ALL_OPTION.id);
-    }
-
-    updatePatrolFilter({ filter: { patrol_type: newSelectedPatrolTypeIds } });
+    const checkedPatrolTypes = calculateNewCheckedItems(clickedPatrolType.id, selectedPatrolTypeIds);
+    updatePatrolFilter({ filter: { patrol_type: checkedPatrolTypes } });
 
     const isAnyPatrolTypeSelected = !!selectedPatrolTypeIds.length;
     patrolFilterTracker.track(
@@ -78,8 +105,9 @@ const FiltersPopover = React.forwardRef(({
   const resetFilters = useCallback(() => {
     updatePatrolFilter({
       filter: {
-        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
         leaders: INITIAL_FILTER_STATE.filter.leaders,
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        status: INITIAL_FILTER_STATE.filter.status,
       },
     });
 
@@ -105,6 +133,18 @@ const FiltersPopover = React.forwardRef(({
     selectedLeaderIds.map(id => reporters.find(reporter => reporter.id === id)).filter(item => !!item)
     : [];
 
+  const statusFilterOptions = PATROL_STATUS_OPTIONS.map(status => ({
+    id: status.id,
+    value: <div className='statusItem'>
+      {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
+      {status.value}
+    </div>,
+  }));
+  statusFilterOptions.unshift({
+    id: CHECKBOX_LIST_ALL_OPTION.id,
+    value: CHECKBOX_LIST_ALL_OPTION.value,
+  });
+
   const patrolTypeFilterOptions = patrolTypes.map(patrolType => {
     const patrolIconId = iconTypeForPatrol(patrolType);
 
@@ -123,7 +163,8 @@ const FiltersPopover = React.forwardRef(({
 
   const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leaders, selectedLeaderIds);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, selectedPatrolTypeIds);
-  const filtersModified = patrolTypesFilterModified || leadersFilterModified;
+  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
 
   return <Popover
       {...rest}
