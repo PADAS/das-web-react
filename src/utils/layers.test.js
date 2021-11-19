@@ -21,6 +21,7 @@ describe.only('#calcZoomForSourceConfig', () => {
 
     expect(config.minzoom).toEqual(withMinZoom.attributes.configuration.minZoom);
   });
+
   test('no min or max zoom available', () => {
     const config = calcZoomForSourceConfig(withNoZoomConfig);
 
