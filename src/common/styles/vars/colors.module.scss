@@ -8,4 +8,10 @@ we have to do this in a separate *.module.scss file because of this bug https://
   red: $bright-red;
   green: $green;
   gray: $medium-light-gray;
+
+  patrolActiveStatusColor: $patrol-active-status-color;
+  patrolScheduledStatusColor: $patrol-scheduled-status-color;
+  patrolOverdueStatusColor: $patrol-overdue-status-color;
+  patrolDoneStatusColor: $patrol-done-status-color;
+  patrolCanceledStatusColor: $patrol-canceled-status-color;
 }

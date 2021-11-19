@@ -227,7 +227,7 @@ describe('PatrolFilter', () => {
     userEvent.click(allStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['all'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: [] } });
   });
 
   test('shows the reset status button if the there is at least status type selected', async () => {
@@ -311,7 +311,7 @@ describe('PatrolFilter', () => {
     userEvent.click(allPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: ['all'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrol_type: [] } });
   });
 
   test('shows the reset patrol types button if the there is at least one patrol type selected', async () => {

@@ -17,6 +17,7 @@ import CheckboxList from '../../CheckboxList';
 import DasIcon from '../../DasIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
+import colorVariables from '../../common/styles/vars/colors.module.scss';
 import patrolFiltersPopoverStyles from './styles.module.scss';
 import styles from '../../EventFilter/styles.module.scss';
 
@@ -27,20 +28,20 @@ const PATROL_FILTERS_LEADERS_KEY = 'leaders';
 const PATROL_FILTERS_PATROL_TYPE_KEY = 'patrol_type';
 const PATROL_FILTERS_STATUS_KEY = 'status';
 const PATROL_STATUS_OPTIONS = [
-  { color: '#3E35A3', id: 'active', value: 'Active' },
-  { color: '#107283', id: 'scheduled', value: 'Scheduled' },
-  { color: '#B62879', id: 'overdue', value: 'Overdue' },
-  { color: '#888B8D', id: 'done', value: 'Done' },
-  { color: '#E7E7E7', id: 'canceled', value: 'Canceled' },
+  { color: colorVariables.patrolActiveStatusColor, id: 'active', value: 'Active' },
+  { color: colorVariables.patrolScheduledStatusColor, id: 'scheduled', value: 'Scheduled' },
+  { color: colorVariables.patrolOverdueStatusColor, id: 'overdue', value: 'Overdue' },
+  { color: colorVariables.patrolDoneStatusColor, id: 'done', value: 'Done' },
+  { color: colorVariables.patrolCanceledStatusColor, id: 'canceled', value: 'Canceled' },
 ];
 
 const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
   let newCheckedItemIds;
 
-  const uncheckingLastItem = checkedItemIds.length === 1 && checkedItemIds[0] === clickedItemId;
+  const uncheckingLastItem = isEqual(checkedItemIds, [clickedItemId]);
   const checkingAllItemsOption = clickedItemId === CHECKBOX_LIST_ALL_OPTION.id;
   if (checkingAllItemsOption || uncheckingLastItem) {
-    newCheckedItemIds = [CHECKBOX_LIST_ALL_OPTION.id];
+    newCheckedItemIds = [];
   } else {
     if (checkedItemIds.includes(clickedItemId)) {
       newCheckedItemIds = checkedItemIds.filter(checkedItemId => checkedItemId !== clickedItemId);
@@ -166,6 +167,10 @@ const FiltersPopover = React.forwardRef(({
   const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
   const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
 
+  const patrolTypesCheckboxListValues = !!selectedPatrolTypeIds.length
+    ? selectedPatrolTypeIds : [CHECKBOX_LIST_ALL_OPTION.id];
+  const statusCheckboxListValues = !!selectedStatusIds.length ? selectedStatusIds : [CHECKBOX_LIST_ALL_OPTION.id];
+
   return <Popover
       {...rest}
       ref={ref}
@@ -227,7 +232,7 @@ const FiltersPopover = React.forwardRef(({
           </Button>
         </div>
         <CheckboxList
-          values={selectedStatusIds}
+          values={statusCheckboxListValues}
           options={statusFilterOptions}
           onItemChange={onStatusFilterChange}
         />
@@ -247,7 +252,7 @@ const FiltersPopover = React.forwardRef(({
           </Button>
         </div>
         <CheckboxList
-          values={selectedPatrolTypeIds}
+          values={patrolTypesCheckboxListValues}
           options={patrolTypeFilterOptions}
           onItemChange={onPatrolTypesFilterChange}
         />
