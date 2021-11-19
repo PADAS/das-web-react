@@ -5,25 +5,22 @@ import userEvent from '@testing-library/user-event';
 import CheckboxList from './';
 
 describe('CheckboxList', () => {
-  const onItemClick = jest.fn();
-  const items = [{
-    checked: true,
+  const onItemChange = jest.fn();
+  const options = [{
     id: 'all',
     value: 'All',
   }, {
-    checked: false,
     id: '1',
     value: <div>Option 1</div>,
   }, {
-    checked: false,
     id: '2',
     value: <div>Option 2</div>,
   }];
   beforeEach(() => {
-    render(<CheckboxList items={items} onItemClick={onItemClick} />);
+    render(<CheckboxList onItemChange={onItemChange} options={options} values={['all']} />);
   });
 
-  test('sets the checkboxes as selected depending on the items prop', async () => {
+  test('sets the checkboxes as selected depending on the values', async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
 
     expect(checkboxes[0].checked).toBe(true);
@@ -31,19 +28,19 @@ describe('CheckboxList', () => {
     expect(checkboxes[2].checked).toBe(false);
   });
 
-  test('triggers the onItemClick callback when the user clicks a checkbox', async () => {
+  test('triggers the onItemChange callback when the user clicks a checkbox', async () => {
     const checkboxes = await screen.findAllByRole('checkbox');
 
-    expect(onItemClick).toHaveBeenCalledTimes(0);
+    expect(onItemChange).toHaveBeenCalledTimes(0);
 
     userEvent.click(checkboxes[1]);
 
-    expect(onItemClick).toHaveBeenCalledTimes(1);
-    expect(onItemClick).toHaveBeenCalledWith(items[1], 1);
+    expect(onItemChange).toHaveBeenCalledTimes(1);
+    expect(onItemChange).toHaveBeenCalledWith(options[1], 1);
 
     userEvent.click(checkboxes[2]);
 
-    expect(onItemClick).toHaveBeenCalledTimes(2);
-    expect(onItemClick).toHaveBeenCalledWith(items[2], 2);
+    expect(onItemChange).toHaveBeenCalledTimes(2);
+    expect(onItemChange).toHaveBeenCalledWith(options[2], 2);
   });
 });

@@ -21,7 +21,7 @@ export const INITIAL_FILTER_STATE = {
   filter: {
     date_range: defaultDateRange,
     patrols_overlap_daterange: false,
-    patrol_types: ['all'],
+    patrol_type: ['all'],
     status: ['all'],
     text: '',
     leaders: [],
