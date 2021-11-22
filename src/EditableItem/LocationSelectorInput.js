@@ -9,6 +9,7 @@ import Popover from 'react-bootstrap/Popover';
 import { setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString } from '../utils/location';
+import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
 
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
@@ -18,6 +19,8 @@ import TextCopyBtn from '../TextCopyBtn';
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
+
+const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
 const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const {
@@ -94,7 +97,7 @@ const LocationSelectorInput = (props) => {
   };
 
   const onGeoLocationStart = () => {
-    // trackEvent('Event Report', 'Click \'Use My Location\'');
+    eventReportTracker.track('Click \'Use My Location\'');
   };
 
   const onGeoLocationSuccess = useCallback((coords) => {

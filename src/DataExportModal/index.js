@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { CancelToken } from 'axios';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, REPORT_EXPORT_CATEGORY } from '../utils/analytics';
 
 import { API_URL } from '../constants';
 import { removeModal } from '../ducks/modals';
@@ -14,7 +14,7 @@ import LoadingOverlay from '../LoadingOverlay';
 
 
 const { Header, Title, Body, Footer } = Modal;
-
+const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 
 const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url, children }) => {
   const [downloading, setDownloadState] = useState(false);
@@ -47,12 +47,12 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
   const onFormSubmit = (e) => {
     e.preventDefault();
     triggerDownload();
-    trackEvent('Report Export', 'Click \'Export\' button');
+    reportExportTracker.track('Click \'Export\' button');
   };
 
   const onFormCancel = () => {
     removeModal(id);
-    trackEvent('Report Export', 'Click \'Cancel\' button');
+    reportExportTracker.track('Click \'Cancel\' button');
   };
 
   return <Fragment>

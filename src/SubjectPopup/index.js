@@ -16,6 +16,7 @@ import { showPopup } from '../ducks/popup';
 
 import { subjectIsARadioWithRecentVoiceActivity } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
+import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -94,7 +95,7 @@ const SubjectPopup = (props) => {
         <div className={styles.controls}>
           <AddReport
             analyticsMetadata={{
-              category: 'Map Interaction',
+              category: MAP_INTERACTION_CATEGORY,
               location: 'subject popover',
             }}
             className={styles.addReport}
