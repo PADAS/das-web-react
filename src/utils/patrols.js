@@ -30,16 +30,37 @@ const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 
 const PATROL_STATUS_THEME_COLOR_MAP = {
-  [PATROL_UI_STATES.SCHEDULED.status]: colorVariables.patrolReadyThemeColor,
-  [PATROL_UI_STATES.READY_TO_START.status]: colorVariables.patrolReadyThemeColor,
-  [PATROL_UI_STATES.ACTIVE.status]: colorVariables.patrolActiveThemeColor,
-  [PATROL_UI_STATES.DONE.status]: colorVariables.patrolDoneThemeColor,
-  [PATROL_UI_STATES.START_OVERDUE.status]: colorVariables.patrolOverdueThemeColor,
-  [PATROL_UI_STATES.CANCELLED.status]: colorVariables.patrolCancelledThemeColor,
-  [PATROL_UI_STATES.INVALID.status]: colorVariables.patrolCancelledThemeColor,
+  [PATROL_UI_STATES.SCHEDULED.status]: {
+    base: colorVariables.patrolReadyThemeColor,
+    background: colorVariables.patrolReadyThemeBgColor,
+  },
+  [PATROL_UI_STATES.READY_TO_START.status]: {
+    base: colorVariables.patrolReadyThemeColor,
+    background: colorVariables.patrolReadyThemeBgColor,
+  },
+  [PATROL_UI_STATES.ACTIVE.status]: {
+    base: colorVariables.patrolActiveThemeColor,
+    background: colorVariables.patrolActiveThemeBgColor,
+  },
+  [PATROL_UI_STATES.DONE.status]: {
+    base: colorVariables.patrolDoneThemeColor,
+    background: colorVariables.patrolDoneThemeBgColor,
+  },
+  [PATROL_UI_STATES.START_OVERDUE.status]: {
+    base: colorVariables.patrolOverdueThemeColor,
+    background: colorVariables.patrolOverdueThemeBgColor,
+  },
+  [PATROL_UI_STATES.CANCELLED.status]: {
+    base: colorVariables.patrolCancelledThemeColor,
+    background: colorVariables.patrolCancelledThemeBgColor,
+  },
+  [PATROL_UI_STATES.INVALID.status]: {
+    base: colorVariables.patrolCancelledThemeColor,
+    background: colorVariables.patrolCancelledThemeBgColor,
+  },
 };
 
-export const calcThemeColorForPatrolState = (patrolState) => {
+export const calcColorThemeForPatrolState = (patrolState) => {
 
   return PATROL_STATUS_THEME_COLOR_MAP[patrolState.status];
 };

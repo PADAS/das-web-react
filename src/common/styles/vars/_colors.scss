@@ -66,6 +66,8 @@ $alert-text: $bright-red;
 
 $highlight-color: $bright-blue;
 
+/////
+
 $report-no-priority-theme: (
   base: $no-priority,
   background: lighten($no-priority, 40%),
@@ -86,31 +88,34 @@ $report-high-priority-theme: (
   background: lighten($high-priority, 55%)
 );
 
+/////
+
 $patrol-overdue-theme: (
-  base: $violet
+  base: $violet,
+  background: rgba($violet, 0.1)
 );
 
 $patrol-active-theme: (
-  base: $plum
+  base: $plum,
+  background: rgba($plum, 0.1)
 );
 
 $patrol-ready-theme: (
-  base: $dark-teal
+  base: $dark-teal,
+  background: rgba($dark-teal, 0.1)
 );
 
 $patrol-done-theme: (
-  base: $secondary-medium-gray
+  base: $secondary-medium-gray,
+  background: rgba($secondary-medium-gray, 0.1)
 );
 
 $patrol-cancelled-theme: (
-  base: $medium-light-gray
+  base: $medium-light-gray,
+  background: rgba($medium-light-gray, 0.1)
 );
 
-$patrol-overdue-theme-color: $violet;
-$patrol-active-theme-color: $plum;
-$patrol-ready-theme-color: $dark-teal;
-$patrol-done-theme-color: $secondary-medium-gray;
-$patrol-cancelled-theme-color: $medium-light-gray;
+/////
 
 $patrol-ready-bg: #fffbb5;
 $patrol-ready-border:#746d6d;

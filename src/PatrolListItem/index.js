@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
-  calcPatrolState, calcThemeColorForPatrolState, formatPatrolStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
+  calcPatrolState, calcColorThemeForPatrolState, formatPatrolStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 import { createPatrolDataSelector } from '../selectors/patrols';
@@ -53,9 +53,11 @@ const PatrolListItem = (props, ref) => {
   const patrolElapsedTime = useMemo(() => !!patrolState && displayDurationForPatrol(patrol), [patrol, patrolState]);
   const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrol), [patrol]);
   const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
-  const themeColor = useMemo(() => calcThemeColorForPatrolState(patrolState), [patrolState]);
+  const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
   const canShowTrack = useMemo(() => patrolHasGeoDataToDisplay(trackData, startStopGeometries), [startStopGeometries, trackData]);
   const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
+
+  const { base: themeColor, background: themeBgColor } = theme;
 
   const handleTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item');
@@ -152,9 +154,11 @@ const PatrolListItem = (props, ref) => {
     setPatrolState(calcPatrolState(patrol));
   }, [patrol]);
 
+
   return <FeedListItem
     ref={ref}
     themeColor={themeColor}
+    themeBgColor={themeBgColor}
     title={displayTitle}
     IconComponent={patrolIconId && <button onClick={handleTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
       <DasIcon type='events' iconId={patrolIconId} />
