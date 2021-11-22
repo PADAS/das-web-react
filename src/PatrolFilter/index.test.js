@@ -7,23 +7,15 @@ import { endOfToday, startOfToday } from '../utils/datetime';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import PatrolFilter, { PATROL_TEXT_FILTER_DEBOUNCE_TIME } from './';
 import { mockStore } from '../__test-helpers/MockStore';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
 
-jest.mock('../ducks/global-date-range', () => ({
-  __esModule: true,
-  ...jest.requireActual('../ducks/global-date-range'),
-  resetGlobalDateRange: jest.fn(),
-}));
 jest.mock('../ducks/patrol-filter', () => ({
   ...jest.requireActual('../ducks/patrol-filter'),
   updatePatrolFilter: jest.fn(),
 }));
 
 describe('PatrolFilter', () => {
-  let resetGlobalDateRangeMock, store, updatePatrolFilterMock;
+  let store, updatePatrolFilterMock;
   beforeEach(() => {
-    resetGlobalDateRangeMock = jest.fn(() => () => {});
-    resetGlobalDateRange.mockImplementation(resetGlobalDateRangeMock);
     updatePatrolFilterMock = jest.fn(() => () => {});
     updatePatrolFilter.mockImplementation(updatePatrolFilterMock);
 
@@ -111,31 +103,6 @@ describe('PatrolFilter', () => {
     expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-light'));
   });
 
-  test('resets the date range when user clicks the Reset button', async () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.toISOString();
-    store.data.patrolFilter.filter.date_range.upper = tomorrow;
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <PatrolFilter />
-      </Provider>
-    );
-
-    // Open the popover
-    const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
-    userEvent.click(dateRangeButton);
-
-    expect(resetGlobalDateRange).toHaveBeenCalledTimes(0);
-
-    // Click the Reset button
-    const resetDateRangeButton = await screen.findByText('Reset');
-    userEvent.click(resetDateRangeButton);
-
-    expect(resetGlobalDateRange).toHaveBeenCalledTimes(1);
-  });
-
   test('sets a primary variant to the date range button if there is a filter applied', async () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -151,26 +118,5 @@ describe('PatrolFilter', () => {
     const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
 
     expect(dateRangeButton.className).toEqual(expect.stringContaining('btn-primary'));
-  });
-
-  test('updates the patrol overlap filter when the user clicks the date overlap radio button', async () => {
-    // Open the popover
-    const dateRangeButton = await screen.findByTestId('patrolFilter-dateRangeButton');
-    userEvent.click(dateRangeButton);
-
-    expect(resetGlobalDateRange).toHaveBeenCalledTimes(0);
-
-    // Click the patrol filter settings button
-    const patrolFilterSettings = (await screen.findAllByRole('button'))[9];
-    userEvent.click(patrolFilterSettings);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
-
-    // Click date overlap radio button
-    const dateRangeOverlapRadioButton = (await screen.findAllByRole('radio'))[1];
-    userEvent.click(dateRangeOverlapRadioButton);
-
-    expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { patrols_overlap_daterange: true } });
   });
 });

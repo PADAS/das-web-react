@@ -8,7 +8,6 @@ import PropTypes from 'prop-types';
 
 import { caseInsensitiveCompare } from '../utils/string';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
 import DateRangePopover from './DateRangePopover';
@@ -20,17 +19,11 @@ import SearchBar from '../SearchBar';
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
 
-const PATROL_FILTER_BY_DATE_RANGE_OVERLAP = 'overlap_dates';
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = ({
-  className,
-  patrolFilter,
-  resetGlobalDateRange,
-  updatePatrolFilter,
-}) => {
+const PatrolFilter = ({ className, patrolFilter, updatePatrolFilter }) => {
   const containerRef = useRef(null);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
@@ -39,25 +32,11 @@ const PatrolFilter = ({
     updatePatrolFilter(update);
   }, PATROL_TEXT_FILTER_DEBOUNCE_TIME));
 
-  const onFilterSettingsOptionChange = useCallback((e) => {
-    const patrolOverlap = e.currentTarget.value === PATROL_FILTER_BY_DATE_RANGE_OVERLAP;
-    updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap } });
-
-    patrolFilterTracker.track(patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
-  }, [updatePatrolFilter]);
-
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
 
     patrolFilterTracker.track('Change Search Text Filter');
   }, []);
-
-  const resetDateRange = useCallback((e) => {
-    e.stopPropagation();
-    resetGlobalDateRange();
-
-    patrolFilterTracker.track('Click Reset Date Range Filter');
-  }, [resetGlobalDateRange]);
 
   const resetSearch = useCallback((e) => {
     e.stopPropagation();
@@ -126,12 +105,7 @@ const PatrolFilter = ({
       rootClose
       trigger='click'
       placement='auto'
-      overlay={<DateRangePopover
-        containerRef={containerRef}
-        onFilterSettingsOptionChange={onFilterSettingsOptionChange}
-        resetButtonDisabled={!dateRangeModified}
-        resetDateRange={resetDateRange}
-      />}
+      overlay={<DateRangePopover containerRef={containerRef} />}
       flip={true}
     >
       <Button
@@ -160,7 +134,6 @@ PatrolFilter.propTypes = {
       text: PropTypes.string,
     }),
   }).isRequired,
-  resetGlobalDateRange: PropTypes.func.isRequired,
   updatePatrolFilter: PropTypes.func.isRequired,
 };
 
@@ -168,4 +141,4 @@ const mapStateToProps = (state) => ({
   patrolFilter: state.data.patrolFilter,
 });
 
-export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter })(memo(PatrolFilter));
+export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));
