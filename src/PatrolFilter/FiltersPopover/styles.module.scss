@@ -68,6 +68,10 @@
       visibility: hidden;
     }
   }
+
+  [class*=checkboxListContainer] {
+    width: 100%;
+  }
 }
 
 .statusContainer {

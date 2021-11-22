@@ -205,6 +205,7 @@ const FiltersPopover = React.forwardRef(({
           />
           <Button
             className={!leadersFilterModified && 'hidden'}
+            data-testid='patrolFilter-reset-leaders-button'
             onClick={resetFilter(PATROL_FILTERS_LEADERS_KEY)}
             size='sm'
             type="button"
@@ -220,6 +221,7 @@ const FiltersPopover = React.forwardRef(({
           <label>Status</label>
           <Button
             className={!statusFilterModified && 'hidden'}
+            data-testid='patrolFilter-reset-status-button'
             onClick={resetFilter(PATROL_FILTERS_STATUS_KEY)}
             size='sm'
             type="button"
@@ -228,11 +230,13 @@ const FiltersPopover = React.forwardRef(({
             Reset
           </Button>
         </div>
-        <CheckboxList
-          values={statusCheckboxListValues}
-          options={statusFilterOptions}
-          onItemChange={onStatusFilterChange}
-        />
+        <div className='checkboxListContainer' data-testid='patrolFilter-status-checkbox-list'>
+          <CheckboxList
+            options={statusFilterOptions}
+            onItemChange={onStatusFilterChange}
+            values={statusCheckboxListValues}
+          />
+        </div>
       </div>
 
       <div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.patrolTypeContainer}`}>
@@ -240,6 +244,7 @@ const FiltersPopover = React.forwardRef(({
           <label>Patrol Type</label>
           <Button
             className={!patrolTypesFilterModified && 'hidden'}
+            data-testid='patrolFilter-reset-patrol-type-button'
             onClick={resetFilter(PATROL_FILTERS_PATROL_TYPE_KEY)}
             size='sm'
             type="button"
@@ -248,11 +253,13 @@ const FiltersPopover = React.forwardRef(({
             Reset
           </Button>
         </div>
-        <CheckboxList
-          values={patrolTypesCheckboxListValues}
-          options={patrolTypeFilterOptions}
-          onItemChange={onPatrolTypesFilterChange}
-        />
+        <div className='checkboxListContainer' data-testid='patrolFilter-patrol-type-checkbox-list'>
+          <CheckboxList
+            options={patrolTypeFilterOptions}
+            onItemChange={onPatrolTypesFilterChange}
+            values={patrolTypesCheckboxListValues}
+          />
+        </div>
       </div>
     </Popover.Content>
   </Popover>;

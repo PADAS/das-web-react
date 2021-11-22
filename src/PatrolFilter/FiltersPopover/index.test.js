@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -157,13 +157,13 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
+    const resetLeadersButton = await screen.findByTestId('patrolFilter-reset-leaders-button');
 
     expect(resetLeadersButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
   test('hides the reset leaders button if there are no leaders selected', async () => {
-    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
+    const resetLeadersButton = await screen.findByTestId('patrolFilter-reset-leaders-button');
 
     expect(resetLeadersButton.className).toEqual(expect.stringContaining('hidden'));
   });
@@ -179,7 +179,7 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
+    const resetLeadersButton = await screen.findByTestId('patrolFilter-reset-leaders-button');
     userEvent.click(resetLeadersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -189,7 +189,8 @@ describe('PatrolFilter', () => {
   test('updates the patrol filter when user checks a status', async () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const activeStatusCheckbox = (await screen.findAllByRole('checkbox'))[1];
+    const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
+    const activeStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[1];
     userEvent.click(activeStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -207,7 +208,8 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const overdueStatusCheckbox = (await screen.findAllByRole('checkbox'))[3];
+    const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
+    const overdueStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[3];
     userEvent.click(overdueStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -223,7 +225,8 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const allStatusCheckbox = (await screen.findAllByRole('checkbox'))[0];
+    const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
+    const allStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[0];
     userEvent.click(allStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -239,13 +242,13 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+    const resetStatusButton = await screen.findByTestId('patrolFilter-reset-status-button');
 
     expect(resetStatusButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
   test('hides the reset status button if there are no status selected', async () => {
-    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+    const resetStatusButton = await screen.findByTestId('patrolFilter-reset-status-button');
 
     expect(resetStatusButton.className).toEqual(expect.stringContaining('hidden'));
   });
@@ -261,7 +264,7 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const resetStatusButton = (await screen.findAllByText('Reset'))[1];
+    const resetStatusButton = await screen.findByTestId('patrolFilter-reset-status-button');
     userEvent.click(resetStatusButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -271,7 +274,8 @@ describe('PatrolFilter', () => {
   test('updates the patrol filter when user checks a patrol type', async () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const dogPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[7];
+    const patrolTypeCheckboxList = await screen.findByTestId('patrolFilter-patrol-type-checkbox-list');
+    const dogPatrolTypeCheckbox = (await within(patrolTypeCheckboxList).findAllByRole('checkbox'))[1];
     userEvent.click(dogPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -289,7 +293,8 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const fencePatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[8];
+    const patrolTypeCheckboxList = await screen.findByTestId('patrolFilter-patrol-type-checkbox-list');
+    const fencePatrolTypeCheckbox = (await within(patrolTypeCheckboxList).findAllByRole('checkbox'))[2];
     userEvent.click(fencePatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -307,7 +312,8 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const allPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[6];
+    const patrolTypeCheckboxList = await screen.findByTestId('patrolFilter-patrol-type-checkbox-list');
+    const allPatrolTypeCheckbox = (await within(patrolTypeCheckboxList).findAllByRole('checkbox'))[0];
     userEvent.click(allPatrolTypeCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
@@ -323,13 +329,13 @@ describe('PatrolFilter', () => {
       </Provider>
     );
 
-    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[2];
+    const resetPatrolTypeButton = await screen.findByTestId('patrolFilter-reset-patrol-type-button');
 
     expect(resetPatrolTypeButton.className).not.toEqual(expect.stringContaining('hidden'));
   });
 
   test('hides the reset patrol type button if there are no patrol types selected', async () => {
-    const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[2];
+    const resetPatrolTypeButton = await screen.findByTestId('patrolFilter-reset-patrol-type-button');
 
     expect(resetPatrolTypeButton.className).toEqual(expect.stringContaining('hidden'));
   });
@@ -345,7 +351,7 @@ describe('PatrolFilter', () => {
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
-    const resetPatrolTypesButton = (await screen.findAllByText('Reset'))[2];
+    const resetPatrolTypesButton = await screen.findByTestId('patrolFilter-reset-patrol-type-button');
     userEvent.click(resetPatrolTypesButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
