@@ -36,19 +36,13 @@ const PATROL_STATUS_OPTIONS = [
 ];
 
 const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
-  const checkingAllItemsOption = clickedItemId === CHECKBOX_LIST_ALL_OPTION.id;
-  const uncheckingLastItem = isEqual(checkedItemIds, [clickedItemId]);
-  if (checkingAllItemsOption || uncheckingLastItem) {
+  if (clickedItemId === CHECKBOX_LIST_ALL_OPTION.id) {
     return [];
   }
-
-  const checkingNewItem = !checkedItemIds.includes(clickedItemId);
-  if (checkingNewItem) {
-    const newCheckedItemIds = [...checkedItemIds, clickedItemId];
-    return newCheckedItemIds.filter(newCheckedItemId => newCheckedItemId !== CHECKBOX_LIST_ALL_OPTION.id);
-  } else {
+  if (checkedItemIds.includes(clickedItemId)) {
     return checkedItemIds.filter(checkedItemId => checkedItemId !== clickedItemId);
   }
+  return [...checkedItemIds, clickedItemId];
 };
 
 const FiltersPopover = React.forwardRef(({
