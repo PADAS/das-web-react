@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -71,17 +71,10 @@ describe('PatrolFilter', () => {
         subjectStore: {},
       },
     };
-
-    render(
-      <Provider store={mockStore(store)}>
-        <FiltersPopover />
-      </Provider>
-    );
   });
 
   test('shows the Reset All button if any filter was modified', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -92,13 +85,18 @@ describe('PatrolFilter', () => {
   });
 
   test('does not show the Reset All button if the filters have not been modified', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
     expect((await screen.queryByText('Reset All'))).toBeNull();
   });
 
   test('resets the filters when user clicks the Reset All button', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -115,6 +113,12 @@ describe('PatrolFilter', () => {
   });
 
   test('updates the patrol filter when user chooses a leader', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const leadersSelect = await screen.findByRole('textbox');
@@ -127,7 +131,6 @@ describe('PatrolFilter', () => {
 
   test('updates the patrol filter when user chooses a second leader', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -144,7 +147,6 @@ describe('PatrolFilter', () => {
 
   test('shows the reset leaders button if the there is at least one leader selected', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -157,6 +159,12 @@ describe('PatrolFilter', () => {
   });
 
   test('hides the reset leaders button if there are no leaders selected', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
     const resetLeadersButton = (await screen.findAllByText('Reset'))[0];
 
     expect(resetLeadersButton.className).toEqual(expect.stringContaining('hidden'));
@@ -164,7 +172,6 @@ describe('PatrolFilter', () => {
 
   test('resets the leaders filter when user clicks the Reset button', async () => {
     store.data.patrolFilter.filter.leaders = ['Leader 1'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -182,6 +189,12 @@ describe('PatrolFilter', () => {
   });
 
   test('updates the patrol filter when user checks a patrol type', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const dogPatrolTypeCheckbox = (await screen.findAllByRole('checkbox'))[1];
@@ -193,7 +206,6 @@ describe('PatrolFilter', () => {
 
   test('updates the patrol filter when user checks a second patrol type', async () => {
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -211,7 +223,6 @@ describe('PatrolFilter', () => {
 
   test('updates the patrol filter when user clicks the All option', async () => {
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -229,7 +240,6 @@ describe('PatrolFilter', () => {
 
   test('shows the reset patrol types button if the there is at least one patrol type selected', async () => {
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -242,6 +252,12 @@ describe('PatrolFilter', () => {
   });
 
   test('hides the reset patrol type button if there are no patrol types selected', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <FiltersPopover />
+      </Provider>
+    );
+
     const resetPatrolTypeButton = (await screen.findAllByText('Reset'))[1];
 
     expect(resetPatrolTypeButton.className).toEqual(expect.stringContaining('hidden'));
@@ -249,7 +265,6 @@ describe('PatrolFilter', () => {
 
   test('resets the patrol types filter when user clicks the Reset button', async () => {
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
-    cleanup();
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />

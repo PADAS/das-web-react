@@ -199,10 +199,8 @@ FiltersPopover.propTypes = {
   fetchTrackedBySchema: PropTypes.func.isRequired,
   patrolFilter: PropTypes.shape({
     filters: PropTypes.shape({
-      date_range: PropTypes.object,
       patrol_type: PropTypes.arrayOf(PropTypes.string),
       leaders: PropTypes.arrayOf(PropTypes.string),
-      text: PropTypes.string,
     }),
   }).isRequired,
   patrolLeaderSchema: PropTypes.shape({
