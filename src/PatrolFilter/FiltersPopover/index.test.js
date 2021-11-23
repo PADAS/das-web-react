@@ -42,10 +42,10 @@ describe('PatrolFilter', () => {
         },
         patrolFilter: {
           filter: {
-            leaders: INITIAL_FILTER_STATE.filter.leaders,
+            tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
             patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
-            status: INITIAL_FILTER_STATE.filter.status,
           },
+          status: INITIAL_FILTER_STATE.status,
         },
         patrolLeaderSchema: {
           trackedbySchema: {
@@ -75,7 +75,7 @@ describe('PatrolFilter', () => {
   });
 
   test('shows the Reset All button if any filter was modified', async () => {
-    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -96,9 +96,9 @@ describe('PatrolFilter', () => {
   });
 
   test('resets the filters when user clicks the Reset All button', async () => {
-    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     store.data.patrolFilter.filter.patrol_type = ['dog_patrol'];
-    store.data.patrolFilter.filter.status = ['active'];
+    store.data.patrolFilter.status = ['active'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -111,10 +111,10 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
     expect(updatePatrolFilter).toHaveBeenCalledWith({
       filter: {
-        leaders: INITIAL_FILTER_STATE.filter.leaders,
+        tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
         patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
-        status: INITIAL_FILTER_STATE.filter.status,
       },
+      status: INITIAL_FILTER_STATE.status,
     });
   });
 
@@ -132,11 +132,11 @@ describe('PatrolFilter', () => {
     userEvent.keyboard('{Enter}');
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: ['Leader 1'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Leader 1'] } });
   });
 
   test('updates the patrol filter when user chooses a second leader', async () => {
-    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -148,11 +148,11 @@ describe('PatrolFilter', () => {
     userEvent.keyboard('{Enter}');
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: ['Leader 1', 'Leader 2'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: ['Leader 1', 'Leader 2'] } });
   });
 
   test('shows the reset leaders button if the there is at least one leader selected', async () => {
-    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -176,7 +176,7 @@ describe('PatrolFilter', () => {
   });
 
   test('resets the leaders filter when user clicks the Reset button', async () => {
-    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -189,7 +189,7 @@ describe('PatrolFilter', () => {
     userEvent.click(resetLeadersButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { leaders: INITIAL_FILTER_STATE.filter.leaders } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { tracked_by: INITIAL_FILTER_STATE.filter.tracked_by } });
   });
 
   test('updates the patrol filter when user checks a status', async () => {
@@ -206,11 +206,11 @@ describe('PatrolFilter', () => {
     userEvent.click(activeStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['active'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ status: ['active'] });
   });
 
   test('updates the patrol filter when user checks a second status', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
+    store.data.patrolFilter.status = ['active'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -224,11 +224,11 @@ describe('PatrolFilter', () => {
     userEvent.click(overdueStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: ['active', 'overdue'] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ status: ['active', 'overdue'] });
   });
 
   test('updates the patrol filter when user clicks the All status option', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
+    store.data.patrolFilter.status = ['active'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -240,11 +240,11 @@ describe('PatrolFilter', () => {
     userEvent.click(allStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: [] } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ status: [] });
   });
 
   test('shows the reset status button if the there is at least status type selected', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
+    store.data.patrolFilter.status = ['active'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -268,8 +268,8 @@ describe('PatrolFilter', () => {
     expect(resetStatusButton.className).toEqual(expect.stringContaining('hidden'));
   });
 
-  test('resets the patrol types filter when user clicks the Reset button', async () => {
-    store.data.patrolFilter.filter.status = ['active'];
+  test('resets the status when user clicks the Reset button', async () => {
+    store.data.patrolFilter.status = ['active'];
     render(
       <Provider store={mockStore(store)}>
         <FiltersPopover />
@@ -282,7 +282,7 @@ describe('PatrolFilter', () => {
     userEvent.click(resetStatusButton);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ filter: { status: INITIAL_FILTER_STATE.filter.status } });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ status: INITIAL_FILTER_STATE.status });
   });
 
   test('updates the patrol filter when user checks a patrol type', async () => {

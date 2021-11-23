@@ -22,10 +22,10 @@ export const INITIAL_FILTER_STATE = {
     date_range: defaultDateRange,
     patrols_overlap_daterange: false,
     patrol_type: [],
-    status: [],
     text: '',
-    leaders: [],
+    tracked_by: [],
   },
+  status: [],
 };
 
 const patrolFilterReducer = (state = INITIAL_FILTER_STATE, action) => {
