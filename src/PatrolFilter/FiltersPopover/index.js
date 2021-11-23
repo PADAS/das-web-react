@@ -28,11 +28,11 @@ const PATROL_FILTERS_LEADERS_KEY = 'leaders';
 const PATROL_FILTERS_PATROL_TYPE_KEY = 'patrol_type';
 const PATROL_FILTERS_STATUS_KEY = 'status';
 const PATROL_STATUS_OPTIONS = [
-  { color: colorVariables.patrolActiveStatusColor, id: 'active', value: 'Active' },
-  { color: colorVariables.patrolScheduledStatusColor, id: 'scheduled', value: 'Scheduled' },
-  { color: colorVariables.patrolOverdueStatusColor, id: 'overdue', value: 'Overdue' },
-  { color: colorVariables.patrolDoneStatusColor, id: 'done', value: 'Done' },
-  { color: colorVariables.patrolCanceledStatusColor, id: 'canceled', value: 'Canceled' },
+  { color: colorVariables.patrolActiveThemeColor, id: 'active', value: 'Active' },
+  { color: colorVariables.patrolReadyThemeColor, id: 'scheduled', value: 'Scheduled' },
+  { color: colorVariables.patrolOverdueThemeColor, id: 'overdue', value: 'Overdue' },
+  { color: colorVariables.patrolDoneThemeColor, id: 'done', value: 'Done' },
+  { color: colorVariables.patrolCancelledThemeColor, id: 'canceled', value: 'Canceled' },
 ];
 
 const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {

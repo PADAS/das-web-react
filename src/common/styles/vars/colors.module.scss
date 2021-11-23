@@ -9,9 +9,14 @@ we have to do this in a separate *.module.scss file because of this bug https://
   green: $green;
   gray: $medium-light-gray;
 
-  patrolActiveStatusColor: $patrol-active-status-color;
-  patrolScheduledStatusColor: $patrol-scheduled-status-color;
-  patrolOverdueStatusColor: $patrol-overdue-status-color;
-  patrolDoneStatusColor: $patrol-done-status-color;
-  patrolCanceledStatusColor: $patrol-canceled-status-color;
+  patrolOverdueThemeColor: map-get($patrol-overdue-theme, 'base');
+  patrolOverdueThemeBgColor: map-get($patrol-overdue-theme, 'background');
+  patrolActiveThemeColor: map-get($patrol-active-theme, 'base');
+  patrolActiveThemeBgColor: map-get($patrol-active-theme, 'background');
+  patrolReadyThemeColor: map-get($patrol-ready-theme, 'base');
+  patrolReadyThemeBgColor: map-get($patrol-ready-theme, 'background');
+  patrolDoneThemeColor: map-get($patrol-done-theme, 'base');
+  patrolDoneThemeBgColor: map-get($patrol-done-theme, 'background');
+  patrolCancelledThemeColor: map-get($patrol-cancelled-theme, 'base');
+  patrolCancelledThemeBgColor: map-get($patrol-cancelled-theme, 'background');
 }
