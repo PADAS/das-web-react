@@ -24,6 +24,7 @@ $very-light-gray: #f9f9f9;
 $violet: #B62879;
 $plum: #3E35A3;
 $dark-teal: #107283;
+$alternative-light-gray: #E7E7E7;
 
 $healthy: $bright-green;
 $healthy-border: lighten($bright-green, 15%);
@@ -102,8 +103,8 @@ $patrol-done-theme: (
 );
 
 $patrol-cancelled-theme: (
-  base: $medium-light-gray,
-  background: rgba($medium-light-gray, 0.1)
+  base: $alternative-light-gray,
+  background: rgba($alternative-light-gray, 0.1)
 );
 
 /////
