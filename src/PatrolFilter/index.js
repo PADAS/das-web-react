@@ -63,7 +63,8 @@ const PatrolFilter = ({ className, patrolFilter, updatePatrolFilter }) => {
 
   const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leaders, patrolFilter.filter.leaders);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type);
-  const filtersModified = patrolTypesFilterModified || leadersFilterModified;
+  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
   return <div

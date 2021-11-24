@@ -29,6 +29,7 @@ describe('PatrolFilter', () => {
             },
             leaders: INITIAL_FILTER_STATE.filter.leaders,
             patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+            status: INITIAL_FILTER_STATE.filter.status,
             text: '',
           },
         },

@@ -68,6 +68,23 @@
       visibility: hidden;
     }
   }
+
+  [class*=checkboxListContainer] {
+    width: 100%;
+  }
+}
+
+.statusContainer {
+  [class*=statusItem] {
+    display: flex;
+    align-items: center;
+
+    svg {
+      height: 0.5rem;
+      width: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
 }
 
 .patrolTypeContainer {

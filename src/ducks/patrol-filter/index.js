@@ -18,11 +18,11 @@ export const updatePatrolFilter = (update) => (dispatch) => {
 
 // REDUCER
 export const INITIAL_FILTER_STATE = {
-  //status: ['active', 'done', 'cancelled'], /* FPO - as per designs */
   filter: {
     date_range: defaultDateRange,
     patrols_overlap_daterange: false,
-    patrol_type: ['all'],
+    patrol_type: [],
+    status: [],
     text: '',
     leaders: [],
   },

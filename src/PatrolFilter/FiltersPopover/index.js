@@ -17,6 +17,7 @@ import CheckboxList from '../../CheckboxList';
 import DasIcon from '../../DasIcon';
 import ReportedBySelect from '../../ReportedBySelect';
 
+import colorVariables from '../../common/styles/vars/colors.module.scss';
 import patrolFiltersPopoverStyles from './styles.module.scss';
 import styles from '../../EventFilter/styles.module.scss';
 
@@ -25,6 +26,24 @@ const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 const CHECKBOX_LIST_ALL_OPTION = { id: 'all', value: 'All' };
 const PATROL_FILTERS_LEADERS_KEY = 'leaders';
 const PATROL_FILTERS_PATROL_TYPE_KEY = 'patrol_type';
+const PATROL_FILTERS_STATUS_KEY = 'status';
+const PATROL_STATUS_OPTIONS = [
+  { color: colorVariables.patrolActiveThemeColor, id: 'active', value: 'Active' },
+  { color: colorVariables.patrolReadyThemeColor, id: 'scheduled', value: 'Scheduled' },
+  { color: colorVariables.patrolOverdueThemeColor, id: 'overdue', value: 'Overdue' },
+  { color: colorVariables.patrolDoneThemeColor, id: 'done', value: 'Done' },
+  { color: colorVariables.patrolCancelledThemeColor, id: 'canceled', value: 'Canceled' },
+];
+
+const calculateNewCheckedItems = (clickedItemId, checkedItemIds) => {
+  if (clickedItemId === CHECKBOX_LIST_ALL_OPTION.id) {
+    return [];
+  }
+  if (checkedItemIds.includes(clickedItemId)) {
+    return checkedItemIds.filter(checkedItemId => checkedItemId !== clickedItemId);
+  }
+  return [...checkedItemIds, clickedItemId];
+};
 
 const FiltersPopover = React.forwardRef(({
   fetchTrackedBySchema,
@@ -35,7 +54,11 @@ const FiltersPopover = React.forwardRef(({
   updatePatrolFilter,
   ...rest
 }, ref) => {
-  const { leaders: selectedLeaderIds, patrol_type: selectedPatrolTypeIds } = patrolFilter.filter;
+  const {
+    leaders: selectedLeaderIds,
+    patrol_type: selectedPatrolTypeIds,
+    status: selectedStatusIds,
+  } = patrolFilter.filter;
 
   const onLeadersFilterChange = useCallback((leadersSelected) => {
     const isAnyLeaderSelected = !!leadersSelected?.length;
@@ -49,24 +72,20 @@ const FiltersPopover = React.forwardRef(({
     );
   }, [updatePatrolFilter]);
 
+  const onStatusFilterChange = useCallback((clickedStatus) => {
+    const checkedStatus = calculateNewCheckedItems(clickedStatus.id, selectedStatusIds);
+    updatePatrolFilter({ filter: { status: checkedStatus } });
+
+    const isAnyStatusChecked = checkedStatus[0] !== CHECKBOX_LIST_ALL_OPTION.id;
+    patrolFilterTracker.track(
+      `${isAnyStatusChecked ? 'Set' : 'Clear'} 'Status' Filter`,
+      isAnyStatusChecked ? `${selectedStatusIds.length} status` : null
+    );
+  }, [selectedStatusIds, updatePatrolFilter]);
+
   const onPatrolTypesFilterChange = useCallback((clickedPatrolType) => {
-    let newSelectedPatrolTypeIds;
-
-    const uncheckingLastItem = selectedPatrolTypeIds.length === 1 && selectedPatrolTypeIds[0] === clickedPatrolType.id;
-    const checkingAllPatrolTypesOption = clickedPatrolType.id === CHECKBOX_LIST_ALL_OPTION.id;
-    if (checkingAllPatrolTypesOption || uncheckingLastItem) {
-      newSelectedPatrolTypeIds = [CHECKBOX_LIST_ALL_OPTION.id];
-    } else {
-      if (selectedPatrolTypeIds.includes(clickedPatrolType.id)) {
-        newSelectedPatrolTypeIds = selectedPatrolTypeIds.filter(patrolTypeId => patrolTypeId !== clickedPatrolType.id);
-      } else {
-        newSelectedPatrolTypeIds = [...selectedPatrolTypeIds, clickedPatrolType.id];
-      }
-      newSelectedPatrolTypeIds = newSelectedPatrolTypeIds.filter(patrolTypeSelected =>
-        patrolTypeSelected !== CHECKBOX_LIST_ALL_OPTION.id);
-    }
-
-    updatePatrolFilter({ filter: { patrol_type: newSelectedPatrolTypeIds } });
+    const checkedPatrolTypes = calculateNewCheckedItems(clickedPatrolType.id, selectedPatrolTypeIds);
+    updatePatrolFilter({ filter: { patrol_type: checkedPatrolTypes } });
 
     const isAnyPatrolTypeSelected = !!selectedPatrolTypeIds.length;
     patrolFilterTracker.track(
@@ -78,8 +97,9 @@ const FiltersPopover = React.forwardRef(({
   const resetFilters = useCallback(() => {
     updatePatrolFilter({
       filter: {
-        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
         leaders: INITIAL_FILTER_STATE.filter.leaders,
+        patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
+        status: INITIAL_FILTER_STATE.filter.status,
       },
     });
 
@@ -105,6 +125,18 @@ const FiltersPopover = React.forwardRef(({
     selectedLeaderIds.map(id => reporters.find(reporter => reporter.id === id)).filter(item => !!item)
     : [];
 
+  const statusFilterOptions = PATROL_STATUS_OPTIONS.map(status => ({
+    id: status.id,
+    value: <div className='statusItem'>
+      {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
+      {status.value}
+    </div>,
+  }));
+  statusFilterOptions.unshift({
+    id: CHECKBOX_LIST_ALL_OPTION.id,
+    value: CHECKBOX_LIST_ALL_OPTION.value,
+  });
+
   const patrolTypeFilterOptions = patrolTypes.map(patrolType => {
     const patrolIconId = iconTypeForPatrol(patrolType);
 
@@ -123,7 +155,12 @@ const FiltersPopover = React.forwardRef(({
 
   const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leaders, selectedLeaderIds);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, selectedPatrolTypeIds);
-  const filtersModified = patrolTypesFilterModified || leadersFilterModified;
+  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
+
+  const patrolTypesCheckboxListValues = !!selectedPatrolTypeIds.length
+    ? selectedPatrolTypeIds : [CHECKBOX_LIST_ALL_OPTION.id];
+  const statusCheckboxListValues = !!selectedStatusIds.length ? selectedStatusIds : [CHECKBOX_LIST_ALL_OPTION.id];
 
   return <Popover
       {...rest}
@@ -162,6 +199,7 @@ const FiltersPopover = React.forwardRef(({
           />
           <Button
             className={!leadersFilterModified && 'hidden'}
+            data-testid='patrolFilter-reset-leaders-button'
             onClick={resetFilter(PATROL_FILTERS_LEADERS_KEY)}
             size='sm'
             type="button"
@@ -172,11 +210,35 @@ const FiltersPopover = React.forwardRef(({
         </div>
       </div>
 
+      <div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.statusContainer}`}>
+        <div className='header'>
+          <label>Status</label>
+          <Button
+            className={!statusFilterModified && 'hidden'}
+            data-testid='patrolFilter-reset-status-button'
+            onClick={resetFilter(PATROL_FILTERS_STATUS_KEY)}
+            size='sm'
+            type="button"
+            variant='light'
+          >
+            Reset
+          </Button>
+        </div>
+        <div className='checkboxListContainer' data-testid='patrolFilter-status-checkbox-list'>
+          <CheckboxList
+            options={statusFilterOptions}
+            onItemChange={onStatusFilterChange}
+            values={statusCheckboxListValues}
+          />
+        </div>
+      </div>
+
       <div className={`${styles.filterRow} ${patrolFiltersPopoverStyles.patrolTypeContainer}`}>
         <div className='header'>
           <label>Patrol Type</label>
           <Button
             className={!patrolTypesFilterModified && 'hidden'}
+            data-testid='patrolFilter-reset-patrol-type-button'
             onClick={resetFilter(PATROL_FILTERS_PATROL_TYPE_KEY)}
             size='sm'
             type="button"
@@ -185,11 +247,13 @@ const FiltersPopover = React.forwardRef(({
             Reset
           </Button>
         </div>
-        <CheckboxList
-          values={selectedPatrolTypeIds}
-          options={patrolTypeFilterOptions}
-          onItemChange={onPatrolTypesFilterChange}
-        />
+        <div className='checkboxListContainer' data-testid='patrolFilter-patrol-type-checkbox-list'>
+          <CheckboxList
+            options={patrolTypeFilterOptions}
+            onItemChange={onPatrolTypesFilterChange}
+            values={patrolTypesCheckboxListValues}
+          />
+        </div>
       </div>
     </Popover.Content>
   </Popover>;
