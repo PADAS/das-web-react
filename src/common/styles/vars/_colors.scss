@@ -19,12 +19,13 @@ $off-black: #333;
 $dark-gray: darken($secondary-medium-gray, 20%);
 $medium-light-gray: $secondary-medium-light-gray;
 $light-gray: lighten($secondary-light-gray, 25%);
+
 $very-light-gray: #f9f9f9;
+$very-light-gray-alt: #E7E7E7;
 
 $violet: #B62879;
 $plum: #3E35A3;
 $dark-teal: #107283;
-$alternative-light-gray: #E7E7E7;
 
 $healthy: $bright-green;
 $healthy-border: lighten($bright-green, 15%);
@@ -82,6 +83,8 @@ $priorities: (
   ))
 );
 
+/////
+
 $patrol-overdue-theme: (
   base: $violet,
   background: rgba($violet, 0.1)
@@ -98,13 +101,13 @@ $patrol-ready-theme: (
 );
 
 $patrol-done-theme: (
-  base: $secondary-medium-gray,
-  background: rgba($secondary-medium-gray, 0.1)
+  base: $medium-light-gray,
+  background: rgba($medium-light-gray, 0.1)
 );
 
 $patrol-cancelled-theme: (
-  base: $alternative-light-gray,
-  background: rgba($alternative-light-gray, 0.1)
+  base: $very-light-gray-alt,
+  background: rgba($very-light-gray-alt, 0.1)
 );
 
 /////
@@ -114,8 +117,6 @@ $patrol-ready-border:#746d6d;
 $patrol-active-bg: #ebfce3;
 $patrol-active-border: green;
 $patrol-overdue-bg: #fff1f1;
-$patrol-overdue-border: red;
-$patrol-overdue-status: #d41e21;
 $patrol-overdue-status: $violet;
 $patrol-overdue-border: darken($violet, 5%);
 $patrol-cancelled-border: #b3b3b0;

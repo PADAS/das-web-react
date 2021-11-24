@@ -220,11 +220,11 @@ describe('PatrolFilter', () => {
     expect(updatePatrolFilter).toHaveBeenCalledTimes(0);
 
     const statusCheckboxList = await screen.findByTestId('patrolFilter-status-checkbox-list');
-    const overdueStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[3];
-    userEvent.click(overdueStatusCheckbox);
+    const cancelledStatusCheckbox = (await within(statusCheckboxList).findAllByRole('checkbox'))[3];
+    userEvent.click(cancelledStatusCheckbox);
 
     expect(updatePatrolFilter).toHaveBeenCalledTimes(1);
-    expect(updatePatrolFilter).toHaveBeenCalledWith({ status: ['active', 'overdue'] });
+    expect(updatePatrolFilter).toHaveBeenCalledWith({ status: ['active', 'cancelled'] });
   });
 
   test('updates the patrol filter when user clicks the All status option', async () => {
