@@ -21,7 +21,9 @@ $off-black: #333;
 $dark-gray: darken($secondary-medium-gray, 20%);
 $medium-light-gray: $secondary-medium-light-gray;
 $light-gray: lighten($secondary-light-gray, 25%);
+
 $very-light-gray: #f9f9f9;
+$very-light-gray-alt: #E7E7E7;
 
 $violet: #B62879;
 $plum: #3E35A3;
@@ -106,13 +108,13 @@ $patrol-ready-theme: (
 );
 
 $patrol-done-theme: (
-  base: $secondary-medium-gray,
-  background: rgba($secondary-medium-gray, 0.1)
+  base: $medium-light-gray,
+  background: rgba($medium-light-gray, 0.1)
 );
 
 $patrol-cancelled-theme: (
-  base: $medium-light-gray,
-  background: rgba($medium-light-gray, 0.1)
+  base: $very-light-gray-alt,
+  background: rgba($very-light-gray-alt, 0.1)
 );
 
 /////
