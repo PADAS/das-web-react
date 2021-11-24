@@ -1,0 +1,59 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+@import '../common/styles/layout';
+
+.iconContainer {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  position: relative;
+  width: 3.75rem;
+}
+
+.listItem {
+  --listItemHeight: 3.85rem;
+  align-items: center;
+  color: $primary-font-color;
+  height: var(--listItemHeight);
+  display: flex;
+  line-height: normal;
+  padding: 0 0.5rem 0 0;
+
+  + .listItem {
+    border-top: 1px solid $light-gray-border;
+  }
+
+  > * {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.titleContainer {
+  flex: 1;
+  justify-content: flex-start;
+  text-align: left;
+  margin-right: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dateContainer {
+  align-items: flex-end;
+  cursor: default;
+  flex-flow: column;
+  margin-left: auto;
+  max-height: 3rem;
+  padding-right: 0;
+  text-align: right;
+}
+
+.controlsContainer {
+  padding-right: 0;
+}

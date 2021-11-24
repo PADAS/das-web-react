@@ -8,7 +8,7 @@ const spriteMappings = {
   },
 };
 
-const calcIconUrl = (type, iconId) => {
+export const calcIconUrl = (type, iconId) => {
   const SPRITE_ID = spriteMappings[type].id;
   const ICON_PREFIX = spriteMappings[type].prefix;
 

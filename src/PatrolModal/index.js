@@ -21,14 +21,14 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolCardState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
+import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
   iconTypeForPatrol, extractAttachmentUpdates } from '../utils/patrols';
 
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../utils/analytics';
 
 
-import { BREAKPOINTS, PATROL_CARD_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { BREAKPOINTS, PATROL_UI_STATES, REPORT_PRIORITIES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 
 import EditableItem from '../EditableItem';
 import DasIcon from '../DasIcon';
@@ -538,11 +538,11 @@ const PatrolModal = (props) => {
 
     if (isSegmentActive(firstLeg)) return STARTED_LABEL;
 
-    const patrolState = calcPatrolCardState(statePatrol);
+    const patrolState = calcPatrolState(statePatrol);
 
-    if (patrolState === PATROL_CARD_STATES.READY_TO_START
-    || patrolState === PATROL_CARD_STATES.SCHEDULED
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+    if (patrolState === PATROL_UI_STATES.READY_TO_START
+    || patrolState === PATROL_UI_STATES.SCHEDULED
+    || patrolState === PATROL_UI_STATES.START_OVERDUE) {
       return (displayAutoStart ? AUTO_START_LABEL : SCHEDULED_LABEL);
     }
 

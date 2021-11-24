@@ -6,21 +6,21 @@ import merge from 'lodash/merge';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { openModalForPatrol, sortPatrolCards } from '../utils/patrols';
+import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
-import { trackEventFactory, PATROL_CARD_CATEGORY } from '../utils/analytics';
+import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
-import PatrolCard from '../PatrolCard';
+import PatrolListItem from '../PatrolListItem';
 
-const patrolCardTracker = trackEventFactory(PATROL_CARD_CATEGORY);
+const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onStateUpdateFromCard, patrol, updatePatrol, ...rest } = props;
+const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+  const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
-    patrolCardTracker.track('Click patrol card to open patrol modal');
+    patrolListItemTracker.track('Click patrol list item to open patrol modal');
     openModalForPatrol(patrol, map);
   }, [map, patrol]);
 
@@ -32,31 +32,30 @@ const PatrolListItem = forwardRef((props, ref) => { /* eslint-disable-line react
   }, [patrol, updatePatrol]);
 
   return <Flipped flipId={patrol.id}>
-    <PatrolCard
+    <PatrolListItem
       ref={ref}
       onTitleClick={onTitleClick}
       onPatrolChange={onPatrolChange}
-      onSelfManagedStateChange={onStateUpdateFromCard}
+      onSelfManagedStateChange={onPatrolSelfManagedStateChange}
       patrol={patrol}
       map={map}
       {...rest} />
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { updatePatrol })(PatrolListItem);
+const ConnectedListItem = connect(null, { updatePatrol })(ListItem);
 
 const PatrolList = (props) => {
   const { map, patrols = [], loading } = props;
-  // const scrollRef = useRef(null);
 
   const [listItems, setListItems] = useState(patrols);
 
-  const onStateUpdateFromCard = useCallback(() => {
-    setListItems(sortPatrolCards(patrols));
+  const onPatrolSelfManagedStateChange = useCallback(() => {
+    setListItems(sortPatrolList(patrols));
   }, [patrols]);
 
   useEffect(() => {
-    setListItems(sortPatrolCards(patrols));
+    setListItems(sortPatrolList(patrols));
   }, [patrols]);
 
 
@@ -66,10 +65,10 @@ const PatrolList = (props) => {
     <PatrolListTitle />
     {!!listItems.length && <Flipper flipKey={listItems} element='ul' className={styles.patrolList}>
 
-      {listItems.map((item, index) =>
+      {listItems.map((item) =>
         <ConnectedListItem
           patrol={item}
-          onStateUpdateFromCard={onStateUpdateFromCard}
+          onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}
           map={map}
           key={item.id}/>
       )}
