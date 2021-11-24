@@ -9,14 +9,9 @@ const MockSocketContext = (props) => { // eslint-disable-line react/display-name
 
   const [websocket] = useState(mockedSocket);
 
-  return !!websocket && <SocketContext.Provider value={websocket}>
+  return <SocketContext.Provider value={websocket}>
     {children}
   </SocketContext.Provider>;
 };
 
 export default MockSocketContext;
-
-jest.doMock('../withSocketConnection', () => ({
-  SocketContext,
-  default: MockSocketContext,
-}));

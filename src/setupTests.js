@@ -2,6 +2,9 @@ import ReactGA from 'react-ga';
 import 'jest-webgl-canvas-mock';
 import '@testing-library/jest-dom/extend-expect';
 
+import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
+
+
 ReactGA.initialize('dummy', { testMode: true });
 
 Object.defineProperty(window, 'matchMedia', {
@@ -19,3 +22,16 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 window.URL.createObjectURL = jest.fn();
+
+jest.doMock('./withSocketConnection', () => ({
+  SocketContext,
+  default: MockSocketContext,
+}));
+
+global.console = {
+  log: console.log,
+  error: jest.fn(),
+  warn: console.warn,
+  info: console.info,
+  debug: console.debug,
+};
