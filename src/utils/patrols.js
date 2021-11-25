@@ -3,7 +3,7 @@ import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_CARD_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
@@ -23,10 +23,47 @@ import { getReporterById } from './events';
 import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
 
+import colorVariables from '../common/styles/vars/colors.module.scss';
 const PatrolModal = lazy(() => import('../PatrolModal'));
 
 const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
+
+const PATROL_STATUS_THEME_COLOR_MAP = {
+  [PATROL_UI_STATES.SCHEDULED.status]: {
+    base: colorVariables.patrolReadyThemeColor,
+    background: colorVariables.patrolReadyThemeBgColor,
+  },
+  [PATROL_UI_STATES.READY_TO_START.status]: {
+    base: colorVariables.patrolReadyThemeColor,
+    background: colorVariables.patrolReadyThemeBgColor,
+  },
+  [PATROL_UI_STATES.ACTIVE.status]: {
+    base: colorVariables.patrolActiveThemeColor,
+    background: colorVariables.patrolActiveThemeBgColor,
+  },
+  [PATROL_UI_STATES.DONE.status]: {
+    base: colorVariables.patrolDoneThemeColor,
+    background: colorVariables.patrolDoneThemeBgColor,
+  },
+  [PATROL_UI_STATES.START_OVERDUE.status]: {
+    base: colorVariables.patrolOverdueThemeColor,
+    background: colorVariables.patrolOverdueThemeBgColor,
+  },
+  [PATROL_UI_STATES.CANCELLED.status]: {
+    base: colorVariables.patrolCancelledThemeColor,
+    background: colorVariables.patrolCancelledThemeBgColor,
+  },
+  [PATROL_UI_STATES.INVALID.status]: {
+    base: colorVariables.patrolCancelledThemeColor,
+    background: colorVariables.patrolCancelledThemeBgColor,
+  },
+};
+
+export const calcColorThemeForPatrolState = (patrolState) => {
+
+  return PATROL_STATUS_THEME_COLOR_MAP[patrolState.status];
+};
 
 export const openModalForPatrol = (patrol, map, config = {}) => {
   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
@@ -240,7 +277,7 @@ export const getActivePatrolsForLeaderId = (leaderId) => {
   const patrols = getPatrolsForLeaderId(leaderId);
   const activePatrols = patrols.filter(
     item => {
-      return calcPatrolCardState(item) === PATROL_CARD_STATES.ACTIVE;
+      return calcPatrolState(item) === PATROL_UI_STATES.ACTIVE;
     }
   );
 
@@ -258,11 +295,11 @@ export const extractAttachmentUpdates = (collection) => {
 };
 
 export const displayDurationForPatrol = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
+  const patrolState = calcPatrolState(patrol);
 
-  if (patrolState === PATROL_CARD_STATES.READY_TO_START
-    || patrolState === PATROL_CARD_STATES.SCHEDULED
-    || patrolState === PATROL_CARD_STATES.START_OVERDUE) {
+  if (patrolState === PATROL_UI_STATES.READY_TO_START
+    || patrolState === PATROL_UI_STATES.SCHEDULED
+    || patrolState === PATROL_UI_STATES.START_OVERDUE) {
     return '0:00';
   }
 
@@ -323,7 +360,7 @@ export const PATROL_SAVE_ACTIONS = {
   },
 };
 
-const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID, SCHEDULED } = PATROL_CARD_STATES;
+const { READY_TO_START, ACTIVE, DONE, START_OVERDUE, CANCELLED, INVALID, SCHEDULED } = PATROL_UI_STATES;
 
 export const displayPatrolSegmentId = (patrol) => {
   if (!patrol.patrol_segments.length) return null;
@@ -390,7 +427,7 @@ export const patrolStateDetailsOverdueStartTime = (patrol) => {
   return distanceInWords(startTime, currentTime, { includeSeconds: true });
 };
 
-const formatPatrolCardStateTitleDate = (date) => {
+export const formatPatrolStateTitleDate = (date) => {
   const otherYearFormat = 'D MMM \'YY HH:mm';
   const defaultFormat = 'D MMM HH:mm';
 
@@ -413,16 +450,16 @@ export const displayPatrolEndOverdueTime = (patrol) => {
 };
 
 export const patrolStateDetailsStartTime = patrol =>
-  formatPatrolCardStateTitleDate(
+  formatPatrolStateTitleDate(
     displayStartTimeForPatrol(patrol)
   );
 
 export const patrolStateDetailsEndTime = patrol =>
-  formatPatrolCardStateTitleDate(
+  formatPatrolStateTitleDate(
     displayEndTimeForPatrol(patrol)
   );
 
-export const calcPatrolCardState = (patrol) => {
+export const calcPatrolState = (patrol) => {
   if (isPatrolCancelled(patrol)) {
     return CANCELLED;
   }
@@ -450,29 +487,29 @@ export const calcPatrolCardState = (patrol) => {
 };
 
 export const canStartPatrol = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
-  return (patrolState === PATROL_CARD_STATES.READY_TO_START
-      || patrolState === PATROL_CARD_STATES.SCHEDULED
-      || patrolState === PATROL_CARD_STATES.START_OVERDUE);
+  const patrolState = calcPatrolState(patrol);
+  return (patrolState === PATROL_UI_STATES.READY_TO_START
+      || patrolState === PATROL_UI_STATES.SCHEDULED
+      || patrolState === PATROL_UI_STATES.START_OVERDUE);
 };
 
 export const canEndPatrol = (patrol) => {
-  const patrolState = calcPatrolCardState(patrol);
-  return patrolState === PATROL_CARD_STATES.ACTIVE;
+  const patrolState = calcPatrolState(patrol);
+  return patrolState === PATROL_UI_STATES.ACTIVE;
 };
 
-export const sortPatrolCards = (patrols) => {
-  const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_CARD_STATES;
+export const sortPatrolList = (patrols) => {
+  const { READY_TO_START, SCHEDULED, ACTIVE, DONE, START_OVERDUE, CANCELLED } = PATROL_UI_STATES;
 
   const sortFunc = (patrol) => {
-    const cardState = calcPatrolCardState(patrol);
+    const patrolState = calcPatrolState(patrol);
 
-    if (cardState === START_OVERDUE) return 1;
-    if (cardState === READY_TO_START) return 2;
-    if (cardState === ACTIVE) return 3;
-    if (cardState === SCHEDULED) return 4;
-    if (cardState === DONE) return 5;
-    if (cardState === CANCELLED) return 6;
+    if (patrolState === START_OVERDUE) return 1;
+    if (patrolState === READY_TO_START) return 2;
+    if (patrolState === ACTIVE) return 3;
+    if (patrolState === SCHEDULED) return 4;
+    if (patrolState === DONE) return 5;
+    if (patrolState === CANCELLED) return 6;
     return 6;
   };
 
@@ -501,8 +538,8 @@ export const extractPatrolPointsFromTrackData = ({ leader, patrol, trackData }, 
 
   const hasFeatures = !!trackData?.points?.features?.length;
   const features = hasFeatures && trackData.points.features;
-  const isPatrolActive = calcPatrolCardState(patrol) === PATROL_CARD_STATES.ACTIVE;
-  const isPatrolDone = calcPatrolCardState(patrol) === PATROL_CARD_STATES.DONE;
+  const isPatrolActive = calcPatrolState(patrol) === PATROL_UI_STATES.ACTIVE;
+  const isPatrolDone = calcPatrolState(patrol) === PATROL_UI_STATES.DONE;
 
   const stroke = features?.[0]?.properties?.stroke
     || leader?.last_position?.properties?.stroke
@@ -686,8 +723,8 @@ export const getBoundsForPatrol = ((patrolData) => {
 });
 
 export const patrolStateAllowsTrackDisplay = (patrol) => {
-  const vizualizablePatrolStates = [PATROL_CARD_STATES.ACTIVE, PATROL_CARD_STATES.DONE];
-  const patrolState = calcPatrolCardState(patrol);
+  const vizualizablePatrolStates = [PATROL_UI_STATES.ACTIVE, PATROL_UI_STATES.DONE];
+  const patrolState = calcPatrolState(patrol);
 
   return vizualizablePatrolStates.includes(patrolState);
 };
