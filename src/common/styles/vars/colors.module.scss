@@ -2,13 +2,16 @@
 we have to do this in a separate *.module.scss file because of this bug https://github.com/facebook/create-react-app/issues/10047 */
 
 @import './colors';
-
+ 
 :export {
-  amber: $amber;
-  red: $bright-red;
-  green: $green;
-  gray: $medium-light-gray;
-
+  gray: map-get($report-no-priority-theme, 'base');
+  grayBg: map-get($report-no-priority-theme, 'background');
+  green: map-get($report-low-priority-theme, 'base');
+  greenBg:  map-get($report-low-priority-theme, 'background');
+  amber: map-get($report-medium-priority-theme, 'base');
+  amberBg: map-get($report-medium-priority-theme, 'background');
+  red: map-get($report-high-priority-theme, 'base');
+  redBg: map-get($report-high-priority-theme, 'background');
   patrolOverdueThemeColor: map-get($patrol-overdue-theme, 'base');
   patrolOverdueThemeBgColor: map-get($patrol-overdue-theme, 'background');
   patrolActiveThemeColor: map-get($patrol-active-theme, 'base');
