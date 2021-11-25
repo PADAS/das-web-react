@@ -26,7 +26,7 @@ const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 const CHECKBOX_LIST_ALL_OPTION = { id: 'all', value: 'All' };
 const PATROL_FILTERS_LEADERS_KEY = 'tracked_by';
 const PATROL_FILTERS_PATROL_TYPE_KEY = 'patrol_type';
-const PATROL_STATUS_OPTIONS = [
+const PATROL_FILTERS_STATUS_OPTIONS = [
   { color: colorVariables.patrolActiveThemeColor, id: 'active', value: 'Active' },
   // { color: colorVariables.patrolReadyThemeColor, id: 'scheduled', value: 'Scheduled' },
   // { color: colorVariables.patrolOverdueThemeColor, id: 'overdue', value: 'Overdue' },
@@ -71,7 +71,7 @@ const FiltersPopover = React.forwardRef(({
     );
   }, [updatePatrolFilter]);
 
-  const onStatusChange = useCallback((clickedStatus) => {
+  const onStatusFilterChange = useCallback((clickedStatus) => {
     const checkedStatus = calculateNewCheckedItems(clickedStatus.id, selectedStatusIds);
     updatePatrolFilter({ status: checkedStatus });
 
@@ -112,7 +112,7 @@ const FiltersPopover = React.forwardRef(({
     patrolFilterTracker.track(`Click reset ${filterToReset} filter`);
   }, [updatePatrolFilter]);
 
-  const resetStatus = useCallback((e) => {
+  const resetStatusFilter = useCallback((e) => {
     e.stopPropagation();
     updatePatrolFilter({ status: INITIAL_FILTER_STATE.status });
 
@@ -131,14 +131,14 @@ const FiltersPopover = React.forwardRef(({
     selectedLeaderIds.map(id => reporters.find(reporter => reporter.id === id)).filter(item => !!item)
     : [];
 
-  const statusOptions = PATROL_STATUS_OPTIONS.map(status => ({
+  const statusFilterOptions = PATROL_FILTERS_STATUS_OPTIONS.map(status => ({
     id: status.id,
     value: <div className='statusItem'>
       {<DasIcon color={status.color} iconId='generic_rep' type='events' />}
       {status.value}
     </div>,
   }));
-  statusOptions.unshift({
+  statusFilterOptions.unshift({
     id: CHECKBOX_LIST_ALL_OPTION.id,
     value: CHECKBOX_LIST_ALL_OPTION.value,
   });
@@ -161,8 +161,8 @@ const FiltersPopover = React.forwardRef(({
 
   const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, selectedLeaderIds);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, selectedPatrolTypeIds);
-  const statusModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status);
-  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusModified;
+  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
 
   const patrolTypesCheckboxListValues = !!selectedPatrolTypeIds.length
     ? selectedPatrolTypeIds : [CHECKBOX_LIST_ALL_OPTION.id];
@@ -220,9 +220,9 @@ const FiltersPopover = React.forwardRef(({
         <div className='header'>
           <label>Status</label>
           <Button
-            className={!statusModified && 'hidden'}
+            className={!statusFilterModified && 'hidden'}
             data-testid='patrolFilter-reset-status-button'
-            onClick={resetStatus}
+            onClick={resetStatusFilter}
             size='sm'
             type="button"
             variant='light'
@@ -232,8 +232,8 @@ const FiltersPopover = React.forwardRef(({
         </div>
         <div className='checkboxListContainer' data-testid='patrolFilter-status-checkbox-list'>
           <CheckboxList
-            options={statusOptions}
-            onItemChange={onStatusChange}
+            options={statusFilterOptions}
+            onItemChange={onStatusFilterChange}
             values={statusCheckboxListValues}
           />
         </div>
