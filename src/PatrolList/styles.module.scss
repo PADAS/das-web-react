@@ -2,15 +2,10 @@
 @import '../common/styles/buttons';
 
 .patrolList {
-  align-content: flex-start;
-  align-items: flex-start;
-  background-color: #f3f2ed;
-  display: flex;
-  flex-wrap: wrap;
   height: 100%;
   justify-content: space-evenly;
   overflow-y: scroll;
-  padding: 0.5rem 0.25rem 7rem;
+  padding: 0 0 7rem;
 }
 
 .emptyMessage {

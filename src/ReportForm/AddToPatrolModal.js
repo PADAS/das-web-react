@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
+import React, { memo, useRef, useEffect, useState, useReducer, useMemo, useCallback, useContext } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -9,14 +9,13 @@ import InfiniteScroll from 'react-infinite-scroller';
 import uniq from 'lodash/uniq';
 
 
-import { PATROL_CARD_STATES } from '../constants';
 import { removeModal } from '../ducks/modals';
 import { trackEventFactory, ADD_TO_PATROL_CATEGORY } from '../utils/analytics';
-import { calcPatrolCardState, displayTitleForPatrol, patrolStateAllowsTrackDisplay } from '../utils/patrols';
+import { patrolStateAllowsTrackDisplay } from '../utils/patrols';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 
 import LoadingOverlay from '../LoadingOverlay';
-import ReportListItem from '../ReportListItem';
+import PatrolListItem from '../PatrolListItem';
 
 import { INITIAL_PATROLS_STATE, PATROLS_API_URL, updatePatrolStore } from '../ducks/patrols';
 
@@ -55,7 +54,7 @@ const activePatrolsFeedRecuer = (state, action) => {
   if (type === FETCH_FEED_SUCCESS) {
     return {
       ...payload,
-      results: payload.results.map(event => event.id),
+      results: payload.results.map(patrol => patrol.id),
     };
   }
   if (type === FEED_FETCH_NEXT_PAGE_SUCCESS) {
@@ -88,8 +87,9 @@ const AddToPatrolModal = (props) => {
   const [loaded, setLoadedState] = useState(false);
   const [patrols, dispatch] = useReducer(activePatrolsFeedRecuer, INITIAL_PATROLS_STATE);
 
-  const listPatrols = useMemo(() =>  patrols.results
+  const listPatrols = useMemo(() => patrols.results
     .map(p => patrolStore[p])
+    .filter(item => !!item)
     .sort((p1, p2) =>
       (new Date(p2.patrol_segments[0].time_range.start_time).getTime() - new Date(p1.patrol_segments[0].time_range.start_time).getTime())
     ), [patrolStore, patrols.results]);
@@ -98,9 +98,9 @@ const AddToPatrolModal = (props) => {
     const params = calcPatrolFilterForRequest({ params: { page_size: 75 } });
     return get(`${PATROLS_API_URL}?${params}`)
       .then(({ data: { data: patrols } }) => {
-        updatePatrolStore(patrols);
-        setLoadedState(true);
         dispatch(fetchFeedSuccess(patrols));
+        setLoadedState(true);
+        updatePatrolStore(patrols);
       })
       .catch((error) => {
         console.warn({ error });
@@ -130,14 +130,15 @@ const AddToPatrolModal = (props) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    socket.on('new_patrol', onPatrolSocketMessage);
-    socket.on('update_patrol', onPatrolSocketMessage);
+    if (socket) {
+      socket.on('new_patrol', onPatrolSocketMessage);
+      socket.on('update_patrol', onPatrolSocketMessage);
 
-    return () => {
-      socket.off('new_patrol', onPatrolSocketMessage);
-      socket.off('update_patrol', onPatrolSocketMessage);
-    };
-
+      return () => {
+        socket.off('new_patrol', onPatrolSocketMessage);
+        socket.off('update_patrol', onPatrolSocketMessage);
+      };
+    }
   }, [onPatrolSocketMessage, socket]);
 
   useEffect(() => {
@@ -158,14 +159,13 @@ const AddToPatrolModal = (props) => {
 
   const hasMore = !!patrols.next;
 
-  return <Fragment>
+  return <>
     <Header>
       <Title>Add to Patrol</Title>
     </Header>
     <Body style={{ minHeight: '10rem' }}>
-      {!loaded && <LoadingOverlay />}
-      <div>
-        {!!loaded && !!listPatrols.length && <h6 style={{ textAlign: 'right', paddingRight: '0.5rem', fontStyle: 'italic' }}>Start time</h6>}
+      {!loaded && <LoadingOverlay data-testid='patrol-feed-loading-overlay' />}
+      {!!loaded && <div data-testid='patrol-feed-container'>
         <div ref={scrollRef} className={styles.incidentScrollList}>
           <InfiniteScroll
             element='ul'
@@ -175,37 +175,30 @@ const AddToPatrolModal = (props) => {
             getScrollParent={() => findDOMNode(scrollRef.current)}> {/* eslint-disable-line react/no-find-dom-node */}
 
             {listPatrols.map((patrol, index) => {
-              const cardState = calcPatrolCardState(patrol);
 
-              const priority = cardState === PATROL_CARD_STATES.ACTIVE ? 100 : 0;
-              const title = displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader);
-
-              return <ReportListItem
+              return <PatrolListItem
                 className={styles.listItem}
-                showJumpButton={false}
-                report={patrol}
+                patrol={patrol}
+                data-testid={`add-patrol-list-item-${index}`}
                 key={`${id}-${index}`}
-                title={title}
-                priority={priority}
-                displayTime={patrol.patrol_segments[0].time_range.start_time}
-                onTitleClick={onClickPatrol}
-                onIconClick={onClickPatrol} />;
+                showControls={false}
+                onTitleClick={onClickPatrol} />;
             })}
             {hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} key={0}>Loading...</li>}
             {!!loaded && !hasMore && <li className={`${styles.listItem} ${styles.loadMessage}`} style={{ marginTop: '0.5rem' }} key='no-more-events-to-load'>No more patrols to display.</li>}
           </InfiniteScroll>
         </div>
-      </div>
+      </div>}
     </Body>
     <Footer>
-      <Button type='button' variant='secondary' onClick={hideModal}>Cancel</Button>
+      <Button type='button' data-testid='close-modal-button' variant='secondary' onClick={hideModal}>Cancel</Button>
     </Footer>
-  </Fragment>;
+  </>;
 };
 
 const mapStateToProps = ({ data: { patrolStore } }) => ({ patrolStore });
 
-export default connect(mapStateToProps, { removeModal, updatePatrolStore })(memo(AddToPatrolModal));
+export default connect(mapStateToProps, { removeModal: id => removeModal(id), updatePatrolStore: patrols => updatePatrolStore(patrols) })(memo(AddToPatrolModal));
 
 AddToPatrolModal.propTypes = {
   onAddToPatrol: PropTypes.func.isRequired,

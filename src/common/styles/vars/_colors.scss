@@ -1,3 +1,5 @@
+/* descriptive variables */
+
 $primary-teal: #6bbbae;
 $primary-brown: #63512d;
 $primary-green: #4e5e31;
@@ -26,6 +28,8 @@ $very-light-gray-alt: #E7E7E7;
 $violet: #B62879;
 $plum: #3E35A3;
 $dark-teal: #107283;
+
+/* semantic variables */
 
 $healthy: $bright-green;
 $healthy-border: lighten($bright-green, 15%);
@@ -64,23 +68,26 @@ $alert-text: $bright-red;
 
 $highlight-color: $bright-blue;
 
-$priorities: (
-  (0, (
-    base: $no-priority,
-    background: lighten($no-priority, 40%)
-  )),
-  (100, (
-    base: $low-priority,
-    background: lighten($low-priority, 60%)
-  )),
-  (200, (
-    base: $medium-priority,
-    background: lighten($medium-priority, 40%)
-  )),
-  (300, (
-    base: $high-priority,
-    background: lighten($high-priority, 55%)
-  ))
+/////
+
+$report-no-priority-theme: (
+  base: $no-priority,
+  background: lighten($no-priority, 40%),
+);
+
+$report-low-priority-theme: (
+  base: $low-priority,
+  background: lighten($low-priority, 60%)
+);
+
+$report-medium-priority-theme: (
+  base: $medium-priority,
+  background: lighten($medium-priority, 40%)
+);
+
+$report-high-priority-theme: (
+  base: $high-priority,
+  background: lighten($high-priority, 55%)
 );
 
 /////

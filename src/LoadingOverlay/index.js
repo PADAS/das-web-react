@@ -4,10 +4,14 @@ import { SpinLoader } from 'react-css-loaders';
 
 import styles from './styles.module.scss';
 
-const LoadingOverlay = props => <div style={props.style} className={`${styles.background}${` ${props.className}` || ''}`}>
-  <SpinLoader className={styles.spinner} />
-  {props.message && <span>{props.message}</span>}
-</div>;
+const LoadingOverlay = props => {
+  const { style = {}, className = '', message = '', ...rest } = props;
+
+  return <div style={style} className={`${styles.background} ${className}`} {...rest}>
+    <SpinLoader className={styles.spinner} />
+    {message && <span>{message}</span>}
+  </div>;
+};
 
 export default LoadingOverlay;
 
