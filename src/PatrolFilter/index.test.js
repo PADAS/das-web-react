@@ -27,11 +27,11 @@ describe('PatrolFilter', () => {
               lower: startOfToday().toISOString(),
               upper: endOfToday().toISOString(),
             },
-            leaders: INITIAL_FILTER_STATE.filter.leaders,
+            tracked_by: INITIAL_FILTER_STATE.filter.tracked_by,
             patrol_type: INITIAL_FILTER_STATE.filter.patrol_type,
-            status: INITIAL_FILTER_STATE.filter.status,
             text: '',
           },
+          status: INITIAL_FILTER_STATE.status,
         },
         subjectStore: {},
       },
@@ -84,7 +84,7 @@ describe('PatrolFilter', () => {
   });
 
   test('sets a primary variant to the filters button if there is a filter applied', async () => {
-    store.data.patrolFilter.filter.leaders = ['Leader 1'];
+    store.data.patrolFilter.filter.tracked_by = ['Leader 1'];
     cleanup();
     render(
       <Provider store={mockStore(store)}>

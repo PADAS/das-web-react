@@ -61,10 +61,10 @@ const PatrolFilter = ({ className, patrolFilter, updatePatrolFilter }) => {
     }
   }, [patrolFilter.filter.text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.leaders, patrolFilter.filter.leaders);
+  const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, patrolFilter.filter.tracked_by);
   const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type);
-  const statusFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.status, patrolFilter.filter.status);
-  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusFilterModified;
+  const statusModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusModified;
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
   return <div
@@ -127,10 +127,11 @@ PatrolFilter.defaultProps = { className: '' };
 PatrolFilter.propTypes = {
   className: PropTypes.string,
   patrolFilter: PropTypes.shape({
+    status: PropTypes.arrayOf(PropTypes.string),
     filters: PropTypes.shape({
       date_range: PropTypes.object,
       patrol_type: PropTypes.arrayOf(PropTypes.string),
-      leaders: PropTypes.arrayOf(PropTypes.string),
+      tracked_by: PropTypes.arrayOf(PropTypes.string),
       text: PropTypes.string,
     }),
   }).isRequired,
