@@ -1,44 +1,22 @@
 const models = require('./models');
-const utils = require('./utils');
 
+const generateSubjectsData = () => {
+  const subjects = [];
 
-const generateMockPatrols = (number) => {
-  const results = [];
-
+  const number = 50;
   for (let i = 0; i < number; i++) {
-    results.push(models.generatePatrol());
+    subjects.push(models.generateSubject());
   }
 
-  return results;
-};
-/* 
-const generateMockPatrolTypes = () => {
-  return [];
-};
-
-const generateMockPatrolSegments = () => {
-  return [];
-};
-
-const generateMockPatrolTemplates = () => {
-  return [];
-}; */
-
-const generatePatrolData = () => {
-  const patrols = generateMockPatrols(utils.randomInteger());
   return {
-    count: patrols.length,
-    next: null,
-    previous: null,
-    results: patrols,
+    data: subjects,
+    status: {
+      code: 200,
+      message: 'OK',
+    },
   };
 };
 
 module.exports = () => ({
-  patrols: generatePatrolData(),
-  patrol_types: []/* generateMockPatrolTypes() */,
-  patrol_segments: [] /* generateMockPatrolSegments() */,
-  patrol_templates: [] /* generateMockPatrolTemplates() */,
+  subjects: generateSubjectsData(),
 });
-
-
