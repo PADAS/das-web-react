@@ -82,7 +82,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   };
 
   useEffect(() => {
-    addFeatureCollectionImagesToMap(symbols, map);
+    addFeatureCollectionImagesToMap(symbols);
   }, [map, symbols]);
 
   useEffect(() => {

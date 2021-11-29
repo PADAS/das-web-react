@@ -41,7 +41,7 @@ const MapLocationPicker = (props) => {
     document.removeEventListener('keydown', keydownFunc.current);
   };
 
-  const onCancel = (e) => {
+  const onCancel = () => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelectCancel();

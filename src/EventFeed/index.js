@@ -30,7 +30,7 @@ const EventFeed = (props) => {
         getScrollParent={() => findDOMNode(scrollRef.current)} // eslint-disable-line react/no-find-dom-node
       >
         <Flipper flipKey={feedEvents}>
-          {feedEvents.map((item, index) =>
+          {feedEvents.map((item) =>
             <Flipped flipId={item.id} key={item.id}>
               <ReportListItem
                 className={styles.listItem}
@@ -53,7 +53,7 @@ const EventFeed = (props) => {
 export default memo(EventFeed);
 
 EventFeed.defaultProps = {
-  onTitleClick(event) {
+  onTitleClick() {
   },
 };
 

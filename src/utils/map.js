@@ -69,7 +69,7 @@ export const addMapImage = async ({ src, id, height, width, options = {} }) => {
   };
 };
 
-export const addFeatureCollectionImagesToMap = (collection, map) => {
+export const addFeatureCollectionImagesToMap = (collection) => {
   const { features } = collection;
 
   const images = features
@@ -230,7 +230,7 @@ const fetchAttributionForArcGisServer = ({ attributes: { url } } ) => {
   return window.fetch(attributionUrl)
     .then((response) => response.json())
     .then((json) => json.copyrightText)
-    .catch((error) => 'Error fetching map attribution');
+    .catch(() => 'Error fetching map attribution');
 };
 
 export const getAttributionStringForBaseLayer = (baseLayer) => {

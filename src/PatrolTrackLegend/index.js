@@ -66,6 +66,7 @@ const TitleElement = memo((props) => { // eslint-disable-line
 
 
 const PatrolTrackLegend = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { dispatch: _dispatch, patrolData, updateTrackState, trackState, ...rest } = props;
 
   const hasData = !!patrolData.length;

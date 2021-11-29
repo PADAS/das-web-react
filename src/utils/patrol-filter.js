@@ -11,7 +11,7 @@ import store from '../store';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 
-export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
+export const isFilterModified = ({ state }) => (
   !isEqual(INITIAL_FILTER_STATE.state, state)
 );
 

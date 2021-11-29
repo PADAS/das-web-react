@@ -12,6 +12,7 @@ import LoadingOverlay from '../EarthRangerIconLoadingOverlay';
 const PrivateRoute = lazy(() => import('../PrivateRoute'));
 
 const EulaProtectedRoute = ({
+  // eslint-disable-next-line no-unused-vars
   dispatch: _dispatch,
   history,
   fetchCurrentUser,

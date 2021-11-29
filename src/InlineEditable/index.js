@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useEffect, useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -90,7 +91,7 @@ export default memo(InlineEditable);
 
 InlineEditable.defaultProps = {
   showEditButton: false,
-  validationFunc(value) {
+  validationFunc() {
     return true;
   },
   showCancel: true,

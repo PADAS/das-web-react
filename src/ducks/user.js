@@ -16,7 +16,7 @@ const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 
 // action creators
 
-export const fetchCurrentUser = (config = {}) => (dispatch, getState) => axios.get(CURRENT_USER_API_URL)
+export const fetchCurrentUser = () => (dispatch, getState) => axios.get(CURRENT_USER_API_URL)
   .then(( { data: { data } }) => {
     if (!!data.role && data.role.length > 0) {
       setUserRole(data.role);
@@ -45,7 +45,7 @@ export const fetchCurrentUserProfiles = () => async (dispatch) => {
   }
 };
 
-export const setUserProfile = (profile = {}, setCookie) => (dispatch, getState) => {
+export const setUserProfile = (profile = {}, setCookie) => (dispatch) => {
   if (setCookie) {
     document.cookie = `userProfile=${profile.id}`; // set profile cookie
   } else {

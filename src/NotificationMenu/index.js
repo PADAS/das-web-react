@@ -85,7 +85,8 @@ const NotificationItem = (item, index) => {
   </Item>;
 };
 
-const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _dispatch, ...rest }) => {
+// eslint-disable-next-line no-unused-vars
+const NotificationMenu = ({ userNotifications = [], dispatch: _dispatch, ...rest }) => {
   const [news, setNews] = useState(null);
   const [newsFetchError, setNewsFetchError] = useState(null);
   const [menuIsOpen, setMenuIsOpen] = useState(false);

@@ -37,7 +37,7 @@ const MESSAGE_ICON_MAP = {
 
 const MessageListItem = (props) => {
 
-  const { currentPopup, messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null,
+  const { messageGroup, senderDetailStyle, onMessageSubjectClick, onClick = () => null,
     showPopup, subject, subjectTrackState, toggleTrackState, unreadMessageClassName, readMessageClassName, ...rest } = props;
   const map = useContext(MapContext);
 
@@ -86,11 +86,10 @@ const MessageListItem = (props) => {
 
 };
 
-const mapStateToProps = ({ data: { subjectStore }, view: { popup, subjectTrackState } }, ownProps) => {
+const mapStateToProps = ({ data: { subjectStore }, view: { subjectTrackState } }, ownProps) => {
   const subject = ownProps.messageGroup && extractSubjectFromMessage(ownProps.messageGroup[0]);
 
   return {
-    currentPopup: popup,
     subject: subjectStore[subject.id],
     subjectTrackState,
   };

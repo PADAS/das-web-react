@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { Fragment, memo, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -13,6 +14,7 @@ import styles from './styles.module.scss';
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
 const GpsInput = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest } = props;
 
   const lngLat = originalLngLat ? [...originalLngLat] : null;
@@ -24,7 +26,7 @@ const GpsInput = (props) => {
   const [valid, setValidationState] = useState(true);
   const [initialized, setInitState] = useState(false);
 
-  const handleValidationError = (e) => {
+  const handleValidationError = () => {
     setValidationState(false);
   };
 
@@ -114,7 +116,7 @@ export default connect(mapStateToProps, null)(memo(GpsInput, (prev, next) =>
   isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat)));
 
 GpsInput.defaultProps = {
-  onValidChange(value) {
+  onValidChange() {
   },
   inputProps: {},
   showFormatToggle: true,

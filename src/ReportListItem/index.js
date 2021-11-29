@@ -42,6 +42,7 @@ const PRIORITY_COLOR_MAP = {
 };
 
 const ReportListItem = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);

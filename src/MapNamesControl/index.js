@@ -9,7 +9,7 @@ const MapNamesControl = (props) => {
   const { showMapNames, toggleMapNameState } = props;
   const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-  const handleChange = (e) => {
+  const handleChange = () => {
     toggleMapNameState(!showMapNames);
 
     mapInteractionTracker.track(`${showMapNames? 'Uncheck' : 'Check'} 'Show Names' checkbox`);

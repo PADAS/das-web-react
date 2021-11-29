@@ -23,6 +23,7 @@ class SystemStatusComponent extends Component {
   }
 
   renderStatusList() {
+    // eslint-disable-next-line no-unused-vars
     return Object.entries(this.props.systemStatus).map(([_key, value], index) => {
       if (Array.isArray(value)) {
         return value.map((item) =>

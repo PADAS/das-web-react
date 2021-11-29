@@ -52,7 +52,7 @@ const PatrolFilter = (props) => {
     patrolFilterTracker.track('Click Date Filter Settings button');
   }, []);
 
-  const onDateFilterIconClicked = useCallback((e) => {
+  const onDateFilterIconClicked = useCallback(() => {
     patrolFilterTracker.track('Date Filter Popover Toggled');
   }, []);
 

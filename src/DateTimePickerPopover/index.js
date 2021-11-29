@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { forwardRef, memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import debounceRender from 'react-debounce-render';
 import PropTypes from 'prop-types';
@@ -19,7 +20,7 @@ import styles from './styles.module.scss';
 const DEFAULT_PLACEMENT = 'bottom';
 const BLANK_VALUE = '____-__-__ __:__';
 
-const DateTimePickerPopover = (props, ref) => {
+const DateTimePickerPopover = (props) => {
   const { className = '', disabled = false, popperConfig = {}, inputClassName = '', placeholder = '', onPopoverToggle, onPopoverClosed, onPopoverOpened, minDate, maxDate, onChange, required, value, placement, showClockIcon = false } = props;
   const popoverStateIsControlled = props.hasOwnProperty('popoverOpen');
 

@@ -25,6 +25,7 @@ export const calcIconUrl = (type, iconId) => {
 };
 
 const DasIcon = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest } = props;
 
   const svgHref = calcIconUrl(type, iconId);

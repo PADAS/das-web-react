@@ -6,6 +6,7 @@ const worstToBest = [UNKNOWN_STATUS, UNHEALTHY_STATUS, WARNING_STATUS, HEALTHY_S
 
 const calcWorstCaseStatus = (systemStatus) => {
   const statusArray = Object.entries(systemStatus)
+    // eslint-disable-next-line no-unused-vars
     .reduce((accumulator, [_key, value]) => {
       if (Array.isArray(value)) return [...accumulator, ...value];
       return [...accumulator, value];

@@ -43,6 +43,7 @@ const timepointLayerPaint = {
 };
 
 const TrackLayer = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch, ...rest } = props;
 
   const trackLinePaint = useMemo(() => ({
@@ -101,7 +102,7 @@ const TrackLayer = (props) => {
 export default memo(TrackLayer);
 
 TrackLayer.defaultProps = {
-  onPointClick(layer) {
+  onPointClick() {
   },
   showTimepoints: true,
 };

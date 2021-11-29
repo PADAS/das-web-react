@@ -89,7 +89,7 @@ const MapImageFromSvgSpriteRenderer = (props) => {
       !!spriteCache.current[reportTypeIconId]
     );
 
-  toRequest.forEach(({ color, report, icon_id, reportTypeIconId }) => {
+  toRequest.forEach(({ report, icon_id, reportTypeIconId }) => {
     if (!ongoingRequests.current[reportTypeIconId]) {
       ongoingRequests.current[reportTypeIconId] = fetchSpriteImage(reportTypeIconId);
     }

@@ -214,7 +214,7 @@ export const addNoteToEvent = (event_id, note) => (dispatch) => {
     });
 };
 
-export const addEventToIncident = (event_id, incident_id) => (_dispatch) => axios.post(`${EVENT_API_URL}${incident_id}/relationships`, {
+export const addEventToIncident = (event_id, incident_id) => () => axios.post(`${EVENT_API_URL}${incident_id}/relationships`, {
   type: 'contains',
   to_event_id: event_id,
 });

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useState, useEffect, useRef, Fragment, useCallback, useMemo } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import { connect } from 'react-redux';

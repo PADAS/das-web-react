@@ -8,7 +8,7 @@ import SplitButton from 'react-bootstrap/SplitButton';
 import styles from './styles.module.scss';
 
 const StateButton = (props) => {
-  const { isActive, onStateToggle, saveDisabled, ...rest } = props;
+  const { isActive, onStateToggle, ...rest } = props;
 
   const onClick = () => {
     onStateToggle(isActive ? 'resolved' : 'active');

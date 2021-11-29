@@ -16,7 +16,7 @@ const GLOBAL_UI_SCHEMA_CONFIG = {
 };
 
 const extractRequiredPropsFromSchemaAndDefinition = (schema = { properties: {} }, definition = []) => {
-  const fromProps = Object.entries(schema.properties).reduce((accumulator, [key, value], index) => {
+  const fromProps = Object.entries(schema.properties).reduce((accumulator, [key, value]) => {
     if (value.type === 'object') {
       return [...accumulator, ...extractRequiredPropsFromSchemaAndDefinition(value)];
     }
@@ -157,7 +157,7 @@ export const generateFormSchemasFromEventTypeSchema = ({ definition: definitions
 const convertDefinitionsToSchemas = (definitions = [], schema) => {
   const definitionsToConvert = definitions.filter(d => (typeof d !== 'string'));
 
-  return definitionsToConvert.reduce((accumulator, definition, index) => {
+  return definitionsToConvert.reduce((accumulator, definition) => {
     const { items, key, layout, type, fieldHtmlClass, htmlClass } = definition;
 
     let result = {};
@@ -208,7 +208,7 @@ const convertSchemaLayoutToColumnClassString = ({ sm, md, lg }) => {
   return val;
 };
 
-const addCssClassesToDefinition = ({ key, fieldHtmlClass, htmlClass, layout }) => {
+const addCssClassesToDefinition = ({ key, htmlClass, layout }) => {
   const entry = {
     schemaEntry: {
       key,

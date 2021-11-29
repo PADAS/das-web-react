@@ -15,8 +15,9 @@ import styles from './styles.module.scss';
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = (props) => {
-  const { clickAnalytics, onBounceClick, onClick, map, coordinates, isMulti, bypassLocationValidation,
-    zoom, updateUserPreferences, iconOverride, className, setBounceEventIDs, dispatch: _dispatch, ...rest } = props;
+  const { clickAnalytics, onClick, map, coordinates, isMulti, bypassLocationValidation,
+    // eslint-disable-next-line no-unused-vars
+    zoom, updateUserPreferences, iconOverride, className, dispatch: _dispatch, ...rest } = props;
 
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
 

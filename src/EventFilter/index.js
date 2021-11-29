@@ -82,7 +82,7 @@ const EventFilter = (props) => {
     }
   };
 
-  const resetReportTypes = (_e) => {
+  const resetReportTypes = () => {
     eventFilterTracker.track('Reset Event Types Filter');
     setReportTypeFilterText('');
     updateEventFilter({ filter: { event_type: [] } });

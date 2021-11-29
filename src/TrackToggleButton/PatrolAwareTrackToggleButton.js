@@ -12,6 +12,7 @@ import TrackToggleButton from './';
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const PatrolAwareTrackToggleButton = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { dispatch: _dispatch, patrolData, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest } = props;
 
   const { patrol, leader } = patrolData;

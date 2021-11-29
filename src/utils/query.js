@@ -78,9 +78,9 @@ export const cleanedUpFilterObject = (filter) =>
 export const objectToParamString = (obj) => {
   const props = Object.entries(obj);
 
-  return props.reduce((params, [key, value], _index) => {
+  return props.reduce((params, [key, value]) => {
     if (Array.isArray(value)) {
-      value.forEach((v, i) => {
+      value.forEach((v) => {
         params.append(key, v);
       });
     } else if (typeof value === 'object') {
