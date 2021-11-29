@@ -109,6 +109,7 @@ const LocationSearch = (props) => {
     try {
       const url = `${API_URL}search-by-address?input=${query}`;
       const response = await axios.get(url);
+      console.log(response);
       const { data: { data } } = response;
       console.log('getPlaceNamesWithIds response => ', data);
       data.forEach(res => {
@@ -137,10 +138,11 @@ const LocationSearch = (props) => {
     try {
       const url = `${API_URL}coordinates?place_id=${place_id}`;
       const response = await axios.get(url);
-      const { data: { data } } = response;
-      console.log('getCooordinates response => ', data);
-      if (data.coordinates) {
-        setCoordinates(data);
+      console.log(response);
+      const { data: { coordinates } } = response;
+      console.log('getCooordinates response => ', coordinates);
+      if (coordinates) {
+        setCoordinates(coordinates);
       } else {
         setCoordinates([]);
       }
