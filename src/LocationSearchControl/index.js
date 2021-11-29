@@ -104,6 +104,7 @@ const LocationSearch = (props) => {
     }
   };
 
+  // docker build not picking changes
   const fetchLocation = async(query) => {
     setIsLoading(true);
     try {
