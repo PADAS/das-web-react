@@ -6,6 +6,7 @@ import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import uniqBy from 'lodash/uniqBy';
+import partition from 'lodash/partition';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -40,6 +41,7 @@ import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
+import StaticSensorsLayer from '../StaticSensorsLayer';
 import TrackLayers from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import FeatureLayer from '../FeatureLayer';
@@ -553,6 +555,10 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
+    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.subject_type === 'static_sensor');
+    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
+    const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
+
     return (
       <EarthRangerMap
         center={this.mapCenter}
@@ -593,10 +599,12 @@ class Map extends Component {
             <SubjectsLayer
               allowOverlap={timeSliderActive}
               mapImages={mapImages}
-              subjects={mapSubjectFeatureCollection}
+              subjects={nonStaticSubjects}
               subjectsOnActivePatrol={subjectsOnActivePatrol}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+
+            <StaticSensorsLayer staticSensors={staticSubjects} />
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 
