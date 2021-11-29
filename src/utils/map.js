@@ -69,14 +69,14 @@ export const addMapImage = async ({ src, id, height, width, options = {} }) => {
   };
 };
 
-export const addFeatureCollectionImagesToMap = (collection, map) => {
+export const addFeatureCollectionImagesToMap = (collection, map, options ={}) => {
   const { features } = collection;
 
   const images = features
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties }) => properties)
     .filter((properties, index, array) =>  array.findIndex(item => item.image === properties.image) === index)
-    .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width }));
+    .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width, options }));
 
   return Promise.all(images).then(results => results);
 };
