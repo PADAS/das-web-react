@@ -94,14 +94,6 @@ const LocationSearch = (props) => {
         setLocations([]);
       }
     }
-    if (key === 'Backspace' || key === 'Delete') {
-      event.preventDefault();
-      if (query) {
-        setQuery('');
-        setLocations([]);
-        setErrors([]);
-      }
-    }
   };
 
   const fetchLocation = async(query) => {
@@ -109,7 +101,6 @@ const LocationSearch = (props) => {
     try {
       const url = `${API_URL}search-by-address?input=${query}`;
       const response = await axios.get(url);
-      console.log(response);
       const { data: { data } } = response;
       console.log('getPlaceNamesWithIds response => ', data);
       data.forEach(res => {
@@ -138,11 +129,10 @@ const LocationSearch = (props) => {
     try {
       const url = `${API_URL}coordinates?place_id=${place_id}`;
       const response = await axios.get(url);
-      console.log(response);
-      const { data: { coordinates } } = response;
-      console.log('getCooordinates response => ', coordinates);
-      if (coordinates) {
-        setCoordinates(coordinates);
+      const { data: { data } } = response;
+      console.log('getCooordinates response => ', data);
+      if (data.coordinates) {
+        setCoordinates(data);
       } else {
         setCoordinates([]);
       }
@@ -151,9 +141,9 @@ const LocationSearch = (props) => {
     }
   };
 
-  const coords = Object.values({ lng: coordinates.lng, lat: coordinates.lat });
+  const coords = Object.values({ lng: coordinates['lng'], lat: coordinates['lat'] });
   console.log('JumpToLocation coordinate => ', coords);
-  const validatedCoords = coordinates.lng && coordinates.lat && validateLngLat(coordinates.lng, coordinates.lat);
+  const validatedCoords = coordinates['lng'] && coordinates['lat'] && validateLngLat(coordinates['lng'], coordinates['lat']);
 
   const errorMessages = errors.map((err, index) => (
     <p className={styles.zero_results} key={index}> {err.no_results} </p>
@@ -188,11 +178,6 @@ const LocationSearch = (props) => {
       const point = locations[index];
       const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
       validatedCoords && showPopup('dropped-marker', { location: point.coordinates, coordinates } );
-    } else {
-      locations.forEach(points => {
-        const coordinates = [ points.coordinates.lng, points.coordinates.lat ];
-        validatedCoords && showPopup('dropped-marker', { location: points.coordinates, coordinates } );
-      });
     }
   };
 
