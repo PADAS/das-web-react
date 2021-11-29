@@ -1,11 +1,20 @@
-export const calcZoomForSourceConfig = (layer) => {
+export const calcConfigForMapAndSourceFromLayer = (layer) => {
   const config = layer?.attributes?.configuration;
-  const returnVal = {};
+  const sourceConfig = {};
+  const mapConfig = {};
 
   if (config) {
-    if (config.maxNativeZoom || config.maxZoom) returnVal.maxzoom = config.maxNativeZoom || config.maxZoom;
-    if (config.minZoom) returnVal.minzoom = config.minZoom;
+    if (config.maxNativeZoom) {
+      sourceConfig.maxzoom = config.maxNativeZoom;
+    }
+    if (config.minZoom) {
+      sourceConfig.minzoom = config.minZoom;
+      mapConfig.minzoom = config.minZoom;
+    }
+    if (config.maxZoom) {
+      mapConfig.maxzoom = config.maxZoom;
+    }
   }
 
-  return returnVal;
+  return { mapConfig, sourceConfig };
 };

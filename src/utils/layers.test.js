@@ -1,30 +1,31 @@
-import { calcZoomForSourceConfig } from './layers';
+import { calcConfigForMapAndSourceFromLayer } from './layers';
 
 import { withMaxMinAndMaxNativeZoom, withMaxZoom, withMinZoom, withNoZoomConfig } from '../__test-helpers/fixtures/layers';
 
 
-describe.only('#calcZoomForSourceConfig', () => {
-  test('setting max zoom from maxNativeZoom', () => {
-    const config = calcZoomForSourceConfig(withMaxMinAndMaxNativeZoom);
+describe('#calcConfigForMapAndSourceFromLayer', () => {
+  test('setting source max zoom from maxNativeZoom', () => {
+    const { sourceConfig } = calcConfigForMapAndSourceFromLayer(withMaxMinAndMaxNativeZoom);
 
-    expect(config.maxzoom).toEqual(withMaxMinAndMaxNativeZoom.attributes.configuration.maxNativeZoom);
+    expect(sourceConfig.maxzoom).toEqual(withMaxMinAndMaxNativeZoom.attributes.configuration.maxNativeZoom);
   });
 
-  test('setting max zoom from maxzoom if maxNativeZoom is not set', () => {
-    const config = calcZoomForSourceConfig(withMaxZoom);
+  test('setting map max zoom from maxzoom', () => {
+    const { mapConfig } = calcConfigForMapAndSourceFromLayer(withMaxZoom);
 
-    expect(config.maxzoom).toEqual(withMaxZoom.attributes.configuration.maxZoom);
+    expect(mapConfig.maxzoom).toEqual(withMaxZoom.attributes.configuration.maxZoom);
   });
 
-  test('setting min zoom from minZoom', () => {
-    const config = calcZoomForSourceConfig(withMinZoom);
+  test('setting map and source min zoom from minZoom', () => {
+    const { mapConfig, sourceConfig } = calcConfigForMapAndSourceFromLayer(withMinZoom);
 
-    expect(config.minzoom).toEqual(withMinZoom.attributes.configuration.minZoom);
+    expect(mapConfig.minzoom).toEqual(withMinZoom.attributes.configuration.minZoom);
+    expect(sourceConfig.minzoom).toEqual(withMinZoom.attributes.configuration.minZoom);
   });
 
   test('no min or max zoom available', () => {
-    const config = calcZoomForSourceConfig(withNoZoomConfig);
+    const config = calcConfigForMapAndSourceFromLayer(withNoZoomConfig);
 
-    expect(config).toEqual({});
+    expect(config).toEqual({ mapConfig: {}, sourceConfig: {} });
   });
 });
