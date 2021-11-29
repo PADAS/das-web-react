@@ -1,4 +1,5 @@
-import React, { useContext, memo, useEffect } from 'react';
+import React, { useContext, memo, useEffect, useState } from 'react';
+import set from 'lodash/set';
 
 import { MapContext } from '../App';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
@@ -21,19 +22,27 @@ const IMAGE_DATA = {
 
 const StaticSensorsLayer = ({ staticSensors }) => {
   const map = useContext(MapContext);
-  // const [sensorsWithAddons, setsensorsWithAddons] = useState({});
+  const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
 
-  // useEffect(() => {
-  //   const newSensors = staticSensors.features.map(feature => {
-  //     feature.properties.image-name
-  //   });
-  // }, []);
+  const addDefaultStatusValue = (features = []) => {
+    return features.map(feature => {
+      const featureDeviceProperties = feature?.properties?.device_status_properties ?? [];
+      const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
+      const defaultStatusValue = `${defaultProperty.value} ${defaultProperty.units}`;
+      // concat values of the properties
+      return set(feature, 'properties.default_status_value', defaultStatusValue);
+    });
+  };
+
+  useEffect(() => {
+    setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
+  }, [sensorsWithDefaultValue, staticSensors]);
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'icon-size': 1,
-    'text-anchor': 'center',
-    'text-offset': [-1.5, -.2],
+    'text-anchor': 'left',
+    'text-offset': [-2.5, -.2],
     'text-field': '{default_status_value}',
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
@@ -100,7 +109,7 @@ const StaticSensorsLayer = ({ staticSensors }) => {
   }, [labelLayout, labelPaint, map, secondLabelLayout, secondLabelPaint]);
 
   return <>
-    <GeoJsonLayer type={LAYER_TYPE} id={LAYER_ID} data={staticSensors} layout={labelLayout} paint={labelPaint}/>
+    <GeoJsonLayer type={LAYER_TYPE} id={LAYER_ID} data={sensorsWithDefaultValue} layout={labelLayout} paint={labelPaint}/>
   </>;
 };
 
