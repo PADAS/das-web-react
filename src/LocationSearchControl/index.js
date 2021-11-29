@@ -20,6 +20,7 @@ const LocationSearch = (props) => {
   const debouncedApiCall = useRef();
   const [active, setActiveState] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [coordinates, setCoordinates] = useState({});
   const [query, setQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState(null); /* eslint-disable-line no-unused-vars */
   const [errors, setErrors] = useState([]);
@@ -106,11 +107,12 @@ const LocationSearch = (props) => {
   const fetchLocation = async(query) => {
     setIsLoading(true);
     try {
-      const url = `${API_URL}coordinates?query=${query}`;
+      const url = `${API_URL}search-by-address?input=${query}`;
       const response = await axios.get(url);
       const { data: { data } } = response;
+      console.log('getPlaceNamesWithIds response => ', data);
       data.forEach(res => {
-        if (res.placeName && res.coordinates) {
+        if (res.place_name && res.place_id) {
           setLocations(data);
           setErrors([]);
           setIsLoading(false);
@@ -131,22 +133,28 @@ const LocationSearch = (props) => {
     };
   };
 
-  const coords = useMemo(() => locations.map(coord => {
-    if (coord) {
-      const coordinates = { lng: coord.coordinates.lng, lat: coord.coordinates.lat };
-      const arrayOfCoords = Object.values(coordinates);
-      return arrayOfCoords;
-    } else {
-      return null;
+  const fetchCoordinates = async(place_id) => {
+    try {
+      const url = `${API_URL}coordinates?place_id=${place_id}`;
+      const response = await axios.get(url);
+      const { data: { data } } = response;
+      console.log('getCooordinates response => ', data);
+      if (data.coordinates) {
+        setCoordinates(data);
+      } else {
+        setCoordinates([]);
+      }
+    } catch (error) {
+      console.log(error);
     }
-  }), [locations]);
+  };
 
-  const validatedCoords = locations.every(coord =>
-    validateLngLat(coord.coordinates.lng, coord.coordinates.lat)
-  );
+  const coords = Object.values({ lng: coordinates.lng, lat: coordinates.lat });
+  console.log('JumpToLocation coordinate => ', coords);
+  const validatedCoords = coordinates.lng && coordinates.lat && validateLngLat(coordinates.lng, coordinates.lat);
 
   const errorMessages = errors.map((err, index) => (
-    <p className={styles.zero_results} key={index}> {err.noResults} </p>
+    <p className={styles.zero_results} key={index}> {err.no_results} </p>
   ));
 
   const querySuggestions = locations.map((location, index) => (
@@ -155,15 +163,17 @@ const LocationSearch = (props) => {
       key={index}
       id={index}
       onClick={(e) => onQueryResultClick(e) }>
-      {location.placeName}
+      {location.place_name}
     </li>
   ));
 
   const onQueryResultClick = (e) => {
     e.preventDefault();
     if (query) {
-      jumpToLocation(map, coords);
       const resultIndex = parseInt(e.target.id);
+      const placeId = locations[resultIndex];
+      fetchCoordinates(placeId.place_id);
+      jumpToLocation(map, coords);
       setSelectedLocation(locations[resultIndex]);
       addMarker(resultIndex);
       setLocations([]);

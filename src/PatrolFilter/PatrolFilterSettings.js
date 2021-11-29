@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
+
+const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
 const PatrolFilterSettings = (props) => {
   const { handleFilterOptionChange, patrolFilter } = props;
@@ -21,7 +23,7 @@ const PatrolFilterSettings = (props) => {
 
   const handleOptionClick = useCallback((e) => {
     handleFilterOptionChange(e);
-    trackEvent('Patrol Filter', `Select "${e.target.value === 'start_dates' ? 'Filter by start date' : 'Filter by date range overlap'}"`);
+    patrolFilterTracker.track(`Select "${e.target.value === 'start_dates' ? 'Filter by start date' : 'Filter by date range overlap'}"`);
   }, [handleFilterOptionChange]);
 
   return <div className={styles.filterSelection}>

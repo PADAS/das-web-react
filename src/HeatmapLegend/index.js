@@ -6,12 +6,14 @@ import MapLegend from '../MapLegend';
 import HeatmapStyleControls from '../HeatmapStyleControls';
 import HeatmapToggleButton from '../HeatmapToggleButton';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
 
   const onLegendClose = (e) => {
-    trackEvent('Map Interaction', 'Close Heatmap');
+    mapInteractionTracker.track('Close Heatmap');
     onClose(e);
   };
 

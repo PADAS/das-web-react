@@ -2,17 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { toggleShowInactiveRadioState } from '../ducks/map-ui';
 import { withMap } from '../EarthRangerMap';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const InactiveRadioControl = (props) => {
 
   const { showInactiveRadios, toggleShowInactiveRadioState } = props;
 
-  const onCheckboxChange = (e) => {
+  const onCheckboxChange = () => {
     toggleShowInactiveRadioState(!showInactiveRadios);
-    trackEvent('Map Interaction',  `${showInactiveRadios? 'Uncheck' : 'Check'} 'Show Inactive Radios' checkbox`);
+    mapInteractionTracker.track(`${showInactiveRadios? 'Uncheck' : 'Check'} 'Show Inactive Radios' checkbox`);
   };
 
   return <label>

@@ -14,7 +14,7 @@ import { subjectGroupHeatmapControlState } from './selectors';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 
 import { getUniqueSubjectGroupSubjectIDs } from '../utils/subjects';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -22,6 +22,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
   lazyRender: false,
   transitionTime: 1,
 };
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const TriggerComponent = memo((props) => { // eslint-disable-line react/display-name
   const { listLevel, name, showHeatmapControl, groupIsFullyHeatmapped, loadingTracks, groupIsPartiallyHeatmapped, onGroupHeatmapToggle } = props;
@@ -76,7 +77,7 @@ const ContentComponent = (props) => {
 
     e.stopPropagation();
     if (groupIsFullyHeatmapped) {
-      trackEvent('Map Layers', 'Uncheck Group Heatmap checkbox', `Group:${name}`);
+      mapLayerTracker.track('Uncheck Group Heatmap checkbox', `Group:${name}`);
       return removeHeatmapSubjects(...heatmapEligibleSubjectIDs);
     }
 
@@ -87,7 +88,7 @@ const ContentComponent = (props) => {
 
     setTrackLoadingState(false);
 
-    trackEvent('Map Layers', 'Check Group Heatmap checkbox', `Group:${name}`);
+    mapLayerTracker.track('Check Group Heatmap checkbox', `Group:${name}`);
     return addHeatmapSubjects(...heatmapEligibleSubjectIDs);
   };
 

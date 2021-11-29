@@ -6,7 +6,7 @@ import LogarithmicSlider from '../LogarithmicSlider';
 
 import { updateHeatmapConfig } from '../ducks/map-ui';
 
-import { debouncedTrackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
@@ -17,12 +17,13 @@ const MINIMUM_SENSITIVITY = 1;
 const MAXIUMUM_SENSITIVITY = 100;
 
 const HIGH_HEAT_WEIGHT = 5;
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const HeatmapStyleControls = (props) => {
 
   const { heatmapStyles: { radiusInMeters, intensity }, updateHeatmapConfig } = props;
 
-  const trackEventDebounced = useRef(debouncedTrackEvent());
+  const trackEventDebounced = useRef(mapInteractionTracker.debouncedTrack());
   const [editingRadius, setRadiusEditState] = useState(false);
 
   const startRadiusEdit = useCallback(() => {
@@ -35,7 +36,7 @@ const HeatmapStyleControls = (props) => {
 
   const onRadiusChange = useCallback((value) => {
     const updateValue = parseFloat(value) || MINIMUM_RADIUS;
-    trackEventDebounced.current('Map Interaction', 'Set Heatmap Radius', `${updateValue} meters`);
+    trackEventDebounced.current('Set Heatmap Radius', `${updateValue} meters`);
     updateHeatmapConfig({
       radiusInMeters: updateValue,
     });
@@ -52,7 +53,7 @@ const HeatmapStyleControls = (props) => {
     const val = parseFloat(value) || MINIMUM_SENSITIVITY;
     const minimumSensitivityValue = MINIMUM_SENSITIVITY / MAXIUMUM_SENSITIVITY;
 
-    trackEventDebounced.current('Map Interaction', 'Set Heatmap Sensitivity', `${val} out ${MAXIUMUM_SENSITIVITY}`);
+    trackEventDebounced.current('Set Heatmap Sensitivity', `${val} out ${MAXIUMUM_SENSITIVITY}`);
 
     const intensity = Math.max(
       parseFloat(((val - MINIMUM_SENSITIVITY) / (MAXIUMUM_SENSITIVITY - MINIMUM_SENSITIVITY)).toFixed(2)),

@@ -2,6 +2,8 @@ import React, { memo, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import FeedListItem from '../FeedListItem';
+
 import DateTime from '../DateTime';
 import EventIcon from '../EventIcon';
 import LocationJumpButton from '../LocationJumpButton';
@@ -13,11 +15,34 @@ import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMulti
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
 import { jumpToLocation } from '../utils/map';
+import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
+
+
+import colorVariables from '../common/styles/vars/colors.module.scss';
 
 import styles from './styles.module.scss';
 
+const PRIORITY_COLOR_MAP = {
+  300: {
+    base: colorVariables.red,
+    background: colorVariables.redBg,
+  },
+  200: {
+    base: colorVariables.amber,
+    background: colorVariables.amberBg,
+  },
+  100: {
+    base: colorVariables.green,
+    background: colorVariables.greenBg,
+  },
+  0: {
+    base: colorVariables.gray,
+    background: colorVariables.grayBg,
+  },
+};
+
 const ReportListItem = (props) => {
-  const { eventTypes, priority = null, displayTime = null, title = null, map, report, onTitleClick, setBounceEventIDs, onIconClick, showDate, showJumpButton, className, key, zoom, dispatch: _dispatch, ...rest } = props;
+  const { eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest } = props;
 
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
@@ -28,24 +53,15 @@ const ReportListItem = (props) => {
   const iconClickHandler = onIconClick || onTitleClick;
   const hasPatrols = !!report?.patrols?.length;
 
+  const theme = useMemo(() => {
+    const reportToConsider = report.is_collection
+      ? calcTopRatedReportAndTypeForCollection(report, eventTypes)?.related_event
+      : report;
 
-  const displayPriority = useMemo(() => {
-    if (priority) return priority;
-    if (!!report.priority) return report.priority;
+    return PRIORITY_COLOR_MAP[reportToConsider.priority] || PRIORITY_COLOR_MAP['0'];
+  }, [eventTypes, report]);
 
-    if (report.is_collection) {
-      const topRatedReportAndType = calcTopRatedReportAndTypeForCollection(report, eventTypes);
-      if (!topRatedReportAndType) return report.priority;
-
-      return (topRatedReportAndType.related_event && !!topRatedReportAndType.related_event.priority) ?
-        topRatedReportAndType.related_event.priority
-        : (topRatedReportAndType.event_type && !!topRatedReportAndType.event_type.default_priority) ?
-          topRatedReportAndType.event_type.default_priority
-          : report.priority;
-    }
-
-    return report.priority;
-  }, [eventTypes, priority, report]);
+  const { base: themeColor, background: themeBgColor } = theme;
 
   const displayTitle = title || displayTitleForEvent(report, eventTypes);
 
@@ -66,38 +82,45 @@ const ReportListItem = (props) => {
     locationClicked.current = true;
   };
 
-  return <li title={displayTitle} className={`${styles.listItem} ${styles[`priority-${displayPriority}`]} ${className}`} key={key} {...rest}>
-    <button role='img' type='button' className={styles.icon} onClick={() => iconClickHandler(report)}>
-      <EventIcon report={report} />
-      {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
-    </button>
-    <span className={styles.serialNumber}>{report.serial_number}</span>
-    <button type='button' className={styles.title} onClick={() => onTitleClick(report)}>{displayTitle}</button>
-    <span className={styles.date}>
-      <DateTime date={displayTime || report.updated_at || report.time} />
-      {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
-    </span>
-    {coordinates && !!coordinates.length && showJumpButton &&
-      <LocationJumpButton isMulti={hasMultipleLocations}  map={map} coordinates={coordinates} onClick = {onClick}
-        clickAnalytics={['Map Layers', 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
+  const dateTimeProp = displayTime || report.updated_at || report.time;
+
+  return <FeedListItem
+    title={displayTitle} className={`${className}`}
+    themeBgColor={themeBgColor}
+    themeColor={themeColor}
+    IconComponent={
+      <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>
+        <EventIcon report={report} />
+        {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
+      </button>
     }
-  </li>;
+    TitleComponent={
+      <>
+        <span className={styles.serialNumber}>{report.serial_number}</span>
+        <button className={styles.title} type='button' onClick={() => onTitleClick(report)}>{displayTitle}</button>
+      </>
+    }
+    DateComponent={dateTimeProp && <span>
+      <DateTime date={dateTimeProp} />
+        {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
+      </span>}
+    ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&
+      <LocationJumpButton
+        isMulti={hasMultipleLocations}
+        map={map} coordinates={coordinates} onClick={onClick}
+        clickAnalytics={[MAP_LAYERS_CATEGORY, 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
+      }
+      {...rest}
+  />;
 };
 
 const mapStateToProps = (state) => ({ eventTypes: displayEventTypes(state) });
 export default connect(mapStateToProps, { setBounceEventIDs })(memo(ReportListItem));
 
-ReportListItem.defaultProps = {
-  showJumpButton: true,
-  showDate: true,
-};
-
 ReportListItem.propTypes = {
-  key: PropTypes.string,
   report: PropTypes.object.isRequired,
   map: PropTypes.object,
   onTitleClick: PropTypes.func,
   onIconClick: PropTypes.func,
   showJumpButton: PropTypes.bool,
-  showDate: PropTypes.bool,
 };

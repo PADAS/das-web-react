@@ -15,7 +15,7 @@ import { SocketContext } from '../withSocketConnection';
 
 import { fetchNews, readNews } from '../ducks/news';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
@@ -29,6 +29,7 @@ const NOTIFICATION_REMINDER_DAYS_THRESHOLD = 7; // days
 const NEWS_ITEM_CHARACTER_LIMIT = 200;
 
 const { Divider, Toggle, Menu, Item } = Dropdown;
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
 const formatUnreadNewsItemsAsNotifications = (news = []) =>
   news
@@ -111,7 +112,7 @@ const NotificationMenu = ({ userNotifications = [], newsItems = [], dispatch: _d
   };
 
   const onToggle = (isOpen) => {
-    trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} Notification Menu`);
+    mainToolbarTracker.track(`${isOpen ? 'Open' : 'Close'} Notification Menu`);
 
     setMenuIsOpen(isOpen);
 

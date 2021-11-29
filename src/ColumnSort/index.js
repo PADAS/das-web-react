@@ -24,7 +24,9 @@ const ColumnSort = (props) => {
   const isSortModified = !DEFAULT_EVENT_SORT.includes(selectedOption);
 
   const onClickSortOption = (option) => {
-    onChange([direction, option]);
+    if (option.value !== selectedOption.value){
+      onChange([direction, option]);
+    }
   };
 
   const toggleSortDirection = () => {

@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import styles from './styles.module.scss';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 const { Toggle, Menu, Item, Divider } = Dropdown;
+const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
 const UserMenu = (props) => {
   const { user, selectedUserProfile, userProfiles, onProfileClick, onLogOutClick, ...rest } = props;
@@ -14,12 +15,12 @@ const UserMenu = (props) => {
   const cookieSettingsRef = useRef();
 
   const onDropdownToggle = (isOpen) => {
-    trackEvent('Main Toolbar', `${isOpen ? 'Open' : 'Close'} User Menu`);
+    mainToolbarTracker.track(`${isOpen ? 'Open' : 'Close'} User Menu`);
   };
 
   const onLogOutItemClick = () => {
     onLogOutClick();
-    trackEvent('Main Toolbar', 'Click \'Log Out\'');
+    mainToolbarTracker.track('Click \'Log Out\'');
   };
 
   return <Fragment>

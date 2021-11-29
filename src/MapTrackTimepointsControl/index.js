@@ -1,16 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { toggleTrackTimepointState } from '../ducks/map-ui';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 const MapTrackTimepointsControl = (props) => {
   const { showTrackTimepoints, toggleTrackTimepointState } = props;
+  const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
   const handleChange = () => {
     toggleTrackTimepointState();
 
-    trackEvent('Map Interaction',
-      `${showTrackTimepoints? 'Uncheck' : 'Check'} 'Show Track Timepoints' checkbox`, null);
+    mapInteractionTracker.track(`${showTrackTimepoints? 'Uncheck' : 'Check'} 'Show Track Timepoints' checkbox`);
   };
 
   return <label>

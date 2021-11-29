@@ -25,7 +25,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
@@ -73,6 +73,7 @@ import LocationSearch from '../LocationSearchControl';
 
 import './Map.scss';
 
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 class Map extends Component {
 
@@ -369,7 +370,7 @@ class Map extends Component {
     const { map } = this.props;
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
-    trackEvent('Map Interaction', 'Click Map Event Icon', `Event Type:${event.event_type}`);
+    mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
   })
 
@@ -381,7 +382,7 @@ class Map extends Component {
     const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
 
     this.props.showPopup('feature-symbol', { geometry, properties, coordinates });
-    trackEvent('Map Interaction', 'Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+    mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
   })
 
   onAnalyzerGroupEnter = (e, groupIds) => {
@@ -459,7 +460,7 @@ class Map extends Component {
 
   onCurrentUserLocationClick = this.withLocationPickerState((location) => {
     this.props.showPopup('current-user-location', { location, coordinates: [location.coords.longitude, location.coords.latitude] });
-    trackEvent('Map Interaction', 'Click Current User Location Icon');
+    mapInteractionTracker.track('Click Current User Location Icon');
   })
 
   onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
@@ -478,7 +479,7 @@ class Map extends Component {
         visible: [...subjectTrackState.visible, id]
       });
     }
-    trackEvent('Map Interaction', 'Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
+    mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
   onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {

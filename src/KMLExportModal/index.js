@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, KML_EXPORT_CATEGORY, REPORT_EXPORT_CATEGORY } from '../utils/analytics';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import subDays from 'date-fns/sub_days';
@@ -11,6 +11,9 @@ import DataExportModal from '../DataExportModal';
 import DateRangeSelector from '../DateRangeSelector';
 
 import styles from './styles.module.scss';
+
+const kmlExportTracker = trackEventFactory(KML_EXPORT_CATEGORY);
+const reportExportTracker = trackEventFactory(REPORT_EXPORT_CATEGORY);
 
 const KMLExportModal = (props) => {
 
@@ -32,15 +35,15 @@ const KMLExportModal = (props) => {
 
   const onCheckboxChange = (e) => {
     setIncludeInactive(!includeInactive);
-    trackEvent('KML Export', `${includeInactive}? 'Uncheck' : 'Check'} 'Show Inactive' checkbox`);
+    kmlExportTracker.track(`${includeInactive}? 'Uncheck' : 'Check'} 'Show Inactive' checkbox`);
   };
 
   const handleStartDateChange = value => {
-    trackEvent('Report Export', 'Set KML Start Date');
+    reportExportTracker.track('Set KML Start Date');
     handleInputChange('start', value);
   };
   const handleEndDateChange = value => {
-    trackEvent('Report Export', 'Set KML End Date');
+    reportExportTracker.track('Set KML End Date');
     handleInputChange('end', value);
   };
 

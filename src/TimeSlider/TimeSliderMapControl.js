@@ -1,18 +1,19 @@
 import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
-
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { setTimeSliderState } from '../ducks/timeslider';
 
 import { ReactComponent as TimeSliderIcon } from '../common/images/icons/timeslider-icon.svg';
 
 import styles from './styles.module.scss';
 
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
 const TimeSliderMapControl = ({ active, dateSet, setTimeSliderState }) => {
   const toggleState = () => {
     setTimeSliderState(!active);
-    trackEvent('Map Interaction', `${!active ? 'Open' : 'Close'} 'Time Slider' control`);
+    mapInteractionTracker.track(`${!active ? 'Open' : 'Close'} 'Time Slider' control`);
   };
 
   return <button className={styles.mapControl} type="button" onClick={toggleState}>

@@ -7,7 +7,7 @@ import { uuid } from '../utils/string';
 import MapTerrain from '../MapTerrain';
 import SkyLayer from '../SkyLayer';
 
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
 
@@ -24,6 +24,7 @@ const MapboxMap = ReactMapboxGl({
   maxZoom: MAX_ZOOM,
   logoPosition: 'bottom-left',
 });
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 export function withMap(Component) {
   return forwardRef((props, ref) => <MapContext.Consumer>{map => <Component map={map} {...props} ref={ref} />}</MapContext.Consumer>); // eslint-disable-line react/display-name
@@ -42,7 +43,6 @@ const EarthRangerMap = (props) => {
 
       const scale = new mapboxgl.ScaleControl({
         maxWidth: 80,
-        unit: 'imperial'
       });
 
       map.addControl(scale, 'bottom-right');
@@ -55,10 +55,10 @@ const EarthRangerMap = (props) => {
   const id = useRef(uuid());
 
   const onZoomControlClick = (map, zoomDiff) => {
-    zoomDiff > 0?
+    zoomDiff > 0 ?
       map.zoomIn({ level: map.getZoom() + zoomDiff }) :
       map.zoomOut({ level: map.getZoom() - zoomDiff });
-    trackEvent('Map Interaction', `Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
+    mapInteractionTracker.track(`Click 'Zoom ${zoomDiff > 0?'In':'Out'}' button`);
   };
 
   useEffect(() => {

@@ -8,18 +8,19 @@ import { visibleTrackDataWithPatrolAwareness } from '../selectors/patrols';
 import Arrow from '../common/images/icons/track-arrow.svg';
 
 import TrackLayer from './track';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 const ARROW_IMG_ID = 'track_arrow';
 
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 const TracksLayer = (props) => {
   const { map, onPointClick, showTimepoints, trackData } = props;
 
   const onTimepointClick = useCallback((e) => {
     const layer = getPointLayer(e, map);
-    trackEvent('Map Layers', 'Clicked Track Timepoint');
+    mapLayerTracker.track('Clicked Track Timepoint');
     onPointClick(layer);
   }, [map, onPointClick]);
 

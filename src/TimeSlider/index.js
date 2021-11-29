@@ -12,7 +12,7 @@ import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDat
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { trackEvent, debouncedTrackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
@@ -22,6 +22,7 @@ import styles from './styles.module.scss';
 const { Title, Content } = Popover;
 
 const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const TimeSlider = (props) => {
   const { sidebarOpen, timeSliderState, since, until, clearVirtualDate, setVirtualDate, resetGlobalDateRange } = props;
@@ -29,7 +30,7 @@ const TimeSlider = (props) => {
   const handleTextRef = useRef(null);
   const leftPopoverTrigger = useRef(null);
   const rightPopoverTrigger = useRef(null);
-  const debouncedRangeChangeAnalytics = useRef(debouncedTrackEvent(300));
+  const debouncedRangeChangeAnalytics = useRef(mapInteractionTracker.debouncedTrack(300));
   const { virtualDate } = timeSliderState;
   const startDate = new Date(since);
   const endDate = until ? new Date(until) : new Date();
@@ -51,7 +52,7 @@ const TimeSlider = (props) => {
   const handleOffset = ((handleTextRef && handleTextRef.current && handleTextRef.current.offsetWidth) || 0) * value;
 
   const onHandleClick = (direction) => {
-    trackEvent('Map Interaction', `Click '${direction} Time Slider Anchor'`);
+    mapInteractionTracker.track(`Click '${direction} Time Slider Anchor'`);
   };
 
   const onRangeChange = useCallback(({ target: { value } }) => {
@@ -75,10 +76,10 @@ const TimeSlider = (props) => {
 
   const onSliderChange = (event) => {
     onRangeChange(event);
-    debouncedRangeChangeAnalytics.current('Map Interaction', 'Changed \'Time Slider\'');
+    debouncedRangeChangeAnalytics.current('Changed \'Time Slider\'');
   };
 
-  const onDateChange = () => trackEvent('Map Interaction', 'Update Time Slider Date Range');
+  const onDateChange = () => mapInteractionTracker.track('Update Time Slider Date Range');
 
   const SetDateFormat = (dateTime) => {
     let twoWeekAgo = new Date(generateWeeksAgoDate(2));

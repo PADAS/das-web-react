@@ -6,7 +6,7 @@ import { feature } from '@turf/helpers';
 import { showFeatures } from '../ducks/map-ui';
 import { showPopup } from '../ducks/popup';
 import { fitMapBoundsToGeoJson, setFeatureActiveStateByID } from '../utils/features';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as GeofenceIcon } from '../common/images/icons/geofence-analyzer-icon.svg';
 import { ReactComponent as ProximityIcon } from '../common/images/icons/proximity-analyzer-icon.svg';
@@ -14,9 +14,7 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import listStyles from '../SideBar/styles.module.scss';
 
-/* const geometryIsPoint = ({ type, coordinates }) => {
-  return (type === 'Point' || (type === 'MultiPoint' && coordinates.length === 1));
-}; */
+const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
 const FeatureListItem = memo((props) => {
@@ -44,7 +42,7 @@ const FeatureListItem = memo((props) => {
 
     showPopup('feature-symbol', { ...centerPoint, coordinates });
 
-    trackEvent('Map Layers', 'Click Jump To Feature Location button',
+    mapLayerTracker.track('Click Jump To Feature Location button',
       `Feature Type:${properties.type_name}`);
   };
 

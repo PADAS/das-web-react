@@ -7,6 +7,7 @@ import { hidePopup } from '../ducks/popup';
 import { withMap } from '../EarthRangerMap';
 import AR from '../AddReport';
 import GpsFormatToggle from '../GpsFormatToggle';
+import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 const AddReport = withMap(AR);
 
@@ -23,7 +24,7 @@ const DroppedMarkerPopup = ({ data: { location }, id, hidePopup, popoverPlacemen
       <AddReport
         showLabel={false}
         analyticsMetadata={{
-          category: 'Map Interaction',
+          category: MAP_INTERACTION_CATEGORY,
           location: 'dropped marker on map',
         }}
         reportData={{

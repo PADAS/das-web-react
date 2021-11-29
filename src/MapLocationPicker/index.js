@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
-import { trackEvent } from '../utils/analytics';
+import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import { withMap } from '../EarthRangerMap';
 
@@ -17,6 +17,8 @@ const bindExternal = function (map, eventType, toInvoke) {
 const unbindExternal = (map, eventType, func) => {
   map.off(eventType, func);
 };
+
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapLocationPicker = (props) => {
   const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState, showCancelButton, wrapperClassName } = props;
@@ -43,21 +45,21 @@ const MapLocationPicker = (props) => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelectCancel();
-    trackEvent('Map Interaction', 'Dismiss \'Drop Marker\'');
+    mapInteractionTracker.track('Dismiss \'Drop Marker\'');
   };
 
   const onSelect = (e) => {
     setPickingMapLocationState(false);
     unbindMapEvents();
     onLocationSelect(e);
-    trackEvent('Map Interaction', 'Place \'Drop Marker\' to Create Report');
+    mapInteractionTracker.track('Place \'Drop Marker\' to Create Report');
   };
 
   const onSelectStart = () => {
     setPickingMapLocationState(true);
     bindMapEvents();
     onLocationSelectStart();
-    trackEvent('Map Interaction', 'Click \'Drop Marker\' button');
+    mapInteractionTracker.track('Click \'Drop Marker\' button');
   };
 
   return <div className={wrapperClassName}>
