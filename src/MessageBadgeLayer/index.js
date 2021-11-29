@@ -198,10 +198,7 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, null)(memo(withMap(MessageBadgeLayer)));
 
-
 MessageBadgeLayer.propTypes = {
   messages: PropTypes.array,
-  subjectFeatureCollection: PropTypes.shape({
-    features: PropTypes.array.isRequired,
-  }),
+  subjectFeatureCollection: PropTypes.object.isRequired,
 };
