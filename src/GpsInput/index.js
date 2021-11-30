@@ -13,10 +13,7 @@ import styles from './styles.module.scss';
 
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
-const GpsInput = (props) => {
-  // eslint-disable-next-line no-unused-vars
-  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest } = props;
-
+const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest }) => {
   const lngLat = originalLngLat ? [...originalLngLat] : null;
   const hasLocation = !!lngLat && lngLat.length === 2;
   const placeholder = GPS_FORMAT_LABELS[gpsFormat] || 'Location';

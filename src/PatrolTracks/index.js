@@ -6,10 +6,7 @@ import { trackTimeEnvelope } from '../selectors/tracks';
 
 import PatrolTrackLayer from '../PatrolTrackLayer';
 
-const PatrolTracks = (props) => {
-  // eslint-disable-next-line no-unused-vars
-  const { patrols, dispatch: _dispatch, ...rest } = props;
-
+const PatrolTracks = ({ patrols, dispatch: _dispatch, ...rest }) => {
   return <Fragment>
     {patrols
       .map((patrol, index) =>

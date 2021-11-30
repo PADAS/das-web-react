@@ -11,10 +11,6 @@ import store from '../store';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 
-export const isFilterModified = ({ state }) => (
-  !isEqual(INITIAL_FILTER_STATE.state, state)
-);
-
 export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
 
 export const calcPatrolFilterForRequest = (options = {}) => {

@@ -318,7 +318,7 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    const formatter = (val, unit) => `${val} ${unit}${val > 1 ? 's' : ''}`;
+    const formatter = (val, unit, _suffix) => `${val} ${unit}${val > 1 ? 's' : ''}`;
     return <TimeAgo date={displayStartTime} formatter={formatter} />;
   }
 

@@ -26,10 +26,7 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = (props, ref) => {
-  // eslint-disable-next-line no-unused-vars
-  const { showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest } = props;
-
+const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
   const { patrol, leader, trackData, startStopGeometries } = patrolData;
 
   const debouncedTrackFetch = useRef(null);

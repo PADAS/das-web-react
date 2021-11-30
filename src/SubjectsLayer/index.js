@@ -45,7 +45,7 @@ const SubjectsLayer = (props) => {
 
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <LabeledPatrolSymbolLayer textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
+    <LabeledPatrolSymbolLayer sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
       onInit={setLayerIds}
     />
