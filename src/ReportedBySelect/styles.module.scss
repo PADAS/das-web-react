@@ -4,14 +4,57 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
+
+  img {
+    margin-right: 0.5rem;
+    height: 1rem;
+    width: 1rem;
+  }
+
   &:active, &:hover {
     * {
       color: white;
     }
   }
+
   &.hidden {
     color: $light-font-color;
     font-style: italic;
+  }
+}
+
+.control {
+  img {
+    height: 1.25rem;
+    width: 1.25rem;
+    margin-left: 0.5rem;
+  }
+}
+
+.multiValue {
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-left: 0.125rem;
+    height: 1rem;
+    width: 1rem;
+  }
+
+  .label {
+    margin-right: 0.5rem;
+  }
+}
+
+.singleValue {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+
+  img {
+    margin-left: -1.25rem;
+    height: 1.25rem;
+    width: 1.25rem;
   }
 }
 

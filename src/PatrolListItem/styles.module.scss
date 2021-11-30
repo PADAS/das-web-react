@@ -1,0 +1,94 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/buttons';
+@import '../common/styles/layout';
+
+
+.icon {
+  height: 100%;
+  width: 100%;
+
+  svg,
+  svg > svg {
+    --dimensions: 2rem;
+    --half-size: calc(var(--dimensions) / 2);
+
+    fill: white;
+    height: var(--dimensions);
+    width: var(--dimensions);
+
+    &[class*=generic] {
+      height: var(--half-size);
+      width: var(--half-size);
+    }
+  }
+}
+
+.title {
+  text-align: left;
+  width: 100%;
+  .mainTitle {
+    display: block;
+    font-weight: 500;
+  }
+}
+
+.titleDetails {
+  color: $off-black;
+  font-size: 0.75rem;
+}
+
+.title, .icon {
+  @include unstyledButton;
+}
+
+.statusInfo {
+  display: flex;
+  flex-flow: column;
+  font-size: 0.8rem;
+}
+
+.serialNumber {
+  display: none;
+  padding-right: 0.5rem;
+  color: $secondary-medium-gray;
+
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
+  }
+}
+
+.patrolTrackControls {
+  --buttonDimensions: 1.75rem;
+  display: flex;
+  button {
+    height: var(--buttonDimensions);
+    width: var(--buttonDimensions);
+    margin: 0 0.25rem;
+  }
+}
+
+.kebabMenu {
+  display: flex;
+  --hamburger-menu-color: #1a2026;
+  align-items: center;
+  border-radius: 1rem;
+  height: 1.75rem;
+  justify-content: center;
+  right: 0.125rem;
+  transition: background 0.15s linear;
+  top: 0.125rem;
+  width: 1.75rem;
+  &:active {
+      background: rgba(0,0,0,0.17);
+  }
+  > button {
+    border: none;
+    outline: none;
+    background: none;
+    width: 100%;
+    padding: 44%;
+    &::after {
+      display: none;
+    }
+  }
+}

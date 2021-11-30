@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import TimeAgo from '../TimeAgo';
 
-import { calcRecentRadiosFromSubjects } from '../utils/subjects';
+import { calcRecentRadiosFromSubjects, isRadioWithImage } from '../utils/subjects';
+import { calcUrlForImage } from '../utils/img';
 import { DEFAULT_SELECT_STYLES } from '../constants';
 import { reportedBy } from '../selectors';
 import { allSubjects } from '../selectors/subjects';
@@ -81,27 +82,62 @@ const ReportedBySelect = (props) => {
     return id;
   };
 
+  const Control = ({ children, ...props }) => {
+    const { hasValue } = props;
+
+    return <div className={styles.control}>
+      <components.Control {...props}>
+        {!hasValue && <img
+          src={calcUrlForImage('static/ranger-gray.svg')}
+          alt='Radio icon placeholder for reported by selector'
+        />}
+        {children}
+      </components.Control>
+    </div>;
+  };
+
   const Option = (props) => {
     const { data } = props;
 
+    const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
     const isRecent = recentRadios.some(item => item.id === data.id)
       && (data.last_voice_call_start_at || data.last_position_date);
+    return <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`} >
+      <components.Option {...props}>
+        {radioImage && <img src={radioImage} alt={`Radio icon for ${data.name} option`} />}
+        <span>{getOptionLabel(data)}</span>
+        {isRecent &&
+          <TimeAgo className={styles.timeAgo} date={new Date(data.last_voice_call_start_at || data.last_position_date)} />
+        }
+      </components.Option>
+    </div>;
+  };
 
-    return (
-      <div className={`${styles.option} ${data.hidden ? styles.hidden : ''}`} >
-        <components.Option {...props}>
-          <span>{getOptionLabel(data)}</span>
-          {isRecent &&
-            <TimeAgo className={styles.timeAgo} date={new Date(data.last_voice_call_start_at || data.last_position_date)} />
-          }
-        </components.Option>
+  const MultiValueLabel = (props) => {
+    const { data } = props;
+
+    const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+    return <div className={styles.multiValue}>
+      {radioImage && <img src={radioImage} alt={`Radio icon for ${data.name} value`} />}
+      <div className={styles.label}>
+        <components.MultiValueLabel {...props} />
       </div>
-    );
+    </div>;
+  };
+
+  const SingleValue = (props) => {
+    const { data } = props;
+
+    const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
+    return <div className={styles.singleValue}>
+      {radioImage && <img src={radioImage} alt={`Radio icon for ${data.name} value`} />}
+      <components.SingleValue {...props} />
+    </div>;
   };
 
   return <Select
     className={className}
-    components={{ Option }}
+    components={{ Control, MultiValueLabel, Option, SingleValue }}
     value={selected}
     isClearable={true}
     isSearchable={true}
