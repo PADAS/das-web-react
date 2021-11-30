@@ -36,7 +36,7 @@ const StaticSensorsLayer = ({ staticSensors }) => {
 
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
-  }, [sensorsWithDefaultValue, staticSensors]);
+  }, [staticSensors]);
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
