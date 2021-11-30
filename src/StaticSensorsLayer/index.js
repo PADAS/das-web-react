@@ -1,4 +1,4 @@
-import React, { useContext, memo, useEffect, useState } from 'react';
+import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
 import set from 'lodash/set';
 
 import { MapContext } from '../App';
@@ -24,7 +24,7 @@ const StaticSensorsLayer = ({ staticSensors }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
 
-  const addDefaultStatusValue = (features = []) => {
+  const addDefaultStatusValue = useCallback((features = []) => {
     return features.map(feature => {
       const featureDeviceProperties = feature?.properties?.device_status_properties ?? [];
       const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
@@ -32,11 +32,12 @@ const StaticSensorsLayer = ({ staticSensors }) => {
       // concat values of the properties
       return set(feature, 'properties.default_status_value', defaultStatusValue);
     });
-  };
+  }, []);
+
 
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
-  }, [staticSensors]);
+  }, [addDefaultStatusValue, staticSensors]);
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
