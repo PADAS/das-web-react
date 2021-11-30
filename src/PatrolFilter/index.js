@@ -1,123 +1,145 @@
-import React, { memo, useState, useCallback, useEffect, /* useMemo, */ useRef } from 'react';
-import { connect } from 'react-redux';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-
-import isEqual from 'react-fast-compare';
+import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
+import isEqual from 'react-fast-compare';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import PropTypes from 'prop-types';
 
-import { updatePatrolFilter, INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
+import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
+import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
-import PatrolFilterDateRangeSelector from '../PatrolFilter/DateRange';
-import PatrolFilterSettings from '../PatrolFilter/PatrolFilterSettings';
-import SearchBar from '../SearchBar';
+import DateRangePopover from './DateRangePopover';
+import FiltersPopover from './FiltersPopover';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
+import SearchBar from '../SearchBar';
 
-import styles from '../EventFilter/styles.module.scss';
 import patrolFilterStyles from './styles.module.scss';
+import styles from '../EventFilter/styles.module.scss';
+
+export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = (props) => {
-  const { children, className = '', patrolFilter, resetGlobalDateRange, updatePatrolFilter } = props;
-  const { filter: { date_range, text } } = patrolFilter;
-
+const PatrolFilter = ({ className, patrolFilter, updatePatrolFilter }) => {
   const containerRef = useRef(null);
-
-  const onFilterSettingsOptionChange = useCallback((e) => {
-    const patrolOverlap = (e.currentTarget.value === 'overlap_dates');
-    updatePatrolFilter({ filter: { patrols_overlap_daterange: patrolOverlap } });
-    patrolFilterTracker.track( patrolOverlap ? 'Filter by date range overlap' : 'Filter by start date');
-  }, [updatePatrolFilter]);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
 
-  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
-
-  const updatePatrolFilterDebounced = useRef(debounce(function (update) {
+  const updatePatrolFilterDebounced = useRef(debounce((update) => {
     updatePatrolFilter(update);
-  }, 200));
-
-  const clearDateRange = useCallback((e) => {
-    e.stopPropagation();
-    resetGlobalDateRange();
-    patrolFilterTracker.track('Click Reset Date Range Filter');
-  }, [resetGlobalDateRange]);
-
-  const onFilterSettingsToggle = useCallback(() => {
-    patrolFilterTracker.track('Click Date Filter Settings button');
-  }, []);
-
-  const onDateFilterIconClicked = useCallback((e) => {
-    patrolFilterTracker.track('Date Filter Popover Toggled');
-  }, []);
+  }, PATROL_TEXT_FILTER_DEBOUNCE_TIME));
 
   const onSearchChange = useCallback(({ target: { value } }) => {
     setFilterText(value);
+
     patrolFilterTracker.track('Change Search Text Filter');
   }, []);
 
-  const onSearchClear = useCallback((e) => {
+  const resetSearch = useCallback((e) => {
     e.stopPropagation();
     setFilterText('');
+
     patrolFilterTracker.track('Clear Search Text Filter');
   }, []);
 
   useEffect(() => {
-    if (!caseInsensitiveCompare(filterText, text)) {
+    if (!caseInsensitiveCompare(filterText, patrolFilter.filter.text)) {
       if (!!filterText.length) {
-        updatePatrolFilterDebounced.current({
-          filter: { text: filterText },
-        });
+        updatePatrolFilterDebounced.current({ filter: { text: filterText } });
       } else {
-        updatePatrolFilter({
-          filter: { text: '', },
-        });
+        updatePatrolFilter({ filter: { text: '' } });
       }
     }
   }, [filterText]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!caseInsensitiveCompare(filterText, text)) {
-      setFilterText(text);
+    if (!caseInsensitiveCompare(filterText, patrolFilter.filter.text)) {
+      setFilterText(patrolFilter.filter.text);
     }
-  }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [patrolFilter.filter.text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover'>
-    <Popover.Title>
-      <div className={styles.popoverTitle}>
-        <ClockIcon />Date Range
-        <Button type="button" variant='light' size='sm'
-          onClick={clearDateRange} disabled={!dateRangeModified}>Reset</Button>
-      </div>
-    </Popover.Title>
-    <Popover.Content>
-      <PatrolFilterDateRangeSelector placement='bottom' onFilterSettingsToggle={onFilterSettingsToggle}
-        endDateLabel='' startDateLabel='' container={containerRef} filterSettings={<PatrolFilterSettings handleFilterOptionChange={onFilterSettingsOptionChange} />} />
-    </Popover.Content>
-  </Popover>;
+  const leadersFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, patrolFilter.filter.tracked_by);
+  const patrolTypesFilterModified = !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrolFilter.filter.patrol_type);
+  const statusModified = !isEqual(INITIAL_FILTER_STATE.status, patrolFilter.status);
+  const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusModified;
+  const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
-  return <div ref={containerRef} className={`${patrolFilterStyles.form} ${className}`} onSubmit={e => e.preventDefault()}>
-    <SearchBar className={`${styles.search} ${patrolFilterStyles.search}`} placeholder='Search Patrols...' value={filterText}
-        onChange={onSearchChange} onClear={onSearchClear} />
-    <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-      <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`} onClick={onDateFilterIconClicked}>
+  return <div
+      ref={containerRef}
+      className={`${patrolFilterStyles.form} ${className}`}
+      onSubmit={e => e.preventDefault()}
+    >
+    <SearchBar
+      className={`${styles.search} ${patrolFilterStyles.search}`}
+      placeholder='Search Patrols...'
+      value={filterText}
+      onChange={onSearchChange}
+      onClear={resetSearch}
+    />
+
+    <OverlayTrigger
+      shouldUpdatePosition={true}
+      rootClose
+      trigger='click'
+      placement='auto'
+      overlay={<FiltersPopover />}
+      flip={true}
+    >
+      <Button
+        variant={filtersModified ? 'primary' : 'light'}
+        size='sm'
+        className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
+        onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
+        data-testid="patrolFilter-filtersButton"
+      >
+        <FilterIcon className={styles.filterIcon} />
+        <span>Filters</span>
+      </Button>
+    </OverlayTrigger>
+
+    <OverlayTrigger
+      shouldUpdatePosition={true}
+      rootClose
+      trigger='click'
+      placement='auto'
+      overlay={<DateRangePopover containerRef={containerRef} />}
+      flip={true}
+    >
+      <Button
+        variant={dateRangeModified ? 'primary' : 'light'}
+        size='sm'
+        className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`}
+        onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
+        data-testid="patrolFilter-dateRangeButton"
+      >
         <ClockIcon className={styles.clockIcon} />
         <span>Dates</span>
       </Button>
     </OverlayTrigger>
-    {children}
   </div>;
 };
 
-const mapStateToProps = (state) =>
-  ({
-    patrolFilter: state.data.patrolFilter,
-    patrolTypes: state.data.patrolTypes,
-  });
+PatrolFilter.defaultProps = { className: '' };
 
-export default connect(mapStateToProps, { resetGlobalDateRange, updatePatrolFilter })(memo(PatrolFilter));
+PatrolFilter.propTypes = {
+  className: PropTypes.string,
+  patrolFilter: PropTypes.shape({
+    status: PropTypes.arrayOf(PropTypes.string),
+    filters: PropTypes.shape({
+      date_range: PropTypes.object,
+      patrol_type: PropTypes.arrayOf(PropTypes.string),
+      tracked_by: PropTypes.arrayOf(PropTypes.string),
+      text: PropTypes.string,
+    }),
+  }).isRequired,
+  updatePatrolFilter: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  patrolFilter: state.data.patrolFilter,
+});
+
+export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));
