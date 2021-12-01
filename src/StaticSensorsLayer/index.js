@@ -20,16 +20,18 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors }) => {
+const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
+  const getStaticSensorLayer = (event) => map.queryRenderedFeatures(event.point)[0];
 
   const addDefaultStatusValue = useCallback((features = []) => {
     return features.map(feature => {
-      const featureDeviceProperties = feature?.properties?.device_status_properties ?? [];
+      const featureProperties = feature?.properties ?? {};
+      const featureDeviceProperties = featureProperties?.device_status_properties ?? [];
       const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
-      const defaultStatusValue = `${defaultProperty.value} ${defaultProperty.units}`;
-      // concat values of the properties
+      const featureHasImage = !!featureProperties?.image?.length ?? false;
+      const defaultStatusValue = `${!featureHasImage ? defaultProperty.label : ''} ${defaultProperty.value} ${defaultProperty.units}`;
       return set(feature, 'properties.default_status_value', defaultStatusValue);
     });
   }, []);
@@ -43,7 +45,19 @@ const StaticSensorsLayer = ({ staticSensors }) => {
     ...DEFAULT_SYMBOL_LAYOUT,
     'icon-size': 1,
     'text-anchor': 'left',
-    'text-offset': [-2.5, -.2],
+    'text-offset': ['case',
+      ['!=', ['get', 'image'], null],
+      [
+        'interpolate',
+        ['linear'],
+        ['length', 'image'],
+        0,
+        ['literal', [-3, -.2]],
+        1,
+        ['literal', [0, -.2]]
+      ],
+      ['literal', [-3, -.2]]
+    ],
     'text-field': '{default_status_value}',
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
@@ -60,9 +74,9 @@ const StaticSensorsLayer = ({ staticSensors }) => {
 
   const secondLabelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-offset': [0, -8],
-    'text-offset': [.5, -.3],
-    'icon-anchor': 'right',
+    'icon-offset': [8, -8],
+    'text-offset': [3, -.3],
+    'icon-anchor': 'left',
     'text-anchor': 'left',
     'text-justify': 'left',
     'text-field': '{default_status_value}',
@@ -109,8 +123,10 @@ const StaticSensorsLayer = ({ staticSensors }) => {
     }
   }, [labelLayout, labelPaint, map, secondLabelLayout, secondLabelPaint]);
 
+  const onLayerClick = (event) => onStaticSensorClick(({ event, layer: getStaticSensorLayer(event) }));
+
   return <>
-    <GeoJsonLayer type={LAYER_TYPE} id={LAYER_ID} data={sensorsWithDefaultValue} layout={labelLayout} paint={labelPaint}/>
+    <GeoJsonLayer type={LAYER_TYPE} id={LAYER_ID} data={sensorsWithDefaultValue} layout={labelLayout} paint={labelPaint} onClick={onLayerClick}/>
   </>;
 };
 
