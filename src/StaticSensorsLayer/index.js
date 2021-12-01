@@ -52,11 +52,11 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
         ['linear'],
         ['length', 'image'],
         0,
-        ['literal', [-3, -.2]],
+        ['literal', [1.3, -.2]],
         1,
         ['literal', [0, -.2]]
       ],
-      ['literal', [-3, -.2]]
+      ['literal', [1.3, -.2]]
     ],
     'text-field': '{default_status_value}',
     'icon-allow-overlap': true,
@@ -74,7 +74,7 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
 
   const secondLabelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-offset': [8, -8],
+    'icon-offset': [4, -8],
     'text-offset': [3, -.3],
     'icon-anchor': 'left',
     'text-anchor': 'left',
