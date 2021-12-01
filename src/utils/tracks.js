@@ -22,7 +22,6 @@ export const convertTrackFeatureCollectionToPoints = feature => {
 
   const addTimeAndBearingToPointFeature = (item, index, collection) => {
     const returnValue = { ...item };
-    // eslint-disable-next-line no-unused-vars
     const { coordinateProperties: _omittedCoordProps, ...restProperties } = returnValue.properties;
 
     const measuredBearing = !!collection[index - 1] ? bearing(item.geometry, collection[index - 1].geometry) : 0;

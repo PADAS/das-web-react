@@ -24,10 +24,7 @@ export const calcIconUrl = (type, iconId) => {
   }
 };
 
-const DasIcon = (props) => {
-  // eslint-disable-next-line no-unused-vars
-  const { type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest } = props;
-
+const DasIcon = ({ type, iconId, color = 'gray', dispatch: _dispatch, className, ...rest }) => {
   const svgHref = calcIconUrl(type, iconId);
 
   const isGeneric = svgHref.includes('generic');

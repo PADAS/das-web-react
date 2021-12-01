@@ -22,8 +22,8 @@ import styles from './styles.module.scss';
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
-// eslint-disable-next-line no-unused-vars
-const PopoverComponent = memo(forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
+// eslint-disable-next-line react/display-name, no-unused-vars
+const PopoverComponent = memo(forwardRef((props, ref) => {
   const {
     className,
     gpsPopoverOpen,

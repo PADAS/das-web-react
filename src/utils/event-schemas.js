@@ -216,7 +216,6 @@ const addCssClassesToDefinition = ({ key, htmlClass, layout }) => {
     uiSchemaEntry: {
     }
   };
-  // if (fieldHtmlClass) entry.uiSchemaEntry['ui:fieldClassNames'] = fieldHtmlClass; this doesn't do anything, currently
   if (layout) {
     const columnClasses = convertSchemaLayoutToColumnClassString(layout);
     entry.uiSchemaEntry.classNames = columnClasses;

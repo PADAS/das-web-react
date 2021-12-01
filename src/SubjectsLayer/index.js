@@ -8,14 +8,10 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS } from '../constants';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
-
-const symbolPaint = {
-  ...DEFAULT_SYMBOL_PAINT,
-};
 
 const SubjectsLayer = (props) => {
   const { onSubjectIconClick, subjects, map, mapImages = {} } = props;

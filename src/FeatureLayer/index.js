@@ -83,7 +83,7 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
 
   useEffect(() => {
     addFeatureCollectionImagesToMap(symbols);
-  }, [map, symbols]);
+  }, [symbols]);
 
   useEffect(() => {
     if (!!map && !map.hasImage('marker-icon')) {

@@ -12,7 +12,6 @@ class PrivateRoute extends Component {
 
 
   render() {
-    // eslint-disable-next-line no-unused-vars
     const { component: Component, dispatch: _dispatch, token, ...rest } = this.props;
     const temporaryAccessToken = getTemporaryAccessTokenFromCookies();
 

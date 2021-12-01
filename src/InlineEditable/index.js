@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useEffect, useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -27,6 +26,7 @@ const InlineEditable = (props) => {
     }, 80);
   }, [originalValue, validationFunc, value]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(onStartEdit, [editing]);
 
 
