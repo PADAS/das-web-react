@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useState, useEffect, useRef, Fragment, useCallback, useMemo } from 'react';
 import { Popup } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
@@ -157,6 +156,7 @@ const MapRulerControl = (props) => {
     setPickingMapLocationState(active && !completed);
   }, [active, completed, setPickingMapLocationState]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(resetState, [active]);
 
   useEffect(() => {

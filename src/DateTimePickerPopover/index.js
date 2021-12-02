@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { forwardRef, memo, useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import debounceRender from 'react-debounce-render';
 import PropTypes from 'prop-types';
@@ -58,6 +57,7 @@ const DateTimePickerPopover = (props) => {
     }
   }, [lastKnownValidValue, onChange]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onInputClick = useCallback(debounce((e) => {
     e.preventDefault();
     e.stopPropagation();

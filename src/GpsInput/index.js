@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { Fragment, memo, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -89,10 +88,12 @@ const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange
     }
   };
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);
   useEffect(onValueUpdate, [inputValue]);
   useEffect(handleValidChange, [lastKnownValidValue]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   return <div className={styles.wrapper}>
     {showFormatToggle &&
