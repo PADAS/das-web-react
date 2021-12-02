@@ -65,8 +65,30 @@ const SubjectPopup = (props) => {
 
   return <>
     <div className={styles.header}>
-      <h4>{properties.name}</h4>
-      {coordProps.time && <DateTime date={coordProps.time} />}
+      <div>
+        <div className={styles.defaultStatusProperty}>
+          {properties.default_status_value && <>
+            {properties.image && <img src={properties.image} alt={`Radio icon for ${properties.name}`} />}
+            <span>{properties.default_status_value}</span>
+          </>}
+          <h6>{properties.name}</h6>
+        </div>
+        <AddReport
+        analyticsMetadata={{
+          category: MAP_INTERACTION_CATEGORY,
+          location: 'subject popover',
+        }}
+        className={styles.addReport}
+        reportData={{ location: locationObject, reportedById }}
+        showLabel={false}
+        popoverPlacement={popoverPlacement}
+        />
+      </div>
+      {coordProps.time && <div className={styles.dateTimeWrapper}>
+        <DateTime date={coordProps.time} className={styles.dateTimeDetails} showElapsed={false}/>
+        <span>, </span>
+        <TimeAgo className={styles.timeAgo} date={coordProps.time} />
+      </div>}
     </div>
 
     <GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} className={styles.gpsFormatToggle} />
@@ -93,16 +115,6 @@ const SubjectPopup = (props) => {
       <Fragment>
         <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
         <div className={styles.controls}>
-          <AddReport
-            analyticsMetadata={{
-              category: MAP_INTERACTION_CATEGORY,
-              location: 'subject popover',
-            }}
-            className={styles.addReport}
-            reportData={{ location: locationObject, reportedById }}
-            showLabel={false}
-            popoverPlacement={popoverPlacement}
-          />
           {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
             <ChatIcon className={styles.messagingIcon} />
           </Button>}
