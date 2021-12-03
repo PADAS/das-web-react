@@ -125,23 +125,26 @@ const LocationSearch = (props) => {
     };
   };
 
-  const fetchCoordinates = async(place_id) => {
-    try {
-      const url = `${API_URL}coordinates?place_id=${place_id}`;
-      const response = await axios.get(url);
-      const { data: { data } } = response;
-      console.log('getCooordinates response => ', data);
-      if (data.coordinates) {
+  const fetchCoordinates = (place_id) => {
+    // try {
+    const url = `${API_URL}coordinates?place_id=${place_id}`;
+    axios.get(url)
+      .then(res => {
+        const data = res.data.coordinates;
         setCoordinates(data);
-      } else {
-        setCoordinates([]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+        console.log('getCooordinates response => ', data);
+      })
+      .catch(e => {console.log(e);});
+    //   console.log('getCooordinates response => ', data);
+    //   if (data.coordinates) {
+    //     setCoordinates(data);
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
-  const coords = Object.values({ lng: coordinates['lng'], lat: coordinates['lat'] });
+  const coords = Object.values({ lng: coordinates.lng, lat: coordinates.lat });
   console.log('JumpToLocation coordinate => ', coords);
   const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
 
