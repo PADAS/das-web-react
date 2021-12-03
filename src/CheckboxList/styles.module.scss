@@ -1,0 +1,17 @@
+.checkBoxList {
+  display: block;
+  columns: 2;
+  margin: 0;
+
+  li {
+    display: flex;
+    margin-bottom: 0.5rem;
+
+    span {
+      padding: 0;
+      background-color: transparent;
+      border: none;
+      margin-right: 0.5rem;
+    }
+  }
+}
