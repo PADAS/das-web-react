@@ -143,7 +143,7 @@ const LocationSearch = (props) => {
 
   const coords = Object.values({ lng: coordinates['lng'], lat: coordinates['lat'] });
   console.log('JumpToLocation coordinate => ', coords);
-  const validatedCoords = coordinates['lng'] && coordinates['lat'] && validateLngLat(coordinates['lng'], coordinates['lat']);
+  const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
 
   const errorMessages = errors.map((err, index) => (
     <p className={styles.zero_results} key={index}> {err.no_results} </p>
@@ -167,18 +167,14 @@ const LocationSearch = (props) => {
       fetchCoordinates(placeId.place_id);
       jumpToLocation(map, coords);
       setSelectedLocation(locations[resultIndex]);
-      addMarker(resultIndex);
+      addMarker();
       setLocations([]);
       setQuery('');
     };
   };
 
-  const addMarker = (index) => {
-    if (index) {
-      const point = locations[index];
-      const coordinates = [ point.coordinates.lng, point.coordinates.lat ];
-      validatedCoords && showPopup('dropped-marker', { location: point.coordinates, coordinates } );
-    }
+  const addMarker = () => {
+    validatedCoords && showPopup('dropped-marker', { location: coordinates, coords } );
   };
 
   return <div className={styles.wrapper} ref={wrapperRef}>
