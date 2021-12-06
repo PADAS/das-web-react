@@ -87,6 +87,7 @@ export const BREAKPOINTS = {
 
 export const LAYER_IDS = {
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
+  CLUSTERS_LAYER_ID: 'clusters',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',

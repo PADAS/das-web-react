@@ -36,6 +36,7 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 
 import { BREAKPOINTS, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
+import ClustersLayer from '../ClustersLayer';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
@@ -302,6 +303,7 @@ class Map extends Component {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
+  // TODO: should I remove this? Is there any scenario where we would still use it?
   handleMultiFeaturesAtSameLocationClick(event, layers) {
     this.props.showPopup('multi-layer-select',
       {
@@ -645,6 +647,8 @@ class Map extends Component {
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
+
+            <ClustersLayer />
 
             {!!popup && <PopupLayer
               popup={popup} />

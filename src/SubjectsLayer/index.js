@@ -8,7 +8,7 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, MAX_ZOOM } from '../constants';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
@@ -27,6 +27,9 @@ const SubjectsLayer = (props) => {
   const sourceData = {
     type: 'geojson',
     data: mapSubjectFeatures,
+    cluster: true,
+    clusterMaxZoom: MAX_ZOOM - 1,
+    clusterRadius: 40,
   };
 
   const layoutConfig = allowOverlap ? {
@@ -58,7 +61,7 @@ const SubjectsLayer = (props) => {
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
     <LabeledPatrolSymbolLayer layout={layout} textPaint={symbolPaint} sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
-      onInit={setLayerIds}
+      onInit={setLayerIds} filter={['!has', 'point_count']}
     />
   </Fragment>;
 };
