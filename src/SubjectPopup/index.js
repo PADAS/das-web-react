@@ -93,7 +93,7 @@ const SubjectPopup = (props) => {
 
     <GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} className={styles.gpsFormatToggle} />
     {radioWithRecentMicActivity && <div className={styles.micActivity}>
-      <h5>Mic activity:</h5>
+      <h5>Mic activity</h5>
       <div>
         <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
         <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} />
@@ -103,7 +103,7 @@ const SubjectPopup = (props) => {
     {hasAdditionalDeviceProps && showAdditionalProps && <ul data-testid='additional-props' className={styles.additionalProperties}>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
-          <strong>{label}</strong>:&nbsp;
+          <strong>{label}</strong>
           <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
           </span>

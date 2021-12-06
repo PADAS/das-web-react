@@ -31,7 +31,7 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
       const featureDeviceProperties = featureProperties?.device_status_properties ?? [];
       const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
       const featureHasImage = !!featureProperties?.image?.length ?? false;
-      const defaultStatusValue = `${!featureHasImage ? defaultProperty.label : ''} ${defaultProperty.value} ${defaultProperty.units}`;
+      const defaultStatusValue = `${!featureHasImage ? defaultProperty.label + ' ': ''}${defaultProperty.value} ${defaultProperty.units}`;
       return set(feature, 'properties.default_status_value', defaultStatusValue);
     });
   }, []);

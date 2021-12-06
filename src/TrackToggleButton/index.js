@@ -6,7 +6,7 @@ import styles from './styles.module.scss';
 const TrackToggleButton = (props) => {
   const { className: externalClassName, disabled, trackVisible, trackPinned, onClick, showLabel, loading, ...rest } = props;
   const className = trackPinned ? 'pinned' : trackVisible ? 'visible' : '';
-  const hoverText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks visible') : 'Tracks hidden';
+  const hoverText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks on') : 'Tracks off';
 
 
   return <div className={`${styles.container}${showLabel ? ` ${styles.hasLabel}` : ''}`}>

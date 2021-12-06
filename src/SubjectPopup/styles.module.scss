@@ -1,18 +1,201 @@
 @import '../common/styles/vars/colors';
 
-.trackLength {
-  display: block;
-  line-height: normal;
-  margin: 0.5rem 0;
+.header {
+  text-align: left;
+  margin: -.7rem -.7rem 0 -.7rem;
+  padding: .7rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: #000;
+  color: #fff;
+
+  > div {
+    &:first-child {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .defaultStatusProperty {
+      span {
+        font-size: .87rem;
+      }
+
+      img {
+        margin-bottom: .5rem;
+        margin-right: .5rem;
+        height: 1.15rem;
+        filter: grayscale(100%) brightness(100%) invert(100%);
+      }
+    }
+  }
+
+  > h6 {
+    font-weight: 700;
+    margin-bottom: 0;
+  }
+
+  .dateTimeWrapper{
+    display: inline;
+    line-height: normal;
+    white-space: nowrap;
+  
+    .dateTimeDetails {
+      display: inline;
+      color: #fff;
+    }
+    
+    .timeAgo {
+      font-style: italic;
+      font-size: .7rem;
+    }
+  }
+}
+
+.addReport {
+  > button {
+    display: inline;
+    align-items: end;
+    padding: 0.4rem 0 0 0;
+    height: 1.5rem;
+
+    svg {
+      background: #1A65D2;
+      border-radius: 50%;
+      height: 1.75rem;
+      width: 1.75rem;
+
+      path {
+        stroke: #1A65D2;;
+        fill: #1A65D2;
+      }
+
+      rect {
+          fill: #fff;
+      }
+    }  
+  }
 }
 
 .gpsFormatToggle {
-  margin-bottom: 1rem;
+  background-color: #F8F8F8;
+  margin: 0.5rem 0 0.8rem 0;
+  display: flex;
+  flex-direction: column-reverse;
+
+  div {
+    justify-content: space-between;
+    padding: .3rem;
+  }
+
+  span {
+    font-weight: 500;
+    text-align: left;
+
+    button {
+      padding: 0;
+    }
+  }
+
+  > ul {
+    background-color: #E7E7E7;
+    color: #666666;
+    margin: 0;
+
+    li {
+      color: #4F4F4F;
+      padding: .1rem 2% .2rem 2%;
+      text-decoration: none;
+
+      &[class*=active] {
+        color: #1A65D2;
+        background-color: #F8F8F8;
+      }
+    }
+  }
+}
+
+.trackLength {
+  display: flex;
+  justify-content: space-between;
+  line-height: normal;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 0.06px solid $gray-border;
+}
+
+.micActivity {
+  align-items: baseline;
+  border-bottom: 0.06px solid $gray-border;
+  justify-content: space-between;
+  display: flex;
+  margin: 0.2rem 0;
+  padding: 0.2rem 0;
+  
+  h5 {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  div {
+    display: flex;
+    text-align: right;
+    flex-flow: column;
+    line-height: normal;
+    margin-left: 0.5rem;
+  }
+}
+
+.additionalProperties { 
+  margin: -0.25rem 0 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    
+    &:not(:last-child){
+      border-bottom: 0.06px solid $gray-border;
+    }
+
+    strong {
+      text-align: left;
+    }
+
+    span {
+      text-align: right;
+    }
+  }
+}
+
+.toggleAdditionalProps {
+  margin-bottom: 0.5rem;
 }
 
 .trackControls {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+
+  [class*=container] {
+    flex-direction: row;
+    background-color: rgba(26, 101, 210, 0.1);
+    border: 0.06px solid #1A65D2;
+    border-radius: .12rem;
+    max-width: 5.75rem;
+    max-height: 1.75rem;
+
+    button {
+      min-height: 1.75rem;
+      height: 1.75rem;
+      min-width: 1.75rem;
+      width: 1.75rem;
+      // margin: -.06rem .12rem -.06rem -.06rem;
+    }
+
+    span {
+      line-height: normal;
+      padding: .1rem .5rem;
+      margin: 0 -.2rem;
+    }
+  }
 }
 
 .controls {
@@ -27,41 +210,4 @@
   g {
     stroke: $primary-font-color;
   }
-}
-
-.micActivity {
-  align-items: baseline;
-  border-bottom: 1px solid $light-gray-border;
-  border-top: 1px solid $light-gray-border;
-  display: flex;
-  margin: 0.5rem 0;
-  padding: 0.5rem 0 0.25rem;
-  justify-content: center;
-  h5 {
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  div {
-    display: flex;
-    flex-flow: column;
-    line-height: normal;
-    margin-left: 0.5rem;
-  }
-}
-
-.addReport {
-  margin-top: 0.25rem;
-}
-
-.header {
-  margin-bottom: 0.5rem;
-}
-
-.additionalProperties { 
-  margin: -0.25rem 0 0;
-  padding: 0;
-}
-
-.toggleAdditionalProps {
-  margin-bottom: 0.5rem;
 }
