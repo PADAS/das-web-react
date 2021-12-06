@@ -39,7 +39,7 @@ const postAuthSuccess = response => (dispatch) => {
 };
 
 export const clearAuth = () => dispatch => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
 
     deleteAuthTokenCookie();
     setTimeout(() => {

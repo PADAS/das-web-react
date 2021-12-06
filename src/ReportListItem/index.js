@@ -41,9 +41,7 @@ const PRIORITY_COLOR_MAP = {
   },
 };
 
-const ReportListItem = (props) => {
-  const { eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest } = props;
-
+const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 

@@ -32,9 +32,8 @@ const HeatmapLegend = ({ title, dayCount, pointCount, onClose, ...rest }) => {
     }
     onClose={onLegendClose}
     settingsComponent={settingsComponent}
-    {...rest} >
-
-  </MapLegend>;
+    {...rest}
+  />;
 };
 
 HeatmapLegend.propTypes = {

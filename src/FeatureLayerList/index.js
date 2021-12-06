@@ -9,7 +9,6 @@ import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
 import Checkmark from '../Checkmark';
 import { getFeatureLayerListState } from './selectors';
-import { getAnalyzerListState } from './selectors';
 import CheckableList from '../CheckableList';
 import Content from './Content';
 
@@ -22,7 +21,7 @@ const COLLAPSIBLE_LIST_DEFAULT_PROPS = {
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
-const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
+const FeatureLayerList = ({ featureList, hideFeatures, showFeatures, hiddenFeatureIDs, map, mapLayerFilter }) => {
 
   const getAllFeatureIDsInList = () => getUniqueIDsFromFeatures(...featureList
     .reduce((accumulator, { featuresByType }) =>
@@ -125,7 +124,6 @@ const FeatureLayerList = ({ featureList, analyzerList, hideFeatures, showFeature
 const mapStateToProps = (state) => ({
   featureList: getFeatureLayerListState(state),
   hiddenFeatureIDs: state.view.hiddenFeatureIDs,
-  analyzerList: getAnalyzerListState(state),
   mapLayerFilter: state.data.mapLayerFilter
 });
 

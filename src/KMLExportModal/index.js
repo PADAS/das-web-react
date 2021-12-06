@@ -33,7 +33,7 @@ const KMLExportModal = (props) => {
     }
   };
 
-  const onCheckboxChange = (e) => {
+  const onCheckboxChange = () => {
     setIncludeInactive(!includeInactive);
     kmlExportTracker.track(`${includeInactive}? 'Uncheck' : 'Check'} 'Show Inactive' checkbox`);
   };
@@ -62,7 +62,6 @@ const KMLExportModal = (props) => {
         placement='bottom'
         onStartDateChange={handleStartDateChange}
         onEndDateChange={handleEndDateChange}
-        gaEventSrc='KML Export'
       />
     </div>
     <div className={styles.inactiveSubjects}>

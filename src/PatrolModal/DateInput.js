@@ -11,8 +11,8 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 import styles from './styles.module.scss';
 
 const PatrolDateInput = (props) => {
-  const { autoCheckLabel = 'Automatic', defaultValue, onAutoCheckToggle, calcSubmitButtonTitle, children,
-    isAuto = false, title, value, onChange, className, ...rest } = props;
+  const { autoCheckLabel = 'Automatic', defaultValue, onAutoCheckToggle, calcSubmitButtonTitle,
+    isAuto = false, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
   const [tempPopoverProps, setTempPopoverProps] = useState({});

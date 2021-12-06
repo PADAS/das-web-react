@@ -11,6 +11,7 @@ const layout = {
   'icon-anchor': 'bottom',
 };
 
+// eslint-disable-next-line no-unused-vars
 const MouseMarkerLayer = ({ map, location, ...rest }) => {
   if (!location.lng || !location.lat) return null;
 

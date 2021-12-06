@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useCallback, useRef, memo } from 'react'; /* eslint-disable-line no-unused-vars */
+import React, { useContext, useEffect, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
