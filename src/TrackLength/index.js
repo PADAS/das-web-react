@@ -24,7 +24,7 @@ function TrackLength(props) {
 
 }
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state) => {
   return {
     tracks: trimmedVisibleTrackData(state),
   };

@@ -1,5 +1,4 @@
 import React, { Fragment, memo } from 'react';
-import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 
@@ -9,7 +8,7 @@ import { patrolsWithTrackShown } from '../selectors/patrols';
 import StartStopLayer from './layer';
 
 
-const PatrolStartStopLayer = ({ allowOverlap, map, mapUserLayoutConfig, onPointClick, patrols, showTimepoints, trackData, ...props }) => {
+const PatrolStartStopLayer = ({ patrols }) => {
   const onSymbolClick = () => {};
 
   return <Fragment>
@@ -33,10 +32,4 @@ PatrolStartStopLayer.defaultProps = {
     console.log('clicked timepoint', layer);
   },
   showTimepoints: true,
-};
-
-PatrolStartStopLayer.propTypes = {
-  map: PropTypes.object.isRequired,
-  onPointClick: PropTypes.func,
-  showTimepoints: PropTypes.bool,
 };

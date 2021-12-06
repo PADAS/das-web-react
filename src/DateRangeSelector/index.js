@@ -18,7 +18,7 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, onFilterSettingsToggle, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
-    defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
+    defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, popoverClassName,
     children, placement, filterSettings, ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
@@ -129,7 +129,7 @@ DateRangeSelector.defaultProps = {
   requireEnd: false,
   startDateLabel: 'From:',
   format: 'yyyy-MM-dd HH:mm',
-  onClickDateRangePreset: ({ lower, upper }) => null,
+  onClickDateRangePreset: () => null,
   showPresets: false,
 };
 

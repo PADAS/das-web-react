@@ -20,7 +20,7 @@ class PrivateRoute extends Component {
     return (
       <Route
         {...rest}
-        render={_props =>
+        render={() =>
           (temporaryAccessToken || token.access_token) ? (
             <Component {...optionalProps} {...this.props} />
           ) : (

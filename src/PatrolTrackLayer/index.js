@@ -18,6 +18,7 @@ const linePaint = {
 const getPointLayer = (e, map) => map.queryRenderedFeatures(e.point).filter(item => item.layer.id.includes('track-layer-points-'))[0];
 
 const PatrolTrackLayer = (props) => {
+  // eslint-disable-next-line no-unused-vars
   const { map, patrolData: { trackData, patrol }, showTrackTimepoints, trackTimeEnvelope, tracks, dispatch: _dispatch, onPointClick, ...rest } = props;
 
   const trimmedTrackData = useMemo(() => !!trackData && trimTrackDataToTimeRange(trackData, trackTimeEnvelope.from, trackTimeEnvelope.until), [trackData, trackTimeEnvelope.from, trackTimeEnvelope.until]);

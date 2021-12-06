@@ -81,7 +81,7 @@
     ],
     "no-prototype-builtins": "off",
     "no-underscore-dangle": "off",
-    "no-unused-vars": ["warn", { "varsIgnorePattern": "React" }],
+    "no-unused-vars": ["warn", { "varsIgnorePattern": "React|^_", "argsIgnorePattern": "^_" }],
     "camelcase": "off",
     "func-names": "off",
     "react/no-this-in-sfc": "off"
