@@ -18,6 +18,7 @@ const LocationSearch = (props) => {
   const buttonRef = useRef(null);
   const wrapperRef = useRef(null);
   const debouncedApiCall = useRef();
+  const debouncedCoordinates = useRef();
   const [active, setActiveState] = useState(false);
   const [locations, setLocations] = useState([]);
   const [coordinates, setCoordinates] = useState({});
@@ -62,6 +63,11 @@ const LocationSearch = (props) => {
   useEffect(() => {
     debouncedApiCall.current = debounce(fetchLocation, 500);
   }, []);
+
+  useEffect(() => {
+    debouncedCoordinates.current = debounce(fetchCoordinates, 1000);
+  }, []);
+
 
   const handleSearchChange = (e) => {
     setQuery(e.target.value);
@@ -134,7 +140,7 @@ const LocationSearch = (props) => {
         setCoordinates(data);
         console.log('getCooordinates response => ', data);
       })
-      .catch(e => {console.log(e);});
+      .catch(e => { console.log(e); } );
     //   console.log('getCooordinates response => ', data);
     //   if (data.coordinates) {
     //     setCoordinates(data);
@@ -144,9 +150,14 @@ const LocationSearch = (props) => {
     // }
   };
 
-  const coords = Object.values({ lng: coordinates.lng, lat: coordinates.lat });
-  console.log('JumpToLocation coordinate => ', coords);
-  const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
+  const lngLat = Object.values(coordinates);
+  console.log(lngLat);
+  const coords = lngLat.map(val => {
+    const gps = { lng: val.coordinates[1], lat: val.coordinates[0] };
+    console.log('JumpToLocation coordinate => ', gps);
+    return Object.values(gps);
+  });
+  const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[1], coords[0]);
 
   const errorMessages = errors.map((err, index) => (
     <p className={styles.zero_results} key={index}> {err.no_results} </p>
