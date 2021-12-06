@@ -41,7 +41,7 @@ const MessageSummaryListItem = (props) => {
   ) ;
 };
 
-const mapStateToProps = ({ data: { subjectStore } }, ownProps) => ({
+const mapStateToProps = ({ data: { subjectStore } }) => ({
   subjectStore,
 });
 

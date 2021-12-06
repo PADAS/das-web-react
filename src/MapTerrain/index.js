@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'; /* eslint-disable-line no-unused-vars */
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 const DEFAULT_DEM_SOURCE_CONFIG = {

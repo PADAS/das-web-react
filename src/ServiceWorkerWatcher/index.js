@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { addUserNotification, removeUserNotification } from '../ducks/user-notifications';
 
-const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification, dispatch: _dispatch, ...rest }) => {
+const ServiceWorkerWatcher = ({ addUserNotification, removeUserNotification }) => {
   const [hasCodeUpdateNotification, setHasCodeUpdateNotification] = useState(false);
 
   useEffect(() => {

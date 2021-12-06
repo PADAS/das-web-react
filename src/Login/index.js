@@ -47,7 +47,7 @@ class LoginPage extends Component {
     const data = this.state;
 
     this.props.postAuth(data)
-      .then((success) => {
+      .then(() => {
         this.props.history.push({
           pathname: REACT_APP_ROUTE_PREFIX,
           search: this.props.location.search,
