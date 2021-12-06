@@ -158,11 +158,10 @@ const GeoJsonLayer = (props) => {
   }, [before, layerId, map, stateBefore]);
 
   useEffect(() => {
-    const layer = map.getLayer(layerId);
-
-    if (!!layer && layerId){
+    if (!!map && layerId){
+      const layer = map.getLayer(layerId);
       return () => {
-        !!map && map.removeLayer(layerId);
+        !!layer && map.removeLayer(layerId);
       };
     }
   }, [layerId, map]);

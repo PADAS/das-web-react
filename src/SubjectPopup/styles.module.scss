@@ -175,12 +175,19 @@
   justify-content: space-between;
 
   [class*=container] {
+    display: flex;
+    align-items: center;
     flex-direction: row;
-    background-color: rgba(26, 101, 210, 0.1);
-    border: 0.06px solid #1A65D2;
+    background-color: #9393931a;
+    border: 0.06px solid #888888;
     border-radius: .12rem;
     max-width: 5.75rem;
-    max-height: 1.75rem;
+    max-height: 1.85rem;
+
+    &[class*=active] {
+      border: 0.06px solid #1A65D2;
+      background-color: rgba(26, 101, 210, 0.1);
+    }
 
     button {
       min-height: 1.75rem;
