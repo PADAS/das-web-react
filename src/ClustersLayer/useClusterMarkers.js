@@ -30,10 +30,10 @@ const featuresCountHTMLStyles = {
   margin: '0',
 };
 
-const createClusterHTMLMarker = (clusterFeatures, showMultiLayerSelectPopup) => {
+const createClusterHTMLMarker = (clusterFeatures /* , showMultiLayerSelectPopup */) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
-  // TODO: Add popover logic
-  clusterHTMLMarkerContainer.onclick = () => showMultiLayerSelectPopup();
+  // TODO: Popover logic not working yet
+  clusterHTMLMarkerContainer.onclick = () => /* showMultiLayerSelectPopup()*/ console.log('Open popover');
   injectStylesToElement(clusterHTMLMarkerContainer, clusterHTMLMarkerContainerStyles);
 
   clusterFeatures.slice(0, 3).forEach((feature) => {
