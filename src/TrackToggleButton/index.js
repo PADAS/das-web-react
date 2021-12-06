@@ -9,7 +9,7 @@ const TrackToggleButton = (props) => {
   const hoverText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks on') : 'Tracks off';
 
 
-  return <div className={`${styles.container}${showLabel ? ` ${styles.hasLabel}` : ''}`}>
+  return <div className={`${styles.container}${className ? 'active' : ''}${showLabel ? ` ${styles.hasLabel}` : ''}`}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
     <button disabled={disabled} title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
     {showLabel && <span>{hoverText}</span>}

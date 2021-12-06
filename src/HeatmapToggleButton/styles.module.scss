@@ -15,7 +15,7 @@ $background_image_url: '../common/images/icons/';
 
 .button {
   @include button;
-  &.heatmap-on {
+  &.visible {
     filter: unset;
   }
 }
@@ -33,11 +33,11 @@ $background_image_url: '../common/images/icons/';
   }
 }
 
-.heatmap-on {
+.visible {
   @include button;
 }
 
-.heatmap-partial {
+.partial {
   filter: opacity(50%);
 }
 
