@@ -64,7 +64,7 @@ const DateRangeSelector = (props) => {
       }
     </div>
     <div className={startDateLabel ? styles.dateSelectorWrapper : styles.dateSelectorWrapperInline}>
-      <label className={`${styles.label} ${startDateLabelClass}`}>
+      <label data-testid='dateRangeSelector-startLabel' className={`${styles.label} ${startDateLabelClass}`}>
         {startDateLabel && <span>{startDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
@@ -73,7 +73,7 @@ const DateRangeSelector = (props) => {
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
       {children}
-      <label className={`${styles.label} ${endDateLabelClass}`}>
+      <label data-testid='dateRangeSelector-endLabel' className={`${styles.label} ${endDateLabelClass}`}>
         {endDateLabel && <span>{endDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
