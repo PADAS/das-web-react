@@ -2,9 +2,9 @@ import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { CLUSTER_ZOOM_THRESHOLD, LAYER_IDS } from '../constants';
 import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
-import { LAYER_IDS } from '../constants';
 import { showPopup } from '../ducks/popup';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
@@ -30,9 +30,9 @@ const featuresCountHTMLStyles = {
   margin: '0',
 };
 
-const createClusterHTMLMarker = (clusterFeatures, showClusterSelectPopup) => {
+const createClusterHTMLMarker = (clusterFeatures, onClusterClick) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
-  clusterHTMLMarkerContainer.onclick = () => showClusterSelectPopup(clusterFeatures, clusterFeatures[0].geometry.coordinates);
+  clusterHTMLMarkerContainer.onclick = onClusterClick;
   injectStylesToElement(clusterHTMLMarkerContainer, clusterHTMLMarkerContainerStyles);
 
   clusterFeatures.slice(0, 3).forEach((feature) => {
@@ -52,58 +52,108 @@ const createClusterHTMLMarker = (clusterFeatures, showClusterSelectPopup) => {
   return clusterHTMLMarkerContainer;
 };
 
-const getClusterFeaturesMap = async (map) => {
-  const clusters = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] });
-  const source = map.getSource('clusters-source'); // TODO: Remove hardcoded string
+const onClusterClick = (
+  clusterCoordinates,
+  clusterFeatures,
+  clusterHash,
+  map,
+  showClusterSelectPopup,
+  source
+) => () => {
+  if (!CLUSTER_MARKER_MAP[clusterHash]) return;
 
-  const featuresArray = await Promise.all(clusters.map((cluster) => new Promise((resolve, reject) => {
-    source.getClusterLeaves(cluster.properties.cluster_id, Number.MAX_SAFE_INTEGER, 0, (error, features) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(features);
-    });
-  })));
-
-  return featuresArray.reduce((clusterFeaturesMap, clusterFeatures) => {
-    const clusterHash = hashCode(clusterFeatures.join(''));
-
-    return { ...clusterFeaturesMap, [clusterHash]: clusterFeatures };
-  }, {});
+  const mapZoom = map.getZoom();
+  if (mapZoom < CLUSTER_ZOOM_THRESHOLD) {
+    source.getClusterExpansionZoom(
+      CLUSTER_MARKER_MAP[clusterHash].id,
+      (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom })
+    );
+  } else {
+    showClusterSelectPopup(clusterFeatures, clusterCoordinates);
+  }
 };
 
-const updateClusterMarkers = async (showClusterSelectPopup, map) => {
-  const newClusterFeaturesMap = await getClusterFeaturesMap(map);
+const getRenderedClustersData = async (clustersSource, map) => {
+  const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
+    .map((cluster) => cluster.properties.cluster_id);
 
-  const prevClusterHashes = new Set(Object.keys(CLUSTER_MARKER_MAP));
-  const newClusterHashes = new Set(Object.keys(newClusterFeaturesMap));
+  const getAllClusterLeavesPromises = renderedClusterIds.map((clusterId) => new Promise((resolve, reject) => {
+    clustersSource.getClusterLeaves(
+      clusterId,
+      Number.MAX_SAFE_INTEGER,
+      0,
+      (error, features) => !error ? resolve(features) : reject(error)
+    );
+  }));
 
+  const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
+  const renderedClusterHashes = renderedClusterFeatures.map((clusterFeatures) => hashCode(clusterFeatures.join('')));
+
+  return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
+};
+
+const removeOldClusterMarkers = (renderedClusterHashes) => {
+  const renderedClusterHashesSet = new Set(renderedClusterHashes);
+  const prevClusterHashes = Object.keys(CLUSTER_MARKER_MAP).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
-    if (!newClusterHashes.has(prevClusterHash)) {
-      CLUSTER_MARKER_MAP[prevClusterHash].remove();
+    if (!renderedClusterHashesSet.has(prevClusterHash)) {
+      CLUSTER_MARKER_MAP[prevClusterHash].marker.remove();
     }
   });
+};
 
-  const newClusterMarkerMap = {};
-  newClusterHashes.forEach((newClusterHash) => {
-    let marker = CLUSTER_MARKER_MAP[newClusterHash];
+const addNewClusterMarkers = (
+  clustersSource,
+  map,
+  renderedClusterFeatures,
+  renderedClusterHashes,
+  renderedClusterIds,
+  showClusterSelectPopup
+) => {
+  const renderedClusterMarkersHashMap = {};
 
+  renderedClusterFeatures.forEach((clusterFeatures, index) => {
+    const clusterHash = renderedClusterHashes[index];
+    const clusterId = renderedClusterIds[index];
+
+    let marker = CLUSTER_MARKER_MAP[clusterHash]?.marker;
     if (!marker) {
-      // TODO: Sort features by importance
+      const clusterCoordinates = clusterFeatures[0].geometry.coordinates;
       const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
-        newClusterFeaturesMap[newClusterHash],
-        showClusterSelectPopup,
+        clusterFeatures,
+        onClusterClick(clusterCoordinates, clusterFeatures, clusterHash, map, showClusterSelectPopup, clustersSource),
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
-        .setLngLat(newClusterFeaturesMap[newClusterHash][0].geometry.coordinates)
+        .setLngLat(clusterCoordinates)
         .addTo(map);
     }
 
-    newClusterMarkerMap[newClusterHash] = marker;
+    renderedClusterMarkersHashMap[clusterHash] = { id: clusterId, marker };
   });
 
-  CLUSTER_MARKER_MAP = newClusterMarkerMap;
+  return renderedClusterMarkersHashMap;
+};
+
+const updateClusterMarkers = async (showClusterSelectPopup, map) => {
+  const clustersSource = map.getSource('clusters-source'); // TODO: Remove hardcoded string
+  const {
+    renderedClusterFeatures,
+    renderedClusterHashes,
+    renderedClusterIds,
+  } = await getRenderedClustersData(clustersSource, map);
+
+  removeOldClusterMarkers(renderedClusterHashes);
+  const renderedClusterMarkersHashMap = addNewClusterMarkers(
+    clustersSource,
+    map,
+    renderedClusterFeatures,
+    renderedClusterHashes,
+    renderedClusterIds,
+    showClusterSelectPopup
+  );
+
+  CLUSTER_MARKER_MAP = renderedClusterMarkersHashMap;
 };
 
 export default (map, onEventClick, onSubjectClick) => {
