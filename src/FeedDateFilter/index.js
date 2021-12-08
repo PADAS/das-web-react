@@ -67,6 +67,7 @@ const FeedDateFilter = (props) => {
     isAtDefault={isAtDefault}
     placement={placement || 'auto'}
     endDate={endDate}
+    endDateLabelClass={styles.endDateLabel}
     endDateNullMessage={endDateNullMessage}
     onClickDateRangePreset={onClickDateRangePreset}
     onEndDateChange={onEndDateChange}
