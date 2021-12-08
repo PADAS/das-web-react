@@ -11,8 +11,14 @@ import { withMap } from '../EarthRangerMap';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
 
-const ClustersLayer = ({ eventFeatureCollection, map, subjectFeatureCollection }) => {
-  useClusterMarkers(map);
+const ClustersLayer = ({
+  eventFeatureCollection,
+  map,
+  onEventClick,
+  onSubjectClick,
+  subjectFeatureCollection
+}) => {
+  useClusterMarkers(map, onEventClick, onSubjectClick);
 
   const sourceData = {
     type: 'geojson',
@@ -43,6 +49,9 @@ ClustersLayer.propTypes = {
     features: PropTypes.array,
     type: PropTypes.string,
   }).isRequired,
+  map: PropTypes.object.isRequired,
+  onEventClick: PropTypes.func.isRequired,
+  onSubjectClick: PropTypes.func.isRequired,
   subjectFeatureCollection: PropTypes.shape({
     features: PropTypes.array,
     type: PropTypes.string,

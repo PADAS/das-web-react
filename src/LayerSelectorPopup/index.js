@@ -3,17 +3,19 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { LAYER_IDS } from '../constants';
+// import { LAYER_IDS } from '../constants';
+
+import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
 
-const { EVENT_SYMBOLS } = LAYER_IDS;
+// const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   const { layers: layerList, onSelectSubject, onSelectEvent } = data;
   const [filter, setFilter] = useState('');
 
-  const onFilterChange = useCallback(({ target: { value } }) => {
+  const onFilterChange = useCallback((value) => {
     setFilter(value);
   }, []);
 
@@ -30,23 +32,23 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     });
   }, [filter, layerList]);
 
-  const itemCountString = useMemo(() => {
-    const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
-    const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
+  // const itemCountString = useMemo(() => {
+  //   const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
+  //   const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
 
-    let string = '';
+  //   let string = '';
 
-    if (subjectCount) {
-      string+= `${subjectCount} subject${subjectCount > 1 ? 's' : ''}`;
-    }
-    if (subjectCount && eventCount)  {
-      string+= ', ';
-    }
-    if (eventCount) {
-      string+= `${eventCount} report${eventCount > 1 ? 's' : ''}`;
-    }
-    return string;
-  }, [layers]);
+  //   if (subjectCount) {
+  //     string+= `${subjectCount} subject${subjectCount > 1 ? 's' : ''}`;
+  //   }
+  //   if (subjectCount && eventCount)  {
+  //     string+= ', ';
+  //   }
+  //   if (eventCount) {
+  //     string+= `${eventCount} report${eventCount > 1 ? 's' : ''}`;
+  //   }
+  //   return string;
+  // }, [layers]);
 
   const showFilterInput = useMemo(() => layerList.length > 5, [layerList.length]);
 
@@ -56,19 +58,26 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     }
   }, [showFilterInput]);
 
-  const handleClick = useCallback((event, { layer: { id: layerID }, properties, geometry }) => {
-    const layerData = { geometry, properties };
-    const layerType = layerID.includes(EVENT_SYMBOLS) ? 'event' : 'subject';
-    const handler = layerType === 'event' ? onSelectEvent : onSelectSubject;
+  const handleClick = useCallback((event, feature) => {
+    // const { layer: { id: layerID }, properties, geometry } = feature;
+    // const layerData = { geometry, properties };
+    // const layerType = layerID.includes(EVENT_SYMBOLS) ? 'event' : 'subject';
+    const handler = feature.properties?.content_type === 'observations.subject' ? onSelectSubject : onSelectEvent;
 
     hidePopup(id);
-    handler({ event, layer: layerData });
-
+    handler({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
   }, [hidePopup, id, onSelectEvent, onSelectSubject]);
 
   return <>
-    <h6>{itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}</h6>
-    {showFilterInput && <input type='text' onChange={onFilterChange} placeholder='Type filter text here' className={styles.filterInput} />}
+    {/* <h6>{itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}</h6> */}
+    {/* {showFilterInput && <input type='text' onChange={onFilterChange} placeholder='Type filter text here' className={styles.filterInput} />} */}
+    {showFilterInput && <SearchBar
+      className={styles.filterInput}
+      placeholder='Search'
+      value={filter}
+      onChange={({ target: { value } }) => onFilterChange(value)}
+      onClear={() => onFilterChange('')} />
+    }
     <ul className={styles.list}>
       {layers.map(layer => {
         const imageinStore = mapImages[calcImgIdFromUrlForMapImages(layer.properties.image, layer.properties.height, layer.properties.width)];

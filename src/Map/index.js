@@ -329,23 +329,24 @@ class Map extends Component {
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
-    const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
-    const clickedLayersOfInterest = uniqBy(
-      map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
-      , layer => layer.properties.id);
+    const clusterApproxGeometry = [[ event.point.x - 40, event.point.y + 25 ], [ event.point.x + 40, event.point.y - 25 ]];
+    const clustersAtPoint = map.queryRenderedFeatures(clusterApproxGeometry, { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] });
+    // const clickedLayersOfInterest = uniqBy(
+    //   map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
+    //   , layer => layer.properties.id);
 
-    let showingMultiPopup;
+    // let showingMultiPopup;
 
-    if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
-      event.originalEvent.cancelBubble = true;
-    }
+    // if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
+    //   event.originalEvent.cancelBubble = true;
+    // }
 
-    if (clickedLayersOfInterest.length > 1) {
-      if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
-        this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-        showingMultiPopup = true;
-      }
-    }
+    // if (clickedLayersOfInterest.length > 1) {
+    //   if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
+    //     this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+    //     showingMultiPopup = true;
+    //   }
+    // }
 
     if (this.props.popup) {
       // be sure to also deactivate the analyzer features
@@ -354,7 +355,10 @@ class Map extends Component {
         const { map } = this.props;
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
-      if (!showingMultiPopup) {
+      // if (!showingMultiPopup) {
+      //   this.props.hidePopup(this.props.popup.id);
+      // }
+      if (!clustersAtPoint.length) {
         this.props.hidePopup(this.props.popup.id);
       }
     }
@@ -647,7 +651,7 @@ class Map extends Component {
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
 
-            <ClustersLayer />
+            <ClustersLayer onEventClick={this.onEventSymbolClick} onSubjectClick={this.onMapSubjectClick} />
 
             {!!popup && <PopupLayer
               popup={popup} />

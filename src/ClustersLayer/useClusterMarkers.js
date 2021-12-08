@@ -30,10 +30,9 @@ const featuresCountHTMLStyles = {
   margin: '0',
 };
 
-const createClusterHTMLMarker = (clusterFeatures /* , showMultiLayerSelectPopup */) => {
+const createClusterHTMLMarker = (clusterFeatures, showClusterSelectPopup) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
-  // TODO: Popover logic not working yet
-  clusterHTMLMarkerContainer.onclick = () => /* showMultiLayerSelectPopup()*/ console.log('Open popover');
+  clusterHTMLMarkerContainer.onclick = () => showClusterSelectPopup(clusterFeatures, clusterFeatures[0].geometry.coordinates);
   injectStylesToElement(clusterHTMLMarkerContainer, clusterHTMLMarkerContainerStyles);
 
   clusterFeatures.slice(0, 3).forEach((feature) => {
@@ -73,7 +72,7 @@ const getClusterFeaturesMap = async (map) => {
   }, {});
 };
 
-const updateClusterMarkers = async (showMultiLayerSelectPopup, map) => {
+const updateClusterMarkers = async (showClusterSelectPopup, map) => {
   const newClusterFeaturesMap = await getClusterFeaturesMap(map);
 
   const prevClusterHashes = new Set(Object.keys(CLUSTER_MARKER_MAP));
@@ -93,7 +92,7 @@ const updateClusterMarkers = async (showMultiLayerSelectPopup, map) => {
       // TODO: Sort features by importance
       const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         newClusterFeaturesMap[newClusterHash],
-        () => showMultiLayerSelectPopup(Object.values(newClusterFeaturesMap[newClusterHash]), newClusterFeaturesMap[newClusterHash][0].geometry.coordinates),
+        showClusterSelectPopup,
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
@@ -107,18 +106,20 @@ const updateClusterMarkers = async (showMultiLayerSelectPopup, map) => {
   CLUSTER_MARKER_MAP = newClusterMarkerMap;
 };
 
-export default (map) => {
-  // TODO: clusters are not being rendered until I move the map, probably use a useEffect?
+export default (map, onEventClick, onSubjectClick) => {
+  // TODO: clusters are not being rendered until I move the map
   const dispatch = useDispatch();
-  const showMultiLayerSelectPopup = useCallback((layers, coordinates) => dispatch(showPopup('multi-layer-select', {
+  const showClusterSelectPopup = useCallback((layers, coordinates) => dispatch(showPopup('cluster-select', {
     layers,
     coordinates,
-    onSelectSubject: () => console.log('onSelectSubject'),
-    onSelectEvent: () => console.log('onSelectEvent'),
-  })), [dispatch]);
+    onSelectSubject: onSubjectClick,
+    onSelectEvent: onEventClick,
+  })), [dispatch, onEventClick, onSubjectClick]);
 
   useEffect(() => {
-    console.log('adding event to map');
-    map.on('moveend', () => updateClusterMarkers(showMultiLayerSelectPopup, map));
-  }, [map, showMultiLayerSelectPopup]);
+    const onMapMoveEnd = () => updateClusterMarkers(showClusterSelectPopup, map);
+    map.on('moveend', onMapMoveEnd);
+
+    return () => map.off('moveend', onMapMoveEnd);
+  }, [map, showClusterSelectPopup]);
 };
