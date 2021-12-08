@@ -41,7 +41,7 @@ describe('presets', () => {
   });
 });
 
-fit('lets you add a class to the start date label', async () => {
+it('lets you add a class to the start date label', async () => {
   render(<DateRangeSelector startDateLabelClass='start-label-time-yeehaw' />);
 
   const label = await screen.findByTestId('dateRangeSelector-startLabel');
