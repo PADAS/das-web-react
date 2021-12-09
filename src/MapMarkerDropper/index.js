@@ -116,7 +116,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
 export default memo(withMap(MapMarkerDropper));
 
 MapMarkerDropper.defaultProps = {
-  onMarkerDropped(_location) {
+  onMarkerDropped() {
   },
 };
 

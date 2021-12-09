@@ -222,7 +222,7 @@ export const DEFAULT_SELECT_STYLES = {
       display: isDisabled ? 'none' : 'block',
     };
   },
-  menu(styles, state) {
+  menu(styles) {
     return {
       ...styles,
       zIndex: 5,

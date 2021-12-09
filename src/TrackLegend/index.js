@@ -124,8 +124,7 @@ const TrackLegend = (props) => {
     }
     onClose={onClose}
     settingsComponent={<TrackLengthControls />}
-    >
-  </MapLegend>;
+  />;
 };
 
 const mapStatetoProps = (state) => ({

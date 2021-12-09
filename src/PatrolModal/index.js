@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useMatchMedia, useMedia, usePermissions } from '../hooks';
+import { useMatchMedia, usePermissions } from '../hooks';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import isFuture from 'date-fns/is_future';
@@ -87,7 +87,7 @@ const PatrolModal = (props) => {
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
       fetchTrackedBySchema()
-        .catch((e) => {
+        .catch(() => {
         //
         })
         .finally(() => setLoadingTrackedBy(false));
@@ -342,7 +342,7 @@ const PatrolModal = (props) => {
     const { data: { data } } = report;
 
     // patch the report to include the segment id
-    addPatrolSegmentToEvent(patrolSegmentId, data.id,);
+    addPatrolSegmentToEvent(patrolSegmentId, data.id);
 
     // dedupe collections
     if (!allPatrolReportIds.includes(data.id)) {

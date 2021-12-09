@@ -12,7 +12,7 @@ const MapLockControl = (props) => {
   const { mapIsLocked, toggleMapLockState, map } = props;
   const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
-  const onCheckboxChange = (e) => {
+  const onCheckboxChange = () => {
     toggleMapLockState(!mapIsLocked);
     mapInteractionTracker.track(`${mapIsLocked? 'Uncheck' : 'Check'} 'Lock Map' checkbox`);
   };

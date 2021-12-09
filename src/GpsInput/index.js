@@ -12,9 +12,7 @@ import styles from './styles.module.scss';
 
 const gpsPositionObjectContainsValidValues = locationObject => validateLngLat(locationObject.longitude, locationObject.latitude);
 
-const GpsInput = (props) => {
-  const { gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest } = props;
-
+const GpsInput = ({ gpsFormat, inputProps, lngLat: originalLngLat, onValidChange, showFormatToggle, dispatch: _dispatch, ...rest }) => {
   const lngLat = originalLngLat ? [...originalLngLat] : null;
   const hasLocation = !!lngLat && lngLat.length === 2;
   const placeholder = GPS_FORMAT_LABELS[gpsFormat] || 'Location';
@@ -24,7 +22,7 @@ const GpsInput = (props) => {
   const [valid, setValidationState] = useState(true);
   const [initialized, setInitState] = useState(false);
 
-  const handleValidationError = (e) => {
+  const handleValidationError = () => {
     setValidationState(false);
   };
 
@@ -90,10 +88,12 @@ const GpsInput = (props) => {
     }
   };
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(setUpStateWithLocationProp, []);
   useEffect(onFormatPropUpdate, [gpsFormat]);
   useEffect(onValueUpdate, [inputValue]);
   useEffect(handleValidChange, [lastKnownValidValue]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   return <div className={styles.wrapper}>
     {showFormatToggle &&
@@ -114,7 +114,7 @@ export default connect(mapStateToProps, null)(memo(GpsInput, (prev, next) =>
   isEqual(prev.gpsFormat && next.gpsFormat) && isEqual(prev.lngLat, next.lngLat)));
 
 GpsInput.defaultProps = {
-  onValidChange(value) {
+  onValidChange() {
   },
   inputProps: {},
   showFormatToggle: true,

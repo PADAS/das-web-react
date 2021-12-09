@@ -6,7 +6,7 @@ export const updateGlobalDateRange = update => dispatch => dispatch({
   payload: update,
 });
 
-export const resetGlobalDateRange = update => dispatch => dispatch({
+export const resetGlobalDateRange = () => dispatch => dispatch({
   type: RESET_DATE_RANGE,
 });
 

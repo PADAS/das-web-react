@@ -8,7 +8,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 import { Layer } from 'react-mapbox-gl';
 
 const LabeledSymbolLayer = (
-  { before, paint, layout, textPaint, textLayout, id, map, mapUserLayoutConfig, minZoom, onClick, onInit, onUnmount,
+  { before, paint, layout, textPaint, textLayout, id, map, mapUserLayoutConfig, minZoom, onClick, onInit,
     onMouseEnter, onMouseLeave, ...rest }
 ) => {
   const textLayerId = `${id}-labels`;
@@ -99,14 +99,10 @@ LabeledSymbolLayer.defaultProps = {
   onInit() {
     return null;
   },
-  onUnmount() {
-    return null;
-  },
 };
 
 LabeledSymbolLayer.propTypes = {
   sourceId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   onInit: PropTypes.func,
-  onUnmount: PropTypes.func,
 };

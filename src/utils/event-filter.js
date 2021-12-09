@@ -48,7 +48,7 @@ export const isFilterModified = ({ state, filter: { priority, reported_by, text 
     || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by)
 );
 
-export const isDateFilterModified = ({ state, filter: { date_range } }) => !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
+export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
 
 export const calcSortParamForEventFilter = (sortConfig) => {
   const [direction, sortProp] = sortConfig;
