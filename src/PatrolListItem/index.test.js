@@ -16,7 +16,6 @@ import * as patrolUtils from '../utils/patrols';
 import * as customHooks from '../hooks';
 
 import { UPDATE_PATROL_TRACK_STATE } from '../ducks/patrols';
-import * as trackDucks from '../ducks/tracks';
 
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
