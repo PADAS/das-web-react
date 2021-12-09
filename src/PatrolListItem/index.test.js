@@ -11,8 +11,12 @@ import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import * as trackUtils from '../utils/tracks';
+import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';
 import * as customHooks from '../hooks';
+
+import { UPDATE_PATROL_TRACK_STATE } from '../ducks/patrols';
+import * as trackDucks from '../ducks/tracks';
 
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import patrols from '../__test-helpers/fixtures/patrols';
@@ -48,7 +52,7 @@ let store = mockStore(minimumNecessaryStoreStructure);
 const onTitleClick = jest.fn();
 const onPatrolChange = jest.fn();
 const onPatrolSelfManagedStateChange = jest.fn();
-const map = createMapMock();
+const map = createMapMock({ fitBounds: jest.fn() });
 
 jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promise.resolve({}));
 
@@ -145,6 +149,32 @@ describe('for active patrols', () => {
 
   test('showing a location jump button if the patrol has any location data', async () => {
     await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
+  });
+
+  test('toggling a patrol track on when clicking the "jump to location button"', async () => {
+    const jumpButton = await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
+    userEvent.click(jumpButton);
+
+    const actions = store.getActions();
+
+    const actionMatch = actions.find(action => action.type === UPDATE_PATROL_TRACK_STATE);
+
+    expect(actionMatch).toBeDefined();
+    expect(actionMatch.payload).toEqual({ visible: [testPatrol.id] });
+
+  });
+
+  test('toggling a patrol leader\'s track on when clicking the "jump to location button"', async () => {
+    const jumpButton = await screen.findByTestId(`patrol-list-item-jump-btn-${testPatrol.id}`);
+    userEvent.click(jumpButton);
+
+    const actions = store.getActions();
+
+    const actionMatch = actions.find(action => action.type === UPDATE_SUBJECT_TRACK_STATE);
+
+    expect(actionMatch).toBeDefined();
+    expect(actionMatch.payload).toEqual({ visible: [testPatrol.patrol_segments[0].leader.id] });
+
   });
 
   test('showing a track button if the patrol has track data', async () => {

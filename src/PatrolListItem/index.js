@@ -20,13 +20,15 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from './PatrolMenu';
 
 import styles from './styles.module.scss';
+import { togglePatrolTrackState } from '../ducks/patrols';
+import { toggleTrackState } from '../ducks/map-ui';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
+const PatrolListItem = ({  patrolTrackState, togglePatrolTrackState, toggleTrackState, trackState, showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
   const { patrol, leader, trackData, startStopGeometries } = patrolData;
 
   const debouncedTrackFetch = useRef(null);
@@ -34,6 +36,9 @@ const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, 
   const menuRef = useRef(null);
 
   const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
+
+  const patrolTrackIsVisible = !![...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
+  const leaderTrackIsVisible = !!leader && !![...trackState.pinned, ...trackState.visible].includes(leader.id);
 
   const isScheduledPatrol = patrolState === PATROL_UI_STATES.READY_TO_START
   || patrolState === PATROL_UI_STATES.SCHEDULED
@@ -100,8 +105,16 @@ const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, 
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
 
+    if (!patrolTrackIsVisible) {
+      togglePatrolTrackState(patrol.id);
+    }
+
+    if (!!leader && !leaderTrackIsVisible) {
+      toggleTrackState(leader.id);
+    }
+
     fitMapBoundsForAnalyzer(map, patrolBounds);
-  }, [map, patrolBounds]);
+  }, [leader, leaderTrackIsVisible, map, patrol.id, patrolBounds, patrolTrackIsVisible, togglePatrolTrackState, toggleTrackState]);
 
   const restorePatrol = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
@@ -193,13 +206,14 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, props) => {
     return {
       patrolData: getDataForPatrolFromProps(state, props),
-      pickingLocationOnMap: state?.view?.userPreferences?.pickingLocationOnMap,
+      patrolTrackState: state?.view?.patrolTrackState,
+      trackState: state?.view?.patrolTrackState,
     };
   };
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps, null)(
+export default connect(makeMapStateToProps, { togglePatrolTrackState, toggleTrackState })(
   memo(
     forwardRef(PatrolListItem)
   )
