@@ -13,10 +13,10 @@ const LAYER_ID = 'static_sensors_layer';
 const IMAGE_DATA = {
   id: 'popup-background',
   options: {
-    content: [15, 15, 55, 45],
-    stretchX: [[15, 15], [45, 55]],
-    stretchY: [[23, 24]],
-    pixelRatio: 1.6
+    content: [26, 9, 110, 47],
+    stretchX: [[29, 53], [83, 110]],
+    stretchY: [[28, 30]],
+    pixelRatio: 1.7
   }
 };
 
@@ -43,25 +43,15 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
 
   const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-size': 1,
-    'text-anchor': 'left',
-    'text-offset': ['case',
-      ['!=', ['get', 'image'], null],
-      [
-        'interpolate',
-        ['linear'],
-        ['length', 'image'],
-        0,
-        ['literal', [1.3, -.2]],
-        1,
-        ['literal', [0, -.2]]
-      ],
-      ['literal', [1.3, -.2]]
-    ],
+    'icon-size': 1.1,
+    'icon-anchor': 'bottom',
+    'text-anchor': 'center',
+    'text-justify': 'left',
+    'text-offset': [.6, -2.5],
+    'icon-text-fit-padding': [2.5, 2, -1.5, 22],
     'text-field': '{default_status_value}',
     'icon-allow-overlap': true,
     'text-allow-overlap': true,
-    'icon-text-fit-padding': [0, 0, 0, 0],
     'icon-text-fit': 'both',
     'icon-image': 'popup-background',
   };
@@ -74,10 +64,23 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
 
   const secondLabelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-offset': [4, -8],
-    'text-offset': [3, -.3],
+    'icon-offset': [-30, -27],
+    'text-offset': ['case',
+      ['!=', ['get', 'image'], null],
+      [
+        'interpolate',
+        ['linear'],
+        ['length', 'image'],
+        0,
+        ['literal', [-2, -3.3]],
+        1,
+        ['literal', [-.8, -3.3]]
+      ],
+      ['literal', [-2, -3.3]]
+    ],
+
     'icon-anchor': 'left',
-    'text-anchor': 'left',
+    'text-anchor': 'center',
     'text-justify': 'left',
     'text-field': '{default_status_value}',
   };
@@ -86,7 +89,10 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     ...DEFAULT_SYMBOL_PAINT,
     'text-color': '#ffffff',
     'icon-color': '#ffffff',
-    'text-halo-width': 0
+    'text-halo-width': 0,
+    'icon-halo-width': 0,
+    'text-translate': [27, 0],
+    'icon-translate': [-20, -30],
   };
 
   useEffect(() => {
