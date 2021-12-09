@@ -87,7 +87,9 @@ const getRenderedClustersData = async (clustersSource, map) => {
   }));
 
   const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);
-  const renderedClusterHashes = renderedClusterFeatures.map((clusterFeatures) => hashCode(clusterFeatures.join('')));
+  const renderedClusterHashes = renderedClusterFeatures.map(
+    (clusterFeatures) => hashCode(clusterFeatures.map(clusterFeature => clusterFeature.properties.id).join(''))
+  );
 
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
 };
@@ -144,7 +146,8 @@ const updateClusterMarkers = async (showClusterSelectPopup, map) => {
   } = await getRenderedClustersData(clustersSource, map);
 
   removeOldClusterMarkers(renderedClusterHashes);
-  const renderedClusterMarkersHashMap = addNewClusterMarkers(
+
+  CLUSTER_MARKER_MAP = addNewClusterMarkers(
     clustersSource,
     map,
     renderedClusterFeatures,
@@ -152,8 +155,6 @@ const updateClusterMarkers = async (showClusterSelectPopup, map) => {
     renderedClusterIds,
     showClusterSelectPopup
   );
-
-  CLUSTER_MARKER_MAP = renderedClusterMarkersHashMap;
 };
 
 export default (map, onEventClick, onSubjectClick) => {
