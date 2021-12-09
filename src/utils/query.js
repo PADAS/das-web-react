@@ -80,7 +80,7 @@ export const objectToParamString = (obj) => {
 
   return props.reduce((params, [key, value], _index) => {
     if (Array.isArray(value)) {
-      value.forEach((v, i) => {
+      value.forEach((v) => {
         params.append(key, v);
       });
     } else if (typeof value === 'object') {

@@ -11,7 +11,7 @@ import styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapLegend = (props) => {
-  const { onClose, settingsComponent, titleElement: Title, children, ...rest } = props;
+  const { onClose, settingsComponent, titleElement: Title, ...rest } = props;
   return <div className={`${styles.legend} ${styles.closedLegend}`} {...rest}>
     {Title}
     <button className={styles.close} onClick={onClose}>

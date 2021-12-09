@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'; /* eslint-disable-line no-unused-vars */
+import React, { useEffect } from 'react';
 
 const SUN_POSITION = [0, 0];
 export const DEFAULT_SKY_LAYER_CONFIG = {

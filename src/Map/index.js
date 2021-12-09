@@ -132,7 +132,7 @@ class Map extends Component {
     this.debouncedFetchMapData();
   }
 
-  onMapZoom = debounce((e) => {
+  onMapZoom = debounce(() => {
 
     if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
       this.props.hidePopup(this.props.popup.id);
@@ -246,14 +246,14 @@ class Map extends Component {
     this.debouncedFetchMapData();
   }
 
-  onRotationControlClick = (e) => {
+  onRotationControlClick = () => {
     this.props.map.easeTo({
       bearing: 0,
       pitch: 0,
     });
   }
 
-  toggleMapLockState(e) {
+  toggleMapLockState() {
     return toggleMapLockState();
   }
 
@@ -300,7 +300,7 @@ class Map extends Component {
 
     return this.props.fetchMapSubjects(...args)
       .then((latestMapSubjects) => timeSliderActive ? this.fetchMapSubjectTracksForTimeslider(latestMapSubjects) : Promise.resolve(latestMapSubjects))
-      .catch((e) => {
+      .catch(() => {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
@@ -438,7 +438,7 @@ class Map extends Component {
     this.props.setReportHeatmapVisibility(false);
   }
 
-  onClusterClick = this.withLocationPickerState(({ point, lngLat }) => {
+  onClusterClick = this.withLocationPickerState(({ point }) => {
     const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
@@ -483,7 +483,7 @@ class Map extends Component {
     mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
-  onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {
+  onMessageBadgeClick = this.withLocationPickerState(({ layer }) => {
     const { geometry, properties } = layer;
 
     this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
@@ -597,7 +597,6 @@ class Map extends Component {
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
-              allowOverlap={timeSliderActive}
               mapImages={mapImages}
               subjects={nonStaticSubjects}
               subjectsOnActivePatrol={subjectsOnActivePatrol}
@@ -669,7 +668,7 @@ class Map extends Component {
   }
 }
 
-const mapStatetoProps = (state, props) => {
+const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
