@@ -9,7 +9,7 @@ const patrolTypes = ['patrol1', 'patrol2', 'patrol3', 'patrol4', 'patrol5'];
 const mockSubjectValues = [
   { subject_subtype: 'antelope', subject_type: 'wildlife', image_url: '/static/antelope-black-male.svg' },
   { subject_subtype: 'boat', subject_type: 'vehicle', image_url: '/static/ranger_boat-green.svg' },
-  { subject_subtype: 'camera trap', subject_type: 'stationary sensor', image_url: '/static/ranger-black.svg' },
+  { subject_subtype: 'camera trap', subject_type: 'stationary_sensor', image_url: '/static/ranger-black.svg' },
   { subject_subtype: 'car', subject_type: 'vehicle', image_url: '/static/ranger-black.svg' },
   { subject_subtype: 'driver', subject_type: 'person', image_url: '/static/ranger-black.svg' },
   { subject_subtype: 'elephant', subject_type: 'wildlife', image_url: '/static/elephant-black-male.svg' },
@@ -18,10 +18,10 @@ const mockSubjectValues = [
   { subject_subtype: 'ranger', subject_type: 'person', image_url: '/static/ranger-black.svg' },
   { subject_subtype: 'rhino', subject_type: 'wildlife', image_url: '/static/rhino-black-male.svg' },
   { subject_subtype: 'zebra', subject_type: 'wildlife', image_url: '/static/zebra-black-male.svg' },
-  { subject_subtype: 'weather_station', subject_type: 'static sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'river_flow', subject_type: 'static sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'fuel_tank', subject_type: 'static sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'fence', subject_type: 'static sensor', image_url: '/static/ranger-green.svg' },
+  { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
+  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
+  { subject_subtype: 'fuel_tank', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
+  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
 ];
 
 const patrolStartLocations = [
@@ -87,10 +87,9 @@ const generateSubject = () => {
   } = mockSubjectValues[Math.floor(Math.random() * mockSubjectValues.length)];
   const name = `Mock ${subject_subtype} ${faker.random.number()}`;
   const id = faker.random.uuid();
-  let device_status_properties = null, tracks_available = true;
+  let device_status_properties = null;
 
   if (subject_type === 'static sensor') {
-    tracks_available = false;
     device_status_properties = [{
       default: true,
       label: 'Temperature',
@@ -118,7 +117,7 @@ const generateSubject = () => {
     created_at: '2021-11-10T07:26:19.869853-08:00',
     updated_at: '2021-11-10T07:26:19.869873-08:00',
     is_active: true,
-    tracks_available,
+    tracks_available: subject_type !== 'static sensor',
     image_url,
     last_position_status: {
       last_voice_call_start_at: null,
@@ -155,7 +154,8 @@ const generateSubject = () => {
       },
     },
     device_status_properties,
-    url: 'https://develop.pamdas.org/api/v1.0/subject/0101e852-f0e7-4555-a0d6-68184be613b8',
+    url: `https://develop.pamdas.org/api/v1.0/subject/${id}`,
+    is_static: subject_type === 'static sensor',
   };
 };
 

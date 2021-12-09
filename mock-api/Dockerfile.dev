@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:15.0.1-alpine
 WORKDIR /app
 RUN npm i json-server -g
 COPY ./package.json ./
