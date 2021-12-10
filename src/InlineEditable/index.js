@@ -26,6 +26,7 @@ const InlineEditable = (props) => {
     }, 80);
   }, [originalValue, validationFunc, value]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(onStartEdit, [editing]);
 
 
@@ -90,7 +91,7 @@ export default memo(InlineEditable);
 
 InlineEditable.defaultProps = {
   showEditButton: false,
-  validationFunc(value) {
+  validationFunc() {
     return true;
   },
   showCancel: true,

@@ -1,10 +1,10 @@
 @import '../../common/styles/vars/colors';
 
 .popover {
-  overflow: visible !important;
+  overflow: auto !important;
 
   [class*=popover-body] {
-    overflow: visible !important;
+    overflow: auto !important;
   }
 }
 

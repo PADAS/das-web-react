@@ -76,9 +76,9 @@ GeoLocator.defaultProps = {
   label: 'Use my location',
   onStart() {
   },
-  onError(error) {
+  onError() {
   },
-  onSuccess(coordinates) {
+  onSuccess() {
   },
 };
 

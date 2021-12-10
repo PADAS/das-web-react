@@ -243,7 +243,7 @@ const CustomCheckboxes = (props) => {
               checked={enumOptionIsChecked(option)}
               disabled={disabled || readonly}
               autoFocus={autofocus && index === 0}
-              onChange={event => {
+              onChange={() => {
                 if (enumOptionIsChecked(option)) {
                   onChange(inputValues.filter(item => item !== option.value));
                 } else {

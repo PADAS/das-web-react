@@ -42,9 +42,7 @@ const timepointLayerPaint = {
   ],
 };
 
-const TrackLayer = (props) => {
-  const { id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch, ...rest } = props;
-
+const TrackLayer = ({ id, map, onPointClick, linePaint = {}, lineLayout = {}, trackData, showTimepoints, before = null, dispatch: _dispatch, ...rest }) => {
   const trackLinePaint = useMemo(() => ({
     ...trackLayerLinePaint,
     ...linePaint,
@@ -101,7 +99,7 @@ const TrackLayer = (props) => {
 export default memo(TrackLayer);
 
 TrackLayer.defaultProps = {
-  onPointClick(layer) {
+  onPointClick() {
   },
   showTimepoints: true,
 };

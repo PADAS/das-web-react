@@ -6,7 +6,7 @@ import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
 
 function LabeledPatrolSymbolLayer(
-  { layout, id, ...rest }
+  { id, ...rest }
 ) {
   const symbolLayout = {
     'text-field': '{ticker}',

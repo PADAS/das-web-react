@@ -27,7 +27,7 @@ CheckableList.defaultProps = {
   itemPartiallyChecked() {
     return false;
   },
-  onCheckClick(item) {
+  onCheckClick() {
   },
   itemProps: {},
 };

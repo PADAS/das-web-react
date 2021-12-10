@@ -10,7 +10,6 @@ import uniq from 'lodash/uniq';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { iconTypeForPatrol } from '../../utils/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
-import { reportedBy } from '../../selectors';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../../utils/analytics';
 
 import CheckboxList from '../../CheckboxList';
@@ -49,7 +48,6 @@ const FiltersPopover = React.forwardRef(({
   patrolFilter,
   patrolLeaderSchema,
   patrolTypes,
-  reporters,
   updatePatrolFilter,
   ...rest
 }, ref) => {
@@ -128,7 +126,7 @@ const FiltersPopover = React.forwardRef(({
   const patrolLeaderFilterOptions = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value)
     || [];
   const selectedLeaders = !!selectedLeaderIds?.length ?
-    selectedLeaderIds.map(id => reporters.find(reporter => reporter.id === id)).filter(item => !!item)
+    selectedLeaderIds.map(id => patrolLeaderFilterOptions.find(leader => leader.id === id))
     : [];
 
   const statusFilterOptions = PATROL_FILTERS_STATUS_OPTIONS.map(status => ({
@@ -287,7 +285,6 @@ FiltersPopover.propTypes = {
     id: PropTypes.string,
     icon_id: PropTypes.string,
   })).isRequired,
-  reporters: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string })).isRequired,
   updatePatrolFilter: PropTypes.func.isRequired,
 };
 
@@ -297,7 +294,6 @@ const mapStateToProps = (state) => ({
   patrolFilter: state.data.patrolFilter,
   patrolLeaderSchema: state.data.patrolLeaderSchema,
   patrolTypes: state.data.patrolTypes,
-  reporters: reportedBy(state),
 });
 
 export default connect(

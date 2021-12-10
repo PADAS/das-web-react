@@ -156,6 +156,7 @@ const MapRulerControl = (props) => {
     setPickingMapLocationState(active && !completed);
   }, [active, completed, setPickingMapLocationState]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(resetState, [active]);
 
   useEffect(() => {

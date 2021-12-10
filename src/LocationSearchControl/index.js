@@ -150,13 +150,8 @@ const LocationSearch = (props) => {
     // }
   };
 
-  const lngLat = Object.values(coordinates);
-  console.log(lngLat);
-  const coords = lngLat.map(val => {
-    const gps = { lng: val.coordinates[1], lat: val.coordinates[0] };
-    console.log('JumpToLocation coordinate => ', gps);
-    return Object.values(gps);
-  });
+  const coords = Object.values({ lng: coordinates.lng, lat: coordinates.lat });
+  console.log('JumpToLocation coordinate => ', coords);
   const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[1], coords[0]);
 
   const errorMessages = errors.map((err, index) => (

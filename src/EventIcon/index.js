@@ -9,7 +9,7 @@ import { displayEventTypes } from '../selectors/event-types';
 
 import styles from './styles.module.scss';
 
-const EventIcon = forwardRef(({ report, eventTypes, color, ...rest }, ref) => { /* eslint-disable-line react/display-name */
+const EventIcon = forwardRef(({ report, eventTypes, ...rest }, ref) => { /* eslint-disable-line react/display-name */
   const { is_collection } = report;
   const isPatrol = !!report?.patrol_segments?.length && isObject(report.patrol_segments[0]);
 
