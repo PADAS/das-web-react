@@ -104,30 +104,30 @@ const App = (props) => {
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
     fetchEventTypes()
-      .catch((e) => {
+      .catch(() => {
       });
     fetchEventSchema()
-      .catch((e) => {
+      .catch(() => {
         // 
       });
 
     fetchMaps()
-      .catch((e) => {
+      .catch(() => {
         // 
       });
     fetchSubjectGroups()
-      .catch((e) => {
+      .catch(() => {
         // 
       });
     fetchAnalyzers()
-      .catch((e) => {
+      .catch(() => {
         // 
       });
     fetchSystemStatus()
       .then(({ patrol_enabled, track_length }) => {
         if (patrol_enabled) {
           fetchPatrolTypes()
-            .catch((e) => {
+            .catch(() => {
               // 
             });
         }
@@ -141,7 +141,7 @@ const App = (props) => {
           }
         }
       })
-      .catch((e) => {
+      .catch(() => {
         /* toast('Error fetching system status. Please refresh and try again.', {
           type: toast.TYPE.ERROR,
         }); */
@@ -206,11 +206,8 @@ const App = (props) => {
 const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
 const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
-const AppWithSocketContext = (props) => <WithSocketContext>
+const AppWithSocketContext = () => <WithSocketContext>
   <ConnectedApp />
 </WithSocketContext>;
-
-
-
 
 export default AppWithSocketContext;

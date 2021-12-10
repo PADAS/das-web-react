@@ -9,8 +9,7 @@ import LoadingOverlay from '../LoadingOverlay';
 
 const { Header, Title, Body } = Modal;
 
-
-const AlertsModal = ({ id, title, removeModal, params = {} }) => {
+const AlertsModal = ({ title }) => {
   const [loading, setLoadState] = useState(true);
 
   return <Fragment>
@@ -24,15 +23,8 @@ const AlertsModal = ({ id, title, removeModal, params = {} }) => {
   </Fragment>;
 };
 
-AlertsModal.defaultProps = {
-  params: {},
-};
-
 AlertsModal.propTypes = {
-  id: PropTypes.string.isRequired,
-  removeModal: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  params: PropTypes.object,
 };
 
 

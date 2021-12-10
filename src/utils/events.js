@@ -286,7 +286,7 @@ export const validateReportAgainstCurrentEventFilter = (report, storeFromProps) 
     && reportMatchesEventTypeFilter();
 };
 
-export const addPatrolSegmentToEvent = (segment_id, event_id, event) => {
+export const addPatrolSegmentToEvent = (segment_id, event_id) => {
   const segmentPayload = { patrol_segments: [segment_id] };
   return axios.patch(`${EVENT_API_URL}${event_id}/`, segmentPayload)
     .then(function (response) {

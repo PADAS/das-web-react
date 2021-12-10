@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import format from 'date-fns/format';
@@ -32,8 +32,8 @@ const TimeSlider = (props) => {
   const rightPopoverTrigger = useRef(null);
   const debouncedRangeChangeAnalytics = useRef(mapInteractionTracker.debouncedTrack(300));
   const { virtualDate } = timeSliderState;
-  const startDate = new Date(since);
-  const endDate = until ? new Date(until) : new Date();
+  const startDate = useMemo(() => new Date(since), [since]);
+  const endDate = useMemo(() => until ? new Date(until) : new Date(), [until]);
 
   const currentDate = virtualDate ? new Date(virtualDate) : endDate;
 
@@ -147,7 +147,7 @@ const TimeSlider = (props) => {
   </div>;
 };
 
-const mapStatetoProps = ({ view: { timeSliderState, userPreferences: { sidebarOpen } }, data: { eventFilter: { filter: { date_range } } } }) => ({
+const mapStatetoProps = ({ view: { timeSliderState }, data: { eventFilter: { filter: { date_range } } } }) => ({
   timeSliderState,
   since: date_range.lower,
   until: date_range.upper,

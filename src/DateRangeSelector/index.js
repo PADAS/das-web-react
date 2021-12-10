@@ -18,8 +18,8 @@ import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 const DateRangeSelector = (props) => {
   const { startDate, endDate, endMaxDate, onStartDateChange, onEndDateChange, onClickDateRangePreset,
     startDateLabel, endDateLabel, onFilterSettingsToggle, maxDate, requireStart, requireEnd, showPresets, isAtDefault = false,
-    defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, gaEventSrc, popoverClassName,
-    children, placement, filterSettings, ...rest } = props;
+    defaultFriendlyString, startDateNullMessage, endDateNullMessage, className, popoverClassName,
+    children, placement, filterSettings, endDateLabelClass = '', startDateLabelClass = '', ...rest } = props;
 
   const showStartNullMessage = !requireStart && !startDate && !!startDateNullMessage;
   const showEndNullMessage = !requireEnd && !endDate && !!endDateNullMessage;
@@ -64,7 +64,7 @@ const DateRangeSelector = (props) => {
       }
     </div>
     <div className={startDateLabel ? styles.dateSelectorWrapper : styles.dateSelectorWrapperInline}>
-      <label className={styles.label}>
+      <label data-testid='dateRangeSelector-startLabel' className={`${styles.label} ${startDateLabelClass}`}>
         {startDateLabel && <span>{startDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
@@ -73,7 +73,7 @@ const DateRangeSelector = (props) => {
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
       {children}
-      <label className={styles.label}>
+      <label data-testid='dateRangeSelector-endLabel' className={`${styles.label} ${endDateLabelClass}`}>
         {endDateLabel && <span>{endDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
@@ -129,13 +129,14 @@ DateRangeSelector.defaultProps = {
   requireEnd: false,
   startDateLabel: 'From:',
   format: 'yyyy-MM-dd HH:mm',
-  onClickDateRangePreset: ({ lower, upper }) => null,
+  onClickDateRangePreset: () => null,
   showPresets: false,
 };
 
 DateRangeSelector.propTypes = {
   endDate: PropTypes.instanceOf(Date),
   endDateLabel: PropTypes.string,
+  endDateLabelClass: PropTypes.string,
   endDateNullMessage: PropTypes.string,
   maxDate: PropTypes.instanceOf(Date),
   onEndDateChange: PropTypes.func.isRequired,
@@ -146,6 +147,7 @@ DateRangeSelector.propTypes = {
   showPresets: PropTypes.bool,
   startDate: PropTypes.instanceOf(Date),
   startDateLabel: PropTypes.string,
+  startDateLabelClass: PropTypes.string,
   startDateNullMessage: PropTypes.string,
 };
 

@@ -48,7 +48,7 @@ const EulaPage = (props) => {
 
   useEffect(() => {
     fetchCurrentUser(generateTempAuthHeaderIfNecessary())
-      .catch((error) => {
+      .catch(() => {
         history.push({
           pathname: `${REACT_APP_ROUTE_PREFIX}login`,
           search: location.search,
@@ -88,7 +88,7 @@ const EulaPage = (props) => {
     deleteCookie('temporaryAccessToken');
   }, []);
 
-  const onSubmit = useCallback((event, ...rest) => {
+  const onSubmit = useCallback((event) => {
     event.preventDefault();
     setFormError(false);
     if (!formAccepted) return;
@@ -102,7 +102,7 @@ const EulaPage = (props) => {
     acceptEula(payload, generateTempAuthHeaderIfNecessary())
       .then(() => {
         return fetchCurrentUser(generateTempAuthHeaderIfNecessary())
-          .catch((error) => {
+          .catch(() => {
             this.props.history.push({
               pathname: `${REACT_APP_ROUTE_PREFIX}login`,
               search: this.props.location.search,

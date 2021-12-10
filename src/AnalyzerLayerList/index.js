@@ -68,7 +68,7 @@ const AnalyzerLayerList = memo((props) => {
       }, []);
 
       mapLayerTracker.track('Uncheck All Features checkbox');
-      analyzerIds.forEach((id) => setAnalyzerFeatureActiveStateForIDs(map, allFeatureIds, false));
+      setAnalyzerFeatureActiveStateForIDs(map, allFeatureIds, false);
 
       return hideAllAnalyzers();
     } else {
@@ -76,7 +76,7 @@ const AnalyzerLayerList = memo((props) => {
 
       return showAllAnalyzers();
     }
-  }, [allVisible, analyzerIds, analyzers, hideAllAnalyzers, map, showAllAnalyzers]);
+  }, [allVisible, analyzers, hideAllAnalyzers, map, showAllAnalyzers]);
 
   const featureIsVisible = useCallback(item => {
     const { id } = item;
