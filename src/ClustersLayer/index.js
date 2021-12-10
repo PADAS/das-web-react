@@ -1,8 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import explode from '@turf/explode';
 import { Layer, Source } from 'react-mapbox-gl';
 import PropTypes from 'prop-types';
 
+import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { LAYER_IDS, MAX_ZOOM } from '../constants';
@@ -16,14 +18,22 @@ const ClustersLayer = ({
   map,
   onEventClick,
   onSubjectClick,
-  subjectFeatureCollection
+  onSymbolClick,
+  subjectFeatureCollection,
+  symbolFeatureCollection,
 }) => {
-  useClusterMarkers(map, onEventClick, onSubjectClick);
+  useClusterMarkers(map, onEventClick, onSubjectClick, onSymbolClick);
+
+  // TODO: I'm considering symbol features are always multipoint, is that correct?
+  const pointSymbolFeatures = symbolFeatureCollection.features.reduce(
+    (pointSymbolFeatures, multiPointFeature) => [...pointSymbolFeatures, ...explode(multiPointFeature).features],
+    []
+  );
 
   const sourceData = {
     type: 'geojson',
     data: {
-      features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features],
+      features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features, ...pointSymbolFeatures],
       type: 'FeatureCollection',
     },
     cluster: true,
@@ -56,11 +66,16 @@ ClustersLayer.propTypes = {
     features: PropTypes.array,
     type: PropTypes.string,
   }).isRequired,
+  symbolFeatures: PropTypes.shape({
+    features: PropTypes.array,
+    type: PropTypes.string,
+  }).isRequired,
 };
 
 const mapStatetoProps = (state) => ({
   eventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
   subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
+  symbolFeatureCollection: getFeatureSetFeatureCollectionsByType(state).symbolFeatures,
 });
 
 export default connect(mapStatetoProps)(withMap(ClustersLayer));

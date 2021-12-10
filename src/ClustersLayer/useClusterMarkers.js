@@ -157,15 +157,16 @@ const updateClusterMarkers = async (showClusterSelectPopup, map) => {
   );
 };
 
-export default (map, onEventClick, onSubjectClick) => {
+export default (map, onEventClick, onSubjectClick, onSymbolClick) => {
   // TODO: clusters are not being rendered until I move the map
   const dispatch = useDispatch();
   const showClusterSelectPopup = useCallback((layers, coordinates) => dispatch(showPopup('cluster-select', {
     layers,
     coordinates,
-    onSelectSubject: onSubjectClick,
     onSelectEvent: onEventClick,
-  })), [dispatch, onEventClick, onSubjectClick]);
+    onSelectSubject: onSubjectClick,
+    onSelectSymbol: onSymbolClick,
+  })), [dispatch, onEventClick, onSubjectClick, onSymbolClick]);
 
   useEffect(() => {
     const onMapMoveEnd = () => updateClusterMarkers(showClusterSelectPopup, map);

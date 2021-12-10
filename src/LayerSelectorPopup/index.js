@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 // const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
-  const { layers: layerList, onSelectSubject, onSelectEvent } = data;
+  const { layers: layerList, onSelectSubject, onSelectEvent, onSelectSymbol } = data;
   const [filter, setFilter] = useState('');
 
   const onFilterChange = useCallback((value) => {
@@ -27,7 +27,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     });
     if (!filter) return sortedLayerList;
     return sortedLayerList.filter((layer) => {
-      const displayName = layer.properties.display_title || layer.properties.name;
+      const displayName = layer.properties.display_title || layer.properties.name || layer.properties.title;
       return displayName.toLowerCase().includes(filter.toLowerCase());
     });
   }, [filter, layerList]);
@@ -62,11 +62,15 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     // const { layer: { id: layerID }, properties, geometry } = feature;
     // const layerData = { geometry, properties };
     // const layerType = layerID.includes(EVENT_SYMBOLS) ? 'event' : 'subject';
-    const handler = feature.properties?.content_type === 'observations.subject' ? onSelectSubject : onSelectEvent;
-
     hidePopup(id);
-    handler({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
-  }, [hidePopup, id, onSelectEvent, onSelectSubject]);
+    if (feature.properties?.content_type === 'observations.subject') {
+      onSelectSubject({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
+    } else if (feature.properties?.feature_type) {
+      onSelectSymbol(feature);
+    } else {
+      onSelectEvent({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
+    }
+  }, [hidePopup, id, onSelectEvent, onSelectSubject, onSelectSymbol]);
 
   return <>
     {/* <h6>{itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}</h6> */}
@@ -84,10 +88,9 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
         const imgSrc = imageinStore ?
           imageinStore.image.src
           : calcUrlForImage(layer.properties.image);
-
         return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
-          <img alt={layer.properties.display_title || layer.properties.name} src={imgSrc} />
-          <span>{layer.properties.display_title || layer.properties.name}</span>
+          <img alt={layer.properties.display_title || layer.properties.name || layer.properties.title} src={imgSrc} />
+          <span>{layer.properties.display_title || layer.properties.name || layer.properties.title}</span>
         </li>;
       })}
     </ul>

@@ -651,7 +651,11 @@ class Map extends Component {
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
 
-            <ClustersLayer onEventClick={this.onEventSymbolClick} onSubjectClick={this.onMapSubjectClick} />
+            <ClustersLayer
+              onEventClick={this.onEventSymbolClick}
+              onSubjectClick={this.onMapSubjectClick}
+              onSymbolClick={this.onFeatureSymbolClick}
+            />
 
             {!!popup && <PopupLayer
               popup={popup} />
