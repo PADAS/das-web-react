@@ -65,10 +65,10 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     hidePopup(id);
     if (feature.properties?.content_type === 'observations.subject') {
       onSelectSubject({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
-    } else if (feature.properties?.feature_type) {
-      onSelectSymbol(feature);
-    } else {
+    } else if (feature.properties?.event_type) {
       onSelectEvent({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
+    } else {
+      onSelectSymbol(feature);
     }
   }, [hidePopup, id, onSelectEvent, onSelectSubject, onSelectSymbol]);
 

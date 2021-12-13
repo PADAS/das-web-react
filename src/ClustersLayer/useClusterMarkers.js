@@ -30,12 +30,68 @@ const featuresCountHTMLStyles = {
   margin: '0',
 };
 
+const getClusterIcons = (clusterFeatures) => {
+  const eventFeatures = [];
+  const subjectFeatures = [];
+  const symbolFeatures = [];
+  clusterFeatures.forEach((feature) => {
+    if (feature.properties?.content_type === 'observations.subject') {
+      subjectFeatures.push(feature);
+    } else if (feature.properties?.event_type) {
+      eventFeatures.push(feature);
+    } else {
+      symbolFeatures.push(feature);
+    }
+  });
+
+  eventFeatures.sort((firstFeature, secondFeature) => {
+    if (firstFeature.properties.priority < secondFeature.properties.priority) {
+      return 1;
+    }
+    if (firstFeature.properties.priority > secondFeature.properties.priority) {
+      return -1;
+    }
+    return firstFeature.properties.updated_at > secondFeature.properties.updated_at ? 1 : -1;
+  });
+
+  subjectFeatures.sort((firstFeature, secondFeature) => {
+    const firstFeatureLastUpdate = firstFeature.properties.last_position_date > firstFeature.properties.radio_state_at
+      ? firstFeature.properties.last_position_date
+      : firstFeature.properties.radio_state_at;
+    const secondFeatureLastUpdate = secondFeature.properties.last_position_date > secondFeature.properties.radio_state_at
+      ? secondFeature.properties.last_position_date
+      : secondFeature.properties.radio_state_at;
+
+    return firstFeatureLastUpdate < secondFeatureLastUpdate ? 1 : -1;
+  });
+
+  const clusterIcons = [];
+  let featureIndex = 0;
+  const iconsLength = Math.min(clusterFeatures.length, 3);
+  while (clusterIcons.length < iconsLength) {
+    if (!!subjectFeatures?.[featureIndex]) {
+      clusterIcons.push(subjectFeatures[featureIndex]);
+    }
+    if (!!eventFeatures?.[featureIndex]) {
+      clusterIcons.push(eventFeatures[featureIndex]);
+    }
+    if (!!symbolFeatures?.[featureIndex]) {
+      clusterIcons.push(symbolFeatures[featureIndex]);
+    }
+    featureIndex++;
+  }
+
+  return clusterIcons.slice(0, 3);
+};
+
 const createClusterHTMLMarker = (clusterFeatures, onClusterClick) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
   injectStylesToElement(clusterHTMLMarkerContainer, clusterHTMLMarkerContainerStyles);
 
-  clusterFeatures.slice(0, 3).forEach((feature) => {
+  const clusterIcons = getClusterIcons(clusterFeatures);
+
+  clusterIcons.forEach((feature) => {
     const featureImageHTML = document.createElement('img');
     featureImageHTML.src = feature.properties.image;
     injectStylesToElement(featureImageHTML, featureImageHTMLStyles);
