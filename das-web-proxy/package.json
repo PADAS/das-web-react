@@ -5,7 +5,7 @@
   "author": "Joshua Krautwurst",
   "license": "MIT",
   "scripts": {
-    "start-api": "node ./index.js NODE_TLS_REJECT_UNAUTHORIZED=0"
+    "start": "node ./index.js NODE_TLS_REJECT_UNAUTHORIZED=0"
   },
   "dependencies": {
     "axios": "^0.24.0",

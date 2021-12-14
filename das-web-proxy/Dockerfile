@@ -7,4 +7,4 @@ COPY ./ ./
 
 EXPOSE 3030
 
-CMD ["yarn", "start-api"]
+CMD ["yarn", "start"]

@@ -3,13 +3,9 @@ import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import fs from 'fs';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
-const key = fs.readFileSync('./cert/key.pem');
-const cert = fs.readFileSync('./cert/cert.pem');
-
-const { parsed: ENV } = dotenv.config();
+const { parsed: ENV } = dotenv.config({ path: '.env' });
 
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({
@@ -67,5 +63,3 @@ app.get(`/${ENV.APP_PREFIX}/preferences/:userId`, async (req, res, next) => {
 //   }));
 
 server.listen(ENV.PORT);
-
-console.log(`web api server up and running on port ${ENV.PORT}`);
