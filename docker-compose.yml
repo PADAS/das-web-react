@@ -1,12 +1,12 @@
 version: '3'
 services:
-  web:
+  web_api:
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ./das-web-proxy
+      dockerfile: Dockerfile
     volumes:
       - /app/node_modules
-      - .:/app
+      - ./das-web-proxy:/app
   # mock_api:
   #   build:
   #     context: ./mock-api
@@ -21,10 +21,15 @@ services:
     volumes:
       - /app/node_modules
       - .:/app
-    # environment:
-    #   - CI=true
     command: yarn test
     restart: on-failure
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
   nginx:
     build:
       context: ./nginx
@@ -32,6 +37,7 @@ services:
     restart: always
     depends_on:
       - "web"
+      - "web_api"
       # - "mock_api"
     ports:
       - '9000:80'

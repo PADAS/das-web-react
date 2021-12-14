@@ -1,0 +1,13 @@
+version: '3'
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /app/node_modules
+      - .:/app
+    ports:
+      - '${PORT}:${PORT}'
+      - '35729:35729'
+    restart: on-failure

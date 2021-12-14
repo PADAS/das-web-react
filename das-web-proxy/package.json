@@ -1,0 +1,17 @@
+{
+  "name": "das-web-proxy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Joshua Krautwurst",
+  "license": "MIT",
+  "scripts": {
+    "start-api": "node ./index.js NODE_TLS_REJECT_UNAUTHORIZED=0"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^2.0.1"
+  },
+  "type": "module"
+}
