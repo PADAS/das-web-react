@@ -13,6 +13,11 @@ import { withMap } from '../EarthRangerMap';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
 
+const clusterPolyPaint = {
+  'fill-color': 'rgba(60, 120, 40, 0.4)',
+  'fill-outline-color': 'rgba(20, 100, 25, 1)',
+};
+
 const ClustersLayer = ({
   eventFeatureCollection,
   map,
@@ -22,7 +27,7 @@ const ClustersLayer = ({
   subjectFeatureCollection,
   symbolFeatureCollection,
 }) => {
-  useClusterMarkers(map, onEventClick, onSubjectClick, onSymbolClick);
+  const { clusterBufferPolygon } = useClusterMarkers(map, MAX_ZOOM - 1, onEventClick, onSubjectClick, onSymbolClick);
 
   // TODO: I'm considering symbol features are always multipoint, is that correct?
   const pointSymbolFeatures = symbolFeatureCollection.features.reduce(
@@ -41,8 +46,14 @@ const ClustersLayer = ({
     clusterRadius: 40,
   };
 
+  const clusterBufferData = {
+    data: clusterBufferPolygon,
+    type: 'geojson',
+  };
+
   return <>
     <Source id='clusters-source' geoJsonSource={sourceData} />
+    <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />
 
     <Layer
       filter={['has', 'point_count']}
@@ -50,6 +61,14 @@ const ClustersLayer = ({
       paint={{ 'circle-radius': 0 }}
       sourceId='clusters-source'
       type='circle'
+    />
+    <Layer
+      before={CLUSTERS_LAYER_ID}
+      id='cluster-polygon'
+      maxZoom={MAX_ZOOM - 2}
+      paint={clusterPolyPaint}
+      sourceId='cluster-buffer-polygon-data'
+      type='fill'
     />
   </>;
 };

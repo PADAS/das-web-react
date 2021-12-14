@@ -1,5 +1,9 @@
 import mapboxgl from 'mapbox-gl';
-import { useCallback, useEffect } from 'react';
+import buffer from '@turf/buffer';
+import concave from '@turf/concave';
+import { featureCollection } from '@turf/helpers';
+import simplify from '@turf/simplify';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { CLUSTER_ZOOM_THRESHOLD, LAYER_IDS } from '../constants';
@@ -9,7 +13,7 @@ import { showPopup } from '../ducks/popup';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
 
-let CLUSTER_MARKER_MAP = {};
+let CLUSTER_MARKER_HASH_MAP = {};
 
 const clusterHTMLMarkerContainerStyles = {
   display: 'flex',
@@ -84,9 +88,11 @@ const getClusterIcons = (clusterFeatures) => {
   return clusterIcons.slice(0, 3);
 };
 
-const createClusterHTMLMarker = (clusterFeatures, onClusterClick) => {
+const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onClusterMouseEnter, onClusterMouseLeave) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
+  clusterHTMLMarkerContainer.onmouseover = () => onClusterMouseEnter(clusterFeatures);
+  clusterHTMLMarkerContainer.onmouseleave = () => onClusterMouseLeave();
   injectStylesToElement(clusterHTMLMarkerContainer, clusterHTMLMarkerContainerStyles);
 
   const clusterIcons = getClusterIcons(clusterFeatures);
@@ -113,19 +119,19 @@ const onClusterClick = (
   clusterFeatures,
   clusterHash,
   map,
-  showClusterSelectPopup,
+  onShowClusterSelectPopup,
   source
 ) => () => {
-  if (!CLUSTER_MARKER_MAP[clusterHash]) return;
+  if (!CLUSTER_MARKER_HASH_MAP[clusterHash]) return;
 
   const mapZoom = map.getZoom();
   if (mapZoom < CLUSTER_ZOOM_THRESHOLD) {
     source.getClusterExpansionZoom(
-      CLUSTER_MARKER_MAP[clusterHash].id,
+      CLUSTER_MARKER_HASH_MAP[clusterHash].id,
       (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom })
     );
   } else {
-    showClusterSelectPopup(clusterFeatures, clusterCoordinates);
+    onShowClusterSelectPopup(clusterFeatures, clusterCoordinates);
   }
 };
 
@@ -152,10 +158,10 @@ const getRenderedClustersData = async (clustersSource, map) => {
 
 const removeOldClusterMarkers = (renderedClusterHashes) => {
   const renderedClusterHashesSet = new Set(renderedClusterHashes);
-  const prevClusterHashes = Object.keys(CLUSTER_MARKER_MAP).map((clusterHash) => parseInt(clusterHash));
+  const prevClusterHashes = Object.keys(CLUSTER_MARKER_HASH_MAP).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
     if (!renderedClusterHashesSet.has(prevClusterHash)) {
-      CLUSTER_MARKER_MAP[prevClusterHash].marker.remove();
+      CLUSTER_MARKER_HASH_MAP[prevClusterHash].marker.remove();
     }
   });
 };
@@ -163,10 +169,12 @@ const removeOldClusterMarkers = (renderedClusterHashes) => {
 const addNewClusterMarkers = (
   clustersSource,
   map,
+  onClusterMouseEnter,
+  onClusterMouseLeave,
   renderedClusterFeatures,
   renderedClusterHashes,
   renderedClusterIds,
-  showClusterSelectPopup
+  onShowClusterSelectPopup
 ) => {
   const renderedClusterMarkersHashMap = {};
 
@@ -174,12 +182,14 @@ const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = CLUSTER_MARKER_MAP[clusterHash]?.marker;
+    let marker = CLUSTER_MARKER_HASH_MAP[clusterHash]?.marker;
     if (!marker) {
       const clusterCoordinates = clusterFeatures[0].geometry.coordinates;
       const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
-        onClusterClick(clusterCoordinates, clusterFeatures, clusterHash, map, showClusterSelectPopup, clustersSource),
+        onClusterClick(clusterCoordinates, clusterFeatures, clusterHash, map, onShowClusterSelectPopup, clustersSource),
+        onClusterMouseEnter,
+        onClusterMouseLeave
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
@@ -193,7 +203,7 @@ const addNewClusterMarkers = (
   return renderedClusterMarkersHashMap;
 };
 
-const updateClusterMarkers = async (showClusterSelectPopup, map) => {
+const updateClusterMarkers = async (onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave) => {
   const clustersSource = map.getSource('clusters-source'); // TODO: Remove hardcoded string
   const {
     renderedClusterFeatures,
@@ -203,20 +213,47 @@ const updateClusterMarkers = async (showClusterSelectPopup, map) => {
 
   removeOldClusterMarkers(renderedClusterHashes);
 
-  CLUSTER_MARKER_MAP = addNewClusterMarkers(
+  CLUSTER_MARKER_HASH_MAP = addNewClusterMarkers(
     clustersSource,
     map,
+    onClusterMouseEnter,
+    onClusterMouseLeave,
     renderedClusterFeatures,
     renderedClusterHashes,
     renderedClusterIds,
-    showClusterSelectPopup
+    onShowClusterSelectPopup
   );
 };
 
-export default (map, onEventClick, onSubjectClick, onSymbolClick) => {
+export default (map, maxZoom, onEventClick, onSubjectClick, onSymbolClick) => {
   // TODO: clusters are not being rendered until I move the map
   const dispatch = useDispatch();
-  const showClusterSelectPopup = useCallback((layers, coordinates) => dispatch(showPopup('cluster-select', {
+
+  const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
+
+  const onClusterMouseEnter = useCallback((clusterFeatures) => {
+    const clusterGeometryIsSet = !!clusterBufferPolygon?.geometry?.coordinates?.length;
+    if (!clusterGeometryIsSet && map.getZoom() < maxZoom) {
+      if (clusterFeatures?.length > 2) {
+        try {
+          const concaved = concave(featureCollection(clusterFeatures));
+          if (!concaved) return;
+
+          const buffered = buffer(concaved, 0.2);
+          const simplified = simplify(buffered, { tolerance: 0.005 });
+          setClusterBufferPolygon(simplified);
+        } catch (error) {}
+      } else {
+        setClusterBufferPolygon(featureCollection([]));
+      }
+    }
+  }, [clusterBufferPolygon, map, maxZoom]);
+
+  const onClusterMouseLeave = useCallback(() => {
+    setClusterBufferPolygon(featureCollection([]));
+  }, []);
+
+  const onShowClusterSelectPopup = useCallback((layers, coordinates) => dispatch(showPopup('cluster-select', {
     layers,
     coordinates,
     onSelectEvent: onEventClick,
@@ -225,9 +262,16 @@ export default (map, onEventClick, onSubjectClick, onSymbolClick) => {
   })), [dispatch, onEventClick, onSubjectClick, onSymbolClick]);
 
   useEffect(() => {
-    const onMapMoveEnd = () => updateClusterMarkers(showClusterSelectPopup, map);
+    const onMapMoveEnd = () => updateClusterMarkers(
+      onShowClusterSelectPopup,
+      map,
+      onClusterMouseEnter,
+      onClusterMouseLeave
+    );
     map.on('moveend', onMapMoveEnd);
 
     return () => map.off('moveend', onMapMoveEnd);
-  }, [map, showClusterSelectPopup]);
+  }, [map, onClusterMouseEnter, onClusterMouseLeave, onShowClusterSelectPopup]);
+
+  return { clusterBufferPolygon };
 };
