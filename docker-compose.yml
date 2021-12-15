@@ -7,6 +7,12 @@ services:
     volumes:
       - /app/node_modules
       - ./das-web-proxy:/app
+    environment:
+      - PORT=3030
+  pref-db:
+     image: mongo:latest
+     volumes: 
+       - 'mongo-data:/var/db'
   # mock_api:
   #   build:
   #     context: ./mock-api
@@ -14,22 +20,17 @@ services:
   #   volumes:
   #     - /app/node_modules
   #     - ./mock-api:/app
-  web_test:
-    build:
+  web: &web
+    build: 
       context: .
       dockerfile: Dockerfile.dev
     volumes:
       - /app/node_modules
       - .:/app
+  web_test:
+    <<: *web
     command: yarn test
     restart: on-failure
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - /app/node_modules
-      - .:/app
   nginx:
     build:
       context: ./nginx
@@ -42,3 +43,5 @@ services:
     ports:
       - '9000:80'
       - '35729:35729'
+volumes:
+   mongo-data:

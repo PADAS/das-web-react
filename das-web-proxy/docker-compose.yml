@@ -9,5 +9,10 @@ services:
       - .:/app
     ports:
       - '${PORT}:${PORT}'
-      - '35729:35729'
     restart: on-failure
+  pref-db:
+     image: mongo:latest
+     volumes: 
+       - 'mongo-data:/var/db'
+volumes:
+   mongo-data:
