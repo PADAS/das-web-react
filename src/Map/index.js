@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
-import uniqBy from 'lodash/uniqBy';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -34,7 +33,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import { BREAKPOINTS, LAYER_IDS, MAX_ZOOM } from '../constants';
 
 import ClustersLayer from '../ClustersLayer';
 import DelayedUnmount from '../DelayedUnmount';

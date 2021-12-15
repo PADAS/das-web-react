@@ -8,7 +8,7 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
-import { LAYER_IDS, MAX_ZOOM } from '../constants';
+import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
@@ -24,8 +24,8 @@ const SubjectsLayer = (props) => {
     type: 'geojson',
     data: mapSubjectFeatures,
     cluster: true,
-    clusterMaxZoom: MAX_ZOOM - 1,
-    clusterRadius: 40,
+    clusterMaxZoom: CLUSTERS_MAX_ZOOM,
+    clusterRadius: CLUSTERS_RADIUS,
   };
 
   useEffect(() => {

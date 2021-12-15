@@ -31,9 +31,12 @@ export const GA_EVENT_CATEGORIES = {
   SYSTEM_STATUS: 'System Status',
 };
 
-export const CLUSTER_ZOOM_THRESHOLD = 12;
 export const MIN_ZOOM = 1;
 export const MAX_ZOOM = 18;
+
+export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
+export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
+export const CLUSTERS_RADIUS = 30;
 
 export const FIT_TO_BOUNDS_PADDING = 50;
 
@@ -88,7 +91,10 @@ export const BREAKPOINTS = {
 
 export const LAYER_IDS = {
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
-  CLUSTERS_LAYER_ID: 'clusters',
+  CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
+  CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
+  CLUSTERS_LAYER_ID: 'clusters-layer',
+  CLUSTERS_SOURCE_ID: 'clusters-source',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',

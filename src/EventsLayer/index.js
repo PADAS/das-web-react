@@ -16,7 +16,14 @@ import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFr
 import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, IF_IS_GENERIC, MAP_ICON_SCALE, MAX_ZOOM } from '../constants';
+import {
+  CLUSTERS_MAX_ZOOM,
+  CLUSTERS_RADIUS,
+  LAYER_IDS,
+  DEFAULT_SYMBOL_LAYOUT,
+  IF_IS_GENERIC,
+  MAP_ICON_SCALE,
+} from '../constants';
 
 // export const CLUSTER_CONFIG = {
 //   cluster: true,
@@ -272,8 +279,8 @@ const EventsLayer = (props) => {
     type: 'geojson',
     data: mapEventFeatureCollection,
     cluster: true,
-    clusterMaxZoom: MAX_ZOOM - 1,
-    clusterRadius: 40,
+    clusterMaxZoom: CLUSTERS_MAX_ZOOM,
+    clusterRadius: CLUSTERS_RADIUS,
   };
 
   // const clusteredSourceData = {

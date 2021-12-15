@@ -7,7 +7,13 @@ import withMapViewConfig from '../WithMapViewConfig';
 
 import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, MAX_ZOOM } from '../constants';
+import {
+  CLUSTERS_MAX_ZOOM,
+  CLUSTERS_RADIUS,
+  LAYER_IDS,
+  DEFAULT_SYMBOL_LAYOUT,
+  DEFAULT_SYMBOL_PAINT,
+} from '../constants';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
@@ -118,8 +124,8 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
     type: 'geojson',
     data: symbols,
     cluster: true,
-    clusterMaxZoom: MAX_ZOOM - 1,
-    clusterRadius: 40,
+    clusterMaxZoom: CLUSTERS_MAX_ZOOM,
+    clusterRadius: CLUSTERS_RADIUS,
   };
 
   return <Fragment>
