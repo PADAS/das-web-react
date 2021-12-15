@@ -22,7 +22,7 @@ const RequestConfigManager = (props) => {
     const addUserProfileHeaderIfNecessary = (config) => {
       if (!config) return config;
 
-      if (config.url && !config.url.includes('/user/me') && profile) {
+      if (config.url /* && !config.url.includes('/user/me') */ && profile) {
         config.headers['USER-PROFILE'] = profile;
       }
       return config;
