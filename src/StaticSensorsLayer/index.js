@@ -1,5 +1,6 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
 import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
 
 import { MapContext } from '../App';
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
@@ -10,13 +11,14 @@ import LayerBackground from '../common/images/sprites/layer-background-sprite.pn
 
 const LAYER_TYPE = 'symbol';
 const LAYER_ID = 'static_sensors_layer';
+
 const IMAGE_DATA = {
   id: 'popup-background',
   options: {
-    content: [26, 9, 110, 47],
-    stretchX: [[29, 53], [83, 110]],
-    stretchY: [[28, 30]],
-    pixelRatio: 1.7
+    content: [15, 9, 130, 125],
+    stretchX: [[17, 46], [94, 122]],
+    stretchY: [[23, 116]],
+    pixelRatio: 2.7
   }
 };
 
@@ -30,9 +32,15 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
       const featureProperties = feature?.properties ?? {};
       const featureDeviceProperties = featureProperties?.device_status_properties ?? [];
       const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
+
+      if (isEmpty(defaultProperty)) return feature;
+
+      let featureWithDefaultValue = set(feature, 'properties.default_status_value', `${defaultProperty.value} ${defaultProperty.units}`);
       const featureHasImage = !!featureProperties?.image?.length ?? false;
-      const defaultStatusValue = `${!featureHasImage ? defaultProperty.label + ' ': ''}${defaultProperty.value} ${defaultProperty.units}`;
-      return set(feature, 'properties.default_status_value', defaultStatusValue);
+      if (!featureHasImage) {
+        featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label);
+      }
+      return featureWithDefaultValue;
     });
   }, []);
 
@@ -46,43 +54,74 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     'icon-size': 1.1,
     'icon-anchor': 'bottom',
     'text-anchor': 'center',
-    'text-justify': 'left',
-    'text-offset': [.6, -2.5],
-    'icon-text-fit-padding': [2.5, 2, -1.5, 22],
-    'text-field': '{default_status_value}',
-    'icon-allow-overlap': true,
-    'text-allow-overlap': true,
+    'text-justify': 'center',
+    'icon-text-fit-padding': [54, 4, -39.5, 1],
     'icon-text-fit': 'both',
+    'text-offset': [
+      'case',
+      ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
+      ['literal', [0, .2]],
+      ['has', 'default_status_value'],
+      ['literal', [0, -.4]],
+      ['literal', [0, 0]],
+    ],
+    'text-field': [
+      'case',
+      ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
+      ['format',
+        ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
+        '\n',
+      ],
+      ['has', 'default_status_value'],
+      ['format',
+        ['get', 'default_status_value'],
+        '\n',
+        ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
+        '\n',
+      ],
+      ['format',
+        'icon',
+        { 'font-scale': 1.3 },
+        '\n',
+      ],
+    ],
     'icon-image': 'popup-background',
   };
 
   const labelPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     'text-color': 'rgba(0,0,0,0.1)',
-    'text-halo-width': 0
+    'text-halo-width': 0,
+    'text-translate': [0, -30],
   };
 
   const secondLabelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-offset': [-30, -27],
-    'text-offset': ['case',
-      ['!=', ['get', 'image'], null],
-      [
-        'interpolate',
-        ['linear'],
-        ['length', 'image'],
-        0,
-        ['literal', [-2, -3.3]],
-        1,
-        ['literal', [-.8, -3.3]]
-      ],
-      ['literal', [-2, -3.3]]
+    'text-offset': [
+      'case',
+      ['==', ['get', 'image'], null],
+      ['literal', [0, -3.8]],
+      ['literal', [0, -3.1]],
     ],
-
-    'icon-anchor': 'left',
+    'icon-offset': [
+      'case',
+      ['has', 'default_status_value'],
+      ['literal', [0, -53]],
+      ['literal', [0, -22]],
+    ],
+    'icon-anchor': 'top',
     'text-anchor': 'center',
-    'text-justify': 'left',
-    'text-field': '{default_status_value}',
+    'text-justify': 'center',
+    'text-field': [
+      'case',
+      ['==', ['get', 'image'], null],
+      ['format',
+        ['get', 'default_status_value'],
+        '\n',
+        ['coalesce', ['get', 'default_status_label'], ''],
+      ],
+      ['get', 'default_status_value'],
+    ]
   };
 
   const secondLabelPaint = {
@@ -91,15 +130,14 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     'icon-color': '#ffffff',
     'text-halo-width': 0,
     'icon-halo-width': 0,
-    'text-translate': [27, 0],
-    'icon-translate': [-20, -30],
+    'icon-translate': [0, -53],
   };
 
   useEffect(() => {
     if (!!staticSensors?.features?.length) {
-      addFeatureCollectionImagesToMap(staticSensors, map, { sdf: true });
+      addFeatureCollectionImagesToMap(staticSensors, { sdf: true });
     }
-  }, [map, staticSensors]);
+  }, [staticSensors]);
 
   useEffect(() => {
     if (map) {
