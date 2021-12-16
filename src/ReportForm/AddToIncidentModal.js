@@ -35,7 +35,7 @@ const AddToIncidentModal = (props) => {
 
   useEffect(() => {
     const fetchFeed = async () => {
-      await fetchIncidentFeed({}, 'is_collection=true');
+      await fetchIncidentFeed({}, 'is_collection=true&include_related_events=true&include_notes=true');
       setLoadedState(true);
     };
     fetchFeed();
