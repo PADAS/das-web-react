@@ -35,7 +35,7 @@ const SubjectPopup = (props) => {
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
-  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2;
+  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2 && !properties?.is_static;
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
 
   const showAdditionalProps = hasAdditionalDeviceProps &&
