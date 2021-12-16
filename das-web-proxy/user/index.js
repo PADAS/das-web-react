@@ -9,6 +9,6 @@ export const fetchCurrentUserForRequest = async (req, res, next) => {
       next(error);
     });
 
-  res.userData = response?.data?.data;
+  req.userData = response?.data?.data;
   next();
 };
