@@ -10,7 +10,7 @@ services:
     ports:
       - '${PORT}:${PORT}'
     restart: on-failure
-  pref-db:
+  pref_db:
      image: mongo:latest
      volumes: 
        - 'mongo-data:/var/db'

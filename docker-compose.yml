@@ -2,14 +2,14 @@ version: '3'
 services:
   web_api:
     build:
-      context: ./das-web-proxy
+      context: ./das-web-api
       dockerfile: Dockerfile
     volumes:
       - /app/node_modules
-      - ./das-web-proxy:/app
+      - ./das-web-api:/app
     environment:
       - PORT=3030
-  pref-db:
+  pref_db:
      image: mongo:latest
      volumes: 
        - 'mongo-data:/var/db'

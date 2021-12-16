@@ -1,5 +1,5 @@
 {
-  "name": "das-web-proxy",
+  "name": "das-web-api",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Joshua Krautwurst",

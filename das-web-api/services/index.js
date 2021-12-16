@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const dbUrl = 'mongodb://pref-db';
+const dbUrl = 'mongodb://pref_db';
 
 export const preferencesService = {
   async getUserPreferencesById(userId) {
