@@ -127,6 +127,7 @@ export const FEATURE_FLAGS = {
   EULA: 'eula_enabled',
   KML_EXPORT: 'export_kml_enabled',
   TABLEAU: 'tableau_enabled',
+  CLUSTERING: 'clustering_enabled',
 };
 
 export const SOURCE_IDS = {

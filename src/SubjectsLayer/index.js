@@ -7,14 +7,15 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
+import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, FEATURE_FLAGS, LAYER_IDS } from '../constants';
+import { useFeatureFlag } from '../hooks';
 
-import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS } = LAYER_IDS;
 
-const SubjectsLayer = (props) => {
-  const { onSubjectIconClick, subjects, map, mapImages = {} } = props;
+const SubjectsLayer = ({ onSubjectIconClick, subjects, map, mapImages = {} }) => {
+  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
 
   const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
@@ -23,9 +24,14 @@ const SubjectsLayer = (props) => {
   const sourceData = {
     type: 'geojson',
     data: mapSubjectFeatures,
-    cluster: true,
-    clusterMaxZoom: CLUSTERS_MAX_ZOOM,
-    clusterRadius: CLUSTERS_RADIUS,
+    ...(clusteringFeatureFlagEnabled ?
+      {
+        cluster: true,
+        clusterMaxZoom: CLUSTERS_MAX_ZOOM,
+        clusterRadius: CLUSTERS_RADIUS,
+      }:
+      {}
+    ),
   };
 
   useEffect(() => {
@@ -46,7 +52,8 @@ const SubjectsLayer = (props) => {
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
     <LabeledPatrolSymbolLayer sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
-      onInit={setLayerIds} filter={['!has', 'point_count']}
+      onInit={setLayerIds}
+      {...(clusteringFeatureFlagEnabled ? { filter: ['!has', 'point_count'] } : {})}
     />
   </Fragment>;
 };

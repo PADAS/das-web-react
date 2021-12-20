@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
+import uniqBy from 'lodash/uniqBy';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import isEqual from 'react-fast-compare';
@@ -33,7 +34,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, LAYER_IDS, MAX_ZOOM } from '../constants';
+import { BREAKPOINTS, FEATURE_FLAGS, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
 import ClustersLayer from '../ClustersLayer';
 import DelayedUnmount from '../DelayedUnmount';
@@ -73,6 +74,9 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const CLUSTER_APPROX_WIDTH = 40;
+const CLUSTER_APPROX_HEIGHT = 25;
 
 class Map extends Component {
 
@@ -302,7 +306,6 @@ class Map extends Component {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
-  // TODO: should I remove this? Is there any scenario where we would still use it?
   handleMultiFeaturesAtSameLocationClick(event, layers) {
     this.props.showPopup('multi-layer-select',
       {
@@ -328,24 +331,36 @@ class Map extends Component {
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
-    const clusterApproxGeometry = [[ event.point.x - 40, event.point.y + 25 ], [ event.point.x + 40, event.point.y - 25 ]];
-    const clustersAtPoint = map.queryRenderedFeatures(clusterApproxGeometry, { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] });
-    // const clickedLayersOfInterest = uniqBy(
-    //   map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
-    //   , layer => layer.properties.id);
+    let hidePopup;
+    if (this.props.systemConfig[FEATURE_FLAGS.CLUSTERING]) {
+      const clusterApproxGeometry = [
+        [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
+        [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
+      ];
+      const clustersAtPoint = map.queryRenderedFeatures(clusterApproxGeometry, { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] });
 
-    // let showingMultiPopup;
+      hidePopup = !clustersAtPoint.length;
+    } else {
+      const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+      const clickedLayersOfInterest = uniqBy(
+        map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
+        , layer => layer.properties.id);
 
-    // if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
-    //   event.originalEvent.cancelBubble = true;
-    // }
+      let showingMultiPopup;
 
-    // if (clickedLayersOfInterest.length > 1) {
-    //   if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
-    //     this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-    //     showingMultiPopup = true;
-    //   }
-    // }
+      if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
+        event.originalEvent.cancelBubble = true;
+      }
+
+      if (clickedLayersOfInterest.length > 1) {
+        if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
+          this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+          showingMultiPopup = true;
+        }
+      }
+
+      hidePopup = !showingMultiPopup;
+    }
 
     if (this.props.popup) {
       // be sure to also deactivate the analyzer features
@@ -354,13 +369,11 @@ class Map extends Component {
         const { map } = this.props;
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
-      // if (!showingMultiPopup) {
-      //   this.props.hidePopup(this.props.popup.id);
-      // }
-      if (!clustersAtPoint.length) {
+      if (hidePopup) {
         this.props.hidePopup(this.props.popup.id);
       }
     }
+
     this.hideUnpinnedTrackLayers(map, event);
 
     if (this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
@@ -650,11 +663,11 @@ class Map extends Component {
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
 
-            <ClustersLayer
+            {this.props.systemConfig[FEATURE_FLAGS.CLUSTERING] && <ClustersLayer
               onEventClick={this.onEventSymbolClick}
               onSubjectClick={this.onMapSubjectClick}
               onSymbolClick={this.onFeatureSymbolClick}
-            />
+            />}
 
             {!!popup && <PopupLayer
               popup={popup} />
@@ -675,7 +688,7 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap, systemConfig } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
@@ -704,6 +717,7 @@ const mapStatetoProps = (state) => {
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
+    systemConfig,
   });
 };
 

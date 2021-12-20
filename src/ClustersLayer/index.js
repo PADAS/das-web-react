@@ -3,19 +3,27 @@ import buffer from '@turf/buffer';
 import centroid from '@turf/centroid';
 import concave from '@turf/concave';
 import { connect } from 'react-redux';
+import debounce from 'lodash/debounce';
 import explode from '@turf/explode';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 import PropTypes from 'prop-types';
 import simplify from '@turf/simplify';
 
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
+import {
+  CLUSTER_CLICK_ZOOM_THRESHOLD,
+  CLUSTERS_MAX_ZOOM,
+  CLUSTERS_RADIUS,
+  FEATURE_FLAGS,
+  LAYER_IDS,
+} from '../constants';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
 import { showPopup } from '../ducks/popup';
+import { useFeatureFlag } from '../hooks';
 import { withMap } from '../EarthRangerMap';
 
 let CLUSTER_MARKER_HASH_MAP = {};
@@ -26,6 +34,8 @@ const {
   CLUSTERS_LAYER_ID,
   CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
+
+const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 150;
 
 const CLUSTER_POLYGON_LAYER_PAINT = {
   'fill-color': 'rgba(60, 120, 40, 0.4)',
@@ -207,7 +217,7 @@ const addNewClusterMarkers = (
   return renderedClusterMarkersHashMap;
 };
 
-const updateClusterMarkers = async (onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave) => {
+const updateClusterMarkers = debounce(async (onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave) => {
   const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
   const {
     renderedClusterFeatures,
@@ -227,7 +237,7 @@ const updateClusterMarkers = async (onShowClusterSelectPopup, map, onClusterMous
     renderedClusterIds,
     onShowClusterSelectPopup
   );
-};
+}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
 
 const ClustersLayer = ({
   eventFeatureCollection,
@@ -239,6 +249,8 @@ const ClustersLayer = ({
   subjectFeatureCollection,
   symbolFeatureCollection,
 }) => {
+  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
+
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
 
   const onClusterMouseEnter = useCallback((clusterFeatureCollection) => {
@@ -269,21 +281,13 @@ const ClustersLayer = ({
     onSelectSymbol: onSymbolClick,
   }), [onEventClick, onSubjectClick, onSymbolClick, showPopup]);
 
-  const triggerClusterUpdates = useCallback(() => updateClusterMarkers(
-    onShowClusterSelectPopup,
-    map,
-    onClusterMouseEnter,
-    onClusterMouseLeave
-  ), [onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave]);
-
-  // TODO: I'm considering symbol features are always multipoint, is that correct?
   const pointSymbolFeatures = symbolFeatureCollection.features.reduce(
     (pointSymbolFeatures, multiPointFeature) => [...pointSymbolFeatures, ...explode(multiPointFeature).features],
     []
   );
 
   useEffect(() => {
-    if (map) {
+    if (clusteringFeatureFlagEnabled && map) {
       const sourceData = {
         features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features, ...pointSymbolFeatures],
         type: 'FeatureCollection',
@@ -302,7 +306,7 @@ const ClustersLayer = ({
         });
       }
 
-      triggerClusterUpdates();
+      updateClusterMarkers(onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave);
 
       const layer = map.getLayer(CLUSTERS_LAYER_ID);
       if (!layer) {
@@ -316,15 +320,18 @@ const ClustersLayer = ({
       }
     }
   }, [
+    clusteringFeatureFlagEnabled,
     eventFeatureCollection.features,
     map,
+    onClusterMouseEnter,
+    onClusterMouseLeave,
+    onShowClusterSelectPopup,
     pointSymbolFeatures,
-    subjectFeatureCollection.features,
-    triggerClusterUpdates
+    subjectFeatureCollection.features
   ]);
 
   useEffect(() => {
-    if (map) {
+    if (clusteringFeatureFlagEnabled && map) {
       const source = map.getSource(CLUSTER_BUFFER_POLYGON_SOURCE_ID);
       if (source) {
         source.setData(clusterBufferPolygon);
@@ -344,7 +351,7 @@ const ClustersLayer = ({
         });
       }
     }
-  }, [clusterBufferPolygon, map]);
+  }, [clusterBufferPolygon, clusteringFeatureFlagEnabled, map]);
 
   return null;
 };

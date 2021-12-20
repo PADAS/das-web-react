@@ -3,16 +3,20 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-// import { LAYER_IDS } from '../constants';
+import { FEATURE_FLAGS, LAYER_IDS } from '../constants';
+import { useFeatureFlag } from '../hooks';
 
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
 
-// const { EVENT_SYMBOLS } = LAYER_IDS;
+const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   const { layers: layerList, onSelectSubject, onSelectEvent, onSelectSymbol } = data;
+
+  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
+
   const [filter, setFilter] = useState('');
 
   const onFilterChange = useCallback((value) => {
@@ -32,23 +36,25 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
     });
   }, [filter, layerList]);
 
-  // const itemCountString = useMemo(() => {
-  //   const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
-  //   const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
+  const itemCountString = useMemo(() => {
+    if (clusteringFeatureFlagEnabled) return null;
 
-  //   let string = '';
+    const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
+    const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
 
-  //   if (subjectCount) {
-  //     string+= `${subjectCount} subject${subjectCount > 1 ? 's' : ''}`;
-  //   }
-  //   if (subjectCount && eventCount)  {
-  //     string+= ', ';
-  //   }
-  //   if (eventCount) {
-  //     string+= `${eventCount} report${eventCount > 1 ? 's' : ''}`;
-  //   }
-  //   return string;
-  // }, [layers]);
+    let string = '';
+
+    if (subjectCount) {
+      string+= `${subjectCount} subject${subjectCount > 1 ? 's' : ''}`;
+    }
+    if (subjectCount && eventCount)  {
+      string+= ', ';
+    }
+    if (eventCount) {
+      string+= `${eventCount} report${eventCount > 1 ? 's' : ''}`;
+    }
+    return string;
+  }, [layers]);
 
   const showFilterInput = useMemo(() => layerList.length > 5, [layerList.length]);
 
@@ -59,9 +65,6 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [showFilterInput]);
 
   const handleClick = useCallback((event, feature) => {
-    // const { layer: { id: layerID }, properties, geometry } = feature;
-    // const layerData = { geometry, properties };
-    // const layerType = layerID.includes(EVENT_SYMBOLS) ? 'event' : 'subject';
     hidePopup(id);
     if (feature.properties?.content_type === 'observations.subject') {
       onSelectSubject({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
@@ -73,8 +76,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [hidePopup, id, onSelectEvent, onSelectSubject, onSelectSymbol]);
 
   return <>
-    {/* <h6>{itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}</h6> */}
-    {/* {showFilterInput && <input type='text' onChange={onFilterChange} placeholder='Type filter text here' className={styles.filterInput} />} */}
+    {!clusteringFeatureFlagEnabled && <h6>{itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}</h6>}
     {showFilterInput && <SearchBar
       className={styles.filterInput}
       placeholder='Search'
