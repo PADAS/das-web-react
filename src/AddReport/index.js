@@ -9,6 +9,7 @@ import Select from 'react-select';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
+import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
@@ -166,8 +167,9 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
-    map, popoverPlacement, showLabel, showIcon, title, clickSideEffect } = props;
+    popoverPlacement, showLabel, showIcon, title, clickSideEffect } = props;
 
+  const map = useContext(MapContext);
   const { hidePatrols } = formProps;
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -296,7 +298,6 @@ AddReport.defaultProps = {
 
 AddReport.propTypes = {
   analyticsMetaData: CustomPropTypes.analyticsMetadata,
-  map: PropTypes.object.isRequired,
   showLabel: PropTypes.bool,
   showIcon: PropTypes.bool,
   title: PropTypes.string,

@@ -23,7 +23,7 @@ import styles from './styles.module.scss';
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = (props) => {
-  const { data, map, popoverPlacement, showPopup } = props;
+  const { data, popoverPlacement, showPopup } = props;
   const  { geometry, properties } = data;
 
   const device_status_properties =
@@ -113,7 +113,7 @@ const SubjectPopup = (props) => {
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     {tracks_available && (
       <Fragment>
-        <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
+        <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
         <div className={styles.controls}>
           {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
             <ChatIcon className={styles.messagingIcon} />
