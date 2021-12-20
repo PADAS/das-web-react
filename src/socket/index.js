@@ -8,6 +8,7 @@ import { SOCKET_HEALTHY_STATUS } from '../ducks/system-status';
 import { newSocketActivity, resetSocketActivityState } from '../ducks/realtime';
 import { clearAuth } from '../ducks/auth';
 import { calcEventFilterForRequest } from '../utils/event-filter';
+import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { socketEventData } from '../ducks/events';
 
 import { showFilterMismatchToastForHiddenReports } from './handlers';
@@ -108,6 +109,7 @@ const bindSocketEvents = (socket, store) => {
     eventsBound = true;
 
     socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
+    socket.emit('patrol_filter', calcPatrolFilterForRequest());
   });
 };
 
