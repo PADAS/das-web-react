@@ -310,11 +310,11 @@ const EventsLayer = (props) => {
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
     {!clusteringFeatureFlagEnabled && <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />}
 
-    <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
+    {(clusteringFeatureFlagEnabled || !enableClustering) && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
       id={EVENT_SYMBOLS} onClick={handleEventClick}
       onInit={setEventSymbolLayerIDs}
       {...(clusteringFeatureFlagEnabled ? { filter: ['!has', 'point_count'] } : {})}
-    />
+    />}
 
     {!clusteringFeatureFlagEnabled && enableClustering && <Fragment>
       <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-clustered' type='symbol'
