@@ -8,7 +8,7 @@ const HeatmapToggleButton = (props) => {
   const className = heatmapVisible ? 'visible' : heatmapPartiallyVisible ? 'partial' : '';
   const hoverText = className ? 'Heatmap on' : 'Heatmap off';
 
-  return <div className={`${styles.container}${className ? 'active' : ''}${showLabel ? ` ${styles.hasLabel}` : ''}`}>
+  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
     <button title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClass || ''}`} onClick={onButtonClick}></button>
     {showLabel && <span>{hoverText}</span>}

@@ -172,36 +172,6 @@
 .trackControls {
   display: flex;
   justify-content: space-between;
-
-  [class*=container] {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    background-color: rgba($secondary-light-gray, .25);
-    border: 0.06px solid $secondary-medium-light-gray;
-    border-radius: .12rem;
-    max-width: 5.75rem;
-    max-height: 1.85rem;
-
-    &[class*=active] {
-      border: 0.06px solid $bright-blue;
-      background-color: rgba($bright-blue, 0.1);
-    }
-
-    button {
-      min-height: 1.75rem;
-      height: 1.75rem;
-      min-width: 1.75rem;
-      width: 1.75rem;
-      // margin: -.06rem .12rem -.06rem -.06rem;
-    }
-
-    span {
-      line-height: normal;
-      padding: .1rem .5rem;
-      margin: 0 -.2rem;
-    }
-  }
 }
 
 .controls {

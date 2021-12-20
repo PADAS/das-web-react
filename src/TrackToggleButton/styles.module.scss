@@ -11,6 +11,10 @@ $background_image_url: '../common/images/icons/';
   height: $square-button-dimension;
   outline: none;
   width: $square-button-dimension;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .button {
@@ -21,16 +25,48 @@ $background_image_url: '../common/images/icons/';
 }
 
 .container {
-  align-items: center;
   display: flex;
-  flex-flow: column;
+  align-items: center;
+  flex-flow: row;
   position: relative;
+
   &.hasLabel {
+    background-color: rgba($secondary-light-gray, .25);
+    border: 0.06px solid $secondary-medium-light-gray;
+    max-width: 5.75rem;
+    max-height: 1.85rem;
+    border-radius: 0.25rem;
+    
     [class*=spinner] {
       position: relative;
       top: -16%;
     }
+
+    button {
+      min-height: 1.80rem;
+      height: 1.80rem;
+      min-width: 1.80rem;
+      width: 1.80rem;
+    }
+
+    span {
+      font-size: 0.68rem;
+      line-height: normal;
+      padding: .1rem .7rem;
+      margin: 0 -.2rem;
+    }
+
+    &[class*=visible] {
+      border: 0.06px solid $bright-blue;
+      background-color: rgba($bright-blue, 0.1);
+    }
+    
+    &[class*=pinned] {
+      border: 0.06px solid $green;
+      background-color: rgba($green, 0.1);
+    }
   }
+
 }
 
 .visible {
