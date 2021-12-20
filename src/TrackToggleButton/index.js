@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import LoadingOverlay from '../LoadingOverlay';
 import styles from './styles.module.scss';
@@ -9,7 +10,7 @@ const TrackToggleButton = (props) => {
   const hoverText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks on') : 'Tracks off';
 
 
-  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`}>
+  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={showLabel ? onClick : noop}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
     <button disabled={disabled} title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
     {showLabel && <span>{hoverText}</span>}
@@ -19,9 +20,7 @@ const TrackToggleButton = (props) => {
 export default memo(TrackToggleButton);
 
 TrackToggleButton.defaultProps = {
-  onClick() {
-    console.log('track button click');
-  },
+  onClick: noop,
   showLabel: true,
   loading: false,
 };

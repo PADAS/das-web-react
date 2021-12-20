@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 import LoadingOverlay from '../LoadingOverlay';
@@ -8,7 +9,7 @@ const HeatmapToggleButton = (props) => {
   const className = heatmapVisible ? 'visible' : heatmapPartiallyVisible ? 'partial' : '';
   const hoverText = className ? 'Heatmap on' : 'Heatmap off';
 
-  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`}>
+  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={showLabel ? onButtonClick : noop}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
     <button title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClass || ''}`} onClick={onButtonClick}></button>
     {showLabel && <span>{hoverText}</span>}
@@ -18,8 +19,7 @@ const HeatmapToggleButton = (props) => {
 export default memo(HeatmapToggleButton);
 
 HeatmapToggleButton.defaultProps = {
-  onButtonClick() {
-  },
+  onButtonClick: noop,
   showLabel: true,
   loading: false,
 };
