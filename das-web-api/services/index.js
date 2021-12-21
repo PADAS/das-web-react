@@ -14,12 +14,30 @@ export const preferencesService = {
     const emptyRecord = { id: userId, preferences: {} };
 
     if (!userPrefRecord) {
-      console.log('EMPTY');
       preferenceCollection.insertOne(emptyRecord);
+
       return emptyRecord.preferences;
     } else {
-      console.log('NOT EMPTY');
+
       return userPrefRecord.preferences;
     }
+  },
+  async setUserPreference(userId, preferences) {
+    const client = await MongoClient.connect(dbUrl);
+
+    const database = client.db('web-client-db');
+    const preferenceCollection = database.collection('user-preferences');
+
+    const filter = { id: { $eq: userId } };
+    const updateDoc = {
+      $set: {
+        preferences,
+      }
+    };
+    const options = { upsert: true };
+
+    await preferenceCollection.updateOne(filter, updateDoc, options);
+
+    return { id: userId, preferences };
   }
 };

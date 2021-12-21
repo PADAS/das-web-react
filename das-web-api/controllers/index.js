@@ -15,4 +15,10 @@ export const preferencesController = {
 
     res.send(result);
   },
+  async set(req, res, next) {
+    const userId = req?.userData?.id;
+    const preferences = req?.body;
+
+    const result = await preferencesService.setUserPreference(userId, preferences);
+  }
 };
