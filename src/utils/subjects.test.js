@@ -14,8 +14,3 @@ describe('Determining if a subject is static', () => {
     expect(subjectIsStatic(knownMovingSubject)).toBe(false);
   });
 });
-
-
-it('works', () => {
-  expect(true).toBe(true);
-});

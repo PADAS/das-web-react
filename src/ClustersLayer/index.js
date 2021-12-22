@@ -35,7 +35,7 @@ const {
   CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
 
-const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 150;
+export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 150;
 
 const CLUSTER_POLYGON_LAYER_PAINT = {
   'fill-color': 'rgba(60, 120, 40, 0.4)',
@@ -57,7 +57,7 @@ const FEATURE_COUNT_HTML_STYLES = { fontSize: '14px', fontWeight: '500', padding
 
 const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
 
-const getClusterIconFeatures = (clusterFeatures) => {
+export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures, symbolFeatures } = clusterFeatures.reduce((accumulator, feature) => {
     if (feature.properties?.content_type === SUBJECT_FEATURE_CONTENT_TYPE) {
       return { ...accumulator, subjectFeatures: [...accumulator.subjectFeatures, feature] };
@@ -69,9 +69,9 @@ const getClusterIconFeatures = (clusterFeatures) => {
   }, { eventFeatures: [], subjectFeatures: [], symbolFeatures: [] });
 
   eventFeatures.sort((firstFeature, secondFeature) => {
-    if (firstFeature.properties.priority < secondFeature.properties.priority) return 1;
-    if (firstFeature.properties.priority > secondFeature.properties.priority) return -1;
-    return firstFeature.properties.updated_at > secondFeature.properties.updated_at ? 1 : -1;
+    if (firstFeature.properties.priority < secondFeature.properties.priority) return -1;
+    if (firstFeature.properties.priority > secondFeature.properties.priority) return 1;
+    return firstFeature.properties.updated_at > secondFeature.properties.updated_at ? -1 : 1;
   });
 
   subjectFeatures.sort((firstFeature, secondFeature) => {
@@ -96,7 +96,7 @@ const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_NUMBER);
 };
 
-const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onClusterMouseEnter, onClusterMouseLeave) => {
+export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onClusterMouseEnter, onClusterMouseLeave) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
   clusterHTMLMarkerContainer.onmouseover = onClusterMouseEnter;
@@ -120,20 +120,22 @@ const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onClusterMouse
   return clusterHTMLMarkerContainer;
 };
 
-const onClusterClick = (
+export const onClusterClick = (
   clusterCoordinates,
   clusterFeatures,
   clusterHash,
+  clusterMarkerHashMap,
   map,
   onShowClusterSelectPopup,
   source
 ) => () => {
-  if (!CLUSTER_MARKER_HASH_MAP[clusterHash]) return;
+  const updatedClusterMarkerHashMap = clusterMarkerHashMap || CLUSTER_MARKER_HASH_MAP;
+  if (!updatedClusterMarkerHashMap[clusterHash]) return;
 
   const mapZoom = map.getZoom();
   if (mapZoom < CLUSTER_CLICK_ZOOM_THRESHOLD) {
     source.getClusterExpansionZoom(
-      CLUSTER_MARKER_HASH_MAP[clusterHash].id,
+      updatedClusterMarkerHashMap[clusterHash].id,
       (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom })
     );
   } else {
@@ -141,7 +143,7 @@ const onClusterClick = (
   }
 };
 
-const getRenderedClustersData = async (clustersSource, map) => {
+export const getRenderedClustersData = async (clustersSource, map) => {
   const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
@@ -162,17 +164,19 @@ const getRenderedClustersData = async (clustersSource, map) => {
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
 };
 
-const removeOldClusterMarkers = (renderedClusterHashes) => {
+export const removeOldClusterMarkers = (clusterMarkerHashMap, renderedClusterHashes) => {
+  const updatedClusterMarkerHashMap = clusterMarkerHashMap || CLUSTER_MARKER_HASH_MAP;
   const renderedClusterHashesSet = new Set(renderedClusterHashes);
-  const prevClusterHashes = Object.keys(CLUSTER_MARKER_HASH_MAP).map((clusterHash) => parseInt(clusterHash));
+  const prevClusterHashes = Object.keys(updatedClusterMarkerHashMap).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
     if (!renderedClusterHashesSet.has(prevClusterHash)) {
-      CLUSTER_MARKER_HASH_MAP[prevClusterHash].marker.remove();
+      updatedClusterMarkerHashMap[prevClusterHash].marker.remove();
     }
   });
 };
 
-const addNewClusterMarkers = (
+export const addNewClusterMarkers = (
+  clusterMarkerHashMap,
   clustersSource,
   map,
   onClusterMouseEnter,
@@ -182,13 +186,14 @@ const addNewClusterMarkers = (
   renderedClusterIds,
   onShowClusterSelectPopup
 ) => {
+  const updatedClusterMarkerHashMap = clusterMarkerHashMap || CLUSTER_MARKER_HASH_MAP;
   const renderedClusterMarkersHashMap = {};
 
   renderedClusterFeatures.forEach((clusterFeatures, index) => {
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = CLUSTER_MARKER_HASH_MAP[clusterHash]?.marker;
+    let marker = updatedClusterMarkerHashMap[clusterHash]?.marker;
     if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
@@ -198,6 +203,7 @@ const addNewClusterMarkers = (
           clusterPoint.geometry.coordinates,
           clusterFeatures,
           clusterHash,
+          undefined,
           map,
           onShowClusterSelectPopup,
           clustersSource
@@ -225,9 +231,10 @@ const updateClusterMarkers = debounce(async (onShowClusterSelectPopup, map, onCl
     renderedClusterIds,
   } = await getRenderedClustersData(clustersSource, map);
 
-  removeOldClusterMarkers(renderedClusterHashes);
+  removeOldClusterMarkers(undefined, renderedClusterHashes);
 
   CLUSTER_MARKER_HASH_MAP = addNewClusterMarkers(
+    undefined,
     clustersSource,
     map,
     onClusterMouseEnter,
@@ -306,8 +313,6 @@ const ClustersLayer = ({
         });
       }
 
-      updateClusterMarkers(onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave);
-
       const layer = map.getLayer(CLUSTERS_LAYER_ID);
       if (!layer) {
         map.addLayer({
@@ -318,6 +323,8 @@ const ClustersLayer = ({
           paint: { 'circle-radius': 0 },
         });
       }
+
+      updateClusterMarkers(onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave);
     }
   }, [
     clusteringFeatureFlagEnabled,
