@@ -3,14 +3,17 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
 import { MapContext } from '../App';
-import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 
-import GeoJsonLayer from '../GeoJsonLayer';
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 
+const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
+
 const LAYER_TYPE = 'symbol';
-const LAYER_ID = 'static_sensors_layer';
+const SOURCE_PREFIX = `${STATIC_SENSOR}-source`;
+const LAYER_ID = STATIC_SENSOR;
+const PREFIX_ID = SECOND_STATIC_SENSOR_PREFIX;
 
 const IMAGE_DATA = {
   id: 'popup-background',
@@ -25,7 +28,7 @@ const IMAGE_DATA = {
 const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
-  const getStaticSensorLayer = (event) => map.queryRenderedFeatures(event.point)[0];
+  const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
   const addDefaultStatusValue = useCallback((features = []) => {
     return features.map(feature => {
@@ -44,18 +47,17 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     });
   }, []);
 
-
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
   }, [addDefaultStatusValue, staticSensors]);
 
-  const labelLayout = {
+  const backgroundLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'icon-size': 1.1,
     'icon-anchor': 'bottom',
     'text-anchor': 'center',
     'text-justify': 'center',
-    'icon-text-fit-padding': [54, 4, -39.5, 1],
+    'icon-text-fit-padding': [39, 4, -24.5, 1],
     'icon-text-fit': 'both',
     'text-offset': [
       'case',
@@ -88,26 +90,26 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     'icon-image': 'popup-background',
   };
 
-  const labelPaint = {
+  const backgroundPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     'text-color': 'rgba(0,0,0,0.1)',
     'text-halo-width': 0,
     'text-translate': [0, -30],
   };
 
-  const secondLabelLayout = {
+  const labelLayout = {
     ...DEFAULT_SYMBOL_LAYOUT,
     'text-offset': [
       'case',
       ['==', ['get', 'image'], null],
-      ['literal', [0, -3.8]],
-      ['literal', [0, -3.1]],
+      ['literal', [0, -2.5]],
+      ['literal', [0, -1.8]],
     ],
     'icon-offset': [
       'case',
       ['has', 'default_status_value'],
-      ['literal', [0, -53]],
-      ['literal', [0, -22]],
+      ['literal', [0, -20]],
+      ['literal', [0, 7]],
     ],
     'icon-anchor': 'top',
     'text-anchor': 'center',
@@ -124,7 +126,7 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     ]
   };
 
-  const secondLabelPaint = {
+  const labelPaint = {
     ...DEFAULT_SYMBOL_PAINT,
     'text-color': '#ffffff',
     'icon-color': '#ffffff',
@@ -150,28 +152,53 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     }
   }, [map]);
 
+  const onLayerClick = useCallback((event) => {
+    const clickedLayer = getStaticSensorLayer(event);
+    const clickedLayerID = clickedLayer.layer.id.replace(PREFIX_ID, '');
+    map.setLayoutProperty(clickedLayerID, 'visibility', 'none');
+    map.setLayoutProperty(`${PREFIX_ID}${clickedLayerID}`, 'visibility', 'none');
+    onStaticSensorClick(({ event, layer: clickedLayer }));
+  }, [getStaticSensorLayer, map, onStaticSensorClick]);
+
+  const createLayer = useCallback((layerID, sourceId, layout, paint) => {
+    if (!map.getLayer(layerID)) {
+      map.addLayer({
+        id: layerID,
+        source: sourceId,
+        type: LAYER_TYPE,
+        layout: layout,
+        paint: paint
+      });
+    }
+  }, [map]);
+
   useEffect(() => {
     if (map) {
-      const sourceId = `source-${LAYER_ID}`;
-      const source = map.getSource(sourceId);
-      const layer = map.getLayer(`second_${LAYER_ID}`);
-      if (source && !layer) {
-        map.addLayer({
-          id: `second_${LAYER_ID}`,
-          source: sourceId,
-          type: LAYER_TYPE,
-          layout: secondLabelLayout,
-          paint: secondLabelPaint,
-        });
-      }
+      sensorsWithDefaultValue?.features?.forEach((feature, index) => {
+        const sourceId = `${SOURCE_PREFIX}-${feature.properties.id}`;
+        const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
+        const source = map.getSource(sourceId);
+
+        if (source) {
+          source.setData(sourceData);
+        } else {
+          map.addSource(sourceId, {
+            type: 'geojson',
+            data: sourceData,
+          });
+        }
+
+        const layerID = `${LAYER_ID}${feature.properties.id}`;
+        if (!map.getLayer(layerID)) {
+          createLayer(layerID, sourceId, backgroundLayout, backgroundPaint);
+          createLayer(`${PREFIX_ID}${layerID}`, sourceId, labelLayout, labelPaint);
+          map.on('click', layerID, onLayerClick);
+        }
+      });
     }
-  }, [labelLayout, labelPaint, map, secondLabelLayout, secondLabelPaint]);
+  }, [backgroundLayout, backgroundPaint, createLayer, labelLayout, labelPaint, map, onLayerClick, sensorsWithDefaultValue]);
 
-  const onLayerClick = (event) => onStaticSensorClick(({ event, layer: getStaticSensorLayer(event) }));
-
-  return <>
-    <GeoJsonLayer type={LAYER_TYPE} id={LAYER_ID} data={sensorsWithDefaultValue} layout={labelLayout} paint={labelPaint} onClick={onLayerClick}/>
-  </>;
+  return null;
 };
 
 export default memo(StaticSensorsLayer);
