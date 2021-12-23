@@ -1,7 +1,11 @@
 import React, { Component, Fragment } from 'react';
+import ReactDOM from 'react-dom';
+import mapboxgl from 'mapbox-gl';
+
 import { withRouter } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
-import { connect } from 'react-redux';
+import { connect, Provider } from 'react-redux';
+import store from '../store';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
@@ -62,6 +66,7 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
+import SubjectPopup from '../SubjectPopup';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -75,7 +80,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-
+const { EVENT_CLUSTERS_CIRCLES, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
 class Map extends Component {
 
   constructor(props) {
@@ -329,7 +334,7 @@ class Map extends Component {
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
-    const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+    const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
     const clickedLayersOfInterest = uniqBy(
       map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
       , layer => layer.properties.id);
@@ -439,7 +444,7 @@ class Map extends Component {
   }
 
   onClusterClick = this.withLocationPickerState(({ point }) => {
-    const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+    const features = this.props.map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
 
@@ -481,6 +486,32 @@ class Map extends Component {
       });
     }
     mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
+  });
+
+  changeVisibilityOfStaticSensorLayers(layer, visibility) {
+    const layerID = layer.layer.id.replace(SECOND_STATIC_SENSOR_PREFIX, '');
+    if (this.props.map.getLayer(layerID)) {
+      this.props.map.setLayoutProperty(layerID, 'visibility', visibility);
+      this.props.map.setLayoutProperty(`${SECOND_STATIC_SENSOR_PREFIX}${layerID}`, 'visibility', visibility);
+    }
+  }
+  onMapStaticSensorClick = this.withLocationPickerState(async ({ event, layer }) => {
+    if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
+    const { geometry } = layer;
+
+    const elementContainer = document.createElement('div');
+    ReactDOM.render(<Provider store={store}>
+      <SubjectPopup data={layer} map={this.props.map}/>
+    </Provider>, elementContainer);
+
+    const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom' })
+      .setLngLat(geometry.coordinates)
+      .setDOMContent(elementContainer)
+      .addTo(this.props.map);
+
+    popup.on('close', () => {
+      this.changeVisibilityOfStaticSensorLayers(layer, 'visible');
+    });
   });
 
   onMessageBadgeClick = this.withLocationPickerState(({ layer }) => {
@@ -555,7 +586,7 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
-    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.subject_type === 'static_sensor');
+    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
     const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
     const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
 
@@ -603,7 +634,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <StaticSensorsLayer staticSensors={staticSubjects} />
+            <StaticSensorsLayer staticSensors={staticSubjects} onStaticSensorClick={this.onMapStaticSensorClick}/>
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 
