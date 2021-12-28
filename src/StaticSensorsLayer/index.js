@@ -85,8 +85,6 @@ const StaticSensorsLayer = ({ staticSensors }) => {
   const createPopup = useCallback((layer) => {
     const { geometry } = layer;
 
-    console.log('%c layer!!', 'font-size:20px;color:purple;', layer);
-
     const elementContainer = document.createElement('div');
     ReactDOM.render(<Provider store={store}>
       <SubjectPopup data={layer} map={map}/>
@@ -105,11 +103,8 @@ const StaticSensorsLayer = ({ staticSensors }) => {
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
     const clickedLayerID = clickedLayer.layer.id;
-    // map.setLayoutProperty(clickedLayerID, 'visibility', 'none');
-    // map.setLayoutProperty(`${PREFIX_ID}${clickedLayerID}`, 'visibility', 'none');
     createPopup(clickedLayer);
     changeLayersVisibility(clickedLayerID, 'none');
-    // onStaticSensorClick(({ event, layer: clickedLayer }));
   }, [changeLayersVisibility, createPopup, getStaticSensorLayer]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
