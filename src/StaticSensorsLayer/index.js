@@ -1,12 +1,18 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
+import ReactDOM from 'react-dom';
+import mapboxgl from 'mapbox-gl';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
+import store from '../store';
 import { MapContext } from '../App';
-import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { LAYER_IDS } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
+import SubjectPopup from '../SubjectPopup';
 
 const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
 
@@ -25,7 +31,7 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
+const StaticSensorsLayer = ({ staticSensors }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
@@ -51,90 +57,6 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
   }, [addDefaultStatusValue, staticSensors]);
 
-  const backgroundLayout = {
-    ...DEFAULT_SYMBOL_LAYOUT,
-    'icon-size': 1.1,
-    'icon-anchor': 'bottom',
-    'text-anchor': 'center',
-    'text-justify': 'center',
-    'icon-text-fit-padding': [39, 4, -24.5, 1],
-    'icon-text-fit': 'both',
-    'text-offset': [
-      'case',
-      ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
-      ['literal', [0, .2]],
-      ['has', 'default_status_value'],
-      ['literal', [0, -.4]],
-      ['literal', [0, 0]],
-    ],
-    'text-field': [
-      'case',
-      ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
-      ['format',
-        ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
-        '\n',
-      ],
-      ['has', 'default_status_value'],
-      ['format',
-        ['get', 'default_status_value'],
-        '\n',
-        ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
-        '\n',
-      ],
-      ['format',
-        'icon',
-        { 'font-scale': 1.3 },
-        '\n',
-      ],
-    ],
-    'icon-image': 'popup-background',
-  };
-
-  const backgroundPaint = {
-    ...DEFAULT_SYMBOL_PAINT,
-    'text-color': 'rgba(0,0,0,0.1)',
-    'text-halo-width': 0,
-    'text-translate': [0, -30],
-  };
-
-  const labelLayout = {
-    ...DEFAULT_SYMBOL_LAYOUT,
-    'text-offset': [
-      'case',
-      ['==', ['get', 'image'], null],
-      ['literal', [0, -2.5]],
-      ['literal', [0, -1.8]],
-    ],
-    'icon-offset': [
-      'case',
-      ['has', 'default_status_value'],
-      ['literal', [0, -20]],
-      ['literal', [0, 7]],
-    ],
-    'icon-anchor': 'top',
-    'text-anchor': 'center',
-    'text-justify': 'center',
-    'text-field': [
-      'case',
-      ['==', ['get', 'image'], null],
-      ['format',
-        ['get', 'default_status_value'],
-        '\n',
-        ['coalesce', ['get', 'default_status_label'], ''],
-      ],
-      ['get', 'default_status_value'],
-    ]
-  };
-
-  const labelPaint = {
-    ...DEFAULT_SYMBOL_PAINT,
-    'text-color': '#ffffff',
-    'icon-color': '#ffffff',
-    'text-halo-width': 0,
-    'icon-halo-width': 0,
-    'icon-translate': [0, -53],
-  };
-
   useEffect(() => {
     if (!!staticSensors?.features?.length) {
       addFeatureCollectionImagesToMap(staticSensors, { sdf: true });
@@ -152,13 +74,43 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
     }
   }, [map]);
 
+  const changeLayersVisibility = useCallback((layerID, visibility) => {
+    const backgroundLayerID = layerID.replace(PREFIX_ID, '');
+    if (map.getLayer(backgroundLayerID)) {
+      map.setLayoutProperty(backgroundLayerID, 'visibility', visibility);
+      map.setLayoutProperty(`${PREFIX_ID}${backgroundLayerID}`, 'visibility', visibility);
+    }
+  }, [map]);
+
+  const createPopup = useCallback((layer) => {
+    const { geometry } = layer;
+
+    console.log('%c layer!!', 'font-size:20px;color:purple;', layer);
+
+    const elementContainer = document.createElement('div');
+    ReactDOM.render(<Provider store={store}>
+      <SubjectPopup data={layer} map={map}/>
+    </Provider>, elementContainer);
+
+    const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom' })
+      .setLngLat(geometry.coordinates)
+      .setDOMContent(elementContainer)
+      .addTo(map);
+
+    popup.on('close', () => {
+      changeLayersVisibility(layer.layer.id, 'visible');
+    });
+  }, [changeLayersVisibility, map]);
+
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
-    const clickedLayerID = clickedLayer.layer.id.replace(PREFIX_ID, '');
-    map.setLayoutProperty(clickedLayerID, 'visibility', 'none');
-    map.setLayoutProperty(`${PREFIX_ID}${clickedLayerID}`, 'visibility', 'none');
-    onStaticSensorClick(({ event, layer: clickedLayer }));
-  }, [getStaticSensorLayer, map, onStaticSensorClick]);
+    const clickedLayerID = clickedLayer.layer.id;
+    // map.setLayoutProperty(clickedLayerID, 'visibility', 'none');
+    // map.setLayoutProperty(`${PREFIX_ID}${clickedLayerID}`, 'visibility', 'none');
+    createPopup(clickedLayer);
+    changeLayersVisibility(clickedLayerID, 'none');
+    // onStaticSensorClick(({ event, layer: clickedLayer }));
+  }, [changeLayersVisibility, createPopup, getStaticSensorLayer]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
     if (!map.getLayer(layerID)) {
@@ -190,13 +142,13 @@ const StaticSensorsLayer = ({ staticSensors, onStaticSensorClick }) => {
 
         const layerID = `${LAYER_ID}${feature.properties.id}`;
         if (!map.getLayer(layerID)) {
-          createLayer(layerID, sourceId, backgroundLayout, backgroundPaint);
-          createLayer(`${PREFIX_ID}${layerID}`, sourceId, labelLayout, labelPaint);
+          createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
+          createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
           map.on('click', layerID, onLayerClick);
         }
       });
     }
-  }, [backgroundLayout, backgroundPaint, createLayer, labelLayout, labelPaint, map, onLayerClick, sensorsWithDefaultValue]);
+  }, [createLayer, map, onLayerClick, sensorsWithDefaultValue]);
 
   return null;
 };

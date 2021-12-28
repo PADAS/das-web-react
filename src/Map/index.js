@@ -1,11 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
-import mapboxgl from 'mapbox-gl';
 
 import { withRouter } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
-import { connect, Provider } from 'react-redux';
-import store from '../store';
+import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
@@ -62,11 +59,9 @@ import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';
-// import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
-import SubjectPopup from '../SubjectPopup';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -488,32 +483,6 @@ class Map extends Component {
     mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
-  changeVisibilityOfStaticSensorLayers(layer, visibility) {
-    const layerID = layer.layer.id.replace(SECOND_STATIC_SENSOR_PREFIX, '');
-    if (this.props.map.getLayer(layerID)) {
-      this.props.map.setLayoutProperty(layerID, 'visibility', visibility);
-      this.props.map.setLayoutProperty(`${SECOND_STATIC_SENSOR_PREFIX}${layerID}`, 'visibility', visibility);
-    }
-  }
-  onMapStaticSensorClick = this.withLocationPickerState(async ({ event, layer }) => {
-    if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
-    const { geometry } = layer;
-
-    const elementContainer = document.createElement('div');
-    ReactDOM.render(<Provider store={store}>
-      <SubjectPopup data={layer} map={this.props.map}/>
-    </Provider>, elementContainer);
-
-    const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom' })
-      .setLngLat(geometry.coordinates)
-      .setDOMContent(elementContainer)
-      .addTo(this.props.map);
-
-    popup.on('close', () => {
-      this.changeVisibilityOfStaticSensorLayers(layer, 'visible');
-    });
-  });
-
   onMessageBadgeClick = this.withLocationPickerState(({ layer }) => {
     const { geometry, properties } = layer;
 
@@ -586,9 +555,9 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
-    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
-    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
-    const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
+    const [staticFeatures, nonStaticFeatures] = partition(mapFeaturesFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
+    const staticSubjects = { ...mapFeaturesFeatureCollection, ...{ features: staticFeatures } };
+    const nonStaticSubjects = { ...mapFeaturesFeatureCollection, ...{ features: nonStaticFeatures } };
 
     return (
       <EarthRangerMap
