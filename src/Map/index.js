@@ -555,9 +555,9 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
-    const [staticFeatures, nonStaticFeatures] = partition(mapFeaturesFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
-    const staticSubjects = { ...mapFeaturesFeatureCollection, ...{ features: staticFeatures } };
-    const nonStaticSubjects = { ...mapFeaturesFeatureCollection, ...{ features: nonStaticFeatures } };
+    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
+    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
+    const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
 
     return (
       <EarthRangerMap
@@ -603,7 +603,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <StaticSensorsLayer staticSensors={staticSubjects} onStaticSensorClick={this.onMapStaticSensorClick}/>
+            <StaticSensorsLayer staticSensors={staticSubjects} onStaticSensorClick={this.onMapStaticSensorClick} isTimeSliderActive={timeSliderActive}/>
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 

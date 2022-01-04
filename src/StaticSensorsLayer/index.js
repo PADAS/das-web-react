@@ -31,13 +31,15 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors }) => {
+const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
   const addDefaultStatusValue = useCallback((features = []) => {
     return features.map(feature => {
+      if (isTimeSliderActive) return set(feature, 'properties.default_status_value', 'No data');
+
       const featureProperties = feature?.properties ?? {};
       const featureDeviceProperties = featureProperties?.device_status_properties ?? [];
       const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
@@ -51,7 +53,7 @@ const StaticSensorsLayer = ({ staticSensors }) => {
       }
       return featureWithDefaultValue;
     });
-  }, []);
+  }, [isTimeSliderActive]);
 
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
