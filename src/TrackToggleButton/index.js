@@ -7,13 +7,13 @@ import styles from './styles.module.scss';
 const TrackToggleButton = (props) => {
   const { className: externalClassName, disabled, trackVisible, trackPinned, onClick, showLabel, loading, ...rest } = props;
   const className = trackPinned ? 'pinned' : trackVisible ? 'visible' : '';
-  const hoverText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks on') : 'Tracks off';
+  const labelText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks on') : 'Tracks off';
 
 
   return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={showLabel ? onClick : noop}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
-    <button disabled={disabled} title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
-    {showLabel && <span>{hoverText}</span>}
+    <button disabled={disabled} title={labelText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
+    {showLabel && <span>{labelText}</span>}
   </div>;
 };
 
