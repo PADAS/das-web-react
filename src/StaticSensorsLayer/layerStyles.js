@@ -1,4 +1,4 @@
-import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { DEFAULT_SYMBOL_LAYOUT } from '../constants';
 
 
 export const BACKGROUND_LAYER = {
@@ -41,7 +41,6 @@ export const BACKGROUND_LAYER = {
     'icon-image': 'popup-background',
   },
   paint: {
-    ...DEFAULT_SYMBOL_PAINT,
     'text-color': 'rgba(0,0,0,0.1)',
     'text-halo-width': 0,
     'text-translate': [0, -30],
@@ -78,7 +77,6 @@ export const LABELS_LAYER = {
     ]
   },
   paint: {
-    ...DEFAULT_SYMBOL_PAINT,
     'text-color': '#ffffff',
     'icon-color': '#ffffff',
     'text-halo-width': 0,
