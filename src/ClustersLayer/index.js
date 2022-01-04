@@ -52,8 +52,8 @@ const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
   padding: '4px 10px',
   cursor: 'pointer',
 };
-const FEATURE_ICON_HTML_STYLES = { width: '14px', height: '20px' };
-const FEATURE_COUNT_HTML_STYLES = { fontSize: '14px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
+const FEATURE_ICON_HTML_STYLES = { width: '16px', height: '24px' };
+const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
 
