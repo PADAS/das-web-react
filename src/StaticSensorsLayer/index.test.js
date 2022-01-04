@@ -8,7 +8,7 @@ import { mockMapStaticSubjectFeatureCollection, staticSubjectFeature, staticSubj
 import StaticSensorsLayer from './';
 
 let map;
-describe('adding default property', () => {
+describe('adding default property label', () => {
   function getDefaultProperty(feature) {
     return feature.properties.device_status_properties.find(property => property?.default ?? false) ?? null;
   }
@@ -58,6 +58,17 @@ describe('adding default property', () => {
     </MapContext.Provider>);
 
     expect(staticSubjectFeatureWithoutDefaultValue.properties).not.toHaveProperty('default_status_value');
+  });
+
+  test('Showing label as "No data" in case the time slider is active', () => {
+    render(<MapContext.Provider value={map}>
+      <StaticSensorsLayer staticSensors={{
+        'type': 'FeatureCollection',
+        'features': [staticSubjectFeature],
+      }} isTimeSliderActive={true} />
+    </MapContext.Provider>);
+
+    expect(staticSubjectFeature.properties.default_status_value).toBe('No data');
   });
 });
 
