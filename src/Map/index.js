@@ -180,7 +180,7 @@ class Map extends Component {
       this.debouncedFetchMapEvents();
     }
     if (!isEqual(prev.patrolFilter, this.props.patrolFilter)) {
-      this.props.socket.emit('patrol_filter', calcPatrolFilterForRequest());
+      this.props.socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
     }
     if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       this.setTrackLengthToEventFilterLowerValue();

@@ -109,7 +109,7 @@ const bindSocketEvents = (socket, store) => {
     eventsBound = true;
 
     socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
-    socket.emit('patrol_filter', calcPatrolFilterForRequest());
+    socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
   });
 };
 
