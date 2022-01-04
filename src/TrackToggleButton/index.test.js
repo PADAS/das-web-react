@@ -19,23 +19,17 @@ test('call onClick', async () => {
 });
 
 describe('styling', () => {
-  test('button should contain className pinned if trackPinned is true', () => {
+  test('button should contain class pinned if trackPinned is true', () => {
     render(<TrackToggleButton onClick={onTrackButtonClick} trackVisible={false} trackPinned={true} />);
     expect(screen.getByRole('button')).toHaveClass('pinned');
   });
 
-  test('button should contain className visible if trackVisible is true', () => {
+  test('button should contain class visible if trackVisible is true', () => {
     render(<TrackToggleButton onClick={onTrackButtonClick} trackVisible={true} trackPinned={false} />);
     expect(screen.getByRole('button')).toHaveClass('visible');
   });
 
-  test('button should not contain pinned or visible if both props are set as false', () => {
-    render(<TrackToggleButton onClick={onTrackButtonClick} trackVisible={false} trackPinned={false} />);
-    expect(screen.getByRole('button')).not.toHaveClass('visible');
-    expect(screen.getByRole('button')).not.toHaveClass('pinned');
-  });
-
-  test('button should not contain pinned or visible if both props are set as false', () => {
+  test('button should not contain pinned or visible classes if both props are set as false', () => {
     render(<TrackToggleButton onClick={onTrackButtonClick} trackVisible={false} trackPinned={false} />);
     expect(screen.getByRole('button')).not.toHaveClass('visible');
     expect(screen.getByRole('button')).not.toHaveClass('pinned');
