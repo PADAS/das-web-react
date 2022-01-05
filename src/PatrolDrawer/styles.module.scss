@@ -1,0 +1,39 @@
+@import '../common/styles/vars/colors';
+
+.header {
+  height: 5rem;
+  padding: 1.125rem 1rem;
+  background-color: $very-light-gray;
+}
+
+.body {
+  display: flex;
+  height: 100%;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+  min-width: 4.5rem;
+  background-color: $secondary-medium-gray;
+}
+
+.content {
+  overflow-x: hidden;
+}
+
+.footer {
+  display: flex;
+  padding: 0.875rem 1rem;
+  margin-left: 4.5rem;
+  border-top: 1px solid $very-light-gray-alt;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+
+.exitButton {
+  background-color: $secondary-medium-light-gray;
+  border-color: $secondary-medium-light-gray;
+  width: 5rem;
+}

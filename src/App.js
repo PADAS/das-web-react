@@ -21,6 +21,8 @@ import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 
+import DrawersLayer from './DrawersLayer';
+import PatrolDrawer from './PatrolDrawer';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
@@ -178,27 +180,34 @@ const App = (props) => {
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
-      <PrintTitle />
-      <Nav map={map} />
-      <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+      <DrawersLayer>
+        <PrintTitle />
 
-        {/* <ErrorBoundary> */}
-        <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {/* </ErrorBoundary> */}
-        {/* <ErrorBoundary> */}
-        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
-        {/* </ErrorBoundary> */}
-        <ModalRenderer map={map} />
-      </div>
-      <div style={{
-        display: 'none',
-        height: 0,
-        width: 0,
-      }}>
-        <ReportTypeIconSprite id="reportTypeIconSprite" />
-        <EarthRangerLogoSprite />
-      </div>
-      <ServiceWorkerWatcher />
+        <Nav map={map} />
+
+        <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+          {/* <ErrorBoundary> */}
+          <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
+          {/* </ErrorBoundary> */}
+          {/* <ErrorBoundary> */}
+          {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
+          {/* </ErrorBoundary> */}
+          <ModalRenderer map={map} />
+        </div>
+
+        <div style={{
+          display: 'none',
+          height: 0,
+          width: 0,
+        }}>
+          <ReportTypeIconSprite id="reportTypeIconSprite" />
+          <EarthRangerLogoSprite />
+        </div>
+
+        <PatrolDrawer />
+
+        <ServiceWorkerWatcher />
+      </DrawersLayer>
     </MapContext.Provider>
   </div>;
 };

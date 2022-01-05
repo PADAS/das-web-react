@@ -1,12 +1,12 @@
-import React, { Fragment, memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import React, { Fragment, memo, useEffect, useContext, useMemo, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
+import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { openModalForPatrol } from '../utils/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
@@ -45,6 +45,8 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
+
+  const { showDrawer } = useContext(DrawersContext);
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -396,10 +398,10 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
-      openModalForPatrol(data, map);
+      showDrawer(patrolDrawerId, data);
       removeModal();
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges]);
+  }, [fetchPatrol, is_collection, removeModal, reportTracker, saveChanges, showDrawer]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');

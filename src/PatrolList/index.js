@@ -1,12 +1,14 @@
-import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState, useEffect } from 'react';
+import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useContext, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import merge from 'lodash/merge';
 // import { findDOMNode } from 'react-dom';
 import { Flipper, Flipped } from 'react-flip-toolkit';
+
+import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
+import { sortPatrolList } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -19,10 +21,12 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
   const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
 
+  const { showDrawer } = useContext(DrawersContext);
+
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    openModalForPatrol(patrol, map);
-  }, [map, patrol]);
+    showDrawer(patrolDrawerId);
+  }, [showDrawer]);
 
   const onPatrolChange = useCallback((value) => {
     const merged = merge(patrol, value);

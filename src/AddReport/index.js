@@ -10,11 +10,12 @@ import Select from 'react-select';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import CustomPropTypes from '../proptypes';
+import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
-import { generatePseudoReportCategoryForPatrolTypes, openModalForPatrol, createNewPatrolForPatrolType } from '../utils/patrols';
+import { generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
@@ -168,6 +169,8 @@ const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
     map, popoverPlacement, showLabel, showIcon, title, clickSideEffect } = props;
 
+  const { showDrawer } = useContext(DrawersContext);
+
   const { hidePatrols } = formProps;
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -227,7 +230,7 @@ const AddReport = (props) => {
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
+        showDrawer(patrolDrawerId);
         return;
       }
 
@@ -238,7 +241,7 @@ const AddReport = (props) => {
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
+  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showDrawer]);
 
   return hasEventCategories &&
 

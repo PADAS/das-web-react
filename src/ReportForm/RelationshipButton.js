@@ -2,8 +2,8 @@ import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
-import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
@@ -20,6 +20,7 @@ const RelationshipButton = (props) => {
   const { fetchEvent, fetchPatrol, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
 
   const report = useContext(FormDataContext);
+  const { showDrawer } = useContext(DrawersContext);
 
   const isPatrolReport = useMemo(() => eventBelongsToPatrol(report), [report]);
   const isCollection = !!report.is_collection;
@@ -46,9 +47,9 @@ const RelationshipButton = (props) => {
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       removeModal();
-      openModalForPatrol(data, map);
+      showDrawer(patrolDrawerId, data);
     });
-  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker]);
+  }, [fetchPatrol, removeModal, report.patrols, reportTracker, showDrawer]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>
