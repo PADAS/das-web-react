@@ -22,9 +22,9 @@ import styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = (props) => {
-  const { data, popoverPlacement, showPopup } = props;
+const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) => {
   const  { geometry, properties } = data;
+  const  { active: isTimeSliderActive } = timeSliderState;
 
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
@@ -104,11 +104,12 @@ const SubjectPopup = (props) => {
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>
-          <span data-testid='additional-props-value'>
+          {(properties?.is_static && isTimeSliderActive) ? <span>No data</span> : <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
-          </span>
+          </span>}
         </li>
       )}
+      <span>isTimeSliderActive: {isTimeSliderActive.toString()}</span>
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     {tracks_available && (
@@ -124,7 +125,8 @@ const SubjectPopup = (props) => {
   </>;
 };
 
-export default connect(null, { showPopup })(memo(SubjectPopup));
+const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
+export default connect(mapStateToProps, { showPopup })(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,
