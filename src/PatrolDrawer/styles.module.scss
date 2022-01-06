@@ -4,6 +4,8 @@
   height: 5rem;
   padding: 1.125rem 1rem;
   background-color: $very-light-gray;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+  position: relative;
 }
 
 .body {
@@ -16,10 +18,29 @@
   flex-direction: column;
   min-width: 4.5rem;
   background-color: $secondary-medium-gray;
+
+  a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    height: 5.5rem;
+    padding: 0;
+    border-bottom: 1px solid rgba(177, 179, 179, 0.25);
+
+    &[class*=active] {
+      color: $bright-blue !important;
+      background-color: $very-light-blue !important;
+      font-weight: bold;
+    }
+  }
 }
 
 .content {
   overflow-x: hidden;
+  padding: 1.125rem;
 }
 
 .footer {
