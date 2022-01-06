@@ -34,6 +34,11 @@ const ReportedBySelect = (props) => {
   const optionalProps = {};
   const selectStyles = {
     ...DEFAULT_SELECT_STYLES,
+    valueContainer: (provided) => ({
+      ...provided,
+      maxHeight: '12rem',
+      overflowY: 'auto',
+    }),
   };
 
   if (menuRef) {
