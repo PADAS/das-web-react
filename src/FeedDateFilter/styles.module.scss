@@ -16,3 +16,12 @@
     }
   }
 }
+
+.endDateLabel {
+  [class*=datePopover] {
+    margin-left: -5rem;
+  }
+  [class*=arrow] {
+    left: 5rem;
+  }
+}

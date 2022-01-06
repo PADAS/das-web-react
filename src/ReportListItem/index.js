@@ -56,7 +56,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
       ? calcTopRatedReportAndTypeForCollection(report, eventTypes)?.related_event
       : report;
 
-    return PRIORITY_COLOR_MAP[reportToConsider.priority] || PRIORITY_COLOR_MAP['0'];
+    return PRIORITY_COLOR_MAP[reportToConsider?.priority] || PRIORITY_COLOR_MAP['0'];
   }, [eventTypes, report]);
 
   const { base: themeColor, background: themeBgColor } = theme;

@@ -40,3 +40,17 @@ describe('presets', () => {
     });
   });
 });
+
+it('lets you add a class to the start date label', async () => {
+  render(<DateRangeSelector startDateLabelClass='start-label-time-yeehaw' />);
+
+  const label = await screen.findByTestId('dateRangeSelector-startLabel');
+  expect(label).toHaveClass('start-label-time-yeehaw');
+});
+
+it('lets you add a class to the end date label', async () => {
+  render(<DateRangeSelector endDateLabelClass='end-label-time-okay-whatever' />);
+
+  const label = await screen.findByTestId('dateRangeSelector-endLabel');
+  expect(label).toHaveClass('end-label-time-okay-whatever');
+});
