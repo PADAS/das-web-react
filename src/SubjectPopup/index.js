@@ -109,7 +109,6 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
           </span>}
         </li>
       )}
-      <span>isTimeSliderActive: {isTimeSliderActive.toString()}</span>
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     {tracks_available && (
