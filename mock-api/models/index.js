@@ -19,9 +19,19 @@ const mockSubjectValues = [
   { subject_subtype: 'rhino', subject_type: 'wildlife', image_url: '/static/rhino-black-male.svg' },
   { subject_subtype: 'zebra', subject_type: 'wildlife', image_url: '/static/zebra-black-male.svg' },
   { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'fuel_tank', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
+  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
+  { subject_subtype: 'fuel_tank', subject_type: 'static_sensor', image_url: null },
+  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
+];
+
+const staticSensorProperties = [
+  [{ default: true, label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ default: false, label: 'Level', units: 'lts', value: '5', }, { default: true, label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ default: false, label: 'Velocity', units: 'km', value: '3', }, { label: 'Wind', units: 'kph', value: '12', }, { default: true, label: 'Humidity', units: '%', value: '75', }],
+  [{ default: true, label: 'Temperature', units: 'ºC', value: '8880', }, { label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { default: true, label: 'Gate', units: '', value: 'open', }],
+  [{ label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { default: true, label: 'Gate', units: '', value: 'close', }]
 ];
 
 const patrolStartLocations = [
@@ -90,20 +100,7 @@ const generateSubject = () => {
   let device_status_properties = null;
 
   if (subject_type === 'static_sensor') {
-    device_status_properties = [{
-      default: true,
-      label: 'Temperature',
-      units: 'ºC',
-      value: '31',
-    }, {
-      label: 'Wind',
-      units: 'kph',
-      value: '12',
-    }, {
-      label: 'Humidity',
-      units: '%',
-      value: '75',
-    }];
+    device_status_properties = staticSensorProperties[Math.floor(Math.random() * staticSensorProperties.length)];
   }
 
   return {
@@ -140,10 +137,10 @@ const generateSubject = () => {
         subject_type,
         subject_subtype,
         id,
-        stroke: '#FFFF00',
-        'stroke-opacity': 1.0,
-        'stroke-width': 2,
-        image: `https://develop.pamdas.org${image_url}`,
+        // stroke: '#FFFF00',
+        // 'stroke-opacity': 1.0,
+        // 'stroke-width': 2,
+        image: image_url ? `https://develop.pamdas.org${image_url}` : null,
         last_voice_call_start_at: null,
         location_requested_at: null,
         radio_state_at: '1970-01-01T00:00:00+00:00',
@@ -154,7 +151,6 @@ const generateSubject = () => {
         DateTime: '2021-11-10T15:19:01+00:00',
       },
     },
-    is_static: subject_type === 'static_sensor',
     device_status_properties,
     url: `https://develop.pamdas.org/api/v1.0/subject/${id}`,
   };
