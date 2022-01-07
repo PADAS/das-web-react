@@ -11,7 +11,7 @@ import TrackToggleButton from './';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
-const PatrolAwareTrackToggleButton = ({ dispatch: _dispatch, patrolData, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest }) => {
+const PatrolAwareTrackToggleButton = ({ buttonRef, dispatch: _dispatch, patrolData, patrolTrackState, subjectTrackState, togglePatrolTrackState, toggleTrackState, ...rest }) => {
   const { patrol, leader } = patrolData;
 
   const patrolTrackPinned = useMemo(() => patrolTrackState.pinned.includes(patrol.id), [patrol.id, patrolTrackState.pinned]);
@@ -60,7 +60,7 @@ const PatrolAwareTrackToggleButton = ({ dispatch: _dispatch, patrolData, patrolT
     }
   }, [leader, patrol.id, patrolToggleStates, patrolTrackHidden, patrolTrackPinned, patrolTrackVisible, subjectToggleStates, subjectTrackHidden, subjectTrackPinned, subjectTrackVisible, togglePatrolTrackState, toggleTrackState]);
 
-  return <TrackToggleButton disabled={!leader} trackVisible={patrolTrackVisible} trackPinned={patrolTrackPinned && subjectTrackPinned} onClick={onTrackButtonClick} {...rest} />;
+  return <TrackToggleButton ref={buttonRef} disabled={!leader} trackVisible={patrolTrackVisible} trackPinned={patrolTrackPinned && subjectTrackPinned} onClick={onTrackButtonClick} {...rest} />;
 };
 
 

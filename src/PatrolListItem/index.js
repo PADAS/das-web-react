@@ -28,17 +28,15 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({  patrolTrackState, togglePatrolTrackState, toggleTrackState, trackState, showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
+const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
   const { patrol, leader, trackData, startStopGeometries } = patrolData;
 
   const debouncedTrackFetch = useRef(null);
   const intervalRef = useRef(null);
   const menuRef = useRef(null);
+  const trackToggleButtonRef = useRef(null);
 
   const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
-
-  const patrolTrackIsVisible = !![...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
-  const leaderTrackIsVisible = !!leader && !![...trackState.pinned, ...trackState.visible].includes(leader.id);
 
   const isScheduledPatrol = patrolState === PATROL_UI_STATES.READY_TO_START
   || patrolState === PATROL_UI_STATES.SCHEDULED
@@ -105,16 +103,17 @@ const PatrolListItem = ({  patrolTrackState, togglePatrolTrackState, toggleTrack
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
 
-    if (!patrolTrackIsVisible) {
-      togglePatrolTrackState(patrol.id);
-    }
+    const patrolTrackIsVisible = [...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
+    const leaderTrackIsVisible = !!leader && [...trackState.pinned, ...trackState.visible].includes(leader.id);
 
-    if (!!leader && !leaderTrackIsVisible) {
-      toggleTrackState(leader.id);
+    if (!patrolTrackIsVisible
+    || (!!leader && !leaderTrackIsVisible)) {
+      console.log({ trackState, patrolTrackState });
+      trackToggleButtonRef?.current?.click();
     }
 
     fitMapBoundsForAnalyzer(map, patrolBounds);
-  }, [leader, leaderTrackIsVisible, map, patrol.id, patrolBounds, patrolTrackIsVisible, togglePatrolTrackState, toggleTrackState]);
+  }, [leader, map, patrol.id, patrolBounds, patrolTrackState, trackState]);
 
   const restorePatrol = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
@@ -128,7 +127,7 @@ const PatrolListItem = ({  patrolTrackState, togglePatrolTrackState, toggleTrack
 
   const StateDependentControls = () => {
     if (isPatrolActiveOrDone) return <div className={styles.patrolTrackControls}>
-      {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
+      {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton buttonRef={trackToggleButtonRef} patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
       {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
     if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
@@ -207,7 +206,7 @@ const makeMapStateToProps = () => {
     return {
       patrolData: getDataForPatrolFromProps(state, props),
       patrolTrackState: state?.view?.patrolTrackState,
-      trackState: state?.view?.patrolTrackState,
+      trackState: state?.view?.subjectTrackState,
     };
   };
   return mapStateToProps;
