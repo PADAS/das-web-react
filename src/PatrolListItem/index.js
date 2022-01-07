@@ -20,18 +20,21 @@ import PatrolDistanceCovered from '../Patrols/DistanceCovered';
 import PatrolMenu from './PatrolMenu';
 
 import styles from './styles.module.scss';
+import { togglePatrolTrackState } from '../ducks/patrols';
+import { toggleTrackState } from '../ducks/map-ui';
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
+const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
   const { patrol, leader, trackData, startStopGeometries } = patrolData;
 
   const debouncedTrackFetch = useRef(null);
   const intervalRef = useRef(null);
   const menuRef = useRef(null);
+  const trackToggleButtonRef = useRef(null);
 
   const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
 
@@ -100,8 +103,17 @@ const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, 
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
 
+    const patrolTrackIsVisible = [...patrolTrackState.pinned, ...patrolTrackState.visible].includes(patrol.id);
+    const leaderTrackIsVisible = !!leader && [...trackState.pinned, ...trackState.visible].includes(leader.id);
+
+    if (!patrolTrackIsVisible
+    || (!!leader && !leaderTrackIsVisible)) {
+      console.log({ trackState, patrolTrackState });
+      trackToggleButtonRef?.current?.click();
+    }
+
     fitMapBoundsForAnalyzer(map, patrolBounds);
-  }, [map, patrolBounds]);
+  }, [leader, map, patrol.id, patrolBounds, patrolTrackState, trackState]);
 
   const restorePatrol = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
@@ -115,7 +127,7 @@ const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, 
 
   const StateDependentControls = () => {
     if (isPatrolActiveOrDone) return <div className={styles.patrolTrackControls}>
-      {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
+      {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton buttonRef={trackToggleButtonRef} patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
       {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
     if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
@@ -193,13 +205,14 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, props) => {
     return {
       patrolData: getDataForPatrolFromProps(state, props),
-      pickingLocationOnMap: state?.view?.userPreferences?.pickingLocationOnMap,
+      patrolTrackState: state?.view?.patrolTrackState,
+      trackState: state?.view?.subjectTrackState,
     };
   };
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps, null)(
+export default connect(makeMapStateToProps, { togglePatrolTrackState, toggleTrackState })(
   memo(
     forwardRef(PatrolListItem)
   )
