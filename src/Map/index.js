@@ -666,7 +666,7 @@ class Map extends Component {
             {this.props.systemConfig[FEATURE_FLAGS.CLUSTERING] && <ClustersLayer
               onEventClick={this.onEventSymbolClick}
               onSubjectClick={this.onMapSubjectClick}
-              onSymbolClick={this.onFeatureSymbolClick}
+              onPointClick={this.onFeatureSymbolClick}
             />}
 
             {!!popup && <PopupLayer

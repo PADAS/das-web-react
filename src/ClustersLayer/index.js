@@ -1,21 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import buffer from '@turf/buffer';
+import React, { useCallback, useEffect, useRef } from 'react';
 import centroid from '@turf/centroid';
-import concave from '@turf/concave';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import explode from '@turf/explode';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 import PropTypes from 'prop-types';
-import simplify from '@turf/simplify';
 
 import {
   CLUSTER_CLICK_ZOOM_THRESHOLD,
   CLUSTERS_MAX_ZOOM,
   CLUSTERS_RADIUS,
-  FEATURE_FLAGS,
   LAYER_IDS,
+  SUBJECT_FEATURE_CONTENT_TYPE,
 } from '../constants';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
@@ -23,10 +20,8 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
 import { showPopup } from '../ducks/popup';
-import { useFeatureFlag } from '../hooks';
+import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 import { withMap } from '../EarthRangerMap';
-
-let CLUSTER_MARKER_HASH_MAP = {};
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,
@@ -37,11 +32,21 @@ const {
 
 export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 150;
 
-const CLUSTER_POLYGON_LAYER_PAINT = {
+const CLUSTER_BUFFER_POLYGON_LAYER_PAINT = {
   'fill-color': 'rgba(60, 120, 40, 0.4)',
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
-const CLUSTER_ICON_NUMBER = 3;
+const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
+  before: CLUSTERS_LAYER_ID,
+  id: CLUSTER_BUFFER_POLYGON_LAYER_ID,
+  maxZoom: CLUSTERS_MAX_ZOOM - 1,
+  paint: CLUSTER_BUFFER_POLYGON_LAYER_PAINT,
+  source: CLUSTER_BUFFER_POLYGON_SOURCE_ID,
+  type: 'fill',
+};
+const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
+
+const CLUSTER_ICON_DISPLAY_LENGTH = 3;
 
 const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
   display: 'flex',
@@ -54,8 +59,6 @@ const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
 };
 const FEATURE_ICON_HTML_STYLES = { width: '16px', height: '24px' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
-
-const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures, symbolFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -75,32 +78,38 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   });
 
   subjectFeatures.sort((firstFeature, secondFeature) => {
-    const firstFeatureLastUpdate = firstFeature.properties.last_position_date > firstFeature.properties.radio_state_at
-      ? firstFeature.properties.last_position_date
-      : firstFeature.properties.radio_state_at;
-    const secondFeatureLastUpdate = secondFeature.properties.last_position_date > secondFeature.properties.radio_state_at
-      ? secondFeature.properties.last_position_date
-      : secondFeature.properties.radio_state_at;
+    const firstFeatureLastPositionDate = firstFeature.properties.last_position_date || '';
+    const firstFeatureRadioStateAt = firstFeature.properties.radio_state_at || '';
+    const firstFeatureLastUpdate = firstFeatureLastPositionDate > firstFeatureRadioStateAt
+      ? firstFeatureLastPositionDate
+      : firstFeatureRadioStateAt;
+
+    const secondFeatureLastPositionDate = secondFeature.properties.last_position_date || '';
+    const secondFeatureRadioStateAt = secondFeature.properties.radio_state_at || '';
+    const secondFeatureLastUpdate = secondFeatureLastPositionDate > secondFeatureRadioStateAt
+      ? secondFeatureLastPositionDate
+      : secondFeatureRadioStateAt;
+
     return firstFeatureLastUpdate < secondFeatureLastUpdate ? 1 : -1;
   });
 
   const clusterIconFeatures = [];
   let featureIndex = 0;
-  while (clusterIconFeatures.length < Math.min(clusterFeatures.length, CLUSTER_ICON_NUMBER)) {
+  while (clusterIconFeatures.length < Math.min(clusterFeatures.length, CLUSTER_ICON_DISPLAY_LENGTH)) {
     if (!!subjectFeatures?.[featureIndex]) clusterIconFeatures.push(subjectFeatures[featureIndex]);
     if (!!eventFeatures?.[featureIndex]) clusterIconFeatures.push(eventFeatures[featureIndex]);
     if (!!symbolFeatures?.[featureIndex]) clusterIconFeatures.push(symbolFeatures[featureIndex]);
     featureIndex++;
   }
 
-  return clusterIconFeatures.slice(0, CLUSTER_ICON_NUMBER);
+  return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
-export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onClusterMouseEnter, onClusterMouseLeave) => {
+export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onMouseOverCluster, onMouseLeaveCluster) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
-  clusterHTMLMarkerContainer.onmouseover = onClusterMouseEnter;
-  clusterHTMLMarkerContainer.onmouseleave = onClusterMouseLeave;
+  clusterHTMLMarkerContainer.onmouseover = onMouseOverCluster;
+  clusterHTMLMarkerContainer.onmouseleave = onMouseLeaveCluster;
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
   getClusterIconFeatures(clusterFeatures).forEach((feature) => {
@@ -110,9 +119,9 @@ export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onClust
     clusterHTMLMarkerContainer.appendChild(featureImageHTML);
   });
 
-  if (clusterFeatures.length > CLUSTER_ICON_NUMBER) {
+  if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
     const featuresCountHTML = document.createElement('p');
-    featuresCountHTML.innerHTML = `+${clusterFeatures.length - CLUSTER_ICON_NUMBER}`;
+    featuresCountHTML.innerHTML = `+${clusterFeatures.length - CLUSTER_ICON_DISPLAY_LENGTH}`;
     injectStylesToElement(featuresCountHTML, FEATURE_COUNT_HTML_STYLES);
     clusterHTMLMarkerContainer.appendChild(featuresCountHTML);
   }
@@ -124,18 +133,17 @@ export const onClusterClick = (
   clusterCoordinates,
   clusterFeatures,
   clusterHash,
-  clusterMarkerHashMap,
+  clusterMarkerHashMapRef,
   map,
   onShowClusterSelectPopup,
   source
 ) => () => {
-  const updatedClusterMarkerHashMap = clusterMarkerHashMap || CLUSTER_MARKER_HASH_MAP;
-  if (!updatedClusterMarkerHashMap[clusterHash]) return;
+  if (!clusterMarkerHashMapRef.current[clusterHash]) return;
 
   const mapZoom = map.getZoom();
   if (mapZoom < CLUSTER_CLICK_ZOOM_THRESHOLD) {
     source.getClusterExpansionZoom(
-      updatedClusterMarkerHashMap[clusterHash].id,
+      clusterMarkerHashMapRef.current[clusterHash].id,
       (error, zoom) => !error && map.easeTo({ center: clusterCoordinates, zoom })
     );
   } else {
@@ -164,36 +172,35 @@ export const getRenderedClustersData = async (clustersSource, map) => {
   return { renderedClusterFeatures, renderedClusterHashes, renderedClusterIds };
 };
 
-export const removeOldClusterMarkers = (clusterMarkerHashMap, renderedClusterHashes) => {
-  const updatedClusterMarkerHashMap = clusterMarkerHashMap || CLUSTER_MARKER_HASH_MAP;
+export const removeOldClusterMarkers = (clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes) => {
   const renderedClusterHashesSet = new Set(renderedClusterHashes);
-  const prevClusterHashes = Object.keys(updatedClusterMarkerHashMap).map((clusterHash) => parseInt(clusterHash));
+  const prevClusterHashes = Object.keys(clusterMarkerHashMapRef.current).map((clusterHash) => parseInt(clusterHash));
   prevClusterHashes.forEach((prevClusterHash) => {
     if (!renderedClusterHashesSet.has(prevClusterHash)) {
-      updatedClusterMarkerHashMap[prevClusterHash].marker.remove();
+      clusterMarkerHashMapRef.current[prevClusterHash].marker.remove();
+      removeClusterPolygon();
     }
   });
 };
 
 export const addNewClusterMarkers = (
-  clusterMarkerHashMap,
+  clusterMarkerHashMapRef,
   clustersSource,
   map,
-  onClusterMouseEnter,
-  onClusterMouseLeave,
+  removeClusterPolygon,
+  renderClusterPolygon,
   renderedClusterFeatures,
   renderedClusterHashes,
   renderedClusterIds,
   onShowClusterSelectPopup
 ) => {
-  const updatedClusterMarkerHashMap = clusterMarkerHashMap || CLUSTER_MARKER_HASH_MAP;
   const renderedClusterMarkersHashMap = {};
 
   renderedClusterFeatures.forEach((clusterFeatures, index) => {
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = updatedClusterMarkerHashMap[clusterHash]?.marker;
+    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker;
     if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
@@ -203,13 +210,13 @@ export const addNewClusterMarkers = (
           clusterPoint.geometry.coordinates,
           clusterFeatures,
           clusterHash,
-          undefined,
+          clusterMarkerHashMapRef,
           map,
           onShowClusterSelectPopup,
           clustersSource
         ),
-        () => onClusterMouseEnter(clusterFeatureCollection),
-        () => onClusterMouseLeave()
+        () => renderClusterPolygon(clusterFeatureCollection),
+        () => removeClusterPolygon()
       );
 
       marker = new mapboxgl.Marker(newClusterHTMLMarkerContainer)
@@ -223,78 +230,66 @@ export const addNewClusterMarkers = (
   return renderedClusterMarkersHashMap;
 };
 
-const updateClusterMarkers = debounce(async (onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave) => {
-  const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
-  const {
-    renderedClusterFeatures,
-    renderedClusterHashes,
-    renderedClusterIds,
-  } = await getRenderedClustersData(clustersSource, map);
+const updateClusterMarkers = debounce(
+  async (clusterMarkerHashMapRef, onShowClusterSelectPopup, map, removeClusterPolygon, renderClusterPolygon) => {
+    const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
+    const {
+      renderedClusterFeatures,
+      renderedClusterHashes,
+      renderedClusterIds,
+    } = await getRenderedClustersData(clustersSource, map);
 
-  removeOldClusterMarkers(undefined, renderedClusterHashes);
+    removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
-  CLUSTER_MARKER_HASH_MAP = addNewClusterMarkers(
-    undefined,
-    clustersSource,
-    map,
-    onClusterMouseEnter,
-    onClusterMouseLeave,
-    renderedClusterFeatures,
-    renderedClusterHashes,
-    renderedClusterIds,
-    onShowClusterSelectPopup
-  );
-}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
+    clusterMarkerHashMapRef.current = addNewClusterMarkers(
+      clusterMarkerHashMapRef,
+      clustersSource,
+      map,
+      removeClusterPolygon,
+      renderClusterPolygon,
+      renderedClusterFeatures,
+      renderedClusterHashes,
+      renderedClusterIds,
+      onShowClusterSelectPopup
+    );
+  },
+  UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME
+);
 
 const ClustersLayer = ({
   eventFeatureCollection,
   map,
   onEventClick,
   onSubjectClick,
-  onSymbolClick,
+  onPointClick,
   showPopup,
   subjectFeatureCollection,
-  symbolFeatureCollection,
+  pointFeaturesCollection,
 }) => {
-  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
+  const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon(
+    CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION,
+    CLUSTER_BUFFER_POLYGON_LAYER_ID,
+    CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION,
+    CLUSTER_BUFFER_POLYGON_SOURCE_ID
+  );
 
-  const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
-
-  const onClusterMouseEnter = useCallback((clusterFeatureCollection) => {
-    const clusterGeometryIsSet = !!clusterBufferPolygon?.geometry?.coordinates?.length;
-    if (!clusterGeometryIsSet && map.getZoom() < CLUSTERS_MAX_ZOOM) {
-      if (clusterFeatureCollection?.features?.length > 2) {
-        try {
-          const concaved = concave(clusterFeatureCollection);
-          if (!concaved) return;
-
-          const buffered = buffer(concaved, 0.2);
-          const simplified = simplify(buffered, { tolerance: 0.005 });
-          setClusterBufferPolygon(simplified);
-        } catch (error) {}
-      } else {
-        setClusterBufferPolygon(featureCollection([]));
-      }
-    }
-  }, [clusterBufferPolygon, map]);
-
-  const onClusterMouseLeave = useCallback(() => setClusterBufferPolygon(featureCollection([])), []);
+  const clusterMarkerHashMapRef = useRef({});
 
   const onShowClusterSelectPopup = useCallback((layers, coordinates) => showPopup('cluster-select', {
     layers,
     coordinates,
     onSelectEvent: onEventClick,
     onSelectSubject: onSubjectClick,
-    onSelectSymbol: onSymbolClick,
-  }), [onEventClick, onSubjectClick, onSymbolClick, showPopup]);
+    onSelectPoint: onPointClick,
+  }), [onEventClick, onSubjectClick, onPointClick, showPopup]);
 
-  const pointSymbolFeatures = symbolFeatureCollection.features.reduce(
+  const pointSymbolFeatures = pointFeaturesCollection.features.reduce(
     (pointSymbolFeatures, multiPointFeature) => [...pointSymbolFeatures, ...explode(multiPointFeature).features],
     []
   );
 
   useEffect(() => {
-    if (clusteringFeatureFlagEnabled && map) {
+    if (map) {
       const sourceData = {
         features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features, ...pointSymbolFeatures],
         type: 'FeatureCollection',
@@ -324,41 +319,23 @@ const ClustersLayer = ({
         });
       }
 
-      updateClusterMarkers(onShowClusterSelectPopup, map, onClusterMouseEnter, onClusterMouseLeave);
+      updateClusterMarkers(
+        clusterMarkerHashMapRef,
+        onShowClusterSelectPopup,
+        map,
+        removeClusterPolygon,
+        renderClusterPolygon
+      );
     }
   }, [
-    clusteringFeatureFlagEnabled,
     eventFeatureCollection.features,
     map,
-    onClusterMouseEnter,
-    onClusterMouseLeave,
+    removeClusterPolygon,
+    renderClusterPolygon,
     onShowClusterSelectPopup,
     pointSymbolFeatures,
     subjectFeatureCollection.features
   ]);
-
-  useEffect(() => {
-    if (clusteringFeatureFlagEnabled && map) {
-      const source = map.getSource(CLUSTER_BUFFER_POLYGON_SOURCE_ID);
-      if (source) {
-        source.setData(clusterBufferPolygon);
-      } else {
-        map.addSource(CLUSTER_BUFFER_POLYGON_SOURCE_ID, { data: clusterBufferPolygon, type: 'geojson' });
-      }
-
-      const layer = map.getLayer(CLUSTER_BUFFER_POLYGON_LAYER_ID);
-      if (!layer) {
-        map.addLayer({
-          before: CLUSTERS_LAYER_ID,
-          id: CLUSTER_BUFFER_POLYGON_LAYER_ID,
-          maxZoom: CLUSTERS_MAX_ZOOM - 1,
-          paint: CLUSTER_POLYGON_LAYER_PAINT,
-          source: CLUSTER_BUFFER_POLYGON_SOURCE_ID,
-          type: 'fill',
-        });
-      }
-    }
-  }, [clusterBufferPolygon, clusteringFeatureFlagEnabled, map]);
 
   return null;
 };
@@ -371,13 +348,13 @@ ClustersLayer.propTypes = {
   map: PropTypes.object.isRequired,
   onEventClick: PropTypes.func.isRequired,
   onSubjectClick: PropTypes.func.isRequired,
-  onSymbolClick: PropTypes.func.isRequired,
+  onPointClick: PropTypes.func.isRequired,
   showPopup: PropTypes.func.isRequired,
   subjectFeatureCollection: PropTypes.shape({
     features: PropTypes.array,
     type: PropTypes.string,
   }).isRequired,
-  symbolFeatureCollection: PropTypes.shape({
+  pointFeaturesCollection: PropTypes.shape({
     features: PropTypes.array,
     type: PropTypes.string,
   }).isRequired,
@@ -386,7 +363,7 @@ ClustersLayer.propTypes = {
 const mapStatetoProps = (state) => ({
   eventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
   subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
-  symbolFeatureCollection: getFeatureSetFeatureCollectionsByType(state).symbolFeatures,
+  pointFeaturesCollection: getFeatureSetFeatureCollectionsByType(state).symbolFeatures,
 });
 
 export default connect(mapStatetoProps, { showPopup })(withMap(ClustersLayer));

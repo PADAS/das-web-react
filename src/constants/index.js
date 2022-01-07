@@ -290,3 +290,5 @@ export const PERMISSIONS = {
   UPDATE: 'change',
   DELETE: 'delete',
 };
+
+export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';

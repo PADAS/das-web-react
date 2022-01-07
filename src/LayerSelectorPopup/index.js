@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { FEATURE_FLAGS, LAYER_IDS } from '../constants';
+import { FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { useFeatureFlag } from '../hooks';
 
 import SearchBar from '../SearchBar';
@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
-  const { layers: layerList, onSelectSubject, onSelectEvent, onSelectSymbol } = data;
+  const { layers: layerList, onSelectSubject, onSelectEvent, onSelectPoint } = data;
 
   const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
 
@@ -69,14 +69,14 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   const handleClick = useCallback((event, feature) => {
     hidePopup(id);
 
-    if (feature.properties?.content_type === 'observations.subject') {
+    if (feature.properties?.content_type === SUBJECT_FEATURE_CONTENT_TYPE) {
       onSelectSubject({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
     } else if (feature.properties?.event_type) {
       onSelectEvent({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
     } else {
-      onSelectSymbol(feature);
+      onSelectPoint(feature);
     }
-  }, [hidePopup, id, onSelectEvent, onSelectSubject, onSelectSymbol]);
+  }, [hidePopup, id, onSelectEvent, onSelectSubject, onSelectPoint]);
 
   return <>
     {!clusteringFeatureFlagEnabled && <h6>

@@ -19,7 +19,7 @@ jest.mock('../hooks', () => ({
 }));
 
 describe('LayerSelectorPopup', () => {
-  const onSelectSubject = jest.fn(), onSelectEvent = jest.fn(), onSelectSymbol = jest.fn();
+  const onSelectSubject = jest.fn(), onSelectEvent = jest.fn(), onSelectPoint = jest.fn();
   let hidePopupMock, store;
   beforeEach(() => {
     hidePopupMock = jest.fn(() => () => {});
@@ -37,7 +37,7 @@ describe('LayerSelectorPopup', () => {
       layers: mockClusterLeaves[0],
       onSelectSubject,
       onSelectEvent,
-      onSelectSymbol,
+      onSelectPoint,
     };
     render(
       <Provider store={store}>
@@ -53,7 +53,7 @@ describe('LayerSelectorPopup', () => {
       layers: mockClusterLeaves[1],
       onSelectSubject,
       onSelectEvent,
-      onSelectSymbol,
+      onSelectPoint,
     };
     render(
       <Provider store={store}>
@@ -69,7 +69,7 @@ describe('LayerSelectorPopup', () => {
       layers: mockClusterLeaves[1],
       onSelectSubject,
       onSelectEvent,
-      onSelectSymbol,
+      onSelectPoint,
     };
     render(
       <Provider store={store}>
@@ -90,7 +90,7 @@ describe('LayerSelectorPopup', () => {
       layers: mockClusterLeaves[1],
       onSelectSubject,
       onSelectEvent,
-      onSelectSymbol,
+      onSelectPoint,
     };
     render(
       <Provider store={store}>
@@ -114,7 +114,7 @@ describe('LayerSelectorPopup', () => {
       layers: mockClusterLeaves[0],
       onSelectSubject,
       onSelectEvent,
-      onSelectSymbol,
+      onSelectPoint,
     };
     render(
       <Provider store={store}>
@@ -138,7 +138,7 @@ describe('LayerSelectorPopup', () => {
       layers: mockClusterLeaves[1],
       onSelectSubject,
       onSelectEvent,
-      onSelectSymbol,
+      onSelectPoint,
     };
     render(
       <Provider store={store}>

@@ -2,9 +2,6 @@ import React, { Fragment, memo, useEffect, useCallback, useRef, useState } from 
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
-import concave from '@turf/concave';
-import buffer from '@turf/buffer';
-import simplify from '@turf/simplify';
 import { featureCollection } from '@turf/helpers';
 
 import { addMapImage } from '../utils/map';
@@ -28,6 +25,7 @@ import {
   MAP_ICON_SCALE,
   SYMBOL_TEXT_SIZE_EXPRESSION,
 } from '../constants';
+import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 import { useFeatureFlag } from '../hooks';
 
 export const CLUSTER_CONFIG = {
@@ -74,6 +72,16 @@ const clusterPolyPaint = {
   'fill-outline-color': 'rgba(20, 100, 25, 1)',
 };
 
+const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
+  before: EVENT_CLUSTERS_CIRCLES,
+  id: 'cluster-polygon',
+  maxZoom: MAX_ZOOM - 2,
+  paint: clusterPolyPaint,
+  source: 'cluster-buffer-polygon-data',
+  type: 'fill',
+};
+const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
+
 // bounce animation constants
 const FRAMES_PER_SECOND = 6;
 const ANIMATION_LENGTH_SECONDS = .25; //seconds
@@ -86,6 +94,13 @@ const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [] } = props;
 
   const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
+
+  const { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon } = useClusterBufferPolygon(
+    { ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION, minZoom },
+    'cluster-polygon',
+    CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION,
+    'cluster-buffer-polygon-data'
+  );
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
@@ -116,7 +131,6 @@ const EventsLayer = (props) => {
   };
 
   const [mapEventFeatureCollection, setMapEventFeatureCollection] = useState(featureCollection([]));
-  const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
   const [eventSymbolLayerIDs, setEventSymbolLayerIDs] = useState([]);
   const clicking = useRef(false);
 
@@ -155,42 +169,15 @@ const EventsLayer = (props) => {
     addClusterIconToMap();
   }, [map]);
 
-  const clusterGeometryIsSet = !!clusterBufferPolygon
-    && !!clusterBufferPolygon.geometry
-    && !!clusterBufferPolygon.geometry.coordinates
-    && !!clusterBufferPolygon.geometry.coordinates.length;
-
   const onClusterMouseEnter = useCallback((e) => {
-    if (!clusterGeometryIsSet && map.getZoom() < CLUSTER_CONFIG.clusterMaxZoom) {
-      const clusterID = map.queryRenderedFeatures(e.point, { layers: [EVENT_CLUSTERS_CIRCLES] })[0].id;
-      if (clusterID) {
-        const clusterSource = map.getSource('events-data-clustered');
-        clusterSource.getClusterLeaves(clusterID, 999, 0, (_err, results = []) => {
-          if (results && results.length > 2) {
-            try {
-              const concaved = concave(featureCollection(results));
-
-              if (!concaved) return;
-
-              const buffered = buffer(concaved, 0.2);
-              const simplified = simplify(buffered, { tolerance: 0.005 });
-
-              setClusterBufferPolygon(simplified);
-            } catch (e) {
-              /* there are plenty of reasons a feature collection, coerced through this chain of transformations, may error. it may make an illegal shape, create a
-              non-closed/invalid LinearRing, etc etc. try/catch is a bad choice most of the time but it fits the bill for error swallowing here. */
-            }
-          }
-        });
-      } else {
-        setClusterBufferPolygon(featureCollection([]));
-      }
+    const clusterID = map.queryRenderedFeatures(e.point, { layers: [EVENT_CLUSTERS_CIRCLES] })[0].id;
+    if (clusterID) {
+      const clusterSource = map.getSource('events-data-clustered');
+      clusterSource.getClusterLeaves(clusterID, 999, 0, (_err, results = []) => {
+        renderClusterPolygon(featureCollection(results));
+      });
     }
-  }, [clusterGeometryIsSet, map]);
-
-  const onClusterMouseLeave = useCallback(() => {
-    setClusterBufferPolygon(featureCollection([]));
-  }, []);
+  }, [map, renderClusterPolygon]);
 
   const eventClusterDisabledLayout = enableClustering ? {} : {
     'icon-allow-overlap': true,
@@ -300,15 +287,9 @@ const EventsLayer = (props) => {
     ...CLUSTER_CONFIG,
   };
 
-  const clusterBufferData = {
-    type: 'geojson',
-    data: clusterBufferPolygon,
-  };
-
   return <Fragment>
     {!clusteringFeatureFlagEnabled && <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />}
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
-    {!clusteringFeatureFlagEnabled && <Source id='cluster-buffer-polygon-data' geoJsonSource={clusterBufferData} />}
 
     {(clusteringFeatureFlagEnabled || !enableClustering) && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
       id={EVENT_SYMBOLS} onClick={handleEventClick}
@@ -324,9 +305,7 @@ const EventsLayer = (props) => {
 
       <Layer minZoom={minZoom} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
         filter={['has', 'point_count']} onClick={handleClusterClick} layout={{ ...clusterSymbolLayout, 'visibility': enableClustering ? 'visible' : 'none' }} paint={clusterSymbolPaint}
-        onMouseEnter={onClusterMouseEnter} onMouseLeave={onClusterMouseLeave} />
-
-      <Layer minZoom={minZoom} maxZoom={MAX_ZOOM - 2} before={EVENT_CLUSTERS_CIRCLES} sourceId='cluster-buffer-polygon-data' id='cluster-polygon' type='fill' paint={clusterPolyPaint} />
+        onMouseEnter={onClusterMouseEnter} onMouseLeave={removeClusterPolygon} />
     </Fragment>}
     {!!events?.features?.length && <MapImageFromSvgSpriteRenderer reportFeatureCollection={events} />}
   </Fragment>;

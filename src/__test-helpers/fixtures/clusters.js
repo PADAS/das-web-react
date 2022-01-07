@@ -9702,7 +9702,7 @@ export const mockSubjectFeatureCollection = {
   ]
 };
 
-export const mockSymbolFeatureCollection = {
+export const mockPointFeaturesCollection = {
   'type': 'FeatureCollection',
   'features': [
     {

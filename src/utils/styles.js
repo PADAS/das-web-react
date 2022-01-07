@@ -1,4 +1,4 @@
-export const injectStylesToElement = (element, styles) => Object.keys(styles)
-  .forEach((styleKey) => {
-    element.style[styleKey] = styles[styleKey];
+export const injectStylesToElement = (element, styles) => Object.entries(styles)
+  .forEach(([key, value]) => {
+    element.style[key] = value;
   });

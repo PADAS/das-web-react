@@ -12,7 +12,7 @@ import ClustersLayer, {
   UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME,
 } from '.';
 import { createMapMock } from '../__test-helpers/mocks';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS } from '../constants';
+import { CLUSTER_CLICK_ZOOM_THRESHOLD } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
 import { showPopup } from '../ducks/popup';
 import {
@@ -20,10 +20,9 @@ import {
   mockClusterLeaves,
   mockEventFeatureCollection,
   mockSubjectFeatureCollection,
-  mockSymbolFeatureCollection,
+  mockPointFeaturesCollection,
 } from '../__test-helpers/fixtures/clusters';
-
-const { CLUSTERS_SOURCE_ID } = LAYER_IDS;
+import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
 const mapMarkers = [];
 jest.mock('mapbox-gl', () => {
@@ -47,7 +46,7 @@ jest.mock('../ducks/popup', () => ({
 }));
 jest.mock('../selectors', () => ({
   ...jest.requireActual('../selectors'),
-  getFeatureSetFeatureCollectionsByType: () => ({ symbolFeatures: mockSymbolFeatureCollection }),
+  getFeatureSetFeatureCollectionsByType: () => ({ symbolFeatures: mockPointFeaturesCollection }),
 }));
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
@@ -57,43 +56,42 @@ jest.mock('../selectors/subjects', () => ({
   ...jest.requireActual('../selectors/subjects'),
   getMapSubjectFeatureCollectionWithVirtualPositioning: () => mockSubjectFeatureCollection,
 }));
+jest.mock('../hooks/useClusterBufferPolygon', () => jest.fn());
 
 describe('ClustersLayer', () => {
   const onEventClick = jest.fn(),
     onSubjectClick = jest.fn(),
-    onSymbolClick = jest.fn(),
+    onPointClick = jest.fn(),
+    removeClusterPolygon = jest.fn(),
+    renderClusterPolygon = jest.fn(),
     setClusterBufferPolygonData = jest.fn();
-  let map, showPopupMock, store;
+  let map, showPopupMock, store, useClusterBufferPolygonMock;
 
   beforeEach(() => {
     showPopupMock = jest.fn(() => () => { });
     showPopup.mockImplementation(showPopupMock);
+    useClusterBufferPolygonMock = () => ({ removeClusterPolygon, renderClusterPolygon });
+    useClusterBufferPolygon.mockImplementation(useClusterBufferPolygonMock);
 
     map = createMapMock();
     map.queryRenderedFeatures.mockImplementation(() => [
       { properties: { cluster_id: mockClusterIds[0] } },
       { properties: { cluster_id: mockClusterIds[1] } },
     ]);
-    map.getSource.mockImplementation((clusterId) => {
-      if (clusterId === CLUSTERS_SOURCE_ID) {
-        return {
-          getClusterExpansionZoom: jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1)),
-          getClusterLeaves: (clusterId, limit, offset, callback) => {
-            switch (clusterId) {
-            case mockClusterIds[0]:
-              return callback(null, mockClusterLeaves[0]);
-            case mockClusterIds[1]:
-              return callback(null, mockClusterLeaves[1]);
-            default:
-              return;
-            }
-          },
-          setData: jest.fn(),
-        };
-      } else {
-        return { setData: setClusterBufferPolygonData };
-      }
-    });
+    map.getSource.mockImplementation(() => ({
+      getClusterExpansionZoom: jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1)),
+      getClusterLeaves: (clusterId, limit, offset, callback) => {
+        switch (clusterId) {
+        case mockClusterIds[0]:
+          return callback(null, mockClusterLeaves[0]);
+        case mockClusterIds[1]:
+          return callback(null, mockClusterLeaves[1]);
+        default:
+          return;
+        }
+      },
+      setData: jest.fn(),
+    }));
     map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
     store = mockStore({});
@@ -104,7 +102,7 @@ describe('ClustersLayer', () => {
           map={map}
           onEventClick={onEventClick}
           onSubjectClick={onSubjectClick}
-          onSymbolClick={onSymbolClick}
+          onPointClick={onPointClick}
         />
       </Provider>
     );
@@ -139,36 +137,25 @@ describe('ClustersLayer', () => {
     }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
   });
 
-  test('updates the cluster buffer polygon source when user hovers a cluster', async () => {
+  test('renders a cluster buffer polygon when user hovers a cluster', async () => {
     await waitFor (() => {
-      expect(setClusterBufferPolygonData).toHaveBeenCalledTimes(1);
+      expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
 
       mapMarkers[0].dispatchEvent(new Event('mouseover'));
-    }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
 
-    await waitFor (() => {
-      expect(setClusterBufferPolygonData).toHaveBeenCalledTimes(2);
-      expect(setClusterBufferPolygonData.mock.calls[1][0].geometry).toBeDefined();
-    }, { timeout: 30 });
+      expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
+    }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
   });
 
-  test('updates the cluster buffer polygon source when user leaves a hovered cluster', async () => {
+  test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
     await waitFor (() => {
-      expect(setClusterBufferPolygonData).toHaveBeenCalledTimes(1);
+      expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
 
       mapMarkers[0].dispatchEvent(new Event('mouseover'));
-    }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
-
-    await waitFor (() => {
-      expect(setClusterBufferPolygonData).toHaveBeenCalledTimes(2);
-
       mapMarkers[0].dispatchEvent(new Event('mouseleave'));
-    }, { timeout: 30 });
 
-    await waitFor (() => {
-      expect(setClusterBufferPolygonData).toHaveBeenCalledTimes(3);
-      expect(setClusterBufferPolygonData.mock.calls[2][0].geometry).toBeUndefined();
-    }, { timeout: 30 });
+      expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
+    }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
   });
 
   test('zooms to a cluster if user clicks it while zoom is too far', async () => {
@@ -267,7 +254,7 @@ describe('ClustersLayer', () => {
         { properties: { id: '1', content_type: 'observations.subject', last_position_date: '2021-08-11T22:01:07.973131-07:00', radio_state_at: '2021-08-17T22:01:07.973131-07:00' } },
         { properties: { id: '2', content_type: 'observations.subject',  last_position_date: '2021-08-12T22:01:07.973131-07:00', radio_state_at: '2021-08-16T23:01:07.973131-07:00' } },
         { properties: { id: '3', content_type: 'observations.subject',  last_position_date: '2021-08-13T22:01:07.973131-07:00', radio_state_at: '2021-08-15T22:01:07.973131-07:00' } },
-        { properties: { id: '4', content_type: 'observations.subject', last_position_date: '2021-08-14T22:01:07.973131-07:00', radio_state_at: '2021-08-14T23:01:07.973131-07:00' } },
+        { properties: { id: '4', content_type: 'observations.subject', last_position_date: '2021-08-14T22:01:07.973131-07:00', radio_state_at: undefined } },
         { properties: { id: '5', content_type: 'observations.subject', last_position_date: '2021-08-15T22:01:07.973131-07:00', radio_state_at: '2021-08-13T22:01:07.973131-07:00' } },
         { properties: { id: '6', content_type: 'observations.subject', last_position_date: '2021-08-16T22:01:07.973131-07:00', radio_state_at: '2021-08-12T22:01:07.973131-07:00' } },
       ];
@@ -342,7 +329,7 @@ describe('ClustersLayer', () => {
       { properties: { id: '6' } },
     ];
     const clusterHash = 'abcd';
-    const clusterMarkerHashMap = { abcd: { id: '1' } };
+    const clusterMarkerHashMapRef = { current: { abcd: { id: '1' } } };
     const map = { easeTo: jest.fn(), getZoom: () => CLUSTER_CLICK_ZOOM_THRESHOLD - 1 };
     const onShowClusterSelectPopup = jest.fn();
     const source = {
@@ -354,7 +341,7 @@ describe('ClustersLayer', () => {
         clusterCoordinates,
         clusterFeatures,
         clusterHash,
-        clusterMarkerHashMap,
+        clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
         source
@@ -370,7 +357,7 @@ describe('ClustersLayer', () => {
         clusterCoordinates,
         clusterFeatures,
         clusterHash,
-        clusterMarkerHashMap,
+        clusterMarkerHashMapRef,
         map,
         onShowClusterSelectPopup,
         source
@@ -429,10 +416,12 @@ describe('ClustersLayer', () => {
   });
 
   describe('removeOldClusterMarkers', () => {
-    const clusterMarkerHashMap = {
-      '1': { marker: { remove: jest.fn() } },
-      '2': { marker: { remove: jest.fn() } },
-      '3': { marker: { remove: jest.fn() } },
+    const clusterMarkerHashMapRef = {
+      current: {
+        '1': { marker: { remove: jest.fn() } },
+        '2': { marker: { remove: jest.fn() } },
+        '3': { marker: { remove: jest.fn() } },
+      },
     };
     const renderedClusterHashes = [1, 3];
 
@@ -441,23 +430,21 @@ describe('ClustersLayer', () => {
     });
 
     test('triggers the remove method of the markers that are no longer rendered', () => {
-      removeOldClusterMarkers(clusterMarkerHashMap, renderedClusterHashes);
+      removeOldClusterMarkers(clusterMarkerHashMapRef, renderedClusterHashes);
 
-      expect(clusterMarkerHashMap['2'].marker.remove).toHaveBeenCalledTimes(1);
+      expect(clusterMarkerHashMapRef.current['2'].marker.remove).toHaveBeenCalledTimes(1);
     });
 
     test('does not trigger the remove method of the markers that are rendered', () => {
-      removeOldClusterMarkers(clusterMarkerHashMap, renderedClusterHashes);
+      removeOldClusterMarkers(clusterMarkerHashMapRef, renderedClusterHashes);
 
-      expect(clusterMarkerHashMap['1'].marker.remove).not.toHaveBeenCalled();
-      expect(clusterMarkerHashMap['3'].marker.remove).not.toHaveBeenCalled();
+      expect(clusterMarkerHashMapRef.current['1'].marker.remove).not.toHaveBeenCalled();
+      expect(clusterMarkerHashMapRef.current['3'].marker.remove).not.toHaveBeenCalled();
     });
   });
 
   describe('addNewClusterMarkers', () => {
-    const clusterMarkerHashMap = {
-      '1': { marker: {} },
-    };
+    const clusterMarkerHashMapRef = { current: { '1': { marker: {} } } };
     const clustersSource = {};
     const map = {};
     const onClusterMouseEnter = jest.fn();
@@ -504,7 +491,7 @@ describe('ClustersLayer', () => {
 
     test('keeps the old cluster markers that are still rendered', () => {
       const renderedClusterMarkersHashMap = addNewClusterMarkers(
-        clusterMarkerHashMap,
+        clusterMarkerHashMapRef,
         clustersSource,
         map,
         onClusterMouseEnter,
@@ -515,13 +502,13 @@ describe('ClustersLayer', () => {
         onShowClusterSelectPopup
       );
 
-      expect(renderedClusterMarkersHashMap['1'].marker).toBe(clusterMarkerHashMap['1'].marker);
+      expect(renderedClusterMarkersHashMap['1'].marker).toBe(clusterMarkerHashMapRef.current['1'].marker);
       expect(renderedClusterMarkersHashMap['1'].id).toBe('abcd');
     });
 
     test('creates new markers for the new rendered clusters', () => {
       const renderedClusterMarkersHashMap = addNewClusterMarkers(
-        clusterMarkerHashMap,
+        clusterMarkerHashMapRef,
         clustersSource,
         map,
         onClusterMouseEnter,
