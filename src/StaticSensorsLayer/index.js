@@ -1,4 +1,5 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
 import mapboxgl from 'mapbox-gl';
@@ -87,7 +88,7 @@ const StaticSensorsLayer = ({ staticSensors }) => {
 
     const elementContainer = document.createElement('div');
     ReactDOM.render(<Provider store={store}>
-      <SubjectPopup data={layer} map={map}/>
+      <SubjectPopup data={layer}/>
     </Provider>, elementContainer);
 
     const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom' })
@@ -149,3 +150,8 @@ const StaticSensorsLayer = ({ staticSensors }) => {
 };
 
 export default memo(StaticSensorsLayer);
+
+StaticSensorsLayer.propTypes = {
+  staticSensors: PropTypes.object.isRequired,
+  isTimeSliderActive: PropTypes.bool,
+};
