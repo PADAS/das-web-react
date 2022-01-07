@@ -13,7 +13,7 @@ import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
 
-export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
+export const waitForMapBounds = (map, MAX_TIMEOUT = 3000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
   let timeoutRemaining = MAX_TIMEOUT;
 
   const tryToGetMapBounds = () => {

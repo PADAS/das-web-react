@@ -193,7 +193,6 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state, props) => {
     return {
       patrolData: getDataForPatrolFromProps(state, props),
-      pickingLocationOnMap: state?.view?.userPreferences?.pickingLocationOnMap,
     };
   };
   return mapStateToProps;
