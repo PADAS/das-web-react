@@ -1,4 +1,5 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
 import mapboxgl from 'mapbox-gl';
@@ -31,33 +32,30 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
+const addDefaultStatusValue = (features = []) => {
+  return features.map(feature => {
+    const { properties, properties: { device_status_properties = [] } } = feature;
+    const defaultProperty = device_status_properties.find(deviceProperty => deviceProperty?.default ?? false);
+    if (isEmpty(defaultProperty)) return feature;
+
+    let featureWithDefaultValue = set(feature, 'properties.default_status_value', `${defaultProperty.value} ${defaultProperty.units}`);
+
+    if (!properties?.image?.length) {
+      featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label);
+    }
+
+    return featureWithDefaultValue;
+  });
+};
+
+const StaticSensorsLayer = ({ staticSensors }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
-  const addDefaultStatusValue = useCallback((features = []) => {
-    return features.map(feature => {
-      if (isTimeSliderActive) return set(feature, 'properties.default_status_value', 'No data');
-
-      const featureProperties = feature?.properties ?? {};
-      const featureDeviceProperties = featureProperties?.device_status_properties ?? [];
-      const defaultProperty = featureDeviceProperties.find(deviceProperty => deviceProperty?.default ?? false);
-
-      if (isEmpty(defaultProperty)) return feature;
-
-      let featureWithDefaultValue = set(feature, 'properties.default_status_value', `${defaultProperty.value} ${defaultProperty.units}`);
-      const featureHasImage = !!featureProperties?.image?.length ?? false;
-      if (!featureHasImage) {
-        featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label);
-      }
-      return featureWithDefaultValue;
-    });
-  }, [isTimeSliderActive]);
-
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
-  }, [addDefaultStatusValue, staticSensors]);
+  }, [staticSensors]);
 
   useEffect(() => {
     if (!!staticSensors?.features?.length) {
@@ -67,12 +65,9 @@ const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
 
   useEffect(() => {
     if (map) {
-      map.loadImage(LayerBackground, (error, image) => {
-        if (error) throw error;
-        if (!map.hasImage(IMAGE_DATA.id)) {
-          map.addImage(IMAGE_DATA.id, image, IMAGE_DATA.options);
-        }
-      });
+      map.loadImage(LayerBackground, (error, image) =>
+        !error & map.addImage(IMAGE_DATA.id, image, IMAGE_DATA.options)
+      );
     }
   }, [map]);
 
@@ -89,7 +84,7 @@ const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
 
     const elementContainer = document.createElement('div');
     ReactDOM.render(<Provider store={store}>
-      <SubjectPopup data={layer} map={map}/>
+      <SubjectPopup data={layer}/>
     </Provider>, elementContainer);
 
     const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom' })
@@ -151,3 +146,8 @@ const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
 };
 
 export default memo(StaticSensorsLayer);
+
+StaticSensorsLayer.propTypes = {
+  staticSensors: PropTypes.object.isRequired,
+  isTimeSliderActive: PropTypes.bool,
+};
