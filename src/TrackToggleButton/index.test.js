@@ -11,7 +11,7 @@ test('rendering without crashing', () => {
 
 test('call onClick', async () => {
   render(<TrackToggleButton onClick={onTrackButtonClick} trackVisible={true} trackPinned={true} />);
-  waitFor(async () => {
+  await waitFor(async () => {
     const toggleButton = await screen.getByRole('button');
     userEvent.click(toggleButton);
     expect(onTrackButtonClick).toHaveBeenCalled();

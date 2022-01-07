@@ -87,7 +87,7 @@ const StaticSensorsLayer = ({ staticSensors }) => {
       <SubjectPopup data={layer}/>
     </Provider>, elementContainer);
 
-    const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom' })
+    const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false })
       .setLngLat(geometry.coordinates)
       .setDOMContent(elementContainer)
       .addTo(map);
