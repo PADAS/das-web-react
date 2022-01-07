@@ -430,13 +430,14 @@ describe('ClustersLayer', () => {
     });
 
     test('triggers the remove method of the markers that are no longer rendered', () => {
-      removeOldClusterMarkers(clusterMarkerHashMapRef, renderedClusterHashes);
+      removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
       expect(clusterMarkerHashMapRef.current['2'].marker.remove).toHaveBeenCalledTimes(1);
+      expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('does not trigger the remove method of the markers that are rendered', () => {
-      removeOldClusterMarkers(clusterMarkerHashMapRef, renderedClusterHashes);
+      removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
 
       expect(clusterMarkerHashMapRef.current['1'].marker.remove).not.toHaveBeenCalled();
       expect(clusterMarkerHashMapRef.current['3'].marker.remove).not.toHaveBeenCalled();
