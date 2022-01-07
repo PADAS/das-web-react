@@ -69,14 +69,6 @@ const StaticSensorsLayer = ({ staticSensors }) => {
         !error & map.addImage(IMAGE_DATA.id, image, IMAGE_DATA.options)
       );
     }
-    // if (map) {
-    //   map.loadImage(LayerBackground, (error, image) => {
-    //     if (error) throw error;
-    //     if (!map.hasImage(IMAGE_DATA.id)) {
-    //       map.addImage(IMAGE_DATA.id, image, IMAGE_DATA.options);
-    //     }
-    //   });
-    // }
   }, [map]);
 
   const changeLayersVisibility = useCallback((layerID, visibility) => {
