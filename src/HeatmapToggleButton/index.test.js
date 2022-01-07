@@ -11,7 +11,7 @@ test('rendering without crashing', () => {
 
 test('call onClick', async () => {
   render(<HeatmapToggleButton onClick={onButtonClick} heatmapVisible={true} />);
-  waitFor(async () => {
+  await waitFor(async () => {
     const toggleButton = await screen.getByRole('button');
     userEvent.click(toggleButton);
     expect(onButtonClick).toHaveBeenCalled();
