@@ -5,6 +5,8 @@ export const BACKGROUND_LAYER = {
   layout: {
     ...DEFAULT_SYMBOL_LAYOUT,
     'icon-size': 1.1,
+    'icon-allow-overlap': true,
+    'text-allow-overlap': true,
     'icon-anchor': 'bottom',
     'text-anchor': 'center',
     'text-justify': 'center',
@@ -50,6 +52,8 @@ export const BACKGROUND_LAYER = {
 export const LABELS_LAYER = {
   layout: {
     ...DEFAULT_SYMBOL_LAYOUT,
+    'icon-allow-overlap': true,
+    'text-allow-overlap': true,
     'text-offset': [
       'case',
       ['==', ['get', 'image'], null],
