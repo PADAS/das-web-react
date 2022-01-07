@@ -116,7 +116,7 @@ const PatrolListItem = ({ showControls = true, map, patrolData, onPatrolChange, 
   const StateDependentControls = () => {
     if (isPatrolActiveOrDone) return <div className={styles.patrolTrackControls}>
       {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
-      {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
+      {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
     if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
     if (isScheduledPatrol) return  <Button variant='light' size='sm' onClick={startPatrol} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;

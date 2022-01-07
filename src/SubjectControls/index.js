@@ -93,15 +93,36 @@ const SubjectControls = (props) => {
 
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {isMessageable && <SubjectMessagesPopover className={styles.messagingButton} subject={subject} />}
-    {showTrackButton && <TrackToggleButton showLabel={showLabels} loading={loadingTracks}
-      onClick={onTrackButtonClick} trackVisible={tracksVisible}
-      trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton showLabel={showLabels} loading={loadingHeatmap}
-      onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
-    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates}
-      clickAnalytics={[MAP_LAYERS_CATEGORY, 'Click Jump To Subject Location button',
-        `Subject Type:${subject.subject_type}`]} />}
+
+    {isMessageable && <SubjectMessagesPopover
+      className={styles.messagingButton}
+      subject={subject}
+    />}
+
+    {showTrackButton && <TrackToggleButton
+      showLabel={showLabels}
+      loading={loadingTracks}
+      onClick={onTrackButtonClick}
+      trackVisible={tracksVisible}
+      trackPinned={tracksPinned}
+    />}
+
+    {showHeatmapButton && <HeatmapToggleButton
+      showLabel={showLabels}
+      loading={loadingHeatmap}
+      onButtonClick={toggleHeatmapState}
+      heatmapVisible={subjectIsInHeatmap}
+    />}
+
+    {showJumpButton && coordinates && <LocationJumpButton
+      coordinates={coordinates}
+      clickAnalytics={[
+        MAP_LAYERS_CATEGORY,
+        'Click Jump To Subject Location button',
+        `Subject Type:${subject.subject_type}`
+      ]}
+    />}
+
     {children}
   </div>;
 };
