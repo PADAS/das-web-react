@@ -63,32 +63,6 @@ export const calcColorThemeForPatrolState = (patrolState) => {
   return PATROL_STATUS_THEME_COLOR_MAP[patrolState.status];
 };
 
-// TODO: Remove before merging
-// export const openModalForPatrol = (patrol, map, config = {}) => {
-//   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
-
-//   const state = store.getState();
-
-//   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-//   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
-
-//   const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
-
-//   return store.dispatch(
-//     addModal({
-//       content: PatrolModal,
-//       patrol,
-//       map,
-//       onSaveSuccess,
-//       onSaveError,
-//       relationshipButtonDisabled,
-//       modalProps: {
-//         className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
-//         // keyboard: false,
-//       },
-//     }));
-// };
-
 export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
   const categoryObject = {
     'value': 'patrols',

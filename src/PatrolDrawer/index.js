@@ -4,7 +4,10 @@ import Drawer from 'react-modern-drawer';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 
+import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
+import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import styles from './styles.module.scss';
 
@@ -14,8 +17,36 @@ const NAVIGATION_PLAN_EVENT_KEY = 'plan';
 const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
+// TODO: old patrol modal functionality, this logic will be useful later
+// export const openModalForPatrol = (patrol, map, config = {}) => {
+//   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
+
+//   const state = store.getState();
+
+//   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+//   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+
+//   const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
+
+//   return store.dispatch(
+//     addModal({
+//       content: PatrolModal,
+//       patrol,
+//       map,
+//       onSaveSuccess,
+//       onSaveError,
+//       relationshipButtonDisabled,
+//       modalProps: {
+//         className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
+//         // keyboard: false,
+//       },
+//     }));
+// };
+
 const PatrolDrawer = () => {
   const { drawers, hideDrawer } = useContext(DrawersContext);
+  // TODO: remove eslint disable once data is used
+  // eslint-disable-next-line no-unused-vars
   const { data, isOpen } = drawers[patrolDrawerId];
 
   return <Drawer className="drawer" open={isOpen} onClose={() => hideDrawer(patrolDrawerId)} direction='right'>
@@ -27,15 +58,24 @@ const PatrolDrawer = () => {
       <div className={styles.body}>
         <Nav className={styles.navigation}>
           <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>Plan</Nav.Link>
+            <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>
+              <CalendarIcon />
+              Plan
+            </Nav.Link>
           </Nav.Item>
 
           <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>Timeline</Nav.Link>
+            <Nav.Link eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
+              <BulletListIcon />
+              Timeline
+            </Nav.Link>
           </Nav.Item>
 
           <Nav.Item>
-            <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>History</Nav.Link>
+            <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
+              <HistoryIcon />
+              History
+            </Nav.Link>
           </Nav.Item>
         </Nav>
 

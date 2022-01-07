@@ -24,16 +24,25 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #FFFFFF;
+    color: white;
     font-size: 0.75rem;
     height: 5.5rem;
     padding: 0;
     border-bottom: 1px solid rgba(177, 179, 179, 0.25);
 
+    svg {
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+
     &[class*=active] {
       color: $bright-blue !important;
       background-color: $very-light-blue !important;
       font-weight: bold;
+
+      svg {
+        color: $bright-blue;
+      }
     }
   }
 }
