@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
 const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
-  const { layers: layerList, onSelectSubject, onSelectEvent, onSelectPoint } = data;
+  const { layers: layerList, onSelectSubject, onSelectEvent } = data;
 
   const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
 
@@ -71,12 +71,10 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
 
     if (feature.properties?.content_type === SUBJECT_FEATURE_CONTENT_TYPE) {
       onSelectSubject({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
-    } else if (feature.properties?.event_type) {
-      onSelectEvent({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
     } else {
-      onSelectPoint(feature);
+      onSelectEvent({ event, layer: { geometry: feature.geometry, properties: feature.properties } });
     }
-  }, [hidePopup, id, onSelectEvent, onSelectSubject, onSelectPoint]);
+  }, [hidePopup, id, onSelectEvent, onSelectSubject]);
 
   return <>
     {!clusteringFeatureFlagEnabled && <h6>

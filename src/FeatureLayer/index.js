@@ -7,15 +7,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 
 import { getFeatureSymbolGeoJsonAtPoint } from '../utils/features';
 import { addFeatureCollectionImagesToMap, addMapImage } from '../utils/map';
-import {
-  CLUSTERS_MAX_ZOOM,
-  CLUSTERS_RADIUS,
-  FEATURE_FLAGS,
-  LAYER_IDS,
-  DEFAULT_SYMBOL_LAYOUT,
-  DEFAULT_SYMBOL_PAINT,
-} from '../constants';
-import { useFeatureFlag } from '../hooks';
+import { LAYER_IDS, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
@@ -89,8 +81,6 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
     ...mapUserLayoutConfig,
   };
 
-  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
-
   useEffect(() => {
     addFeatureCollectionImagesToMap(symbols);
   }, [symbols]);
@@ -127,14 +117,6 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
   const symbolData = {
     type: 'geojson',
     data: symbols,
-    ...(clusteringFeatureFlagEnabled ?
-      {
-        cluster: true,
-        clusterMaxZoom: CLUSTERS_MAX_ZOOM,
-        clusterRadius: CLUSTERS_RADIUS,
-      }:
-      {}
-    ),
   };
 
   return <Fragment>
@@ -154,7 +136,6 @@ const FeatureLayer = ({ symbols, lines, polygons, onFeatureSymbolClick, mapUserL
       id={FEATURE_SYMBOLS}
       before={TOPMOST_STYLE_LAYER}
       paint={symbolPaint} layout={layout}
-      {...(clusteringFeatureFlagEnabled ? { filter: ['!has', 'point_count'] } : {})}
       onMouseEnter={onSymbolMouseEnter}
       onMouseLeave={onSymbolMouseLeave}
       onClick={onSymbolClick} />

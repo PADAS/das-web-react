@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import centroid from '@turf/centroid';
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
-import explode from '@turf/explode';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 import PropTypes from 'prop-types';
@@ -14,7 +13,6 @@ import {
   LAYER_IDS,
   SUBJECT_FEATURE_CONTENT_TYPE,
 } from '../constants';
-import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { hashCode } from '../utils/string';
@@ -261,10 +259,8 @@ const ClustersLayer = ({
   map,
   onEventClick,
   onSubjectClick,
-  onPointClick,
   showPopup,
   subjectFeatureCollection,
-  pointFeaturesCollection,
 }) => {
   const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon(
     CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION,
@@ -280,18 +276,12 @@ const ClustersLayer = ({
     coordinates,
     onSelectEvent: onEventClick,
     onSelectSubject: onSubjectClick,
-    onSelectPoint: onPointClick,
-  }), [onEventClick, onSubjectClick, onPointClick, showPopup]);
-
-  const pointSymbolFeatures = pointFeaturesCollection.features.reduce(
-    (pointSymbolFeatures, multiPointFeature) => [...pointSymbolFeatures, ...explode(multiPointFeature).features],
-    []
-  );
+  }), [onEventClick, onSubjectClick, showPopup]);
 
   useEffect(() => {
     if (map) {
       const sourceData = {
-        features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features, ...pointSymbolFeatures],
+        features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features],
         type: 'FeatureCollection',
       };
 
@@ -333,7 +323,6 @@ const ClustersLayer = ({
     removeClusterPolygon,
     renderClusterPolygon,
     onShowClusterSelectPopup,
-    pointSymbolFeatures,
     subjectFeatureCollection.features
   ]);
 
@@ -348,13 +337,8 @@ ClustersLayer.propTypes = {
   map: PropTypes.object.isRequired,
   onEventClick: PropTypes.func.isRequired,
   onSubjectClick: PropTypes.func.isRequired,
-  onPointClick: PropTypes.func.isRequired,
   showPopup: PropTypes.func.isRequired,
   subjectFeatureCollection: PropTypes.shape({
-    features: PropTypes.array,
-    type: PropTypes.string,
-  }).isRequired,
-  pointFeaturesCollection: PropTypes.shape({
     features: PropTypes.array,
     type: PropTypes.string,
   }).isRequired,
@@ -363,7 +347,6 @@ ClustersLayer.propTypes = {
 const mapStatetoProps = (state) => ({
   eventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
   subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
-  pointFeaturesCollection: getFeatureSetFeatureCollectionsByType(state).symbolFeatures,
 });
 
 export default connect(mapStatetoProps, { showPopup })(withMap(ClustersLayer));
