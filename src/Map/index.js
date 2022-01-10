@@ -21,6 +21,7 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
 import { calcEventFilterForRequest } from '../utils/event-filter';
+import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -181,6 +182,9 @@ class Map extends Component {
 
       }
       this.debouncedFetchMapEvents();
+    }
+    if (!isEqual(prev.patrolFilter, this.props.patrolFilter)) {
+      this.props.socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
     }
     if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       this.setTrackLengthToEventFilterLowerValue();
@@ -686,7 +690,7 @@ class Map extends Component {
 
 const mapStatetoProps = (state) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, eventTypes } = data;
+  const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap, systemConfig } = view;
 
@@ -703,6 +707,7 @@ const mapStatetoProps = (state) => {
     patrolTrackState,
     popup,
     eventFilter,
+    patrolFilter,
     subjectTrackState,
     showTrackTimepoints,
     showReportsOnMap,
