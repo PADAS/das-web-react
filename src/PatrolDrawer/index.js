@@ -1,17 +1,15 @@
 import React, { useContext } from 'react';
 import Button from 'react-bootstrap/Button';
-import Drawer from 'react-modern-drawer';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 
-import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
+import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
+import Drawer from '../Drawer';
 import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import styles from './styles.module.scss';
-
-import 'react-modern-drawer/dist/index.css';
 
 const NAVIGATION_PLAN_EVENT_KEY = 'plan';
 const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
@@ -49,7 +47,7 @@ const PatrolDrawer = () => {
   // eslint-disable-next-line no-unused-vars
   const { data, isOpen } = drawers[patrolDrawerId];
 
-  return <Drawer className="drawer" open={isOpen} onClose={() => hideDrawer(patrolDrawerId)} direction='right'>
+  return <Drawer className="drawer" isOpen={isOpen} onClose={() => hideDrawer(patrolDrawerId)}>
     <div className={styles.header}>
       Vehicle Patrol
     </div>

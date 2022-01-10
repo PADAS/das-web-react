@@ -12819,11 +12819,6 @@ react-mapbox-gl@4.8.3:
     deep-equal "1.0.1"
     supercluster "^7.0.0"
 
-react-modern-drawer@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/react-modern-drawer/-/react-modern-drawer-1.0.1.tgz#a400c551216b3dffadf93e80f7cc313d30434d13"
-  integrity sha512-Stswd8ETIRTGLJl7aFtu92kXb+7UCPn2mzTvpGWsE1kMXco3dK+PZyw/4NGGwDpesZvwPsz3PFlO1BuVqBZpCg==
-
 react-overlays@^3.0.1:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/react-overlays/-/react-overlays-3.2.0.tgz#ed8335adb0871e701b0fc8396c44dfd2467e7a55"

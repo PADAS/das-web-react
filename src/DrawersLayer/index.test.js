@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import DrawersLayer, { DrawersContext, patrolDrawerId } from './';
 
-describe('AddReport', () => {
+describe('DrawersLayer', () => {
   test('updates the patrol drawer isOpen state when a child triggers showDrawer with patrolDrawerId', async () => {
     const Child = () => {
       const { drawers, showDrawer } = useContext(DrawersContext);
