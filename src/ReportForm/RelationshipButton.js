@@ -2,7 +2,7 @@ import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
+import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { DrawersContext } from '../DrawersLayer';
+import { DrawersContext } from '../DrawerProvider';
 import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';

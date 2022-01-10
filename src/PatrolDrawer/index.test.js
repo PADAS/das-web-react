@@ -2,15 +2,15 @@ import React, { useContext } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import DrawersLayer, { DrawersContext, patrolDrawerId } from '../DrawersLayer';
+import DrawerProvider, { DrawersContext, patrolDrawerId } from '../DrawerProvider';
 import PatrolDrawer from './';
 
 describe('PatrolDrawer', () => {
   test('renders the drawer in the Plan view by default', async () => {
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <PatrolDrawer />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     const planTab = (await screen.findAllByRole('tab'))[0];
@@ -22,9 +22,9 @@ describe('PatrolDrawer', () => {
 
   test('navigates to the Timeline view when user clicks the tab', async () => {
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <PatrolDrawer />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     const timelineTab = (await screen.findAllByRole('tab'))[1];
@@ -39,9 +39,9 @@ describe('PatrolDrawer', () => {
 
   test('navigates to the History view when user clicks the tab', async () => {
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <PatrolDrawer />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     const historyTab = (await screen.findAllByRole('tab'))[2];
@@ -64,10 +64,10 @@ describe('PatrolDrawer', () => {
       </>;
     };
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <DrawerOpenIndicator />
         <PatrolDrawer />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     const drawerOpener = await screen.findByTestId('drawer-opener');

@@ -8,7 +8,7 @@ export const patrolDrawerId = 'patrol';
 
 const defaultDrawersState = { [patrolDrawerId]: { data: null, isOpen: false } };
 
-const DrawersLayer = ({ children }) => {
+const DrawerProvider = ({ children }) => {
   const [drawers, setDrawers] = useState(defaultDrawersState);
 
   const hideDrawer = (drawerId) => setDrawers({ ...drawers, [drawerId]: { data: null, isOpen: false } });
@@ -20,6 +20,6 @@ const DrawersLayer = ({ children }) => {
   </DrawersContext.Provider>;
 };
 
-DrawersLayer.propTypes = { children: PropTypes.node.isRequired };
+DrawerProvider.propTypes = { children: PropTypes.node.isRequired };
 
-export default DrawersLayer;
+export default DrawerProvider;

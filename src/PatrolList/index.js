@@ -5,7 +5,7 @@ import merge from 'lodash/merge';
 // import { findDOMNode } from 'react-dom';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
+import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { sortPatrolList } from '../utils/patrols';

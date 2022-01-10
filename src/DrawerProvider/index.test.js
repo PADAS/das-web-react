@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import DrawersLayer, { DrawersContext, patrolDrawerId } from './';
+import DrawerProvider, { DrawersContext, patrolDrawerId } from '.';
 
-describe('DrawersLayer', () => {
+describe('DrawerProvider', () => {
   test('updates the patrol drawer isOpen state when a child triggers showDrawer with patrolDrawerId', async () => {
     const Child = () => {
       const { drawers, showDrawer } = useContext(DrawersContext);
@@ -16,9 +16,9 @@ describe('DrawersLayer', () => {
     };
 
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <Child />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     expect(await screen.findByText('Patrol drawer is closed')).toBeDefined();
@@ -40,9 +40,9 @@ describe('DrawersLayer', () => {
     };
 
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <Child />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     const button = await screen.findByRole('button');
@@ -63,9 +63,9 @@ describe('DrawersLayer', () => {
     };
 
     render(
-      <DrawersLayer>
+      <DrawerProvider>
         <Child />
-      </DrawersLayer>
+      </DrawerProvider>
     );
 
     const buttons = await screen.findAllByRole('button');

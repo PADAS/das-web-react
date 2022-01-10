@@ -6,7 +6,7 @@ import Tab from 'react-bootstrap/Tab';
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import Drawer from '../Drawer';
-import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
+import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import styles from './styles.module.scss';

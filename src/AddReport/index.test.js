@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import AddReport from './';
 import { createMapMock } from '../__test-helpers/mocks';
 import { createNewReportForEventType, openModalForReport } from '../utils/events';
-import { DrawersContext } from '../DrawersLayer';
+import { DrawersContext } from '../DrawerProvider';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
 

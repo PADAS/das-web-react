@@ -10,7 +10,7 @@ import Select from 'react-select';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import CustomPropTypes from '../proptypes';
-import { DrawersContext, patrolDrawerId } from '../DrawersLayer';
+import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
