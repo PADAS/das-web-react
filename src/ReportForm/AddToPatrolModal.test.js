@@ -40,7 +40,7 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const defaultStoreValue = { view: { }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE }, tracks: {} } };
+const defaultStoreValue = { view: { patrolTrackState: { pinned: [], visible: [] }, trackState: { pinned: [], visible: [] } }, data: { eventTypes, patrolTypes: mockPatrolTypeData, patrolStore: { }, subjectStore: {}, patrols: { ...INITIAL_PATROLS_STATE }, tracks: {} } };
 
 const onAddToPatrol = jest.fn();
 
