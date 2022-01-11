@@ -47,7 +47,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const PatrolDrawer = ({ patrolId }) => {
   const { hideDrawer } = useContext(DrawersContext);
 
-  return <div data-testid="patrolDrawerContainer">
+  return <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
     <div className={styles.header}>
       Vehicle Patrol
     </div>

@@ -1,5 +1,11 @@
 @import '../common/styles/vars/colors';
 
+.patrolDrawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .header {
   height: 5rem;
   padding: 1.125rem 1rem;

@@ -9,8 +9,6 @@
   overflow-x: hidden;
   padding-top: var(--nav-height);
   transition: 0.75s;
-  display: flex;
-  flex-direction: column;
 
   &[class*=open] {
     width: var(--sidebar-width);
