@@ -18,10 +18,12 @@ const mockSubjectValues = [
   { subject_subtype: 'ranger', subject_type: 'person', image_url: '/static/ranger-black.svg' },
   { subject_subtype: 'rhino', subject_type: 'wildlife', image_url: '/static/rhino-black-male.svg' },
   { subject_subtype: 'zebra', subject_type: 'wildlife', image_url: '/static/zebra-black-male.svg' },
-  { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
+  { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/static-door.svg' },
+  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/static-gas-tank.svg' },
   { subject_subtype: 'fuel_tank', subject_type: 'static_sensor', image_url: null },
   { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
+  { subject_subtype: 'gate', subject_type: 'static_sensor', image_url: '/static/static-gate.svg' },
+  { subject_subtype: 'gate', subject_type: 'static_sensor', image_url: null },
 ];
 
 const staticSensorProperties = [
