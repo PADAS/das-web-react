@@ -32,32 +32,30 @@ const IMAGE_DATA = {
   }
 };
 
+const addDefaultStatusValue = (features = [], isTimeSliderActive) => {
+  return features.map(feature => {
+    const { properties, properties: { device_status_properties = [] } } = feature;
+    const defaultProperty = device_status_properties.find(deviceProperty => deviceProperty?.default ?? false);
+    if (isEmpty(defaultProperty)) return feature;
+
+    let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No data' : `${defaultProperty.value} ${defaultProperty.units}`);
+
+    if (!properties?.image?.length) {
+      featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label);
+    }
+
+    return featureWithDefaultValue;
+  });
+};
+
 const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
-  const addDefaultStatusValue = useCallback((features = []) => {
-    return features.map(feature => {
-      if (isTimeSliderActive) return set(feature, 'properties.default_status_value', 'No data');
-
-      const { properties, properties: { device_status_properties = [] } } = feature;
-      const defaultProperty = device_status_properties.find(deviceProperty => deviceProperty?.default ?? false);
-      if (isEmpty(defaultProperty)) return feature;
-
-      let featureWithDefaultValue = set(feature, 'properties.default_status_value', `${defaultProperty.value} ${defaultProperty.units}`);
-
-      if (!properties?.image?.length) {
-        featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label);
-      }
-
-      return featureWithDefaultValue;
-    });
-  }, [isTimeSliderActive]);
-
   useEffect(() => {
-    setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
-  }, [addDefaultStatusValue, staticSensors]);
+    setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features, isTimeSliderActive) } });
+  }, [isTimeSliderActive, staticSensors]);
 
   useEffect(() => {
     if (!!staticSensors?.features?.length) {
