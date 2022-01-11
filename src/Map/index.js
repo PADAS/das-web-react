@@ -76,7 +76,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-const { EVENT_CLUSTERS_CIRCLES, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
+const { EVENT_CLUSTERS_CIRCLES } = LAYER_IDS;
 class Map extends Component {
 
   constructor(props) {
