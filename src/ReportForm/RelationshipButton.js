@@ -45,9 +45,9 @@ const RelationshipButton = (props) => {
 
     reportTracker.track('Click \'Go to Patrol\' button');
 
-    return fetchPatrol(patrolId).then(({ data: { data } }) => {
+    return fetchPatrol(patrolId).then(() => {
       removeModal();
-      showDrawer(patrolDrawerId, data);
+      showDrawer(patrolDrawerId, patrolId);
     });
   }, [fetchPatrol, removeModal, report.patrols, reportTracker, showDrawer]);
 

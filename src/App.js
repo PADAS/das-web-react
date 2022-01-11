@@ -22,7 +22,6 @@ import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 
 import DrawerProvider from './DrawerProvider';
-import PatrolDrawer from './PatrolDrawer';
 import SideBar from './SideBar';
 import PrintTitle from './PrintTitle';
 import ModalRenderer from './ModalRenderer';
@@ -203,8 +202,6 @@ const App = (props) => {
           <ReportTypeIconSprite id="reportTypeIconSprite" />
           <EarthRangerLogoSprite />
         </div>
-
-        <PatrolDrawer />
 
         <ServiceWorkerWatcher />
       </DrawerProvider>

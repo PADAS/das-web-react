@@ -5,14 +5,11 @@ import userEvent from '@testing-library/user-event';
 import DrawerProvider, { DrawersContext, patrolDrawerId } from '.';
 
 describe('DrawerProvider', () => {
-  test('updates the patrol drawer isOpen state when a child triggers showDrawer with patrolDrawerId', async () => {
+  test('shows the patrol drawer when triggering showDrawer', async () => {
     const Child = () => {
-      const { drawers, showDrawer } = useContext(DrawersContext);
+      const { showDrawer } = useContext(DrawersContext);
 
-      return <>
-        <button onClick={() => showDrawer(patrolDrawerId)} />
-        <p>Patrol drawer is {drawers[patrolDrawerId].isOpen ? 'open' : 'closed'}</p>
-      </>;
+      return <button onClick={() => showDrawer(patrolDrawerId)} />;
     };
 
     render(
@@ -21,44 +18,21 @@ describe('DrawerProvider', () => {
       </DrawerProvider>
     );
 
-    expect(await screen.findByText('Patrol drawer is closed')).toBeDefined();
+    expect(await screen.findByTestId('drawerContainer')).not.toHaveClass('open');
 
     const button = await screen.findByRole('button');
     userEvent.click(button);
 
-    expect(await screen.findByText('Patrol drawer is open')).toBeDefined();
+    expect(await screen.findByTestId('drawerContainer')).toHaveClass('open');
   });
 
-  test('updates the patrol drawer data state when a child triggers showDrawer with patrolDrawerId', async () => {
+  test('hides the patrol drawer when triggering hideDrawer', async () => {
     const Child = () => {
-      const { drawers, showDrawer } = useContext(DrawersContext);
-
-      return <>
-        <button onClick={() => showDrawer(patrolDrawerId, 'Data ready')} />
-        <p>{drawers[patrolDrawerId].data}</p>
-      </>;
-    };
-
-    render(
-      <DrawerProvider>
-        <Child />
-      </DrawerProvider>
-    );
-
-    const button = await screen.findByRole('button');
-    userEvent.click(button);
-
-    expect(await screen.findByText('Data ready')).toBeDefined();
-  });
-
-  test('updates the patrol drawer isOpen state when a child triggers hideDrawer with patrolDrawerId', async () => {
-    const Child = () => {
-      const { drawers, hideDrawer, showDrawer } = useContext(DrawersContext);
+      const { hideDrawer, showDrawer } = useContext(DrawersContext);
 
       return <>
         <button onClick={() => showDrawer(patrolDrawerId)} />
-        <button onClick={() => hideDrawer(patrolDrawerId)} />
-        <p>Patrol drawer is {drawers[patrolDrawerId].isOpen ? 'open' : 'closed'}</p>
+        <button onClick={() => hideDrawer()} />
       </>;
     };
 
@@ -71,10 +45,69 @@ describe('DrawerProvider', () => {
     const buttons = await screen.findAllByRole('button');
     userEvent.click(buttons[0]);
 
-    expect(await screen.findByText('Patrol drawer is open')).toBeDefined();
+    expect(await screen.findByTestId('drawerContainer')).toHaveClass('open');
 
     userEvent.click(buttons[1]);
 
-    expect(await screen.findByText('Patrol drawer is closed')).toBeDefined();
+    expect(await screen.findByTestId('drawerContainer')).not.toHaveClass('open');
+  });
+
+  test('assigns the direction class to the right by default', async () => {
+    const Child = () => {
+      const { showDrawer } = useContext(DrawersContext);
+
+      return <button onClick={() => showDrawer(patrolDrawerId)} />;
+    };
+
+    render(
+      <DrawerProvider>
+        <Child />
+      </DrawerProvider>
+    );
+
+    const button = await screen.findByRole('button');
+    userEvent.click(button);
+
+    expect(await screen.findByTestId('drawerContainer')).toHaveClass('direction-right');
+  });
+
+  test('assigns the direction class to the left', async () => {
+    const Child = () => {
+      const { showDrawer } = useContext(DrawersContext);
+
+      return <button onClick={() => showDrawer(patrolDrawerId, null, 'left')} />;
+    };
+
+    render(
+      <DrawerProvider>
+        <Child />
+      </DrawerProvider>
+    );
+
+    const button = await screen.findByRole('button');
+    userEvent.click(button);
+
+    expect(await screen.findByTestId('drawerContainer')).toHaveClass('direction-left');
+  });
+
+  test('renders the PatrolDrawer when showing drawer the patrolDrawerId', async () => {
+    const Child = () => {
+      const { showDrawer } = useContext(DrawersContext);
+
+      return <button onClick={() => showDrawer(patrolDrawerId, null, 'left')} />;
+    };
+
+    render(
+      <DrawerProvider>
+        <Child />
+      </DrawerProvider>
+    );
+
+    expect(await screen.queryByTestId('patrolDrawerContainer')).toBeNull();
+
+    const button = await screen.findByRole('button');
+    userEvent.click(button);
+
+    expect(await screen.findByTestId('patrolDrawerContainer')).toBeDefined();
   });
 });

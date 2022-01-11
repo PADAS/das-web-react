@@ -1,13 +1,14 @@
 import React, { useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
+import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
-import Drawer from '../Drawer';
-import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
+
+import { DrawersContext } from '../DrawerProvider';
 
 import styles from './styles.module.scss';
 
@@ -41,13 +42,12 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 //     }));
 // };
 
-const PatrolDrawer = () => {
-  const { drawers, hideDrawer } = useContext(DrawersContext);
-  // TODO: remove eslint disable once data is used
-  // eslint-disable-next-line no-unused-vars
-  const { data, isOpen } = drawers[patrolDrawerId];
+// TODO: Read patrol data from redux
+// eslint-disable-next-line no-unused-vars
+const PatrolDrawer = ({ patrolId }) => {
+  const { hideDrawer } = useContext(DrawersContext);
 
-  return <Drawer className="drawer" isOpen={isOpen} onClose={() => hideDrawer(patrolDrawerId)}>
+  return <div data-testid="patrolDrawerContainer">
     <div className={styles.header}>
       Vehicle Patrol
     </div>
@@ -94,7 +94,7 @@ const PatrolDrawer = () => {
         <div className={styles.footer}>
           <Button
             className={styles.exitButton}
-            onClick={() => hideDrawer(patrolDrawerId)}
+            onClick={() => hideDrawer()}
             type="button"
             variant="secondary"
           >
@@ -103,7 +103,11 @@ const PatrolDrawer = () => {
         </div>
       </div>
     </Tab.Container>
-  </Drawer>;
+  </div>;
 };
+
+PatrolDrawer.defaultProps = { patrolId: null };
+
+PatrolDrawer.propTypes = { patrolId: PropTypes.string };
 
 export default PatrolDrawer;

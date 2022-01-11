@@ -21,3 +21,19 @@
     right: auto;
   }
 }
+
+.outsideDrawer {
+  width: 100%;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  position: fixed;
+  z-index: 1;
+  display: none;
+
+  &[class*=open] {
+    display: block;
+    background-color: black;
+    opacity: 0.4;
+  }
+}
