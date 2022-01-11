@@ -22,6 +22,8 @@ export const BACKGROUND_LAYER = {
     ],
     'text-field': [
       'case',
+      ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
+      ['get', 'name'],
       ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
       ['format',
         ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
@@ -71,6 +73,8 @@ export const LABELS_LAYER = {
     'text-justify': 'center',
     'text-field': [
       'case',
+      ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
+      ['get', 'name'],
       ['==', ['get', 'image'], null],
       ['format',
         ['get', 'default_status_value'],

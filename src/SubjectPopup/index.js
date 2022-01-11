@@ -68,7 +68,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       <div>
         <div className={styles.defaultStatusProperty}>
           {properties.default_status_value && <>
-            {properties.image && <img src={properties.image} alt={`Radio icon for ${properties.name}`} />}
+            {properties.image && <img src={properties.image} alt={`Subject icon for ${properties.name}`} />}
             <span>{properties.default_status_value}</span>
           </>}
           <h6>{properties.name}</h6>
