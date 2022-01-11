@@ -1,6 +1,6 @@
 import React, { forwardRef, memo } from 'react';
-import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
+import PropTypes from 'prop-types';
 import LoadingOverlay from '../LoadingOverlay';
 import styles from './styles.module.scss';
 
