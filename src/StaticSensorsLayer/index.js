@@ -4,7 +4,6 @@ import { Provider, connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import mapboxgl from 'mapbox-gl';
 import set from 'lodash/set';
-import unset from 'lodash/unset';
 import isEmpty from 'lodash/isEmpty';
 
 import store from '../store';
@@ -153,7 +152,6 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
 
 const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
 
-// export default memo(StaticSensorsLayer);
 export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
