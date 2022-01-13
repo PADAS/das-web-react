@@ -1,9 +1,10 @@
 import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Provider } from 'react-redux';
+import { Provider, connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import mapboxgl from 'mapbox-gl';
 import set from 'lodash/set';
+import unset from 'lodash/unset';
 import isEmpty from 'lodash/isEmpty';
 
 import store from '../store';
@@ -32,30 +33,31 @@ const IMAGE_DATA = {
   }
 };
 
-const addDefaultStatusValue = (features = [], isTimeSliderActive) => {
-  return features.map(feature => {
-    const { properties, properties: { device_status_properties = [] } } = feature;
-    const defaultProperty = device_status_properties.find(deviceProperty => deviceProperty?.default ?? false);
-    if (isEmpty(defaultProperty)) return feature;
-
-    let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No data' : `${defaultProperty.value} ${defaultProperty.units}`);
-
-    if (!properties?.image?.length) {
-      featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label);
-    }
-
-    return featureWithDefaultValue;
-  });
-};
-
-const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
+const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
+  const addDefaultStatusValue = useCallback((features = []) => {
+    return features.map(feature => {
+      const { properties, properties: { device_status_properties = [] } } = feature;
+      const defaultProperty = device_status_properties.find(deviceProperty => deviceProperty?.default ?? false);
+      if (isEmpty(defaultProperty)) return feature;
+
+      let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No data' : `${defaultProperty.value} ${defaultProperty.units}`);
+      featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
+
+      if (!properties?.image?.length) {
+        featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label) ;
+      }
+
+      return featureWithDefaultValue;
+    });
+  }, [isDataInMapSimplified, isTimeSliderActive]);
+
   useEffect(() => {
-    setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features, isTimeSliderActive) } });
-  }, [isTimeSliderActive, staticSensors]);
+    setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
+  }, [addDefaultStatusValue, staticSensors]);
 
   useEffect(() => {
     if (!!staticSensors?.features?.length) {
@@ -113,6 +115,9 @@ const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
         layout: layout,
         paint: paint
       });
+
+      map.on('mouseenter', layerID, () => map.getCanvas().style.cursor = 'pointer');
+      map.on('mouseleave', layerID, () => map.getCanvas().style.cursor = '');
     }
   }, [map]);
 
@@ -133,6 +138,7 @@ const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
         }
 
         const layerID = `${LAYER_ID}${feature.properties.id}`;
+
         if (!map.getLayer(layerID)) {
           createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
           createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
@@ -140,12 +146,15 @@ const StaticSensorsLayer = ({ staticSensors, isTimeSliderActive }) => {
         }
       });
     }
-  }, [createLayer, map, onLayerClick, sensorsWithDefaultValue]);
+  }, [createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue]);
 
   return null;
 };
 
-export default memo(StaticSensorsLayer);
+const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
+
+// export default memo(StaticSensorsLayer);
+export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
 
 StaticSensorsLayer.propTypes = {
   staticSensors: PropTypes.object.isRequired,

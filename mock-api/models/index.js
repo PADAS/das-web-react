@@ -19,11 +19,14 @@ const mockSubjectValues = [
   { subject_subtype: 'rhino', subject_type: 'wildlife', image_url: '/static/rhino-black-male.svg' },
   { subject_subtype: 'zebra', subject_type: 'wildlife', image_url: '/static/zebra-black-male.svg' },
   { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/static-door.svg' },
-  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/static-gas-tank.svg' },
-  { subject_subtype: 'fuel_tank', subject_type: 'static_sensor', image_url: null },
-  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
+  { subject_subtype: 'river flow', subject_type: 'static_sensor', image_url: '/static/static-gas-tank.svg' },
+  { subject_subtype: 'fuel tank', subject_type: 'static_sensor', image_url: '/static/static-gas-tank.svg' },
+  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/static-fence.svg' },
+  { subject_subtype: 'water tank', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
   { subject_subtype: 'gate', subject_type: 'static_sensor', image_url: '/static/static-gate.svg' },
-  { subject_subtype: 'gate', subject_type: 'static_sensor', image_url: null },
+  { subject_subtype: 'water gauge', subject_type: 'static_sensor', image_url: '/static/static-water-gauge.svg' },
+  { subject_subtype: 'weather', subject_type: 'static_sensor', image_url: '/static/static-weather.svg' },
+  { subject_subtype: 'static', subject_type: 'static_sensor', image_url: null },
 ];
 
 const staticSensorProperties = [
