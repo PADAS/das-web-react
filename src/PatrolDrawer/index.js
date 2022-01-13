@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import { connect } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
@@ -8,7 +9,11 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
+import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
 import { DrawersContext } from '../DrawerProvider';
+
+import Header from './Header';
 
 import styles from './styles.module.scss';
 
@@ -42,15 +47,27 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 //     }));
 // };
 
-// TODO: Read patrol data from redux
+// TODO: unused variables will be useful later
 // eslint-disable-next-line no-unused-vars
-const PatrolDrawer = ({ patrolId }) => {
+const PatrolDrawer = ({ patrol, leader, trackData, startStopGeometries }) => {
   const { hideDrawer } = useContext(DrawersContext);
 
+  const [patrolForm, setPatrolForm] = useState(patrol);
+
+  useEffect(() => {
+    setPatrolForm(patrol);
+  }, [patrol]);
+
+  const iconId = iconTypeForPatrol(patrolForm);
+  const displayTitle = displayTitleForPatrol(patrolForm, leader);
+
   return <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
-    <div className={styles.header}>
-      Vehicle Patrol
-    </div>
+    <Header
+      iconId={iconId}
+      serialNumber={patrol.serial_number}
+      setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}
+      title={displayTitle}
+    />
 
     <Tab.Container defaultActiveKey={NAVIGATION_PLAN_EVENT_KEY}>
       <div className={styles.body}>
@@ -106,8 +123,26 @@ const PatrolDrawer = ({ patrolId }) => {
   </div>;
 };
 
-PatrolDrawer.defaultProps = { patrolId: null };
+PatrolDrawer.propTypes = {
+  patrol: PropTypes.shape({
+    icon_id: PropTypes.string,
+    patrol_segments: PropTypes.array,
+    serial_number: PropTypes.number,
+    title: PropTypes.string,
+  }).isRequired,
+  leader: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  trackData: PropTypes.shape({}).isRequired,
+  startStopGeometries: PropTypes.shape({}).isRequired,
+};
 
-PatrolDrawer.propTypes = { patrolId: PropTypes.string };
+const mapStateToProps = (state, props) => {
+  const patrol = !!props.patrolId
+    ? getPatrolList(state).results.find((patrol) => patrol.id === props.patrolId)
+    : props.newPatrol;
 
-export default PatrolDrawer;
+  return createPatrolDataSelector()(state, { patrol });
+};
+
+export default connect(mapStateToProps)(PatrolDrawer);

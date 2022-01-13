@@ -1,0 +1,54 @@
+@import '../../common/styles/vars/colors';
+
+.header {
+  display: flex;
+  align-items: center;
+  height: 5rem;
+  width: 100%;
+  background-color: $very-light-gray;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.icon {
+  text-align: center;
+  width: 4.5rem;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+    fill: $dark-gray;
+  }
+}
+
+.serialNumber {
+  font-size: 1rem;
+  color: $secondary-medium-gray;
+  margin: 0 0.75rem;
+}
+
+.titleInput[type=text] {
+  font-size: 1.375rem;
+  font-weight: 500;
+  color: $dark-gray;
+  background-color: $very-light-gray;
+  border: none;
+  border-bottom: 1px dashed $secondary-light-gray;
+  width: 12.5rem;
+}
+
+.startPatrolButton {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  background-color: $green;
+  border-color: $green;
+  height: 2.75rem;
+  margin-left: auto;
+  margin-right: 1rem;
+
+  svg {
+    width: 0.75rem;
+    margin-right: 0.5rem;
+  }
+}

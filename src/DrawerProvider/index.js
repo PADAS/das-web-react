@@ -24,7 +24,7 @@ const DrawerProvider = ({ children }) => {
       className={`${styles.drawer} ${!!drawer.isOpen ? 'open' : ''} direction-${drawer.direction}`}
       data-testid="drawerContainer"
     >
-      {drawer.drawerId === patrolDrawerId && <PatrolDrawer patrolId={drawer.data} />}
+      {drawer.drawerId === patrolDrawerId && <PatrolDrawer {...drawer.data} />}
     </div>
   </DrawersContext.Provider>;
 };

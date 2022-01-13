@@ -47,7 +47,7 @@ const RelationshipButton = (props) => {
 
     return fetchPatrol(patrolId).then(() => {
       removeModal();
-      showDrawer(patrolDrawerId, patrolId);
+      showDrawer(patrolDrawerId, { patrolId });
     });
   }, [fetchPatrol, removeModal, report.patrols, reportTracker, showDrawer]);
 
