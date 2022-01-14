@@ -2,15 +2,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
 
-import ClustersLayer, {
+import {
   addNewClusterMarkers,
   onClusterClick,
   createClusterHTMLMarker,
   getClusterIconFeatures,
   getRenderedClustersData,
   removeOldClusterMarkers,
-  UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME,
-} from '.';
+} from './utils';
+import ClustersLayer, { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME } from '.';
 import { createMapMock } from '../__test-helpers/mocks';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -167,7 +167,7 @@ describe('ClustersLayer', () => {
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
         center: [-103.38315141, 20.677884013333337],
-        zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1,
+        zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
       });
     }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
   });
@@ -212,8 +212,7 @@ describe('ClustersLayer', () => {
 
       expect(clusterIconFeatures[0].properties.content_type).toBe('observations.subject');
       expect(clusterIconFeatures[1].properties.event_type).toBeTruthy();
-      expect(clusterIconFeatures[2].properties.content_type).toBeUndefined();
-      expect(clusterIconFeatures[2].properties.event_type).toBeUndefined();
+      expect(clusterIconFeatures[2].properties.content_type).toBe('observations.subject');
     });
 
     test('returns three features of the same type if there are no others', () => {
@@ -348,7 +347,7 @@ describe('ClustersLayer', () => {
       )();
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
-      expect(map.easeTo).toHaveBeenCalledWith({ center: clusterCoordinates, zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1 });
+      expect(map.easeTo).toHaveBeenCalledWith({ center: clusterCoordinates, zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1 });
     });
 
     test('triggers onShowClusterSelectPopup if the current zoom is equal or greater than the threshold', () => {

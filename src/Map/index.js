@@ -35,7 +35,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, FEATURE_FLAGS, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import { BREAKPOINTS, REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
 import ClustersLayer from '../ClustersLayer';
 import DelayedUnmount from '../DelayedUnmount';
@@ -336,7 +336,7 @@ class Map extends Component {
   }
   onMapClick = this.withLocationPickerState((map, event) => {
     let hidePopup;
-    if (this.props.systemConfig[FEATURE_FLAGS.CLUSTERING]) {
+    if (REACT_APP_ENABLE_CLUSTERING) {
       const clusterApproxGeometry = [
         [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
         [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
@@ -667,7 +667,7 @@ class Map extends Component {
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
 
-            {this.props.systemConfig[FEATURE_FLAGS.CLUSTERING] && <ClustersLayer
+            {REACT_APP_ENABLE_CLUSTERING && <ClustersLayer
               onEventClick={this.onEventSymbolClick}
               onSubjectClick={this.onMapSubjectClick}
             />}
@@ -691,7 +691,7 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap, systemConfig } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
@@ -721,7 +721,6 @@ const mapStatetoProps = (state) => {
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
     userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
-    systemConfig,
   });
 };
 

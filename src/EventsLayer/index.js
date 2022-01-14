@@ -14,9 +14,9 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import {
+  REACT_APP_ENABLE_CLUSTERING,
   CLUSTERS_MAX_ZOOM,
   CLUSTERS_RADIUS,
-  FEATURE_FLAGS,
   LAYER_IDS,
   MAX_ZOOM,
   DEFAULT_SYMBOL_LAYOUT,
@@ -26,7 +26,6 @@ import {
   SYMBOL_TEXT_SIZE_EXPRESSION,
 } from '../constants';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
-import { useFeatureFlag } from '../hooks';
 
 export const CLUSTER_CONFIG = {
   cluster: true,
@@ -92,8 +91,6 @@ const FONT_SCALE_RATE = 1.75;
 
 const EventsLayer = (props) => {
   const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [] } = props;
-
-  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
 
   const { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon } = useClusterBufferPolygon(
     { ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION, minZoom },
@@ -272,7 +269,7 @@ const EventsLayer = (props) => {
   const sourceData = {
     type: 'geojson',
     data: mapEventFeatureCollection,
-    ...(clusteringFeatureFlagEnabled ?
+    ...(REACT_APP_ENABLE_CLUSTERING ?
       {
         cluster: true,
         clusterMaxZoom: CLUSTERS_MAX_ZOOM,
@@ -288,16 +285,16 @@ const EventsLayer = (props) => {
   };
 
   return <Fragment>
-    {!clusteringFeatureFlagEnabled && <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />}
+    {!REACT_APP_ENABLE_CLUSTERING && <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />}
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
 
-    {(clusteringFeatureFlagEnabled || !enableClustering) && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
+    {(REACT_APP_ENABLE_CLUSTERING || !enableClustering) && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
       id={EVENT_SYMBOLS} onClick={handleEventClick}
       onInit={setEventSymbolLayerIDs}
-      {...(clusteringFeatureFlagEnabled ? { filter: ['!has', 'point_count'] } : {})}
+      {...(REACT_APP_ENABLE_CLUSTERING ? { filter: ['!has', 'point_count'] } : {})}
     />}
 
-    {!clusteringFeatureFlagEnabled && enableClustering && <Fragment>
+    {!REACT_APP_ENABLE_CLUSTERING && enableClustering && <Fragment>
       <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-clustered' type='symbol'
         id={EVENT_SYMBOLS} filter={['!has', 'point_count']} onClick={handleEventClick}
         onInit={setEventSymbolLayerIDs}

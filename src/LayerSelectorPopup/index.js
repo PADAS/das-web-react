@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { useFeatureFlag } from '../hooks';
+import { REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 
 import SearchBar from '../SearchBar';
 
@@ -14,8 +13,6 @@ const { EVENT_SYMBOLS } = LAYER_IDS;
 
 const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   const { layers: layerList, onSelectSubject, onSelectEvent } = data;
-
-  const clusteringFeatureFlagEnabled = useFeatureFlag(FEATURE_FLAGS.CLUSTERING);
 
   const [filter, setFilter] = useState('');
 
@@ -39,7 +36,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [filter, layerList]);
 
   const itemCountString = useMemo(() => {
-    if (clusteringFeatureFlagEnabled) return null;
+    if (REACT_APP_ENABLE_CLUSTERING) return null;
 
     const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
     const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
@@ -56,7 +53,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
       string+= `${eventCount} report${eventCount > 1 ? 's' : ''}`;
     }
     return string;
-  }, [clusteringFeatureFlagEnabled, layers]);
+  }, [layers]);
 
   const showFilterInput = useMemo(() => layerList.length > 5, [layerList.length]);
 
@@ -77,7 +74,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [hidePopup, id, onSelectEvent, onSelectSubject]);
 
   return <>
-    {!clusteringFeatureFlagEnabled && <h6>
+    {!REACT_APP_ENABLE_CLUSTERING && <h6>
       {itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}
     </h6>}
 

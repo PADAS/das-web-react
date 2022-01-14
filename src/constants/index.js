@@ -17,6 +17,9 @@ export const {
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
+const { REACT_APP_ENABLE_CLUSTERING: REACT_APP_ENABLE_CLUSTERING_STRING } = process.env;
+export const REACT_APP_ENABLE_CLUSTERING = REACT_APP_ENABLE_CLUSTERING_STRING === 'true';
+
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
 export const GA_EVENT_CATEGORIES = {
@@ -127,7 +130,6 @@ export const FEATURE_FLAGS = {
   EULA: 'eula_enabled',
   KML_EXPORT: 'export_kml_enabled',
   TABLEAU: 'tableau_enabled',
-  CLUSTERING: 'clustering_enabled',
 };
 
 export const SOURCE_IDS = {
