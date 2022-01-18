@@ -1,10 +1,10 @@
-import React, { Fragment, memo, useEffect, useContext, useMemo, useState, useRef, useCallback } from 'react';
+import React, { Fragment, memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
+import { patrolDrawerId } from '../Drawer';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
@@ -17,6 +17,7 @@ import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
+import { showDrawer } from '../ducks/drawer';
 
 import EventIcon from '../EventIcon';
 
@@ -44,9 +45,7 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
-
-  const { showDrawer } = useContext(DrawersContext);
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, showDrawer, isPatrolReport } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -557,6 +556,7 @@ export default memo(
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
+        showDrawer,
       }
     )
     (ReportForm)
@@ -579,4 +579,5 @@ ReportForm.propTypes = {
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
+  showDrawer: PropTypes.func,
 };

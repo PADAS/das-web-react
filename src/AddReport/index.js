@@ -10,10 +10,11 @@ import Select from 'react-select';
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import CustomPropTypes from '../proptypes';
-import { DrawersContext, patrolDrawerId } from '../DrawerProvider';
+import { patrolDrawerId } from '../Drawer';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { showDrawer } from '../ducks/drawer';
 import { trackEvent } from '../utils/analytics';
 import { generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
@@ -167,9 +168,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
 const AddReport = (props) => {
   const { analyticsMetadata, className = '', formProps, patrolTypes, reportData, eventsByCategory,
-    map, popoverPlacement, showLabel, showIcon, title, clickSideEffect } = props;
-
-  const { showDrawer } = useContext(DrawersContext);
+    map, popoverPlacement, showDrawer, showLabel, showIcon, title, clickSideEffect } = props;
 
   const { hidePatrols } = formProps;
 
@@ -273,7 +272,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, null)(memo(AddReport));
+export default connect(mapStateToProps, { showDrawer })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -313,4 +312,5 @@ AddReport.propTypes = {
     hidePatrols: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
+  showDrawer: PropTypes.func.isRequired,
 };

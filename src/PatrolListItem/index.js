@@ -108,7 +108,6 @@ const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, ma
 
     if (!patrolTrackIsVisible
     || (!!leader && !leaderTrackIsVisible)) {
-      console.log({ trackState, patrolTrackState });
       trackToggleButtonRef?.current?.click();
     }
 
