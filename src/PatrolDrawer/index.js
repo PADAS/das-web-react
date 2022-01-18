@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
@@ -11,7 +11,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 
 import { displayTitleForPatrol } from '../utils/patrols';
 import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
-import { DrawersContext } from '../DrawerProvider';
+import { hideDrawer } from '../ducks/drawer';
 
 import Header from './Header';
 
@@ -49,9 +49,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 // TODO: unused variables will be useful later
 // eslint-disable-next-line no-unused-vars
-const PatrolDrawer = ({ patrol, leader, trackData, startStopGeometries }) => {
-  const { hideDrawer } = useContext(DrawersContext);
-
+const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometries }) => {
   const [patrolForm, setPatrolForm] = useState();
 
   useEffect(() => {
@@ -126,6 +124,7 @@ const PatrolDrawer = ({ patrol, leader, trackData, startStopGeometries }) => {
 };
 
 PatrolDrawer.propTypes = {
+  hideDrawer: PropTypes.func.isRequired,
   leader: PropTypes.shape({
     name: PropTypes.string,
   }).isRequired,
@@ -147,4 +146,4 @@ const mapStateToProps = (state, props) => {
   return createPatrolDataSelector()(state, { patrol });
 };
 
-export default connect(mapStateToProps)(PatrolDrawer);
+export default connect(mapStateToProps, { hideDrawer })(PatrolDrawer);

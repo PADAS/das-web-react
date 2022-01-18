@@ -3,7 +3,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { DrawersContext } from '../DrawerProvider';
 import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
@@ -61,11 +60,9 @@ describe('SubjectPopup', () => {
 
     map = createMapMock();
     render(
-      <DrawersContext.Provider value={{}}>
-        <Provider store={store}>
-          <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
-        </Provider>
-      </DrawersContext.Provider>
+      <Provider store={store}>
+        <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
+      </Provider>
     );
   });
 
@@ -93,11 +90,9 @@ describe('SubjectPopup', () => {
 
     test('listing individual device properties', async () => {
       render(
-        <DrawersContext.Provider value={{}}>
-          <Provider store={store}>
-            <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
-          </Provider>
-        </DrawersContext.Provider>
+        <Provider store={store}>
+          <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+        </Provider>
       );
 
       const [statusProp] = subjectFeatureWithOneDeviceProp.properties.device_status_properties;
@@ -110,11 +105,9 @@ describe('SubjectPopup', () => {
 
     test('render additional props with boolean values', async () => {
       render(
-        <DrawersContext.Provider value={{}}>
-          <Provider store={store}>
-            <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
-          </Provider>
-        </DrawersContext.Provider>
+        <Provider store={store}>
+          <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+        </Provider>
       );
 
       const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
