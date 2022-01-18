@@ -9,7 +9,7 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
-import { displayTitleForPatrol, iconTypeForPatrol } from '../utils/patrols';
+import { displayTitleForPatrol } from '../utils/patrols';
 import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
 import { DrawersContext } from '../DrawerProvider';
 
@@ -52,21 +52,23 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const PatrolDrawer = ({ patrol, leader, trackData, startStopGeometries }) => {
   const { hideDrawer } = useContext(DrawersContext);
 
-  const [patrolForm, setPatrolForm] = useState(patrol);
+  const [patrolForm, setPatrolForm] = useState();
 
   useEffect(() => {
-    setPatrolForm(patrol);
-  }, [patrol]);
+    setPatrolForm({
+      ...patrol,
+      title: displayTitleForPatrol(patrol, leader)
+    });
+  }, [leader, patrol]);
 
-  const iconId = iconTypeForPatrol(patrolForm);
-  const displayTitle = displayTitleForPatrol(patrolForm, leader);
-
-  return <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
+  return !!patrolForm && <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
     <Header
-      iconId={iconId}
-      serialNumber={patrol.serial_number}
+      patrol={patrol}
+      // TODO: Implement functions
+      restorePatrol={() => {}}
+      startPatrol={() => {}}
       setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}
-      title={displayTitle}
+      title={patrolForm.title}
     />
 
     <Tab.Container defaultActiveKey={NAVIGATION_PLAN_EVENT_KEY}>
@@ -124,17 +126,17 @@ const PatrolDrawer = ({ patrol, leader, trackData, startStopGeometries }) => {
 };
 
 PatrolDrawer.propTypes = {
+  leader: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
   patrol: PropTypes.shape({
     icon_id: PropTypes.string,
     patrol_segments: PropTypes.array,
     serial_number: PropTypes.number,
     title: PropTypes.string,
   }).isRequired,
-  leader: PropTypes.shape({
-    name: PropTypes.string,
-  }).isRequired,
-  trackData: PropTypes.shape({}).isRequired,
   startStopGeometries: PropTypes.shape({}).isRequired,
+  trackData: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = (state, props) => {

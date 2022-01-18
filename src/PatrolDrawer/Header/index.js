@@ -1,38 +1,106 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
+import usePatrol from '../../hooks/usePatrol';
+
 import DasIcon from '../../DasIcon';
+import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
+import PatrolMenu from '../../PatrolMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ iconId, serialNumber, setTitle, title }) => <div className={styles.header}>
-  <div className={styles.icon}>
-    <DasIcon type='events' iconId={iconId} />
-  </div>
+const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
+  const {
+    patrolData,
 
-  <p className={styles.serialNumber}>{serialNumber}</p>
+    isPatrolActive,
+    isPatrolCancelled,
+    isPatrolDone,
+    isPatrolScheduled,
 
-  <input
-    className={styles.titleInput}
-    onChange={(event) => setTitle(event.target.value)}
-    type="text"
-    value={title}
-  />
+    patrolElapsedTime,
+    patrolIconId,
+    patrolState,
+    scheduledStartTime,
+    theme,
 
-  <Button
-    className={styles.startPatrolButton}
-    onClick={() => {}}
-    type="button"
-    variant="secondary"
-  >
-    <PlayIcon />
-    Start Patrol
-  </Button>
-</div>;
+    dateComponentDateString,
+  } = usePatrol(patrol);
 
-Header.propTypes = { title: PropTypes.string.isRequired };
+  const titleDetails = useMemo(() => {
+    if (isPatrolActive || isPatrolDone) {
+      return <span>
+        {patrolElapsedTime} | <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
+      </span>;
+    }
+    if (isPatrolScheduled || isPatrolCancelled) {
+      return <span>Scheduled: {scheduledStartTime}</span>;
+    }
+    return null;
+  }, [
+    isPatrolActive,
+    isPatrolDone,
+    isPatrolCancelled,
+    isPatrolScheduled,
+    patrolData,
+    patrolElapsedTime,
+    scheduledStartTime,
+  ]);
+
+  const isNewPatrol = !patrol.id;
+
+  return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
+    <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
+      <DasIcon className={!isNewPatrol ? '' : 'new'} type='events' iconId={patrolIconId}  />
+    </div>
+
+    <p className={styles.serialNumber}>{patrol.serial_number}</p>
+
+    <div className={styles.title}>
+      <input onChange={(event) => setTitle(event.target.value)} type="text" value={title} />
+
+      {!isNewPatrol && titleDetails}
+    </div>
+
+    {!isNewPatrol && <div className={styles.description}>
+      <span style={{ color: theme.base }}>{patrolState.title}</span>
+      <br />
+      <span className={styles.date}>{dateComponentDateString}</span>
+    </div>}
+
+    {!isPatrolDone && !isPatrolCancelled && <Button
+      className={`${styles.startPatrolButton} ${isNewPatrol ? 'margins' : ''}`}
+      onClick={startPatrol}
+      type="button"
+      variant="secondary"
+    >
+      <PlayIcon />
+      Start Patrol
+    </Button>}
+
+    {isPatrolCancelled && <Button
+      className={styles.restorePatrolButton}
+      onClick={restorePatrol}
+      type="button"
+      variant="secondary"
+    >
+      Restore
+    </Button>}
+
+    {/* TODO: Add onPatrolChange */}
+    {!isNewPatrol && <PatrolMenu patrol={patrol} onPatrolChange={() => {}} />}
+  </div>;
+};
+
+Header.propTypes = {
+  patrol: PropTypes.object.isRequired,
+  restorePatrol: PropTypes.func.isRequired,
+  setTitle: PropTypes.func.isRequired,
+  startPatrol: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+};
 
 export default Header;

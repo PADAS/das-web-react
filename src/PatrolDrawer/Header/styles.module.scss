@@ -1,3 +1,4 @@
+@import '../../common/styles/layout';
 @import '../../common/styles/vars/colors';
 
 .header {
@@ -11,13 +12,20 @@
 }
 
 .icon {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 4.5rem;
+  height: 100%;
 
   svg {
     width: 2rem;
     height: 2rem;
-    fill: $dark-gray;
+    fill: white;
+
+    &[class*=new] {
+      fill: $dark-gray;
+    }
   }
 }
 
@@ -27,14 +35,34 @@
   margin: 0 0.75rem;
 }
 
-.titleInput[type=text] {
-  font-size: 1.375rem;
-  font-weight: 500;
-  color: $dark-gray;
-  background-color: $very-light-gray;
-  border: none;
-  border-bottom: 1px dashed $secondary-light-gray;
-  width: 12.5rem;
+.title {
+  width: 15rem;
+
+  input {
+    font-size: 1.375rem;
+    font-weight: 500;
+    color: $dark-gray;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px dashed $secondary-light-gray;
+    padding: 0;
+    width: 15rem;
+  }
+
+  span {
+    display: block;
+    margin-top: 0.25rem;
+  }
+}
+
+.description {
+  text-align: right;
+  margin-left: auto;
+  margin-right: 1rem;
+
+  span:first-child {
+    font-weight: bold;
+  }
 }
 
 .startPatrolButton {
@@ -44,11 +72,27 @@
   background-color: $green;
   border-color: $green;
   height: 2.75rem;
-  margin-left: auto;
-  margin-right: 1rem;
+  margin-right: 0.5rem;
 
   svg {
     width: 0.75rem;
     margin-right: 0.5rem;
   }
+
+  &[class*=margins] {
+    margin-left: auto;
+    margin-right: 1rem;
+  }
+}
+
+.restorePatrolButton {
+  font-size: 1rem;
+  background-color: $secondary-light-gray;
+  border-color: $secondary-light-gray;
+  height: 2.75rem;
+  margin-right: 0.5rem;
+}
+
+.date {
+  font-style: italic;
 }
