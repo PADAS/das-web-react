@@ -13,10 +13,10 @@ const SubjectListItem = (props) => {
   const defaultProperty = getSubjectDefaultDeviceProperty(subject);
 
   return <Fragment>
-    <p className={listStyles.itemTitle}>
+    <p className={listStyles.itemTitle} data-testid='subject-item-name'>
       {subjectRadioImage && <img src={subjectRadioImage} alt={subject.name} />}
       {subject.name}
-      {isStaticTypeObject && <span>{` ${defaultProperty.label}: ${defaultProperty.value} ${defaultProperty.units}`}</span>}
+      {isStaticTypeObject && <span>{`${defaultProperty.label}: ${defaultProperty.value} ${defaultProperty.units}`}</span>}
     </p>
     <SubjectControls showLabels={false} className={listStyles.controls} map={map} showTitles={false} subject={subject} showTrackButton={!isStaticTypeObject} showHeatmapButton={!isStaticTypeObject}/>
   </Fragment>;
