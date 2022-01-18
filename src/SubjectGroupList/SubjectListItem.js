@@ -7,7 +7,7 @@ import listStyles from '../SideBar/styles.module.scss';
 
 const SubjectListItem = (props) => { // eslint-disable-line react/display-name
 
-  const { map, subject } = props;
+  const { map, ...subject } = props;
   const subjectRadioImage = useMemo(() => isRadioWithImage(props), [props]);
   const isStaticTypeObject = props.is_static;
   const defaultProperty = getSubjectDefaultDeviceProperty(subject);
