@@ -37,7 +37,7 @@ const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
-      return <span>Scheduled: {scheduledStartTime}</span>;
+      return <span>Scheduled {scheduledStartTime}</span>;
     }
     return null;
   }, [
@@ -72,7 +72,7 @@ const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
     </div>}
 
     {!isPatrolDone && !isPatrolCancelled && <Button
-      className={`${styles.startPatrolButton} ${isNewPatrol ? 'margins' : ''}`}
+      className={`${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
       onClick={startPatrol}
       type="button"
       variant="secondary"

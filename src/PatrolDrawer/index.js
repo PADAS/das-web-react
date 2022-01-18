@@ -75,21 +75,21 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometri
           <Nav.Item>
             <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>
               <CalendarIcon />
-              Plan
+              <span>History</span>
             </Nav.Link>
           </Nav.Item>
 
           <Nav.Item>
             <Nav.Link eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
               <BulletListIcon />
-              Timeline
+              <span>Timeline</span>
             </Nav.Link>
           </Nav.Item>
 
           <Nav.Item>
             <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
               <HistoryIcon />
-              History
+              <span>History</span>
             </Nav.Link>
           </Nav.Item>
         </Nav>
