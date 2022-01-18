@@ -80,6 +80,11 @@ export const getSubjectLastPositionCoordinates = subject => {
     : subject.geometry ? subject.geometry.coordinates : null;
 };
 
+export const getSubjectDefaultDeviceProperty = subject => {
+  const deviceStatusProperties = subject?.properties?.device_status_properties ?? subject?.device_status_properties ?? [];
+  return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
+};
+
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {
   const update = { ...updateObj };
 
