@@ -25,6 +25,7 @@ import { openModalForReport } from '../utils/events';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
+import { isTypeStaticSensor } from '../utils/subjects';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
@@ -559,7 +560,7 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
-    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
+    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => isTypeStaticSensor(subjectFeature));
     const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
     const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
 

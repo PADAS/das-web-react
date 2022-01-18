@@ -85,6 +85,12 @@ export const getSubjectDefaultDeviceProperty = subject => {
   return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
 };
 
+export const isTypeStaticSensor = subject => {
+  const staticType = 'static_sensor';
+  return subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
+  subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
+};
+
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {
   const update = { ...updateObj };
 
