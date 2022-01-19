@@ -27,7 +27,7 @@
     height: 1.5rem;
     fill: white;
 
-    &[class*=new] {
+    &[class*=newPatrol] {
       fill: $dark-gray;
     }
 
@@ -131,13 +131,16 @@
 
 .restorePatrolButton {
   display: none;
-
+  align-items: center;
+  font-size: 1rem;
+  background-color: $secondary-light-gray;
+  border-color: $secondary-light-gray;
+  height: 2rem;
+  margin-right: 0.5rem;
+  
   @media (min-width: $md-layout-width-min) {
-    font-size: 1rem;
-    background-color: $secondary-light-gray;
-    border-color: $secondary-light-gray;
+    display: flex;
     height: 2.75rem;
-    margin-right: 0.5rem;
   }
 }
 

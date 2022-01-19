@@ -61,8 +61,9 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometri
 
   return !!patrolForm && <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
     <Header
-      patrol={patrol}
       // TODO: Implement functions
+      onPatrolChange={() => {}}
+      patrol={patrol}
       restorePatrol={() => {}}
       startPatrol={() => {}}
       setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}

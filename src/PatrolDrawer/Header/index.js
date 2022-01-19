@@ -12,13 +12,14 @@ import PatrolMenu from '../../PatrolMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
+const Header = ({ onPatrolChange, patrol, restorePatrol, setTitle, startPatrol, title }) => {
   const {
     patrolData,
 
     isPatrolActive,
     isPatrolCancelled,
     isPatrolDone,
+    isPatrolOverdue,
     isPatrolScheduled,
 
     patrolElapsedTime,
@@ -32,12 +33,12 @@ const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
 
   const titleDetails = useMemo(() => {
     if (isPatrolActive || isPatrolDone) {
-      return <span>
+      return <span data-testid="patrol-drawer-header-details">
         {patrolElapsedTime} | <PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' />
       </span>;
     }
     if (isPatrolScheduled || isPatrolCancelled) {
-      return <span>Scheduled {scheduledStartTime}</span>;
+      return <span data-testid="patrol-drawer-header-details">Scheduled {scheduledStartTime}</span>;
     }
     return null;
   }, [
@@ -54,7 +55,7 @@ const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
-      <DasIcon className={!isNewPatrol ? '' : 'new'} type='events' iconId={patrolIconId}  />
+      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} type='events' iconId={patrolIconId}  />
     </div>
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>
@@ -65,13 +66,13 @@ const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
       {!isNewPatrol && titleDetails}
     </div>
 
-    {!isNewPatrol && <div className={styles.description}>
+    {!isNewPatrol && <div className={styles.description} data-testid="patrol-drawer-header-description">
       <span style={{ color: theme.base }}>{patrolState.title}</span>
       <br />
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
-    {!isPatrolDone && !isPatrolCancelled && <Button
+    {(isNewPatrol || isPatrolScheduled || isPatrolOverdue) && <Button
       className={`${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
       onClick={startPatrol}
       type="button"
@@ -90,12 +91,12 @@ const Header = ({ patrol, restorePatrol, setTitle, startPatrol, title }) => {
       Restore
     </Button>}
 
-    {/* TODO: Add onPatrolChange */}
-    {!isNewPatrol && <PatrolMenu patrol={patrol} onPatrolChange={() => {}} />}
+    {!isNewPatrol && !isPatrolCancelled && <PatrolMenu patrol={patrol} onPatrolChange={onPatrolChange} />}
   </div>;
 };
 
 Header.propTypes = {
+  onPatrolChange: PropTypes.func.isRequired,
   patrol: PropTypes.object.isRequired,
   restorePatrol: PropTypes.func.isRequired,
   setTitle: PropTypes.func.isRequired,

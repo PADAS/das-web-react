@@ -16,10 +16,10 @@ import {
   patrolStateDetailsEndTime,
   patrolStateDetailsOverdueStartTime,
   patrolStateDetailsStartTime,
-} from '../utils/patrols';
-import { createPatrolDataSelector } from '../selectors/patrols';
+} from '../../utils/patrols';
+import { createPatrolDataSelector } from '../../selectors/patrols';
 
-import { PATROL_UI_STATES } from '../constants';
+import { PATROL_UI_STATES } from '../../constants';
 
 export default (patrolFromProps) => {
   const { patrolData, patrolTrackState, trackState } = useSelector((state) => {
