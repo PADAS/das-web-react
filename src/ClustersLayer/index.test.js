@@ -8,11 +8,12 @@ import {
   createClusterHTMLMarker,
   getClusterIconFeatures,
   getRenderedClustersData,
+  recalculateClusterRadius,
   removeOldClusterMarkers,
 } from './utils';
 import ClustersLayer, { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME } from '.';
 import { createMapMock } from '../__test-helpers/mocks';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD } from '../constants';
+import { CLUSTER_CLICK_ZOOM_THRESHOLD, CLUSTER_RADIUS_ZOOM_THRESHOLD, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
 import { showPopup } from '../ducks/popup';
 import {
@@ -23,6 +24,8 @@ import {
   mockPointFeaturesCollection,
 } from '../__test-helpers/fixtures/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
+
+const { CLUSTERS_SOURCE_ID } = LAYER_IDS;
 
 const mapMarkers = [];
 jest.mock('mapbox-gl', () => {
@@ -63,8 +66,7 @@ describe('ClustersLayer', () => {
     onSubjectClick = jest.fn(),
     onPointClick = jest.fn(),
     removeClusterPolygon = jest.fn(),
-    renderClusterPolygon = jest.fn(),
-    setClusterBufferPolygonData = jest.fn();
+    renderClusterPolygon = jest.fn();
   let map, showPopupMock, store, useClusterBufferPolygonMock;
 
   beforeEach(() => {
@@ -520,6 +522,52 @@ describe('ClustersLayer', () => {
       );
 
       expect(renderedClusterMarkersHashMap['2'].id).toBe('efgh');
+    });
+  });
+
+  describe('recalculateClusterRadius', () => {
+    const map = {
+      getStyle: jest.fn(),
+      getZoom: jest.fn(),
+      setStyle: jest.fn(),
+    };
+
+    test('sets a bigger cluster radius if the zoom gets far enough', () => {
+      map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD - 1);
+      map.getStyle.mockImplementation(() => ({
+        sources: {
+          [CLUSTERS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
+        },
+      }));
+      recalculateClusterRadius(map);
+
+      expect(map.setStyle).toHaveBeenCalledTimes(1);
+      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERS_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS + 5);
+    });
+
+    test('sets a smaller cluster radius if the zoom gets close enough', () => {
+      map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD + 1);
+      map.getStyle.mockImplementation(() => ({
+        sources: {
+          [CLUSTERS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS + 5 },
+        },
+      }));
+      recalculateClusterRadius(map);
+
+      expect(map.setStyle).toHaveBeenCalledTimes(1);
+      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERS_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS);
+    });
+
+    test('does not update the cluster radius if new zoom did not pass the threshold', () => {
+      map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD + 1);
+      map.getStyle.mockImplementation(() => ({
+        sources: {
+          [CLUSTERS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
+        },
+      }));
+      recalculateClusterRadius(map);
+
+      expect(map.setStyle).toHaveBeenCalledTimes(0);
     });
   });
 });

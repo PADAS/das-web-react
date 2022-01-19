@@ -10,7 +10,12 @@ import { showPopup } from '../ducks/popup';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 import { withMap } from '../EarthRangerMap';
 
-import { addNewClusterMarkers, getRenderedClustersData, removeOldClusterMarkers } from './utils';
+import {
+  addNewClusterMarkers,
+  getRenderedClustersData,
+  recalculateClusterRadius,
+  removeOldClusterMarkers,
+} from './utils';
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,
@@ -116,6 +121,12 @@ const ClustersLayer = ({
         });
       }
 
+      const onZoomEnd = () => {
+        recalculateClusterRadius(map);
+      };
+
+      map.on('zoomend', onZoomEnd);
+
       updateClusterMarkers(
         clusterMarkerHashMapRef,
         onShowClusterSelectPopup,
@@ -123,6 +134,10 @@ const ClustersLayer = ({
         removeClusterPolygon,
         renderClusterPolygon
       );
+
+      return () => {
+        map.off('zoomend', onZoomEnd);
+      };
     }
   }, [
     eventFeatureCollection.features,

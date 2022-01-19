@@ -2,11 +2,17 @@ import centroid from '@turf/centroid';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 
-import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import {
+  CLUSTER_CLICK_ZOOM_THRESHOLD,
+  CLUSTER_RADIUS_ZOOM_THRESHOLD,
+  CLUSTERS_RADIUS,
+  LAYER_IDS,
+  SUBJECT_FEATURE_CONTENT_TYPE,
+} from '../constants';
 import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
 
-const { CLUSTERS_LAYER_ID } = LAYER_IDS;
+const { CLUSTERS_LAYER_ID, CLUSTERS_SOURCE_ID } = LAYER_IDS;
 
 export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
 
@@ -188,4 +194,18 @@ export const addNewClusterMarkers = (
   });
 
   return renderedClusterMarkersHashMap;
+};
+
+export const recalculateClusterRadius = (map) => {
+  let newRadius = CLUSTERS_RADIUS;
+  const zoom = map.getZoom();
+  if (zoom < CLUSTER_RADIUS_ZOOM_THRESHOLD) {
+    newRadius += 5;
+  }
+
+  const style = map.getStyle();
+  if (style.sources[CLUSTERS_SOURCE_ID].clusterRadius !== newRadius) {
+    style.sources[CLUSTERS_SOURCE_ID].clusterRadius = newRadius;
+    map.setStyle(style);
+  }
 };
