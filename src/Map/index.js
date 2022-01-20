@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+
 import { withRouter } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
@@ -6,6 +7,7 @@ import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
+import partition from 'lodash/partition';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -42,6 +44,7 @@ import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
+import StaticSensorsLayer from '../StaticSensorsLayer';
 import TrackLayers from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import FeatureLayer from '../FeatureLayer';
@@ -58,7 +61,6 @@ import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';
-// import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
@@ -79,6 +81,7 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
 
+const { EVENT_CLUSTERS_CIRCLES } = LAYER_IDS;
 class Map extends Component {
 
   constructor(props) {
@@ -345,7 +348,7 @@ class Map extends Component {
 
       hidePopup = !clustersAtPoint.length;
     } else {
-      const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+      const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
       const clickedLayersOfInterest = uniqBy(
         map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
         , layer => layer.properties.id);
@@ -459,7 +462,7 @@ class Map extends Component {
   }
 
   onClusterClick = this.withLocationPickerState(({ point }) => {
-    const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+    const features = this.props.map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
 
@@ -575,6 +578,10 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
+    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
+    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
+    const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
+
     return (
       <EarthRangerMap
         center={this.mapCenter}
@@ -614,10 +621,12 @@ class Map extends Component {
 
             <SubjectsLayer
               mapImages={mapImages}
-              subjects={mapSubjectFeatureCollection}
+              subjects={nonStaticSubjects}
               subjectsOnActivePatrol={subjectsOnActivePatrol}
               onSubjectIconClick={this.onMapSubjectClick}
             />
+
+            <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 

@@ -12,7 +12,7 @@ const SubjectListItem = (props) => { // eslint-disable-line react/display-name
   const { map, ...rest } = props;
   return <Fragment>
     <span className={listStyles.itemTitle}>{subjectRadioImage && <img src={subjectRadioImage} alt={props.name} />} {props.name}</span>
-    <SubjectControls className={listStyles.controls} map={map} showTitles={false} subject={rest} />
+    <SubjectControls showLabels={false} className={listStyles.controls} map={map} showTitles={false} subject={rest} />
   </Fragment>;
 };
 

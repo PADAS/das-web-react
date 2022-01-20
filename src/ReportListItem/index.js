@@ -105,7 +105,8 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&
       <LocationJumpButton
         isMulti={hasMultipleLocations}
-        map={map} coordinates={coordinates} onClick={onClick}
+        coordinates={coordinates}
+        onClick={onClick}
         clickAnalytics={[MAP_LAYERS_CATEGORY, 'Click Jump To Report Location button', `Report Type:${report.event_type}`]} />
       }
       {...rest}
