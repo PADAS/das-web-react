@@ -69,7 +69,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
         <div className={styles.defaultStatusProperty}>
           {properties.default_status_value && <>
             {properties.image && <img src={properties.image} alt={`Subject icon for ${properties.name}`} />}
-            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? properties.default_status_value : 'No data'}</span>
+            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? properties.default_status_value : 'No historical data'}</span>
           </>}
           <h6>{properties.name}</h6>
         </div>
@@ -104,7 +104,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>
-          {(!isTypeStaticSensor(data) && isTimeSliderActive) ? <span>No data</span> : <span data-testid='additional-props-value'>
+          {(isTypeStaticSensor(data) && isTimeSliderActive) ? <span>No historical data</span> : <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
           </span>}
         </li>
