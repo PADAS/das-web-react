@@ -88,8 +88,8 @@
       position: absolute;
       z-index: 3;
       top: 1.15rem;
-      margin-top: .25rem;
-      margin-right: .62rem;
+      margin-top: 0.25rem;
+      margin-right: 0.62rem;
     }
 
     [class*=Collapsible__trigger],
@@ -99,7 +99,7 @@
       padding-right: 2rem;
       word-break: break-word;
       margin-bottom: 0;
-      margin-right: .62rem;
+      margin-right: 0.62rem;
       width: 100%;
     }
 
@@ -110,8 +110,8 @@
       margin-bottom: 0;
 
       > span{
-        margin: .2rem 0 0 .5rem;
-        font-size: .75rem;
+        margin: 0.2rem 0 0 0.5rem;
+        font-size: 0.75rem;
       }
 
       img {
@@ -184,7 +184,7 @@
     }
 
     li {
-      padding: 1rem .65rem 1rem 0;
+      padding: 1rem 0.65rem 1rem 0;
 
       > [class*=checkmark] {
         top: 1rem;
