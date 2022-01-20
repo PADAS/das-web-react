@@ -1,4 +1,5 @@
 import React, { Fragment, memo, useEffect, useCallback, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
@@ -6,6 +7,7 @@ import { featureCollection } from '@turf/helpers';
 
 import { addMapImage } from '../utils/map';
 import { addBounceToEventMapFeatures } from '../utils/events';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -24,6 +26,7 @@ import {
   IF_IS_GENERIC,
   MAP_ICON_SCALE,
   SYMBOL_TEXT_SIZE_EXPRESSION,
+  SUBJECT_FEATURE_CONTENT_TYPE,
 } from '../constants';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
@@ -90,7 +93,7 @@ const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [] } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [], subjectFeatureCollection } = props;
 
   const { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon } = useClusterBufferPolygon(
     { ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION, minZoom },
@@ -268,7 +271,10 @@ const EventsLayer = (props) => {
 
   const sourceData = {
     type: 'geojson',
-    data: mapEventFeatureCollection,
+    data: {
+      features: [...mapEventFeatureCollection.features, ...subjectFeatureCollection.features],
+      type: 'FeatureCollection',
+    },
     ...(REACT_APP_ENABLE_CLUSTERING ?
       {
         cluster: true,
@@ -291,7 +297,7 @@ const EventsLayer = (props) => {
     {(REACT_APP_ENABLE_CLUSTERING || !enableClustering) && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
       id={EVENT_SYMBOLS} onClick={handleEventClick}
       onInit={setEventSymbolLayerIDs}
-      {...(REACT_APP_ENABLE_CLUSTERING ? { filter: ['!has', 'point_count'] } : {})}
+      filter={['all', ['!=', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['!has', 'point_count']]}
     />}
 
     {!REACT_APP_ENABLE_CLUSTERING && enableClustering && <Fragment>
@@ -308,7 +314,11 @@ const EventsLayer = (props) => {
   </Fragment>;
 };
 
-export default debounceRender(memo(withMapViewConfig(withMap(EventsLayer))), 16.6666); /* debounce updates a bit without throttlling below 60fps */
+const mapStatetoProps = (state) => ({
+  subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
+});
+
+export default connect(mapStatetoProps)(debounceRender(memo(withMapViewConfig(withMap(EventsLayer))), 16.6666)); /* debounce updates a bit without throttlling below 60fps */
 
 EventsLayer.defaultProps = {
   onClusterClick() {
