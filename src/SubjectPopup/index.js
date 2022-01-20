@@ -22,9 +22,9 @@ import styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = (props) => {
-  const { data, popoverPlacement, showPopup } = props;
+const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) => {
   const  { geometry, properties } = data;
+  const  { active: isTimeSliderActive } = timeSliderState;
 
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
@@ -69,7 +69,7 @@ const SubjectPopup = (props) => {
         <div className={styles.defaultStatusProperty}>
           {properties.default_status_value && <>
             {properties.image && <img src={properties.image} alt={`Subject icon for ${properties.name}`} />}
-            <span>{properties.default_status_value}</span>
+            <span>{!isTimeSliderActive ? properties.default_status_value : 'No data'}</span>
           </>}
           <h6>{properties.name}</h6>
         </div>
@@ -104,9 +104,9 @@ const SubjectPopup = (props) => {
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>
-          <span data-testid='additional-props-value'>
+          {(properties?.is_static && isTimeSliderActive) ? <span>No data</span> : <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
-          </span>
+          </span>}
         </li>
       )}
     </ul>}
@@ -124,7 +124,8 @@ const SubjectPopup = (props) => {
   </>;
 };
 
-export default connect(null, { showPopup })(memo(SubjectPopup));
+const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
+export default connect(mapStateToProps, { showPopup })(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,

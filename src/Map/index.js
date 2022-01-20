@@ -607,7 +607,7 @@ class Map extends Component {
               onSubjectIconClick={this.onMapSubjectClick}
             />
 
-            <StaticSensorsLayer staticSensors={staticSubjects}/>
+            <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 
