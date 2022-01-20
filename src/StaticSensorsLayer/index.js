@@ -33,7 +33,7 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapStaticSubjectsNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
@@ -46,7 +46,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
 
       let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No data' : `${defaultProperty.value} ${defaultProperty.units}`);
       featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
-      featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapNames);
+      featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapStaticSubjectsNames);
 
       if (!properties?.image?.length) {
         featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label) ;
@@ -54,7 +54,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
 
       return featureWithDefaultValue;
     });
-  }, [isDataInMapSimplified, isTimeSliderActive, showMapNames]);
+  }, [isDataInMapSimplified, isTimeSliderActive, showMapStaticSubjectsNames]);
 
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });
@@ -152,7 +152,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
   return null;
 };
 
-const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
+const mapStatetoProps = ({ view: { showMapStaticSubjectsNames, simplifyMapDataOnZoom } }) => ({ showMapStaticSubjectsNames, simplifyMapDataOnZoom });
 
 export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
 
