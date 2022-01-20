@@ -109,10 +109,6 @@
       flex-wrap: wrap;
       flex-grow: 1;
       margin-bottom: 0;
-      
-      // > span:first-child {
-      //   flex-grow: 1;
-      // }
 
       .defaultProperty {
         margin: 0.2rem 0 0 0.5rem;
@@ -213,9 +209,6 @@
 
   @media (min-width: $md-layout-width-min) {
     margin: 0;
-    // position: absolute;
-    // right: 1rem;
-    // top: 0.7rem;
   }
 }
 
@@ -226,7 +219,7 @@
 .trigger {
   display: flex;
   justify-content: space-between;
-  padding-right: 1rem;
+  padding-right: 2rem;
   align-items: center;
 }
 
