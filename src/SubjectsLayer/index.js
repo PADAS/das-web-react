@@ -35,7 +35,7 @@ const SubjectsLayer = (props) => {
     setMapSubjectFeatures({
       ...subjects,
     });
-  }, [subjects, mapImages]);
+  }, [subjects]);
 
   const onSymbolClick = (event) => onSubjectIconClick(({ event, layer: getSubjectLayer(event, map) }));
 

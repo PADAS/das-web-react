@@ -60,7 +60,6 @@ const RelationshipButton = (props) => {
         category: REPORT_MODAL_CATEGORY,
         location: 'report modal',
       }}
-      map={map}
       formProps={{
         hidePatrols: hidePatrols,
         relationshipButtonDisabled: true,

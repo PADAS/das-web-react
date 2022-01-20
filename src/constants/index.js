@@ -94,6 +94,8 @@ export const LAYER_IDS = {
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_SYMBOLS: 'event_symbols',
   SUBJECT_SYMBOLS: 'subject_symbols',
+  STATIC_SENSOR: 'static_sensor',
+  SECOND_STATIC_SENSOR_PREFIX: 'icons-layer-',
   PATROL_SYMBOLS: 'patrol_symbols',
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',

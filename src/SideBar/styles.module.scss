@@ -194,8 +194,9 @@
 .controls {
   margin: 1rem 0 0 4rem;
 
-  button:not(:last-child) {
+  div > button, button:not(:last-child) {
     margin-right: 0.5rem;
+    border-radius: 0.25rem;
   }
 
   @media (min-width: $md-layout-width-min) {

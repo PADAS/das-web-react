@@ -18,10 +18,25 @@ const mockSubjectValues = [
   { subject_subtype: 'ranger', subject_type: 'person', image_url: '/static/ranger-black.svg' },
   { subject_subtype: 'rhino', subject_type: 'wildlife', image_url: '/static/rhino-black-male.svg' },
   { subject_subtype: 'zebra', subject_type: 'wildlife', image_url: '/static/zebra-black-male.svg' },
-  { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'river_flow', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'fuel_tank', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
-  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/ranger-green.svg' },
+  { subject_subtype: 'weather_station', subject_type: 'static_sensor', image_url: '/static/static-door.svg' },
+  { subject_subtype: 'river flow', subject_type: 'static_sensor', image_url: '/static/static-gas-tank.svg' },
+  { subject_subtype: 'fuel tank', subject_type: 'static_sensor', image_url: '/static/static-gas-tank.svg' },
+  { subject_subtype: 'fence', subject_type: 'static_sensor', image_url: '/static/static-fence.svg' },
+  { subject_subtype: 'water tank', subject_type: 'static_sensor', image_url: '/static/static-water-tank.svg' },
+  { subject_subtype: 'gate', subject_type: 'static_sensor', image_url: '/static/static-gate.svg' },
+  { subject_subtype: 'water gauge', subject_type: 'static_sensor', image_url: '/static/static-water-gauge.svg' },
+  { subject_subtype: 'weather', subject_type: 'static_sensor', image_url: '/static/static-weather.svg' },
+  { subject_subtype: 'static', subject_type: 'static_sensor', image_url: null },
+];
+
+const staticSensorProperties = [
+  [{ default: true, label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ default: false, label: 'Level', units: 'lts', value: '5', }, { default: true, label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ default: false, label: 'Velocity', units: 'km', value: '3', }, { label: 'Wind', units: 'kph', value: '12', }, { default: true, label: 'Humidity', units: '%', value: '75', }],
+  [{ default: true, label: 'Temperature', units: 'ºC', value: '8880', }, { label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { label: 'Humidity', units: '%', value: '75', }],
+  [{ label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { default: true, label: 'Gate', units: '', value: 'open', }],
+  [{ label: 'Temperature', units: 'ºC', value: '31', }, { label: 'Wind', units: 'kph', value: '12', }, { default: true, label: 'Gate', units: '', value: 'close', }]
 ];
 
 const patrolStartLocations = [
@@ -89,21 +104,8 @@ const generateSubject = () => {
   const id = faker.random.uuid();
   let device_status_properties = null;
 
-  if (subject_type === 'static sensor') {
-    device_status_properties = [{
-      default: true,
-      label: 'Temperature',
-      units: 'ºC',
-      value: '31',
-    }, {
-      label: 'Wind',
-      units: 'kph',
-      value: '12',
-    }, {
-      label: 'Humidity',
-      units: '%',
-      value: '75',
-    }];
+  if (subject_type === 'static_sensor') {
+    device_status_properties = staticSensorProperties[Math.floor(Math.random() * staticSensorProperties.length)];
   }
 
   return {
@@ -117,7 +119,7 @@ const generateSubject = () => {
     created_at: '2021-11-10T07:26:19.869853-08:00',
     updated_at: '2021-11-10T07:26:19.869873-08:00',
     is_active: true,
-    tracks_available: subject_type !== 'static sensor',
+    tracks_available: subject_type !== 'static_sensor',
     image_url,
     last_position_status: {
       last_voice_call_start_at: null,
@@ -135,14 +137,15 @@ const generateSubject = () => {
         ],
       },
       properties: {
+        is_static: subject_type === 'static_sensor',
         title: name,
         subject_type,
         subject_subtype,
         id,
-        stroke: '#FFFF00',
-        'stroke-opacity': 1.0,
-        'stroke-width': 2,
-        image: `https://develop.pamdas.org${image_url}`,
+        // stroke: '#FFFF00',
+        // 'stroke-opacity': 1.0,
+        // 'stroke-width': 2,
+        image: image_url ? `https://develop.pamdas.org${image_url}` : null,
         last_voice_call_start_at: null,
         location_requested_at: null,
         radio_state_at: '1970-01-01T00:00:00+00:00',
@@ -155,7 +158,6 @@ const generateSubject = () => {
     },
     device_status_properties,
     url: `https://develop.pamdas.org/api/v1.0/subject/${id}`,
-    is_static: subject_type === 'static sensor',
   };
 };
 
