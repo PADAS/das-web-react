@@ -1,7 +1,7 @@
 import React, { memo, useMemo, Fragment } from 'react';
 import SubjectControls from '../SubjectControls';
 
-import { isRadioWithImage, isTypeStaticSensor, getSubjectDefaultDeviceProperty } from '../utils/subjects';
+import { isRadioWithImage, isStaticTypeSensor, getSubjectDefaultDeviceProperty } from '../utils/subjects';
 
 import listStyles from '../SideBar/styles.module.scss';
 
@@ -9,7 +9,7 @@ const SubjectListItem = (props) => {
   const { map, ...subject } = props;
 
   const subjectRadioImage = useMemo(() => isRadioWithImage(props), [props]);
-  const isStaticTypeObject = isTypeStaticSensor(subject);
+  const isStaticTypeObject = isStaticTypeSensor(subject);
   const defaultProperty = getSubjectDefaultDeviceProperty(subject);
 
   return <Fragment>
