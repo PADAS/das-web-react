@@ -33,7 +33,7 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
@@ -46,6 +46,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
 
       let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No data' : `${defaultProperty.value} ${defaultProperty.units}`);
       featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
+      featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapNames);
 
       if (!properties?.image?.length) {
         featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label) ;
@@ -53,7 +54,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
 
       return featureWithDefaultValue;
     });
-  }, [isDataInMapSimplified, isTimeSliderActive]);
+  }, [isDataInMapSimplified, isTimeSliderActive, showMapNames]);
 
   useEffect(() => {
     setSensorsWithDefaultValue({ ...staticSensors, ...{ features: addDefaultStatusValue(staticSensors.features) } });

@@ -12,6 +12,7 @@ export const BACKGROUND_LAYER = {
     'text-justify': 'center',
     'icon-text-fit-padding': [37, 3, -26, 0],
     'icon-text-fit': 'both',
+    'icon-image': 'popup-background',
     'text-offset': [
       'case',
       ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
@@ -22,10 +23,22 @@ export const BACKGROUND_LAYER = {
     ],
     'text-field': [
       'case',
+      // no icon either default prop
       ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
       ['get', 'name'],
+      // no icon but default prop and data is simplified
       ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], true]],
       ['get', 'default_status_value'],
+      // has icon and default prop but show names is enabled (simplified must be off)
+      ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['format',
+        ['get', 'default_status_value'],
+        '\n',
+        ['get', 'default_status_label'],
+        '\n',
+        ['get', 'name'],
+      ],
+      // same as previous but without showing map names
       ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false]],
       ['format',
         ['get', 'default_status_value'],
@@ -33,16 +46,26 @@ export const BACKGROUND_LAYER = {
         ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
         '\n',
       ],
+
+      ['all', ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['format',
+        'icon',
+        { 'font-scale': 1.3 },
+        '\n',
+        ['get', 'name'],
+        '\n',
+      ],
+
       ['format',
         'icon',
         { 'font-scale': 1.3 },
         '\n',
       ],
     ],
-    'icon-image': 'popup-background',
   },
   paint: {
-    'text-color': 'transparent',
+    'text-color': '#ff0000',
+    // 'text-color': 'transparent',
     'text-halo-width': 0,
     'text-translate': [0, -30],
   }
@@ -63,6 +86,8 @@ export const LABELS_LAYER = {
     ],
     'icon-offset': [
       'case',
+      ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['literal', [0, -50]],
       ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false]],
       ['literal', [0, -16]],
       ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], true]],
@@ -74,16 +99,38 @@ export const LABELS_LAYER = {
     'text-justify': 'center',
     'text-field': [
       'case',
+
       ['all', ['!=', ['get', 'image'], null], ['==', ['get', 'data_map_id_simplified'], true]],
       '',
+
       ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
       ['get', 'name'],
+
+      ['all', ['==', ['get', 'image'], null], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['format',
+        ['get', 'default_status_value'],
+        '\n',
+        ['coalesce', ['get', 'default_status_label'], ''],
+        '\n',
+        ['get', 'name'],
+      ],
+
       ['all', ['==', ['get', 'image'], null], ['==', ['get', 'data_map_id_simplified'], false]],
       ['format',
         ['get', 'default_status_value'],
         '\n',
         ['coalesce', ['get', 'default_status_label'], ''],
       ],
+
+      ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['format',
+        ['get', 'default_status_value'],
+        '\n',
+        ['get', 'name'],
+      ],
+      ['all', ['==', ['has', 'default_status_value'], false], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['get', 'name'],
+
       ['get', 'default_status_value'],
     ]
   },
