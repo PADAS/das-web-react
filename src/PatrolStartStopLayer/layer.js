@@ -6,7 +6,7 @@ import { Source, Layer } from 'react-mapbox-gl';
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { createPatrolDataSelector } from '../selectors/patrols';
-import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
+import { DEFAULT_SYMBOL_PAINT } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
@@ -45,9 +45,8 @@ const labelPaint = {
 
 
 const StartStopLayer = (props) => {
-  const { allowOverlap, key, patrolData, map, mapUserLayoutConfig, ...rest } = props;
+  const { key, patrolData, map, ...rest } = props;
 
-  const [ layerIds, setLayerIds ] = useState(null);
   const [instanceId] = useState(uuid());
   const layerId = `patrol-start-stop-layer-${instanceId}`;
 
@@ -71,17 +70,6 @@ const StartStopLayer = (props) => {
 
     }
   }, [map, patrolData]);
-
-  const layoutConfig = allowOverlap ? {
-    'icon-allow-overlap': true,
-    'text-allow-overlap': true,
-    ...mapUserLayoutConfig,
-  } : { ...mapUserLayoutConfig };
-
-  const layout = {
-    ...DEFAULT_SYMBOL_LAYOUT,
-    ...layoutConfig,
-  };
 
   const sourceId = `patrol-symbol-source-${instanceId}`;
 
@@ -111,8 +99,8 @@ const StartStopLayer = (props) => {
 
   return <Fragment key={`${key}-${instanceId}`}>
     <Source id={sourceId} geoJsonSource={patrolPointsSourceData} />
-    <LabeledPatrolSymbolLayer textPaint={layerLabelPaint} layout={layout} paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
-      id={layerId} onInit={setLayerIds} filter={['==', ['geometry-type'], 'Point']}  {...rest}
+    <LabeledPatrolSymbolLayer textPaint={layerLabelPaint} paint={layerSymbolPaint} sourceId={sourceId} type='symbol'
+      id={layerId} filter={['==', ['geometry-type'], 'Point']}  {...rest}
     />
     <Layer sourceId={sourceId} id={`${layerId}-lines`} type='line' paint={layerLinePaint} layout={lineLayout} />
   </Fragment>;

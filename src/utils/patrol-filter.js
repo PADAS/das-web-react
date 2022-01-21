@@ -11,19 +11,17 @@ import store from '../store';
 
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 
-export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
-  !isEqual(INITIAL_FILTER_STATE.state, state)
-);
-
 export const isDateFilterModified = ({ filter: { date_range } }) => !isEqual(INITIAL_FILTER_STATE.filter.date_range, date_range);
 
 export const calcPatrolFilterForRequest = (options = {}) => {
   const { data: { patrolFilter } } = store.getState();
   const { filter: { patrols_overlap_daterange } } = patrolFilter;
-  const { params } = options;
+  const { params, format = 'string' } = options;
   const  filterParams = merge({}, patrolFilter, params);
   // only apply current filter settings if it is modified, otherwise allow overlap
   filterParams.filter.patrols_overlap_daterange = isDateFilterModified(patrolFilter) ? patrols_overlap_daterange : true;
+
+  if (format === 'object') return filterParams;
   return objectToParamString(filterParams);
 };
 

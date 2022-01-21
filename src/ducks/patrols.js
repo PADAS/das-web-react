@@ -29,7 +29,7 @@ const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
-const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
+export const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
 
 const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
 export const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
@@ -155,13 +155,10 @@ export const createPatrol = (patrol) => (dispatch) => {
     }); */
 };
 
-export const updatePatrol = (patrol) => (dispatch) => {
+export const updatePatrol = (patrol) => {
 
-  let patrolResults;
-  let resp;
-
-  return axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol)
-    .then((response) => {
+  return axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol);
+  /* .then((response) => {
       patrolResults = response.data.data;
       resp = response;
       return true;
@@ -181,7 +178,7 @@ export const updatePatrol = (patrol) => (dispatch) => {
       }
       return resp;
     });
-/*     .catch((error) => {
+     .catch((error) => {
       dispatch({
         type: UPDATE_PATROL_ERROR,
         payload: error,

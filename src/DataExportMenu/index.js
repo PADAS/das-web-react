@@ -85,12 +85,6 @@ const DataExportMenu = ({
     ]);
   }, [systemConfig, eventTypes, eventFilter, dailyReportEnabled, kmlExportEnabled]);
 
-  const alertModal = {
-    title: 'Alerts',
-    content: AlertsModal,
-    modalProps: { className: 'alerts-modal' },
-  };
-
   const onDropdownToggle = (isOpen) => {
     setOpenState(isOpen);
     mainToolbarTracker.track(`${isOpen?'Open':'Close'} Data Export Menu`);
@@ -133,9 +127,15 @@ const DataExportMenu = ({
   }, [addModal]);
 
   const onOpenAlertsModalClick = useCallback(() => {
+    const alertModal = {
+      title: 'Alerts',
+      content: AlertsModal,
+      modalProps: { className: 'alerts-modal' },
+    };
+
     document.cookie = `token=${token.access_token};path=/`;
     onModalClick(alertModal, ALERTS_CATEGORY);
-  }, [alertModal, onModalClick, token.access_token]);
+  }, [onModalClick, token.access_token]);
 
   const hamburgerToggle = useRef();
   return <Dropdown alignRight onToggle={onDropdownToggle} {...rest}>

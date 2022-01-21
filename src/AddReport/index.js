@@ -91,7 +91,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 
   const [reportFilter, setReportFilter] = useState('');
   const [patrolFilter, setPatrolFilter] = useState('');
-  const [quickJumpOption, setQuickJumpOption] = useState(null);
+  const [quickJumpOption] = useState(null);
 
   const reportTypesListRef = useRef(null);
 

@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import LoadingOverlay from '../LoadingOverlay';
 import styles from './styles.module.scss';
 
-const TrackToggleButton = (props) => {
+const TrackToggleButton = (props, ref) => {
   const { className: externalClassName, disabled, trackVisible, trackPinned, onClick, showLabel, loading, ...rest } = props;
   const className = trackPinned ? 'pinned' : trackVisible ? 'visible' : '';
   const hoverText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks visible') : 'Tracks hidden';
@@ -11,12 +11,12 @@ const TrackToggleButton = (props) => {
 
   return <div className={`${styles.container}${showLabel ? ` ${styles.hasLabel}` : ''}`}>
     {loading && <LoadingOverlay className={styles.loadingOverlay} />}
-    <button disabled={disabled} title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
+    <button ref={ref} disabled={disabled} title={hoverText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
     {showLabel && <span>{hoverText}</span>}
   </div>;
 };
 
-export default memo(TrackToggleButton);
+export default memo(forwardRef(TrackToggleButton));
 
 TrackToggleButton.defaultProps = {
   onClick() {

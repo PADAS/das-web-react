@@ -44,7 +44,7 @@ const lineLayout = {
 
 const AnalyzerLayer = (
   { warningLines, criticalLines, warningPolys, criticalPolys, minZoom,
-    layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, map }
+    layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick }
 ) => {
 
   const getLayerGroup = featureId => layerGroups

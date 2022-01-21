@@ -21,6 +21,7 @@ import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
 import { calcEventFilterForRequest } from '../utils/event-filter';
+import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -130,7 +131,7 @@ class Map extends Component {
     this.debouncedFetchMapData();
   }
 
-  onMapZoom = debounce((e) => {
+  onMapZoom = debounce(() => {
 
     if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
       this.props.hidePopup(this.props.popup.id);
@@ -177,6 +178,9 @@ class Map extends Component {
 
       }
       this.debouncedFetchMapEvents();
+    }
+    if (!isEqual(prev.patrolFilter, this.props.patrolFilter)) {
+      this.props.socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
     }
     if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
       this.setTrackLengthToEventFilterLowerValue();
@@ -244,14 +248,14 @@ class Map extends Component {
     this.debouncedFetchMapData();
   }
 
-  onRotationControlClick = (e) => {
+  onRotationControlClick = () => {
     this.props.map.easeTo({
       bearing: 0,
       pitch: 0,
     });
   }
 
-  toggleMapLockState(e) {
+  toggleMapLockState() {
     return toggleMapLockState();
   }
 
@@ -298,7 +302,7 @@ class Map extends Component {
 
     return this.props.fetchMapSubjects(...args)
       .then((latestMapSubjects) => timeSliderActive ? this.fetchMapSubjectTracksForTimeslider(latestMapSubjects) : Promise.resolve(latestMapSubjects))
-      .catch((e) => {
+      .catch(() => {
         // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
       });
   }
@@ -436,7 +440,7 @@ class Map extends Component {
     this.props.setReportHeatmapVisibility(false);
   }
 
-  onClusterClick = this.withLocationPickerState(({ point, lngLat }) => {
+  onClusterClick = this.withLocationPickerState(({ point }) => {
     const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
@@ -481,7 +485,7 @@ class Map extends Component {
     mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
-  onMessageBadgeClick = this.withLocationPickerState(({ event, layer }) => {
+  onMessageBadgeClick = this.withLocationPickerState(({ layer }) => {
     const { geometry, properties } = layer;
 
     this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
@@ -591,7 +595,6 @@ class Map extends Component {
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
             <SubjectsLayer
-              allowOverlap={timeSliderActive}
               mapImages={mapImages}
               subjects={mapSubjectFeatureCollection}
               subjectsOnActivePatrol={subjectsOnActivePatrol}
@@ -661,9 +664,9 @@ class Map extends Component {
   }
 }
 
-const mapStatetoProps = (state, props) => {
+const mapStatetoProps = (state) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, eventTypes } = data;
+  const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
 
@@ -680,6 +683,7 @@ const mapStatetoProps = (state, props) => {
     patrolTrackState,
     popup,
     eventFilter,
+    patrolFilter,
     subjectTrackState,
     showTrackTimepoints,
     showReportsOnMap,

@@ -19,7 +19,7 @@ import styles from './styles.module.scss';
 const DEFAULT_PLACEMENT = 'bottom';
 const BLANK_VALUE = '____-__-__ __:__';
 
-const DateTimePickerPopover = (props, ref) => {
+const DateTimePickerPopover = (props) => {
   const { className = '', disabled = false, popperConfig = {}, inputClassName = '', placeholder = '', onPopoverToggle, onPopoverClosed, onPopoverOpened, minDate, maxDate, onChange, required, value, placement, showClockIcon = false } = props;
   const popoverStateIsControlled = props.hasOwnProperty('popoverOpen');
 
@@ -57,6 +57,7 @@ const DateTimePickerPopover = (props, ref) => {
     }
   }, [lastKnownValidValue, onChange]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onInputClick = useCallback(debounce((e) => {
     e.preventDefault();
     e.stopPropagation();

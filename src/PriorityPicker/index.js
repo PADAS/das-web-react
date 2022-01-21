@@ -35,7 +35,7 @@ export default memo(PriorityPicker);
 
 PriorityPicker.defaultProps = {
   className: '',
-  onSelect(value) {
+  onSelect() {
   },
   isMulti: false,
   selected: 0,
