@@ -5,12 +5,13 @@ import { Provider } from 'react-redux';
 
 import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
-import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp } from '../__test-helpers/fixtures/subjects';
+import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
 
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { GPS_FORMATS } from '../utils/location';
+import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 
 import SubjectPopup from './';
 
@@ -106,6 +107,21 @@ describe('SubjectPopup', () => {
 
       const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
       expect(additionalPropsValues[1]).toHaveTextContent('false');
+    });
+
+    test('render default featured property for static sensor subjects', async () => {
+      const defaultSubjectProperty = getSubjectDefaultDeviceProperty(staticSubjectFeature);
+      const defaultSubjectValue = `${defaultSubjectProperty.value} ${defaultSubjectProperty.units}`;
+      staticSubjectFeature.properties.default_status_value = defaultSubjectValue;
+
+      render(<Provider store={store}>
+        <SubjectPopup data={staticSubjectFeature} />
+      </Provider>);
+
+      const defaultStatusElement = await screen.findByTestId('header-default-status-property');
+
+      expect(defaultStatusElement).toBeDefined();
+      expect(defaultStatusElement).toHaveTextContent(defaultSubjectValue);
     });
   });
 });
