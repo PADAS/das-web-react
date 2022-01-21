@@ -16,7 +16,7 @@ const FETCH_PATROLS_ERROR = 'FETCH_PATROLS_ERROR';
 const CREATE_PATROL_SUCCESS = 'CREATE_PATROL_SUCCESS';
 // const CREATE_PATROL_ERROR = 'CREATE_PATROL_ERROR';
 
-// const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
+const UPDATE_PATROL_ERROR = 'UPDATE_PATROL_ERROR';
 
 const ADD_PATROL_NOTE_SUCCESS = 'ADD_PATROL_NOTE_SUCCESS';
 
@@ -29,7 +29,7 @@ const CLEAR_PATROL_DATA = 'CLEAR_PATROL_DATA';
 
 const REMOVE_PATROL_BY_ID = 'REMOVE_PATROL_BY_ID';
 
-const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
+export const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
 
 const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
 export const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
@@ -155,13 +155,10 @@ export const createPatrol = (patrol) => (dispatch) => {
     }); */
 };
 
-export const updatePatrol = (patrol) => (dispatch) => {
-
-  let patrolResults;
-  let resp;
+export const updatePatrol = patrol => dispatch => {
 
   return axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol)
-    .then((response) => {
+  /*  .then((response) => {
       patrolResults = response.data.data;
       resp = response;
       return true;
@@ -180,14 +177,14 @@ export const updatePatrol = (patrol) => (dispatch) => {
         });
       }
       return resp;
-    });
-/*     .catch((error) => {
+   }); */
+    .catch((error) => {
       dispatch({
         type: UPDATE_PATROL_ERROR,
         payload: error,
       });
       return Promise.reject(error);
-    }); */
+    });
 };
 
 export const updatePatrolTrackState = payload => ({
