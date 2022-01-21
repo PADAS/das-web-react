@@ -14,7 +14,7 @@ import AddReport from '../AddReport';
 
 import { showPopup } from '../ducks/popup';
 
-import { subjectIsARadioWithRecentVoiceActivity, isTypeStaticSensor } from '../utils/subjects';
+import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
@@ -35,7 +35,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
-  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2 && !isTypeStaticSensor(data);
+  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2 && !subjectIsStatic(data);
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
 
   const showAdditionalProps = hasAdditionalDeviceProps &&
@@ -69,7 +69,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
         <div className={styles.defaultStatusProperty}>
           {properties.default_status_value && <>
             {properties.image && <img src={properties.image} alt={`Subject icon for ${properties.name}`} />}
-            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? properties.default_status_value : 'No data'}</span>
+            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? properties.default_status_value : 'No historical data'}</span>
           </>}
           <h6>{properties.name}</h6>
         </div>
@@ -104,7 +104,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
           <strong>{label}</strong>
-          {(!isTypeStaticSensor(data) && isTimeSliderActive) ? <span>No data</span> : <span data-testid='additional-props-value'>
+          {(subjectIsStatic(data) && isTimeSliderActive) ? <span>No historical data</span> : <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
           </span>}
         </li>
