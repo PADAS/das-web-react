@@ -1,18 +1,25 @@
 import React, { memo, useMemo, Fragment } from 'react';
 import SubjectControls from '../SubjectControls';
+import isEmpty from 'lodash/isEmpty';
 
-import { isRadioWithImage } from '../utils/subjects';
+import { isRadioWithImage, subjectIsStatic, getSubjectDefaultDeviceProperty } from '../utils/subjects';
 
 import listStyles from '../SideBar/styles.module.scss';
 
-const SubjectListItem = (props) => { // eslint-disable-line react/display-name
+const SubjectListItem = (props) => {
+  const { map, ...subject } = props;
 
   const subjectRadioImage = useMemo(() => isRadioWithImage(props), [props]);
+  const isStaticTypeObject = subjectIsStatic(subject);
+  const defaultProperty = getSubjectDefaultDeviceProperty(subject);
 
-  const { map, ...rest } = props;
   return <Fragment>
-    <span className={listStyles.itemTitle}>{subjectRadioImage && <img src={subjectRadioImage} alt={props.name} />} {props.name}</span>
-    <SubjectControls showLabels={false} className={listStyles.controls} map={map} showTitles={false} subject={rest} />
+    <p className={listStyles.itemTitle} data-testid='subject-item-name'>
+      {subjectRadioImage && <img src={subjectRadioImage} alt={subject.name} />}
+      <span> {subject.name} </span>
+      {!isEmpty(defaultProperty) && <span className={listStyles.defaultProperty}>{`${defaultProperty.label}: ${defaultProperty.value} ${defaultProperty.units}`}</span>}
+    </p>
+    <SubjectControls showLabels={false} className={listStyles.controls} map={map} showTitles={false} subject={subject} showTrackButton={!isStaticTypeObject} showHeatmapButton={!isStaticTypeObject}/>
   </Fragment>;
 };
 

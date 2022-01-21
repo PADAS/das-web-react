@@ -72,8 +72,8 @@
     }
 
     display: flex;
-    flex-wrap: wrap;
     position: relative;
+    justify-content: space-between;
 
     h4,
     h5,
@@ -88,24 +88,32 @@
       position: absolute;
       z-index: 3;
       top: 1.15rem;
+      margin-top: 0.25rem;
+      margin-right: 0.62rem;
     }
 
     [class*=Collapsible__trigger],
     .itemTitle {
       display: block;
       padding-left: 3.5rem;
-      padding-right: 2rem;
-      word-break: break-all;
-
-      @media (min-width: $md-layout-width-min) {
-        word-break: initial;
-      }
+      padding-right: 1rem;
+      word-break: break-word;
+      margin-bottom: 0;
+      margin-right: 0.62rem;
+      width: 100%;
     }
 
     .itemTitle {
-      align-items: center;
+      align-items: flex-start;
       display: flex;
+      flex-wrap: wrap;
       flex-grow: 1;
+      margin-bottom: 0;
+
+      .defaultProperty {
+        margin: 0.2rem 0 0 0.5rem;
+        font-size: 0.75rem;
+      }
 
       img {
         margin-right: 0.5rem;
@@ -177,7 +185,7 @@
     }
 
     li {
-      padding: 1rem 0;
+      padding: 1rem 0.65rem 1rem 0;
 
       > [class*=checkmark] {
         top: 1rem;
@@ -192,7 +200,7 @@
 }
 
 .controls {
-  margin: 1rem 0 0 4rem;
+  // margin: 1rem 0 0 4rem;
 
   div > button, button:not(:last-child) {
     margin-right: 0.5rem;
@@ -201,9 +209,6 @@
 
   @media (min-width: $md-layout-width-min) {
     margin: 0;
-    position: absolute;
-    right: 1rem;
-    top: 0.7rem;
   }
 }
 
@@ -214,7 +219,7 @@
 .trigger {
   display: flex;
   justify-content: space-between;
-  padding-right: 1rem;
+  padding-right: 2rem;
   align-items: center;
 }
 

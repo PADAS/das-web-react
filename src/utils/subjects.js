@@ -20,8 +20,6 @@ export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
     && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
 };
 
-export const subjectIsStatic = (s) => !!s?.static_position;
-
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
 const calcElapsedTimeSinceSubjectRadioActivity = (subject) => {
@@ -78,6 +76,17 @@ export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubj
 export const getSubjectLastPositionCoordinates = subject => {
   return subject.last_position && subject.last_position.geometry ? subject.last_position.geometry.coordinates
     : subject.geometry ? subject.geometry.coordinates : null;
+};
+
+export const getSubjectDefaultDeviceProperty = subject => {
+  const deviceStatusProperties = subject?.properties?.device_status_properties ?? subject?.device_status_properties ?? [];
+  return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
+};
+
+export const subjectIsStatic = subject => {
+  const staticType = 'static_sensor';
+  return subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
+  subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
 };
 
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {
