@@ -7,7 +7,6 @@ import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
-import partition from 'lodash/partition';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
@@ -578,9 +577,8 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
-    const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectFeature.properties.is_static);
+    const staticFeatures = (mapSubjectFeatureCollection?.features ?? []).filter(subjectFeature => subjectFeature.properties.is_static);
     const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
-    const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
 
     return (
       <EarthRangerMap
@@ -621,7 +619,7 @@ class Map extends Component {
 
             <SubjectsLayer
               mapImages={mapImages}
-              subjects={nonStaticSubjects}
+              subjects={mapSubjectFeatureCollection}
               subjectsOnActivePatrol={subjectsOnActivePatrol}
               onSubjectIconClick={this.onMapSubjectClick}
             />

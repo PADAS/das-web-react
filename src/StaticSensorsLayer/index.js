@@ -15,7 +15,7 @@ import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 import SubjectPopup from '../SubjectPopup';
 
-const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
+const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
 const LAYER_TYPE = 'symbol';
 const SOURCE_PREFIX = `${STATIC_SENSOR}-source`;
@@ -122,10 +122,16 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
 
   useEffect(() => {
     if (map) {
+      const renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] });
       sensorsWithDefaultValue?.features?.forEach((feature, index) => {
         const sourceId = `${SOURCE_PREFIX}-${feature.properties.id}`;
         const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
         const source = map.getSource(sourceId);
+
+        // TODO: Check if current static sensor id is in renderedStaticSensors
+        // if that's the case lets render it
+        // if not we shouldnt render it and remove its old source if there was one
+        // console.log(JSON.stringify(renderedStaticSensors, null, 2));
 
         if (source) {
           source.setData(sourceData);

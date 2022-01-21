@@ -13,7 +13,7 @@ import { REACT_APP_ENABLE_CLUSTERING, CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_
 
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 
-const { SUBJECT_SYMBOLS } = LAYER_IDS;
+const { SUBJECT_SYMBOLS, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
 const SubjectsLayer = ({ onSubjectIconClick, subjects, map, eventFeatureCollection }) => {
   const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
@@ -50,12 +50,32 @@ const SubjectsLayer = ({ onSubjectIconClick, subjects, map, eventFeatureCollecti
 
   const onSymbolClick = (event) => onSubjectIconClick(({ event, layer: getSubjectLayer(event, map) }));
 
+  const subjectSymbolSource = map.getSource('subject-symbol-source');
+
+  useEffect(() => {
+    if (map && subjectSymbolSource) {
+      const layer = map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER);
+      if (!layer) {
+        map.addLayer({
+          id: UNCLUSTERED_STATIC_SENSORS_LAYER,
+          source: 'subject-symbol-source',
+          type: 'circle',
+          paint: { 'circle-radius': 0 },
+          filter: ['all', ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['==', 'is_static', true], ['!has', 'point_count']]
+        });
+      }
+    }
+  }, [subjectSymbolSource, map]);
+
   return <Fragment>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
     <LabeledPatrolSymbolLayer sourceId='subject-symbol-source' type='symbol'
       id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
       onInit={setLayerIds}
-      filter={['==', ['get', 'content_type'], SUBJECT_FEATURE_CONTENT_TYPE]}
+      {...(REACT_APP_ENABLE_CLUSTERING ? {
+          filter: ['all', ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['!=', 'is_static', true], ['!has', 'point_count']]
+        } : {}
+      )}
     />
   </Fragment>;
 };

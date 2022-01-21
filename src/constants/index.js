@@ -107,6 +107,7 @@ export const LAYER_IDS = {
   EVENT_SYMBOLS: 'event_symbols',
   SUBJECT_SYMBOLS: 'subject_symbols',
   STATIC_SENSOR: 'static_sensor',
+  UNCLUSTERED_STATIC_SENSORS_LAYER: 'unclustered_static_sensors_layer',
   SECOND_STATIC_SENSOR_PREFIX: 'icons-layer-',
   PATROL_SYMBOLS: 'patrol_symbols',
   TRACKS_LINES: 'track-layer',
