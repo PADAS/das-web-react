@@ -1,5 +1,5 @@
-import { subjectIsStatic } from './subjects.js';
-import { subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
+import { subjectIsStatic, getSubjectDefaultDeviceProperty } from './subjects.js';
+import { subjectFeatureWithOneDeviceProp, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 
 
 import '@testing-library/jest-dom/extend-expect';
@@ -16,7 +16,16 @@ describe('Determining if a subject is static', () => {
   });
 });
 
+describe('getting the feature default property from a subject', () => {
+  const knownFeaturePropertyFromSubjectA = staticSubjectFeature.properties.device_status_properties[0];
+  const knownFeaturePropertyFromSubjectB = staticSubjectFeatureWithoutIcon.properties.device_status_properties[1];
 
-it('works', () => {
-  expect(true).toBe(true);
+  test('getting correct feature default property', () => {
+    expect(getSubjectDefaultDeviceProperty(staticSubjectFeature)).toBe(knownFeaturePropertyFromSubjectA);
+    expect(getSubjectDefaultDeviceProperty(staticSubjectFeatureWithoutIcon)).toBe(knownFeaturePropertyFromSubjectB);
+  });
+
+  test('getting an empty object for subject without feature default property', () => {
+    expect(getSubjectDefaultDeviceProperty(subjectFeatureWithOneDeviceProp)).toMatchObject({});
+  });
 });
