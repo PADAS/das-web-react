@@ -123,16 +123,17 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
 
   useEffect(() => {
     if (map) {
-      const renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] });
+      const renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] }).map((feature) => feature?.properties?.id);
+
       sensorsWithDefaultValue?.features?.forEach((feature, index) => {
+        const layerID = `${LAYER_ID}${feature.properties.id}`;
         const sourceId = `${SOURCE_PREFIX}-${feature.properties.id}`;
         const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
         const source = map.getSource(sourceId);
 
-        // TODO: Check if current static sensor id is in renderedStaticSensors
-        // if that's the case lets render it
-        // if not we shouldnt render it and remove its old source if there was one
-        // console.log(JSON.stringify(renderedStaticSensors, null, 2));
+        if (!renderedStaticSensors.includes(feature.properties.id)) {
+          return map.getLayer(layerID) && changeLayersVisibility(layerID, 'none');
+        }
 
         if (source) {
           source.setData(sourceData);
@@ -143,16 +144,14 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
           });
         }
 
-        const layerID = `${LAYER_ID}${feature.properties.id}`;
+        if (map.getLayer(layerID)) return changeLayersVisibility(layerID, 'visible');
 
-        if (!map.getLayer(layerID)) {
-          createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
-          createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
-          map.on('click', layerID, onLayerClick);
-        }
+        createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
+        createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
+        map.on('click', layerID, onLayerClick);
       });
     }
-  }, [createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue]);
+  }, [changeLayersVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue]);
 
   return null;
 };
