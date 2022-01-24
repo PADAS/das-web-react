@@ -2,10 +2,11 @@ import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import { patrolDrawerId } from '../Drawer';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
-import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
+import { showDrawer } from '../ducks/drawer';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
 import { FormDataContext } from '../EditableItem/context';
@@ -17,7 +18,7 @@ import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
 const RelationshipButton = (props) => {
-  const { fetchEvent, fetchPatrol, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
+  const { fetchEvent, fetchPatrol, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal, showDrawer } = props;
 
   const report = useContext(FormDataContext);
 
@@ -44,11 +45,11 @@ const RelationshipButton = (props) => {
 
     reportTracker.track('Click \'Go to Patrol\' button');
 
-    return fetchPatrol(patrolId).then(({ data: { data } }) => {
+    return fetchPatrol(patrolId).then(() => {
       removeModal();
-      openModalForPatrol(data, map);
+      showDrawer(patrolDrawerId, patrolId);
     });
-  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker]);
+  }, [fetchPatrol, removeModal, report.patrols, reportTracker, showDrawer]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>
@@ -71,7 +72,7 @@ const RelationshipButton = (props) => {
 };
 
 
-export default memo(connect(null, { fetchEvent: id => fetchEvent(id), fetchPatrol: id => fetchPatrol(id) })(RelationshipButton));
+export default memo(connect(null, { fetchEvent: id => fetchEvent(id), fetchPatrol: id => fetchPatrol(id), showDrawer })(RelationshipButton));
 
 RelationshipButton.propTypes = {
   onNewReportSaved: PropTypes.func,
@@ -79,4 +80,5 @@ RelationshipButton.propTypes = {
   isPatrolReport: PropTypes.bool,
   onGoToCollection: PropTypes.func,
   map: PropTypes.object,
+  showDrawer: PropTypes.func.isRequired,
 };

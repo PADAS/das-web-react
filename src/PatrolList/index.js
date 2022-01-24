@@ -4,9 +4,12 @@ import PropTypes from 'prop-types';
 import merge from 'lodash/merge';
 // import { findDOMNode } from 'react-dom';
 import { Flipper, Flipped } from 'react-flip-toolkit';
+
+import { patrolDrawerId } from '../Drawer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
+import { showDrawer } from '../ducks/drawer';
+import { sortPatrolList } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -17,12 +20,12 @@ import PatrolListItem from '../PatrolListItem';
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
+  const { map, onPatrolSelfManagedStateChange, patrol, showDrawer, updatePatrol, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    openModalForPatrol(patrol, map);
-  }, [map, patrol]);
+    showDrawer(patrolDrawerId, patrol.id);
+  }, [patrol.id, showDrawer]);
 
   const onPatrolChange = useCallback((value) => {
     const merged = merge(patrol, value);
@@ -43,7 +46,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { updatePatrol })(ListItem);
+const ConnectedListItem = connect(null, { showDrawer, updatePatrol })(ListItem);
 
 const PatrolList = (props) => {
   const { map, patrols = [], loading } = props;
