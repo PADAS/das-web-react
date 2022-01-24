@@ -12,7 +12,7 @@ import {
 import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
 
-const { CLUSTERS_LAYER_ID, CLUSTERS_SOURCE_ID } = LAYER_IDS;
+const { SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID, SUBJECTS_AND_EVENTS_SOURCE_ID } = LAYER_IDS;
 
 export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
 
@@ -118,7 +118,7 @@ export const onClusterClick = (
 };
 
 export const getRenderedClustersData = async (clustersSource, map) => {
-  const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
+  const renderedClusterIds = map.queryRenderedFeatures({ layers: [SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
   const getAllClusterLeavesPromises = renderedClusterIds.map((clusterId) => new Promise((resolve, reject) => {
@@ -166,7 +166,8 @@ export const addNewClusterMarkers = (
     const clusterHash = renderedClusterHashes[index];
     const clusterId = renderedClusterIds[index];
 
-    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker;
+    let marker = clusterMarkerHashMapRef.current[clusterHash]?.marker
+      || renderedClusterMarkersHashMap[clusterHash]?.marker;
     if (!marker) {
       const clusterFeatureCollection = featureCollection(clusterFeatures);
       const clusterPoint = centroid(clusterFeatureCollection);
@@ -204,8 +205,8 @@ export const recalculateClusterRadius = (map) => {
   }
 
   const style = map.getStyle();
-  if (style.sources[CLUSTERS_SOURCE_ID].clusterRadius !== newRadius) {
-    style.sources[CLUSTERS_SOURCE_ID].clusterRadius = newRadius;
+  if (style.sources[SUBJECTS_AND_EVENTS_SOURCE_ID].clusterRadius !== newRadius) {
+    style.sources[SUBJECTS_AND_EVENTS_SOURCE_ID].clusterRadius = newRadius;
     map.setStyle(style);
   }
 };

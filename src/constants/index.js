@@ -17,8 +17,11 @@ export const {
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
-const { REACT_APP_ENABLE_CLUSTERING: REACT_APP_ENABLE_CLUSTERING_STRING } = process.env;
-export const REACT_APP_ENABLE_CLUSTERING = REACT_APP_ENABLE_CLUSTERING_STRING === 'true';
+const {
+  REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING: REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING_STRING,
+} = process.env;
+export const REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING =
+  REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING_STRING === 'true';
 
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
@@ -97,8 +100,8 @@ export const LAYER_IDS = {
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
   CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
   CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
-  CLUSTERS_LAYER_ID: 'clusters-layer',
-  CLUSTERS_SOURCE_ID: 'clusters-source',
+  SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID: 'subjects-and-events-clusters-layer',
+  SUBJECTS_AND_EVENTS_SOURCE_ID: 'subjects-and-events-source',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',

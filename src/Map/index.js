@@ -37,9 +37,8 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import { BREAKPOINTS, REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
-import ClustersLayer from '../ClustersLayer';
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
@@ -64,6 +63,7 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
+import SubjectsAndEventsLayer from '../SubjectsAndEventsLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -339,12 +339,15 @@ class Map extends Component {
   }
   onMapClick = this.withLocationPickerState((map, event) => {
     let hidePopup;
-    if (REACT_APP_ENABLE_CLUSTERING) {
+    if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING) {
       const clusterApproxGeometry = [
         [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
         [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
       ];
-      const clustersAtPoint = map.queryRenderedFeatures(clusterApproxGeometry, { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] });
+      const clustersAtPoint = map.queryRenderedFeatures(
+        clusterApproxGeometry,
+        { layers: [LAYER_IDS.SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID] }
+      );
 
       hidePopup = !clustersAtPoint.length;
     } else {
@@ -561,7 +564,7 @@ class Map extends Component {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
       mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
-      patrolTrackState, subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
+      patrolTrackState, timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
 
@@ -605,25 +608,32 @@ class Map extends Component {
             {children}
 
             <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
-              <EventsLayer
-                enableClustering={enableEventClustering}
-                events={mapEventFeatureCollection}
-                mapImages={mapImages}
-                onEventClick={this.onEventSymbolClick}
-                onClusterClick={this.onClusterClick}
-                bounceEventIDs={bounceEventIDs} />
+              {REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING ? <SubjectsAndEventsLayer
+                  bounceEventIDs={bounceEventIDs}
+                  mapImages={mapImages}
+                  onEventClick={this.onEventSymbolClick}
+                  onSubjectClick={this.onMapSubjectClick}
+                />
+                : <EventsLayer
+                  enableClustering={enableEventClustering}
+                  events={mapEventFeatureCollection}
+                  mapImages={mapImages}
+                  onEventClick={this.onEventSymbolClick}
+                  onClusterClick={this.onClusterClick}
+                  bounceEventIDs={bounceEventIDs}
+                />
+              }
             </DelayedUnmount>
+
+            {!REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING && <SubjectsLayer
+              mapImages={mapImages}
+              subjects={mapSubjectFeatureCollection}
+              onSubjectIconClick={this.onMapSubjectClick}
+            />}
 
             <MapImagesLayer map={map} />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
-
-            <SubjectsLayer
-              mapImages={mapImages}
-              subjects={mapSubjectFeatureCollection}
-              subjectsOnActivePatrol={subjectsOnActivePatrol}
-              onSubjectIconClick={this.onMapSubjectClick}
-            />
 
             <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
 
@@ -634,7 +644,6 @@ class Map extends Component {
                 <EventFilter className='report-filter'/>
               </div>
             </DelayedUnmount>
-
 
             <div className='map-legends'>
               {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
@@ -674,11 +683,6 @@ class Map extends Component {
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
               onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
-
-            {REACT_APP_ENABLE_CLUSTERING && <ClustersLayer
-              onEventClick={this.onEventSymbolClick}
-              onSubjectClick={this.onMapSubjectClick}
-            />}
 
             {!!popup && <PopupLayer
               popup={popup} />

@@ -1,5 +1,4 @@
 import React, { Fragment, memo, useEffect, useCallback, useRef, useState } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Source, Layer } from 'react-mapbox-gl';
 import debounceRender from 'react-debounce-render';
@@ -7,7 +6,6 @@ import { featureCollection } from '@turf/helpers';
 
 import { addMapImage } from '../utils/map';
 import { addBounceToEventMapFeatures } from '../utils/events';
-import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
@@ -16,9 +14,6 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 
 import LabeledSymbolLayer from '../LabeledSymbolLayer';
 import {
-  REACT_APP_ENABLE_CLUSTERING,
-  CLUSTERS_MAX_ZOOM,
-  CLUSTERS_RADIUS,
   LAYER_IDS,
   MAX_ZOOM,
   DEFAULT_SYMBOL_LAYOUT,
@@ -93,7 +88,7 @@ const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [], subjectFeatureCollection } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [] } = props;
 
   const { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon } = useClusterBufferPolygon(
     { ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION, minZoom },
@@ -271,18 +266,7 @@ const EventsLayer = (props) => {
 
   const sourceData = {
     type: 'geojson',
-    data: {
-      features: [...mapEventFeatureCollection.features, ...subjectFeatureCollection.features],
-      type: 'FeatureCollection',
-    },
-    ...(REACT_APP_ENABLE_CLUSTERING ?
-      {
-        cluster: true,
-        clusterMaxZoom: CLUSTERS_MAX_ZOOM,
-        clusterRadius: CLUSTERS_RADIUS,
-      }:
-      {}
-    ),
+    data: mapEventFeatureCollection,
   };
 
   const clusteredSourceData = {
@@ -291,16 +275,16 @@ const EventsLayer = (props) => {
   };
 
   return <Fragment>
-    {!REACT_APP_ENABLE_CLUSTERING && <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />}
+    <Source id='events-data-clustered' geoJsonSource={clusteredSourceData} />
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
 
-    {(REACT_APP_ENABLE_CLUSTERING || !enableClustering) && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
+    {!enableClustering && <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-unclustered' type='symbol'
       id={EVENT_SYMBOLS} onClick={handleEventClick}
       onInit={setEventSymbolLayerIDs}
       filter={['all', ['!=', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['!has', 'point_count']]}
     />}
 
-    {!REACT_APP_ENABLE_CLUSTERING && enableClustering && <Fragment>
+    {enableClustering && <Fragment>
       <LabeledSymbolLayer layout={eventIconLayout} textLayout={eventLabelLayout} textPaint={eventLabelPaint} minZoom={minZoom} before={SUBJECT_SYMBOLS} sourceId='events-data-clustered' type='symbol'
         id={EVENT_SYMBOLS} filter={['!has', 'point_count']} onClick={handleEventClick}
         onInit={setEventSymbolLayerIDs}
@@ -314,11 +298,7 @@ const EventsLayer = (props) => {
   </Fragment>;
 };
 
-const mapStatetoProps = (state) => ({
-  subjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
-});
-
-export default connect(mapStatetoProps)(debounceRender(memo(withMapViewConfig(withMap(EventsLayer))), 16.6666)); /* debounce updates a bit without throttlling below 60fps */
+export default debounceRender(memo(withMapViewConfig(withMap(EventsLayer))), 16.6666); /* debounce updates a bit without throttlling below 60fps */
 
 EventsLayer.defaultProps = {
   onClusterClick() {
