@@ -10,6 +10,7 @@ import store from '../store';
 import { MapContext } from '../App';
 import { LAYER_IDS } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
@@ -39,11 +40,11 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
 
   const addDefaultStatusValue = useCallback((features = []) => {
     return features.map(feature => {
-      const { properties, properties: { device_status_properties = [] } } = feature;
-      const defaultProperty = device_status_properties.find(deviceProperty => deviceProperty?.default ?? false);
+      const { properties } = feature;
+      const defaultProperty = getSubjectDefaultDeviceProperty(feature);
       if (isEmpty(defaultProperty)) return feature;
 
-      let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No data' : `${defaultProperty.value} ${defaultProperty.units}`);
+      let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value} ${defaultProperty.units}`);
       featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
 
       if (!properties?.image?.length) {

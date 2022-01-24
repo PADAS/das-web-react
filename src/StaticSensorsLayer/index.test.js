@@ -79,7 +79,7 @@ describe('adding default property', () => {
     expect(staticSubjectFeatureWithoutDefaultValue.properties).not.toHaveProperty('default_status_value');
   });
 
-  test('Showing label as "No data" in case the time slider is active', () => {
+  test('Showing label as "No historical data" in case the time slider is active', () => {
     render(<Provider store={mockStore(store)}>
       <MapContext.Provider value={map}>
         <StaticSensorsLayer staticSensors={{
@@ -89,7 +89,7 @@ describe('adding default property', () => {
       </MapContext.Provider>
     </Provider>);
 
-    expect(staticSubjectFeature.properties.default_status_value).toBe('No data');
+    expect(staticSubjectFeature.properties.default_status_value).toBe('No historical data');
   });
 });
 
