@@ -42,11 +42,14 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapSta
     return features.map(feature => {
       const { properties } = feature;
       const defaultProperty = getSubjectDefaultDeviceProperty(feature);
-      if (isEmpty(defaultProperty)) return feature;
 
-      let featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value} ${defaultProperty.units}`);
+      let featureWithDefaultValue;
       featureWithDefaultValue =  set(feature, 'properties.data_map_id_simplified', isDataInMapSimplified);
       featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapStaticSubjectsNames);
+
+      if (!isEmpty(defaultProperty)) {
+        featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value} ${defaultProperty.units}`);
+      };
 
       if (!properties?.image?.length) {
         featureWithDefaultValue =  set(feature, 'properties.default_status_label', defaultProperty.label) ;

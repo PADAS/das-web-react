@@ -119,6 +119,7 @@ const generateSubject = () => {
     created_at: '2021-11-10T07:26:19.869853-08:00',
     updated_at: '2021-11-10T07:26:19.869873-08:00',
     is_active: true,
+    is_static: subject_type === 'static_sensor',
     tracks_available: subject_type !== 'static_sensor',
     image_url,
     last_position_status: {
@@ -137,7 +138,6 @@ const generateSubject = () => {
         ],
       },
       properties: {
-        is_static: subject_type === 'static_sensor',
         title: name,
         subject_type,
         subject_subtype,
