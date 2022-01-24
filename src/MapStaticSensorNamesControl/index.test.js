@@ -24,7 +24,7 @@ test('rendering without crashing', () => {
   );
 });
 
-test('changing th', async () => {
+test('changing the checkbox value', async () => {
   const toggleMapStaticSubjectsNameStateMock = jest.fn(() => () => {});
   toggleMapStaticSubjectsNameState.mockImplementation(toggleMapStaticSubjectsNameStateMock);
 
@@ -35,7 +35,6 @@ test('changing th', async () => {
   );
   const checkboxInput = await screen.findByRole('checkbox');
   userEvent.click(checkboxInput);
-  console.warn(checkboxInput.checked);
 
   expect(toggleMapStaticSubjectsNameState).toHaveBeenCalledTimes(1);
 });
