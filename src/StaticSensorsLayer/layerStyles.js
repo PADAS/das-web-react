@@ -46,8 +46,7 @@ export const BACKGROUND_LAYER = {
         ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
         '\n',
       ],
-
-      ['all', ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['==', ['get', 'show_map_names'], true],
       ['format',
         'icon',
         { 'font-scale': 1.3 },
@@ -64,8 +63,7 @@ export const BACKGROUND_LAYER = {
     ],
   },
   paint: {
-    'text-color': '#ff0000',
-    // 'text-color': 'transparent',
+    'text-color': 'transparent',
     'text-halo-width': 0,
     'text-translate': [0, -30],
   }
@@ -121,16 +119,14 @@ export const LABELS_LAYER = {
         '\n',
         ['coalesce', ['get', 'default_status_label'], ''],
       ],
-
-      ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['all', ['==', ['has', 'default_status_value'], false], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
+      ['get', 'name'],
+      ['==', ['get', 'show_map_names'], true],
       ['format',
         ['get', 'default_status_value'],
         '\n',
         ['get', 'name'],
       ],
-      ['all', ['==', ['has', 'default_status_value'], false], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
-      ['get', 'name'],
-
       ['get', 'default_status_value'],
     ]
   },
