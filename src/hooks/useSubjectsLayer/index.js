@@ -2,12 +2,16 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { featureCollection } from '@turf/helpers';
 import { useSelector } from 'react-redux';
 
-import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { MapContext } from '../App';
+import { addFeatureCollectionImagesToMap } from '../../utils/map';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../../selectors/subjects';
+import {
+  LAYER_IDS,
+  SUBJECT_FEATURE_CONTENT_TYPE,
+  REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING,
+} from '../../constants';
+import { MapContext } from '../../App';
 
-import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
+import LabeledPatrolSymbolLayer from '../../LabeledPatrolSymbolLayer';
 
 const { SUBJECT_SYMBOLS, SUBJECTS_AND_EVENTS_SOURCE_ID } = LAYER_IDS;
 
@@ -35,16 +39,18 @@ export default (mapImages, onSubjectClick) => {
   }, [subjectLayerIds, map, onSubjectClick]);
 
   const renderedSubjectsLayer = <LabeledPatrolSymbolLayer
-    filter={[
-      'all',
-      ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
-      ['!=', 'is_static', true],
-      ['!has', 'point_count']
-    ]}
+    {...(REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING ? {
+      filter: [
+        'all',
+        ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
+        ['!=', 'is_static', true],
+        ['!has', 'point_count']
+    ] } : {})}
     id={SUBJECT_SYMBOLS}
     onClick={onSubjectSymbolClick}
     onInit={setSubjectLayerIds}
-    sourceId={SUBJECTS_AND_EVENTS_SOURCE_ID}
+    sourceId={REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING
+      ? SUBJECTS_AND_EVENTS_SOURCE_ID : 'subject-symbol-source'}
     type="symbol"
   />;
 

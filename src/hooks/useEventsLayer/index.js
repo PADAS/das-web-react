@@ -2,19 +2,20 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import { featureCollection } from '@turf/helpers';
 import { useSelector } from 'react-redux';
 
-import { addBounceToEventMapFeatures } from '../utils/events';
+import { addBounceToEventMapFeatures } from '../../utils/events';
 import {
   DEFAULT_SYMBOL_LAYOUT,
   IF_IS_GENERIC,
   LAYER_IDS,
   MAP_ICON_SCALE,
+  REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING,
   SUBJECT_FEATURE_CONTENT_TYPE,
-} from '../constants';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
-import { MapContext } from '../App';
-import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+} from '../../constants';
+import { getMapEventFeatureCollectionWithVirtualDate } from '../../selectors/events';
+import { MapContext } from '../../App';
+import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../../MapImageFromSvgSpriteRenderer';
 
-import LabeledSymbolLayer from '../LabeledSymbolLayer';
+import LabeledSymbolLayer from '../../LabeledSymbolLayer';
 
 const { EVENT_SYMBOLS, SUBJECT_SYMBOLS, SUBJECTS_AND_EVENTS_SOURCE_ID } = LAYER_IDS;
 
@@ -41,7 +42,7 @@ const EVENTS_LAYER_TEXT_PAINT = {
   ],
 };
 
-export default (bounceEventIDs, mapEventsUserLayoutConfig, mapImages, minZoom, onEventClick) => {
+export default (bounceEventIDs, enableClustering, mapEventsUserLayoutConfig, mapImages, minZoom, onEventClick) => {
   const map = useContext(MapContext);
 
   const eventFeatureCollection = useSelector((state) => getMapEventFeatureCollectionWithVirtualDate(state));
@@ -183,13 +184,17 @@ export default (bounceEventIDs, mapEventsUserLayoutConfig, mapImages, minZoom, o
   const renderedEventsLayer = <>
     <LabeledSymbolLayer
       before={SUBJECT_SYMBOLS}
-      filter={['all', ['!=', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['!has', 'point_count']]}
+      filter={enableClustering
+        ? ['!has', 'point_count']
+        : ['all', ['!=', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['!has', 'point_count']]}
       id={EVENT_SYMBOLS}
       layout={eventIconLayout}
       minZoom={minZoom}
       onClick={onEventSymbolClick}
       onInit={setEventLayerIds}
-      sourceId={SUBJECTS_AND_EVENTS_SOURCE_ID}
+      sourceId={REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING
+        ? SUBJECTS_AND_EVENTS_SOURCE_ID
+        : enableClustering ? 'events-data-clustered' : 'events-data-unclustered'}
       textLayout={eventLabelLayout}
       textPaint={EVENTS_LAYER_TEXT_PAINT}
       type="symbol"

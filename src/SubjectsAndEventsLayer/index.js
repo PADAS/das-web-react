@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import { MapContext } from '../App';
+import useEventsLayer from '../hooks/useEventsLayer';
+import useSubjectsLayer from '../hooks/useSubjectsLayer';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import useClustersLayer from './useClustersLayer';
-import useEventsLayer from './useEventsLayer';
-import useSubjectsLayer from './useSubjectsLayer';
 import useUnclusteredStaticSensorsLayer from './useUnclusteredStaticSensorsLayer';
 
 const { SUBJECTS_AND_EVENTS_SOURCE_ID } = LAYER_IDS;
@@ -35,7 +35,7 @@ const SubjectsAndEventsLayer = ({
   const {
     mapEventFeatures,
     renderedEventsLayer,
-  } = useEventsLayer(bounceEventIDs, mapEventsUserLayoutConfig, mapImages, minZoom, onEventClick);
+  } = useEventsLayer(bounceEventIDs, false, mapEventsUserLayoutConfig, mapImages, minZoom, onEventClick);
 
   const { mapSubjectFeatures, renderedSubjectsLayer } = useSubjectsLayer(mapImages, onSubjectClick);
 

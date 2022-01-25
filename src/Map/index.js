@@ -27,7 +27,6 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
@@ -562,7 +561,7 @@ class Map extends Component {
 
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
-      mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
+      mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
       patrolTrackState, timeSliderState: { active: timeSliderActive } } = this.props;
 
@@ -616,7 +615,6 @@ class Map extends Component {
                 />
                 : <EventsLayer
                   enableClustering={enableEventClustering}
-                  events={mapEventFeatureCollection}
                   mapImages={mapImages}
                   onEventClick={this.onEventSymbolClick}
                   onClusterClick={this.onClusterClick}
@@ -627,7 +625,6 @@ class Map extends Component {
 
             {!REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING && <SubjectsLayer
               mapImages={mapImages}
-              subjects={mapSubjectFeatureCollection}
               onSubjectIconClick={this.onMapSubjectClick}
             />}
 
@@ -726,7 +723,6 @@ const mapStatetoProps = (state) => {
     bounceEventIDs,
     trackLength,
     trackLengthOrigin,
-    mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapImages: state.view.mapImages,
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
