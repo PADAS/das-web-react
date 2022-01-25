@@ -20,6 +20,7 @@ export const createMapMock = (override = {}) => {
     getSource: jest.fn().mockReturnValue({ setData: jest.fn() }),
     project: jest.fn(),
     queryRenderedFeatures: jest.fn(),
+    setLayoutProperty: jest.fn(),
     setTerrain: jest.fn(),
     ...override,
     __test__: {
