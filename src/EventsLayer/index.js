@@ -26,7 +26,7 @@ export const CLUSTER_CONFIG = {
   clusterRadius: 40,
 };
 
-const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
+const { CLUSTER_BUFFER_POLYGON_LAYER_ID, EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const clusterSymbolLayout = {
   'icon-image': 'event-cluster-icon',
@@ -58,7 +58,7 @@ const clusterPolyPaint = {
 
 const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   before: EVENT_CLUSTERS_CIRCLES,
-  id: 'cluster-polygon',
+  id: CLUSTER_BUFFER_POLYGON_LAYER_ID,
   maxZoom: MAX_ZOOM - 2,
   paint: clusterPolyPaint,
   source: 'cluster-buffer-polygon-data',
@@ -76,7 +76,7 @@ const EventsLayer = (props) => {
 
   const { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon } = useClusterBufferPolygon(
     { ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION, minZoom },
-    'cluster-polygon',
+    CLUSTER_BUFFER_POLYGON_LAYER_ID,
     CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION,
     'cluster-buffer-polygon-data'
   );
