@@ -1,43 +1,32 @@
-import { MongoClient } from 'mongodb';
+import Firestore from '@google-cloud/firestore';
+import { GOOGLE_APPLICATION_CREDENTIALS, PROJECT_ID } from '../constants.js';
 
-const dbUrl = 'mongodb://pref_db';
+const USER_PREF_COLLECTION_KEY = 'user-preferences';
+
+const firestoreDb = new Firestore({
+  projectId: PROJECT_ID,
+  keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
+});
+
 
 export const preferencesService = {
   async getUserPreferencesById(userId) {
-    const client = await MongoClient.connect(dbUrl);
+    const firestoreUserPrefDocRef = await firestoreDb.collection(USER_PREF_COLLECTION_KEY).doc(userId);
+    const userPrefDocValue = await firestoreUserPrefDocRef.get();
 
-    const database = client.db('web-client-db');
-    const preferenceCollection = database.collection('user-preferences');
-
-    const userPrefRecord = await preferenceCollection.findOne( { id: { $eq: userId } } );
+    if (userPrefDocValue.exists) return userPrefDocValue.data();
 
     const emptyRecord = { id: userId, preferences: {} };
+    await firestoreUserPrefDocRef.set(emptyRecord);
 
-    if (!userPrefRecord) {
-      preferenceCollection.insertOne(emptyRecord);
-
-      return emptyRecord.preferences;
-    } else {
-
-      return userPrefRecord.preferences;
-    }
+    return emptyRecord;
   },
   async setUserPreference(userId, preferences) {
-    const client = await MongoClient.connect(dbUrl);
+    const firestoreUserPrefDocRef = await firestoreDb.collection(USER_PREF_COLLECTION_KEY).doc(userId);
+    await firestoreUserPrefDocRef.set({ preferences }, { merge: true });
 
-    const database = client.db('web-client-db');
-    const preferenceCollection = database.collection('user-preferences');
+    const updatedValue = await firestoreUserPrefDocRef.get();
 
-    const filter = { id: { $eq: userId } };
-    const updateDoc = {
-      $set: {
-        preferences,
-      }
-    };
-    const options = { upsert: true };
-
-    await preferenceCollection.updateOne(filter, updateDoc, options);
-
-    return { id: userId, preferences };
-  }
+    return updatedValue;
+  },
 };
