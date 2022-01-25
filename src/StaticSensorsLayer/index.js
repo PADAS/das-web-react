@@ -77,8 +77,9 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapSta
     }
   }, [map]);
 
-  const changeLayersVisibility = useCallback((layerID, visibility) => {
+  const changeLayerVisibility = useCallback((layerID, isVisible = true) => {
     const backgroundLayerID = layerID.replace(PREFIX_ID, '');
+    const visibility = isVisible ? 'visible' : 'none';
     if (map.getLayer(backgroundLayerID)) {
       map.setLayoutProperty(backgroundLayerID, 'visibility', visibility);
       map.setLayoutProperty(`${PREFIX_ID}${backgroundLayerID}`, 'visibility', visibility);
@@ -99,16 +100,16 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapSta
       .addTo(map);
 
     popup.on('close', () => {
-      changeLayersVisibility(layer.layer.id, 'visible');
+      changeLayerVisibility(layer.layer.id);
     });
-  }, [changeLayersVisibility, map]);
+  }, [changeLayerVisibility, map]);
 
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
     const clickedLayerID = clickedLayer.layer.id;
     createPopup(clickedLayer);
-    changeLayersVisibility(clickedLayerID, 'none');
-  }, [changeLayersVisibility, createPopup, getStaticSensorLayer]);
+    changeLayerVisibility(clickedLayerID, false);
+  }, [changeLayerVisibility, createPopup, getStaticSensorLayer]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
     if (!map.getLayer(layerID)) {
