@@ -21,11 +21,12 @@ export const BACKGROUND_LAYER = {
       ['literal', [0, -.4]],
       ['literal', [0, 0]],
     ],
+    'text-max-width': 9,
     'text-field': [
       'case',
       // no icon either default prop
       ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
-      ['get', 'name'],
+      ['get', 'title'],
       // no icon but default prop and data is simplified
       ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], true]],
       ['get', 'default_status_value'],
@@ -36,7 +37,7 @@ export const BACKGROUND_LAYER = {
         '\n',
         ['get', 'default_status_label'],
         '\n',
-        ['get', 'name'],
+        ['get', 'title'],
       ],
       // same as previous but without showing map names
       ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false]],
@@ -46,12 +47,13 @@ export const BACKGROUND_LAYER = {
         ['coalesce', ['get', 'default_status_label'], ['get', 'default_status_value']],
         '\n',
       ],
+      // for all remaining cases but showing map names
       ['all', ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
       ['format',
         'icon',
         { 'font-scale': 1.3 },
         '\n',
-        ['get', 'name'],
+        ['get', 'title'],
         '\n',
       ],
 
@@ -77,11 +79,9 @@ export const LABELS_LAYER = {
     'text-offset': [
       'case',
       ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
-      ['literal', [0, -2.5]],
-      ['all', ['==', ['has', 'default_status_value'], false], ['==', ['get', 'show_map_names'], false]],
+      ['literal', [0, -2.4]],
+      ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
       ['literal', [0, -2.6]],
-      ['all', ['==', ['has', 'default_status_value'], false], ['==', ['get', 'show_map_names'], true]],
-      ['literal', [0, -1.4]],
       ['literal', [0, -1.9]],
     ],
     'icon-offset': [
@@ -99,6 +99,7 @@ export const LABELS_LAYER = {
     'icon-anchor': 'top',
     'text-anchor': 'center',
     'text-justify': 'center',
+    'text-max-width': 9,
     'text-field': [
       'case',
 
@@ -106,7 +107,7 @@ export const LABELS_LAYER = {
       '',
 
       ['all', ['==', ['get', 'image'], null], ['==', ['has', 'default_status_value'], false]],
-      ['get', 'name'],
+      ['get', 'title'],
 
       ['all', ['==', ['get', 'image'], null], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
       ['format',
@@ -114,7 +115,7 @@ export const LABELS_LAYER = {
         '\n',
         ['coalesce', ['get', 'default_status_label'], ''],
         '\n',
-        ['get', 'name'],
+        ['get', 'title'],
       ],
 
       ['all', ['==', ['get', 'image'], null], ['==', ['get', 'data_map_id_simplified'], false]],
@@ -124,12 +125,12 @@ export const LABELS_LAYER = {
         ['coalesce', ['get', 'default_status_label'], ''],
       ],
       ['all', ['==', ['has', 'default_status_value'], false], ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
-      ['get', 'name'],
+      ['get', 'title'],
       ['all', ['==', ['get', 'data_map_id_simplified'], false], ['==', ['get', 'show_map_names'], true]],
       ['format',
         ['get', 'default_status_value'],
         '\n',
-        ['get', 'name'],
+        ['get', 'title'],
       ],
       ['get', 'default_status_value'],
     ]
