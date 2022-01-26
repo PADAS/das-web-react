@@ -56,8 +56,8 @@ describe('Header', () => {
 
     const buttons = await screen.findAllByRole('button');
 
-    expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled 13:23');
-    expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Ready to Start');
+    expect((screen.queryByTestId('patrol-drawer-header-details'))).toHaveTextContent('Scheduled');
+    expect((screen.queryByTestId('patrol-drawer-header-description'))).toHaveTextContent('Scheduled');
     expect(buttons[0]).toHaveTextContent('Start Patrol');
     expect(buttons[1]).toHaveClass('kebabToggle');
   });

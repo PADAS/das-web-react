@@ -110,4 +110,21 @@ describe('Drawer', () => {
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
+
+  test('triggers the hideDrawer action when user press esc', async () => {
+    store.view.drawer.isOpen = true;
+    store.view.drawer.data = { newPatrol };
+    store.view.drawer.drawerId = patrolDrawerId;
+    render(
+      <Provider store={mockStore(store)}>
+        <Drawer />
+      </Provider>
+    );
+
+    expect(hideDrawer).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
+
+    expect(hideDrawer).toHaveBeenCalledTimes(1);
+  });
 });

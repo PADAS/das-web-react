@@ -1101,6 +1101,9 @@ export const newPatrol = {
   'title': null
 };
 
+const today = new Date();
+const tomorrow = new Date(today);
+tomorrow.setDate(tomorrow.getDate() + 1);
 export const scheduledPatrol = {
   'id': 'e9c728a6-148b-475b-9311-668813581c2a',
   'priority': 0,
@@ -1115,7 +1118,7 @@ export const scheduledPatrol = {
       'id': 'f3160c12-344f-4357-b2ca-5c3456f5e833',
       'patrol_type': 'dog_patrol',
       'leader': null,
-      'scheduled_start': '2022-01-19T11:23:00-08:00',
+      'scheduled_start': `${tomorrow.toISOString().slice(0, -5)}-08:00`,
       'scheduled_end': null,
       'time_range': {
         'start_time': null,
