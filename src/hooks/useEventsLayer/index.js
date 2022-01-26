@@ -12,12 +12,18 @@ import {
   SUBJECT_FEATURE_CONTENT_TYPE,
 } from '../../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../../selectors/events';
+import { getTimeSliderState } from '../../selectors';
 import { MapContext } from '../../App';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../../MapImageFromSvgSpriteRenderer';
 
 import LabeledSymbolLayer from '../../LabeledSymbolLayer';
 
-const { EVENT_SYMBOLS, SUBJECT_SYMBOLS, SUBJECTS_AND_EVENTS_SOURCE_ID } = LAYER_IDS;
+const {
+  EVENT_SYMBOLS,
+  SUBJECT_SYMBOLS,
+  SUBJECTS_AND_EVENTS_SOURCE_ID,
+  SUBJECTS_AND_EVENTS_UNCLUSTERED_SOURCE_ID,
+} = LAYER_IDS;
 
 const ANIMATION_LENGTH_SECONDS = .25;
 const FRAMES_PER_SECOND = 6;
@@ -46,6 +52,7 @@ export default (bounceEventIDs, enableClustering, mapEventsUserLayoutConfig, map
   const map = useContext(MapContext);
 
   const eventFeatureCollection = useSelector((state) => getMapEventFeatureCollectionWithVirtualDate(state));
+  const isTimeSliderActive = useSelector((state) => getTimeSliderState(state).active);
 
   const animationFrameID = useRef(null);
   const clicking = useRef(false);
@@ -116,6 +123,15 @@ export default (bounceEventIDs, enableClustering, mapEventsUserLayoutConfig, map
     };
   }, [animationState.isRendering, bounceIDs.length, updateBounceSineAnimation]);
 
+  useEffect(() => {
+    if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING) {
+      map.setLayoutProperty(EVENT_SYMBOLS, 'visibility', isTimeSliderActive ? 'none' : 'visible');
+      map.setLayoutProperty(`${EVENT_SYMBOLS}-labels`, 'visibility', isTimeSliderActive ? 'none' : 'visible');
+      map.setLayoutProperty(`${EVENT_SYMBOLS}-unclustered`, 'visibility', isTimeSliderActive ? 'visible' : 'none');
+      map.setLayoutProperty(`${EVENT_SYMBOLS}-unclustered-labels`, 'visibility', isTimeSliderActive ? 'visible' : 'none');
+    }
+  }, [isTimeSliderActive, map, mapEventFeatures]);
+
   const SCALE_ICON_IF_BOUNCED = useCallback((iconSize, iconScale) => [
     'match',
     ['get', 'bounce'],
@@ -182,7 +198,7 @@ export default (bounceEventIDs, enableClustering, mapEventsUserLayoutConfig, map
   }), [SCALE_FONT_IF_BOUNCED, mapEventsUserLayoutConfig]);
 
   const renderedEventsLayer = <>
-    <LabeledSymbolLayer
+    {REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING && <LabeledSymbolLayer
       before={SUBJECT_SYMBOLS}
       filter={enableClustering
         ? ['!has', 'point_count']
@@ -191,14 +207,36 @@ export default (bounceEventIDs, enableClustering, mapEventsUserLayoutConfig, map
       layout={eventIconLayout}
       minZoom={minZoom}
       onClick={onEventSymbolClick}
-      onInit={setEventLayerIds}
+      onInit={() => setEventLayerIds([
+        EVENT_SYMBOLS,
+        `${EVENT_SYMBOLS}-labels`,
+        ...(REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING
+          ? [`${EVENT_SYMBOLS}-unclustered`, `${EVENT_SYMBOLS}-unclustered-labels`]
+          : [])
+      ])}
+      sourceId={SUBJECTS_AND_EVENTS_SOURCE_ID}
+      textLayout={eventLabelLayout}
+      textPaint={EVENTS_LAYER_TEXT_PAINT}
+      type="symbol"
+    />}
+
+    <LabeledSymbolLayer
+      before={SUBJECT_SYMBOLS}
+      filter={enableClustering
+        ? ['!has', 'point_count']
+        : ['all', ['!=', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE], ['!has', 'point_count']]}
+      id={REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING ? `${EVENT_SYMBOLS}-unclustered` : EVENT_SYMBOLS}
+      layout={eventIconLayout}
+      minZoom={minZoom}
+      onClick={onEventSymbolClick}
       sourceId={REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING
-        ? SUBJECTS_AND_EVENTS_SOURCE_ID
+        ? SUBJECTS_AND_EVENTS_UNCLUSTERED_SOURCE_ID
         : enableClustering ? 'events-data-clustered' : 'events-data-unclustered'}
       textLayout={eventLabelLayout}
       textPaint={EVENTS_LAYER_TEXT_PAINT}
       type="symbol"
     />
+
     {!!eventFeatureCollection?.features?.length && <MapImageFromSvgSpriteRenderer
       reportFeatureCollection={eventFeatureCollection}
     />}

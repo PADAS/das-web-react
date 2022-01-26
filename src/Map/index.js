@@ -337,7 +337,10 @@ class Map extends Component {
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
-    let hidePopup;
+    const clickedLayersOfInterest = uniqBy(
+      map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
+      , layer => layer.properties.id);
+    let hidePopup = true, clusterFeaturesAtPoint = [];
     if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING) {
       const clusterApproxGeometry = [
         [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
@@ -350,25 +353,18 @@ class Map extends Component {
 
       hidePopup = !clustersAtPoint.length;
     } else {
-      const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
-      const clickedLayersOfInterest = uniqBy(
-        map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
-        , layer => layer.properties.id);
+      clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
+    }
 
-      let showingMultiPopup;
+    if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
+      event.originalEvent.cancelBubble = true;
+    }
 
-      if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
-        event.originalEvent.cancelBubble = true;
+    if (clickedLayersOfInterest.length > 1) {
+      if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
+        this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+        hidePopup = false;
       }
-
-      if (clickedLayersOfInterest.length > 1) {
-        if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
-          this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-          showingMultiPopup = true;
-        }
-      }
-
-      hidePopup = !showingMultiPopup;
     }
 
     if (this.props.popup) {

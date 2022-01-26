@@ -11,7 +11,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 import useClustersLayer from './useClustersLayer';
 import useUnclusteredStaticSensorsLayer from './useUnclusteredStaticSensorsLayer';
 
-const { SUBJECTS_AND_EVENTS_SOURCE_ID } = LAYER_IDS;
+const { SUBJECTS_AND_EVENTS_SOURCE_ID, SUBJECTS_AND_EVENTS_UNCLUSTERED_SOURCE_ID } = LAYER_IDS;
 
 const SOURCE_CONFIGURATION = {
   cluster: true,
@@ -31,6 +31,7 @@ const SubjectsAndEventsLayer = ({
   const map = useContext(MapContext);
 
   const source = map.getSource(SUBJECTS_AND_EVENTS_SOURCE_ID);
+  const nonClusteredSource = map.getSource(SUBJECTS_AND_EVENTS_UNCLUSTERED_SOURCE_ID);
 
   const {
     mapEventFeatures,
@@ -46,21 +47,20 @@ const SubjectsAndEventsLayer = ({
   useEffect(() => {
     if (map) {
       const sourceData = {
-        cluster: true,
-        clusterMaxZoom: CLUSTERS_MAX_ZOOM,
-        clusterRadius: CLUSTERS_RADIUS,
         features: [...mapEventFeatures.features, ...mapSubjectFeatures.features],
         type: 'FeatureCollection',
       };
       if (source) {
         source.setData(sourceData);
+        nonClusteredSource.setData(sourceData);
       } else {
         map.addSource(SUBJECTS_AND_EVENTS_SOURCE_ID, { ...SOURCE_CONFIGURATION, data: sourceData });
+        map.addSource(SUBJECTS_AND_EVENTS_UNCLUSTERED_SOURCE_ID, { data: sourceData, type: 'geojson' });
       }
 
       updateClusterMarkers();
     }
-  }, [map, mapEventFeatures.features, mapSubjectFeatures.features, source, updateClusterMarkers]);
+  }, [map, mapEventFeatures.features, mapSubjectFeatures.features, nonClusteredSource, source, updateClusterMarkers]);
 
   return <>
     {renderedEventsLayer}

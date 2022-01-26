@@ -54,7 +54,7 @@ describe('ClustersLayer', () => {
         return null;
       };
       render(
-        <Provider store={mockStore({ data: {}, view: {} })} >
+        <Provider store={mockStore({ data: {}, view: { timeSliderState: {} } })} >
           <MapContext.Provider value={map}>
             <Child />
           </MapContext.Provider>

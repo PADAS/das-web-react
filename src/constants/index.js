@@ -102,6 +102,7 @@ export const LAYER_IDS = {
   CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
   SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID: 'subjects-and-events-clusters-layer',
   SUBJECTS_AND_EVENTS_SOURCE_ID: 'subjects-and-events-source',
+  SUBJECTS_AND_EVENTS_UNCLUSTERED_SOURCE_ID: 'subjects-and-events-unclustered-source',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',

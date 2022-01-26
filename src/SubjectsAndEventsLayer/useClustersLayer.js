@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import debounce from 'lodash/debounce';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   addNewClusterMarkers,
@@ -8,8 +8,9 @@ import {
   recalculateClusterRadius,
   removeOldClusterMarkers,
 } from './utils';
-import { CLUSTERS_MAX_ZOOM, LAYER_IDS } from '../constants';
+import { CLUSTERS_MAX_ZOOM, LAYER_IDS, REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING } from '../constants';
 import { MapContext } from '../App';
+import { getTimeSliderState } from '../selectors';
 import { showPopup } from '../ducks/popup';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
@@ -70,6 +71,8 @@ export default (onEventClick, onSubjectClick, source) => {
 
   const dispatch = useDispatch();
 
+  const isTimeSliderActive = useSelector((state) => getTimeSliderState(state).active);
+
   const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon(
     CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION,
     CLUSTER_BUFFER_POLYGON_LAYER_ID,
@@ -112,6 +115,16 @@ export default (onEventClick, onSubjectClick, source) => {
       map.off('zoomend', onZoomEnd);
     };
   }, [map]);
+
+  useEffect(() => {
+    if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING) {
+      map.setLayoutProperty(
+        SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID,
+        'visibility',
+        isTimeSliderActive ? 'none' : 'visible'
+      );
+    }
+  }, [isTimeSliderActive, map]);
 
   const triggerUpdateClusterMarkers = useCallback(() => updateClusterMarkers(
     clusterMarkerHashMapRef,
