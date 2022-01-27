@@ -13,9 +13,21 @@ import {
   donePatrol,
   cancelledPatrol
 } from '../../__test-helpers/fixtures/patrols';
+import { updatePatrol } from '../../ducks/patrols';
+
+jest.mock('../../ducks/patrols', () => ({
+  ...jest.requireActual('../../ducks/patrols'),
+  updatePatrol: jest.fn(),
+}));
 
 describe('Header', () => {
-  const onPatrolChange= jest.fn(), restorePatrol = jest.fn(), setTitle = jest.fn(), startPatrol = jest.fn();
+  const setTitle = jest.fn();
+  let updatePatrolMock;
+  beforeEach(() => {
+    updatePatrolMock = jest.fn(() => () => {});
+    updatePatrol.mockImplementation(updatePatrolMock);
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -24,11 +36,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={newPatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -44,11 +53,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={scheduledPatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -66,11 +72,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={activePatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -87,11 +90,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {}, tracks: [] }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={overduePatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -109,11 +109,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={donePatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -130,11 +127,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={cancelledPatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -149,11 +143,8 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={newPatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
@@ -172,43 +163,39 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={newPatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
     );
 
-    expect(startPatrol).toHaveBeenCalledTimes(0);
+    expect(updatePatrolMock).toHaveBeenCalledTimes(0);
 
     const startPatrolButton = await screen.findByRole('button');
     userEvent.click(startPatrolButton);
 
-    expect(startPatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrolMock).toHaveBeenCalledTimes(1);
+    expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
   });
 
   test('triggers restorePatrol callback when clicking the restore button', async () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          onPatrolChange={onPatrolChange}
           patrol={cancelledPatrol}
-          restorePatrol={restorePatrol}
           setTitle={setTitle}
-          startPatrol={startPatrol}
           title="title"
         />
       </Provider>
     );
 
-    expect(restorePatrol).toHaveBeenCalledTimes(0);
+    expect(updatePatrolMock).toHaveBeenCalledTimes(0);
 
     const restorePatrolButton = await screen.findByRole('button');
     userEvent.click(restorePatrolButton);
 
-    expect(restorePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrolMock).toHaveBeenCalledTimes(1);
+    expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
   });
 });

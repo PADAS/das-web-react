@@ -68,24 +68,37 @@
 .content {
   overflow-x: hidden;
   padding: 1.125rem;
+  width: 100%;
+
+  &[class*=readonly] {
+    cursor: not-allowed;
+  }
 }
 
 .footer {
   display: flex;
+  justify-content: space-between;
   padding: 0.875rem 1rem;
   margin-left: 3rem;
   border-top: 1px solid $very-light-gray-alt;
-  width: 100%;
+  width: calc(100% - 3rem);
   position: absolute;
   bottom: 0;
 
   @media (min-width: $md-layout-width-min) {
     margin-left: 4.5rem;
+    width: calc(100% - 4.5rem);
   }
 }
 
 .exitButton {
   background-color: $secondary-medium-light-gray;
   border-color: $secondary-medium-light-gray;
+  width: 5rem;
+}
+
+.saveButton {
+  background-color: $bright-blue;
+  border-color: $bright-blue;
   width: 5rem;
 }

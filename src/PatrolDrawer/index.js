@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
@@ -9,68 +9,90 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
-import { displayTitleForPatrol } from '../utils/patrols';
+import { addPatrolSegmentToEvent } from '../utils/events';
 import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
+import {
+  displayPatrolSegmentId,
+  displayTitleForPatrol,
+  patrolShouldBeMarkedDone,
+  patrolShouldBeMarkedOpen,
+} from '../utils/patrols';
+import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { hideDrawer } from '../ducks/drawer';
+import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { PATROL_DRAWER_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 import Header from './Header';
 
 import styles from './styles.module.scss';
 
+const patrolDrawerTracker = trackEventFactory(PATROL_DRAWER_CATEGORY);
+
 const NAVIGATION_PLAN_EVENT_KEY = 'plan';
 const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
-// TODO: old patrol modal functionality, this logic will be useful later
-// export const openModalForPatrol = (patrol, map, config = {}) => {
-//   const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
-
-//   const state = store.getState();
-
-//   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-//   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
-
-//   const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
-
-//   return store.dispatch(
-//     addModal({
-//       content: PatrolModal,
-//       patrol,
-//       map,
-//       onSaveSuccess,
-//       onSaveError,
-//       relationshipButtonDisabled,
-//       modalProps: {
-//         className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
-//         // keyboard: false,
-//       },
-//     }));
-// };
-
 // TODO: unused variables will be useful later
-// eslint-disable-next-line no-unused-vars
-const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometries }) => {
+/* eslint-disable no-unused-vars */
+const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData, startStopGeometries }) => {
+  // TODO: test that a user without permissions can't do any update actions once the implementation is finished
+  const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
+
+  const [isSaving, setSaveState] = useState(false);
+  const [newFiles, updateNewFiles] = useState([]);
+  const [newReports, setNewReports] = useState([]);
   const [patrolForm, setPatrolForm] = useState();
+  const [tab, setTab] = useState(NAVIGATION_PLAN_EVENT_KEY);
+
+  const isNewPatrol = !patrol.id;
+
+  const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
 
   useEffect(() => {
-    setPatrolForm({
-      ...patrol,
-      title: displayTitleForPatrol(patrol, leader)
-    });
+    setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
   }, [leader, patrol]);
+
+  const onSave = useCallback(() => {
+    patrolDrawerTracker.track(`Click "save" button for ${isNewPatrol ? 'new' : 'existing'} patrol`);
+    setSaveState(true);
+
+    const patrolToSubmit = { ...patrolForm };
+    if (patrolShouldBeMarkedDone(patrolForm)){
+      patrolToSubmit.state = PATROL_API_STATES.DONE;
+    } else if (patrolShouldBeMarkedOpen(patrolForm)) {
+      patrolToSubmit.state = PATROL_API_STATES.OPEN;
+    }
+
+    ['start_location', 'end_location'].forEach((prop) => {
+      if (patrolToSubmit.hasOwnProperty(prop) && !patrolToSubmit[prop]) {
+        patrolToSubmit[prop] = null;
+      }
+    });
+
+    // just assign added newReports to inital segment id for now
+    newReports.forEach((report) => addPatrolSegmentToEvent(patrolSegmentId, report.id));
+
+    const actions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], newFiles);
+    return executeSaveActions(actions)
+      .then(() => {
+        patrolDrawerTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
+        hideDrawer();
+      })
+      .catch((error) => {
+        patrolDrawerTracker.track(`Error saving ${isNewPatrol ? 'new' : 'existing'} patrol`);
+        console.warn('failed to save new patrol', error);
+      })
+      .finally(() => setSaveState(false));
+  }, [hideDrawer, isNewPatrol, newFiles, newReports, patrolForm, patrolSegmentId]);
 
   return !!patrolForm && <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
     <Header
-      // TODO: Implement functions
-      onPatrolChange={() => {}}
       patrol={patrol}
-      restorePatrol={() => {}}
-      startPatrol={() => {}}
       setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}
       title={patrolForm.title}
     />
 
-    <Tab.Container defaultActiveKey={NAVIGATION_PLAN_EVENT_KEY}>
+    <Tab.Container activeKey={tab} onSelect={setTab}>
       <div className={styles.body}>
         <Nav className={styles.navigation}>
           <Nav.Item>
@@ -95,7 +117,7 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometri
           </Nav.Item>
         </Nav>
 
-        <Tab.Content className={styles.content}>
+        <Tab.Content className={`${styles.content} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
           <Tab.Pane eventKey={NAVIGATION_PLAN_EVENT_KEY}>
             Plan
           </Tab.Pane>
@@ -110,14 +132,17 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometri
         </Tab.Content>
 
         <div className={styles.footer}>
-          <Button
-            className={styles.exitButton}
-            onClick={() => hideDrawer()}
-            type="button"
-            variant="secondary"
-          >
+          <Button className={styles.exitButton} onClick={() => hideDrawer()} type="button" variant="secondary">
             Exit
           </Button>
+
+          {tab === NAVIGATION_PLAN_EVENT_KEY && hasEditPatrolsPermission && <Button
+            className={styles.saveButton}
+            onClick={onSave}
+            type="button"
+          >
+            Save
+          </Button>}
         </div>
       </div>
     </Tab.Container>
@@ -135,6 +160,7 @@ PatrolDrawer.propTypes = {
     serial_number: PropTypes.number,
     title: PropTypes.string,
   }).isRequired,
+  patrolPermissions: PropTypes.arrayOf(PropTypes.string),
   startStopGeometries: PropTypes.shape({}).isRequired,
   trackData: PropTypes.shape({}).isRequired,
 };
@@ -144,7 +170,10 @@ const mapStateToProps = (state, props) => {
     ? getPatrolList(state).results.find((patrol) => patrol.id === props.patrolId)
     : props.newPatrol;
 
-  return createPatrolDataSelector()(state, { patrol });
+  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
+  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
+
+  return { ...createPatrolDataSelector()(state, { patrol }), patrolPermissions };
 };
 
 export default connect(mapStateToProps, { hideDrawer })(PatrolDrawer);
