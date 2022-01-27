@@ -16,7 +16,7 @@ import { openModalForReport, createNewReportForEventType } from '../utils/events
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { showDrawer } from '../ducks/drawer';
 import { trackEvent } from '../utils/analytics';
-import { generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
+import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
@@ -229,7 +229,7 @@ const AddReport = (props) => {
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        showDrawer(patrolDrawerId);
+        showDrawer(patrolDrawerId, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
         return;
       }
 

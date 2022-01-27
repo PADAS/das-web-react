@@ -1,17 +1,10 @@
+@import '../common/styles/layout';
 @import '../common/styles/vars/colors';
 
 .patrolDrawer {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
-
-.header {
-  height: 5rem;
-  padding: 1.125rem 1rem;
-  background-color: $very-light-gray;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-  position: relative;
 }
 
 .body {
@@ -22,8 +15,12 @@
 .navigation {
   display: flex;
   flex-direction: column;
-  min-width: 4.5rem;
+  min-width: 3rem;
   background-color: $secondary-medium-gray;
+  
+  @media (min-width: $md-layout-width-min) {
+    min-width: 4.5rem;
+  }
 
   a {
     display: flex;
@@ -32,13 +29,24 @@
     align-items: center;
     color: white;
     font-size: 0.75rem;
-    height: 5.5rem;
+    height: 3rem;
     padding: 0;
     border-bottom: 1px solid rgba(177, 179, 179, 0.25);
 
     svg {
-      margin-bottom: 0.5rem;
       color: white;
+      
+      @media (min-width: $md-layout-width-min) {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    span {
+      display: none;
+
+      @media (min-width: $md-layout-width-min) {
+        display: block;
+      }
     }
 
     &[class*=active] {
@@ -49,6 +57,10 @@
       svg {
         color: $bright-blue;
       }
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      height: 5.5rem;
     }
   }
 }
@@ -61,11 +73,15 @@
 .footer {
   display: flex;
   padding: 0.875rem 1rem;
-  margin-left: 4.5rem;
+  margin-left: 3rem;
   border-top: 1px solid $very-light-gray-alt;
   width: 100%;
   position: absolute;
   bottom: 0;
+
+  @media (min-width: $md-layout-width-min) {
+    margin-left: 4.5rem;
+  }
 }
 
 .exitButton {

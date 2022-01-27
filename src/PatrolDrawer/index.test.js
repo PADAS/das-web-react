@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
+import { newPatrol } from '../__test-helpers/fixtures/patrols';
 import PatrolDrawer from './';
 
 jest.mock('../ducks/drawer', () => ({
@@ -18,8 +19,8 @@ describe('PatrolDrawer', () => {
     hideDrawerMock = jest.fn(() => () => {});
     hideDrawer.mockImplementation(hideDrawerMock);
     render(
-      <Provider store={mockStore({})}>
-        <PatrolDrawer />
+      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+        <PatrolDrawer newPatrol={newPatrol} />
       </Provider>
     );
   });
@@ -53,6 +54,17 @@ describe('PatrolDrawer', () => {
 
     expect(historyTab).toHaveClass('active');
     expect(await screen.findByRole('tabpanel')).toHaveClass('show');
+  });
+
+  test('updates the title when user types in it', async () => {
+    const titleInput = await screen.findByRole('textbox');
+
+    // Couldn't mock the patrol types to get the expected display title
+    expect(titleInput).toHaveAttribute('value', 'Unknown patrol type');
+
+    userEvent.type(titleInput, '2');
+
+    expect(titleInput).toHaveAttribute('value', 'Unknown patrol type2');
   });
 
   test('closes the drawer when clicking the exit button', async () => {

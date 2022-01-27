@@ -24,7 +24,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    showDrawer(patrolDrawerId, patrol.id);
+    showDrawer(patrolDrawerId, { patrolId: patrol.id });
   }, [patrol.id, showDrawer]);
 
   const onPatrolChange = useCallback((value) => {

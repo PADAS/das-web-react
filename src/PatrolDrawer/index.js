@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
@@ -9,7 +9,11 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
+import { displayTitleForPatrol } from '../utils/patrols';
+import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
 import { hideDrawer } from '../ducks/drawer';
+
+import Header from './Header';
 
 import styles from './styles.module.scss';
 
@@ -43,71 +47,104 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 //     }));
 // };
 
-// TODO: Read patrol data from redux
+// TODO: unused variables will be useful later
 // eslint-disable-next-line no-unused-vars
-const PatrolDrawer = ({ hideDrawer, patrolId }) => <div
-  className={styles.patrolDrawer}
-  data-testid="patrolDrawerContainer"
-  >
-  <div className={styles.header}>
-    Vehicle Patrol
-  </div>
+const PatrolDrawer = ({ hideDrawer, patrol, leader, trackData, startStopGeometries }) => {
+  const [patrolForm, setPatrolForm] = useState();
 
-  <Tab.Container defaultActiveKey={NAVIGATION_PLAN_EVENT_KEY}>
-    <div className={styles.body}>
-      <Nav className={styles.navigation}>
-        <Nav.Item>
-          <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-            <CalendarIcon />
+  useEffect(() => {
+    setPatrolForm({
+      ...patrol,
+      title: displayTitleForPatrol(patrol, leader)
+    });
+  }, [leader, patrol]);
+
+  return !!patrolForm && <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
+    <Header
+      // TODO: Implement functions
+      onPatrolChange={() => {}}
+      patrol={patrol}
+      restorePatrol={() => {}}
+      startPatrol={() => {}}
+      setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}
+      title={patrolForm.title}
+    />
+
+    <Tab.Container defaultActiveKey={NAVIGATION_PLAN_EVENT_KEY}>
+      <div className={styles.body}>
+        <Nav className={styles.navigation}>
+          <Nav.Item>
+            <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>
+              <CalendarIcon />
+              <span>History</span>
+            </Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item>
+            <Nav.Link eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
+              <BulletListIcon />
+              <span>Timeline</span>
+            </Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item>
+            <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
+              <HistoryIcon />
+              <span>History</span>
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+
+        <Tab.Content className={styles.content}>
+          <Tab.Pane eventKey={NAVIGATION_PLAN_EVENT_KEY}>
             Plan
-          </Nav.Link>
-        </Nav.Item>
+          </Tab.Pane>
 
-        <Nav.Item>
-          <Nav.Link eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
-            <BulletListIcon />
+          <Tab.Pane eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
             Timeline
-          </Nav.Link>
-        </Nav.Item>
+          </Tab.Pane>
 
-        <Nav.Item>
-          <Nav.Link eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-            <HistoryIcon />
+          <Tab.Pane eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
             History
-          </Nav.Link>
-        </Nav.Item>
-      </Nav>
+          </Tab.Pane>
+        </Tab.Content>
 
-      <Tab.Content className={styles.content}>
-        <Tab.Pane eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-          Plan
-        </Tab.Pane>
-
-        <Tab.Pane eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
-          Timeline
-        </Tab.Pane>
-
-        <Tab.Pane eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-          History
-        </Tab.Pane>
-      </Tab.Content>
-
-      <div className={styles.footer}>
-        <Button
-          className={styles.exitButton}
-          onClick={() => hideDrawer()}
-          type="button"
-          variant="secondary"
-        >
-          Exit
-        </Button>
+        <div className={styles.footer}>
+          <Button
+            className={styles.exitButton}
+            onClick={() => hideDrawer()}
+            type="button"
+            variant="secondary"
+          >
+            Exit
+          </Button>
+        </div>
       </div>
-    </div>
-  </Tab.Container>
-</div>;
+    </Tab.Container>
+  </div>;
+};
 
-PatrolDrawer.defaultProps = { patrolId: null };
+PatrolDrawer.propTypes = {
+  hideDrawer: PropTypes.func.isRequired,
+  leader: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  patrol: PropTypes.shape({
+    icon_id: PropTypes.string,
+    patrol_segments: PropTypes.array,
+    serial_number: PropTypes.number,
+    title: PropTypes.string,
+  }).isRequired,
+  startStopGeometries: PropTypes.shape({}).isRequired,
+  trackData: PropTypes.shape({}).isRequired,
+};
 
-PatrolDrawer.propTypes = { hideDrawer: PropTypes.func.isRequired, patrolId: PropTypes.string };
+const mapStateToProps = (state, props) => {
+  const patrol = !!props.patrolId
+    ? getPatrolList(state).results.find((patrol) => patrol.id === props.patrolId)
+    : props.newPatrol;
 
-export default connect(null, { hideDrawer })(PatrolDrawer);
+  return createPatrolDataSelector()(state, { patrol });
+};
+
+export default connect(mapStateToProps, { hideDrawer })(PatrolDrawer);

@@ -397,7 +397,7 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     return fetchPatrol(patrolId).then(() => {
-      showDrawer(patrolDrawerId, patrolId);
+      showDrawer(patrolDrawerId, { patrolId });
       removeModal();
     });
   }, [fetchPatrol, is_collection, removeModal, reportTracker, saveChanges, showDrawer]);

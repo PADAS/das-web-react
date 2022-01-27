@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { createNewPatrolForPatrolType } from '../utils/patrols';
 import Drawer, { patrolDrawerId } from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -13,11 +14,26 @@ jest.mock('../ducks/drawer', () => ({
 }));
 
 describe('Drawer', () => {
+  const reportType = {
+    default_priority: 0,
+    icon_id: 'dog-patrol-icon',
+    value: 'dog_patrol',
+  };
+  const reportData = {
+    location: {
+      latitude: 20.581601124675956,
+      longitude: -103.36759085776096,
+    },
+  };
+  const newPatrol = createNewPatrolForPatrolType(reportType, reportData);
   let hideDrawerMock, store;
   beforeEach(() => {
     hideDrawerMock = jest.fn(() => () => {});
     hideDrawer.mockImplementation(hideDrawerMock);
     store = {
+      data: {
+        subjectStore: {}
+      },
       view: {
         drawer: {
           data: null,
@@ -66,6 +82,7 @@ describe('Drawer', () => {
 
   test('opens the patrol drawer', async () => {
     store.view.drawer.isOpen = true;
+    store.view.drawer.data = { newPatrol };
     store.view.drawer.drawerId = patrolDrawerId;
     render(
       <Provider store={mockStore(store)}>
@@ -78,6 +95,7 @@ describe('Drawer', () => {
 
   test('triggers the hideDrawer action when user clicks outside the drawer', async () => {
     store.view.drawer.isOpen = true;
+    store.view.drawer.data = { newPatrol };
     store.view.drawer.drawerId = patrolDrawerId;
     render(
       <Provider store={mockStore(store)}>
@@ -89,6 +107,23 @@ describe('Drawer', () => {
 
     const outsideDrawer = await screen.findByTestId('outsideDrawer');
     userEvent.click(outsideDrawer);
+
+    expect(hideDrawer).toHaveBeenCalledTimes(1);
+  });
+
+  test('triggers the hideDrawer action when user press esc', async () => {
+    store.view.drawer.isOpen = true;
+    store.view.drawer.data = { newPatrol };
+    store.view.drawer.drawerId = patrolDrawerId;
+    render(
+      <Provider store={mockStore(store)}>
+        <Drawer />
+      </Provider>
+    );
+
+    expect(hideDrawer).toHaveBeenCalledTimes(0);
+
+    userEvent.keyboard('{Escape}');
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });

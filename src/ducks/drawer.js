@@ -19,7 +19,7 @@ export default (state = INITIAL_STATE, action = {}) => {
     return { ...action.payload, isOpen: true };
 
   case HIDE_DRAWER:
-    return { ...INITIAL_STATE, direction: state.direction };
+    return { ...state, isOpen: false };
 
   default:
     return state;
