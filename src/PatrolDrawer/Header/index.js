@@ -89,7 +89,7 @@ const Header = ({ patrol, setTitle, title }) => {
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
-    {(isNewPatrol || isPatrolScheduled || isPatrolOverdue) && <Button
+    {(isPatrolScheduled || isPatrolOverdue) && <Button
       className={`${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
       onClick={startPatrolAndTrack}
       type="button"

@@ -45,8 +45,6 @@ describe('Header', () => {
 
     expect((screen.queryByTestId('patrol-drawer-header-details'))).toBeNull();
     expect((screen.queryByTestId('patrol-drawer-header-description'))).toBeNull();
-    expect((await screen.findByRole('button'))).toHaveTextContent('Start Patrol');
-    expect((await screen.findByRole('button'))).toHaveClass('newPatrol');
   });
 
   test('renders correctly case of a scheduled patrol', async () => {
@@ -163,7 +161,7 @@ describe('Header', () => {
     render(
       <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
         <Header
-          patrol={newPatrol}
+          patrol={scheduledPatrol}
           setTitle={setTitle}
           title="title"
         />
@@ -172,8 +170,8 @@ describe('Header', () => {
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(0);
 
-    const startPatrolButton = await screen.findByRole('button');
-    userEvent.click(startPatrolButton);
+    const buttons = await screen.findAllByRole('button');
+    userEvent.click(buttons[0]);
 
     expect(updatePatrolMock).toHaveBeenCalledTimes(1);
     expect(updatePatrolMock.mock.calls[0][0].state).toBe('open');
