@@ -74,8 +74,6 @@ import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
-import { staticSubjectsForUserTesting } from '../__test-helpers/fixtures/static-subjects-for-user-testing';
-
 import './Map.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
@@ -563,7 +561,7 @@ class Map extends Component {
     const enableEventClustering = timeSliderActive ? false : true;
 
     const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectIsStatic(subjectFeature));
-    const staticSubjects = staticSubjectsForUserTesting;
+    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
     const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
 
     return (
@@ -650,9 +648,6 @@ class Map extends Component {
             {patrolTracksVisible && <PatrolStartStopLayer />}
 
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
-
-            {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
-            {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
 
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
