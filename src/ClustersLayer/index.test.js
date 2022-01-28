@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import {
   addNewClusterMarkers,
@@ -12,18 +12,19 @@ import {
   removeOldClusterMarkers,
 } from './utils';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, CLUSTER_RADIUS_ZOOM_THRESHOLD, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
+import ClustersLayer, { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME } from '.';
 import { createMapMock } from '../__test-helpers/mocks';
-import { MapContext } from '../App';
 import { mockStore } from '../__test-helpers/MockStore';
+import { MapContext } from '../App';
+import {
+  mockClusterIds,
+  mockClusterLeaves,
+  mockEventFeatureCollection,
+  mockSubjectFeatureCollection,
+} from '../__test-helpers/fixtures/clusters';
+import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
-import useClustersLayer from './useClustersLayer';
-import useUnclusteredStaticSensorsLayer from './useUnclusteredStaticSensorsLayer';
-
-const {
-  CLUSTERED_DATA_SOURCE_ID,
-  CLUSTERS_LAYER_ID,
-  UNCLUSTERED_STATIC_SENSORS_LAYER
-} = LAYER_IDS;
+const { CLUSTERED_DATA_SOURCE_ID } = LAYER_IDS;
 
 const mapMarkers = [];
 jest.mock('mapbox-gl', () => {
@@ -37,53 +38,134 @@ jest.mock('mapbox-gl', () => {
     Marker,
   };
 });
+jest.mock('../selectors/events', () => ({
+  ...jest.requireActual('../selectors/events'),
+  getMapEventFeatureCollectionWithVirtualDate: () => mockEventFeatureCollection,
+}));
+jest.mock('../selectors/subjects', () => ({
+  ...jest.requireActual('../selectors/subjects'),
+  getMapSubjectFeatureCollectionWithVirtualPositioning: () => mockSubjectFeatureCollection,
+}));
+jest.mock('../hooks/useClusterBufferPolygon', () => jest.fn());
 
 describe('ClustersLayer', () => {
   const removeClusterPolygon = jest.fn();
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  describe('useClustersLayer', () => {
-    test('adds layer for clusters using the single source', () => {
-      const map = createMapMock();
-      const Child = () => {
-        useClustersLayer(jest.fn(), jest.fn(), {});
+  describe('ClustersLayer', () => {
+    const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(), setData = jest.fn();
+    let map, store, useClusterBufferPolygonMock;
+    beforeEach(() => {
+      useClusterBufferPolygonMock = () => ({ removeClusterPolygon, renderClusterPolygon });
+      useClusterBufferPolygon.mockImplementation(useClusterBufferPolygonMock);
 
-        return null;
-      };
+      map = createMapMock();
+      map.queryRenderedFeatures.mockImplementation(() => [
+        { properties: { cluster_id: mockClusterIds[0] } },
+        { properties: { cluster_id: mockClusterIds[1] } },
+      ]);
+      map.getSource.mockImplementation(() => ({
+        getClusterExpansionZoom: jest.fn((clusterId, callback) => callback(null, CLUSTER_CLICK_ZOOM_THRESHOLD + 1)),
+        getClusterLeaves: (clusterId, limit, offset, callback) => {
+          switch (clusterId) {
+          case mockClusterIds[0]:
+            return callback(null, mockClusterLeaves[0]);
+          case mockClusterIds[1]:
+            return callback(null, mockClusterLeaves[1]);
+          default:
+            return;
+          }
+        },
+        setData,
+      }));
+      map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
+
+      store = mockStore({ data: {}, view: { timeSliderState: {} } });
+
       render(
-        <Provider store={mockStore({ data: {}, view: { timeSliderState: {} } })} >
+        <Provider store={store}>
           <MapContext.Provider value={map}>
-            <Child />
+            <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
         </Provider>
       );
-
-      expect(map.addLayer).toHaveBeenCalledTimes(2);
-      expect(map.addLayer.mock.calls[1][0].id).toBe(CLUSTERS_LAYER_ID);
-      expect(map.addLayer.mock.calls[1][0].source).toBe(CLUSTERED_DATA_SOURCE_ID);
     });
-  });
 
-  describe('useUnclusteredStaticSensorsLayer', () => {
-    test('adds layer for unclustered static sensors using the single source', () => {
-      const map = createMapMock();
-      const Child = () => {
-        useUnclusteredStaticSensorsLayer({});
+    afterEach(() => {
+      mapMarkers.length = 0;
+    });
 
-        return null;
-      };
-      render(
-        <MapContext.Provider value={map}>
-          <Child />
-        </MapContext.Provider>
-      );
+    test('renders two markers in the map', async () => {
+      await waitFor (() => {
+        expect(mapMarkers).toHaveLength(2);
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+    });
 
-      expect(map.addLayer).toHaveBeenCalledTimes(1);
-      expect(map.addLayer.mock.calls[0][0].id).toBe(UNCLUSTERED_STATIC_SENSORS_LAYER);
-      expect(map.addLayer.mock.calls[0][0].source).toBe(CLUSTERED_DATA_SOURCE_ID);
+    test('each marker has three icons and a number indicating how many features it has', async () => {
+      await waitFor (() => {
+        expect(mapMarkers[0].childNodes).toHaveLength(4);
+        expect(mapMarkers[0].childNodes[0].tagName).toBe('IMG');
+        expect(mapMarkers[0].childNodes[1].tagName).toBe('IMG');
+        expect(mapMarkers[0].childNodes[2].tagName).toBe('IMG');
+        expect(mapMarkers[0].childNodes[3].tagName).toBe('P');
+        expect(mapMarkers[0].childNodes[3].textContent).toBe('+1');
+
+        expect(mapMarkers[1].childNodes).toHaveLength(4);
+        expect(mapMarkers[1].childNodes[0].tagName).toBe('IMG');
+        expect(mapMarkers[1].childNodes[1].tagName).toBe('IMG');
+        expect(mapMarkers[1].childNodes[2].tagName).toBe('IMG');
+        expect(mapMarkers[1].childNodes[3].tagName).toBe('P');
+        expect(mapMarkers[1].childNodes[3].textContent).toBe('+3');
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+    });
+
+    test('renders a cluster buffer polygon when user hovers a cluster', async () => {
+      await waitFor (() => {
+        expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
+
+        mapMarkers[0].dispatchEvent(new Event('mouseover'));
+
+        expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+    });
+
+    test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
+      await waitFor (() => {
+        expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
+
+        mapMarkers[0].dispatchEvent(new Event('mouseover'));
+        mapMarkers[0].dispatchEvent(new Event('mouseleave'));
+
+        expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+    });
+
+    test('zooms to a cluster if user clicks it while zoom is too far', async () => {
+      await waitFor (() => {
+        expect(map.easeTo).toHaveBeenCalledTimes(0);
+
+        mapMarkers[0].dispatchEvent(new Event('click'));
+
+        expect(map.easeTo).toHaveBeenCalledTimes(1);
+        expect(map.easeTo).toHaveBeenCalledWith({
+          center: [-103.38315141, 20.677884013333337],
+          zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
+        });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+    });
+
+    test('triggers the onShowClusterSelectPopup action when user clicks a cluster if zoom is close enough', async () => {
+      map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD + 1);
+
+      await waitFor (() => {
+        expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(0);
+
+        mapMarkers[0].dispatchEvent(new Event('click'));
+
+        expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
     });
   });
 
