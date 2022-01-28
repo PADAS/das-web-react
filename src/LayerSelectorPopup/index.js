@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 
 import SearchBar from '../SearchBar';
 
@@ -36,7 +36,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [filter, layerList]);
 
   const itemCountString = useMemo(() => {
-    if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING) return null;
+    if (REACT_APP_ENABLE_CLUSTERING) return null;
 
     const subjectCount = layers.filter(({ layer: { id: layerID } }) => !layerID.includes(EVENT_SYMBOLS)).length;
     const eventCount = layers.filter(({ layer: { id: layerID } }) => layerID.includes(EVENT_SYMBOLS)).length;
@@ -74,7 +74,7 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
   }, [hidePopup, id, onSelectEvent, onSelectSubject]);
 
   return <>
-    {!REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING && <h6>
+    {!REACT_APP_ENABLE_CLUSTERING && <h6>
       {itemCountString ? itemCountString : '0 items'} at this point {!!filter && <small>(filtered)</small>}
     </h6>}
 

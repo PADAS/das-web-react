@@ -20,8 +20,8 @@ import useClustersLayer from './useClustersLayer';
 import useUnclusteredStaticSensorsLayer from './useUnclusteredStaticSensorsLayer';
 
 const {
-  SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID,
-  SUBJECTS_AND_EVENTS_SOURCE_ID,
+  CLUSTERED_DATA_SOURCE_ID,
+  CLUSTERS_LAYER_ID,
   UNCLUSTERED_STATIC_SENSORS_LAYER
 } = LAYER_IDS;
 
@@ -62,8 +62,8 @@ describe('ClustersLayer', () => {
       );
 
       expect(map.addLayer).toHaveBeenCalledTimes(2);
-      expect(map.addLayer.mock.calls[1][0].id).toBe(SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID);
-      expect(map.addLayer.mock.calls[1][0].source).toBe(SUBJECTS_AND_EVENTS_SOURCE_ID);
+      expect(map.addLayer.mock.calls[1][0].id).toBe(CLUSTERS_LAYER_ID);
+      expect(map.addLayer.mock.calls[1][0].source).toBe(CLUSTERED_DATA_SOURCE_ID);
     });
   });
 
@@ -83,7 +83,7 @@ describe('ClustersLayer', () => {
 
       expect(map.addLayer).toHaveBeenCalledTimes(1);
       expect(map.addLayer.mock.calls[0][0].id).toBe(UNCLUSTERED_STATIC_SENSORS_LAYER);
-      expect(map.addLayer.mock.calls[0][0].source).toBe(SUBJECTS_AND_EVENTS_SOURCE_ID);
+      expect(map.addLayer.mock.calls[0][0].source).toBe(CLUSTERED_DATA_SOURCE_ID);
     });
   });
 
@@ -437,33 +437,33 @@ describe('ClustersLayer', () => {
       map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD - 1);
       map.getStyle.mockImplementation(() => ({
         sources: {
-          [SUBJECTS_AND_EVENTS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
+          [CLUSTERED_DATA_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
         },
       }));
       recalculateClusterRadius(map);
 
       expect(map.setStyle).toHaveBeenCalledTimes(1);
-      expect(map.setStyle.mock.calls[0][0].sources[SUBJECTS_AND_EVENTS_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS + 5);
+      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERED_DATA_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS + 5);
     });
 
     test('sets a smaller cluster radius if the zoom gets close enough', () => {
       map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD + 1);
       map.getStyle.mockImplementation(() => ({
         sources: {
-          [SUBJECTS_AND_EVENTS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS + 5 },
+          [CLUSTERED_DATA_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS + 5 },
         },
       }));
       recalculateClusterRadius(map);
 
       expect(map.setStyle).toHaveBeenCalledTimes(1);
-      expect(map.setStyle.mock.calls[0][0].sources[SUBJECTS_AND_EVENTS_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS);
+      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERED_DATA_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS);
     });
 
     test('does not update the cluster radius if new zoom did not pass the threshold', () => {
       map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD + 1);
       map.getStyle.mockImplementation(() => ({
         sources: {
-          [SUBJECTS_AND_EVENTS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
+          [CLUSTERED_DATA_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
         },
       }));
       recalculateClusterRadius(map);

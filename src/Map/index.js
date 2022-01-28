@@ -36,7 +36,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import { BREAKPOINTS, REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
@@ -62,7 +62,8 @@ import MessageBadgeLayer from '../MessageBadgeLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
-import SubjectsAndEventsLayer from '../SubjectsAndEventsLayer';
+import ClustersLayer from '../ClustersLayer';
+import UnclusteredStaticSensorsLayer from '../UnclusteredStaticSensorsLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -341,14 +342,14 @@ class Map extends Component {
       map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
       , layer => layer.properties.id);
     let hidePopup = true, clusterFeaturesAtPoint = [];
-    if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING) {
+    if (REACT_APP_ENABLE_CLUSTERING) {
       const clusterApproxGeometry = [
         [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
         [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
       ];
       const clustersAtPoint = map.queryRenderedFeatures(
         clusterApproxGeometry,
-        { layers: [LAYER_IDS.SUBJECTS_AND_EVENTS_CLUSTERS_LAYER_ID] }
+        { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
       );
 
       hidePopup = !clustersAtPoint.length;
@@ -385,6 +386,15 @@ class Map extends Component {
       this.props.updateUserPreferences({ sidebarOpen: false });
     }
   })
+
+  onShowClusterSelectPopup = (layers, coordinates) => {
+    this.props.showPopup('cluster-select', {
+      layers,
+      coordinates,
+      onSelectEvent: this.onEventSymbolClick,
+      onSelectSubject: this.onMapSubjectClick,
+    });
+  }
 
   onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
     if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
@@ -602,27 +612,23 @@ class Map extends Component {
           <Fragment>
             {children}
 
+            {REACT_APP_ENABLE_CLUSTERING && <ClustersLayer
+              onShowClusterSelectPopup={this.onShowClusterSelectPopup}
+            />}
+
             <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
-              {REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING ? <SubjectsAndEventsLayer
-                  bounceEventIDs={bounceEventIDs}
-                  mapImages={mapImages}
-                  onEventClick={this.onEventSymbolClick}
-                  onSubjectClick={this.onMapSubjectClick}
-                />
-                : <EventsLayer
-                  enableClustering={enableEventClustering}
-                  mapImages={mapImages}
-                  onEventClick={this.onEventSymbolClick}
-                  onClusterClick={this.onClusterClick}
-                  bounceEventIDs={bounceEventIDs}
-                />
-              }
+              <EventsLayer
+                enableClustering={enableEventClustering}
+                mapImages={mapImages}
+                onEventClick={this.onEventSymbolClick}
+                onClusterClick={this.onClusterClick}
+                bounceEventIDs={bounceEventIDs}
+              />
             </DelayedUnmount>
 
-            {!REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING && <SubjectsLayer
-              mapImages={mapImages}
-              onSubjectIconClick={this.onMapSubjectClick}
-            />}
+            <SubjectsLayer mapImages={mapImages} onSubjectClick={this.onMapSubjectClick} />
+
+            {REACT_APP_ENABLE_CLUSTERING && <UnclusteredStaticSensorsLayer />}
 
             <MapImagesLayer map={map} />
 

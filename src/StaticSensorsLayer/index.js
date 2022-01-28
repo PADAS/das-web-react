@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import store from '../store';
 import { MapContext } from '../App';
-import { LAYER_IDS, REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING } from '../constants';
+import { LAYER_IDS, REACT_APP_ENABLE_CLUSTERING } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
@@ -124,7 +124,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
   useEffect(() => {
     if (map) {
       let renderedStaticSensors = [];
-      if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
+      if (REACT_APP_ENABLE_CLUSTERING && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
         renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
           .map((feature) => feature?.properties?.id);
       }
@@ -135,7 +135,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, simplifyMa
         const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
         const source = map.getSource(sourceId);
 
-        if (REACT_APP_ENABLE_SUBJECTS_AND_EVENTS_CLUSTERING
+        if (REACT_APP_ENABLE_CLUSTERING
           && !renderedStaticSensors.includes(feature.properties.id)) {
           return map.getLayer(layerID) && changeLayersVisibility(layerID, 'none');
         }
