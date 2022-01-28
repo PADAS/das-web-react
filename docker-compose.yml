@@ -7,12 +7,10 @@ services:
     volumes:
       - /app/node_modules
       - ./das-web-api:/app
+      - ~/.config/gcloud/web_api_credentials.json:/gcp/creds.json
     environment:
       - PORT=3030
-  pref_db:
-     image: mongo:latest
-     volumes: 
-       - 'mongo-data:/var/db'
+      - GOOGLE_APPLICATION_CREDENTIALS=/gcp/creds.json
   # mock_api:
   #   build:
   #     context: ./mock-api

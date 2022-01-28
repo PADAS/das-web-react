@@ -16,9 +16,6 @@ const INITIAL_STATE = {
   sidebarOpen: false,
   autoStartPatrols: false,
   autoEndPatrols: false,
-  hideModals: false,
-  seenSunsetWarning: false,
-  seenTrackAnnouncement: false,
 };
 
 export default (state = INITIAL_STATE, action = {}) => {

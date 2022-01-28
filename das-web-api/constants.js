@@ -4,8 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const { parsed: ENV } = dotenv.config({ path: path.join(__dirname, '.env') });
+export default () => dotenv.config({ path: path.join(__dirname, '.env') });
 
-export const { APP_PREFIX, GOOGLE_APPLICATION_CREDENTIALS, PROJECT_ID, PROTOCOL, HOST, API_URL, PORT } = ENV;
 
-export const DAS_API_URL = `${PROTOCOL}://${HOST}${API_URL}`;
+

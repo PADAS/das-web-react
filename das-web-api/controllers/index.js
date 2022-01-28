@@ -20,6 +20,6 @@ export const preferencesController = {
     const preferences = req?.body;
 
     const result = await preferencesService.setUserPreference(userId, preferences);
-    next(result);
+    res.send(result);
   }
 };

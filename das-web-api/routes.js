@@ -1,5 +1,3 @@
-
-
 import { preferencesController } from './controllers/index.js';
 
 export default (app) => {

@@ -1,7 +1,7 @@
 const faker = require('faker/locale/en');
 const utils = require('../utils');
 
-const priorities = [0,100,200,300];
+const priorities = [0, 100, 200, 300];
 const patrolStates = ['upcoming', 'active', 'past', 'cancelled'];
 // const segmentStates = ['created', 'active', 'finished'];
 const patrolTypes = ['patrol1', 'patrol2', 'patrol3', 'patrol4', 'patrol5'];
@@ -38,7 +38,7 @@ const generatePatrolSegment = (patrol) => ({
     end_time: generateSegmentEndTime(),
   },
   start_location: randomItemFromArray(patrolStartLocations),
-  end_location: randomItemFromArray(patrolEndLocations), 
+  end_location: randomItemFromArray(patrolEndLocations),
   // icon_id: String (url to image resource),
   image_url: null,
   // members: Array <Member>, // not for MVP,
