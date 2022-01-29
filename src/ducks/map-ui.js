@@ -268,7 +268,7 @@ export const displayMapNamesReducer = (state = true, action) => {
   return state;
 };
 
-export const displayMapStaticSubjectsNamesReducer = (state = true, action) => {
+export const displayMapStaticSubjectsNamesReducer = (state = false, action) => {
   const { type, payload } = action;
   if (type === DISPLAY_STATIC_SUBJECT_NAMES) return payload;
   return state;

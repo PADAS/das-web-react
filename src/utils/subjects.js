@@ -84,7 +84,7 @@ export const getSubjectDefaultDeviceProperty = subject => {
 };
 
 export const subjectIsStatic = subject => {
-  const staticType = 'static_sensor';
+  const staticType = 'stationary-object';
   return subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
   subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
 };
