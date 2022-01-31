@@ -38,6 +38,8 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
+  const patrolTrackStatus = !patrol.id ? 'new' : 'existing';
+
   const [isSaving, setSaveState] = useState(false);
   const [newFiles, updateNewFiles] = useState([]);
   const [newReports, setNewReports] = useState([]);
@@ -53,7 +55,7 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
   }, [leader, patrol]);
 
   const onSave = useCallback(() => {
-    patrolDrawerTracker.track(`Click "save" button for ${isNewPatrol ? 'new' : 'existing'} patrol`);
+    patrolDrawerTracker.track(`Click "save" button for ${patrolTrackStatus} patrol`);
     setSaveState(true);
 
     const patrolToSubmit = { ...patrolForm };
@@ -75,15 +77,15 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
     const actions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], newFiles);
     return executeSaveActions(actions)
       .then(() => {
-        patrolDrawerTracker.track(`Saved ${isNewPatrol ? 'new' : 'existing'} patrol`);
+        patrolDrawerTracker.track(`Saved ${patrolTrackStatus} patrol`);
         hideDrawer();
       })
       .catch((error) => {
-        patrolDrawerTracker.track(`Error saving ${isNewPatrol ? 'new' : 'existing'} patrol`);
+        patrolDrawerTracker.track(`Error saving ${patrolTrackStatus} patrol`);
         console.warn('failed to save new patrol', error);
       })
       .finally(() => setSaveState(false));
-  }, [hideDrawer, isNewPatrol, newFiles, newReports, patrolForm, patrolSegmentId]);
+  }, [hideDrawer, newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus]);
 
   return !!patrolForm && <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
     <Header
