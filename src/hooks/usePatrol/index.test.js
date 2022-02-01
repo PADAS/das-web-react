@@ -99,7 +99,7 @@ describe('usePatrol', () => {
 
   test('triggers a patrol update when calling onPatrolChange', async () => {
     const Component = ({ patrol }) => {
-      const { patrolElapsedTime: _patrolElapsedTime, onPatrolChange } = usePatrol(patrol);
+      const { onPatrolChange } = usePatrol(patrol);
 
       onPatrolChange({ state: PATROL_API_STATES.CANCELLED });
 
@@ -117,7 +117,7 @@ describe('usePatrol', () => {
 
   test('triggers a patrol update when calling restorePatrol', async () => {
     const Component = ({ patrol }) => {
-      const { patrolElapsedTime: _patrolElapsedTime, restorePatrol } = usePatrol(patrol);
+      const { restorePatrol } = usePatrol(patrol);
 
       restorePatrol();
 
@@ -135,7 +135,7 @@ describe('usePatrol', () => {
 
   test('triggers a patrol update when calling startPatrol', async () => {
     const Component = ({ patrol }) => {
-      const { patrolElapsedTime: _patrolElapsedTime, startPatrol } = usePatrol(patrol);
+      const { startPatrol } = usePatrol(patrol);
 
       startPatrol();
 

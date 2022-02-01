@@ -113,11 +113,8 @@ const Header = ({ patrol, setTitle, title }) => {
 };
 
 Header.propTypes = {
-  onPatrolChange: PropTypes.func.isRequired,
   patrol: PropTypes.object.isRequired,
-  restorePatrol: PropTypes.func.isRequired,
   setTitle: PropTypes.func.isRequired,
-  startPatrol: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
 };
 

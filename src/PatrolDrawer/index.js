@@ -155,16 +155,16 @@ PatrolDrawer.propTypes = {
   hideDrawer: PropTypes.func.isRequired,
   leader: PropTypes.shape({
     name: PropTypes.string,
-  }).isRequired,
+  }),
   patrol: PropTypes.shape({
     icon_id: PropTypes.string,
     patrol_segments: PropTypes.array,
     serial_number: PropTypes.number,
     title: PropTypes.string,
   }).isRequired,
-  patrolPermissions: PropTypes.arrayOf(PropTypes.string),
-  startStopGeometries: PropTypes.shape({}).isRequired,
-  trackData: PropTypes.shape({}).isRequired,
+  patrolPermissions: PropTypes.arrayOf(PropTypes.string).isRequired,
+  startStopGeometries: PropTypes.shape({}),
+  trackData: PropTypes.shape({}),
 };
 
 const mapStateToProps = (state, props) => {
