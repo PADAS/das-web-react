@@ -24,7 +24,7 @@ import {
 } from '../__test-helpers/fixtures/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
-const { CLUSTERED_DATA_SOURCE_ID } = LAYER_IDS;
+const { CLUSTERS_SOURCE_ID } = LAYER_IDS;
 
 const mapMarkers = [];
 jest.mock('mapbox-gl', () => {
@@ -519,33 +519,33 @@ describe('ClustersLayer', () => {
       map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD - 1);
       map.getStyle.mockImplementation(() => ({
         sources: {
-          [CLUSTERED_DATA_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
+          [CLUSTERS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
         },
       }));
       recalculateClusterRadius(map);
 
       expect(map.setStyle).toHaveBeenCalledTimes(1);
-      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERED_DATA_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS + 5);
+      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERS_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS + 5);
     });
 
     test('sets a smaller cluster radius if the zoom gets close enough', () => {
       map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD + 1);
       map.getStyle.mockImplementation(() => ({
         sources: {
-          [CLUSTERED_DATA_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS + 5 },
+          [CLUSTERS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS + 5 },
         },
       }));
       recalculateClusterRadius(map);
 
       expect(map.setStyle).toHaveBeenCalledTimes(1);
-      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERED_DATA_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS);
+      expect(map.setStyle.mock.calls[0][0].sources[CLUSTERS_SOURCE_ID].clusterRadius).toBe(CLUSTERS_RADIUS);
     });
 
     test('does not update the cluster radius if new zoom did not pass the threshold', () => {
       map.getZoom.mockImplementation(() => CLUSTER_RADIUS_ZOOM_THRESHOLD + 1);
       map.getStyle.mockImplementation(() => ({
         sources: {
-          [CLUSTERED_DATA_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
+          [CLUSTERS_SOURCE_ID]: { clusterRadius: CLUSTERS_RADIUS },
         },
       }));
       recalculateClusterRadius(map);

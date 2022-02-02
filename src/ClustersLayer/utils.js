@@ -1,8 +1,6 @@
-import { useMemo } from 'react';
 import centroid from '@turf/centroid';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
-import { useSelector } from 'react-redux';
 
 import {
   CLUSTER_CLICK_ZOOM_THRESHOLD,
@@ -11,12 +9,10 @@ import {
   LAYER_IDS,
   SUBJECT_FEATURE_CONTENT_TYPE,
 } from '../constants';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
-import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
 
-const { CLUSTERED_DATA_SOURCE_ID, CLUSTERS_LAYER_ID } = LAYER_IDS;
+const { CLUSTERS_SOURCE_ID, CLUSTERS_LAYER_ID } = LAYER_IDS;
 
 export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
 
@@ -201,24 +197,6 @@ export const addNewClusterMarkers = (
   return renderedClusterMarkersHashMap;
 };
 
-export const useSourcesData = () => {
-  const eventFeatureCollection = useSelector((state) => getMapEventFeatureCollectionWithVirtualDate(state));
-  const subjectFeatureCollection = useSelector((state) => getMapSubjectFeatureCollectionWithVirtualPositioning(state));
-
-  // TODO: How to define which data to cluster?
-  const clusteredSourceData = useMemo(() => ({
-    features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features],
-    type: 'FeatureCollection',
-  }), [eventFeatureCollection.features, subjectFeatureCollection.features]);
-
-  const unclusteredSourceData = useMemo(() => ({
-    features: [...eventFeatureCollection.features, ...subjectFeatureCollection.features],
-    type: 'FeatureCollection',
-  }), [eventFeatureCollection.features, subjectFeatureCollection.features]);
-
-  return { clusteredSourceData, unclusteredSourceData };
-};
-
 export const recalculateClusterRadius = (map) => {
   let newRadius = CLUSTERS_RADIUS;
   const zoom = map.getZoom();
@@ -227,8 +205,8 @@ export const recalculateClusterRadius = (map) => {
   }
 
   const style = map.getStyle();
-  if (style.sources[CLUSTERED_DATA_SOURCE_ID].clusterRadius !== newRadius) {
-    style.sources[CLUSTERED_DATA_SOURCE_ID].clusterRadius = newRadius;
+  if (style.sources[CLUSTERS_SOURCE_ID].clusterRadius !== newRadius) {
+    style.sources[CLUSTERS_SOURCE_ID].clusterRadius = newRadius;
     map.setStyle(style);
   }
 };

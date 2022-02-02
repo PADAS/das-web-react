@@ -21,21 +21,19 @@ import {
   DEFAULT_SYMBOL_PAINT,
   MAP_ICON_SCALE,
   REACT_APP_ENABLE_CLUSTERING,
-  SUBJECT_FEATURE_CONTENT_TYPE,
   SYMBOL_TEXT_SIZE_EXPRESSION,
 } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
-import { getTimeSliderState } from '../selectors';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
+import { getShouldEventsBeClustered } from '../selectors/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,
-  CLUSTERED_DATA_SOURCE_ID,
+  CLUSTERS_SOURCE_ID,
   EVENT_CLUSTERS_CIRCLES,
   EVENT_SYMBOLS,
   SUBJECT_SYMBOLS,
-  UNCLUSTERED_DATA_SOURCE_ID,
 } = LAYER_IDS;
 
 const ANIMATION_LENGTH_SECONDS = .25;
@@ -116,7 +114,7 @@ const EventsLayer = ({
   onEventClick,
 }) => {
   const eventFeatureCollection = useSelector((state) => getMapEventFeatureCollectionWithVirtualDate(state));
-  const isTimeSliderActive = useSelector((state) => getTimeSliderState(state).active);
+  const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
 
   const animationFrameID = useRef(null);
   const clicking = useRef(false);
@@ -186,15 +184,6 @@ const EventsLayer = ({
       !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
     };
   }, [animationState.isRendering, bounceIDs.length, updateBounceSineAnimation]);
-
-  useEffect(() => {
-    if (REACT_APP_ENABLE_CLUSTERING) {
-      map.setLayoutProperty(EVENT_SYMBOLS, 'visibility', isTimeSliderActive ? 'none' : 'visible');
-      map.setLayoutProperty(`${EVENT_SYMBOLS}-labels`, 'visibility', isTimeSliderActive ? 'none' : 'visible');
-      map.setLayoutProperty(`${EVENT_SYMBOLS}-unclustered`, 'visibility', isTimeSliderActive ? 'visible' : 'none');
-      map.setLayoutProperty(`${EVENT_SYMBOLS}-unclustered-labels`, 'visibility', isTimeSliderActive ? 'visible' : 'none');
-    }
-  }, [isTimeSliderActive, map, mapEventFeatures]);
 
   const SCALE_ICON_IF_BOUNCED = useCallback((iconSize, iconScale) => [
     'match',
@@ -295,27 +284,17 @@ const EventsLayer = ({
 
   const sourceData = {
     type: 'geojson',
-    data: mapEventFeatures,
+    data: {
+      ...mapEventFeatures,
+      features: !shouldEventsBeClustered ? mapEventFeatures.features : [],
+    },
   };
 
   return <>
+    <Source id='events-data-unclustered' geoJsonSource={sourceData} />
+
     {!REACT_APP_ENABLE_CLUSTERING && <>
       <Source id='events-data-clustered' geoJsonSource={{ ...sourceData, ...CLUSTER_CONFIG }} />
-      <Source id='events-data-unclustered' geoJsonSource={sourceData} />
-
-      <LabeledSymbolLayer
-        before={SUBJECT_SYMBOLS}
-        filter={enableClustering ? ['!has', 'point_count'] : undefined}
-        id={EVENT_SYMBOLS}
-        layout={eventIconLayout}
-        minZoom={minZoom}
-        onClick={onEventSymbolClick}
-        onInit={setEventLayerIds}
-        sourceId={enableClustering ? 'events-data-clustered' : 'events-data-unclustered'}
-        textLayout={eventLabelLayout}
-        textPaint={EVENTS_LAYER_TEXT_PAINT}
-        type='symbol'
-      />
 
       {enableClustering && <>
         <Layer minZoom={minZoom} after={SUBJECT_SYMBOLS} sourceId='events-data-clustered' id={EVENT_CLUSTERS_CIRCLES} type='symbol'
@@ -324,7 +303,25 @@ const EventsLayer = ({
       </>}
     </>}
 
-    {/* TODO: Once we define which data to cluster, we should update the layers filters */}
+    <LabeledSymbolLayer
+      before={SUBJECT_SYMBOLS}
+      filter={['all', ['has', 'event_type'], ['!has', 'point_count']]}
+      id={`${EVENT_SYMBOLS}-unclustered`}
+      layout={eventIconLayout}
+      minZoom={minZoom}
+      onClick={onEventSymbolClick}
+      onInit={REACT_APP_ENABLE_CLUSTERING ? () => setEventLayerIds([
+        EVENT_SYMBOLS,
+        `${EVENT_SYMBOLS}-labels`,
+        `${EVENT_SYMBOLS}-unclustered`,
+        `${EVENT_SYMBOLS}-unclustered-labels`,
+      ]) : setEventLayerIds}
+      sourceId={!REACT_APP_ENABLE_CLUSTERING && enableClustering ? 'events-data-clustered' : 'events-data-unclustered'}
+      textLayout={eventLabelLayout}
+      textPaint={EVENTS_LAYER_TEXT_PAINT}
+      type="symbol"
+    />
+
     {REACT_APP_ENABLE_CLUSTERING && <>
       <LabeledSymbolLayer
         before={SUBJECT_SYMBOLS}
@@ -333,26 +330,7 @@ const EventsLayer = ({
         layout={eventIconLayout}
         minZoom={minZoom}
         onClick={onEventSymbolClick}
-        onInit={() => setEventLayerIds([
-          EVENT_SYMBOLS,
-          `${EVENT_SYMBOLS}-labels`,
-          `${EVENT_SYMBOLS}-unclustered`,
-          `${EVENT_SYMBOLS}-unclustered-labels`,
-        ])}
-        sourceId={CLUSTERED_DATA_SOURCE_ID}
-        textLayout={eventLabelLayout}
-        textPaint={EVENTS_LAYER_TEXT_PAINT}
-        type="symbol"
-      />
-
-      <LabeledSymbolLayer
-        before={SUBJECT_SYMBOLS}
-        filter={['has', 'event_type']}
-        id={`${EVENT_SYMBOLS}-unclustered`}
-        layout={eventIconLayout}
-        minZoom={minZoom}
-        onClick={onEventSymbolClick}
-        sourceId={UNCLUSTERED_DATA_SOURCE_ID}
+        sourceId={CLUSTERS_SOURCE_ID}
         textLayout={eventLabelLayout}
         textPaint={EVENTS_LAYER_TEXT_PAINT}
         type="symbol"

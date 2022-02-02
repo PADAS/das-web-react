@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useRef } from 'react';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -8,19 +8,19 @@ import {
   getRenderedClustersData,
   recalculateClusterRadius,
   removeOldClusterMarkers,
-  useSourcesData,
 } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
-import { getTimeSliderState } from '../selectors';
+import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { getShouldEventsBeClustered, getShouldSubjectsBeClustered } from '../selectors/clusters';
 import { MapContext } from '../App';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,
   CLUSTER_BUFFER_POLYGON_SOURCE_ID,
-  CLUSTERED_DATA_SOURCE_ID,
   CLUSTERS_LAYER_ID,
-  UNCLUSTERED_DATA_SOURCE_ID,
+  CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
 
 export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
@@ -72,11 +72,6 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
 
   const clusterMarkerHashMapRef = useRef({});
 
-  const isTimeSliderActive = useSelector((state) => getTimeSliderState(state).active);
-
-  const clusteredSource = map.getSource(CLUSTERED_DATA_SOURCE_ID);
-  const unclusteredSource = map.getSource(UNCLUSTERED_DATA_SOURCE_ID);
-
   const { removeClusterPolygon, renderClusterPolygon } = useClusterBufferPolygon(
     CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION,
     CLUSTER_BUFFER_POLYGON_LAYER_ID,
@@ -84,18 +79,35 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     CLUSTER_BUFFER_POLYGON_SOURCE_ID
   );
 
-  const { clusteredSourceData, unclusteredSourceData } = useSourcesData();
+  const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
+  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
+  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
+  const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+
+  const clustersSourceData = useMemo(() => ({
+    features: [
+      ...(shouldEventsBeClustered ? eventFeatureCollection.features : []),
+      ...(shouldSubjectsBeClustered ? subjectFeatureCollection.features : []),
+    ],
+    type: 'FeatureCollection',
+  }), [
+    eventFeatureCollection.features,
+    shouldEventsBeClustered,
+    shouldSubjectsBeClustered,
+    subjectFeatureCollection.features,
+  ]);
 
   useEffect(() => {
     if (map) {
-      if (clusteredSource) {
-        clusteredSource.setData(clusteredSourceData);
+      const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
+      if (clustersSource) {
+        clustersSource.setData(clustersSourceData);
       } else {
-        map.addSource(CLUSTERED_DATA_SOURCE_ID, {
+        map.addSource(CLUSTERS_SOURCE_ID, {
           cluster: true,
           clusterMaxZoom: CLUSTERS_MAX_ZOOM,
           clusterRadius: CLUSTERS_RADIUS,
-          data: clusteredSourceData,
+          data: clustersSourceData,
           type: 'geojson',
         });
       }
@@ -106,12 +118,11 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
         map,
         removeClusterPolygon,
         renderClusterPolygon,
-        clusteredSource
+        clustersSource
       );
     }
   }, [
-    clusteredSource,
-    clusteredSourceData,
+    clustersSourceData,
     map,
     onShowClusterSelectPopup,
     removeClusterPolygon,
@@ -119,28 +130,16 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   ]);
 
   useEffect(() => {
-    if (map) {
-      if (unclusteredSource) {
-        unclusteredSource.setData(unclusteredSourceData);
-      } else {
-        map.addSource(UNCLUSTERED_DATA_SOURCE_ID, { data: unclusteredSourceData, type: 'geojson' });
-      }
+    if (!!map && !!map.getSource(CLUSTERS_SOURCE_ID) && !map.getLayer(CLUSTERS_LAYER_ID)) {
+      map.addLayer({
+        filter: ['has', 'point_count'],
+        id: CLUSTERS_LAYER_ID,
+        source: CLUSTERS_SOURCE_ID,
+        type: 'circle',
+        paint: { 'circle-radius': 0 },
+      });
     }
-  }, [map, unclusteredSource, unclusteredSourceData]);
-
-  useEffect(() => {
-    if (clusteredSource) {
-      if (!map.getLayer(CLUSTERS_LAYER_ID)) {
-        map.addLayer({
-          filter: ['has', 'point_count'],
-          id: CLUSTERS_LAYER_ID,
-          source: CLUSTERED_DATA_SOURCE_ID,
-          type: 'circle',
-          paint: { 'circle-radius': 0 },
-        });
-      }
-    }
-  }, [clusteredSource, map]);
+  }, [map]);
 
   useEffect(() => {
     const onZoomEnd = () => recalculateClusterRadius(map);
@@ -150,14 +149,6 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       map.off('zoomend', onZoomEnd);
     };
   }, [map]);
-
-  useEffect(() => {
-    map.setLayoutProperty(
-      CLUSTERS_LAYER_ID,
-      'visibility',
-      isTimeSliderActive ? 'none' : 'visible'
-    );
-  }, [isTimeSliderActive, map]);
 
   return null;
 };
