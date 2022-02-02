@@ -9,10 +9,19 @@ import format from 'date-fns/format';
 import setSeconds from 'date-fns/set_seconds';
 import setMilliseconds from 'date-fns/set_milliseconds';
 import isFuture from 'date-fns/is_future';
+import durationHumanizer from 'humanize-duration';
+
+
+export const TIME_AGO_FORMAT_OPTIONS = {
+  ROUNDED: 'rounded',
+  PRECISE: 'precise',
+};
+
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
+
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
@@ -70,3 +79,20 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
 
+export const humanizeDuration = durationHumanizer.humanizer({
+  delimiter: ' ',
+  language: 'shortEn',
+  languages: {
+    shortEn: {
+      y: () => 'y',
+      mo: () => 'mo',
+      w: () => 'w',
+      d: () => 'd',
+      h: () => 'h',
+      m: () => 'm',
+    },
+  },
+  units: ['y', 'mo', 'w', 'd', 'h', 'm'],
+  maxDecimalPoints: 0,
+  spacer: '',
+});
