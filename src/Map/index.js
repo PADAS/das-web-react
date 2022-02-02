@@ -674,9 +674,6 @@ class Map extends Component {
 
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 
-            {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
-            {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
-
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
