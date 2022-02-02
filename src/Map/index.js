@@ -12,6 +12,8 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
+import { staticSubjectsForUserTesting } from '../__test-helpers/fixtures/static-subjects-for-user-testing';
+
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -561,7 +563,7 @@ class Map extends Component {
     const enableEventClustering = timeSliderActive ? false : true;
 
     const [staticFeatures, nonStaticFeatures] = partition(mapSubjectFeatureCollection?.features ?? [], subjectFeature => subjectIsStatic(subjectFeature));
-    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
+    const staticSubjects = staticSubjectsForUserTesting;
     const nonStaticSubjects = { ...mapSubjectFeatureCollection, ...{ features: nonStaticFeatures } };
 
     return (
