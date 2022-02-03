@@ -25,7 +25,7 @@ import {
 } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
-import { getShouldEventsBeClustered } from '../selectors/clusters';
+import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
 const {
@@ -113,7 +113,8 @@ const EventsLayer = ({
   onClusterClick,
   onEventClick,
 }) => {
-  const eventFeatureCollection = useSelector((state) => getMapEventFeatureCollectionWithVirtualDate(state));
+  const eventFeatureCollection = useSelector(getMapEventFeatureCollectionWithVirtualDate);
+  const showReportsOnMap = useSelector(getShowReportsOnMap);
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
 
   const animationFrameID = useRef(null);
@@ -286,7 +287,7 @@ const EventsLayer = ({
     type: 'geojson',
     data: {
       ...mapEventFeatures,
-      features: !shouldEventsBeClustered ? mapEventFeatures.features : [],
+      features: !shouldEventsBeClustered && !!showReportsOnMap ? mapEventFeatures.features : [],
     },
   };
 

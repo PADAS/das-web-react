@@ -16,7 +16,7 @@ import { LAYER_IDS, REACT_APP_ENABLE_CLUSTERING, SUBJECT_FEATURE_CONTENT_TYPE } 
 const { CLUSTERS_SOURCE_ID, SUBJECT_SYMBOLS } = LAYER_IDS;
 
 const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
-  const subjectFeatureCollection = useSelector((state) => getMapSubjectFeatureCollectionWithVirtualPositioning(state));
+  const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
 
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));

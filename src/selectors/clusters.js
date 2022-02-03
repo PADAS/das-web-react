@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 
 import { getTimeSliderState } from './';
 
-const getShowReportsOnMap = ({ view: { showReportsOnMap } }) => showReportsOnMap;
+export const getShowReportsOnMap = ({ view: { showReportsOnMap } }) => showReportsOnMap;
 
 // This is the place to query a redux configuration flag to cluster / uncluster things
 export const getShouldEventsBeClustered = createSelector(
