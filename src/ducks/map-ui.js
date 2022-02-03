@@ -1,5 +1,6 @@
 import uniq from 'lodash/uniq';
 
+import { DEFAULT_SHOW_NAMES_IN_MAP_CONFIG } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 
 // actions
@@ -20,7 +21,6 @@ const SHOW_INACTIVE_RADIOS = 'SHOW_INACTIVE_RADIOS';
 
 const SET_MAP_LOCK_STATE = 'SET_MAP_LOCK_STATE';
 const DISPLAY_SUBJECT_NAMES = 'DISPLAY_SUBJECT_NAMES';
-const DISPLAY_STATIC_SUBJECT_NAMES = 'DISPLAY_STATIC_SUBJECT_NAMES';
 const TOGGLE_DISPLAY_USER_LOCATION = 'TOGGLE_DISPLAY_USER_LOCATION';
 const TOGGLE_TRACK_TIMEPOINTS = 'TOGGLE_TRACK_TIMEPOINTS';
 const DISPLAY_REPORTS_ON_MAP = 'DISPLAY_REPORTS_ON_MAP';
@@ -114,14 +114,9 @@ export const toggleMapDataSimplificationOnZoom = () => ({
   type: SET_MAP_DATA_ZOOM_SIMPLIFICATION,
 });
 
-export const toggleMapNameState = (enabled) => ({
+export const toggleMapNamesState = (enables) => ({
   type: DISPLAY_SUBJECT_NAMES,
-  payload: enabled,
-});
-
-export const toggleMapStaticSubjectsNameState = (enabled) => ({
-  type: DISPLAY_STATIC_SUBJECT_NAMES,
-  payload: enabled,
+  payload: enables,
 });
 
 export const displayReportsOnMapState = (enabled) => ({
@@ -262,15 +257,11 @@ export const mapDataZoomSimplificationReducer = (state = { enabled: false }, act
 };
 
 
-export const displayMapNamesReducer = (state = true, action) => {
+export const displayMapNamesReducer = (state = DEFAULT_SHOW_NAMES_IN_MAP_CONFIG, action) => {
   const { type, payload } = action;
-  if (type === DISPLAY_SUBJECT_NAMES) return payload;
-  return state;
-};
-
-export const displayMapStaticSubjectsNamesReducer = (state = false, action) => {
-  const { type, payload } = action;
-  if (type === DISPLAY_STATIC_SUBJECT_NAMES) return payload;
+  if (type === DISPLAY_SUBJECT_NAMES) {
+    return payload;
+  }
   return state;
 };
 

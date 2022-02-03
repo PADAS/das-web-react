@@ -13,7 +13,7 @@ import tracksReducer, { trackDateRangeReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';
 import systemStatusReducer, { systemConfigReducer } from '../ducks/system-status';
 import {
-  heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer, displayMapStaticSubjectsNamesReducer,
+  heatmapStyleConfigReducer, hiddenSubjectIDsReducer, displayMapNamesReducer,
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
   mapDataZoomSimplificationReducer, pickingLocationOnMapReducer, printTitleReducer,
   displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
@@ -102,7 +102,6 @@ const rootReducer = combineReducers({
     mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
-    showMapStaticSubjectsNames: displayMapStaticSubjectsNamesReducer,
     showUserLocation: displayUserLocationReducer,
     showTrackTimepoints: displayTrackTimepointsReducer,
     showReportsOnMap: displayReportsOnMapReducer,
