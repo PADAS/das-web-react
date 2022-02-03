@@ -2,8 +2,6 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef } from
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
-import { PATROL_API_STATES } from '../constants';
-
 import { calcPatrolState } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -26,7 +24,7 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, map, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
+const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, map, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
   const {
     patrolData,
     patrolTrackState,
@@ -51,6 +49,10 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, map, onP
     dateComponentDateString,
 
     setPatrolState,
+
+    onPatrolChange,
+    restorePatrol,
+    startPatrol,
   } = usePatrol(patrolFromProps);
 
   const { patrol, leader } = patrolData;
@@ -98,23 +100,23 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, map, onP
     fitMapBoundsForAnalyzer(map, patrolBounds);
   }, [leader, map, patrol.id, patrolBounds, patrolTrackState, trackState]);
 
-  const restorePatrol = useCallback(() => {
+  const restorePatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
-    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
-  }, [onPatrolChange]);
+    restorePatrol();
+  }, [restorePatrol]);
 
-  const startPatrol = useCallback(() => {
+  const startPatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Start patrol from patrol list item');
-    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
-  }, [onPatrolChange]);
+    startPatrol();
+  }, [startPatrol]);
 
   const StateDependentControls = () => {
     if (isPatrolActiveOrDone) return <div className={styles.patrolTrackControls}>
       {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton buttonRef={trackToggleButtonRef} patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
       {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} map={map} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
-    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
-    if (isPatrolScheduled) return  <Button variant='light' size='sm' onClick={startPatrol} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;
+    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrolAndTrack} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
+    if (isPatrolScheduled) return  <Button variant='light' size='sm' onClick={startPatrolAndTrack} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;
     return null;
   };
 

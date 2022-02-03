@@ -1,25 +1,33 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { executeSaveActions } from '../utils/save';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
 import { newPatrol } from '../__test-helpers/fixtures/patrols';
 import PatrolDrawer from './';
 
+jest.mock('../utils/save', () => ({
+  ...jest.requireActual('../utils/save'),
+  executeSaveActions: jest.fn(),
+}));
 jest.mock('../ducks/drawer', () => ({
   ...jest.requireActual('../ducks/drawer'),
   hideDrawer: jest.fn(),
 }));
 
 describe('PatrolDrawer', () => {
-  let hideDrawerMock;
+  let executeSaveActionsMock, hideDrawerMock;
   beforeEach(() => {
     hideDrawerMock = jest.fn(() => () => {});
     hideDrawer.mockImplementation(hideDrawerMock);
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={mockStore({
+        data: { subjectStore: {}, user: { permissions: { patrol: ['change'] } } },
+        view: {},
+      })}>
         <PatrolDrawer newPatrol={newPatrol} />
       </Provider>
     );
@@ -74,5 +82,39 @@ describe('PatrolDrawer', () => {
     userEvent.click(exitButton);
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders the save button when user is in the Plan tab', async () => {
+    expect((await screen.findByText('Save'))).toBeDefined();
+  });
+
+  test('does not render the save button when user is in the Timeline tab', async () => {
+    const timelineTab = (await screen.findAllByRole('tab'))[1];
+    userEvent.click(timelineTab);
+
+    expect((await screen.queryByText('Save'))).toBeNull();
+  });
+
+  test('does not render the save button when user is in the History tab', async () => {
+    const historyTab = (await screen.findAllByRole('tab'))[2];
+    userEvent.click(historyTab);
+
+    expect((await screen.queryByText('Save'))).toBeNull();
+  });
+
+  test('triggers executeSaveActions when user clicks the Save button and hides the drawer', async () => {
+    executeSaveActionsMock = jest.fn(() => Promise.resolve());
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    expect(executeSaveActions).toHaveBeenCalledTimes(0);
+    expect(hideDrawer).toHaveBeenCalledTimes(0);
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(executeSaveActions).toHaveBeenCalledTimes(1);
+      expect(hideDrawer).toHaveBeenCalledTimes(1);
+    });
   });
 });

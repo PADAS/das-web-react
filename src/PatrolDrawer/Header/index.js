@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
+import { PATROL_DRAWER_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import usePatrol from '../../hooks/usePatrol';
 
 import DasIcon from '../../DasIcon';
@@ -12,7 +13,9 @@ import PatrolMenu from '../../PatrolMenu';
 
 import styles from './styles.module.scss';
 
-const Header = ({ onPatrolChange, patrol, restorePatrol, setTitle, startPatrol, title }) => {
+const patrolDrawerTracker = trackEventFactory(PATROL_DRAWER_CATEGORY);
+
+const Header = ({ patrol, setTitle, title }) => {
   const {
     patrolData,
 
@@ -29,7 +32,13 @@ const Header = ({ onPatrolChange, patrol, restorePatrol, setTitle, startPatrol, 
     theme,
 
     dateComponentDateString,
+
+    onPatrolChange,
+    restorePatrol,
+    startPatrol,
   } = usePatrol(patrol);
+
+  const isNewPatrol = !patrol.id;
 
   const titleDetails = useMemo(() => {
     if (isPatrolActive || isPatrolDone) {
@@ -51,7 +60,15 @@ const Header = ({ onPatrolChange, patrol, restorePatrol, setTitle, startPatrol, 
     scheduledStartTime,
   ]);
 
-  const isNewPatrol = !patrol.id;
+  const restorePatrolAndTrack = useCallback(() => {
+    patrolDrawerTracker.track('Restore patrol from patrol drawer header');
+    restorePatrol();
+  }, [restorePatrol]);
+
+  const startPatrolAndTrack = useCallback(() => {
+    patrolDrawerTracker.track('Start patrol from patrol drawer header');
+    startPatrol();
+  }, [startPatrol]);
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
@@ -72,9 +89,9 @@ const Header = ({ onPatrolChange, patrol, restorePatrol, setTitle, startPatrol, 
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
 
-    {(isNewPatrol || isPatrolScheduled || isPatrolOverdue) && <Button
+    {(isPatrolScheduled || isPatrolOverdue) && <Button
       className={`${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
-      onClick={startPatrol}
+      onClick={startPatrolAndTrack}
       type="button"
       variant="secondary"
     >
@@ -84,23 +101,20 @@ const Header = ({ onPatrolChange, patrol, restorePatrol, setTitle, startPatrol, 
 
     {isPatrolCancelled && <Button
       className={styles.restorePatrolButton}
-      onClick={restorePatrol}
+      onClick={restorePatrolAndTrack}
       type="button"
       variant="secondary"
     >
       Restore
     </Button>}
 
-    {!isNewPatrol && !isPatrolCancelled && <PatrolMenu patrol={patrol} onPatrolChange={onPatrolChange} />}
+    {!isNewPatrol && !isPatrolCancelled && <PatrolMenu onPatrolChange={onPatrolChange} patrol={patrol} />}
   </div>;
 };
 
 Header.propTypes = {
-  onPatrolChange: PropTypes.func.isRequired,
   patrol: PropTypes.object.isRequired,
-  restorePatrol: PropTypes.func.isRequired,
   setTitle: PropTypes.func.isRequired,
-  startPatrol: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
 };
 

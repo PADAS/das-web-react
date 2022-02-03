@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import merge from 'lodash/merge';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   actualEndTimeForPatrol,
@@ -18,10 +19,12 @@ import {
   patrolStateDetailsStartTime,
 } from '../../utils/patrols';
 import { createPatrolDataSelector } from '../../selectors/patrols';
-
-import { PATROL_UI_STATES } from '../../constants';
+import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
+import { updatePatrol } from '../../ducks/patrols';
 
 export default (patrolFromProps) => {
+  const dispatch = useDispatch();
+
   const { patrolData, patrolTrackState, trackState } = useSelector((state) => {
     const getDataForPatrolFromProps = createPatrolDataSelector();
 
@@ -97,6 +100,24 @@ export default (patrolFromProps) => {
     setPatrolState(calcPatrolState(patrolData.patrol));
   }, [patrolData.patrol]);
 
+  const onPatrolChange = useCallback((value) => {
+    const merged = merge(patrolFromProps, value);
+    delete merged.updates;
+
+    dispatch(updatePatrol(merged));
+  }, [dispatch, patrolFromProps]);
+
+  const restorePatrol = useCallback(() => {
+    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
+  }, [onPatrolChange]);
+
+  const startPatrol = useCallback(() => {
+    onPatrolChange({
+      state: PATROL_API_STATES.OPEN,
+      patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }],
+    });
+  }, [onPatrolChange]);
+
   return {
     patrolData,
     patrolTrackState,
@@ -122,5 +143,9 @@ export default (patrolFromProps) => {
     dateComponentDateString,
 
     setPatrolState,
+
+    onPatrolChange,
+    restorePatrol,
+    startPatrol,
   };
 };
