@@ -9,14 +9,8 @@ import format from 'date-fns/format';
 import setSeconds from 'date-fns/set_seconds';
 import setMilliseconds from 'date-fns/set_milliseconds';
 import isFuture from 'date-fns/is_future';
-import durationHumanizer from 'humanize-duration';
-
-
-export const TIME_AGO_FORMAT_OPTIONS = {
-  ROUNDED: 'rounded',
-  PRECISE: 'precise',
-};
-
+import humanizeDuration from 'humanize-duration';
+import pluralize from 'pluralize';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
@@ -79,20 +73,71 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
 
-export const humanizeDuration = durationHumanizer.humanizer({
+const DEFAULT_HUMANIZED_DURATION_PROPS = {
   delimiter: ' ',
-  language: 'shortEn',
-  languages: {
-    shortEn: {
-      y: () => 'y',
-      mo: () => 'mo',
-      w: () => 'w',
-      d: () => 'd',
-      h: () => 'h',
-      m: () => 'm',
-    },
-  },
-  units: ['y', 'mo', 'w', 'd', 'h', 'm'],
   maxDecimalPoints: 0,
-  spacer: '',
-});
+};
+
+export const HUMANIZED_DURATION_CONFIGS = {
+  FULL_FORMAT: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'full',
+    languages: {
+      full: {
+        y: (n) => pluralize('year', n),
+        mo: (n) => pluralize('month', n),
+        d: (n) => pluralize('day', n),
+        h: (n) => pluralize('hour', n),
+        m: (n) => pluralize('minute', n),
+        s: (n) => pluralize('second', n),
+      }
+    },
+    units: ['y', 'mo', 'd', 'h', 'm', 's'],
+  },
+  MINUTES_ONLY: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'minutes_only',
+    languages: {
+      minutes_only: {
+        m: (n) => pluralize('minute', n),
+      },
+    },
+    units: ['m'],
+    spacer: ' ',
+  },
+  ABBREVIATED_FORMAT: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'abbreviated',
+    languages: {
+      abbreviated: {
+        y: () => 'y',
+        mo: () => 'mo',
+        w: () => 'w',
+        d: () => 'd',
+        h: () => 'h',
+        m: () => 'm',
+        s: () => 's',
+      },
+    },
+    units: ['y', 'mo', 'w', 'd', 'h', 'm', 's'],
+    spacer: '',
+  },
+  LONG_TERM_ABRREVIATED: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'long_term',
+    languages: {
+      long_term: {
+        y: () => 'y',
+        mo: () => 'mo',
+        w: () => 'w',
+        d: () => 'd',
+        h: () => 'h',
+        m: () => 'm',
+      },
+    },
+    units: ['y', 'mo', 'w', 'd', 'h', 'm'],
+    spacer: '',
+  }
+};
+
+export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT) => humanizeDuration.humanizer(config);

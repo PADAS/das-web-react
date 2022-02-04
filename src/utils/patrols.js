@@ -4,7 +4,7 @@ import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
 import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
-import { SHORT_TIME_FORMAT, TIME_AGO_FORMAT_OPTIONS } from '../utils/datetime';
+import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
 import { cloneDeep } from 'lodash-es';
@@ -12,6 +12,8 @@ import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
+import pluralize from 'pluralize';
+
 import TimeAgo from '../TimeAgo';
 
 import store from '../store';
@@ -318,8 +320,8 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    const formatter = (val, unit, _suffix) => `${val} ${unit}${val > 1 ? 's' : ''}`;
-    return <TimeAgo date={displayStartTime} displayFormat={TIME_AGO_FORMAT_OPTIONS.PRECISE} formatterFn={formatter} />;
+    const formatter = (val, unit, _suffix) => `${val} ${pluralize(unit, val)}`;
+    return <TimeAgo date={displayStartTime} formatterFn={formatter} />;
   }
 
   return distanceInWords(displayStartTime, displayEndTime);

@@ -1,23 +1,44 @@
-import React, { useCallback, memo } from 'react';
-import { default as TA } from 'react-timeago';
-import { generateCurrentTimeZoneTitle, humanizeDuration, TIME_AGO_FORMAT_OPTIONS  } from '../utils/datetime';
+import React, { useMemo, useEffect, useRef, useState, memo } from 'react';
+import { generateCurrentTimeZoneTitle, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
 
-const whiteSpace = (str, space) => str.padStart(space+str.length, ' ');
+const title = generateCurrentTimeZoneTitle();
+
+const ONE_MINUTE_IN_MS = 60000;
+const ONE_HOUR_IN_MS = ONE_MINUTE_IN_MS * 60;
 
 const TimeAgo = (props) => {
-  const { showSuffix = true, formatterFn, displayFormat, date, ...rest } = props;
+  const { date, prefix = null, suffix = null, ...rest } = props;
 
-  const defaultFormatter = useCallback((val, unit, suffix) => `${val}${unit === 'month' ? (val > 1) ? whiteSpace(unit.substring(0, 2).concat('s'), 1) : unit.substring(0, 2) : unit.charAt(0)}${showSuffix ? ` ${suffix}` : ''}`, [showSuffix]);
+  const [timeDistance, setTimeDistance] = useState(new Date() - new Date(date));
+  const updateIntervalRef = useRef(null);
 
-  const formatter = formatterFn || defaultFormatter;
+  const olderThanAMinute = timeDistance > ONE_MINUTE_IN_MS;
+  const olderThanAnHour = timeDistance > ONE_HOUR_IN_MS;
 
-  const olderThanAnHour = (new Date() - new Date(date)) > 3600000;
+  const durationStringGenerator = useMemo(() => {
+    if (olderThanAnHour) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED);
+    if (olderThanAMinute) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY);
 
-  if (olderThanAnHour && displayFormat === TIME_AGO_FORMAT_OPTIONS.PRECISE) {
-    return <span>{humanizeDuration(new Date() - new Date(date))}</span>;
-  }
+    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
+  }, [olderThanAMinute, olderThanAnHour]);
 
-  return <TA formatter={formatter} date={date} title={generateCurrentTimeZoneTitle()} {...rest} />;
+  const durationString = durationStringGenerator(timeDistance);
+
+  useEffect(() => {
+    const updateFn = () => {
+      setTimeDistance(new Date() - new Date(date));
+    };
+
+    const intervalLength = olderThanAMinute ? 60000 : 1000;
+
+    updateIntervalRef.current = window.setInterval(updateFn, intervalLength);
+
+    return () => {
+      window.clearInterval(updateIntervalRef.current);
+    };
+  }, [date, olderThanAMinute]);
+
+  return <span title={title} {...rest}>{prefix ? `${prefix} ` : ''}{durationString}{suffix ? ` ${suffix}` : ''}</span>;
 };
 
 export default memo(TimeAgo);
