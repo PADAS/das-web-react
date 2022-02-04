@@ -64,10 +64,10 @@ export const LABELS_LAYER = {
     'icon-offset': [
       'case',
       ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], false]],
-      ['literal', [0, -16]],
+      ['literal', [0, -126]],
       ['all', ['has', 'default_status_value'], ['==', ['get', 'data_map_id_simplified'], true]],
-      ['literal', [0, -4]],
-      ['literal', [0, 7]],
+      ['literal', [0, -114]],
+      ['literal', [0, -97]],
     ],
     'icon-anchor': 'top',
     'text-anchor': 'center',
@@ -92,6 +92,5 @@ export const LABELS_LAYER = {
     'icon-color': '#ffffff',
     'text-halo-width': 0,
     'icon-halo-width': 0,
-    'icon-translate': [0, -53],
   }
 };
