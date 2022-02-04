@@ -4,7 +4,6 @@ import { OverlayTrigger, Popover } from 'react-bootstrap';
 
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
-import MapStaticSensorNamesControl from '../MapStaticSensorNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
 import MapDataZoomSimplificationControl from '../MapDataZoomSimplificationControl';
 import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
@@ -26,7 +25,6 @@ const MapSettingsControl = (props) => {
         <ul>
           <li><MapLockControl /></li>
           <li><MapNamesControl /></li>
-          <li><MapStaticSensorNamesControl /></li>
           <li><MapTrackTimepointsControl /></li>
           <li><InactiveRadioControl /></li>
           <li><MapDataZoomSimplificationControl /></li>

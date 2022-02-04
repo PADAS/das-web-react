@@ -6,11 +6,13 @@ import { Source, Layer } from 'react-mapbox-gl';
 import { addMapImage } from '../utils/map';
 import { calcImgIdFromUrlForMapImages } from '../utils/img';
 import { createPatrolDataSelector } from '../selectors/patrols';
-import { DEFAULT_SYMBOL_PAINT } from '../constants';
+import { DEFAULT_SYMBOL_PAINT, LAYER_IDS } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import { uuid } from '../utils/string';
 import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import withMapViewConfig from '../WithMapViewConfig';
+
+const { PATROL_SYMBOLS } = LAYER_IDS;
 
 const linePaint = {
   'line-color': [
@@ -48,7 +50,7 @@ const StartStopLayer = (props) => {
   const { key, patrolData, map, ...rest } = props;
 
   const [instanceId] = useState(uuid());
-  const layerId = `patrol-start-stop-layer-${instanceId}`;
+  const layerId = `${PATROL_SYMBOLS}-${instanceId}`;
 
   const points = patrolData?.startStopGeometries?.points;
   const lines = patrolData?.startStopGeometries?.lines;

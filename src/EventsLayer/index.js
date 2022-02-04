@@ -71,7 +71,7 @@ const ICON_SCALE_RATE = .15;
 const FONT_SCALE_RATE = 1.75;
 
 const EventsLayer = (props) => {
-  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfig, minZoom, bounceEventIDs = [] } = props;
+  const { events, onEventClick, onClusterClick, enableClustering, map, mapImages = {}, mapUserLayoutConfigByLayerId, minZoom, bounceEventIDs = [] } = props;
 
   // assign 'bounce' property to the current event feature collection,
   // so that we can render bounce and disable feature state after it is animated. 
@@ -251,7 +251,7 @@ const EventsLayer = (props) => {
         ],
         ''],
     ],
-    ...mapUserLayoutConfig,
+    ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
     'text-size': 0,
   };
 
@@ -265,7 +265,7 @@ const EventsLayer = (props) => {
       6, SCALE_FONT_IF_BOUNCED(8, FONT_SCALE_RATE),
       14, SCALE_FONT_IF_BOUNCED(13, FONT_SCALE_RATE),
     ],
-    ...mapUserLayoutConfig,
+    ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
   };
 
   const sourceData = {

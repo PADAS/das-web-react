@@ -33,8 +33,9 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapStaticSubjectsNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
+  const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR].enabled;
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
@@ -156,7 +157,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapSta
   return null;
 };
 
-const mapStatetoProps = ({ view: { showMapStaticSubjectsNames, simplifyMapDataOnZoom } }) => ({ showMapStaticSubjectsNames, simplifyMapDataOnZoom });
+const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });
 
 export default connect(mapStatetoProps, null)(memo(StaticSensorsLayer));
 
