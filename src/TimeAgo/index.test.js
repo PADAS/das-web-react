@@ -25,4 +25,20 @@ describe('the TimeAgo component', () => {
   it('displays abbreviated times for durations over one hour in the XXy XXmo XXd XXh XXm format', () => {
 
   });
+
+  it('displays a prefix', () => {
+
+  });
+
+  it('displays a suffix', () => {
+
+  });
+
+  it('updates every second for values under one minute', () => {
+
+  });
+
+  it('updates every minute for values over one minute', () => {
+
+  });
 });
