@@ -9,8 +9,9 @@ import { MapContext } from '../App';
 import { mockMapStaticSubjectFeatureCollection, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 import { LAYER_IDS } from '../constants';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
-
 import StaticSensorsLayer from './';
+
+const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
 
 let map;
 const store = {
@@ -18,9 +19,13 @@ const store = {
     simplifyMapDataOnZoom: {
       active: false
     },
+    showMapNames: {
+      [STATIC_SENSOR]: {
+        enabled: false,
+      }
+    },
   },
 };
-const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX } = LAYER_IDS;
 describe('adding default property', () => {
   function getDefaultProperty(feature) {
     return feature.properties.device_status_properties.find(property => property?.default ?? false) ?? null;
