@@ -100,7 +100,7 @@ describe('ClustersLayer', () => {
     test('renders two markers in the map', async () => {
       await waitFor (() => {
         expect(mapMarkers).toHaveLength(2);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
     });
 
     test('each marker has three icons and a number indicating how many features it has', async () => {
@@ -118,7 +118,7 @@ describe('ClustersLayer', () => {
         expect(mapMarkers[1].childNodes[2].tagName).toBe('IMG');
         expect(mapMarkers[1].childNodes[3].tagName).toBe('P');
         expect(mapMarkers[1].childNodes[3].textContent).toBe('+3');
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
     });
 
     test('renders a cluster buffer polygon when user hovers a cluster', async () => {
@@ -128,7 +128,7 @@ describe('ClustersLayer', () => {
         mapMarkers[0].dispatchEvent(new Event('mouseover'));
 
         expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
     });
 
     test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
@@ -139,7 +139,7 @@ describe('ClustersLayer', () => {
         mapMarkers[0].dispatchEvent(new Event('mouseleave'));
 
         expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
     });
 
     test('zooms to a cluster if user clicks it while zoom is too far', async () => {
@@ -153,7 +153,7 @@ describe('ClustersLayer', () => {
           center: [-103.38315141, 20.677884013333337],
           zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
         });
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
     });
 
     test('triggers the onShowClusterSelectPopup action when user clicks a cluster if zoom is close enough', async () => {
@@ -165,7 +165,7 @@ describe('ClustersLayer', () => {
         mapMarkers[0].dispatchEvent(new Event('click'));
 
         expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME + 30 });
+      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
     });
   });
 

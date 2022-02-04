@@ -14,8 +14,6 @@ import { injectStylesToElement } from '../utils/styles';
 
 const { CLUSTERS_SOURCE_ID, CLUSTERS_LAYER_ID } = LAYER_IDS;
 
-export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
-
 const CLUSTER_ICON_DISPLAY_LENGTH = 3;
 
 const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
@@ -126,7 +124,7 @@ export const getRenderedClustersData = async (clustersSource, map) => {
       clusterId,
       Number.MAX_SAFE_INTEGER,
       0,
-      (error, features) => !error ? resolve(features) : reject(error)
+      (error, features) => !error && resolve(features)
     );
   }));
   const renderedClusterFeatures = await Promise.all(getAllClusterLeavesPromises);

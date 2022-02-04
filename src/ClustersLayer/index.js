@@ -23,7 +23,7 @@ const {
   CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
 
-export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
+export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 75;
 
 const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   before: CLUSTERS_LAYER_ID,
@@ -101,7 +101,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     if (map) {
       const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
       if (clustersSource) {
-        clustersSource.setData(clustersSourceData);
+        setTimeout(() => clustersSource.setData(clustersSourceData), UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
       } else {
         map.addSource(CLUSTERS_SOURCE_ID, {
           cluster: true,
