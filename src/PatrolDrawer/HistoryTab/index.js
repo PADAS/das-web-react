@@ -14,7 +14,10 @@ import styles from './styles.module.scss';
 const ASCENDING_TIME_SORT_ORDER = 'asc';
 const DESCENDING_TIME_SORT_ORDER = 'desc';
 
-const HistoryListItem = ({ date, message, secondaryMessage, user }) => <div className={styles.historyListItem}>
+const HistoryListItem = ({ date, message, secondaryMessage, user }) => <div
+    className={styles.historyListItem}
+    data-testid="historyListItem"
+  >
   <div>
     <p className="user">{user}</p>
     <p className="message">{message}</p>
@@ -56,6 +59,7 @@ const HistoryTab = ({ patrolForm }) => {
     </div>
 
     <div className={styles.historyList}>
+      {/* TODO: backend integration will take place here */}
       {updates.map((update) => <HistoryListItem
         date={update.time}
         key={update.time}
