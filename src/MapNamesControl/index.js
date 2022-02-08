@@ -12,14 +12,14 @@ const MapNamesControl = ({ showMapNames, toggleMapNamesState }) => {
   const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
   const [layersValues, setLayersValues] = useState({ ...showMapNames });
   const [allChecked, setAllChecked] = useState(true);
-  const [isIndeterminate, setIndeterminate] = useState(true);
+  const [isIndeterminate, setIndeterminate] = useState(false);
 
   useEffect(() => {
     const hasFalsyValues = some(Object.values(showMapNames), { enabled: false });
-    // const hasTrulyValues = some(Object.values(showMapNames), { enabled: true });;
+    const hasTrulyValues = some(Object.values(showMapNames), { enabled: true });
+
     setAllChecked(!hasFalsyValues);
-    // console.log('%c hasFalsyValues', 'font-size:20px;color:red;', hasFalsyValues);
-    // setIndeterminate(hasTrulyValues);
+    setIndeterminate(hasFalsyValues && hasTrulyValues);
   }, [showMapNames, toggleMapNamesState]);
 
   const switchAllOptions = useCallback(() => {
@@ -44,7 +44,17 @@ const MapNamesControl = ({ showMapNames, toggleMapNamesState }) => {
 
   return <>
     <label>
-      <input type='checkbox' id='showAllNames' checked={allChecked} indeterminate={Object.values(showMapNames).includes(true)}  onChange={switchAllOptions}/>
+      <input
+      type='checkbox'
+      id='showAllNames'
+      checked={allChecked}
+      ref={input => {
+        if (input) {
+          input.indeterminate = isIndeterminate;
+        }
+      }}
+      onChange={switchAllOptions}
+      />
       <span className={styles.checkboxlabel}>Show Names</span>
     </label>
     <ul className={styles.subListItems}>
