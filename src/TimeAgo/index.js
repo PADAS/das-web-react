@@ -19,7 +19,7 @@ const TimeAgo = (props) => {
     if (olderThanAnHour) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED);
     if (olderThanAMinute) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.MINUTES_ONLY);
 
-    return durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
+    return durationHumanizer();
   }, [olderThanAMinute, olderThanAnHour]);
 
   const durationString = durationStringGenerator(timeDistance);
@@ -38,7 +38,7 @@ const TimeAgo = (props) => {
     };
   }, [date, olderThanAMinute]);
 
-  return <span title={title} {...rest}>{prefix ? `${prefix} ` : ''}{durationString}{suffix ? ` ${suffix}` : ''}</span>;
+  return <span data-testid='time-ago' title={title} {...rest}>{prefix ? `${prefix} ` : ''}{durationString}{suffix ? ` ${suffix}` : ''}</span>;
 };
 
 export default memo(TimeAgo);
