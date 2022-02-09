@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
 import { REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
 
@@ -94,7 +95,11 @@ const LayerSelectorPopup = ({ id, data, hidePopup, mapImages }) => {
           : calcUrlForImage(layer.properties.image);
 
         return <li className={styles.listItem} key={layer.properties.id} onClick={(e) => handleClick(e, layer)}>
-          <img alt={layer.properties.display_title || layer.properties.name || layer.properties.title} src={imgSrc} />
+          <img
+            alt={layer.properties.display_title || layer.properties.name || layer.properties.title}
+            src={imgSrc}
+            style={{ ...(subjectIsStatic(layer) ? { filter: 'invert(1) opacity(60%)' } : {}) }}
+          />
           <span>{layer.properties.display_title || layer.properties.name || layer.properties.title}</span>
         </li>;
       })}
