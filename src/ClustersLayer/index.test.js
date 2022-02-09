@@ -237,7 +237,7 @@ describe('ClustersLayer', () => {
     let clusterHTMLMarker;
     beforeEach(() => {
       const clusterFeatures = [
-        { properties: { id: '1', content_type: 'observations.subject' } },
+        { properties: { id: '1', content_type: 'observations.subject', is_static: true, subject_type: 'stationary-subject' } },
         { properties: { id: '2', event_type: 'jenaeonefield' } },
         { properties: { id: '3' } },
         { properties: { id: '4', content_type: 'observations.subject' } },
