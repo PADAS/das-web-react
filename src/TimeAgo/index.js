@@ -3,8 +3,9 @@ import { generateCurrentTimeZoneTitle, durationHumanizer, HUMANIZED_DURATION_CON
 
 const title = generateCurrentTimeZoneTitle();
 
-const ONE_MINUTE_IN_MS = 60000;
-const ONE_HOUR_IN_MS = ONE_MINUTE_IN_MS * 60;
+const ONE_SECOND = 1000;
+const ONE_MINUTE = ONE_SECOND * 60;
+const ONE_HOUR = ONE_MINUTE * 60;
 
 const TimeAgo = (props) => {
   const { date, prefix = null, suffix = null, ...rest } = props;
@@ -12,8 +13,8 @@ const TimeAgo = (props) => {
   const [timeDistance, setTimeDistance] = useState(new Date() - new Date(date));
   const updateIntervalRef = useRef(null);
 
-  const olderThanAMinute = timeDistance > ONE_MINUTE_IN_MS;
-  const olderThanAnHour = timeDistance > ONE_HOUR_IN_MS;
+  const olderThanAMinute = timeDistance > ONE_MINUTE;
+  const olderThanAnHour = timeDistance > ONE_HOUR;
 
   const durationStringGenerator = useMemo(() => {
     if (olderThanAnHour) return durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED);
@@ -29,7 +30,7 @@ const TimeAgo = (props) => {
       setTimeDistance(new Date() - new Date(date));
     };
 
-    const intervalLength = olderThanAMinute ? 60000 : 1000;
+    const intervalLength = olderThanAMinute ? ONE_MINUTE : ONE_SECOND;
 
     updateIntervalRef.current = window.setInterval(updateFn, intervalLength);
 
