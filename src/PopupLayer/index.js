@@ -84,6 +84,12 @@ const templates = {
     Component: LayerSelectorPopup,
     popupAttrs: {
       className: layerSelectorPopupStyles.popup,
+    },
+  },
+  'cluster-select': {
+    Component: LayerSelectorPopup,
+    popupAttrs: {
+      className: layerSelectorPopupStyles.popup,
     }
   },
 };
