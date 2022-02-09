@@ -97,7 +97,7 @@ describe('adding default property', () => {
     expect(staticSubjectFeature.properties.default_status_value).toBe('No historical data');
   });
 
-  test('Showing name in case the showNames control for this layer is enabled', () => {
+  test('Set property show_map_names as true in case the showNames control for this layer is enabled', () => {
     const storeWithShowNamesEnabled = { ...store };
     storeWithShowNamesEnabled.view.showMapNames[STATIC_SENSOR].enabled = true;
     render(<Provider store={mockStore(storeWithShowNamesEnabled)}>
