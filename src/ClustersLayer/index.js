@@ -1,8 +1,9 @@
 import React, { memo, useContext, useEffect, useMemo, useRef } from 'react';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { recalculateClusterRadius, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME, updateClusterMarkers } from './utils';
+import { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME, updateClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -29,6 +30,27 @@ const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   type: 'fill',
 };
 const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
+
+const setClustersSourceData = debounce((
+  clustersSource,
+  clustersSourceData,
+  clusterMarkerHashMapRef,
+  onShowClusterSelectPopup,
+  map,
+  removeClusterPolygon,
+  renderClusterPolygon,
+) => {
+  clustersSource.setData(clustersSourceData);
+
+  updateClusterMarkers(
+    clusterMarkerHashMapRef,
+    onShowClusterSelectPopup,
+    map,
+    removeClusterPolygon,
+    renderClusterPolygon,
+    clustersSource
+  );
+}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME / 3);
 
 const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const map = useContext(MapContext);
@@ -64,7 +86,15 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     if (map) {
       const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
       if (clustersSource) {
-        setTimeout(() => clustersSource.setData(clustersSourceData), UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
+        setClustersSourceData(
+          clustersSource,
+          clustersSourceData,
+          clusterMarkerHashMapRef,
+          onShowClusterSelectPopup,
+          map,
+          removeClusterPolygon,
+          renderClusterPolygon,
+        );
       } else {
         map.addSource(CLUSTERS_SOURCE_ID, {
           cluster: true,
@@ -74,15 +104,6 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
           type: 'geojson',
         });
       }
-
-      updateClusterMarkers(
-        clusterMarkerHashMapRef,
-        onShowClusterSelectPopup,
-        map,
-        removeClusterPolygon,
-        renderClusterPolygon,
-        clustersSource
-      );
     }
   }, [
     clustersSourceData,
@@ -102,15 +123,6 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
         paint: { 'circle-radius': 0 },
       });
     }
-  }, [map]);
-
-  useEffect(() => {
-    const onZoomEnd = () => recalculateClusterRadius(map);
-    map.on('zoomend', onZoomEnd);
-
-    return () => {
-      map.off('zoomend', onZoomEnd);
-    };
   }, [map]);
 
   return null;

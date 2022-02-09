@@ -41,7 +41,6 @@ export const MIN_ZOOM = 1;
 export const MAX_ZOOM = 18;
 
 export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
-export const CLUSTER_RADIUS_ZOOM_THRESHOLD = 12;
 export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
 export const CLUSTERS_RADIUS = 40;
 
