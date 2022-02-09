@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { hashCode } from '../utils/string';
+import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
@@ -22,6 +23,7 @@ const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
   cursor: 'pointer',
 };
 const FEATURE_ICON_HTML_STYLES = { width: '16px', height: '24px' };
+const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
 export const getClusterIconFeatures = (clusterFeatures) => {
@@ -76,6 +78,9 @@ export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onMouse
     const featureImageHTML = document.createElement('img');
     featureImageHTML.src = feature.properties.image;
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
+    if (subjectIsStatic(feature)) {
+      injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
+    }
     clusterHTMLMarkerContainer.appendChild(featureImageHTML);
   });
 
