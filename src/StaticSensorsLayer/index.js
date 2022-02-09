@@ -144,7 +144,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
 
         if (REACT_APP_ENABLE_CLUSTERING
           && !renderedStaticSensors.includes(feature.properties.id)) {
-          return map.getLayer(layerID) && setLayerVisibility(layerID, 'none');
+          return map.getLayer(layerID) && setLayerVisibility(layerID, false);
         }
 
         if (source) {
