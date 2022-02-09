@@ -13,6 +13,7 @@ export const BACKGROUND_LAYER = {
     'icon-text-fit-padding': [37, 3, -24, 0],
     'icon-text-fit': 'both',
     'icon-image': 'popup-background',
+    'text-max-width': 10,
     'text-offset': [
       'case',
       ['all', ['==', ['get', 'image'], null], ['has', 'default_status_value']],
@@ -21,7 +22,6 @@ export const BACKGROUND_LAYER = {
       ['literal', [0, -.4]],
       ['literal', [0, 0]],
     ],
-    'text-max-width': 9,
     'text-field': [
       'case',
       // no icon either default prop
@@ -101,7 +101,8 @@ export const LABELS_LAYER = {
     'icon-anchor': 'top',
     'text-anchor': 'center',
     'text-justify': 'center',
-    'text-max-width': 8,
+    'text-max-width': 9,
+    'symbol-placement': 'point',
     'text-field': [
       'case',
 
