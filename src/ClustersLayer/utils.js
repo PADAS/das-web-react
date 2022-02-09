@@ -119,7 +119,7 @@ export const getRenderedClustersData = async (clustersSource, map) => {
   const renderedClusterIds = map.queryRenderedFeatures({ layers: [CLUSTERS_LAYER_ID] })
     .map((cluster) => cluster.properties.cluster_id);
 
-  const getAllClusterLeavesPromises = renderedClusterIds.map((clusterId) => new Promise((resolve, reject) => {
+  const getAllClusterLeavesPromises = renderedClusterIds.map((clusterId) => new Promise((resolve) => {
     clustersSource.getClusterLeaves(
       clusterId,
       Number.MAX_SAFE_INTEGER,

@@ -1,18 +1,18 @@
 import React from 'react';
+import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { render, waitFor } from '@testing-library/react';
 
 import {
   addNewClusterMarkers,
-  onClusterClick,
   createClusterHTMLMarker,
   getClusterIconFeatures,
   getRenderedClustersData,
+  onClusterClick,
   recalculateClusterRadius,
   removeOldClusterMarkers,
 } from './utils';
 import { CLUSTER_CLICK_ZOOM_THRESHOLD, CLUSTER_RADIUS_ZOOM_THRESHOLD, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
-import ClustersLayer, { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME } from '.';
+import ClustersLayer from '.';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 import { MapContext } from '../App';
@@ -33,11 +33,9 @@ jest.mock('mapbox-gl', () => {
     addTo() { mapMarkers.push(this.marker); }
     setLngLat() { return this; }
   };
-  return {
-    ...jest.requireActual('mapbox-gl'),
-    Marker,
-  };
+  return { ...jest.requireActual('mapbox-gl'), Marker };
 });
+jest.mock('lodash/debounce', () => jest.fn(debouncedFunction => debouncedFunction));
 jest.mock('../selectors/events', () => ({
   ...jest.requireActual('../selectors/events'),
   getMapEventFeatureCollectionWithVirtualDate: () => mockEventFeatureCollection,
@@ -56,7 +54,7 @@ describe('ClustersLayer', () => {
 
   describe('ClustersLayer', () => {
     const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(), setData = jest.fn();
-    let map, store, useClusterBufferPolygonMock;
+    let map, useClusterBufferPolygonMock;
     beforeEach(() => {
       useClusterBufferPolygonMock = () => ({ removeClusterPolygon, renderClusterPolygon });
       useClusterBufferPolygon.mockImplementation(useClusterBufferPolygonMock);
@@ -82,10 +80,8 @@ describe('ClustersLayer', () => {
       }));
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
-      store = mockStore({ data: {}, view: { timeSliderState: {} } });
-
       render(
-        <Provider store={store}>
+        <Provider store={mockStore({ data: {}, view: { timeSliderState: {} } })}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
@@ -98,74 +94,62 @@ describe('ClustersLayer', () => {
     });
 
     test('renders two markers in the map', async () => {
-      await waitFor (() => {
-        expect(mapMarkers).toHaveLength(2);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
+      expect(mapMarkers).toHaveLength(2);
     });
 
     test('each marker has three icons and a number indicating how many features it has', async () => {
-      await waitFor (() => {
-        expect(mapMarkers[0].childNodes).toHaveLength(4);
-        expect(mapMarkers[0].childNodes[0].tagName).toBe('IMG');
-        expect(mapMarkers[0].childNodes[1].tagName).toBe('IMG');
-        expect(mapMarkers[0].childNodes[2].tagName).toBe('IMG');
-        expect(mapMarkers[0].childNodes[3].tagName).toBe('P');
-        expect(mapMarkers[0].childNodes[3].textContent).toBe('+1');
+      expect(mapMarkers[0].childNodes).toHaveLength(4);
+      expect(mapMarkers[0].childNodes[0].tagName).toBe('IMG');
+      expect(mapMarkers[0].childNodes[1].tagName).toBe('IMG');
+      expect(mapMarkers[0].childNodes[2].tagName).toBe('IMG');
+      expect(mapMarkers[0].childNodes[3].tagName).toBe('P');
+      expect(mapMarkers[0].childNodes[3].textContent).toBe('+1');
 
-        expect(mapMarkers[1].childNodes).toHaveLength(4);
-        expect(mapMarkers[1].childNodes[0].tagName).toBe('IMG');
-        expect(mapMarkers[1].childNodes[1].tagName).toBe('IMG');
-        expect(mapMarkers[1].childNodes[2].tagName).toBe('IMG');
-        expect(mapMarkers[1].childNodes[3].tagName).toBe('P');
-        expect(mapMarkers[1].childNodes[3].textContent).toBe('+3');
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
+      expect(mapMarkers[1].childNodes).toHaveLength(4);
+      expect(mapMarkers[1].childNodes[0].tagName).toBe('IMG');
+      expect(mapMarkers[1].childNodes[1].tagName).toBe('IMG');
+      expect(mapMarkers[1].childNodes[2].tagName).toBe('IMG');
+      expect(mapMarkers[1].childNodes[3].tagName).toBe('P');
+      expect(mapMarkers[1].childNodes[3].textContent).toBe('+3');
     });
 
     test('renders a cluster buffer polygon when user hovers a cluster', async () => {
-      await waitFor (() => {
-        expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
+      expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
 
-        mapMarkers[0].dispatchEvent(new Event('mouseover'));
+      mapMarkers[0].dispatchEvent(new Event('mouseover'));
 
-        expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
+      expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
-      await waitFor (() => {
-        expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
+      expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
 
-        mapMarkers[0].dispatchEvent(new Event('mouseover'));
-        mapMarkers[0].dispatchEvent(new Event('mouseleave'));
+      mapMarkers[0].dispatchEvent(new Event('mouseover'));
+      mapMarkers[0].dispatchEvent(new Event('mouseleave'));
 
-        expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
+      expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('zooms to a cluster if user clicks it while zoom is too far', async () => {
-      await waitFor (() => {
-        expect(map.easeTo).toHaveBeenCalledTimes(0);
+      expect(map.easeTo).toHaveBeenCalledTimes(0);
 
-        mapMarkers[0].dispatchEvent(new Event('click'));
+      mapMarkers[0].dispatchEvent(new Event('click'));
 
-        expect(map.easeTo).toHaveBeenCalledTimes(1);
-        expect(map.easeTo).toHaveBeenCalledWith({
-          center: [-103.38315141, 20.677884013333337],
-          zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
-        });
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
+      expect(map.easeTo).toHaveBeenCalledTimes(1);
+      expect(map.easeTo).toHaveBeenCalledWith({
+        center: [-103.38315141, 20.677884013333337],
+        zoom: CLUSTER_CLICK_ZOOM_THRESHOLD + 1.1,
+      });
     });
 
     test('triggers the onShowClusterSelectPopup action when user clicks a cluster if zoom is close enough', async () => {
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD + 1);
 
-      await waitFor (() => {
-        expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(0);
+      expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(0);
 
-        mapMarkers[0].dispatchEvent(new Event('click'));
+      mapMarkers[0].dispatchEvent(new Event('click'));
 
-        expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
-      }, { timeout: UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME * 2 });
+      expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
     });
   });
 
