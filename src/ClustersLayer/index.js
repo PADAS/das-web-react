@@ -64,7 +64,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     if (map) {
       const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
       if (clustersSource) {
-        setTimeout(() => clustersSource.setData(clustersSourceData), UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
+        clustersSource.setData(clustersSourceData);
       } else {
         map.addSource(CLUSTERS_SOURCE_ID, {
           cluster: true,
