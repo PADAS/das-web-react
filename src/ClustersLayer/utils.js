@@ -1,4 +1,5 @@
 import centroid from '@turf/centroid';
+import debounce from 'lodash/debounce';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 
@@ -13,6 +14,8 @@ import { hashCode } from '../utils/string';
 import { injectStylesToElement } from '../utils/styles';
 
 const { CLUSTERS_SOURCE_ID, CLUSTERS_LAYER_ID } = LAYER_IDS;
+
+export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 75;
 
 const CLUSTER_ICON_DISPLAY_LENGTH = 3;
 
@@ -194,6 +197,35 @@ export const addNewClusterMarkers = (
 
   return renderedClusterMarkersHashMap;
 };
+
+export const updateClusterMarkers = debounce(async (
+  clusterMarkerHashMapRef,
+  onShowClusterSelectPopup,
+  map,
+  removeClusterPolygon,
+  renderClusterPolygon,
+  source
+) => {
+  const {
+    renderedClusterFeatures,
+    renderedClusterHashes,
+    renderedClusterIds,
+  } = await getRenderedClustersData(source, map);
+
+  removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
+
+  clusterMarkerHashMapRef.current = addNewClusterMarkers(
+    clusterMarkerHashMapRef,
+    source,
+    map,
+    removeClusterPolygon,
+    renderClusterPolygon,
+    renderedClusterFeatures,
+    renderedClusterHashes,
+    renderedClusterIds,
+    onShowClusterSelectPopup
+  );
+}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
 
 export const recalculateClusterRadius = (map) => {
   let newRadius = CLUSTERS_RADIUS;

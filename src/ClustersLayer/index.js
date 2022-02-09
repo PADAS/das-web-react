@@ -1,14 +1,8 @@
 import React, { memo, useContext, useEffect, useMemo, useRef } from 'react';
-import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import {
-  addNewClusterMarkers,
-  getRenderedClustersData,
-  recalculateClusterRadius,
-  removeOldClusterMarkers,
-} from './utils';
+import { recalculateClusterRadius, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME, updateClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -23,8 +17,6 @@ const {
   CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
 
-const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 75;
-
 const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   before: CLUSTERS_LAYER_ID,
   id: CLUSTER_BUFFER_POLYGON_LAYER_ID,
@@ -37,35 +29,6 @@ const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   type: 'fill',
 };
 const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
-
-const updateClusterMarkers = debounce(async (
-  clusterMarkerHashMapRef,
-  onShowClusterSelectPopup,
-  map,
-  removeClusterPolygon,
-  renderClusterPolygon,
-  source
-) => {
-  const {
-    renderedClusterFeatures,
-    renderedClusterHashes,
-    renderedClusterIds,
-  } = await getRenderedClustersData(source, map);
-
-  removeOldClusterMarkers(clusterMarkerHashMapRef, removeClusterPolygon, renderedClusterHashes);
-
-  clusterMarkerHashMapRef.current = addNewClusterMarkers(
-    clusterMarkerHashMapRef,
-    source,
-    map,
-    removeClusterPolygon,
-    renderClusterPolygon,
-    renderedClusterFeatures,
-    renderedClusterHashes,
-    renderedClusterIds,
-    onShowClusterSelectPopup
-  );
-}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
 
 const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const map = useContext(MapContext);

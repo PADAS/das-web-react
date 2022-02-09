@@ -63,7 +63,6 @@ import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
-import UnclusteredStaticSensorsLayer from '../UnclusteredStaticSensorsLayer';
 
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
@@ -627,8 +626,6 @@ class Map extends Component {
             </DelayedUnmount>
 
             <SubjectsLayer mapImages={mapImages} onSubjectClick={this.onMapSubjectClick} />
-
-            {REACT_APP_ENABLE_CLUSTERING && <UnclusteredStaticSensorsLayer />}
 
             <MapImagesLayer map={map} />
 
