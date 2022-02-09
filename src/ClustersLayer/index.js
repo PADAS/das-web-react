@@ -31,7 +31,9 @@ const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
 };
 const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
 
-const setClustersSourceData = debounce((
+const debouncedClusterMarkerUpdate = debounce(updateClusterMarkers, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
+
+const setClustersSourceData = (
   clustersSource,
   clustersSourceData,
   clusterMarkerHashMapRef,
@@ -42,7 +44,7 @@ const setClustersSourceData = debounce((
 ) => {
   clustersSource.setData(clustersSourceData);
 
-  updateClusterMarkers(
+  debouncedClusterMarkerUpdate(
     clusterMarkerHashMapRef,
     onShowClusterSelectPopup,
     map,
@@ -50,7 +52,8 @@ const setClustersSourceData = debounce((
     renderClusterPolygon,
     clustersSource
   );
-}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME / 3);
+};
+
 
 const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const map = useContext(MapContext);
