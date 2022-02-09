@@ -122,6 +122,13 @@ export const LAYER_IDS = {
   ISOCHRONE_LAYER: 'isochrone',
 };
 
+export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
+  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
+  [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
+  [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
+  [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
+};
+
 export const LAYER_PICKER_IDS = [
   LAYER_IDS.ANALYZER_POLYS_WARNING_SOURCE, LAYER_IDS.ANALYZER_POLYS_CRITICAL_SOURCE,
   LAYER_IDS.ANALYZER_LINES_CRITICAL_SOURCE, LAYER_IDS.ANALYZER_LINES_WARNING_SOURCE,

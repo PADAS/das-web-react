@@ -1,5 +1,4 @@
 import centroid from '@turf/centroid';
-import debounce from 'lodash/debounce';
 import { featureCollection } from '@turf/helpers';
 import mapboxgl from 'mapbox-gl';
 
@@ -192,7 +191,7 @@ export const addNewClusterMarkers = (
   return renderedClusterMarkersHashMap;
 };
 
-export const updateClusterMarkers = debounce(async (
+export const updateClusterMarkers = async (
   clusterMarkerHashMapRef,
   onShowClusterSelectPopup,
   map,
@@ -219,4 +218,4 @@ export const updateClusterMarkers = debounce(async (
     renderedClusterIds,
     onShowClusterSelectPopup
   );
-}, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
+};

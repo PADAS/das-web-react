@@ -9,18 +9,24 @@ import { MapContext } from '../App';
 import { mockMapStaticSubjectFeatureCollection, staticSubjectFeature, staticSubjectFeatureWithoutIcon, staticSubjectFeatureWithoutDefaultValue } from '../__test-helpers/fixtures/subjects';
 import { LAYER_IDS } from '../constants';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
-
 import StaticSensorsLayer from './';
 
+const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 let map;
+
 const store = {
   view: {
     simplifyMapDataOnZoom: {
       active: false
     },
+    showMapNames: {
+      [STATIC_SENSOR]: {
+        enabled: false,
+      }
+    },
   },
 };
-const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
+
 describe('adding default property', () => {
   function getDefaultProperty(feature) {
     return feature.properties.device_status_properties.find(property => property?.default ?? false) ?? null;
@@ -90,6 +96,21 @@ describe('adding default property', () => {
     </Provider>);
 
     expect(staticSubjectFeature.properties.default_status_value).toBe('No historical data');
+  });
+
+  test('Set property show_map_names as true in case the showNames control for this layer is enabled', () => {
+    const storeWithShowNamesEnabled = { ...store };
+    storeWithShowNamesEnabled.view.showMapNames[STATIC_SENSOR].enabled = true;
+    render(<Provider store={mockStore(storeWithShowNamesEnabled)}>
+      <MapContext.Provider value={map}>
+        <StaticSensorsLayer staticSensors={{
+        'type': 'FeatureCollection',
+        'features': [staticSubjectFeature],
+      }}/>
+      </MapContext.Provider>
+    </Provider>);
+
+    expect(staticSubjectFeature.properties.show_map_names).toBe(true);
   });
 });
 

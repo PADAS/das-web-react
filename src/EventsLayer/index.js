@@ -108,7 +108,7 @@ const EventsLayer = ({
   enableClustering, // Old events-only-clustering implementation
   map,
   mapImages,
-  mapUserLayoutConfig,
+  mapUserLayoutConfigByLayerId,
   minZoom,
   onClusterClick,
   onEventClick,
@@ -226,9 +226,9 @@ const EventsLayer = ({
         ],
         ''],
     ],
-    ...mapUserLayoutConfig,
+    ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
     'text-size': 0,
-  }), [SCALE_ICON_IF_BOUNCED, mapUserLayoutConfig]);
+  }), [SCALE_ICON_IF_BOUNCED, mapUserLayoutConfigByLayerId]);
 
   const SCALE_FONT_IF_BOUNCED = useCallback((fontSize, fontScale) => [
     'match',
@@ -248,8 +248,8 @@ const EventsLayer = ({
       6, SCALE_FONT_IF_BOUNCED(8, FONT_SCALE_RATE),
       14, SCALE_FONT_IF_BOUNCED(13, FONT_SCALE_RATE),
     ],
-    ...mapUserLayoutConfig,
-  }), [SCALE_FONT_IF_BOUNCED, mapUserLayoutConfig]);
+    ...mapUserLayoutConfigByLayerId(EVENT_SYMBOLS),
+  }), [SCALE_FONT_IF_BOUNCED, mapUserLayoutConfigByLayerId]);
 
   const { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon } = useClusterBufferPolygon(
     { ...CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION, minZoom },
@@ -357,7 +357,7 @@ EventsLayer.propTypes = {
   enableClustering: PropTypes.bool, // Old events-only-clustering implementation
   map: PropTypes.object.isRequired,
   mapImages: PropTypes.object,
-  mapUserLayoutConfig: PropTypes.object,
+  mapUserLayoutConfigByLayerId: PropTypes.object,
   minZoom: PropTypes.number,
   onClusterClick: PropTypes.func,
   onEventClick: PropTypes.func.isRequired,
