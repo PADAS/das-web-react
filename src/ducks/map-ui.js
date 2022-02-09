@@ -114,10 +114,12 @@ export const toggleMapDataSimplificationOnZoom = () => ({
   type: SET_MAP_DATA_ZOOM_SIMPLIFICATION,
 });
 
-export const toggleMapNamesState = (enables) => ({
-  type: DISPLAY_SUBJECT_NAMES,
-  payload: enables,
-});
+export const toggleMapNamesState = (enabledLayers) => (dispatch) => {
+  return dispatch({
+    type: DISPLAY_SUBJECT_NAMES,
+    payload: enabledLayers,
+  });
+};
 
 export const displayReportsOnMapState = (enabled) => ({
   type: DISPLAY_REPORTS_ON_MAP,
