@@ -35,7 +35,8 @@ const IMAGE_DATA = {
 
 const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
-  const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR].enabled;
+
+  const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
   const getStaticSensorLayer = useCallback((event) => map.queryRenderedFeatures(event.point)[0], [map]);
 
@@ -78,7 +79,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
     }
   }, [map]);
 
-  const changeLayerVisibility = useCallback((layerID, isVisible = true) => {
+  const activateLayerVisibility = useCallback((layerID, isVisible = true) => {
     const backgroundLayerID = layerID.replace(PREFIX_ID, '');
     const visibility = isVisible ? 'visible' : 'none';
     if (map.getLayer(backgroundLayerID)) {
@@ -101,16 +102,16 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
       .addTo(map);
 
     popup.on('close', () => {
-      changeLayerVisibility(layer.layer.id);
+      activateLayerVisibility(layer.layer.id);
     });
-  }, [changeLayerVisibility, map]);
+  }, [activateLayerVisibility, map]);
 
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
     const clickedLayerID = clickedLayer.layer.id;
     createPopup(clickedLayer);
-    changeLayerVisibility(clickedLayerID, false);
-  }, [changeLayerVisibility, createPopup, getStaticSensorLayer]);
+    activateLayerVisibility(clickedLayerID, false);
+  }, [activateLayerVisibility, createPopup, getStaticSensorLayer]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
     if (!map.getLayer(layerID)) {
