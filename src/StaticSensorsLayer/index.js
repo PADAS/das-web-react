@@ -79,7 +79,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
     }
   }, [map]);
 
-  const activateLayerVisibility = useCallback((layerID, isVisible = true) => {
+  const setLayerVisibility = useCallback((layerID, isVisible = true) => {
     const backgroundLayerID = layerID.replace(PREFIX_ID, '');
     const visibility = isVisible ? 'visible' : 'none';
     if (map.getLayer(backgroundLayerID)) {
@@ -102,16 +102,16 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
       .addTo(map);
 
     popup.on('close', () => {
-      activateLayerVisibility(layer.layer.id);
+      setLayerVisibility(layer.layer.id);
     });
-  }, [activateLayerVisibility, map]);
+  }, [setLayerVisibility, map]);
 
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
     const clickedLayerID = clickedLayer.layer.id;
     createPopup(clickedLayer);
-    activateLayerVisibility(clickedLayerID, false);
-  }, [activateLayerVisibility, createPopup, getStaticSensorLayer]);
+    setLayerVisibility(clickedLayerID, false);
+  }, [setLayerVisibility, createPopup, getStaticSensorLayer]);
 
   const createLayer = useCallback((layerID, sourceId, layout, paint) => {
     if (!map.getLayer(layerID)) {
