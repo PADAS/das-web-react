@@ -23,6 +23,7 @@ import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { PATROL_DRAWER_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 import Header from './Header';
+import HistoryTab from './HistoryTab';
 
 import styles from './styles.module.scss';
 
@@ -100,7 +101,7 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
           <Nav.Item>
             <Nav.Link eventKey={NAVIGATION_PLAN_EVENT_KEY}>
               <CalendarIcon />
-              <span>History</span>
+              <span>Plan</span>
             </Nav.Link>
           </Nav.Item>
 
@@ -119,32 +120,34 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
           </Nav.Item>
         </Nav>
 
-        <Tab.Content className={`${styles.content} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
-          <Tab.Pane eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-            Plan
-          </Tab.Pane>
+        <div className={styles.content}>
+          <Tab.Content className={`${styles.tab} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
+            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_PLAN_EVENT_KEY}>
+              Plan
+            </Tab.Pane>
 
-          <Tab.Pane eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
-            Timeline
-          </Tab.Pane>
+            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
+              Timeline
+            </Tab.Pane>
 
-          <Tab.Pane eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
-            History
-          </Tab.Pane>
-        </Tab.Content>
+            <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_HISTORY_EVENT_KEY}>
+              <HistoryTab patrolForm={patrolForm} />
+            </Tab.Pane>
+          </Tab.Content>
 
-        <div className={styles.footer}>
-          <Button className={styles.exitButton} onClick={() => hideDrawer()} type="button" variant="secondary">
-            Exit
-          </Button>
+          <div className={styles.footer}>
+            <Button className={styles.exitButton} onClick={() => hideDrawer()} type="button" variant="secondary">
+              Exit
+            </Button>
 
-          {tab === NAVIGATION_PLAN_EVENT_KEY && hasEditPatrolsPermission && <Button
-            className={styles.saveButton}
-            onClick={onSave}
-            type="button"
-          >
-            Save
-          </Button>}
+            {tab === NAVIGATION_PLAN_EVENT_KEY && hasEditPatrolsPermission && <Button
+              className={styles.saveButton}
+              onClick={onSave}
+              type="button"
+            >
+              Save
+            </Button>}
+          </div>
         </div>
       </div>
     </Tab.Container>
