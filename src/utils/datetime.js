@@ -81,17 +81,7 @@ const DEFAULT_HUMANIZED_DURATION_PROPS = {
 export const HUMANIZED_DURATION_CONFIGS = {
   FULL_FORMAT: {
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
-    language: 'full',
-    languages: {
-      full: {
-        y: (n) => pluralize('year', n),
-        mo: (n) => pluralize('month', n),
-        d: (n) => pluralize('day', n),
-        h: (n) => pluralize('hour', n),
-        m: (n) => pluralize('minute', n),
-        s: (n) => pluralize('second', n),
-      }
-    },
+    language: 'en',
     units: ['y', 'mo', 'd', 'h', 'm', 's'],
   },
   MINUTES_ONLY: {
