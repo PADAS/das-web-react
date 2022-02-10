@@ -13,6 +13,9 @@
       font-weight: normal;
     }
   }
+  [class*=mapboxgl-popup-content] {
+    background: white;
+  }
 }
 
 .list {
@@ -22,12 +25,17 @@
 }
 
 .filterInput {
+  display: flex;
+  align-items: center;
   margin-bottom: 0.5rem;
+
+  button {
+    top: auto !important;
+  }
 }
 
 .listItem {
   align-items: center;
-  border-top: 1px solid $light-gray-border;
   cursor: pointer;
   display: flex;
   line-height: normal;

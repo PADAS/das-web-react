@@ -10,11 +10,15 @@ const withMapViewConfig = Component => connect(mapStatetoProps, null)(({ showMap
     'text-allow-overlap': simplifyMapDataOnZoom.enabled ? DEFAULT_SYMBOL_LAYOUT['text-allow-overlap'] : true,
   };
 
-  if (!showMapNames) {
-    mapUserLayoutConfig['text-size'] = 0;
-  }
+  const mapUserLayoutConfigByLayerId = (layerId) => {
+    const matchedLayerID = Object.keys(showMapNames).find(id => layerId.includes(id));
+    return {
+      ...mapUserLayoutConfig,
+      ...!showMapNames[matchedLayerID]?.enabled && { 'text-size': 0 }
+    };
+  };
 
-  return <Component mapUserLayoutConfig={mapUserLayoutConfig} minZoom={simplifyMapDataOnZoom.enabled ? 5 : 0} {...rest} />;
+  return <Component mapUserLayoutConfig={mapUserLayoutConfig} mapUserLayoutConfigByLayerId={mapUserLayoutConfigByLayerId} minZoom={simplifyMapDataOnZoom.enabled ? 5 : 0} {...rest} />;
 });
 
 const mapStatetoProps = ({ view: { showMapNames, simplifyMapDataOnZoom } }) => ({ showMapNames, simplifyMapDataOnZoom });

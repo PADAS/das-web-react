@@ -1,57 +1,94 @@
-import React, { memo, Fragment, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import { featureCollection } from '@turf/helpers';
 import PropTypes from 'prop-types';
 import { Source } from 'react-mapbox-gl';
-import { featureCollection } from '@turf/helpers';
+import { useSelector } from 'react-redux';
 
-import { addFeatureCollectionImagesToMap } from '../utils/map';
-
+import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
 import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
-import { LAYER_IDS } from '../constants';
-import LabeledPatrolSymbolLayer from '../LabeledPatrolSymbolLayer';
+import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
+import { getShouldSubjectsBeClustered } from '../selectors/clusters';
+import { LAYER_IDS, REACT_APP_ENABLE_CLUSTERING, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 
-const { SUBJECT_SYMBOLS } = LAYER_IDS;
+const { CLUSTERS_SOURCE_ID, SUBJECT_SYMBOLS } = LAYER_IDS;
 
-const SubjectsLayer = (props) => {
-  const { onSubjectIconClick, subjects, map, mapImages = {} } = props;
+const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
+  const subjectFeatureCollection = useSelector(getMapSubjectFeatureCollectionWithVirtualPositioning);
+  const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
 
-  const getSubjectLayer = (e, map) => map.queryRenderedFeatures(e.point, { layers: layerIds })[0];
   const [mapSubjectFeatures, setMapSubjectFeatures] = useState(featureCollection([]));
-  const [layerIds, setLayerIds] = useState([]);
+  const [subjectLayerIds, setSubjectLayerIds] = useState([]);
+
+  useEffect(() => {
+    if (!!subjectFeatureCollection?.features?.length) {
+      addFeatureCollectionImagesToMap(subjectFeatureCollection);
+    }
+  }, [subjectFeatureCollection]);
+
+  useEffect(() => {
+    setMapSubjectFeatures({ ...subjectFeatureCollection });
+  }, [subjectFeatureCollection, mapImages]);
+
+  const onSubjectSymbolClick = useCallback((event) => {
+    const clickedLayer = map.queryRenderedFeatures(event.point, { layers: subjectLayerIds })[0];
+    onSubjectClick(({ event, layer: clickedLayer }));
+  }, [subjectLayerIds, map, onSubjectClick]);
 
   const sourceData = {
     type: 'geojson',
-    data: mapSubjectFeatures,
+    data: {
+      ...mapSubjectFeatures,
+      features: !shouldSubjectsBeClustered ? mapSubjectFeatures.features : [],
+    },
   };
 
-  useEffect(() => {
-    if (!!subjects?.features?.length) {
-      addFeatureCollectionImagesToMap(subjects);
-    }
-  }, [map, subjects]);
-
-  useEffect(() => {
-    setMapSubjectFeatures({
-      ...subjects,
-    });
-  }, [subjects]);
-
-  const onSymbolClick = (event) => onSubjectIconClick(({ event, layer: getSubjectLayer(event, map) }));
-
-  return <Fragment>
+  return <>
     <Source id='subject-symbol-source' geoJsonSource={sourceData} />
-    <LabeledPatrolSymbolLayer sourceId='subject-symbol-source' type='symbol'
-      id={SUBJECT_SYMBOLS} onClick={onSymbolClick}
-      onInit={setLayerIds}
+
+    <LabeledPatrolSymbolLayer
+      filter={[
+        'all',
+        ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
+        ['!=', 'is_static', true],
+      ]}
+      id={`${SUBJECT_SYMBOLS}-unclustered`}
+      onClick={onSubjectSymbolClick}
+      onInit={REACT_APP_ENABLE_CLUSTERING ? () => setSubjectLayerIds([
+        SUBJECT_SYMBOLS,
+        `${SUBJECT_SYMBOLS}-labels`,
+        `${SUBJECT_SYMBOLS}-unclustered`,
+        `${SUBJECT_SYMBOLS}-unclustered-labels`,
+      ]) : setSubjectLayerIds}
+      sourceId="subject-symbol-source"
+      type="symbol"
     />
-  </Fragment>;
+
+    {REACT_APP_ENABLE_CLUSTERING && <>
+      <LabeledPatrolSymbolLayer
+        filter={[
+          'all',
+          ['==', 'content_type', SUBJECT_FEATURE_CONTENT_TYPE],
+          ['!=', 'is_static', true],
+          ['!has', 'point_count']
+        ]}
+        id={SUBJECT_SYMBOLS}
+        onClick={onSubjectSymbolClick}
+        sourceId={CLUSTERS_SOURCE_ID}
+        type="symbol"
+      />
+    </>}
+  </>;
 };
 
+SubjectsLayer.defaultProps = { mapImages: {} };
+
 SubjectsLayer.propTypes = {
-  subjects: PropTypes.object.isRequired,
+  map: PropTypes.object.isRequired,
   mapImages: PropTypes.object,
-  onSubjectIconClick: PropTypes.func,
+  onSubjectClick: PropTypes.func.isRequired,
 };
 
 export default withMap(memo(withMapViewConfig(SubjectsLayer)));

@@ -8,8 +8,7 @@ import { getBboxParamsFromMap } from '../utils/query';
 import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
 
-// const SUBJECTS_API_URL = `${API_URL}subjects`;
-const SUBJECTS_API_URL = 'http://localhost:9000/api/v1.0/subjects';
+const SUBJECTS_API_URL = `${API_URL}subjects`;
 const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
 
 // actions
