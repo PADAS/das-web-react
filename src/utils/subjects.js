@@ -5,6 +5,7 @@ import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
 
 
+const STATIONARY_SUBJECT_TYPE = 'stationary-subject';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
@@ -66,9 +67,15 @@ export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGro
 
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
+export const subjectIsStatic = subject => {
+  return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
+  subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
+};
+
 export const canShowTrackForSubject = subject =>
   subject.tracks_available
   && !subjectIsAFixedPositionRadio(subject);
+
 
 export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
@@ -81,12 +88,6 @@ export const getSubjectLastPositionCoordinates = subject => {
 export const getSubjectDefaultDeviceProperty = subject => {
   const deviceStatusProperties = subject?.properties?.device_status_properties ?? subject?.device_status_properties ?? [];
   return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
-};
-
-export const subjectIsStatic = subject => {
-  const staticType = 'stationary-subject';
-  return subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-  subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
 };
 
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {
