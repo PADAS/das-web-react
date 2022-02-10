@@ -49,6 +49,7 @@ const SubjectControls = (props) => {
 
 
   const isMessageable = !!canViewMessages && !!showMessageButton && !!subject?.messaging?.length;
+  const canShowTrack = canShowTrackForSubject(subject);
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
@@ -88,7 +89,6 @@ const SubjectControls = (props) => {
     }
   };
 
-  if (!canShowTrackForSubject(subject)) return null;
   if (!showHeatmapButton && !showTrackButton && !showJumpButton) return null;
 
   return <div className={`${styles.controls} ${className || ''} 
@@ -99,7 +99,7 @@ const SubjectControls = (props) => {
       subject={subject}
     />}
 
-    {showTrackButton && <TrackToggleButton
+    {showTrackButton && canShowTrack && <TrackToggleButton
       showLabel={showLabels}
       loading={loadingTracks}
       onClick={onTrackButtonClick}
@@ -107,7 +107,7 @@ const SubjectControls = (props) => {
       trackPinned={tracksPinned}
     />}
 
-    {showHeatmapButton && <HeatmapToggleButton
+    {showHeatmapButton && canShowTrack && <HeatmapToggleButton
       showLabel={showLabels}
       loading={loadingHeatmap}
       onButtonClick={toggleHeatmapState}
