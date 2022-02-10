@@ -67,7 +67,7 @@ export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGro
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
 export const subjectIsStatic = subject => {
-  const staticType = 'stationary-object';
+  const staticType = 'stationary-subject';
   return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
   subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
 };
