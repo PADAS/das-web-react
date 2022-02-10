@@ -72,9 +72,9 @@ export const subjectIsStatic = subject => {
   subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
 };
 
-export const canShowTrackForSubject = subject => (
-  (subject.tracks_available && !subjectIsAFixedPositionRadio(subject)) || (subjectIsStatic(subject))
-);
+export const canShowTrackForSubject = subject =>
+  subject.tracks_available
+  && !subjectIsAFixedPositionRadio(subject);
 
 
 export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
