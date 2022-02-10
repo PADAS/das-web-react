@@ -5,6 +5,7 @@ import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
 
 
+const STATIONARY_SUBJECT_TYPE = 'stationary-subject';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
@@ -67,9 +68,8 @@ export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGro
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
 export const subjectIsStatic = subject => {
-  const staticType = 'stationary-subject';
   return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
-  subject?.subject_type === staticType ?? subject?.properties?.subject_type === staticType;
+  subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
 };
 
 export const canShowTrackForSubject = subject =>
