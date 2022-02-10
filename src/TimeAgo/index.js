@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef, useState, memo } from 'react';
+import React, { useMemo, useEffect, useState, memo } from 'react';
 import { generateCurrentTimeZoneTitle, durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
 
 const title = generateCurrentTimeZoneTitle();
@@ -11,7 +11,6 @@ const TimeAgo = (props) => {
   const { date, prefix = null, suffix = null, ...rest } = props;
 
   const [timeDistance, setTimeDistance] = useState(new Date() - new Date(date));
-  const updateIntervalRef = useRef(null);
 
   const olderThanAMinute = timeDistance > ONE_MINUTE;
   const olderThanAnHour = timeDistance > ONE_HOUR;
@@ -26,16 +25,17 @@ const TimeAgo = (props) => {
   const durationString = durationStringGenerator(timeDistance);
 
   useEffect(() => {
+    let updateInterval;
+    const intervalLength = olderThanAMinute ? ONE_MINUTE : ONE_SECOND;
+
     const updateFn = () => {
       setTimeDistance(new Date() - new Date(date));
     };
 
-    const intervalLength = olderThanAMinute ? ONE_MINUTE : ONE_SECOND;
-
-    updateIntervalRef.current = window.setInterval(updateFn, intervalLength);
+    updateInterval = window.setInterval(updateFn, intervalLength);
 
     return () => {
-      window.clearInterval(updateIntervalRef.current);
+      window.clearInterval(updateInterval);
     };
   }, [date, olderThanAMinute]);
 
