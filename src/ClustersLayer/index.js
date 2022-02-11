@@ -3,7 +3,7 @@ import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME, updateClusterMarkers } from './utils';
+import { updateClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -17,6 +17,8 @@ const {
   CLUSTERS_LAYER_ID,
   CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
+
+const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
 
 const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   before: CLUSTERS_LAYER_ID,
@@ -42,7 +44,7 @@ const setClustersSourceData = (
   removeClusterPolygon,
   renderClusterPolygon,
 ) => {
-  clustersSource.setData(clustersSourceData);
+  setTimeout(() => clustersSource.setData(clustersSourceData), UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME / 2);
 
   debouncedClusterMarkerUpdate(
     clusterMarkerHashMapRef,

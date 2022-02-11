@@ -209,9 +209,9 @@ describe('ClustersLayer', () => {
 
       const clusterIconFeatures = getClusterIconFeatures(clusterFeatures);
 
-      expect(clusterIconFeatures[0].properties.id).toBe('6');
-      expect(clusterIconFeatures[1].properties.id).toBe('4');
-      expect(clusterIconFeatures[2].properties.id).toBe('5');
+      expect(clusterIconFeatures[0].properties.id).toBe('2');
+      expect(clusterIconFeatures[1].properties.id).toBe('3');
+      expect(clusterIconFeatures[2].properties.id).toBe('4');
     });
 
     test('gives priority to subjects last radio or position update', async () => {
