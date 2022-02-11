@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-import { default as TA } from 'react-timeago';
+import TimeAgo from '../TimeAgo';
+
 import Badge from '../Badge';
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
@@ -11,8 +12,6 @@ import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
 const { Toggle, Menu, Item } = Dropdown;
 
-const formatter = (val, unit, suffix) => `${val}${unit.charAt(0)} ${suffix}`;
-const TimeAgo = (props) => <TA {...props} formatter={formatter} />;
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
@@ -34,11 +33,11 @@ class SystemStatusComponent extends Component {
             <div className={styles.details}>
               <span>
                 {item.heartbeat.title}{!!item.heartbeat.timestamp &&':'}
-                {!!item.heartbeat.timestamp &&  <span className={styles.timestamp}><TimeAgo date={item.heartbeat.timestamp} /></span>}
+                {!!item.heartbeat.timestamp &&  <span className={styles.timestamp}><TimeAgo date={item.heartbeat.timestamp} suffix='ago' /></span>}
               </span>
               <span>
                 {item.datasource.title}{!!item.datasource.timestamp && ':'}
-                {!!item.datasource.timestamp && <span className={styles.timestamp}><TimeAgo date={item.datasource.timestamp} /></span>}
+                {!!item.datasource.timestamp && <span className={styles.timestamp}><TimeAgo date={item.datasource.timestamp} suffix='ago' /></span>}
               </span>
             </div>
           </Item>
@@ -52,7 +51,7 @@ class SystemStatusComponent extends Component {
         <div className={styles.details}>
           <span>
             {!!value.details && value.details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
-            {!!value.timestamp && <span className={styles.timestamp}><TimeAgo date={value.timestamp} /></span>}
+            {!!value.timestamp && <span className={styles.timestamp}><TimeAgo date={value.timestamp} suffix='ago' /></span>}
           </span>
         </div>
       </Item>;

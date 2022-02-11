@@ -1,1 +1,1 @@
-docker-compose kill && docker-compose up --build
+docker-compose kill --remove-orphans && docker-compose up --build
