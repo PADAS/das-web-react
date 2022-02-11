@@ -33,7 +33,7 @@ const IMAGE_DATA = {
   }
 };
 
-const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
+const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
 
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
@@ -143,7 +143,7 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
         const source = map.getSource(sourceId);
 
         if (REACT_APP_ENABLE_CLUSTERING
-          && !renderedStaticSensors.includes(feature.properties.id)) {
+          && !renderedStaticSensors.includes(feature.properties.id) && !isTimeSliderActive) {
           return map.getLayer(layerID) && setLayerVisibility(layerID, false);
         }
 
@@ -156,14 +156,14 @@ const StaticSensorsLayer = ({ staticSensors = [], isTimeSliderActive, showMapNam
           });
         }
 
-        if (map.getLayer(layerID)) return setLayerVisibility(layerID, 'visible');
+        if (map.getLayer(layerID)) return setLayerVisibility(layerID);
 
         createLayer(layerID, sourceId, BACKGROUND_LAYER.layout, BACKGROUND_LAYER.paint);
         createLayer(`${PREFIX_ID}${layerID}`, sourceId, LABELS_LAYER.layout, LABELS_LAYER.paint);
         map.on('click', layerID, onLayerClick);
       });
     }
-  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue]);
+  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive]);
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {

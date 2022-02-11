@@ -326,6 +326,7 @@ class Map extends Component {
   fetchMapSubjectTracksForTimeslider(subjects) {
     this.resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
+      .filter(subject => !subjectIsStatic(subject))
       .filter(({ last_position_date }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
       .map(({ id }) => id));
   }
