@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import {
@@ -10,7 +10,7 @@ import {
   onClusterClick,
   removeOldClusterMarkers,
 } from './utils';
-import { CLUSTER_CLICK_ZOOM_THRESHOLD } from '../constants';
+import { CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS } from '../constants';
 import ClustersLayer from '.';
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -22,6 +22,8 @@ import {
   mockSubjectFeatureCollection,
 } from '../__test-helpers/fixtures/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
+
+const { CLUSTERS_SOURCE_ID } = LAYER_IDS;
 
 const mapMarkers = [];
 jest.mock('mapbox-gl', () => {
@@ -91,46 +93,66 @@ describe('ClustersLayer', () => {
     });
 
     test('renders two markers in the map', async () => {
-      expect(mapMarkers).toHaveLength(2);
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
+      await waitFor(() => {
+        expect(mapMarkers).toHaveLength(2);
+      });
     });
 
     test('each marker has three icons and a number indicating how many features it has', async () => {
-      expect(mapMarkers[0].childNodes).toHaveLength(4);
-      expect(mapMarkers[0].childNodes[0].tagName).toBe('IMG');
-      expect(mapMarkers[0].childNodes[1].tagName).toBe('IMG');
-      expect(mapMarkers[0].childNodes[2].tagName).toBe('IMG');
-      expect(mapMarkers[0].childNodes[3].tagName).toBe('P');
-      expect(mapMarkers[0].childNodes[3].textContent).toBe('+1');
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
 
-      expect(mapMarkers[1].childNodes).toHaveLength(4);
-      expect(mapMarkers[1].childNodes[0].tagName).toBe('IMG');
-      expect(mapMarkers[1].childNodes[1].tagName).toBe('IMG');
-      expect(mapMarkers[1].childNodes[2].tagName).toBe('IMG');
-      expect(mapMarkers[1].childNodes[3].tagName).toBe('P');
-      expect(mapMarkers[1].childNodes[3].textContent).toBe('+3');
+      await waitFor(() => {
+        expect(mapMarkers[0].childNodes).toHaveLength(4);
+        expect(mapMarkers[0].childNodes[0].tagName).toBe('IMG');
+        expect(mapMarkers[0].childNodes[1].tagName).toBe('IMG');
+        expect(mapMarkers[0].childNodes[2].tagName).toBe('IMG');
+        expect(mapMarkers[0].childNodes[3].tagName).toBe('P');
+        expect(mapMarkers[0].childNodes[3].textContent).toBe('+1');
+
+        expect(mapMarkers[1].childNodes).toHaveLength(4);
+        expect(mapMarkers[1].childNodes[0].tagName).toBe('IMG');
+        expect(mapMarkers[1].childNodes[1].tagName).toBe('IMG');
+        expect(mapMarkers[1].childNodes[2].tagName).toBe('IMG');
+        expect(mapMarkers[1].childNodes[3].tagName).toBe('P');
+        expect(mapMarkers[1].childNodes[3].textContent).toBe('+3');
+      });
     });
 
     test('renders a cluster buffer polygon when user hovers a cluster', async () => {
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
       expect(renderClusterPolygon).toHaveBeenCalledTimes(0);
 
-      mapMarkers[0].dispatchEvent(new Event('mouseover'));
+      await waitFor(() => {
+        mapMarkers[0].dispatchEvent(new Event('mouseover'));
+      });
 
       expect(renderClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('removes the cluster buffer polygon when user leaves a hovered cluster', async () => {
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
       expect(removeClusterPolygon).toHaveBeenCalledTimes(0);
 
-      mapMarkers[0].dispatchEvent(new Event('mouseover'));
-      mapMarkers[0].dispatchEvent(new Event('mouseleave'));
+      await waitFor(() => {
+        mapMarkers[0].dispatchEvent(new Event('mouseover'));
+        mapMarkers[0].dispatchEvent(new Event('mouseleave'));
+      });
 
       expect(removeClusterPolygon).toHaveBeenCalledTimes(1);
     });
 
     test('zooms to a cluster if user clicks it while zoom is too far', async () => {
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
       expect(map.easeTo).toHaveBeenCalledTimes(0);
 
-      mapMarkers[0].dispatchEvent(new Event('click'));
+      await waitFor(() => {
+        mapMarkers[0].dispatchEvent(new Event('click'));
+      });
 
       expect(map.easeTo).toHaveBeenCalledTimes(1);
       expect(map.easeTo).toHaveBeenCalledWith({
@@ -142,9 +164,13 @@ describe('ClustersLayer', () => {
     test('triggers the onShowClusterSelectPopup action when user clicks a cluster if zoom is close enough', async () => {
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD + 1);
 
+      map.__test__.fireHandlers('sourcedata', { sourceId: CLUSTERS_SOURCE_ID });
+
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(0);
 
-      mapMarkers[0].dispatchEvent(new Event('click'));
+      await waitFor(() => {
+        mapMarkers[0].dispatchEvent(new Event('click'));
+      });
 
       expect(onShowClusterSelectPopup).toHaveBeenCalledTimes(1);
     });
