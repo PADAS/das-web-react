@@ -29,6 +29,10 @@
       width: 2.25rem;
     }
   }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .categoryTitle {
