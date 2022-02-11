@@ -55,6 +55,8 @@ describe('ClustersLayer', () => {
     const onShowClusterSelectPopup = jest.fn(), renderClusterPolygon = jest.fn(), setData = jest.fn();
     let map, useClusterBufferPolygonMock;
     beforeEach(() => {
+      jest.useFakeTimers();
+
       useClusterBufferPolygonMock = () => ({ removeClusterPolygon, renderClusterPolygon });
       useClusterBufferPolygon.mockImplementation(useClusterBufferPolygonMock);
 
@@ -89,6 +91,9 @@ describe('ClustersLayer', () => {
     });
 
     afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+
       mapMarkers.length = 0;
     });
 
