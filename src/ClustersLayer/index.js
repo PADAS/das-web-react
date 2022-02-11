@@ -3,7 +3,7 @@ import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-import { UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME, updateClusterMarkers } from './utils';
+import { updateClusterMarkers } from './utils';
 import { CLUSTERS_MAX_ZOOM, CLUSTERS_RADIUS, LAYER_IDS } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -17,6 +17,8 @@ const {
   CLUSTERS_LAYER_ID,
   CLUSTERS_SOURCE_ID,
 } = LAYER_IDS;
+
+const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 75;
 
 const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
   before: CLUSTERS_LAYER_ID,
@@ -32,28 +34,6 @@ const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
 const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
 
 const debouncedClusterMarkerUpdate = debounce(updateClusterMarkers, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
-
-const setClustersSourceData = (
-  clustersSource,
-  clustersSourceData,
-  clusterMarkerHashMapRef,
-  onShowClusterSelectPopup,
-  map,
-  removeClusterPolygon,
-  renderClusterPolygon,
-) => {
-  clustersSource.setData(clustersSourceData);
-
-  debouncedClusterMarkerUpdate(
-    clusterMarkerHashMapRef,
-    onShowClusterSelectPopup,
-    map,
-    removeClusterPolygon,
-    renderClusterPolygon,
-    clustersSource
-  );
-};
-
 
 const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const map = useContext(MapContext);
@@ -89,15 +69,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     if (map) {
       const clustersSource = map.getSource(CLUSTERS_SOURCE_ID);
       if (clustersSource) {
-        setClustersSourceData(
-          clustersSource,
-          clustersSourceData,
-          clusterMarkerHashMapRef,
-          onShowClusterSelectPopup,
-          map,
-          removeClusterPolygon,
-          renderClusterPolygon,
-        );
+        clustersSource.setData(clustersSourceData);
       } else {
         map.addSource(CLUSTERS_SOURCE_ID, {
           cluster: true,
@@ -108,13 +80,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
         });
       }
     }
-  }, [
-    clustersSourceData,
-    map,
-    onShowClusterSelectPopup,
-    removeClusterPolygon,
-    renderClusterPolygon,
-  ]);
+  }, [clustersSourceData, map]);
 
   useEffect(() => {
     if (!!map && !!map.getSource(CLUSTERS_SOURCE_ID) && !map.getLayer(CLUSTERS_LAYER_ID)) {
@@ -127,6 +93,28 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
       });
     }
   }, [map]);
+
+  useEffect(() => {
+    if (!!map && !!map.getSource(CLUSTERS_SOURCE_ID)) {
+      const onSourceDataUpdated = (event) => {
+        if (event.sourceId === CLUSTERS_SOURCE_ID) {
+          debouncedClusterMarkerUpdate(
+            clusterMarkerHashMapRef,
+            onShowClusterSelectPopup,
+            map,
+            removeClusterPolygon,
+            renderClusterPolygon,
+            map.getSource(CLUSTERS_SOURCE_ID)
+          );
+        }
+      };
+      map.on('sourcedata', onSourceDataUpdated);
+
+      return () => {
+        map.off('sourcedata', onSourceDataUpdated);
+      };
+    }
+  }, [map, onShowClusterSelectPopup, removeClusterPolygon, renderClusterPolygon]);
 
   return null;
 };

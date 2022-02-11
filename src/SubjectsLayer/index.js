@@ -66,7 +66,7 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
       type="symbol"
     />
 
-    {REACT_APP_ENABLE_CLUSTERING && <>
+    {REACT_APP_ENABLE_CLUSTERING && !!map.getSource(CLUSTERS_SOURCE_ID) && <>
       <LabeledPatrolSymbolLayer
         filter={[
           'all',

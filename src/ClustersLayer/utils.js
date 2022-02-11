@@ -9,8 +9,6 @@ import { injectStylesToElement } from '../utils/styles';
 
 const { CLUSTERS_LAYER_ID } = LAYER_IDS;
 
-export const UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME = 100;
-
 const CLUSTER_ICON_DISPLAY_LENGTH = 3;
 
 const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
@@ -35,8 +33,8 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   }, { eventFeatures: [], subjectFeatures: [] });
 
   eventFeatures.sort((firstFeature, secondFeature) => {
-    if (firstFeature.properties.priority < secondFeature.properties.priority) return -1;
-    if (firstFeature.properties.priority > secondFeature.properties.priority) return 1;
+    if (firstFeature.properties.priority > secondFeature.properties.priority) return -1;
+    if (firstFeature.properties.priority < secondFeature.properties.priority) return 1;
     return firstFeature.properties.updated_at > secondFeature.properties.updated_at ? -1 : 1;
   });
 
