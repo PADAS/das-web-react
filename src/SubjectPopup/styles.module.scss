@@ -1,18 +1,177 @@
 @import '../common/styles/vars/colors';
 
-.trackLength {
-  display: block;
-  line-height: normal;
-  margin: 0.5rem 0;
+.header {
+  text-align: left;
+  margin: -.7rem -.7rem 0 -.7rem;
+  padding: .7rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: $off-black;
+  color: white;
+
+  > div {
+    &:first-child {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .defaultStatusProperty {
+      span {
+        font-size: .87rem;
+      }
+
+      img {
+        margin-bottom: .5rem;
+        margin-right: .5rem;
+        height: 1.15rem;
+        filter: brightness(0) invert(1);
+      }
+    }
+  }
+
+  > h6 {
+    font-weight: 700;
+    margin-bottom: 0;
+  }
+
+  .dateTimeWrapper{
+    display: inline;
+    line-height: normal;
+    white-space: nowrap;
+  
+    .dateTimeDetails {
+      display: inline;
+      color: white;
+    }
+    
+    .timeAgo {
+      font-style: italic;
+      font-size: .7rem;
+    }
+  }
+}
+
+.addReport {
+  > button {
+    display: inline;
+    align-items: end;
+    padding: 0.4rem 0 0 0;
+    height: 1.5rem;
+
+    svg {
+      background: $bright-blue;
+      border-radius: 50%;
+      height: 1.75rem;
+      width: 1.75rem;
+
+      path {
+        stroke: $bright-blue;;
+        fill: $bright-blue;
+      }
+
+      rect {
+          fill: white;
+      }
+    }  
+  }
 }
 
 .gpsFormatToggle {
-  margin-bottom: 1rem;
+  background-color: $very-light-gray;
+  margin: 0.5rem 0 0.8rem 0;
+  display: flex;
+  flex-direction: column-reverse;
+
+  div {
+    justify-content: space-between;
+    padding: .3rem;
+  }
+
+  span {
+    font-weight: 500;
+    text-align: left;
+
+    button {
+      padding: 0;
+    }
+  }
+
+  > ul {
+    background-color: $very-light-gray-alt;
+    margin: 0;
+
+    li {
+      color: $dark-gray;
+      padding: .1rem 2% .2rem 2%;
+      text-decoration: none;
+
+      &[class*=active] {
+        color: $bright-blue;
+        background-color: $very-light-gray;
+      }
+    }
+  }
+}
+
+.trackLength {
+  display: flex;
+  justify-content: space-between;
+  line-height: normal;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 0.06px solid $gray-border;
+}
+
+.micActivity {
+  align-items: baseline;
+  border-bottom: 0.06px solid $gray-border;
+  justify-content: space-between;
+  display: flex;
+  margin: 0.2rem 0;
+  padding: 0.2rem 0;
+  
+  h5 {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  div {
+    display: flex;
+    text-align: right;
+    flex-flow: column;
+    line-height: normal;
+    margin-left: 0.5rem;
+  }
+}
+
+.additionalProperties { 
+  margin: -0.25rem 0 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    
+    &:not(:last-child){
+      border-bottom: 0.06px solid $gray-border;
+    }
+
+    strong {
+      text-align: left;
+    }
+
+    span {
+      text-align: right;
+    }
+  }
+}
+
+.toggleAdditionalProps {
+  margin-bottom: 0.5rem;
 }
 
 .trackControls {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .controls {
@@ -27,41 +186,4 @@
   g {
     stroke: $primary-font-color;
   }
-}
-
-.micActivity {
-  align-items: baseline;
-  border-bottom: 1px solid $light-gray-border;
-  border-top: 1px solid $light-gray-border;
-  display: flex;
-  margin: 0.5rem 0;
-  padding: 0.5rem 0 0.25rem;
-  justify-content: center;
-  h5 {
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  div {
-    display: flex;
-    flex-flow: column;
-    line-height: normal;
-    margin-left: 0.5rem;
-  }
-}
-
-.addReport {
-  margin-top: 0.25rem;
-}
-
-.header {
-  margin-bottom: 0.5rem;
-}
-
-.additionalProperties { 
-  margin: -0.25rem 0 0;
-  padding: 0;
-}
-
-.toggleAdditionalProps {
-  margin-bottom: 0.5rem;
 }

@@ -14,7 +14,7 @@ import AddReport from '../AddReport';
 
 import { showPopup } from '../ducks/popup';
 
-import { subjectIsARadioWithRecentVoiceActivity } from '../utils/subjects';
+import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
@@ -22,9 +22,9 @@ import styles from './styles.module.scss';
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = (props) => {
-  const { data, map, popoverPlacement, showPopup } = props;
+const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) => {
   const  { geometry, properties } = data;
+  const  { active: isTimeSliderActive } = timeSliderState;
 
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
@@ -35,7 +35,7 @@ const SubjectPopup = (props) => {
   const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
-  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2;
+  const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2 && !subjectIsStatic(data);
   const [additionalPropsToggledOn, toggleAdditionalPropsVisibility] = useState(window.localStorage.getItem(STORAGE_KEY) === 'true' ? true : false);
 
   const showAdditionalProps = hasAdditionalDeviceProps &&
@@ -65,13 +65,35 @@ const SubjectPopup = (props) => {
 
   return <>
     <div className={styles.header}>
-      <h4>{properties.name}</h4>
-      {coordProps.time && <DateTime date={coordProps.time} />}
+      <div>
+        <div className={styles.defaultStatusProperty}>
+          {properties.default_status_value && <>
+            {properties.image && <img src={properties.image} alt={`Subject icon for ${properties.name}`} />}
+            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? properties.default_status_value : 'No historical data'}</span>
+          </>}
+          <h6>{properties.name}</h6>
+        </div>
+        <AddReport
+        analyticsMetadata={{
+          category: MAP_INTERACTION_CATEGORY,
+          location: 'subject popover',
+        }}
+        className={styles.addReport}
+        reportData={{ location: locationObject, reportedById }}
+        showLabel={false}
+        popoverPlacement={popoverPlacement}
+        />
+      </div>
+      {coordProps.time && <div className={styles.dateTimeWrapper}>
+        <DateTime date={coordProps.time} className={styles.dateTimeDetails} showElapsed={false}/>
+        <span>, </span>
+        <TimeAgo className={styles.timeAgo} date={coordProps.time} />
+      </div>}
     </div>
 
     <GpsFormatToggle lng={geometry.coordinates[0]} lat={geometry.coordinates[1]} className={styles.gpsFormatToggle} />
     {radioWithRecentMicActivity && <div className={styles.micActivity}>
-      <h5>Mic activity:</h5>
+      <h5>Mic activity</h5>
       <div>
         <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
         <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} />
@@ -81,28 +103,18 @@ const SubjectPopup = (props) => {
     {hasAdditionalDeviceProps && showAdditionalProps && <ul data-testid='additional-props' className={styles.additionalProperties}>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
-          <strong>{label}</strong>:&nbsp;
-          <span data-testid='additional-props-value'>
+          <strong>{label}</strong>
+          {(subjectIsStatic(data) && isTimeSliderActive) ? <span>No historical data</span> : <span data-testid='additional-props-value'>
             {value.toString()}<span className={styles.unit}> {units}</span>
-          </span>
+          </span>}
         </li>
       )}
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     {tracks_available && (
       <Fragment>
-        <SubjectControls map={map} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
+        <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
         <div className={styles.controls}>
-          <AddReport
-            analyticsMetadata={{
-              category: MAP_INTERACTION_CATEGORY,
-              location: 'subject popover',
-            }}
-            className={styles.addReport}
-            reportData={{ location: locationObject, reportedById }}
-            showLabel={false}
-            popoverPlacement={popoverPlacement}
-          />
           {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
             <ChatIcon className={styles.messagingIcon} />
           </Button>}
@@ -112,7 +124,8 @@ const SubjectPopup = (props) => {
   </>;
 };
 
-export default connect(null, { showPopup })(memo(SubjectPopup));
+const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
+export default connect(mapStateToProps, { showPopup })(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,
