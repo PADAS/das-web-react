@@ -32,6 +32,7 @@ const TimeAgo = (props) => {
       setTimeDistance(new Date() - new Date(date));
     };
 
+    updateFn();
     updateInterval = window.setInterval(updateFn, intervalLength);
 
     return () => {
