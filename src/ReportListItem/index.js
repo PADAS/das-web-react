@@ -99,7 +99,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
       </>
     }
     DateComponent={dateTimeProp && <span>
-      <DateTime date={dateTimeProp} />
+      <DateTime date={dateTimeProp} suffix='ago'/>
         {report.state === 'resolved' && <small className={styles.resolved}>resolved</small>}
       </span>}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton &&
