@@ -3,19 +3,17 @@
 .hamburger {
   @include unstyledButton;
   --color:var(--hamburger-menu-color, white);
-  --size: var(--hamburger-menu-size, 1.75rem);
+  --size: var(--hamburger-menu-size, 1.5rem);
   --transition-time: var(--hamburger-menu-transition-speed, .15s);
   --spacing: calc(var(--size)/3);
-  --line-width: var(--hamburger-menu-stroke, calc(1rem / 4));
+  --line-width: var(--hamburger-menu-stroke, calc(1rem / 6));
 
   cursor: pointer;
-  height: var(--size);
+  height: calc(var(--size) / 1.5);
   padding: 0;
   width: var(--size);
 
   span {
-    --border-radius: 1rem;
-    border-radius: var(--border-radius);
     background-color: var(--color);
     display: block;
     border: none;
@@ -27,7 +25,6 @@
     &::before,
     &::after {
       background-color: var(--color);
-      border-radius: var(--border-radius);
       content: '';
       display: block;
       height: var(--line-width);
