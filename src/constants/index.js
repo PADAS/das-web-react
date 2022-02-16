@@ -123,7 +123,6 @@ export const LAYER_IDS = {
 };
 
 export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
-  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
   [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
   [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
   [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
