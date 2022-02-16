@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
+import { patrolDrawerId } from '../Drawer';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
-import { openModalForPatrol } from '../utils/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
@@ -17,6 +17,7 @@ import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
+import { showDrawer } from '../ducks/drawer';
 
 import EventIcon from '../EventIcon';
 
@@ -44,7 +45,7 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, showDrawer, isPatrolReport } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -395,11 +396,11 @@ const ReportForm = (props) => {
 
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
-    return fetchPatrol(patrolId).then(({ data: { data } }) => {
-      openModalForPatrol(data, map);
+    return fetchPatrol(patrolId).then(() => {
+      showDrawer(patrolDrawerId, { patrolId });
       removeModal();
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges]);
+  }, [fetchPatrol, is_collection, removeModal, reportTracker, saveChanges, showDrawer]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -555,6 +556,7 @@ export default memo(
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
+        showDrawer,
       }
     )
     (ReportForm)
@@ -577,4 +579,5 @@ ReportForm.propTypes = {
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
+  showDrawer: PropTypes.func,
 };

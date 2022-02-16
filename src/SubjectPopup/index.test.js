@@ -60,9 +60,11 @@ describe('SubjectPopup', () => {
     }));
 
     map = createMapMock();
-    render(<Provider store={store}>
-      <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
-    </Provider>);
+    render(
+      <Provider store={store}>
+        <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
+      </Provider>
+    );
   });
 
   describe('the popup', () => {
@@ -88,9 +90,11 @@ describe('SubjectPopup', () => {
     });
 
     test('listing individual device properties', async () => {
-      render(<Provider store={store}>
-        <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
-      </Provider>);
+      render(
+        <Provider store={store}>
+          <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+        </Provider>
+      );
 
       const [statusProp] = subjectFeatureWithOneDeviceProp.properties.device_status_properties;
       const additionalProps = await screen.getByTestId('additional-props');
@@ -101,9 +105,11 @@ describe('SubjectPopup', () => {
     });
 
     test('render additional props with boolean values', async () => {
-      render(<Provider store={store}>
-        <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
-      </Provider>);
+      render(
+        <Provider store={store}>
+          <SubjectPopup data={subjectFeatureWithOneDeviceProp} />
+        </Provider>
+      );
 
       const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
       expect(additionalPropsValues[1]).toHaveTextContent('false');

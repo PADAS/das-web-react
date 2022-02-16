@@ -1,9 +1,9 @@
-import React, { lazy } from 'react';
+import React from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import isToday from 'date-fns/is_today';
 import isThisYear from 'date-fns/is_this_year';
 import format from 'date-fns/format';
-import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS, PATROL_API_STATES } from '../constants';
+import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 import { SHORT_TIME_FORMAT } from '../utils/datetime';
 import concat from 'lodash/concat';
 import orderBy from 'lodash/orderBy';
@@ -17,7 +17,6 @@ import pluralize from 'pluralize';
 import TimeAgo from '../TimeAgo';
 
 import store from '../store';
-import { addModal } from '../ducks/modals';
 import { createPatrol, updatePatrol, addNoteToPatrol, uploadPatrolFile } from '../ducks/patrols';
 
 import { getReporterById } from './events';
@@ -26,7 +25,6 @@ import distanceInWords from 'date-fns/distance_in_words';
 import isAfter from 'date-fns/is_after';
 
 import colorVariables from '../common/styles/vars/colors.module.scss';
-const PatrolModal = lazy(() => import('../PatrolModal'));
 
 const DEFAULT_STROKE = '#FF0080';
 const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
@@ -65,31 +63,6 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
 export const calcColorThemeForPatrolState = (patrolState) => {
 
   return PATROL_STATUS_THEME_COLOR_MAP[patrolState.status];
-};
-
-export const openModalForPatrol = (patrol, map, config = {}) => {
-  const { onSaveSuccess, onSaveError, relationshipButtonDisabled } = config;
-
-  const state = store.getState();
-
-  const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
-  const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
-
-  const canEdit = patrolPermissions.includes(PERMISSIONS.UPDATE);
-
-  return store.dispatch(
-    addModal({
-      content: PatrolModal,
-      patrol,
-      map,
-      onSaveSuccess,
-      onSaveError,
-      relationshipButtonDisabled,
-      modalProps: {
-        className: `patrol-form-modal ${canEdit ? '' : 'readonly'}`,
-        // keyboard: false,
-      },
-    }));
 };
 
 export const generatePseudoReportCategoryForPatrolTypes = (patrolTypes) => {
@@ -237,7 +210,7 @@ export const actualEndTimeForPatrol = (patrol) => {
 };
 
 export const getLeaderForPatrol = (patrol, subjectStore) => {
-  if (!patrol.patrol_segments.length) return null;
+  if (!patrol?.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
   if (!leader) return null;
