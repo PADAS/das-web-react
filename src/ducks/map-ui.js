@@ -1,5 +1,6 @@
 import uniq from 'lodash/uniq';
 
+import { DEFAULT_SHOW_NAMES_IN_MAP_CONFIG } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 
 // actions
@@ -113,10 +114,12 @@ export const toggleMapDataSimplificationOnZoom = () => ({
   type: SET_MAP_DATA_ZOOM_SIMPLIFICATION,
 });
 
-export const toggleMapNameState = (enabled) => ({
-  type: DISPLAY_SUBJECT_NAMES,
-  payload: enabled,
-});
+export const toggleMapNamesState = (enabledLayers) => (dispatch) => {
+  return dispatch({
+    type: DISPLAY_SUBJECT_NAMES,
+    payload: enabledLayers,
+  });
+};
 
 export const displayReportsOnMapState = (enabled) => ({
   type: DISPLAY_REPORTS_ON_MAP,
@@ -256,9 +259,11 @@ export const mapDataZoomSimplificationReducer = (state = { enabled: false }, act
 };
 
 
-export const displayMapNamesReducer = (state = true, action) => {
+export const displayMapNamesReducer = (state = DEFAULT_SHOW_NAMES_IN_MAP_CONFIG, action) => {
   const { type, payload } = action;
-  if (type === DISPLAY_SUBJECT_NAMES) return payload;
+  if (type === DISPLAY_SUBJECT_NAMES) {
+    return payload;
+  }
   return state;
 };
 

@@ -30,6 +30,7 @@ const SubjectControls = (props) => {
     showJumpButton,
     showMessageButton,
     showTitles,
+    showLabels,
     className,
     toggleTrackState,
     addHeatmapSubjects,
@@ -38,7 +39,6 @@ const SubjectControls = (props) => {
     tracksLoaded,
     tracksVisible,
     tracksPinned,
-    map,
     ...rest } = props;
 
   const [ loadingHeatmap, setHeatmapLoadingState ] = useState(false);
@@ -49,6 +49,7 @@ const SubjectControls = (props) => {
 
 
   const isMessageable = !!canViewMessages && !!showMessageButton && !!subject?.messaging?.length;
+  const canShowTrack = canShowTrackForSubject(subject);
 
   const fetchSubjectTracks = () => {
     if (tracksLoaded) return new Promise(resolve => resolve());
@@ -88,20 +89,40 @@ const SubjectControls = (props) => {
     }
   };
 
-  if (!canShowTrackForSubject(subject)) return null;
   if (!showHeatmapButton && !showTrackButton && !showJumpButton) return null;
 
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
-    {isMessageable && <SubjectMessagesPopover className={styles.messagingButton} subject={subject} />}
-    {showTrackButton && <TrackToggleButton loading={loadingTracks}
-      onClick={onTrackButtonClick} trackVisible={tracksVisible}
-      trackPinned={tracksPinned} />}
-    {showHeatmapButton && <HeatmapToggleButton loading={loadingHeatmap}
-      onButtonClick={toggleHeatmapState} heatmapVisible={subjectIsInHeatmap} />}
-    {showJumpButton && coordinates && <LocationJumpButton coordinates={coordinates}
-      map={map} clickAnalytics={[MAP_LAYERS_CATEGORY, 'Click Jump To Subject Location button',
-        `Subject Type:${subject.subject_type}`]} />}
+
+    {isMessageable && <SubjectMessagesPopover
+      className={styles.messagingButton}
+      subject={subject}
+    />}
+
+    {showTrackButton && canShowTrack && <TrackToggleButton
+      showLabel={showLabels}
+      loading={loadingTracks}
+      onClick={onTrackButtonClick}
+      trackVisible={tracksVisible}
+      trackPinned={tracksPinned}
+    />}
+
+    {showHeatmapButton && canShowTrack && <HeatmapToggleButton
+      showLabel={showLabels}
+      loading={loadingHeatmap}
+      onButtonClick={toggleHeatmapState}
+      heatmapVisible={subjectIsInHeatmap}
+    />}
+
+    {showJumpButton && coordinates && <LocationJumpButton
+      coordinates={coordinates}
+      clickAnalytics={[
+        MAP_LAYERS_CATEGORY,
+        'Click Jump To Subject Location button',
+        `Subject Type:${subject.subject_type}`
+      ]}
+    />}
+
     {children}
   </div>;
 };
@@ -113,15 +134,16 @@ SubjectControls.defaultProps = {
   showJumpButton: true,
   showMessageButton: true,
   showTitles: true,
+  showLabels: true,
 };
 
 SubjectControls.propTypes = {
   subject: PropTypes.object.isRequired,
-  map: PropTypes.object.isRequired,
   showHeatmapButton: PropTypes.bool,
   showTrackButton: PropTypes.bool,
   showJumpButton: PropTypes.bool,
   showTitles: PropTypes.bool,
+  showLabels: PropTypes.bool,
 };
 
 const mapStateToProps = (state, props) => getSubjectControlState(state, props);

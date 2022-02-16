@@ -45,11 +45,7 @@ const mapStateToProps = (state) => ({
 });
 
 
-export default connect(mapStateToProps, null)(withMap(
-  memo(TracksLayer),
-));
-
-// export default withMap(memo(withMapViewConfig(SubjectsLayer)));
+export default connect(mapStateToProps, null)(withMap(memo(TracksLayer),));
 
 TracksLayer.defaultProps = {
   onPointClick(layer) {

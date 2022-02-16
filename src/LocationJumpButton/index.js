@@ -1,7 +1,8 @@
-import React, { Fragment, memo } from 'react';
+import React, { Fragment, memo, useContext } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import { MapContext } from '../App';
 import { BREAKPOINTS } from '../constants';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
@@ -14,9 +15,10 @@ import styles from './styles.module.scss';
 
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
-const LocationJumpButton = ({ clickAnalytics, onClick, map, coordinates, isMulti, bypassLocationValidation,
+const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, bypassLocationValidation,
   zoom, updateUserPreferences, iconOverride, className, dispatch: _dispatch, ...rest }) => {
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
+  const map = useContext(MapContext);
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
@@ -54,6 +56,5 @@ LocationJumpButton.propTypes = {
   coordinates: PropTypes.array,
   clickAnalytics: PropTypes.arrayOf(PropTypes.string),
   onClick: PropTypes.func,
-  map: PropTypes.object,
   zoom: PropTypes.number,
 };

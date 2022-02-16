@@ -17,6 +17,12 @@ export const {
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
+const {
+  REACT_APP_ENABLE_CLUSTERING: REACT_APP_ENABLE_CLUSTERING_STRING,
+} = process.env;
+export const REACT_APP_ENABLE_CLUSTERING =
+  REACT_APP_ENABLE_CLUSTERING_STRING === 'true';
+
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
 export const GA_EVENT_CATEGORIES = {
@@ -33,6 +39,10 @@ export const GA_EVENT_CATEGORIES = {
 
 export const MIN_ZOOM = 1;
 export const MAX_ZOOM = 18;
+
+export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
+export const CLUSTERS_MAX_ZOOM = MAX_ZOOM - 1;
+export const CLUSTERS_RADIUS = 40;
 
 export const FIT_TO_BOUNDS_PADDING = 50;
 
@@ -87,6 +97,10 @@ export const BREAKPOINTS = {
 
 export const LAYER_IDS = {
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
+  CLUSTER_BUFFER_POLYGON_LAYER_ID: 'cluster-buffer-polygon-layer',
+  CLUSTER_BUFFER_POLYGON_SOURCE_ID: 'cluster-buffer-polygon-source',
+  CLUSTERS_LAYER_ID: 'clusters-layer',
+  CLUSTERS_SOURCE_ID: 'clusters-source',
   FEATURE_FILLS: 'feature-fills',
   FEATURE_SYMBOLS: 'feature-symbols',
   FEATURE_LINES: 'feature-lines',
@@ -94,6 +108,9 @@ export const LAYER_IDS = {
   EVENT_CLUSTER_COUNT_SYMBOLS: 'event_cluster_count',
   EVENT_SYMBOLS: 'event_symbols',
   SUBJECT_SYMBOLS: 'subject_symbols',
+  STATIC_SENSOR: 'static_sensor',
+  UNCLUSTERED_STATIC_SENSORS_LAYER: 'unclustered_static_sensors_layer',
+  SECOND_STATIC_SENSOR_PREFIX: 'icons-layer-',
   PATROL_SYMBOLS: 'patrol_symbols',
   TRACKS_LINES: 'track-layer',
   TRACK_TIMEPOINTS_SYMBOLS: 'track-layer-timepoints',
@@ -103,6 +120,13 @@ export const LAYER_IDS = {
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ISOCHRONE_LAYER: 'isochrone',
+};
+
+export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
+  [LAYER_IDS.PATROL_SYMBOLS]: { label: 'Patrols', enabled: true },
+  [LAYER_IDS.SUBJECT_SYMBOLS]: { label: 'Subjects', enabled: true },
+  [LAYER_IDS.STATIC_SENSOR]: { label: 'Stationary Subjects', enabled: false },
+  [LAYER_IDS.EVENT_SYMBOLS]: { label: 'Reports', enabled: true },
 };
 
 export const LAYER_PICKER_IDS = [
@@ -281,3 +305,5 @@ export const PERMISSIONS = {
   UPDATE: 'change',
   DELETE: 'delete',
 };
+
+export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';

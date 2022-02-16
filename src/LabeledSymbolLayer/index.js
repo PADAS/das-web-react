@@ -8,7 +8,7 @@ import withMapViewConfig from '../WithMapViewConfig';
 import { Layer } from 'react-mapbox-gl';
 
 const LabeledSymbolLayer = (
-  { before, paint, layout, textPaint, textLayout, id, map, mapUserLayoutConfig, minZoom, onClick, onInit,
+  { before, paint, layout, textPaint, textLayout, id, map, mapUserLayoutConfigByLayerId, minZoom, onClick, onInit,
     onMouseEnter, onMouseLeave, ...rest }
 ) => {
   const textLayerId = `${id}-labels`;
@@ -62,8 +62,8 @@ const LabeledSymbolLayer = (
     'icon-text-fit': 'both',
     'icon-text-fit-padding': [5, 8, 5, 8],
     'text-anchor': 'top',
-    ...mapUserLayoutConfig,
     'text-offset': [0, 1.1],
+    ...mapUserLayoutConfigByLayerId(id),
   };
 
   const labelPaint = {
