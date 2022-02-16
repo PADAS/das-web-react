@@ -37,8 +37,8 @@ const Drawer = ({ drawer, hideDrawer }) => {
 
   return <>
     <div
-      className={`${styles.outsideDrawer} ${!!drawer.isOpen ? 'open' : ''}`}
-      data-testid="outsideDrawer"
+      className={`${styles.overlay} ${!!drawer.isOpen ? 'open' : ''}`}
+      data-testid="overlay"
       onClick={() => hideDrawer()}
     />
     <div
