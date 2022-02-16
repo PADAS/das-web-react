@@ -36,7 +36,7 @@ describe('SystemStatus', () => {
     };
   });
 
-  test('renders the badge color depending on the worst system status', async () => {
+  test('renders the indicator for a healthy status', async () => {
     render(
       <Provider store={mockStore(store)}>
         <SystemStatus />
@@ -44,9 +44,10 @@ describe('SystemStatus', () => {
     );
 
     expect((await screen.findByTestId('badgeIcon'))).toHaveClass('green');
+    expect((await screen.findByTestId('systemStatus-statusLabel'))).toHaveTextContent('Healthy');
+  });
 
-    cleanup();
-
+  test('renders the indicator for a warning status', async () => {
     store.data.systemStatus.network.status = STATUSES.WARNING_STATUS;
     render(
       <Provider store={mockStore(store)}>
@@ -55,10 +56,11 @@ describe('SystemStatus', () => {
     );
 
     expect((await screen.findByTestId('badgeIcon'))).toHaveClass('orange');
+    expect((await screen.findByTestId('systemStatus-statusLabel'))).toHaveTextContent('Warning');
+  });
 
-    cleanup();
-
-    store.data.systemStatus.server.status = STATUSES.UNHEALTHY_STATUS;
+  test('renders the indicator for an unhealthy status', async () => {
+    store.data.systemStatus.network.status = STATUSES.UNHEALTHY_STATUS;
     render(
       <Provider store={mockStore(store)}>
         <SystemStatus />
@@ -66,6 +68,7 @@ describe('SystemStatus', () => {
     );
 
     expect((await screen.findByTestId('badgeIcon'))).toHaveClass('red');
+    expect((await screen.findByTestId('systemStatus-statusLabel'))).toHaveTextContent('Unhealthy');
   });
 
   test('opens the menu when the user clicks the systems status indicator', async () => {
@@ -85,5 +88,24 @@ describe('SystemStatus', () => {
     expect((await screen.findByText('Network'))).toBeDefined();
     expect((await screen.findByText('EarthRanger Server 2.43.1-dev.30033'))).toBeDefined();
     expect((await screen.findByText('EarthRanger Realtime'))).toBeDefined();
+  });
+
+  test('updates the style of the indicator when the user opens the menu', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <SystemStatus />
+      </Provider>
+    );
+
+    expect((await screen.findByText('arrow-down-small.svg'))).toBeDefined();
+    expect((await screen.queryByText('arrow-up-small.svg'))).toBeNull();
+    expect((await screen.findByTestId('systemStatus-indicator'))).not.toHaveClass('open');
+
+    const statusIndicatorToggle = await screen.findByRole('button');
+    userEvent.click(statusIndicatorToggle);
+
+    expect((await screen.queryByText('arrow-down-small.svg'))).toBeNull();
+    expect((await screen.findByText('arrow-up-small.svg'))).toBeDefined();
+    expect((await screen.findByTestId('systemStatus-indicator'))).toHaveClass('open');
   });
 });

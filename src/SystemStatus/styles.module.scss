@@ -78,6 +78,10 @@
   padding: 0.5rem;
   margin: 0 1rem;
 
+  &[class*=open] {
+    color: white;
+  }
+
   > * {
     margin: 0 0.125rem;
   }
