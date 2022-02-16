@@ -26,6 +26,7 @@ import eventFilterReducer from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
+import drawerReducer from '../ducks/drawer';
 import eulaReducer from '../ducks/eula';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
@@ -107,6 +108,7 @@ const rootReducer = combineReducers({
     showReportsOnMap: displayReportsOnMapReducer,
     simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),
     modals: modalsReducer,
+    drawer: drawerReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
