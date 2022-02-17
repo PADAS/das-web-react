@@ -1,4 +1,8 @@
-import React, { lazy, useCallback, useEffect, useState } from 'react';
+// TODO: All comments in this file will be removed as part of the UFA navigation updates, but they are not included for
+// now so the new global menu drawer can be merged to develop and deployed individually. Everything could be
+// uncommented once we have the vertical navigation bar.
+
+import React, { lazy, useCallback, useEffect, /* useMemo, */ useState } from 'react';
 import { connect } from 'react-redux';
 import getYear from 'date-fns/get_year';
 import PropTypes from 'prop-types';
@@ -13,14 +17,17 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { CLIENT_BUILD_VERSION, FEATURE_FLAGS } from '../constants';
+import { /* BREAKPOINTS, */ CLIENT_BUILD_VERSION, FEATURE_FLAGS } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { useFeatureFlag } from '../hooks';
+import { useFeatureFlag /* , useMatchMedia */ } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
+// import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+// import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
+// import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import styles from './styles.module.scss';
 
@@ -50,6 +57,7 @@ const GlobalMenuDrawer = ({
 }) => {
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
+  // const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const [modals, setModals] = useState([]);
 
@@ -141,6 +149,12 @@ const GlobalMenuDrawer = ({
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
+  // const navigationItems = useMemo(() => [
+  //   { icon: <DocumentIcon />, title: 'Reports' },
+  //   { icon: <PatrolIcon />, title: 'Patrols' },
+  //   { icon: <LayersIcon />, title: 'Map Layers' },
+  // ], []);
+
   return <div className={styles.globalMenuDrawer} data-testid="globalMenuDrawer">
     <div className={styles.header}>
       <EarthRangerLogo className={styles.logo} />
@@ -149,6 +163,16 @@ const GlobalMenuDrawer = ({
         <CrossIcon />
       </button>
     </div>
+
+    {/* {!isMediumLayoutOrLarger && <div className={styles.navigation}>
+      {navigationItems.map((navigationItem) => <button
+        key={navigationItem.title}
+        onClick={() => console.log(`Click ${navigationItem.title}`)}
+      >
+        {navigationItem.icon}
+        <span>{navigationItem.title}</span>
+      </button>)}
+    </div>} */}
 
     <div className={styles.content}>
       <div className={styles.section}>
@@ -161,9 +185,7 @@ const GlobalMenuDrawer = ({
 
       <div className={styles.section}>
         <h6>EXPORTS</h6>
-        {modals.map((modal) =>
-          <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>
-        )}
+        {modals.map((modal) => <button key={modal.title} onClick={() => onModalClick(modal)}>{modal.title}</button>)}
       </div>
     </div>
 

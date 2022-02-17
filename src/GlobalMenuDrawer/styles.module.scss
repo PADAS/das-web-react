@@ -9,6 +9,17 @@
   color: white;
   width: 100vw;
 
+  button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    display: block;
+  }
+
   @media (min-width: $lg-layout-width-min) {
     width: 18.75rem;
   }
@@ -25,14 +36,23 @@
     width: 8.75rem;
   }
 
+  @media (min-width: $lg-layout-width-min) {
+    padding: 1.5rem 1rem;
+  }
+}
+
+.navigation {
+  padding: 0 1rem 0.5rem;
+
   button {
-    background: none;
-    color: inherit;
-    border: none;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    color: white;
+
+    span {
+      margin-left: 1rem;
+    }
   }
 }
 
@@ -42,7 +62,7 @@
 
 .section {
   border-top: 1px solid $secondary-medium-gray;
-  padding: 1rem 1.5rem 0.5rem;
+  padding: 1rem 1rem 0.5rem;
 
   h6 {
     font-size: 0.75rem;
@@ -51,15 +71,11 @@
   }
 
   button {
-    background: none;
-    color: inherit;
-    border: none;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    outline: inherit;
-    display: block;
     margin-bottom: 0.5rem;
+  }
+
+  @media (min-width: $lg-layout-width-min) {
+    padding: 1rem 1.5rem 0.5rem;
   }
 }
 
