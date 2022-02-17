@@ -4,7 +4,9 @@ import { withRouter } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
+import { globalMenuDrawerId } from '../Drawer';
 import { setHomeMap } from '../ducks/maps';
+import { showDrawer } from '../ducks/drawer';
 import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 
@@ -12,9 +14,9 @@ import { usePermissions } from '../hooks';
 
 import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
+import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
-import DataExportMenu from '../DataExportMenu';
 import SystemStatus from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
 
@@ -34,6 +36,7 @@ const Nav = ({
   map,
   maps,
   setHomeMap,
+  showDrawer,
   selectedUserProfile,
   setUserProfile,
   user,
@@ -80,7 +83,7 @@ const Nav = ({
 
   return <nav className="primary-nav">
     <div className="left-controls">
-      <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
+      <HamburgerMenuIcon className="global-menu-button" onClick={() => showDrawer(globalMenuDrawerId)} />
     </div>
 
     {!!maps.length &&
@@ -112,5 +115,5 @@ const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile
 
 export default connect(
   mapStatetoProps,
-  { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile }
+  { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
 )(memo(withRouter(Nav)));

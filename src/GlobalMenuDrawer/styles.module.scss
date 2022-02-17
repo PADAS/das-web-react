@@ -1,0 +1,73 @@
+@import '../common/styles/layout';
+@import '../common/styles/vars/colors';
+
+.globalMenuDrawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $off-black;
+  color: white;
+  width: 100vw;
+
+  @media (min-width: $lg-layout-width-min) {
+    width: 18.75rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 5rem;
+  padding: 1.5rem 1rem;
+
+  .logo {
+    width: 8.75rem;
+  }
+
+  button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+  }
+}
+
+.content {
+  height: calc(100% - 11rem);
+}
+
+.section {
+  border-top: 1px solid $secondary-medium-gray;
+  padding: 1rem 1.5rem 0.5rem;
+
+  h6 {
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+    color: $secondary-light-gray;
+  }
+
+  button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 6rem;
+  padding-left: 1rem;
+  font-size: 0.875rem;
+}
