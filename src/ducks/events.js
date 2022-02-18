@@ -346,15 +346,30 @@ export const cancelMapEventsFetch = () => {
 export const fetchMapEvents = (map) => async (dispatch, getState) => {
   try {
 
+    console.log('fetchmapevents starting');
+
     let lastKnownBbox;
     if (!map) {
-      lastKnownBbox = getState().data.mapEvents.bbox;
+      lastKnownBbox = getState()?.data?.mapEvents?.bbox;
     }
+    const geoPermissionsEnabled = getState()?.data?.geoPermissionsEnabled;
+    const userLocaton = getState()?.view?.userLocation;
 
-    if (!map && !lastKnownBbox) return Promise.reject();
+    if (!map && !lastKnownBbox) return Promise.reject('no map available');
+    console.log('i have a map');
 
     const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-    const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
+    console.log('this is my bbox', bbox);
+
+    const params = { bbox, page_size: 25 };
+
+    if (geoPermissionsEnabled && !!userLocaton) {
+      const {  coords: { latitude, longitude } } = userLocaton;
+
+      params.location = `${longitude},${latitude}`;
+    }
+
+    const eventFilterParamString = calcEventFilterForRequest({ params });
 
     dispatch({
       type: FETCH_MAP_EVENTS_START,
@@ -377,8 +392,11 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
         dispatch(fetchMapEventsError(error));
         return Promise.reject(error);
       });
-  } catch (e) {
-    return Promise.reject(e);
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      console.warn('unauthorized events access, now show a message about how location access is required and what to do to enable it'); // https://support.google.com/chrome/answer/142065
+    }
+    return Promise.reject(error);
   }
 };
 
