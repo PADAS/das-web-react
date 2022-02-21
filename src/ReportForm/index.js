@@ -13,7 +13,6 @@ import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../u
 import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
-import { getReportFormSchemaData } from '../selectors';
 import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
@@ -446,6 +445,8 @@ const ReportForm = (props) => {
     }
   };
 
+  console.log('report form schema', schema);
+
   const onUpdateStateReportToggle = useCallback((state) => {
     updateStateReport({ ...report, state });
     startSubmitForm();
@@ -456,6 +457,8 @@ const ReportForm = (props) => {
   const notesToList = [...reportNotes, ...notesToAdd];
 
   const styles = {};
+
+  if (!schema) return null;
 
   return <ContextProvider value={report}>
 
@@ -539,9 +542,8 @@ const ReportForm = (props) => {
   </ContextProvider>;
 };
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = (state) => ({
   eventTypes: state.data.eventTypes,
-  ...getReportFormSchemaData(state, props),
 });
 
 export default memo(

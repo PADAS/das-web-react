@@ -1,4 +1,4 @@
-import { filterOutRequiredValueOnSchemaPropErrors, getLinearErrorPropTree, filterOutErrorsForHiddenProperties } from './event-schemas';
+import { filterOutRequiredValueOnSchemaPropErrors, getLinearErrorPropTree, filterOutErrorsForHiddenProperties, getSchemasForEventTypeByEventId } from './event-schemas';
 
 describe('getLinearErrorPropTree', () => {
   const errorPropTree = '.properties[\'reportcounty\'].enum';
@@ -113,5 +113,33 @@ describe('filterOutRequiredValueOnSchemaPropErrors', () => {
 
   test('preserving other error messages', () => {
     expect(filtered).toEqual(expect.arrayContaining([error1]));
+  });
+});
+
+describe('getSchemasForEventTypeByEventId', () => {
+  const mockData = {
+    whatever: {
+      base: { testValue: 'howdy' },
+      test_id: { testValue: 'neato' }
+    }
+  };
+  test('returning a schema for an id if it exists', () => {
+    const returnValue = getSchemasForEventTypeByEventId(mockData, 'whatever', 'test_id');
+
+    expect(returnValue).toEqual({ testValue: 'neato' });
+  });
+
+
+  test('returning a base schema if the id-bound schema is not present', () => {
+    const returnValue = getSchemasForEventTypeByEventId(mockData, 'whatever');
+
+    expect(returnValue).toEqual({ testValue: 'howdy' });
+
+  });
+
+  test('returning undefined if the schema is not present as a base schema nor an id-bound schema', () => {
+    const returnValue = getSchemasForEventTypeByEventId(mockData, 'whatever', 'bad_test_id');
+
+    expect(returnValue).toBeUndefined();
   });
 });
