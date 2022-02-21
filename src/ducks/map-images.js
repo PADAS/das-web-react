@@ -6,7 +6,7 @@ export const addImageToMapIfNecessary = (imgData, options) => ({
   type: ADD_IMAGE_TO_MAP_IF_NECESSARY,
   payload: {
     data: imgData,
-    options,
+    ...{ options },
   },
 });
 
