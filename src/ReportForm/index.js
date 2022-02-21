@@ -445,8 +445,6 @@ const ReportForm = (props) => {
     }
   };
 
-  console.log('report form schema', schema);
-
   const onUpdateStateReportToggle = useCallback((state) => {
     updateStateReport({ ...report, state });
     startSubmitForm();
