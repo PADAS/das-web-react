@@ -6,9 +6,10 @@ import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
-  uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
+  uniqueEventIds, validateReportAgainstCurrentEventFilter, eventsApiErrorIsGeoPermissionsRelated } from '../utils/events';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
+import { showErrorToast } from '../utils/toast';
 
 
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
@@ -388,8 +389,8 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
         return Promise.reject(error);
       });
   } catch (error) {
-    if (error?.response?.status === 403) {
-      console.warn('unauthorized events access, now show a message about how location access is required and what to do to enable it'); // https://support.google.com/chrome/answer/142065
+    if (eventsApiErrorIsGeoPermissionsRelated(error)) {
+      showErrorToast({ message: 'geo permissions error', details: 'neato' });
     }
     return Promise.reject(error);
   }

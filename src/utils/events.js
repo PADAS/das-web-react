@@ -13,6 +13,9 @@ import { calcUrlForImage } from './img';
 import { EVENT_STATE_CHOICES } from '../constants';
 import { EVENT_API_URL } from '../ducks/events';
 
+const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
+const LOCATION_MISSING_AUTH_DENIED_ERROR_MESSAGE = 'USER_LOCATION_MISSING';
+
 const ReportFormModal = lazy(() => import('../ReportFormModal'));
 
 export const eventWasRecentlyCreatedByCurrentUser = (event, currentUser) => {
@@ -296,3 +299,6 @@ export const addPatrolSegmentToEvent = (segment_id, event_id) => {
       console.log('add segment error', error);
     });
 };
+
+export const eventsApiErrorIsGeoPermissionsRelated = error => error?.response?.status === 403
+  && [GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE, LOCATION_MISSING_AUTH_DENIED_ERROR_MESSAGE].includes(error?.response?.message);
