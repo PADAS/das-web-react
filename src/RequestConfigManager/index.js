@@ -75,7 +75,7 @@ const RequestConfigManager = (props) => {
 
   /* boot to login on 401 */
   useEffect(() => {
-    const responseHandlerWithFailureCase = (response, error) => {
+    const responseHandlerWithFailureCase = [response => response, (error) => {
       if (error && error.toString().includes('401')) {
         resetMasterCancelToken();
         clearAuth().then(() => {
@@ -86,7 +86,7 @@ const RequestConfigManager = (props) => {
         });
       }
       return Promise.reject(error);
-    };
+    }];
 
     const interceptorId = axios.interceptors.response.use(responseHandlerWithFailureCase);
 
