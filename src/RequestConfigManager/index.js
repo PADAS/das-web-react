@@ -6,13 +6,12 @@ import { withRouter } from 'react-router-dom';
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
-const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
+// const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
 
 const RequestConfigManager = (props) => {
   const { clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
   const userProfileHeaderInterceptor = useRef(null);
   const masterRequestCancelTokenManager = useRef(null);
-  const onAuthFailure = useRef(null);
 
   /* profile header */
   useEffect(() => {
@@ -53,12 +52,13 @@ const RequestConfigManager = (props) => {
   }, [masterRequestCancelToken]);
   /* end master cancel token */
 
+  /* 
   const apiResponseErrorIsGeoPermissionsRelated = error =>
     error.statuCode === 403
     && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
 
   useEffect(() => {
-    /* specific failure-case routing for unauthorized requests related to geo-permissions */
+    // specific failure-case routing for unauthorized requests related to geo-permissions
     const handleGeoPermissionsAuthFailure = (response, error) => {
       if (apiResponseErrorIsGeoPermissionsRelated(error)) {
         // pop up some warning toast, or redirect to geo-permissions info route
@@ -71,7 +71,7 @@ const RequestConfigManager = (props) => {
     return () => {
       axios.interceptors.response.eject(interceptorId);
     };
-  }, [clearAuth, history, location.search, resetMasterCancelToken]);
+  }, []); */
 
   /* boot to login on 401 */
   useEffect(() => {
