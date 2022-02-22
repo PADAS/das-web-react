@@ -5,10 +5,11 @@ import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { TAB_KEYS } from '../constants';
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
 import { updateUserPreferences } from '../ducks/user-preferences';
+import { useFeatureFlag, usePermissions } from '../hooks';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -39,9 +40,17 @@ const SideBar = ({ map }) => {
   const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
   const sidebarTab = useSelector((state) => state.view.userPreferences.sidebarTab);
 
+  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+
   const patrolFetchRef = useRef(null);
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
+
+  const showPatrols = useMemo(
+    () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
+    [hasPatrolViewPermissions, patrolFlagEnabled]
+  );
 
   const patrolFilterParams = useMemo(() => {
     const filterParams = cloneDeep(patrolFilter);
@@ -107,12 +116,12 @@ const SideBar = ({ map }) => {
           </Nav.Link>
         </Nav.Item>
 
-        <Nav.Item>
+        {showPatrols && <Nav.Item>
           <Nav.Link eventKey={TAB_KEYS.PATROLS}>
             <PatrolIcon />
             <span>Patrols</span>
           </Nav.Link>
-        </Nav.Item>
+        </Nav.Item>}
 
         <Nav.Item>
           <Nav.Link eventKey={TAB_KEYS.LAYERS}>

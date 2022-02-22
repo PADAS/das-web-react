@@ -78,36 +78,68 @@ describe('calculatePopoverPlacement', () => {
     map = createMapMock();
   });
 
-  test('returns "left" if coordinates are more than 70% to the right of the map', async () => {
+  test('returns "left" if coordinates are more than 80% to the right of the map', async () => {
     map.getBounds.mockImplementation(() => ({
       _ne: { lat: -2, lng: 39 },
       _sw: { lat: -3, lng: 37 },
     }));
 
-    expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 38.5 })).toBe('left');
+    expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 38.8 })).toBe('left');
 
     map.getBounds.mockImplementation(() => ({
       _ne: { lat: -2.5, lng: 38 },
       _sw: { lat: -3, lng: 37 },
     }));
 
-    expect(await calculatePopoverPlacement(map, { lat: -3, lng: 37.71 })).toBe('left');
+    expect(await calculatePopoverPlacement(map, { lat: -3, lng: 37.9 })).toBe('left');
   });
 
-  test('returns "right" if coordinates are more than 70% to the bottom of the map', async () => {
+  test('returns "right" if coordinates are less than 20% to the left of the map', async () => {
     map.getBounds.mockImplementation(() => ({
       _ne: { lat: -2, lng: 39 },
       _sw: { lat: -3, lng: 37 },
     }));
 
-    expect(await calculatePopoverPlacement(map, { lat: -2.8, lng: 38 })).toBe('right');
+    expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 37.3 })).toBe('right');
 
     map.getBounds.mockImplementation(() => ({
       _ne: { lat: -2.5, lng: 38 },
       _sw: { lat: -3, lng: 37 },
     }));
 
-    expect(await calculatePopoverPlacement(map, { lat: -2.9, lng: 37.5 })).toBe('right');
+    expect(await calculatePopoverPlacement(map, { lat: -2.8, lng: 37.1 })).toBe('right');
+  });
+
+  test('returns "top" if coordinates are more than 80% to the bottom of the map', async () => {
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2, lng: 39 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+
+    expect(await calculatePopoverPlacement(map, { lat: -2.85, lng: 37.5 })).toBe('top');
+
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2.5, lng: 38 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+
+    expect(await calculatePopoverPlacement(map, { lat: -2.91, lng: 37.7 })).toBe('top');
+  });
+
+  test('returns "bottom" if coordinates are less than 20% to the top of the map', async () => {
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2, lng: 39 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+
+    expect(await calculatePopoverPlacement(map, { lat: -2.1, lng: 37.8 })).toBe('bottom');
+
+    map.getBounds.mockImplementation(() => ({
+      _ne: { lat: -2.5, lng: 38 },
+      _sw: { lat: -3, lng: 37 },
+    }));
+
+    expect(await calculatePopoverPlacement(map, { lat: -2.55, lng: 37.6 })).toBe('bottom');
   });
 
   test('returns "auto" by default', async () => {
@@ -115,7 +147,6 @@ describe('calculatePopoverPlacement', () => {
       _ne: { lat: -2, lng: 39 },
       _sw: { lat: -3, lng: 37 },
     }));
-    expect(await calculatePopoverPlacement(map, { lat: -2, lng: 37 })).toBe('auto');
     expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 38 })).toBe('auto');
 
     map.getBounds.mockImplementation(() => ({
@@ -123,7 +154,6 @@ describe('calculatePopoverPlacement', () => {
       _sw: { lat: -3, lng: 37 },
     }));
 
-    expect(await calculatePopoverPlacement(map, { lat: -2.5, lng: 37 })).toBe('auto');
     expect(await calculatePopoverPlacement(map, { lat: -2.7, lng: 37.5 })).toBe('auto');
   });
 });
