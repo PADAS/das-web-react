@@ -6,6 +6,8 @@ import { withRouter } from 'react-router-dom';
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
+const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
+
 const RequestConfigManager = (props) => {
   const { clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
   const userProfileHeaderInterceptor = useRef(null);
@@ -51,7 +53,9 @@ const RequestConfigManager = (props) => {
   }, [masterRequestCancelToken]);
   /* end master cancel token */
 
-  const apiResponseErrorIsGeoPermissionsRelated = error => !!error;
+  const apiResponseErrorIsGeoPermissionsRelated = error =>
+    error.statuCode === 403
+    && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
 
   useEffect(() => {
     /* specific failure-case routing for unauthorized requests related to geo-permissions */

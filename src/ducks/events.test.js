@@ -46,7 +46,7 @@ describe('fetchMapEvents', () => {
       });
   });
   test('appending a "location" parameter if geopermissions are enabled and a user location is available', async () => {
-    store = mockStore({ data: { mapEvents: { bbox: '1,2,3,4' }, geoPermissionsEnabled: true }, view: { userLocation: { coords: { longitude: 1, latitude: 2 } } } });
+    store = mockStore({ data: { mapEvents: { bbox: '1,2,3,4' }, systemStatus: { geoPermissionsEnabled: true } }, view: { userLocation: { coords: { longitude: 1, latitude: 2 } } } });
 
     jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve());
 

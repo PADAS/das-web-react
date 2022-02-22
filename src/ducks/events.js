@@ -352,7 +352,7 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
     if (!map) {
       lastKnownBbox = getState()?.data?.mapEvents?.bbox;
     }
-    const geoPermissionsEnabled = getState()?.data?.geoPermissionsEnabled;
+    const geoPermissionsEnabled = getState()?.data?.systemStatus?.geoPermissionsEnabled;
     const userLocaton = getState()?.view?.userLocation;
 
     if (!map && !lastKnownBbox) return Promise.reject('no map available');
