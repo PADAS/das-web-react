@@ -346,8 +346,6 @@ export const cancelMapEventsFetch = () => {
 export const fetchMapEvents = (map) => async (dispatch, getState) => {
   try {
 
-    console.log('fetchmapevents starting');
-
     let lastKnownBbox;
     if (!map) {
       lastKnownBbox = getState()?.data?.mapEvents?.bbox;
@@ -356,11 +354,8 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
     const userLocaton = getState()?.view?.userLocation;
 
     if (!map && !lastKnownBbox) return Promise.reject('no map available');
-    console.log('i have a map');
 
     const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-    console.log('this is my bbox', bbox);
-
     const params = { bbox, page_size: 25 };
 
     if (geoPermissionsEnabled && !!userLocaton) {
