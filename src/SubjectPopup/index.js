@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useCallback, useMemo, useState } from 'react';
+import React, { lazy, memo, Fragment, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import format from 'date-fns/format';
@@ -12,6 +12,7 @@ import SubjectControls from '../SubjectControls';
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 import AddReport from '../AddReport';
 
+import { addModal } from '../ducks/modals';
 import { showPopup } from '../ducks/popup';
 
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
@@ -20,9 +21,11 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
+const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataModal'));
+
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) => {
+const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showPopup }) => {
   const  { geometry, properties } = data;
   const  { active: isTimeSliderActive } = timeSliderState;
 
@@ -55,6 +58,10 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
   const onClickMessagingIcon = useCallback(() => {
     showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
   }, [geometry, properties, showPopup]);
+
+  const onHistoricalDataClick = useCallback(() => {
+    addModal({ title: `${properties.name} Historial Data`, content: SubjectHistoricalDataModal, subjectId: properties.id });
+  }, [addModal, properties.id, properties.name]);
 
   const locationObject = {
     longitude: geometry.coordinates[0],
@@ -111,6 +118,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       )}
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
+    {device_status_properties.length && subjectIsStatic && <Button variant='link' size='sm' type='button' onClick={onHistoricalDataClick} >Show historical data</Button>}
     {tracks_available && (
       <Fragment>
         <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
@@ -125,7 +133,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
 };
 
 const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
-export default connect(mapStateToProps, { showPopup })(memo(SubjectPopup));
+export default connect(mapStateToProps, { addModal, showPopup })(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,
