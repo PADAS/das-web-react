@@ -24,7 +24,7 @@
   margin-top: 0.125rem;
 
   @media (min-width: $md-layout-width-min) {
-    min-width: 28rem;
+    min-width: unset;
     max-width: unset;
   }
 }

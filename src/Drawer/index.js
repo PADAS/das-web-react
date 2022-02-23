@@ -4,13 +4,9 @@ import PropTypes from 'prop-types';
 
 import { hideDrawer } from '../ducks/drawer';
 
-import GlobalMenuDrawer from '../GlobalMenuDrawer';
-
 import styles from './styles.module.scss';
 
 const ESC_KEY_CODE = 27;
-
-export const globalMenuDrawerId = 'global-menu';
 
 const Drawer = ({ drawer, hideDrawer }) => {
   useEffect(() => {
@@ -28,8 +24,6 @@ const Drawer = ({ drawer, hideDrawer }) => {
 
   const drawerRendered = useMemo(() => {
     switch (drawer.drawerId) {
-    case globalMenuDrawerId:
-      return <GlobalMenuDrawer />;
     default:
       return null;
     }

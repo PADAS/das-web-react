@@ -263,7 +263,7 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover placement="bottom" className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
+  const FilterDatePopover = <Popover className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
@@ -324,7 +324,7 @@ const EventFilter = (props) => {
     <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
       <div className={styles.controls}>
         <SearchBar className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`} placeholder='Search Reports...' value={filterText} onChange={onSearchChange} onClear={onSearchClear} />
-        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='bottom' overlay={FilterPopover} flip={true}>
+        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterPopover} flip={true}>
           <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
           </Button>
