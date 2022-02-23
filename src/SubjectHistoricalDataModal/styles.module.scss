@@ -1,0 +1,17 @@
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dateTime {
+  span:first-child{
+    font-size: 0.87rem;
+    font-style: normal;
+    font-weight: 400;
+  }
+}
+
+.detailsTable {
+  margin-bottom: 0rem;
+}
