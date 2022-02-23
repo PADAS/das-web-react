@@ -2,7 +2,6 @@ import React, { lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import getYear from 'date-fns/get_year';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
 
 import { addModal } from '../ducks/modals';
 import {
@@ -14,11 +13,11 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { BREAKPOINTS, CLIENT_BUILD_VERSION, FEATURE_FLAGS, TAB_KEYS } from '../constants';
+import { BREAKPOINTS, CLIENT_BUILD_VERSION, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { useFeatureFlag, useMatchMedia } from '../hooks';
+import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
@@ -51,15 +50,23 @@ const GlobalMenuDrawer = ({
   serverData,
   tableauEnabled,
   token,
+  updateUserPreferences,
   zendeskEnabled,
 }) => {
-  const dispatch = useDispatch();
-
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
+  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
+  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+
   const [modals, setModals] = useState([]);
+
+  const showPatrols = useMemo(
+    () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
+    [hasPatrolViewPermissions, patrolFlagEnabled]
+  );
 
   useEffect(() => {
     setModals([
@@ -149,16 +156,16 @@ const GlobalMenuDrawer = ({
 
   const onNavigationItemClick = useCallback((navigationItem) => () => {
     hideDrawer();
-    dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: navigationItem.sidebarTab }));
-  }, [dispatch, hideDrawer]);
+    updateUserPreferences({ sidebarOpen: true, sidebarTab: navigationItem.sidebarTab });
+  }, [hideDrawer, updateUserPreferences]);
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
   const navigationItems = useMemo(() => [
     { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: 'Reports' },
-    { icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' },
+    ...(showPatrols ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' }] : []),
     { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: 'Map Layers' },
-  ], []);
+  ], [showPatrols]);
 
   return <div className={styles.globalMenuDrawer} data-testid="globalMenuDrawer">
     <div className={styles.header}>
@@ -216,6 +223,7 @@ GlobalMenuDrawer.propTypes = {
   serverData: PropTypes.shape({ version: PropTypes.string }).isRequired,
   tableauEnabled: PropTypes.bool.isRequired,
   token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
+  updateUserPreferences: PropTypes.func.isRequired,
   zendeskEnabled: PropTypes.bool.isRequired,
 };
 
@@ -229,4 +237,7 @@ const mapStateToProps = ({ data: { eventFilter, eventTypes, systemStatus, token 
   zendeskEnabled: systemConfig.zendeskEnabled,
 });
 
-export default connect(mapStateToProps, { addModal, fetchTableauDashboard, hideDrawer })(GlobalMenuDrawer);
+export default connect(
+  mapStateToProps,
+  { addModal, fetchTableauDashboard, hideDrawer, updateUserPreferences }
+)(GlobalMenuDrawer);
