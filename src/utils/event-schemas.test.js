@@ -130,14 +130,14 @@ describe('getSchemasForEventTypeByEventId', () => {
   });
 
 
-  test('returning a base schema if the id-bound schema is not present', () => {
+  test('returning a base schema if no event id is given', () => {
     const returnValue = getSchemasForEventTypeByEventId(mockData, 'whatever');
 
     expect(returnValue).toEqual({ testValue: 'howdy' });
 
   });
 
-  test('returning undefined if the schema is not present as a base schema nor an id-bound schema', () => {
+  test('returning undefined if the schema present neither as a base schema nor an id-bound schema', () => {
     const returnValue = getSchemasForEventTypeByEventId(mockData, 'whatever', 'bad_test_id');
 
     expect(returnValue).toBeUndefined();
