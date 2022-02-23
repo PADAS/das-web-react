@@ -1,4 +1,4 @@
-import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import React, { useContext, useMemo, memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Provider, connect } from 'react-redux';
 import ReactDOM from 'react-dom';
@@ -35,7 +35,7 @@ const IMAGE_DATA = {
 
 const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
-  const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
+  const popup = useMemo(() => new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false }), []);
 
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [clickedLayerID, setClickedLayerID] = useState('');
