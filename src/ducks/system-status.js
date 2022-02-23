@@ -105,7 +105,7 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   });
   dispatch({
     type: SET_GEOPERMISSIONS_ENABLED,
-    payload: true,
+    payload: data?.geoPermissionsEnabled ?? false, // change this line to "true" to test the functionality of appending 'location' params to map event requests
   });
   dispatch({
     type: SET_SITENAME,
@@ -326,7 +326,7 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   [FEATURE_FLAGS.KML_EXPORT]: false,
   [FEATURE_FLAGS.ALERTS]: false,
   [FEATURE_FLAGS.EULA]: false,
-  geoPermissionsEnabled: true,
+  geoPermissionsEnabled: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };

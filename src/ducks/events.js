@@ -346,12 +346,14 @@ export const cancelMapEventsFetch = () => {
 export const fetchMapEvents = (map) => async (dispatch, getState) => {
   try {
 
+    const state = getState();
+
     let lastKnownBbox;
     if (!map) {
-      lastKnownBbox = getState()?.data?.mapEvents?.bbox;
+      lastKnownBbox = state?.data?.mapEvents?.bbox;
     }
-    const geoPermissionsEnabled = getState()?.data?.systemStatus?.geoPermissionsEnabled;
-    const userLocaton = getState()?.view?.userLocation;
+    const geoPermissionsEnabled = state?.view?.systemConfig?.geoPermissionsEnabled;
+    const userLocaton = state?.view?.userLocation;
 
     if (!map && !lastKnownBbox) return Promise.reject('no map available');
 
@@ -389,7 +391,7 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
       });
   } catch (error) {
     if (error?.response?.status === 403) {
-      console.warn('unauthorized events access, now show a message about how location access is required and what to do to enable it'); // https://support.google.com/chrome/answer/142065
+      console.warn('unauthorized map events request based on current permissions'); // https://support.google.com/chrome/answer/142065
     }
     return Promise.reject(error);
   }
