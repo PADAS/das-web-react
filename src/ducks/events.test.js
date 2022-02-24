@@ -63,7 +63,7 @@ describe('fetchMapEvents', () => {
         return res(
           ctx.status(403),
           ctx.json({
-            errorMessage: 'Geo-permissions required to access this adata',
+            errorMessage: 'Geo-permissions required to access this data',
           }),
         );
       })
