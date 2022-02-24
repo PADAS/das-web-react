@@ -1,8 +1,4 @@
-// TODO: All comments in this file will be removed as part of the UFA navigation updates, but they are not included for
-// now so the new global menu drawer can be merged to develop and deployed individually. Everything could be
-// uncommented once we have the vertical navigation bar.
-
-import React, { lazy, useCallback, useEffect, /* useMemo, */ useState } from 'react';
+import React, { lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import getYear from 'date-fns/get_year';
 import PropTypes from 'prop-types';
@@ -17,17 +13,18 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { /* BREAKPOINTS, */ CLIENT_BUILD_VERSION, FEATURE_FLAGS } from '../constants';
+import { BREAKPOINTS, CLIENT_BUILD_VERSION, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { useFeatureFlag /* , useMatchMedia */ } from '../hooks';
+import { updateUserPreferences } from '../ducks/user-preferences';
+import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
-// import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
-// import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
-// import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
+import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import styles from './styles.module.scss';
 
@@ -53,13 +50,23 @@ const GlobalMenuDrawer = ({
   serverData,
   tableauEnabled,
   token,
+  updateUserPreferences,
   zendeskEnabled,
 }) => {
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
-  // const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
+
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+
+  const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const [modals, setModals] = useState([]);
+
+  const showPatrols = useMemo(
+    () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
+    [hasPatrolViewPermissions, patrolFlagEnabled]
+  );
 
   useEffect(() => {
     setModals([
@@ -147,13 +154,18 @@ const GlobalMenuDrawer = ({
     onModalClick(alertModal, ALERTS_CATEGORY);
   }, [onModalClick, token.access_token]);
 
+  const onNavigationItemClick = useCallback((navigationItem) => () => {
+    hideDrawer();
+    updateUserPreferences({ sidebarOpen: true, sidebarTab: navigationItem.sidebarTab });
+  }, [hideDrawer, updateUserPreferences]);
+
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
-  // const navigationItems = useMemo(() => [
-  //   { icon: <DocumentIcon />, title: 'Reports' },
-  //   { icon: <PatrolIcon />, title: 'Patrols' },
-  //   { icon: <LayersIcon />, title: 'Map Layers' },
-  // ], []);
+  const navigationItems = useMemo(() => [
+    { icon: <DocumentIcon />, sidebarTab: TAB_KEYS.REPORTS, title: 'Reports' },
+    ...(showPatrols ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: 'Patrols' }] : []),
+    { icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: 'Map Layers' },
+  ], [showPatrols]);
 
   return <div className={styles.globalMenuDrawer} data-testid="globalMenuDrawer">
     <div className={styles.header}>
@@ -164,15 +176,15 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {/* {!isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {!isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
-        onClick={() => console.log(`Click ${navigationItem.title}`)}
+        onClick={onNavigationItemClick(navigationItem)}
       >
         {navigationItem.icon}
         <span>{navigationItem.title}</span>
       </button>)}
-    </div>} */}
+    </div>}
 
     <div className={styles.content}>
       <div className={styles.section}>
@@ -211,6 +223,7 @@ GlobalMenuDrawer.propTypes = {
   serverData: PropTypes.shape({ version: PropTypes.string }).isRequired,
   tableauEnabled: PropTypes.bool.isRequired,
   token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
+  updateUserPreferences: PropTypes.func.isRequired,
   zendeskEnabled: PropTypes.bool.isRequired,
 };
 
@@ -224,4 +237,7 @@ const mapStateToProps = ({ data: { eventFilter, eventTypes, systemStatus, token 
   zendeskEnabled: systemConfig.zendeskEnabled,
 });
 
-export default connect(mapStateToProps, { addModal, fetchTableauDashboard, hideDrawer })(GlobalMenuDrawer);
+export default connect(
+  mapStateToProps,
+  { addModal, fetchTableauDashboard, hideDrawer, updateUserPreferences }
+)(GlobalMenuDrawer);
