@@ -1,7 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL } from '../constants';
+import { API_URL, FEATURE_FLAGS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
@@ -351,7 +351,7 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
     if (!map) {
       lastKnownBbox = getState()?.data?.mapEvents?.bbox;
     }
-    const geoPermissionsEnabled = getState()?.data?.systemStatus?.geoPermissionsEnabled;
+    const geoPermissionsEnabled = getState()?.view?.systemConfig?.[FEATURE_FLAGS.GEOPERMISSIONS];
     const userLocaton = getState()?.view?.userLocation;
 
     if (!map && !lastKnownBbox) return Promise.reject('no map available');

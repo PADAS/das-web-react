@@ -326,7 +326,7 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   [FEATURE_FLAGS.KML_EXPORT]: false,
   [FEATURE_FLAGS.ALERTS]: false,
   [FEATURE_FLAGS.EULA]: false,
-  geoPermissionsEnabled: true,
+  [FEATURE_FLAGS.GEOPERMISSIONS]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };
@@ -353,7 +353,7 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
     return { ...state, showTrackDays: payload, };
   }
   case (SET_GEOPERMISSIONS_ENABLED): {
-    return { ...state, geoPermissionsEnabled: payload };
+    return { ...state, [FEATURE_FLAGS.GEOPERMISSIONS]: payload };
   }
   case (SET_EULA_ENABLED): {
     return { ...state, [FEATURE_FLAGS.EULA]: payload, };
