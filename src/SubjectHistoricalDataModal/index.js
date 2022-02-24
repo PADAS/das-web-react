@@ -55,8 +55,8 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
 
   const getMatchedProperty = useCallback((labelToMatch, observationProperties) => {
     const matchedProp = observationProperties.find(prop =>  prop.label === labelToMatch);
-    if (!matchedProp) return 'No data';
-    return `${matchedProp.value} ${matchedProp.units}`;
+    if (!matchedProp) return <span className={styles.noDataLabel}>No data</span>;
+    return <span className={styles.propertyValue}>{`${matchedProp.value} ${matchedProp.units}`}</span>;
   }, []);
 
   return <>

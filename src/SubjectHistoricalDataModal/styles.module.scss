@@ -5,6 +5,7 @@
   flex-direction: column;
   align-items: center;
   padding: 0rem;
+  min-height: 12.5rem;
   
   table {
     margin-bottom: 0rem;
@@ -15,12 +16,22 @@
       font-size: 1rem;
       background-color: $medium-light-gray;
       color: $off-white;
-      font-weight: 400;
-
+      
       th {
+        font-weight: 400;
         border-top: none;
       }
     }
+  }
+
+  .noDataLabel {
+    color:$medium-light-gray;
+    font-size: 0.62rem;
+    font-style: italic;
+  }
+
+  .propertyValue {
+    font-weight: 500;
   }
 
   ul {
