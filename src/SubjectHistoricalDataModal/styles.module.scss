@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0rem;
   
   table {
     margin-bottom: 0rem;
@@ -12,12 +13,20 @@
     
     thead {
       font-size: 1rem;
+      background-color: $medium-light-gray;
+      color: $off-white;
+      font-weight: 400;
+
+      th {
+        border-top: none;
+      }
     }
   }
 
   ul {
     margin-top: 1.5rem;
     font-size: 0.75rem;
+    color: $off-white;
   }
 }
 
