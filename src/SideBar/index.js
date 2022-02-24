@@ -13,6 +13,7 @@ import { useFeatureFlag, usePermissions } from '../hooks';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
+import BadgeIcon from '../Badge';
 import ClearAllControl from '../ClearAllControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
@@ -45,7 +46,16 @@ const SideBar = ({ map }) => {
 
   const patrolFetchRef = useRef(null);
 
+  const [newestEventDateWhileReportsOpen, setNewestEventDateWhileReportsOpen] = useState(false);
+  const [currentNewestEventDate, setCurrentNewestEventDate] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
+
+  const showEventsBadge = useMemo(
+    () => sidebarOpen && sidebarTab === TAB_KEYS.REPORTS
+      ? false
+      : newestEventDateWhileReportsOpen !== currentNewestEventDate,
+    [currentNewestEventDate, newestEventDateWhileReportsOpen, sidebarOpen, sidebarTab]
+  );
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -71,6 +81,15 @@ const SideBar = ({ map }) => {
       return '';
     }
   }, [sidebarTab]);
+
+  const onNewestEventUpdateDateChange = useCallback((newestEventUpdateDate) => {
+    if (newestEventUpdateDate) {
+      if (sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
+        setNewestEventDateWhileReportsOpen(newestEventUpdateDate);
+      }
+      setCurrentNewestEventDate(newestEventUpdateDate);
+    }
+  }, [sidebarOpen, sidebarTab]);
 
   const fetchAndLoadPatrolData = useCallback(() => {
     patrolFetchRef.current = dispatch(fetchPatrols());
@@ -112,6 +131,7 @@ const SideBar = ({ map }) => {
         <Nav.Item>
           <Nav.Link eventKey={TAB_KEYS.REPORTS}>
             <DocumentIcon />
+            {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
             <span>Reports</span>
           </Nav.Link>
         </Nav.Item>
@@ -148,7 +168,11 @@ const SideBar = ({ map }) => {
         </div>
 
         <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-          <ReportsTab map={map} sidebarOpen={sidebarOpen} />
+          <ReportsTab
+          map={map}
+          onNewestEventUpdateDateChange={onNewestEventUpdateDateChange}
+          sidebarOpen={sidebarOpen}
+        />
         </Tab.Pane>
 
         <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>

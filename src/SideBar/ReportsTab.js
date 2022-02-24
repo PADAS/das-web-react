@@ -12,10 +12,10 @@ import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVE
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
+import { sortEventsBySortConfig } from '../utils/event-filter';
 import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
-import styles from './styles.module.scss';
 
 import DelayedUnmount from '../DelayedUnmount';
 import ErrorBoundary from '../ErrorBoundary';
@@ -24,10 +24,12 @@ import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
 
+import styles from './styles.module.scss';
+
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, } = props;
+  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, onNewestEventUpdateDateChange } = props;
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -57,6 +59,12 @@ const ReportsTab = (props) => {
         setEventLoadState(false);
       });
   }, [feedSort, fetchEventFeed, optionalFeedProps]);
+
+  useEffect(() => {
+    const newestEventUpdateDate = sortEventsBySortConfig(feedEvents, DEFAULT_EVENT_SORT)?.[0]?.updated_at;
+
+    onNewestEventUpdateDateChange(newestEventUpdateDate);
+  }, [feedEvents, onNewestEventUpdateDateChange]);
 
   useEffect(() => {
     loadFeedEvents();

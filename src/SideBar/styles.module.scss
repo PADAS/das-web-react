@@ -22,6 +22,7 @@
     height: 5.5rem;
 
     a {
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -49,6 +50,15 @@
   @media (min-width: $md-layout-width-min) {
     display: flex;
   }
+}
+
+.badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.5rem;
+  height: 0.75rem;
+  width: 0.75rem;
+  font-size: 0.625rem;
 }
 
 .tab {
