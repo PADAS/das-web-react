@@ -60,7 +60,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
   }, [geometry, subject, showPopup]);
 
   const onHistoricalDataClick = useCallback(() => {
-    addModal({ title: `${subject.name} Historial Data`, content: SubjectHistoricalDataModal, subjectId: subject.id });
+    addModal({ title: 'Historical Data', content: SubjectHistoricalDataModal, subjectId: subject.id });
   }, [addModal, subject]);
 
   const locationObject = {
@@ -118,7 +118,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
       )}
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
-    {device_status_properties.length && subjectIsStatic && <Button variant='link' size='sm' type='button' onClick={onHistoricalDataClick} >Show historical data</Button>}
+    {device_status_properties.length && subjectIsStatic && <Button data-testid='show-historical-data-btn'  variant='link' size='sm' type='button' onClick={onHistoricalDataClick} >Show historical data</Button>}
     {tracks_available && (
       <Fragment>
         <SubjectControls showMessageButton={false} showJumpButton={false} subject={subject} className={styles.trackControls} />
