@@ -5,6 +5,10 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  @media (min-width: $md-layout-width-min) {
+    min-width: 46rem;
+  }
 }
 
 .body {
