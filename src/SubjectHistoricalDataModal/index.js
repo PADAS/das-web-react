@@ -17,12 +17,27 @@ const { Header, Title, Body } = Modal;
 
 const ITEMS_PER_PAGE = 2;
 const DISPLAYED_PAGES_LIMIT = 5;
+const ELLIPSIS_PAGE_ITEM = '...';
 
 const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubject }) => {
   const [loading, setLoadState] = useState(true);
   const [subjectObservations, setSubjectObservations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [pageItems, setPageItems] = useState([]);
+
+  const getPages = useCallback(() => {
+    const pagesArray = tail(Array.from(Array(totalPages + 1).keys()));
+    console.log('%c pagesArray', 'font-size:20px;color:red;', pagesArray);
+    if (totalPages < DISPLAYED_PAGES_LIMIT) return pagesArray;
+
+    const halfOfDisplayedPages = Math.floor(DISPLAYED_PAGES_LIMIT / 2);
+    const halfOfTotalPages = Math.floor(totalPages / 2);
+
+    if (halfOfTotalPages <= halfOfDisplayedPages) return pagesArray;
+    console.log('%c pageItems ARRAY', 'font-size:20px;color:red;', [...pagesArray.slice(0, halfOfDisplayedPages), ...[ELLIPSIS_PAGE_ITEM], ...pagesArray.slice(-halfOfDisplayedPages, totalPages)]);
+    return [...pagesArray.slice(0, halfOfDisplayedPages), ...[ELLIPSIS_PAGE_ITEM], ...pagesArray.slice(-halfOfDisplayedPages, totalPages)];
+  }, [totalPages]);
 
   const fetchObservations = useCallback((page = 1) => {
     setLoadState(true);
@@ -31,14 +46,17 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
         setSubjectObservations(data.results);
         setTotalPages(Math.ceil(data.count / ITEMS_PER_PAGE));
         setLoadState(false);
+        const pages = getPages();
+        setPageItems(pages);
+        console.log('%c pageItems', 'font-size:20px;color:green;', getPages());
       });
-  }, [fetchObservationsForSubject, subjectId]);
+  }, [fetchObservationsForSubject, getPages, subjectId]);
 
   useEffect(() => {
     if (currentPage === 1) fetchObservations();
   }, [currentPage, fetchObservations, subjectId]);
 
-  const onPageClick = useCallback(async (page) => {
+  const onPageClick = useCallback((page) => {
     fetchObservations(page);
     setCurrentPage(page);
   }, [fetchObservations]);
@@ -77,14 +95,11 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
       </Table>
       <Pagination size="sm">
         {totalPages > DISPLAYED_PAGES_LIMIT && currentPage > 1 && <Pagination.Prev onClick={() => onPageClick(currentPage - 1)}/>}
-        {tail(Array.from(Array(totalPages + 1).keys())).map((number) =>
-          <Pagination.Item key={number} active={number === currentPage} onClick={() => onPageClick(number)}>
-            {number}
-          </Pagination.Item>)}
-        {totalPages > DISPLAYED_PAGES_LIMIT && <Pagination.Ellipsis />}
-        {totalPages > DISPLAYED_PAGES_LIMIT && <Pagination.Item active={totalPages === currentPage} onClick={() => onPageClick(totalPages)}>
-          {totalPages}
-        </Pagination.Item>}
+        {pageItems.map((item) => {
+          return (item === ELLIPSIS_PAGE_ITEM) ? <Pagination.Ellipsis key={item} /> : <Pagination.Item key={item} active={item === currentPage} onClick={() => onPageClick(item)}>{item}</Pagination.Item>;
+        }
+          // <Pagination.Item key={item} active={item === currentPage} onClick={() => onPageClick(item)}>{item}</Pagination.Item>
+        )}
         {totalPages > DISPLAYED_PAGES_LIMIT && totalPages > currentPage && <Pagination.Next onClick={() => onPageClick(currentPage + 1)}/>}
       </Pagination>
     </Body>
