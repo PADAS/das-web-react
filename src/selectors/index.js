@@ -167,11 +167,6 @@ export const getFeatureSetFeatureCollectionsByType = createSelector(
   },
 );
 
-export const getReportFormSchemaData = createSelector(
-  [getReportSchemas],
-  ({ schema, uiSchema }) => ({ schema, uiSchema }),
-);
-
 const symbolFeatureTypes = ['Point', 'MultiPoint'];
 const lineFeatureTypes = ['LineString', 'Polygon', 'MultiLineString', 'MultiPolygon'];
 const fillFeatureTypes = ['Polygon', 'MultiPolygon'];
