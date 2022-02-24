@@ -7,16 +7,14 @@ import { clearAuth } from '../ducks/auth';
 import { setHomeMap } from '../ducks/maps';
 import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
+import { useMatchMedia, usePermissions } from '../hooks';
 
-import { usePermissions } from '../hooks';
-
-import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
+import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
-import EarthRangerLogo from '../EarthRangerLogo';
 import DataExportMenu from '../DataExportMenu';
-import SystemStatusComponent from '../SystemStatus';
+import SystemStatus from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
 
 import './Nav.scss';
@@ -40,6 +38,7 @@ const Nav = ({
   user,
   userProfiles,
 }) => {
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const onHomeMapSelect = (chosenMap) => {
@@ -81,8 +80,8 @@ const Nav = ({
 
   return <nav className="primary-nav">
     <div className="left-controls">
-      <SystemStatusComponent />
-      <EarthRangerLogo className="logo" />
+      <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
+      {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
     {!!maps.length &&
@@ -94,6 +93,7 @@ const Nav = ({
       />}
 
     <div className="rightMenus">
+      {!!isMediumLayoutOrLarger && <SystemStatus />}
       {!!canViewMessages && <MessageMenu />}
       <NotificationMenu />
       <UserMenu
@@ -104,7 +104,6 @@ const Nav = ({
         onLogOutClick={clearAuth}
       />
       <div className="alert-menu"></div>
-      <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
     </div>
   </nav>;
 };
