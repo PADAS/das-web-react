@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
-import Pagination from 'react-bootstrap/Pagination';
-import tail from 'lodash/tail';
+import Pagination from 'react-js-pagination';
+import unionBy from 'lodash/unionBy';
+import flatten from 'lodash/flatten';
+import startCase from 'lodash/startCase';
 
 import { fetchObservationsForSubject } from '../ducks/observations';
 import { removeModal } from '../ducks/modals';
@@ -15,51 +17,47 @@ import styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 10;
 const DISPLAYED_PAGES_LIMIT = 5;
-const ELLIPSIS_PAGE_ITEM = '...';
 
 const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubject }) => {
   const [loading, setLoadState] = useState(true);
   const [subjectObservations, setSubjectObservations] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageItems, setPageItems] = useState([]);
+  const [observationsCount, setObservationsCount] = useState(1);
+  const [observationProperties, setObservationProperties] = useState([]);
+  const [activePage, setActivePage] = useState(1);
 
-  const getPages = useCallback(() => {
-    const pagesArray = tail(Array.from(Array(totalPages + 1).keys()));
-    console.log('%c pagesArray', 'font-size:20px;color:red;', pagesArray);
-    if (totalPages < DISPLAYED_PAGES_LIMIT) return pagesArray;
-
-    const halfOfDisplayedPages = Math.floor(DISPLAYED_PAGES_LIMIT / 2);
-    const halfOfTotalPages = Math.floor(totalPages / 2);
-
-    if (halfOfTotalPages <= halfOfDisplayedPages) return pagesArray;
-    console.log('%c pageItems ARRAY', 'font-size:20px;color:red;', [...pagesArray.slice(0, halfOfDisplayedPages), ...[ELLIPSIS_PAGE_ITEM], ...pagesArray.slice(-halfOfDisplayedPages, totalPages)]);
-    return [...pagesArray.slice(0, halfOfDisplayedPages), ...[ELLIPSIS_PAGE_ITEM], ...pagesArray.slice(-halfOfDisplayedPages, totalPages)];
-  }, [totalPages]);
+  const getObservationUniqProperties = useCallback((observations) => {
+    const observationsDeviceProperties = observations.map(result => result.device_status_properties);
+    const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
+    return uniqPropertiesByLabel.map(property => property.label);
+  }, []);
 
   const fetchObservations = useCallback((page = 1) => {
     setLoadState(true);
     fetchObservationsForSubject(subjectId, { page: page, page_size: ITEMS_PER_PAGE })
       .then((data) => {
         setSubjectObservations(data.results);
-        setTotalPages(Math.ceil(data.count / ITEMS_PER_PAGE));
+        setObservationsCount(data.count);
         setLoadState(false);
-        const pages = getPages();
-        setPageItems(pages);
-        console.log('%c pageItems', 'font-size:20px;color:green;', getPages());
+        setObservationProperties(getObservationUniqProperties(data.results));
       });
-  }, [fetchObservationsForSubject, getPages, subjectId]);
+  }, [fetchObservationsForSubject, getObservationUniqProperties, subjectId]);
 
   useEffect(() => {
-    if (currentPage === 1) fetchObservations();
-  }, [currentPage, fetchObservations, subjectId]);
+    if (activePage === 1) fetchObservations();
+  }, [activePage, fetchObservations]);
 
-  const onPageClick = useCallback((page) => {
+  const onPageClick = useCallback(async (page) => {
     fetchObservations(page);
-    setCurrentPage(page);
+    setActivePage(page);
   }, [fetchObservations]);
+
+  const getMatchedProperty = useCallback((labelToMatch, observationProperties) => {
+    const matchedProp = observationProperties.find(prop =>  prop.label === labelToMatch);
+    if (!matchedProp) return 'No data';
+    return `${matchedProp.value} ${matchedProp.units}`;
+  }, []);
 
   return <>
     <Header closeButton>
@@ -71,37 +69,27 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
         <thead>
           <tr>
             <th>Date</th>
-            <th>Properties</th>
+            {observationProperties.map(property => <th key={property}>{startCase(property)}</th>)}
           </tr>
         </thead>
         <tbody>
-          {subjectObservations.map(({ id, recorded_at, observation_details }) =>
+          {subjectObservations.map(({ id, recorded_at, device_status_properties }) =>
             <tr key={id}>
               <td><DateTime className={styles.dateTime} date={recorded_at}/></td>
-              <td>
-                <Table className={styles.detailsTable} borderless responsive size="sm">
-                  <tbody>
-                    <tr>
-                      {Object.keys(observation_details).map(observationKey =>
-                        <td key={`${id}-${observationKey}`}>{`${observationKey}: ${observation_details[observationKey]}`}</td>
-                        )}
-                    </tr>
-                  </tbody>
-                </Table>
-              </td>
+              {observationProperties.map(property => <td key={property}>{getMatchedProperty(property, device_status_properties)}</td>)}
             </tr>
             )}
         </tbody>
       </Table>
-      <Pagination size="sm">
-        {totalPages > DISPLAYED_PAGES_LIMIT && currentPage > 1 && <Pagination.Prev onClick={() => onPageClick(currentPage - 1)}/>}
-        {pageItems.map((item) => {
-          return (item === ELLIPSIS_PAGE_ITEM) ? <Pagination.Ellipsis key={item} /> : <Pagination.Item key={item} active={item === currentPage} onClick={() => onPageClick(item)}>{item}</Pagination.Item>;
-        }
-          // <Pagination.Item key={item} active={item === currentPage} onClick={() => onPageClick(item)}>{item}</Pagination.Item>
-        )}
-        {totalPages > DISPLAYED_PAGES_LIMIT && totalPages > currentPage && <Pagination.Next onClick={() => onPageClick(currentPage + 1)}/>}
-      </Pagination>
+      {observationsCount > ITEMS_PER_PAGE && <Pagination
+        activePage={activePage}
+        itemsCountPerPage={ITEMS_PER_PAGE}
+        totalItemsCount={observationsCount}
+        pageRangeDisplayed={DISPLAYED_PAGES_LIMIT}
+        onChange={onPageClick}
+        linkClass="page-link"
+        itemClass="page-item"
+      />}
     </Body>
   </>;
 };

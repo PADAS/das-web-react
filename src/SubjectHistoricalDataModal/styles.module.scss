@@ -1,17 +1,31 @@
+@import '../common/styles/vars/colors';
+
 .modalBody {
   display: flex;
   flex-direction: column;
   align-items: center;
+  
+  table {
+    margin-bottom: 0rem;
+    color: $dark-gray;
+    font-size: 0.87rem;
+    
+    thead {
+      font-size: 1rem;
+    }
+  }
+
+  ul {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+  }
 }
 
 .dateTime {
   span:first-child{
-    font-size: 0.87rem;
+    font-size: 0.75rem;
     font-style: normal;
-    font-weight: 400;
+    font-weight: 500;
+    color: $dark-gray;
   }
-}
-
-.detailsTable {
-  margin-bottom: 0rem;
 }
