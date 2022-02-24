@@ -353,7 +353,7 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
     return { ...state, showTrackDays: payload, };
   }
   case (SET_GEOPERMISSIONS_ENABLED): {
-    return { ...state, geoPermissionsEnabled: payload };
+    return { ...state, geoPermissionsEnabled: true /* payload */ };
   }
   case (SET_EULA_ENABLED): {
     return { ...state, [FEATURE_FLAGS.EULA]: payload, };
