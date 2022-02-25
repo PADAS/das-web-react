@@ -204,46 +204,6 @@ export const fetchObservationsForSubject = (params = {}) =>
                   'units': 'c',
                   'value': 1000
                 },
-                // {
-                //   'label': 'color',
-                //   'units': '',
-                //   'value': 'red'
-                // },
-                // {
-                //   'label': 'gate',
-                //   'units': '',
-                //   'value': 'open'
-                // },
-                // {
-                //   'label': 'animals',
-                //   'units': '',
-                //   'value': 3
-                // },
-                // {
-                //   'label': 'fruits',
-                //   'units': '',
-                //   'value': 3
-                // },
-                // {
-                //   'label': 'weather',
-                //   'units': 'c',
-                //   'value': 20
-                // },
-                // {
-                //   'label': 'gas',
-                //   'units': 'lts',
-                //   'value': 30
-                // },
-                // {
-                //   'label': 'battery',
-                //   'units': '%',
-                //   'value': 30
-                // },
-                // {
-                //   'label': 'water',
-                //   'units': 'lts',
-                //   'value': 20
-                // }
               ]
             }
           ]
