@@ -35,7 +35,7 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
 
   const fetchObservations = useCallback((page = 1) => {
     setLoadState(true);
-    fetchObservationsForSubject(subjectId, { page: page, page_size: ITEMS_PER_PAGE })
+    fetchObservationsForSubject({ subject_id: subjectId, page: page, page_size: ITEMS_PER_PAGE })
       .then((data) => {
         setSubjectObservations(data.results);
         setObservationsCount(data.count);

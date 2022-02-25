@@ -33,7 +33,7 @@ describe('SubjectHistoricalDataModal', () => {
       <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
     </Provider>);
 
-    expect(fetchObservationsForSubject).toHaveBeenCalledWith('fake-id', { 'page': 1, 'page_size': ITEMS_PER_PAGE });
+    expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id' });
   });
 
   describe('rendering table correctly', () => {
@@ -98,7 +98,7 @@ describe('SubjectHistoricalDataModal', () => {
         <SubjectHistoricalDataModal title='Historical data' subjectId='fake-id' fetchObservationsForSubject/>
       </Provider>);
 
-      expect(fetchObservationsForSubject).toHaveBeenCalledWith('fake-id', { 'page': 1, 'page_size': ITEMS_PER_PAGE });
+      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 1, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id' });
 
       await waitFor(() => {
         paginationListItems = screen.getAllByRole('listitem');
@@ -108,7 +108,7 @@ describe('SubjectHistoricalDataModal', () => {
       expect(pageLink).toHaveTextContent('2');
       userEvent.click(pageLink);
 
-      expect(fetchObservationsForSubject).toHaveBeenCalledWith('fake-id', { 'page': 2, 'page_size': ITEMS_PER_PAGE });
+      expect(fetchObservationsForSubject).toHaveBeenCalledWith({ 'page': 2, 'page_size': ITEMS_PER_PAGE, 'subject_id': 'fake-id' });
     });
   });
 });
