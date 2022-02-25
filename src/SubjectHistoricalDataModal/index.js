@@ -17,8 +17,14 @@ import styles from './styles.module.scss';
 
 const { Header, Title, Body } = Modal;
 
-const ITEMS_PER_PAGE = 10;
-const DISPLAYED_PAGES_LIMIT = 5;
+export const ITEMS_PER_PAGE = 10;
+export const DISPLAYED_PAGES_LIMIT = 5;
+
+export const getObservationUniqProperties = (observations) => {
+  const observationsDeviceProperties = observations.map(result => result.device_status_properties);
+  const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
+  return uniqPropertiesByLabel.map(property => property.label);
+};
 
 const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubject }) => {
   const [loading, setLoadState] = useState(true);
@@ -26,12 +32,6 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
   const [observationsCount, setObservationsCount] = useState(1);
   const [observationProperties, setObservationProperties] = useState([]);
   const [activePage, setActivePage] = useState(1);
-
-  const getObservationUniqProperties = useCallback((observations) => {
-    const observationsDeviceProperties = observations.map(result => result.device_status_properties);
-    const uniqPropertiesByLabel = unionBy(flatten(observationsDeviceProperties), 'label');
-    return uniqPropertiesByLabel.map(property => property.label);
-  }, []);
 
   const fetchObservations = useCallback((page = 1) => {
     setLoadState(true);
@@ -42,7 +42,7 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
         setLoadState(false);
         setObservationProperties(getObservationUniqProperties(data.results));
       });
-  }, [fetchObservationsForSubject, getObservationUniqProperties, subjectId]);
+  }, [fetchObservationsForSubject, subjectId]);
 
   useEffect(() => {
     if (activePage === 1) fetchObservations();
@@ -64,7 +64,7 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
       <Title>{title}</Title>
     </Header>
     <Body className={styles.modalBody}>
-      {loading &&<LoadingOverlay />}
+      {loading && <LoadingOverlay/>}
       <Table bordered hover responsive size="sm">
         <thead>
           <tr>
