@@ -25,7 +25,11 @@ const calcBadgeColorFromStatus = status => {
 
 const BadgeIcon = (props) => {
   const { count, status, className, ...rest } = props;
-  return <span className={`${styles[calcBadgeColorFromStatus(status)]} ${styles.badge} ${className}`} {...rest}>
+  return <span
+    className={`${styles[calcBadgeColorFromStatus(status)]} ${styles.badge} ${className}`}
+    data-testid="badgeIcon"
+    {...rest}
+    >
     {count && <span>{count}</span>}
   </span>;
 };

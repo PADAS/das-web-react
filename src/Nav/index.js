@@ -4,19 +4,19 @@ import { withRouter } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
+import { globalMenuDrawerId } from '../Drawer';
 import { setHomeMap } from '../ducks/maps';
+import { showDrawer } from '../ducks/drawer';
 import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
+import { useMatchMedia, usePermissions } from '../hooks';
 
-import { usePermissions } from '../hooks';
+import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
-import { MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
-
+import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
-import EarthRangerLogo from '../EarthRangerLogo';
-import DataExportMenu from '../DataExportMenu';
-import SystemStatusComponent from '../SystemStatus';
+import SystemStatus from '../SystemStatus';
 import NotificationMenu from '../NotificationMenu';
 
 import './Nav.scss';
@@ -35,11 +35,13 @@ const Nav = ({
   map,
   maps,
   setHomeMap,
+  showDrawer,
   selectedUserProfile,
   setUserProfile,
   user,
   userProfiles,
 }) => {
+  const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
   const onHomeMapSelect = (chosenMap) => {
@@ -81,8 +83,8 @@ const Nav = ({
 
   return <nav className="primary-nav">
     <div className="left-controls">
-      <SystemStatusComponent />
-      <EarthRangerLogo className="logo" />
+      <HamburgerMenuIcon className="global-menu-button" onClick={() => showDrawer(globalMenuDrawerId)} />
+      {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
     {!!maps.length &&
@@ -94,6 +96,7 @@ const Nav = ({
       />}
 
     <div className="rightMenus">
+      {!!isMediumLayoutOrLarger && <SystemStatus />}
       {!!canViewMessages && <MessageMenu />}
       <NotificationMenu />
       <UserMenu
@@ -104,7 +107,6 @@ const Nav = ({
         onLogOutClick={clearAuth}
       />
       <div className="alert-menu"></div>
-      <DataExportMenu title="Toggle the data export menu" className="data-export-menu" />
     </div>
   </nav>;
 };
@@ -114,5 +116,5 @@ const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile
 
 export default connect(
   mapStatetoProps,
-  { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, fetchCurrentUserProfiles, setUserProfile }
+  { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
 )(memo(withRouter(Nav)));
