@@ -170,7 +170,11 @@
 }
 
 .historicalDataButton {
-  margin-top: 0.5rem
+  margin-top: 0.5rem;
+  
+  &:focus {
+    box-shadow: none;
+  }
 }
 
 .trackControls {
