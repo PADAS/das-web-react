@@ -297,7 +297,7 @@ const EventFilter = (props) => {
         <Button type="button" variant='light' size='sm' disabled={!priorityFilterModified} onClick={resetPriorityFilter}>Reset</Button>
       </div>
       <div className={styles.filterRow}>
-        <UserIcon />
+        <UserIcon className={styles.userIcon} />
         <ReportedBySelect className={styles.reportedBySelect} value={selectedReporters} onChange={onReportedByChange} isMulti={true} />
         <Button type="button" variant='light' size='sm' disabled={!reportedByFilterModified} onClick={resetReportedByFilter}>Reset</Button>
       </div>

@@ -10,7 +10,7 @@
   background-color: white;
   overflow-x: hidden;
   transform: translate3d(100%, 0px, 0px);
-  transition-duration: 750ms;
+  transition: transform 0.4s linear;
 
   &[class*=direction-left] {
     left: 0;
