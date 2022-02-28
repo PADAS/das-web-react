@@ -132,16 +132,18 @@ const SideBar = (props) => {
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
-    setPatrolLoadState(true);
-    fetchAndLoadPatrolData();
-    return () => {
-      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+    if (showPatrols) {
+      setPatrolLoadState(true);
+      fetchAndLoadPatrolData();
+      return () => {
+        const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
 
-      if (priorRequestCancelToken) {
-        priorRequestCancelToken.cancel();
-      }
-    };
-  }, [fetchAndLoadPatrolData, patrolFilterParams]);
+        if (priorRequestCancelToken) {
+          priorRequestCancelToken.cancel();
+        }
+      };
+    }
+  }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   if (!map) return null;
 

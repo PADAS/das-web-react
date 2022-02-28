@@ -72,6 +72,7 @@ import MapSettingsControl from '../MapSettingsControl';
 import PatrolTracks from '../PatrolTracks';
 import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
+import GeoLocationWatcher from '../GeoLocationWatcher';
 
 import './Map.scss';
 

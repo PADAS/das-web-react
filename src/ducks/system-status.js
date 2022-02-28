@@ -105,7 +105,7 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   });
   dispatch({
     type: SET_GEOPERMISSIONS_ENABLED,
-    payload: true,
+    payload: data?.geoPermissionsEnabled ?? false, // change this line to "true" to test the functionality of appending 'location' params to map event requests
   });
   dispatch({
     type: SET_SITENAME,
