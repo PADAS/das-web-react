@@ -50,7 +50,7 @@ const DetectOffline = () => {
               EarthRanger may not function as expected.
               Please check your network connection.</p>
           </div>, {
-            autoClose: false,
+            autoClose: 10000,
             closeOnClick: false,
             type: toast.TYPE.INFO,
             onClose: onToastClose,

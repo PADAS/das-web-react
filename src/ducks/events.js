@@ -408,6 +408,8 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
       cancelToken: generateNewCancelToken(),
     });
 
+    showErrorToast({ message: 'geo permissions error', details: 'neato', toastConfig: { autoClose: false, closeOnClick: false  } });
+
     return recursivePaginatedQuery(request, onEachRequest)
       .then((finalResults) =>
         finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
