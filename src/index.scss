@@ -43,7 +43,7 @@ $toastify-mq: only screen and (min-width: 481px); // using pixel values here, wh
 
 @media #{$toastify-mq} {
   .Toastify__toast-container {
-    --width: 28rem;
+    --width: 30rem;
     width: var(--width);
     &[class*=center] {
       margin-left: calc((var(--width)/2) * -1);

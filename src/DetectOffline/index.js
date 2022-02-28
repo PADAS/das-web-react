@@ -1,5 +1,7 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
-import { toast, Slide } from 'react-toastify';
+import { toast } from 'react-toastify';
+
+import { DEFAULT_TOAST_CONFIG } from '../constants';
 
 const DetectOffline = () => {
   const [isOnline, setNetwork] = useState(window.navigator.onLine);
@@ -50,9 +52,9 @@ const DetectOffline = () => {
           </div>, {
             autoClose: false,
             closeOnClick: false,
+            type: toast.TYPE.INFO,
             onClose: onToastClose,
-            position: toast.POSITION.TOP_CENTER,
-            transition: Slide,
+            ...DEFAULT_TOAST_CONFIG,
           });
         }, 2000);
     };

@@ -269,7 +269,7 @@ export const GEOLOCATOR_OPTIONS = {
 };
 
 export const DEFAULT_TOAST_CONFIG = {
-  position: TOAST_POSITIONS.TOP_CENTER,
+  position: TOAST_POSITIONS.TOP_LEFT,
   transition: Slide,
 };
 
