@@ -53,8 +53,6 @@ describe('fetchMapEvents', () => {
 
     expect(axios.get).toHaveBeenCalledTimes(1);
 
-    console.log('axios.get.mock.calls[0][0]', axios.get.mock.calls[0][0]);
-
     expect(axios.get.mock.calls[0][0].includes('location')).toBeTruthy();
   });
   test('handling 403 Forbidden errors for geo-permission-restricted users', () => {

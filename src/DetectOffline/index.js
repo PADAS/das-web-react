@@ -51,8 +51,7 @@ const DetectOffline = () => {
               Please check your network connection.</p>
           </div>, {
             autoClose: 10000,
-            closeOnClick: false,
-            type: toast.TYPE.INFO,
+            type: toast.TYPE.ERROR,
             onClose: onToastClose,
             ...DEFAULT_TOAST_CONFIG,
           });

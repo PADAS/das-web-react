@@ -4,14 +4,10 @@ import { toast } from 'react-toastify';
 
 import { DEFAULT_TOAST_CONFIG } from '../constants';
 
-import ErrorMessage from '../ErrorMessage';
+import ToastBody from '../ToastBody';
 
-export default (content, config = {}) => toast(content, {
-  ...DEFAULT_TOAST_CONFIG, ...config,
-});
-
-export const showErrorToast = ({ message, variant, details, toastConfig = {}, }) => {
-  toast(<ErrorMessage message={message} details={details} variant={variant} />, {
+export const showToast = ({ message, link, details, toastConfig = {}, }) => {
+  toast(<ToastBody message={message} link={link} details={details} />, {
     ...DEFAULT_TOAST_CONFIG,
     type: toast.TYPE.ERROR,
     ...toastConfig,

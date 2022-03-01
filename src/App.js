@@ -3,6 +3,7 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
+import { toast } from 'react-toastify';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
@@ -10,6 +11,8 @@ import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
+import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
+import { userIsGeoPermissionRestricted } from './utils/user';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
@@ -33,7 +36,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 //
 
 import './App.scss';
-import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
+import { showToast } from './utils/toast';
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
@@ -74,7 +77,7 @@ const animateResize = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
+    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength, userIsGeoPermissionRestricted } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -177,6 +180,16 @@ const App = (props) => {
     }
   }, [map, sidebarOpen]);
 
+  useEffect(() => {
+    if (userIsGeoPermissionRestricted) {
+      showToast({
+        message: 'Some data will only be displayed when you are near its location.',
+        details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
+        link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
+        toastConfig: { type: toast.TYPE.INFO, autoClose: false } });
+    }
+  }, [userIsGeoPermissionRestricted]);
+
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
       <PrintTitle />
@@ -205,7 +218,7 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
+const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen, userIsGeoPermissionRestricted: userIsGeoPermissionRestricted(user) });
 const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 const AppWithSocketContext = () => <WithSocketContext>

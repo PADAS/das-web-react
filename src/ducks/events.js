@@ -10,7 +10,7 @@ import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter, eventsApiErrorIsGeoPermissionsRelated } from '../utils/events';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { showErrorToast } from '../utils/toast';
+import { showToast } from '../utils/toast';
 
 
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
@@ -408,8 +408,6 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
       cancelToken: generateNewCancelToken(),
     });
 
-    showErrorToast({ message: 'geo permissions error', details: 'neato', toastConfig: { autoClose: false, closeOnClick: false  } });
-
     return recursivePaginatedQuery(request, onEachRequest)
       .then((finalResults) =>
         finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
@@ -420,7 +418,7 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
       });
   } catch (error) {
     if (eventsApiErrorIsGeoPermissionsRelated(error)) {
-      showErrorToast({ message: 'geo permissions error', details: 'neato' });
+      showToast({ message: 'geo permissions error', details: 'neato' });
     }
     return Promise.reject(error);
   }

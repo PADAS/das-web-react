@@ -89,8 +89,8 @@ describe('listing news items', () => {
         userNotifications: [
           {
             message: 'howdy doody',
-            onConfirm: jest.fn(() => console.log('CONFIRM_CLICK')),
-            onDismiss: jest.fn(() => console.log('DISMISS_CLICK')),
+            onConfirm: jest.fn(),
+            onDismiss: jest.fn(),
           }
         ]
       }
