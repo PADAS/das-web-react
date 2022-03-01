@@ -29,13 +29,8 @@ import ServiceWorkerWatcher from './ServiceWorkerWatcher';
 import WithSocketContext, { SocketContext } from './withSocketConnection';
 import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/event-svg-sprite.svg';
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-//  import ErrorBoundary from './ErrorBoundary';
-//
 
 import './App.scss';
-import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
-
-const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -74,7 +69,7 @@ const animateResize = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
+    sidebarOpen, updateNetworkStatus, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -95,12 +90,6 @@ const App = (props) => {
   const finishDrag = useCallback(() => {
     setDragState(false);
   }, []);
-
-  const onSidebarHandleClick = useCallback(() => {
-    updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
-  }, [sidebarOpen, updateUserPreferences]);
-
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
@@ -184,8 +173,8 @@ const App = (props) => {
       <Nav map={map} />
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        {!!map && <SideBar map={map} />}
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar onHandleClick={onSidebarHandleClick} map={map} />}
         <ModalRenderer map={map} />
       </div>
 

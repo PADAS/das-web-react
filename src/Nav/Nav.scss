@@ -9,7 +9,7 @@
   display: flex;
   height: var(--nav-height);
   justify-content: space-between;
-  padding: 0 0.5rem;
+  padding: 0 1rem;
   position: relative;
   width: 100vw;
   z-index: 2;
@@ -29,32 +29,17 @@
     display: flex;
     justify-content: flex-start;
     max-width: 9rem;
-    .dropdown-menu {
-      margin-top: 0.65rem;
-    }
     .dropdown-item {
       padding: 1rem;
-    }
-  }
-  .logo {
-    margin-left: 0.25rem;
-    max-height: calc(var(--nav-height) - 2rem);
-    opacity: 0.75;
-    @media (min-width: $md-layout-width-min) {
-      margin-left: 0.75rem;
-      max-height: var(--nav-height);
     }
   }
   .rightMenus {
     align-items: center;
     display: flex;
     justify-content: flex-end;
-    .dropdown-menu {
-      margin-top: 0.333rem;
-    }
   }
-  .data-export-menu {
-    margin-left: 1rem;
+  .global-menu-button {
+    margin-left: 0.5rem;
   }
   .dropdown.show {
     max-width: 95vw;

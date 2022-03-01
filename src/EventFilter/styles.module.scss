@@ -87,16 +87,6 @@ div.filterPopover {
   max-width: 29rem;
   width: 90vw;
 
-  &[class*=bs-popover-bottom] {
-    @media (min-width: $lg-layout-width-min) {
-      margin-left: -5rem;
-
-      > [class*=arrow] {
-        margin-left: 5rem;
-      }
-    }
-  }
-
   [class*=popover-body] {
     overflow: hidden;
     padding: 0;
@@ -344,4 +334,9 @@ div.filterPopover {
   margin: 0.5rem 0 0.5rem;
   transition: 0.3s all linear;
   width: 73.5%;
+}
+
+.userIcon {
+  height: 1.5rem;
+  color: $medium-light-gray;
 }

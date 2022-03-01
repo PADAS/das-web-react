@@ -288,7 +288,7 @@ export const metersPerPixel = (lat, zoom) => {
 export const calculatePopoverPlacement = async (map, popoverLocation) => {
   if (!map || !popoverLocation) return 'auto';
 
-  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
+  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.8;
 
   const mapBounds = await waitForMapBounds(map);
   const mapRelativeWidth = mapBounds._ne.lng - mapBounds._sw.lng;
@@ -296,11 +296,20 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
   const popoverRelativeCoordinateX = popoverLocation.lng - mapBounds._sw.lng;
   const popoverRelativeCoordinateY = popoverLocation.lat - mapBounds._ne.lat;
 
-  if (popoverRelativeCoordinateX / mapRelativeWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  const popoverXPlacementRatio = popoverRelativeCoordinateX / mapRelativeWidth;
+  const popoverYPlacementRatio = popoverRelativeCoordinateY / mapRelativeHeight;
+
+  if (popoverXPlacementRatio > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'left';
   }
-  if (popoverRelativeCoordinateY / mapRelativeHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if ((1 - popoverXPlacementRatio) > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'right';
+  }
+  if (popoverYPlacementRatio > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'top';
+  }
+  if ((1 - popoverYPlacementRatio) > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'bottom';
   }
   return 'auto';
 };
