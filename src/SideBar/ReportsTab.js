@@ -29,8 +29,9 @@ import styles from './styles.module.scss';
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, onNewestEventUpdateDateChange } = props;
+  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, onFeedEventsChange } = props;
 
+  const [mostRecentEventUpdateDate, setMostRecentEventUpdateDate] = useState(null);
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -61,10 +62,14 @@ const ReportsTab = (props) => {
   }, [feedSort, fetchEventFeed, optionalFeedProps]);
 
   useEffect(() => {
-    const newestEventUpdateDate = sortEventsBySortConfig(feedEvents, DEFAULT_EVENT_SORT)?.[0]?.updated_at;
-
-    onNewestEventUpdateDateChange(newestEventUpdateDate);
-  }, [feedEvents, onNewestEventUpdateDateChange]);
+    const newMostRecentEventUpdateDate = sortEventsBySortConfig(feedEvents, DEFAULT_EVENT_SORT)?.[0]?.updated_at;
+    if (!!newMostRecentEventUpdateDate) {
+      if (mostRecentEventUpdateDate !== null && mostRecentEventUpdateDate !== newMostRecentEventUpdateDate) {
+        onFeedEventsChange();
+      }
+      setMostRecentEventUpdateDate(newMostRecentEventUpdateDate);
+    }
+  }, [feedEvents, mostRecentEventUpdateDate, onFeedEventsChange]);
 
   useEffect(() => {
     loadFeedEvents();

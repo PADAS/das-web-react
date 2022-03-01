@@ -46,16 +46,8 @@ const SideBar = ({ map }) => {
 
   const patrolFetchRef = useRef(null);
 
-  const [newestEventDateWhileReportsOpen, setNewestEventDateWhileReportsOpen] = useState(false);
-  const [currentNewestEventDate, setCurrentNewestEventDate] = useState(false);
   const [loadingPatrols, setPatrolLoadState] = useState(false);
-
-  const showEventsBadge = useMemo(
-    () => sidebarOpen && sidebarTab === TAB_KEYS.REPORTS
-      ? false
-      : newestEventDateWhileReportsOpen !== currentNewestEventDate,
-    [currentNewestEventDate, newestEventDateWhileReportsOpen, sidebarOpen, sidebarTab]
-  );
+  const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -82,12 +74,9 @@ const SideBar = ({ map }) => {
     }
   }, [sidebarTab]);
 
-  const onNewestEventUpdateDateChange = useCallback((newestEventUpdateDate) => {
-    if (newestEventUpdateDate) {
-      if (sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
-        setNewestEventDateWhileReportsOpen(newestEventUpdateDate);
-      }
-      setCurrentNewestEventDate(newestEventUpdateDate);
+  const onFeedEventsChange = useCallback(() => {
+    if (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen) {
+      setShowEventsBadge(true);
     }
   }, [sidebarOpen, sidebarTab]);
 
@@ -105,6 +94,12 @@ const SideBar = ({ map }) => {
   const onSelectTab = useCallback((sidebarTab) => {
     dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab }));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
+      setShowEventsBadge(false);
+    }
+  }, [sidebarOpen, sidebarTab]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -170,7 +165,7 @@ const SideBar = ({ map }) => {
         <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
           <ReportsTab
           map={map}
-          onNewestEventUpdateDateChange={onNewestEventUpdateDateChange}
+          onFeedEventsChange={onFeedEventsChange}
           sidebarOpen={sidebarOpen}
         />
         </Tab.Pane>
