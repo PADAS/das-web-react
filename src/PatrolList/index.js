@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 // import { findDOMNode } from 'react-dom';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-import { patrolDrawerId } from '../Drawer';
+// import { patrolDrawerId } from '../Drawer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { showDrawer } from '../ducks/drawer';
+// import { showDrawer } from '../ducks/drawer';
 import { sortPatrolList } from '../utils/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -18,12 +18,13 @@ import PatrolListItem from '../PatrolListItem';
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onPatrolSelfManagedStateChange, patrol, showDrawer, ...rest } = props;
+  const { map, onPatrolSelfManagedStateChange, patrol, onItemClick, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    showDrawer(patrolDrawerId, { patrolId: patrol.id });
-  }, [patrol.id, showDrawer]);
+    // showDrawer(patrolDrawerId, { patrolId: patrol.id });
+    onItemClick(patrol.id);
+  }, [onItemClick, patrol]);
 
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
@@ -36,10 +37,9 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { showDrawer })(ListItem);
+const ConnectedListItem = ListItem;
 
-const PatrolList = (props) => {
-  const { map, patrols = [], loading } = props;
+const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
 
   const [listItems, setListItems] = useState(patrols);
 
@@ -63,7 +63,8 @@ const PatrolList = (props) => {
           patrol={item}
           onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}
           map={map}
-          key={item.id}/>
+          key={item.id}
+          onItemClick={onItemClick}/>
       )}
     </Flipper>}
     {!listItems.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}

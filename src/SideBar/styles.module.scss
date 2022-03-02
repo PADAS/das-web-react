@@ -80,6 +80,7 @@
   min-height: calc(100% - 3rem) !important;
   height: calc(100% - 3rem);
   overflow: hidden;
+  position: relative;
 
   &:hover,
   &:focus {
@@ -103,6 +104,11 @@
     > .noItems:only-child {
       visibility: visible;
     }
+  }
+
+  .patrolView{
+    position: absolute;
+    top: 0;
   }
 }
 
