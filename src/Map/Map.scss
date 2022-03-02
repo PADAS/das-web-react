@@ -1,4 +1,5 @@
 @import '../common/styles/layout';
+@import '../common/styles/vars/colors';
 
 .main-map {
   h5 {
@@ -30,10 +31,11 @@
 }
 
 .map-controls-container {
-  bottom: 1.25rem;
+  bottom: 4rem;
   display: flex;
+  align-items: flex-end;
   flex-flow: column;
-  left: 0.5rem;
+  right: 1rem;
   position: absolute;
   z-index: 6;
 
@@ -45,7 +47,7 @@
     z-index: -1 !important;
   }
 
-  [type="button"]:first-child {
+  [type="button"][class*=controlButton] {
     background: rgba(white, 0.8);
     // border-radius: 0.333rem;
     &:hover,
@@ -53,21 +55,13 @@
       background: white;
     }
   }
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: var(--vertical-nav-width);
-  }
 }
 
 .map-legends {
   position: absolute;
   top: 0.5rem;
-  left: 0.666rem;
+  right: 0.666rem;
   z-index: 11;
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: var(--vertical-nav-width);
-  }
 }
 
 .timeslider-active {
@@ -80,14 +74,41 @@
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: flex-end;
   max-width: 11rem;
   width: 30vw;
+
+  .rotation-control {
+    order: 2;
+  }
 }
 
 .rotation-control {
+  inset: auto !important;
+
   > * {
     height: 2.25rem !important;
     width: 2.25rem !important;
+  }
+}
+
+.general-add-button {
+  width: 2.5rem;
+  > button {
+    svg {
+      width: 2.5rem;
+      height: 2.5rem;
+      background-color: $bright-blue;
+      border-radius: 50%;
+      
+      path {
+        stroke: $bright-blue;;
+        fill: $bright-blue;
+      }
+
+      rect {
+          fill: white;
+      }
+    }
   }
 }

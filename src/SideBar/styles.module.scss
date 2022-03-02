@@ -148,6 +148,24 @@
   }
 }
 
+.addReport {
+  svg {
+    width: 2rem;
+    height: 2rem;
+    background-color: white;
+    border-radius: 50%;
+    
+    path {
+      stroke: white;;
+      fill: white;
+    }
+
+    rect {
+        fill: $secondary-medium-gray;
+    }
+  }
+}
+
 .mapLayers {
   height: 100%;
   overflow: hidden;

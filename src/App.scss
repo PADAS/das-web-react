@@ -196,23 +196,18 @@ aside {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 0.666rem;
   line-height: normal;
-  max-width: 15rem;
+  max-width: 14rem;
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
+  left: 1rem;
+  top: 1rem;
   transition: all 0.3s linear;
   width: 100vw;
   z-index: 7;
   flex-wrap: wrap;
 
   @media (min-width: $md-layout-width-min) {
-    right: 0.5rem;
-    top: 0.5rem;
-    max-width: 18rem;
-  }
-
-  @media (min-width: $lg-layout-width-min) {
-    max-width: 22rem;
+    margin-left: var(--vertical-nav-width);
+    max-width: 25rem;
   }
 
   .report-filter {
@@ -227,12 +222,6 @@ aside {
       border-bottom: 1px solid $gray-border;
       padding-bottom: 0.25rem;
     }
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    max-width: 25rem;
-    right: 0.5rem;
-    top: 0.5rem;
   }
 
   [class*=search] {
@@ -306,13 +295,6 @@ aside {
     width: 100vw;
   }
 
-  .map-legends,
-  .map-controls-container {
-    @media (min-width: $md-layout-width-min) {
-      transition: transform 0.3s ease-in-out;
-    }
-  }
-
   &.sidebar-open {
     .floating-report-filter {
       opacity: 0;
@@ -321,13 +303,6 @@ aside {
     div.mapboxgl-canvas-container.mapboxgl-interactive {
         @media (max-width: $md-layout-width-max) {
         cursor: pointer;
-      }
-    }
-
-    .map-legends,
-    .map-controls-container {
-      @media (min-width: $md-layout-width-min) {
-        transform: translateX(var(--sidebar-width));
       }
     }
   }
@@ -376,16 +351,21 @@ aside {
 }
 
 .mapboxgl-ctrl-scale {
-  opacity: 0.6;
-  transform: translate(-0.05rem, -1.3rem);
-
-  @media (min-width: $md-layout-width-min) {
-    transform: translate(-3.05rem, -1.3rem);
-  }
+  background-color:rgba(255, 255, 255, 0.75);
+  transform: translate(-5rem, -1.5rem);
 }
 
 .mapbox-zoom-ctrl {
-  transform: scale(1.25) translate(0, -1.5rem);
+  flex-direction: row !important;
+  transform: scale(1.25) translate(-0.5rem, -1rem);
+
+  #zoomIn {
+    order: 2;
+  }
+
+  #zoomOut {
+    order: 1;
+  }
 }
 
 .mapboxgl-ctrl-scale {

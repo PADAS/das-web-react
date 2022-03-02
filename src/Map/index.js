@@ -11,7 +11,6 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
@@ -64,6 +63,7 @@ import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
+import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -594,6 +594,7 @@ class Map extends Component {
         center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
+          <AddReport className="general-add-button" popoverPlacement="left" showLabel={false} />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />

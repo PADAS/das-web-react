@@ -74,7 +74,7 @@ const BaseLayerControl = (props) => {
     <button title='Set Map Base Layer' type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
       <BaseMapIcon />
     </button>
-    <Overlay placement='right' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
+    <Overlay placement='left' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title='Base Layers'>
         <ul className={styles.layerList}>
           {baseLayers.map(layer => {
