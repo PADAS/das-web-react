@@ -26,16 +26,16 @@ const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataMo
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showPopup }) => {
-  const  { geometry, properties: subject } = data;
+  const  { geometry, properties } = data;
   const  { active: isTimeSliderActive } = timeSliderState;
 
   const device_status_properties =
-      typeof subject?.device_status_properties === 'string' ?
-        JSON.parse(subject?.device_status_properties ?? '[]')
-        : subject?.device_status_properties;
+      typeof properties?.device_status_properties === 'string' ?
+        JSON.parse(properties?.device_status_properties ?? '[]')
+        : properties?.device_status_properties;
 
-  const { tracks_available } = subject;
-  const coordProps = typeof subject.coordinateProperties === 'string' ? JSON.parse(subject.coordinateProperties) : subject.coordinateProperties;
+  const { tracks_available } = properties;
+  const coordProps = typeof properties.coordinateProperties === 'string' ? JSON.parse(properties.coordinateProperties) : properties.coordinateProperties;
 
   const hasAdditionalDeviceProps = !!device_status_properties?.length;
   const additionalPropsShouldBeToggleable = hasAdditionalDeviceProps && device_status_properties.length > 2 && !subjectIsStatic(data);
@@ -44,11 +44,11 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
   const showAdditionalProps = hasAdditionalDeviceProps &&
     (additionalPropsShouldBeToggleable ? additionalPropsToggledOn : true);
 
-  const isMessageable = !!subject?.messaging?.length;
+  const isMessageable = !!properties?.messaging?.length;
 
   const radioWithRecentMicActivity = useMemo(() =>
-    subjectIsARadioWithRecentVoiceActivity(subject)
-  , [subject]);
+    subjectIsARadioWithRecentVoiceActivity(properties)
+  , [properties]);
 
   const toggleShowAdditionalProperties = useCallback(() => {
     toggleAdditionalPropsVisibility(!additionalPropsToggledOn);
@@ -56,29 +56,29 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
   }, [additionalPropsToggledOn]);
 
   const onClickMessagingIcon = useCallback(() => {
-    showPopup('subject-messages', { geometry, properties: subject, coordinates: geometry.coordinates });
-  }, [geometry, subject, showPopup]);
+    showPopup('subject-messages', { geometry, properties: properties, coordinates: geometry.coordinates });
+  }, [geometry, properties, showPopup]);
 
   const onHistoricalDataClick = useCallback(() => {
-    addModal({ title: 'Historical Data', content: SubjectHistoricalDataModal, subjectId: subject.id });
-  }, [addModal, subject]);
+    addModal({ title: 'Historical Data', content: SubjectHistoricalDataModal, subjectId: properties.id });
+  }, [addModal, properties]);
 
   const locationObject = {
     longitude: geometry.coordinates[0],
     latitude: geometry.coordinates[1],
   };
 
-  const reportedById = subject.id;
+  const reportedById = properties.id;
 
   return <>
     <div className={styles.header}>
       <div>
         <div className={styles.defaultStatusProperty}>
-          {subject.default_status_value && <>
-            {subject.image && <img src={subject.image} alt={`Subject icon for ${subject.name}`} />}
-            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? subject.default_status_value : 'No historical data'}</span>
+          {properties.default_status_value && <>
+            {properties.image && <img src={properties.image} alt={`Subject icon for ${properties.name}`} />}
+            <span data-testid='header-default-status-property'>{!isTimeSliderActive ? properties.default_status_value : 'No historical data'}</span>
           </>}
-          <h6>{subject.name}</h6>
+          <h6>{properties.name}</h6>
         </div>
         <AddReport
         analyticsMetadata={{
@@ -102,11 +102,11 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
     {radioWithRecentMicActivity && <div className={styles.micActivity}>
       <h5>Mic activity</h5>
       <div>
-        <span>{format(subject.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
-        <TimeAgo className={styles.timeAgo} date={new Date(subject.last_voice_call_start_at)} />
+        <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
+        <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} />
       </div>
     </div>}
-    {tracks_available && <TrackLength className={styles.trackLength} trackId={subject.id} />}
+    {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}
     {hasAdditionalDeviceProps && showAdditionalProps && <ul data-testid='additional-props' className={styles.additionalProperties}>
       {device_status_properties.map(({ label, units, value }, index) =>
         <li key={`${label}-${index}`}>
@@ -121,7 +121,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
     {hasAdditionalDeviceProps && subjectIsStatic && <Button data-testid='show-historical-data-btn' variant='light' size='sm' type='button' className={styles.historicalDataButton} onClick={onHistoricalDataClick} >Show historical data</Button>}
     {tracks_available && (
       <Fragment>
-        <SubjectControls showMessageButton={false} showJumpButton={false} subject={subject} className={styles.trackControls} />
+        <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
         <div className={styles.controls}>
           {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
             <ChatIcon className={styles.messagingIcon} />

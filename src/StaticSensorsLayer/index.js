@@ -33,10 +33,11 @@ const IMAGE_DATA = {
   }
 };
 
+const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
+
+
 const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
-  const popup = useMemo(() => new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false }), []);
-
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [clickedLayerID, setClickedLayerID] = useState('');
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
@@ -106,7 +107,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
       setClickedLayerID('');
       setLayerVisibility(layer.layer.id);
     });
-  }, [popup, map, setLayerVisibility]);
+  }, [map, setLayerVisibility]);
 
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
@@ -166,7 +167,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
         map.on('click', layerID, onLayerClick);
       });
     }
-  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive, popup, clickedLayerID]);
+  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive, clickedLayerID]);
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {
