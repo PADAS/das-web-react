@@ -6,7 +6,6 @@ import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import { fetchMapEvents, EVENTS_API_URL } from './events';
-import * as queryUtils from '../utils/query';
 
 describe('fetchMapEvents', () => {
   let map, store;

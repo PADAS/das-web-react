@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { mockStore } from '../__test-helpers/MockStore';
@@ -34,20 +34,6 @@ describe('The GeoLocationWatcher', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  test('attempting to watch the user\'s position at startup', () => {
-    render(
-      <Provider store={store}>
-        <GeoLocationWatcher />
-      </Provider>
-    );
-
-    expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
-
-    const actions = store.getActions();
-    const expectedPayload = { type: 'USER_LOCATION_RETRIEVED', payload: mockUserLocation };
-    expect(actions).toEqual([expectedPayload]);
   });
 
   test('updating a user\'s location in the store when it changes', () => {
