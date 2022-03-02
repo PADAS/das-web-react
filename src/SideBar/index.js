@@ -131,46 +131,48 @@ const SideBar = ({ map }) => {
         </Nav.Item>
       </Nav>
 
-      <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
-        <div className={styles.header}>
-          <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-            <AddReport popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+      <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+        <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
+          <div className={styles.header}>
+            <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
+              <AddReport popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+            </div>
+
+            <h3>{tabTitle}</h3>
+
+            <button
+              data-testid="sideBar-closeButton"
+              onClick={() => dispatch(updateUserPreferences({ sidebarOpen: false }))}
+            >
+              <CrossIcon />
+            </button>
           </div>
 
-          <h3>{tabTitle}</h3>
+          <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
+            <ReportsTab map={map} sidebarOpen={sidebarOpen} />
+          </Tab.Pane>
 
-          <button
-            data-testid="sideBar-closeButton"
-            onClick={() => dispatch(updateUserPreferences({ sidebarOpen: false }))}
-          >
-            <CrossIcon />
-          </button>
-        </div>
+          <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
+            <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+          </Tab.Pane>
 
-        <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-          <ReportsTab map={map} sidebarOpen={sidebarOpen} />
-        </Tab.Pane>
-
-        <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-          <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-        </Tab.Pane>
-
-        <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
-          <ErrorBoundary>
-            <MapLayerFilter />
-            <div className={styles.mapLayers}>
-              <ReportMapControl/>
-              <SubjectGroupList map={map} />
-              <FeatureLayerList map={map} />
-              <AnalyzerLayerList map={map} />
-              <div className={styles.noItems}>No items to display.</div>
-            </div>
-            <div className={styles.mapLayerFooter}>
-              <ClearAllControl map={map} />
-            </div>
-          </ErrorBoundary>
-        </Tab.Pane>
-      </Tab.Content>
+          <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
+            <ErrorBoundary>
+              <MapLayerFilter />
+              <div className={styles.mapLayers}>
+                <ReportMapControl/>
+                <SubjectGroupList map={map} />
+                <FeatureLayerList map={map} />
+                <AnalyzerLayerList map={map} />
+                <div className={styles.noItems}>No items to display.</div>
+              </div>
+              <div className={styles.mapLayerFooter}>
+                <ClearAllControl map={map} />
+              </div>
+            </ErrorBoundary>
+          </Tab.Pane>
+        </Tab.Content>
+      </div>
     </Tab.Container>
   </aside>;
 };

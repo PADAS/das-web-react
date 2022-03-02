@@ -13,9 +13,9 @@
   display: none;
   flex-direction: column;
   height: 100%;
-  background: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
   width: var(--vertical-nav-width);
-  z-index: 1;
 
   [class*=nav-item] {
     width: 100%;
@@ -51,17 +51,33 @@
   }
 }
 
-.tab {
-  opacity: 0;
-  background-color: white;
+.tabsContainer {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+  left: 0;
+  top: 0;
   width: 0;
-  transform: translateX(calc(var(--sidebar-width) * -1));
-  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out, width 0.4s ease-in-out;
+  transition: width 0.4s ease-in-out;
 
   &[class*=open] {
-    opacity: 1;
-    transform: translateX(0);
     width: var(--sidebar-width);
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    left: var(--vertical-nav-width);
+  }
+}
+
+.tab {
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.65) 100%);
+  backdrop-filter: blur(16px);
+  width: var(--sidebar-width);
+  transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
+  transition: transform 0.4s ease-in-out;
+
+  &[class*=open] {
+    transform: translateX(0);
 
     .filterWrapper {
       border-bottom: 1px solid $light-gray-border;
@@ -87,6 +103,7 @@
   }
 
   .mapLayers {
+    background-color: white;
     height: 100%;
     overflow: hidden;
     overflow-y: auto;
