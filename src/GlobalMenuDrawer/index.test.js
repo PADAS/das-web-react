@@ -9,6 +9,8 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
+import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
+import { useMatchMedia } from '../hooks';
 
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
@@ -25,10 +27,11 @@ jest.mock('../ducks/drawer', () => ({
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
   useFeatureFlag: () => true,
+  useMatchMedia: jest.fn(),
 }));
 
 describe('GlobalMenuDrawer', () => {
-  let addModalMock, fetchTableauDashboardMock, hideDrawerMock, store;
+  let addModalMock, fetchTableauDashboardMock, hideDrawerMock, store, useMatchMediaMock;
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
     addModal.mockImplementation(addModalMock);
@@ -36,6 +39,8 @@ describe('GlobalMenuDrawer', () => {
     fetchTableauDashboard.mockImplementation(fetchTableauDashboardMock);
     hideDrawerMock = jest.fn(() => () => {});
     hideDrawer.mockImplementation(hideDrawerMock);
+    useMatchMediaMock = jest.fn(() => true);
+    useMatchMedia.mockImplementation(useMatchMediaMock);
 
     store = {
       data: {
@@ -45,6 +50,11 @@ describe('GlobalMenuDrawer', () => {
           server: { version: '' },
         },
         token: { access_token: '' },
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+          }
+        },
       },
       view: {
         systemConfig: {
@@ -69,6 +79,98 @@ describe('GlobalMenuDrawer', () => {
     userEvent.click(crossButton);
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not render the navigation buttons in desktop screens', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    expect((await screen.queryByText('Reports'))).toBeNull();
+    expect((await screen.queryByText('Patrols'))).toBeNull();
+    expect((await screen.queryByText('Map Layers'))).toBeNull();
+  });
+
+  test('renders the navigation buttons in small screens', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    render(
+      <Provider store={mockStore(store)}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    expect((await screen.findByText('Reports'))).toBeDefined();
+    expect((await screen.findByText('Patrols'))).toBeDefined();
+    expect((await screen.findByText('Map Layers'))).toBeDefined();
+  });
+
+  test('navigates to the Reports tab in the Sidebar when clicking the Reports navigation button', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    const mockStoreInstance = mockStore(store);
+    render(
+      <Provider store={mockStoreInstance}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    const reportsNavigationButton = await screen.findByText('Reports');
+    userEvent.click(reportsNavigationButton);
+
+    expect(mockStoreInstance.getActions()[0]).toEqual({
+      payload: { sidebarOpen: true, sidebarTab: 'reports' },
+      type: 'UPDATE_USER_PREFERENCES',
+    });
+  });
+
+  test('does not render the Patrols navigation button if user does not have permissions', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    store.data.user.permissions = {};
+    const mockStoreInstance = mockStore(store);
+    render(
+      <Provider store={mockStoreInstance}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    expect((await screen.queryByText('Patrols'))).toBeNull();
+  });
+
+  test('navigates to the Patrols tab in the Sidebar when clicking the Patrols navigation button', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    const mockStoreInstance = mockStore(store);
+    render(
+      <Provider store={mockStoreInstance}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    const patrolsNavigationButton = await screen.findByText('Patrols');
+    userEvent.click(patrolsNavigationButton);
+
+    expect(mockStoreInstance.getActions()[0]).toEqual({
+      payload: { sidebarOpen: true, sidebarTab: 'patrols' },
+      type: 'UPDATE_USER_PREFERENCES',
+    });
+  });
+
+  test('navigates to the Map Layers tab in the Sidebar when clicking the Map Layers navigation button', async () => {
+    useMatchMedia.mockImplementation(() => false);
+    const mockStoreInstance = mockStore(store);
+    render(
+      <Provider store={mockStoreInstance}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    const mapLayersNavigationButton = await screen.findByText('Map Layers');
+    userEvent.click(mapLayersNavigationButton);
+
+    expect(mockStoreInstance.getActions()[0]).toEqual({
+      payload: { sidebarOpen: true, sidebarTab: 'layers' },
+      type: 'UPDATE_USER_PREFERENCES',
+    });
   });
 
   test('does not render Tableau button if it is not enabled', async () => {
