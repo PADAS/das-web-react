@@ -99,19 +99,21 @@ const SideBar = ({ map }) => {
   }, [showEventsBadge, sidebarOpen, sidebarTab]);
 
   useEffect(() => {
-    const updateEventsBadge = ({ matches_current_filter }) => {
-      if (matches_current_filter && (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
-        setShowEventsBadge(true);
-      }
-    };
+    if (socket) {
+      const updateEventsBadge = ({ matches_current_filter }) => {
+        if (matches_current_filter && (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+          setShowEventsBadge(true);
+        }
+      };
 
-    socket.on('new_event', updateEventsBadge);
-    socket.on('update_event', updateEventsBadge);
+      socket.on('new_event', updateEventsBadge);
+      socket.on('update_event', updateEventsBadge);
 
-    return () => {
-      socket.off('new_event', updateEventsBadge);
-      socket.off('update_event', updateEventsBadge);
-    };
+      return () => {
+        socket.off('new_event', updateEventsBadge);
+        socket.off('update_event', updateEventsBadge);
+      };
+    }
   }, [sidebarOpen, sidebarTab, socket]);
 
   // fetch patrols if filter itself has changed
