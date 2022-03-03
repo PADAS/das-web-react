@@ -1,19 +1,28 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import isEqual from 'react-fast-compare';
 
 import { GEOLOCATOR_OPTIONS } from '../constants';
 
 import { setCurrentUserLocation } from '../ducks/location';
 
+const ONE_MINUTE = 1000 * 60;
+
 const onLocationWatchError = (e) => {
-  console.warn('error watching current location', e);
+  if (e?.code === e?.PERMISSION_DENIED) {
+    console.warn('location access denied');
+  } else {
+    console.warn('error watching current location', e);
+  }
 };
 
-const GeoLocationWatcher = ({ setCurrentUserLocation: onSuccess, onError = onLocationWatchError }) => {
+const GeoLocationWatcher = ({ setCurrentUserLocation, onError = onLocationWatchError, userLocation }) => {
+
+  const [userLocationInState, setUserLocationInState] = useState(userLocation);
 
   useEffect(() => {
     const startWatchingPosition = () => {
-      return window.navigator.geolocation.watchPosition(onSuccess, onError, GEOLOCATOR_OPTIONS);
+      return window.navigator.geolocation.watchPosition(setUserLocationInState, onError, GEOLOCATOR_OPTIONS);
     };
 
     const locationWatchId = startWatchingPosition();
@@ -21,9 +30,24 @@ const GeoLocationWatcher = ({ setCurrentUserLocation: onSuccess, onError = onLoc
     return () => {
       window.navigator.geolocation.clearWatch(locationWatchId);
     };
-  }, [onError, onSuccess]);
+  }, [onError, setCurrentUserLocation]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (!isEqual(userLocationInState?.coords, userLocation?.coords)) {
+        setCurrentUserLocation(userLocationInState);
+      }
+    }, ONE_MINUTE);
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   return null;
 };
 
-export default connect(null, { setCurrentUserLocation })(GeoLocationWatcher);
+const mapStateToProps = ({ view: { userLocation } }) => ({
+  userLocation,
+});
+
+export default connect(mapStateToProps, { setCurrentUserLocation })(GeoLocationWatcher);
