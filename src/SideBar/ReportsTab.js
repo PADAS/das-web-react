@@ -12,7 +12,6 @@ import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVE
 import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { sortEventsBySortConfig } from '../utils/event-filter';
 import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
@@ -29,9 +28,8 @@ import styles from './styles.module.scss';
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, onFeedEventsChange } = props;
+  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map } = props;
 
-  const [mostRecentEventUpdateDate, setMostRecentEventUpdateDate] = useState(null);
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -60,16 +58,6 @@ const ReportsTab = (props) => {
         setEventLoadState(false);
       });
   }, [feedSort, fetchEventFeed, optionalFeedProps]);
-
-  useEffect(() => {
-    const newMostRecentEventUpdateDate = sortEventsBySortConfig(feedEvents, DEFAULT_EVENT_SORT)?.[0]?.updated_at;
-    if (!!newMostRecentEventUpdateDate) {
-      if (mostRecentEventUpdateDate !== null && mostRecentEventUpdateDate !== newMostRecentEventUpdateDate) {
-        onFeedEventsChange();
-      }
-      setMostRecentEventUpdateDate(newMostRecentEventUpdateDate);
-    }
-  }, [feedEvents, mostRecentEventUpdateDate, onFeedEventsChange]);
 
   useEffect(() => {
     loadFeedEvents();
