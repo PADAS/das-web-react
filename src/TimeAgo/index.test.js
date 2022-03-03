@@ -12,7 +12,8 @@ import TimeAgo from '../TimeAgo';
 import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  jest.useFakeTimers('modern')
+    .setSystemTime(new Date('2021-02-01').getTime());
 });
 
 afterEach(async () => {
@@ -46,9 +47,7 @@ describe('the TimeAgo component', () => {
     const testDate =
       subYears(
         subMonths(
-          subDays(
-            subHours(new Date(), 2)
-            , 2)
+          subHours(new Date('01-01-2021'), 2)
           , 1)
         , 1);
 
@@ -56,7 +55,7 @@ describe('the TimeAgo component', () => {
 
     const component = await screen.findByTestId('time-ago');
 
-    expect(component).toHaveTextContent('1y 1mo 2d 9h 30m');
+    expect(component).toHaveTextContent('1y 2mo 1d 17h');
   });
 
   it('displays a prefix', async () => {
