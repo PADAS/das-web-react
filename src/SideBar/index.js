@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cloneDeep } from 'lodash-es';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
+import { SocketContext } from '../withSocketConnection';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, usePermissions } from '../hooks';
 
@@ -44,6 +45,8 @@ const SideBar = ({ map }) => {
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
+  const socket = useContext(SocketContext);
+
   const patrolFetchRef = useRef(null);
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
@@ -74,12 +77,6 @@ const SideBar = ({ map }) => {
     }
   }, [sidebarTab]);
 
-  const onFeedEventsChange = useCallback(() => {
-    if (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen) {
-      setShowEventsBadge(true);
-    }
-  }, [sidebarOpen, sidebarTab]);
-
   const fetchAndLoadPatrolData = useCallback(() => {
     patrolFetchRef.current = dispatch(fetchPatrols());
 
@@ -91,15 +88,37 @@ const SideBar = ({ map }) => {
 
   }, [dispatch]);
 
-  const onSelectTab = useCallback((sidebarTab) => {
-    dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab }));
-  }, [dispatch]);
+  const onSelectTab = useCallback((clickedSidebarTab) => {
+    if (clickedSidebarTab === sidebarTab && sidebarOpen) {
+      dispatch(updateUserPreferences({ sidebarOpen: false, sidebarTab: clickedSidebarTab }));
+    } else {
+      dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: clickedSidebarTab }));
+    }
+  }, [dispatch, sidebarOpen, sidebarTab]);
 
   useEffect(() => {
-    if (sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
+    if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
       setShowEventsBadge(false);
     }
-  }, [sidebarOpen, sidebarTab]);
+  }, [showEventsBadge, sidebarOpen, sidebarTab]);
+
+  useEffect(() => {
+    if (socket) {
+      const updateEventsBadge = ({ matches_current_filter }) => {
+        if (matches_current_filter && (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+          setShowEventsBadge(true);
+        }
+      };
+
+      socket.on('new_event', updateEventsBadge);
+      socket.on('update_event', updateEventsBadge);
+
+      return () => {
+        socket.off('new_event', updateEventsBadge);
+        socket.off('update_event', updateEventsBadge);
+      };
+    }
+  }, [sidebarOpen, sidebarTab, socket]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -120,78 +139,78 @@ const SideBar = ({ map }) => {
     }
   }, [sidebarTab]);
 
-  return <aside className={styles.sideBar}>
-    <Tab.Container activeKey={sidebarTab} onSelect={onSelectTab}>
-      <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-        <Nav.Item>
-          <Nav.Link eventKey={TAB_KEYS.REPORTS}>
-            <DocumentIcon />
-            {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
-            <span>Reports</span>
-          </Nav.Link>
-        </Nav.Item>
+  return <ErrorBoundary>
+    <aside className={styles.sideBar}>
+      <Tab.Container activeKey={sidebarTab} onSelect={onSelectTab}>
+        <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
+          <Nav.Item>
+            <Nav.Link eventKey={TAB_KEYS.REPORTS}>
+              <DocumentIcon />
+              {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+              <span>Reports</span>
+            </Nav.Link>
+          </Nav.Item>
 
-        {showPatrols && <Nav.Item>
-          <Nav.Link eventKey={TAB_KEYS.PATROLS}>
-            <PatrolIcon />
-            <span>Patrols</span>
-          </Nav.Link>
-        </Nav.Item>}
+          {showPatrols && <Nav.Item>
+            <Nav.Link eventKey={TAB_KEYS.PATROLS}>
+              <PatrolIcon />
+              <span>Patrols</span>
+            </Nav.Link>
+          </Nav.Item>}
 
-        <Nav.Item>
-          <Nav.Link eventKey={TAB_KEYS.LAYERS}>
-            <LayersIcon />
-            <span>Map Layers</span>
-          </Nav.Link>
-        </Nav.Item>
-      </Nav>
+          <Nav.Item>
+            <Nav.Link eventKey={TAB_KEYS.LAYERS}>
+              <LayersIcon />
+              <span>Map Layers</span>
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
 
-      <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
-        <div className={styles.header}>
-          <div className={`${styles.addReport} ${sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''}`} data-testid="sideBar-addReportButton">
-            <AddReport popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
-          </div>
+        <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+          <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
+            <div className={styles.header}>
+              <div className={`${styles.addReport} ${sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''}`} data-testid="sideBar-addReportButton">
+                <AddReport popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+              </div>
 
-          <h3>{tabTitle}</h3>
+              <h3>{tabTitle}</h3>
 
-          <button
-            data-testid="sideBar-closeButton"
-            onClick={() => dispatch(updateUserPreferences({ sidebarOpen: false }))}
-          >
-            <CrossIcon />
-          </button>
+              <button
+                data-testid="sideBar-closeButton"
+                onClick={() => dispatch(updateUserPreferences({ sidebarOpen: false }))}
+              >
+                <CrossIcon />
+              </button>
+            </div>
+
+            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
+              <ReportsTab map={map} sidebarOpen={sidebarOpen} />
+            </Tab.Pane>
+
+            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
+              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+            </Tab.Pane>
+
+            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
+              <ErrorBoundary>
+                <MapLayerFilter />
+                <div className={styles.mapLayers}>
+                  <ReportMapControl/>
+                  <SubjectGroupList map={map} />
+                  <FeatureLayerList map={map} />
+                  <AnalyzerLayerList map={map} />
+                  <div className={styles.noItems}>No items to display.</div>
+                </div>
+                <div className={styles.mapLayerFooter}>
+                  <ClearAllControl map={map} />
+                </div>
+              </ErrorBoundary>
+            </Tab.Pane>
+          </Tab.Content>
         </div>
-
-        <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-          <ReportsTab
-          map={map}
-          onFeedEventsChange={onFeedEventsChange}
-          sidebarOpen={sidebarOpen}
-        />
-        </Tab.Pane>
-
-        <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-          <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-        </Tab.Pane>
-
-        <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
-          <ErrorBoundary>
-            <MapLayerFilter />
-            <div className={styles.mapLayers}>
-              <ReportMapControl/>
-              <SubjectGroupList map={map} />
-              <FeatureLayerList map={map} />
-              <AnalyzerLayerList map={map} />
-              <div className={styles.noItems}>No items to display.</div>
-            </div>
-            <div className={styles.mapLayerFooter}>
-              <ClearAllControl map={map} />
-            </div>
-          </ErrorBoundary>
-        </Tab.Pane>
-      </Tab.Content>
-    </Tab.Container>
-  </aside>;
+      </Tab.Container>
+    </aside>
+  </ErrorBoundary>;
 };
 
 SideBar.propTypes = { map: PropTypes.object.isRequired };
