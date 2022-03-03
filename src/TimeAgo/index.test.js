@@ -12,8 +12,11 @@ import TimeAgo from '../TimeAgo';
 import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';
 
 beforeEach(() => {
+  const mockSystemTime = new Date('2021-02-01');
+  mockSystemTime.setUTCHours(20);
+
   jest.useFakeTimers('modern')
-    .setSystemTime(new Date('2021-02-01').getTime());
+    .setSystemTime(mockSystemTime.getTime());
 });
 
 afterEach(async () => {
@@ -55,7 +58,7 @@ describe('the TimeAgo component', () => {
 
     const component = await screen.findByTestId('time-ago');
 
-    expect(component).toHaveTextContent('1y 2mo 1d 17h');
+    expect(component).toHaveTextContent('1y 2mo 2d 13h');
   });
 
   it('displays a prefix', async () => {
