@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@4.3.0
+  node: circleci/node@5.0.0
 references:
   workspace_root: &workspace_root /root/project
   attach_workspace: &attach_workspace
@@ -39,7 +39,9 @@ executors:
 
 jobs:
   production_build:
-    executor: node/default
+    executor:
+        name: node/default
+        tag: 14.19.0-alpine
     resource_class: xlarge
     steps:
       - "setup_remote_docker"
