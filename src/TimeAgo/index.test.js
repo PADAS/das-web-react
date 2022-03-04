@@ -55,8 +55,6 @@ describe('the TimeAgo component', () => {
         , 1)
       , 1);
 
-    testDate.setUTCHours(20);
-
     render(<TimeAgo date={date} />);
 
     const component = await screen.findByTestId('time-ago');
