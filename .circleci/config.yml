@@ -45,21 +45,24 @@ jobs:
       - "setup_remote_docker"
       - "docker_login"
       - "checkout"
+      - run: |
+          curl -o- -L https://yarnpkg.com/install.sh | bash
+          echo 'export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"' >> $BASH_ENV
       - run: "ci-helpers/makeversion.py"
       - node/install-packages:
           cache-path: ~/project/node_modules
-          override-ci-command: npm install --ignore-scripts
+          override-ci-command: yarn --ignore-scripts
       - run: 
-          command: npm run test-ci
+          command: yarn test-ci
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
       - run:
-          command: npm rebuild node-sass
+          command: yarn rebuild node-sass
           name: Rebuild node-sass
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
       - run:
-          command: CI=false npm run build
+          command: CI=false yarn build
           name: Build Production Artefact
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
