@@ -63,7 +63,7 @@ import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
-import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
+import AddReport from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -644,10 +644,6 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
                 <RotationControl
                   className='rotation-control'
@@ -661,6 +657,10 @@ class Map extends Component {
                 />
                 <CursorGpsDisplay />
               </span>
+              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
             </div>
 
             <RightClickMarkerDropper />
