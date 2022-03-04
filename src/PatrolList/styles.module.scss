@@ -2,10 +2,10 @@
 @import '../common/styles/buttons';
 
 .patrolList {
-  height: 100%;
+  background-color: white;
   justify-content: space-evenly;
   overflow-y: scroll;
-  padding: 0 0 7rem;
+  height: calc(100% - 6.5rem);
 }
 
 .emptyMessage {

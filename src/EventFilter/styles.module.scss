@@ -87,16 +87,6 @@ div.filterPopover {
   max-width: 29rem;
   width: 90vw;
 
-  &[class*=bs-popover-bottom] {
-    @media (min-width: $lg-layout-width-min) {
-      margin-left: -5rem;
-
-      > [class*=arrow] {
-        margin-left: 5rem;
-      }
-    }
-  }
-
   [class*=popover-body] {
     overflow: hidden;
     padding: 0;
