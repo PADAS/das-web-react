@@ -46,20 +46,22 @@ describe('the TimeAgo component', () => {
     expect(component).toHaveTextContent('30 seconds');
   });
 
-  // it('displays abbreviated times for durations over one hour in the XXy XXmo XXd XXh XXm format', async () => {
-  //   const testDate =
-  //     subYears(
-  //       subMonths(
-  //         subHours(new Date('01-01-2021'), 2)
-  //         , 1)
-  //       , 1);
+  it('displays abbreviated times for durations over one hour in the XXy XXmo XXd XXh XXm format', async () => {
+    const testDate =
+      subYears(
+        subMonths(
+          subHours(new Date('01-01-2021'), 2)
+          , 1)
+        , 1);
 
-  //   render(<TimeAgo date={testDate} />);
+    testDate.setUTCHours(20);
 
-  //   const component = await screen.findByTestId('time-ago');
+    render(<TimeAgo date={testDate} />);
 
-  //   expect(component).toHaveTextContent('1y 2mo 2d 13h');
-  // });
+    const component = await screen.findByTestId('time-ago');
+
+    expect(component).toHaveTextContent('1y 2mo 1d 21h');
+  });
 
   it('displays a prefix', async () => {
     const testDate = subSeconds(new Date(), 30);
@@ -82,34 +84,4 @@ describe('the TimeAgo component', () => {
 
     expect(component).toHaveTextContent(`30 seconds ${testSuffix}`);
   });
-/* 
-  it('updates every second for values under one minute', async () => {
-    const testDate = subSeconds(new Date(), 30);
-
-    render(<TimeAgo date={testDate} />);
-
-    const component = await screen.findByTestId('time-ago');
-
-    expect(component).toHaveTextContent('30 seconds');
-
-    await advanceTimersByTime(1100);
-
-    expect(component).toHaveTextContent('31 seconds');
-
-
-  });
-
-  it('updates every minute for values over one minute', async () => {
-    const testDate = subMinutes(new Date(), 1);
-
-    render(<TimeAgo date={testDate} />);
-
-    const component = await screen.findByTestId('time-ago');
-
-    expect(component).toHaveTextContent('1 minute');
-
-    await advanceTimersByTime(61000);
-
-    expect(component).toHaveTextContent('2 minutes');
-  }); */
 });
