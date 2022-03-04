@@ -110,8 +110,8 @@ const SideBar = ({ map }) => {
         }
       };
 
-      socket.on('new_event', updateEventsBadge);
-      socket.on('update_event', updateEventsBadge);
+      socket._on('new_event', updateEventsBadge);
+      socket._on('update_event', updateEventsBadge);
 
       return () => {
         socket.off('new_event', updateEventsBadge);
