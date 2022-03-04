@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
 
@@ -17,12 +17,11 @@ const onLocationWatchError = (e) => {
 };
 
 const GeoLocationWatcher = ({ setCurrentUserLocation, onError = onLocationWatchError, userLocation }) => {
-
-  const [userLocationInState, setUserLocationInState] = useState(userLocation);
+  const localUserLocationState = useRef(userLocation);
 
   useEffect(() => {
     const startWatchingPosition = () => {
-      return window.navigator.geolocation.watchPosition(setUserLocationInState, onError, GEOLOCATOR_OPTIONS);
+      return window.navigator.geolocation.watchPosition(position => localUserLocationState.current = position, onError, GEOLOCATOR_OPTIONS);
     };
 
     const locationWatchId = startWatchingPosition();
@@ -33,15 +32,21 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, onError = onLocationWatchE
   }, [onError, setCurrentUserLocation]);
 
   useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      if (!isEqual(userLocationInState?.coords, userLocation?.coords)) {
-        setCurrentUserLocation(userLocationInState);
+    const setUserLocationFromStateIfUpdated = () => {
+      if (!isEqual(localUserLocationState?.current?.coords, userLocation?.coords)) {
+        setCurrentUserLocation(localUserLocationState.current);
       }
-    }, ONE_MINUTE);
+    };
+
+    if (!userLocation && !!localUserLocationState?.current) {
+      setCurrentUserLocation(localUserLocationState.current);
+    }
+
+    const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, ONE_MINUTE);
     return () => {
       window.clearInterval(intervalId);
     };
-  }, []);
+  }, [setCurrentUserLocation, userLocation]);
 
   return null;
 };
