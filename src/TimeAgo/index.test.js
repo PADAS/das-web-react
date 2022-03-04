@@ -47,20 +47,21 @@ describe('the TimeAgo component', () => {
   });
 
   it('displays abbreviated times for durations over one hour in the XXy XXmo XXd XXh XXm format', async () => {
-    const testDate =
-      subYears(
-        subMonths(
-          subHours(new Date('01-01-2021'), 2)
-          , 1)
-        , 1);
+    const testDate = new Date('01-01-2021');
+    testDate.setUTCHours(20);
+    const date = subYears(
+      subMonths(
+        subHours(testDate, 2)
+        , 1)
+      , 1);
 
     testDate.setUTCHours(20);
 
-    render(<TimeAgo date={testDate} />);
+    render(<TimeAgo date={date} />);
 
     const component = await screen.findByTestId('time-ago');
 
-    expect(component).toHaveTextContent('1y 2mo 1d 21h');
+    expect(component).toHaveTextContent('1y 2mo 1d 23h');
   });
 
   it('displays a prefix', async () => {
