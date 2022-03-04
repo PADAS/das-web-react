@@ -41,7 +41,7 @@ jobs:
   production_build:
     executor:
         name: node/default
-        tag: "node:14.19.0-alpine"
+        tag: "node:14.19.0"
     resource_class: xlarge
     steps:
       - "setup_remote_docker"
