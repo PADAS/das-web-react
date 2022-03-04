@@ -59,7 +59,7 @@ jobs:
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
       - run:
-          command: yarn rebuild node-sass
+          command: npm rebuild node-sass
           name: Rebuild node-sass
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
