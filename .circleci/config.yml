@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@4.3.0
+  node: circleci/node@5.0.0
 references:
   workspace_root: &workspace_root /root/project
   attach_workspace: &attach_workspace
@@ -39,18 +39,23 @@ executors:
 
 jobs:
   production_build:
-    executor: node/default
+    executor:
+        name: node/default
+        tag: "14.19.0"
     resource_class: xlarge
     steps:
       - "setup_remote_docker"
       - "docker_login"
       - "checkout"
+      - run: |
+          curl -o- -L https://yarnpkg.com/install.sh | bash
+          echo 'export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"' >> $BASH_ENV
       - run: "ci-helpers/makeversion.py"
       - node/install-packages:
           cache-path: ~/project/node_modules
-          override-ci-command: npm install --ignore-scripts
+          override-ci-command: yarn --ignore-scripts
       - run: 
-          command: npm run test-ci
+          command: yarn test-ci
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
       - run:
@@ -59,7 +64,7 @@ jobs:
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
       - run:
-          command: CI=false npm run build
+          command: CI=false yarn build
           name: Build Production Artefact
           environment:
             NODE_OPTIONS: --max-old-space-size=8192

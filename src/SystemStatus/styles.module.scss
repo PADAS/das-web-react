@@ -21,8 +21,10 @@
   padding-top: 0;
   min-width: 90vw;
   max-width: 98vw;
+  margin-top: 0.125rem;
+
   @media (min-width: $md-layout-width-min) {
-    min-width: unset;
+    min-width: 28rem;
     max-width: unset;
   }
 }
@@ -66,4 +68,23 @@
 .timestamp {
   color: $secondary-medium-gray;
   margin-left: .5rem;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: $secondary-light-gray;
+  background-color: rgba(white, 0.1);
+  border-radius: 1.375rem;
+  padding: 0.25rem 0.75rem;
+  margin: 0 1rem;
+
+  &[class*=open] {
+    color: white;
+  }
+
+  > * {
+    margin: 0 0.125rem;
+  }
 }
