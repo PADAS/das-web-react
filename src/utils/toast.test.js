@@ -3,6 +3,7 @@ import * as toastLib from 'react-toastify';
 
 import { act, render } from '@testing-library/react';
 
+import { DEFAULT_TOAST_CONFIG } from '../constants';
 import { showToast } from './toast';
 import ToastBody from '../ToastBody';
 
@@ -12,12 +13,20 @@ describe('#showToast', () => {
 
   beforeEach(() => {
     toastSpy = jest.fn();
-    const mockToastFn = () => toastSpy;
-    mockToastFn.TYPE = {
+    const mockToastFn = function () {
+      return toastSpy;
+    };
+
+    console.log('mockToastFn.TYPE', mockToastFn.TYPE);
+
+    console.log('toastLib.toast', toastLib.toast);
+
+    jest.spyOn(toastLib, 'toast').mockImplementation(mockToastFn);
+
+    toastLib.toast.TYPE = {
       ERROR: 'error',
     };
 
-    jest.spyOn(toastLib, 'toast').mockImplementation(mockToastFn);
   });
   test('showing a toast renders the ToastBody component with message, details, and link', () => {
     const toastObject = {
@@ -31,9 +40,10 @@ describe('#showToast', () => {
 
     showToast(toastObject);
 
-    expect(toastLib.toast).toHaveBeenCalledWith(<ToastBody {...toastObject} />);
-  });
-  test('configuring a toast with the toastConfig argument', () => {
+    expect(toastLib.toast).toHaveBeenCalled();
+    expect(toastLib.toast.mock.calls[0]).toEqual(
+      [<ToastBody {...toastObject} />, { ...DEFAULT_TOAST_CONFIG, type: toastLib.toast.TYPE.ERROR }], /* eslint-disable-line */
+    );
 
   });
 });

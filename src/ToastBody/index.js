@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
@@ -26,4 +26,4 @@ const ToastBody = ({ message = 'An error has occured', details = '', link = null
   </Fragment>;
 };
 
-export default memo(ToastBody);
+export default ToastBody;
