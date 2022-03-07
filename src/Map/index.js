@@ -594,7 +594,7 @@ class Map extends Component {
         center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
-          <AddReport className="general-add-button" popoverPlacement="left" showLabel={false} />
+          <AddReport className="general-add-button" fill popoverPlacement="left" showLabel={false} />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
@@ -649,6 +649,7 @@ class Map extends Component {
               {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
               {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
+                <CursorGpsDisplay />
                 <RotationControl
                   className='rotation-control'
                   style={{
@@ -659,7 +660,6 @@ class Map extends Component {
                     borderRadius: '0.25rem',
                   }}
                 />
-                <CursorGpsDisplay />
               </span>
             </div>
 
