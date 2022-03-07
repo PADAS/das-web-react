@@ -3,8 +3,9 @@ import SocketMock from 'socket.io-mock';
 
 export const SocketContext = createContext(null);
 export const mockedSocket = new SocketMock();
+mockedSocket._on = mockedSocket.on.bind(mockedSocket);
 
-const MockSocketContext = (props) => { // eslint-disable-line react/display-name
+const MockSocketContext = (props) => {
   const { children } = props;
 
   const [websocket] = useState(mockedSocket);
