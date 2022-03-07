@@ -4,6 +4,12 @@
 .dropdown {
   margin-right: 1rem;
   position: relative;
+
+  &:hover {
+    [class*=icon] {
+      opacity: 1;
+    }
+  }
 }
 
 div.menu {
@@ -28,12 +34,7 @@ div.menu {
 
 .icon {
   height: 1.5rem;
-  opacity: 0.5;
-
-  &:hover {
-    opacity: 0.7;
-  }
-
+  opacity: 0.8;
   width: 1.25rem;
 }
 

@@ -52,23 +52,18 @@ describe('waitForMapBounds', () => {
     const getBoundsMock = jest.fn().mockImplementation(() => successValue);
     
     map = createMapMock({ getBounds: getBoundsMock });
-
     jest.advanceTimersByTime(500);
-
     return waitForMapBounds(map).then((val) => {
       expect(val).toEqual(successValue);
     });
   });
-
   it('polls and rejects if no bounds are returned', async () => {
     const getBoundsMock = jest.fn().mockImplementation(() => {
       throw errorObj;
     });
     
     map = createMapMock({ getBounds: getBoundsMock });
-
     jest.advanceTimersByTime(2000);
-
     await expect(waitForMapBounds(map)).rejects.toEqual(errorObj);
   }); */
 });

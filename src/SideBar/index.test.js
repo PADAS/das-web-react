@@ -190,4 +190,21 @@ describe('SideBar', () => {
       type: 'UPDATE_USER_PREFERENCES',
     });
   });
+
+  test('closes the sidebar tabs when clicking a tab that is currently open', () => {
+    const mockStoreInstance = mockStore(store);
+    render(
+      <Provider store={mockStoreInstance}>
+        <SideBar map={map} />
+      </Provider>
+    );
+
+    const tabs = screen.getAllByRole('tab');
+    userEvent.click(tabs[0]);
+
+    expect(mockStoreInstance.getActions()[0]).toEqual({
+      payload: { sidebarOpen: false, sidebarTab: 'reports' },
+      type: 'UPDATE_USER_PREFERENCES',
+    });
+  });
 });

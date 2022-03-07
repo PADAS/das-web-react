@@ -249,32 +249,25 @@ export const metersToPixelsAtMaxZoom = (meters, latitude) =>
 /* const getPixelsPerMeterAtMaxZoom = (map) => {
   map.setZoom(MAX_ZOOM);
   const maxWidth = 100;
-
   const getDistance = (latlng1, latlng2) => {
     // Uses spherical law of cosines approximation.
     const R = 6371000;
-
     const rad = Math.PI / 180,
       lat1 = latlng1.lat * rad,
       lat2 = latlng2.lat * rad,
       a = Math.sin(lat1) * Math.sin(lat2) +
         Math.cos(lat1) * Math.cos(lat2) * Math.cos((latlng2.lng - latlng1.lng) * rad);
-
     const maxMeters = R * Math.acos(Math.min(a, 1));
     return maxMeters;
-
   };
-
   const y = map._container.clientHeight / 2;
   const maxMeters = getDistance(map.unproject([0, y]), map.unproject([maxWidth, y]));
-
   return maxMeters / maxWidth;
 }; */
 
 
 /* 
 CANCEL MAPBOX ZOOM PROGRMAMATICALLY
-
 Unfortunately there’s no public Mapbox method to cancel a camera movement, but you can change the zoom level to trigger a halt.
 map.setZoom(map.getZoom() + 0.01);
 */
