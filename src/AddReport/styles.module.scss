@@ -33,6 +33,23 @@
   &:focus {
     outline: none;
   }
+
+  &.fill {
+    svg {
+      background-color: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+      
+      path {
+        stroke: currentColor;;
+        fill: currentColor;
+      }
+
+      rect {
+          fill: white;
+      }
+    }
+  }
 }
 
 .categoryTitle {

@@ -49,7 +49,6 @@
 
   [type="button"][class*=controlButton] {
     background: rgba(white, 0.8);
-    // border-radius: 0.333rem;
     &:hover,
     &:active {
       background: white;
@@ -81,10 +80,6 @@
   max-width: 11rem;
   width: 30vw;
   margin-bottom: 0.5rem;
-
-  .rotation-control {
-    order: 2;
-  }
 }
 
 .rotation-control {
@@ -98,22 +93,13 @@
 
 .general-add-button {
   width: 2.5rem;
-  > button {
-    svg {
-      width: 2.5rem;
-      height: 2.5rem;
-      background-color: $bright-blue;
-      border-radius: 50%;
-      box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
-      
-      path {
-        stroke: $bright-blue;;
-        fill: $bright-blue;
-      }
 
-      rect {
-          fill: white;
-      }
+  > button {
+    color: $bright-blue;
+
+    svg {
+      height: 2.5rem;
+      width: 2.5rem;
     }
   }
 }

@@ -188,21 +188,12 @@
   }
 }
 
-.addReport {
-  svg {
-    width: 2rem;
-    height: 2rem;
-    background-color: white;
-    border-radius: 50%;
-    
-    path {
-      stroke: white;;
-      fill: white;
-    }
+.addReport button[class*=fill] svg {
+  width: 2rem;
+  height: 2rem;
 
-    rect {
-        fill: $secondary-medium-gray;
-    }
+  g rect {
+    fill: $secondary-medium-gray;
   }
 }
 
