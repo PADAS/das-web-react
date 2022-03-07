@@ -28,7 +28,7 @@ describe('#showToast', () => {
     };
 
   });
-  test('showing a toast renders the ToastBody component with message, details, and link', () => {
+  test('showing a toast renders the ToastBody component with message, details, link, and configuration', () => {
     const toastObject = {
       message: 'yes',
       details: 'neato',
