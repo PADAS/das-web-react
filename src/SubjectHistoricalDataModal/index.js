@@ -48,10 +48,13 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
     if (activePage === 1) fetchObservations();
   }, [activePage, fetchObservations]);
 
+  useEffect(() => {
+    fetchObservations(activePage);
+  }, [activePage, fetchObservations]);
+
   const onPageClick = useCallback(async (page) => {
-    fetchObservations(page);
     setActivePage(page);
-  }, [fetchObservations]);
+  }, []);
 
   const getMatchedProperty = useCallback((labelToMatch, observationProperties) => {
     const matchedProp = observationProperties.find(prop =>  prop.label === labelToMatch);
@@ -96,6 +99,7 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
 
 SubjectHistoricalDataModal.propTypes = {
   title: PropTypes.string.isRequired,
+  subjectId: PropTypes.string.isRequired,
 };
 
 

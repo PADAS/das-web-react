@@ -72,7 +72,7 @@ describe('SubjectHistoricalDataModal', () => {
       expect(pagination).toBeDefined();
     });
 
-    test('Do not should show pagination if has less items than allowed per page', async () => {
+    test('Should not show pagination if has less items than allowed per page', async () => {
       const totalCount = 8;
       fetchObservationsForSubjectMock = jest.fn(() => () => Promise.resolve({
         count: totalCount,
