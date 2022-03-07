@@ -37,6 +37,7 @@ import baseLayersReducer, { currentBaseLayerReducer } from '../ducks/layers';
 import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
+import geoPermMessageTimestampReducer from '../ducks/geo-perm-ui';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
@@ -55,6 +56,7 @@ const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localF
 const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackLengthPersistanceConfig = generateStorageConfig('trackLength');
+const geoPermMessageTimestampConfig = generateStorageConfig('geoPermMessageTimestamps', localForage);
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -121,6 +123,7 @@ const rootReducer = combineReducers({
     printTitle: printTitleReducer,
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
+    geoPermMessageTimestamps: persistReducer(geoPermMessageTimestampConfig, geoPermMessageTimestampReducer),
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
   }),
 });

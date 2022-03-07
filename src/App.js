@@ -3,16 +3,15 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-import { toast } from 'react-toastify';
-
+import { ToastContainer, toast } from 'react-toastify';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
+import { geoPermWarningSplashToastIsDueToBeShown, userIsGeoPermissionRestricted } from './utils/geo-perms';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
-import { userIsGeoPermissionRestricted } from './utils/user';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
@@ -23,6 +22,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
+import { setSeenSplashWarningMessage } from './ducks/geo-perm-ui';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -75,7 +75,7 @@ const animateResize = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength, userIsGeoPermissionRestricted } = props;
+    sidebarOpen, updateNetworkStatus, trackLength, setTrackLength, setDefaultCustomTrackLength, setSeenSplashWarningMessage, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -174,14 +174,16 @@ const App = (props) => {
   }, [map, sidebarOpen]);
 
   useEffect(() => {
-    if (userIsGeoPermissionRestricted) {
+    if (showGeoPermWarningMessage) {
       showToast({
         message: 'Some data will only be displayed when you are near its location.',
-        details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
-        link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
-        toastConfig: { type: toast.TYPE.INFO, autoClose: false } });
+        // details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
+        // link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
+        toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
+          setSeenSplashWarningMessage(new Date().toISOString());
+        } } });
     }
-  }, [userIsGeoPermissionRestricted]);
+  }, [showGeoPermWarningMessage, setSeenSplashWarningMessage]);
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
@@ -208,11 +210,21 @@ const App = (props) => {
 
       <ServiceWorkerWatcher />
     </MapContext.Provider>
+    <ToastContainer />
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen, userIsGeoPermissionRestricted: userIsGeoPermissionRestricted(user) });
-const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
+const mapStateToProps = ({ view: { trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) =>
+  ({
+    trackLength,
+    pickingLocationOnMap,
+    sidebarOpen,
+    lastSeenGeoPermSplashWarning: null,
+    showGeoPermWarningMessage: userIsGeoPermissionRestricted(user) && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
+    userIsGeoPermissionRestricted: userIsGeoPermissionRestricted(user)
+  });
+
+const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setSeenSplashWarningMessage, setDefaultCustomTrackLength })(memo(App));
 
 const AppWithSocketContext = () => <WithSocketContext>
   <ConnectedApp />

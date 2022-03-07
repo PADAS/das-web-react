@@ -27,7 +27,7 @@ const RequestConfigManager = (props) => {
     const warningHeader = response?.headers?.warning;
 
     if (warningHeader) {
-      console.warn('warning header on response detected!', warningHeader);
+      console.warn('warning header on response detected!', warningHeader); // TOAST here for geo-permission-protected data
     };
   }, []);
 
@@ -37,7 +37,7 @@ const RequestConfigManager = (props) => {
     && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
 
     if (apiResponseErrorIsGeoPermissionsRelated(error)) {
-      // pop up a warning toast
+      // TOAST here for geo-permission errors
     }
   }, []);
 

@@ -271,7 +271,7 @@ export const GEOLOCATOR_OPTIONS = {
 
 export const DEFAULT_TOAST_CONFIG = {
   closeOnClick: false,
-  position: TOAST_POSITIONS.TOP_LEFT,
+  position: TOAST_POSITIONS.TOP_RIGHT,
   transition: Slide,
 };
 

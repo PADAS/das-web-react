@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ToastContainer } from 'react-toastify';
 import { library, dom } from '@fortawesome/fontawesome-svg-core';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -78,7 +77,6 @@ ReactDOM.render(
           </Switch>
         </Suspense>
       </BrowserRouter>
-      <ToastContainer />
       <DetectOffline />
     </PersistGate>
     <GeoLocationWatcher />

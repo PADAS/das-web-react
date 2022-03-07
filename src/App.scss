@@ -10,9 +10,13 @@
   box-sizing: border-box;
 }
 
-.Toastify__toast-container--top-left {
-  left: 0.5rem;
-  top: 6.5rem;
+.Toastify__toast-container {
+  z-index: 1;
+}
+
+.Toastify__toast-container--top-right {
+  right: 0.5rem;
+  top: 9.5rem;
 }
 
 div.mapboxgl-canvas-container.mapboxgl-interactive {

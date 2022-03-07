@@ -11,6 +11,7 @@ import { CLIENT_BUILD_VERSION } from '../constants';
 import ReactGA from 'react-ga';
 
 export const MAP_INTERACTION_CATEGORY = 'Map Interaction';
+export const DRAWER_CATEGORY = 'Map Drawer';
 export const MAP_LAYERS_CATEGORY = 'Map Layers';
 export const BASE_LAYER_CATEGORY = 'Base Layer';
 export const PATROL_LIST_ITEM_CATEGORY = 'Patrol List Item';

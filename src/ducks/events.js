@@ -1,11 +1,11 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, FEATURE_FLAGS } from '../constants';
+import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { userIsGeoPermissionRestricted } from '../utils/user';
+import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter, eventsApiErrorIsGeoPermissionsRelated } from '../utils/events';
 
