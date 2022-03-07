@@ -140,7 +140,7 @@ const createSocket = (url = SOCKET_URL) => {
       // original behavior for bound events
       return oldFn(msg, fn);
     };
-    return socket._on(eventName, newFn);
+    return [socket._on(eventName, newFn), oldFn];
   };
 
   bindSocketEvents(socket, store);
