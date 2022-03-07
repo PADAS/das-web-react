@@ -1,11 +1,12 @@
 import { toast } from 'react-toastify';
 
-import { buildbranch, buildnum } from '../../package.json';
+import * as packageJson from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import layoutVariables from '../common/styles/layout.module.scss';
 
 const { POSITION: TOAST_POSITIONS, Slide } = toast;
+const { buildbranch, buildnum } = packageJson;
 
 export const {
   REACT_APP_DAS_HOST,
