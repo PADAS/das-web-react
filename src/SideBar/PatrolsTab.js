@@ -14,7 +14,7 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults }) => {
   };
 
   return <>
-    {showPatrolDrawer && <PatrolDrawer patrolId={selectedPatrol} className={StyleSheet.patrolView}/>}
+    {showPatrolDrawer && <PatrolDrawer patrolId={selectedPatrol} className={StyleSheet.patrolDetailView}/>}
     <PatrolFilter />
     <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={onItemListClick}/>
   </>;
