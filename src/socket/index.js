@@ -133,14 +133,14 @@ const createSocket = (url = SOCKET_URL) => {
 
   socket.on = (eventName, oldFn) => {
     const newFn = (msg, fn) => {
-      // new behavior for all socket events
+      // new behavior for all socket events. this takes a callback sent via the realtime services and sends the trace_id back to the server.
       if (fn && msg && msg.trace_id) {
         fn(msg.trace_id);
       }
       // original behavior for bound events
       return oldFn(msg, fn);
     };
-    return [socket._on(eventName, newFn), oldFn];
+    return [socket._on(eventName, newFn), newFn];
   };
 
   bindSocketEvents(socket, store);
