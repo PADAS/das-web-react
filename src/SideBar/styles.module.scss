@@ -102,7 +102,7 @@
   &[class*=open] {
     opacity: 1;
     transform: translateX(0);
-    width: var(--sidebar-width);
+    width: auto;
 
     .filterWrapper {
       border-bottom: 1px solid $light-gray-border;
@@ -169,6 +169,10 @@
     border: none;
   }
 
+  .reportsTab, .patrolsList {
+    width: var(--sidebar-width);
+  }
+
   .mapLayers {
     background-color: white;
     height: 100%;
@@ -189,7 +193,7 @@
     }
   }
 
-  .patrolView{
+  .patrolDetailView{
     position: absolute;
     top: 0;
   }

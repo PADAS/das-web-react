@@ -154,7 +154,7 @@ const SideBar = ({ map }) => {
             </div>
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-              <ReportsTab map={map} sidebarOpen={sidebarOpen} />
+              <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>

@@ -14,9 +14,11 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults }) => {
   };
 
   return <>
-    {showPatrolDrawer && <PatrolDrawer patrolId={selectedPatrol} className={StyleSheet.patrolView}/>}
-    <PatrolFilter />
-    <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={onItemListClick}/>
+    {showPatrolDrawer && <PatrolDrawer patrolId={selectedPatrol} className={StyleSheet.patrolDetailView}/>}
+    <div className={StyleSheet.patrolsList}>
+      <PatrolFilter />
+      <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={onItemListClick}/>
+    </div>
   </>;
 };
 
