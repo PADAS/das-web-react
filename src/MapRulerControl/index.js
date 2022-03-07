@@ -188,15 +188,15 @@ const MapRulerControl = (props) => {
 
   return <Fragment>
     <div className={styles.buttons}>
+      {active && <Button variant='dark' size='sm' id='cancel-location-select'
+        onClick={toggleActiveState} type='button'>
+        {completed ? 'Close' : 'Cancel'}
+      </Button>}
       <button type='button' title='Map ruler'
         className={`${styles.button} ${active ? 'active' : ''}`}
         onClick={toggleActiveState}>
         <RulerIcon />
       </button>
-      {active && <Button variant='dark' size='sm' id='cancel-location-select'
-        onClick={toggleActiveState} type='button'>
-        {completed ? 'Close' : 'Cancel'}
-      </Button>}
     </div>
     {active && <Fragment>
       {points.length > 1 && <Fragment>

@@ -5,8 +5,8 @@
   --color:var(--hamburger-menu-color, white);
   --size: var(--hamburger-menu-size, 1.5rem);
   --transition-time: var(--hamburger-menu-transition-speed, .15s);
-  --spacing: calc(var(--size)/3);
-  --line-width: var(--hamburger-menu-stroke, calc(1rem / 6));
+  --spacing: 0.4375rem;
+  --line-width: var(--hamburger-menu-stroke, 0.1875rem);
 
   cursor: pointer;
   height: calc(var(--size) / 1.5);

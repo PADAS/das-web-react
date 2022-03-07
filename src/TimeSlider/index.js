@@ -123,7 +123,7 @@ const TimeSlider = (props) => {
 
   const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
 
-  return <div className={`${styles.wrapper} ${sidebarOpen ? 'sidebarOpen' : styles.sidebarClosed}`}>
+  return <div className={`${styles.wrapper} ${sidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
     <OverlayTrigger target={leftPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={PopoverContent} flip={true}>
       <div ref={leftPopoverTrigger} onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
         <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(startDate)}</span>

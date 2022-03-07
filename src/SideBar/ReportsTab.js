@@ -15,7 +15,6 @@ import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
-import styles from './styles.module.scss';
 
 import DelayedUnmount from '../DelayedUnmount';
 import ErrorBoundary from '../ErrorBoundary';
@@ -24,10 +23,12 @@ import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
 
+import styles from './styles.module.scss';
+
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map, } = props;
+  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map } = props;
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
