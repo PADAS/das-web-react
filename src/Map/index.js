@@ -197,6 +197,10 @@ class Map extends Component {
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
       this.debouncedFetchMapData();
     }
+    if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
+      console.log('location update, re-fetching map events');
+      this.debouncedFetchMapEvents();
+    }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
     }
@@ -332,7 +336,13 @@ class Map extends Component {
   }
 
   fetchMapEvents() {
-    return this.props.fetchMapEvents(this.props.map)
+    let params;
+    if (this.props.userLocation?.coords) {
+      params = {
+        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+      };
+    }
+    return this.props.fetchMapEvents(this.props.map, params)
       .catch((e) => {
         console.warn('error fetching map events', e);
       });
@@ -698,11 +708,12 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
     maps,
+    userLocation,
     eventTypes,
     heatmapSubjectIDs,
     tracks,

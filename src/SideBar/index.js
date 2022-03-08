@@ -93,16 +93,18 @@ const SideBar = ({ map }) => {
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
-    setPatrolLoadState(true);
-    fetchAndLoadPatrolData();
-    return () => {
-      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+    if (showPatrols) {
+      setPatrolLoadState(true);
+      fetchAndLoadPatrolData();
+      return () => {
+        const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
 
-      if (priorRequestCancelToken) {
-        priorRequestCancelToken.cancel();
-      }
-    };
-  }, [fetchAndLoadPatrolData, patrolFilterParams]);
+        if (priorRequestCancelToken) {
+          priorRequestCancelToken.cancel();
+        }
+      };
+    }
+  }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
     if (VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {

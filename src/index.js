@@ -13,6 +13,8 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 
+import GeoLocationWatcher from './GeoLocationWatcher';
+
 import store from './store';
 
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
@@ -79,6 +81,7 @@ ReactDOM.render(
       <ToastContainer />
       <DetectOffline />
     </PersistGate>
+    <GeoLocationWatcher />
   </Provider>
   , document.getElementById('root'));
 
