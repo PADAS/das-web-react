@@ -29,6 +29,7 @@ import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 
 import styles from './styles.module.scss';
 
@@ -51,6 +52,7 @@ const SideBar = ({ map }) => {
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
+  const [nestedNavigationState, setNestedNavigationState] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -95,6 +97,11 @@ const SideBar = ({ map }) => {
       dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: clickedSidebarTab }));
     }
   }, [dispatch, sidebarOpen, sidebarTab]);
+
+  const handleCloseSideBar = useCallback(() => {
+    dispatch(updateUserPreferences({ sidebarOpen: false }));
+    setNestedNavigationState(false);
+  }, [dispatch]);
 
   useEffect(() => {
     if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
@@ -170,14 +177,20 @@ const SideBar = ({ map }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-                <AddReport className={styles.addReport} fill popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+                {nestedNavigationState ?
+                  <button type='button' onClick={() => setNestedNavigationState(false)}>
+                    <ArrowLeftIcon />
+                  </button>
+                   :
+                  <AddReport className={styles.addReport} fill popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+                }
               </div>
 
               <h3>{tabTitle}</h3>
 
               <button
                 data-testid="sideBar-closeButton"
-                onClick={() => dispatch(updateUserPreferences({ sidebarOpen: false }))}
+                onClick={handleCloseSideBar}
               >
                 <CrossIcon />
               </button>
@@ -188,7 +201,13 @@ const SideBar = ({ map }) => {
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+              <PatrolsTab
+                loadingPatrols={loadingPatrols}
+                map={map}
+                patrolResults={patrols.results}
+                nestedNavigationState={nestedNavigationState}
+                changeNestedNavigation={(value) => setNestedNavigationState(value)}
+              />
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>

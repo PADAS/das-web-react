@@ -18,7 +18,6 @@ import {
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { hideDrawer } from '../ducks/drawer';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { PATROL_DRAWER_CATEGORY, trackEventFactory } from '../utils/analytics';
 
@@ -35,7 +34,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 // TODO: unused variables will be useful later
 /* eslint-disable no-unused-vars */
-const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData, startStopGeometries }) => {
+const PatrolDrawer = ({ patrol, leader, patrolPermissions, onCloseDetailView, trackData, startStopGeometries }) => {
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
@@ -79,14 +78,14 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
     return executeSaveActions(actions)
       .then(() => {
         patrolDrawerTracker.track(`Saved ${patrolTrackStatus} patrol`);
-        hideDrawer();
+        onCloseDetailView();
       })
       .catch((error) => {
         patrolDrawerTracker.track(`Error saving ${patrolTrackStatus} patrol`);
         console.warn('failed to save new patrol', error);
       })
       .finally(() => setSaveState(false));
-  }, [hideDrawer, newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus]);
+  }, [onCloseDetailView, newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus]);
 
   return !!patrolForm && <div className={styles.patrolDrawer} data-testid="patrolDrawerContainer">
     <Header
@@ -136,7 +135,7 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
           </Tab.Content>
 
           <div className={styles.footer}>
-            <Button className={styles.exitButton} onClick={() => hideDrawer()} type="button" variant="secondary">
+            <Button className={styles.exitButton} onClick={() => onCloseDetailView()} type="button" variant="secondary">
               Exit
             </Button>
 
@@ -155,7 +154,7 @@ const PatrolDrawer = ({ hideDrawer, patrol, leader, patrolPermissions, trackData
 };
 
 PatrolDrawer.propTypes = {
-  hideDrawer: PropTypes.func.isRequired,
+  onCloseDetailView: PropTypes.func.isRequired,
   leader: PropTypes.shape({
     name: PropTypes.string,
   }),
@@ -181,4 +180,4 @@ const mapStateToProps = (state, props) => {
   return { ...createPatrolDataSelector()(state, { patrol }), patrolPermissions };
 };
 
-export default connect(mapStateToProps, { hideDrawer })(PatrolDrawer);
+export default connect(mapStateToProps, null)(PatrolDrawer);
