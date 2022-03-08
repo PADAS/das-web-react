@@ -20,7 +20,7 @@ describe('The GeoLocationWatcher', () => {
   let store;
 
   beforeEach(() => {
-    store = mockStore({ view: { userLocation: null } });
+    store = mockStore({ view: { userLocation: null }, data: { user: { } } });
     const mockGeolocation = {
       clearWatch: jest.fn(),
       getCurrentPosition: jest.fn().mockReturnValue(mockUserLocation),

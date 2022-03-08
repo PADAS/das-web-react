@@ -17,10 +17,6 @@ describe('#showToast', () => {
       return toastSpy;
     };
 
-    console.log('mockToastFn.TYPE', mockToastFn.TYPE);
-
-    console.log('toastLib.toast', toastLib.toast);
-
     jest.spyOn(toastLib, 'toast').mockImplementation(mockToastFn);
 
     toastLib.toast.TYPE = {
@@ -42,7 +38,7 @@ describe('#showToast', () => {
 
     expect(toastLib.toast).toHaveBeenCalled();
     expect(toastLib.toast.mock.calls[0]).toEqual(
-      [<ToastBody {...toastObject} />, { ...DEFAULT_TOAST_CONFIG, type: toastLib.toast.TYPE.ERROR }], /* eslint-disable-line */
+      [<ToastBody {...toastObject} />, { ...DEFAULT_TOAST_CONFIG }], /* eslint-disable-line */
     );
 
   });

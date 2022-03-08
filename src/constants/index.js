@@ -273,6 +273,7 @@ export const DEFAULT_TOAST_CONFIG = {
   closeOnClick: false,
   position: TOAST_POSITIONS.TOP_RIGHT,
   transition: Slide,
+  type: toast.TYPE.ERROR,
 };
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];

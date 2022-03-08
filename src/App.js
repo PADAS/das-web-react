@@ -175,13 +175,17 @@ const App = (props) => {
 
   useEffect(() => {
     if (showGeoPermWarningMessage) {
-      showToast({
+      const toastId = showToast({
         message: 'Some data will only be displayed when you are near its location.',
         // details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
         // link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
         toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
           setSeenSplashWarningMessage(new Date().toISOString());
         } } });
+
+      return () => {
+        toast.dismiss(toastId);
+      };
     }
   }, [showGeoPermWarningMessage, setSeenSplashWarningMessage]);
 
@@ -214,15 +218,19 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) =>
-  ({
+const mapStateToProps = ({ view: { userLocation, trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
+  const geoPermRestricted = userIsGeoPermissionRestricted(user);
+  const userLocationIsKnown = !!userLocation;
+
+  return {
     trackLength,
     pickingLocationOnMap,
     sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
-    showGeoPermWarningMessage: userIsGeoPermissionRestricted(user) && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
-    userIsGeoPermissionRestricted: userIsGeoPermissionRestricted(user)
-  });
+    showGeoPermWarningMessage: geoPermRestricted && userLocationIsKnown && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
+    userIsGeoPermissionRestricted: geoPermRestricted,
+  };
+};
 
 const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setSeenSplashWarningMessage, setDefaultCustomTrackLength })(memo(App));
 
