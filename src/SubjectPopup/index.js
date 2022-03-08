@@ -118,7 +118,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
       )}
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
-    {hasAdditionalDeviceProps && subjectIsStatic && <Button data-testid='show-historical-data-btn' variant='light' size='sm' type='button' className={styles.historicalDataButton} onClick={onHistoricalDataClick} >Show historical data</Button>}
+    {hasAdditionalDeviceProps && subjectIsStatic(data) && <Button data-testid='show-historical-data-btn' variant='light' size='sm' type='button' className={styles.historicalDataButton} onClick={onHistoricalDataClick} >Show historical data</Button>}
     {tracks_available && (
       <Fragment>
         <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
