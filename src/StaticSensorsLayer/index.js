@@ -53,8 +53,8 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
       featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapStaticSubjectsNames);
 
       if (!isEmpty(defaultProperty)) {
-        const propertyUnits = !!JSON.parse(defaultProperty.units) ? ` ${defaultProperty.units}` : '';
-        featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value}${propertyUnits}`);
+        const propertyUnitsLabel = JSON.parse(JSON.stringify(defaultProperty.units)) ? ` ${defaultProperty.units}` : '';
+        featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value}${propertyUnitsLabel}`);
       };
 
       if (!properties?.image?.length) {
