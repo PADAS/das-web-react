@@ -59,7 +59,9 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
   const getMatchedProperty = useCallback((labelToMatch, observationProperties) => {
     const matchedProp = observationProperties.find(prop =>  prop.label === labelToMatch);
     if (!matchedProp) return <span className={styles.noDataLabel}>No data</span>;
-    return <span className={styles.propertyValue}>{`${matchedProp.value} ${matchedProp.units}`}</span>;
+    const propertyUnits = !!JSON.parse(matchedProp.units) ? ` ${matchedProp.units}` : '';
+
+    return <span className={styles.propertyValue}>{`${matchedProp.value}${propertyUnits}`}</span>;
   }, []);
 
   return <>
@@ -100,6 +102,7 @@ const SubjectHistoricalDataModal = ({ title, subjectId, fetchObservationsForSubj
 SubjectHistoricalDataModal.propTypes = {
   title: PropTypes.string.isRequired,
   subjectId: PropTypes.string.isRequired,
+  fetchObservationsForSubject: PropTypes.func.isRequired,
 };
 
 
