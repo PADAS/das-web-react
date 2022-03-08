@@ -137,7 +137,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   return <Popover {...rest} ref={ref} className={styles.popover}>
     <Popover.Content>
       <Tabs activeKey={activeTab} onSelect={onTabSelect} className={styles.tabBar}>
-        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
+        {!!eventsByCategory?.length && <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
           <div className={styles.reportTypeSearchControls}>
             <SearchBar className={styles.search} placeholder='Search' value={reportFilter}
               onChange={onReportSearchValueChange} onClear={onReportFilterClear} />
@@ -152,7 +152,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
             />
           </div>
           <ReportTypeList ref={reportTypesListRef} categories={eventsByCategory} filter={reportFilter} onClickReportType={onClickReportType} />
-        </Tab>
+        </Tab>}
         {!!patrolCategories?.length && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Add Patrol">
           <div className={styles.reportTypeSearchControls}>
             <SearchBar className={styles.search} placeholder='Search' value={patrolFilter}
@@ -170,7 +170,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
 
 
   const map = useContext(MapContext);
-  const { hidePatrols } = formProps;
+  const { hidePatrols, hideReports } = formProps;
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
@@ -245,7 +245,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
   return hasEventCategories &&
 
   <PatrolTypesContext.Provider value={patrolCategories}>
-    <ReportTypesContext.Provider value={eventsByCategory}>
+    <ReportTypesContext.Provider value={hideReports ? [] : eventsByCategory}>
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
@@ -286,6 +286,7 @@ AddReport.defaultProps = {
   fill: false,
   formProps: {
     hidePatrols: false,
+    hideReports: false,
     isPatrolReport: false,
     relationshipButtonDisabled: false,
     onSaveSuccess() {
@@ -311,6 +312,7 @@ AddReport.propTypes = {
     onSaveSuccess: PropTypes.func,
     onSaveError: PropTypes.func,
     hidePatrols: PropTypes.bool,
+    hideReports: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
 };

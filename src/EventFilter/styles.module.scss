@@ -114,17 +114,11 @@ div.filterPopover {
 }
 
 .popoverTrigger {
-  --iconDimensions: 0.8rem;
-
-  @media (min-width: $md-layout-width-min) {
-    --iconDimensions: 1.25rem;
-  }
-
   svg {
     display: inline-block;
-    height: var(--iconDimensions);
-    width: var(--iconDimensions);
-    margin-right: 0.5rem;
+    height: 0.875rem;
+    width: 0.875rem;
+    margin-right: 0.25rem;
 
     * {
       stroke: gray;
