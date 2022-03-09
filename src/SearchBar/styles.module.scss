@@ -1,6 +1,5 @@
 @import '../common/styles/vars/colors';
 
-$unfiltered-color : $secondary-light-gray;
 $filtered-color : $highlight-color;
 
 .search {
@@ -12,22 +11,23 @@ $filtered-color : $highlight-color;
 
   input {
     border-radius: 0.25rem;
+    border: 1px solid $secondary-light-gray;
     flex-grow: 1;
     padding: 0.25rem 1.75rem;
     font-size: 0.875rem;
     width: 100%;
 
     &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-      color: $unfiltered-color;
+      color: $secondary-medium-gray;
       opacity: 1; /* Firefox */
     }
 
     &::-ms-input-placeholder { /* Microsoft Edge */
-      color: $unfiltered-color;
+      color: $secondary-medium-gray;
     }
 
     &:-ms-input-placeholder { /* Internet Explorer 10-11 */
-      color: $unfiltered-color;
+      color: $secondary-medium-gray;
     }
   }
 
@@ -42,12 +42,12 @@ $filtered-color : $highlight-color;
 
     circle {
       fill: none;
-      stroke: $unfiltered-color;
+      stroke: $secondary-medium-gray;
       stroke-width: 1rem;
     }
 
     path {
-      fill: $unfiltered-color;
+      fill: $secondary-medium-gray;
     }
 
     * {
@@ -69,7 +69,7 @@ $filtered-color : $highlight-color;
     cursor: pointer;
 
     svg * {
-      stroke: $unfiltered-color;
+      stroke: $secondary-medium-gray;
     }
 
     &:hover > svg * {
@@ -104,11 +104,11 @@ $filtered-color : $highlight-color;
   &:hover:not(.isFiltered) {
     .searchIcon {
       circle {
-        stroke: darken($unfiltered-color, 30%);
+        stroke: darken($secondary-medium-gray, 30%);
       }
 
       path {
-        fill: darken($unfiltered-color, 30%);
+        fill: darken($secondary-medium-gray, 30%);
       }
     }
   }
