@@ -4,6 +4,9 @@ import SocketMock from 'socket.io-mock';
 export const SocketContext = createContext(null);
 export const mockedSocket = new SocketMock();
 
+mockedSocket._on = mockedSocket.on.bind(mockedSocket);
+mockedSocket.on = (msg, fn) => [mockedSocket._on(msg, fn), fn];
+
 const MockSocketContext = (props) => { // eslint-disable-line react/display-name
   const { children } = props;
 
