@@ -142,7 +142,7 @@ class Map extends Component {
     if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
       this.props.hidePopup(this.props.popup.id);
     }
-  }, 100)
+  }, 100);
 
   withLocationPickerState(func) {
     return (...args) => {
@@ -197,6 +197,10 @@ class Map extends Component {
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
       this.debouncedFetchMapData();
     }
+    if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
+      console.log('location update, re-fetching map events');
+      this.debouncedFetchMapEvents();
+    }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
     }
@@ -243,7 +247,7 @@ class Map extends Component {
   onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
-  })
+  });
 
   onMapMoveStart() {
     mapSubjectsFetchCancelToken.cancel();
@@ -259,7 +263,7 @@ class Map extends Component {
       bearing: 0,
       pitch: 0,
     });
-  }
+  };
 
   toggleMapLockState() {
     return toggleMapLockState();
@@ -291,7 +295,7 @@ class Map extends Component {
     }
   }
 
-  debouncedFetchMapData = debounce(this.fetchMapData, 500)
+  debouncedFetchMapData = debounce(this.fetchMapData, 500);
   debouncedFetchMapEvents = debounce(this.fetchMapEvents, 300);
 
   fetchMapSubjects() {
@@ -332,7 +336,13 @@ class Map extends Component {
   }
 
   fetchMapEvents() {
-    return this.props.fetchMapEvents(this.props.map)
+    let params;
+    if (this.props.userLocation?.coords) {
+      params = {
+        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+      };
+    }
+    return this.props.fetchMapEvents(this.props.map, params)
       .catch((e) => {
         console.warn('error fetching map events', e);
       });
@@ -385,7 +395,7 @@ class Map extends Component {
     if (this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
       this.props.updateUserPreferences({ sidebarOpen: false });
     }
-  })
+  });
 
   onShowClusterSelectPopup = (layers, coordinates) => {
     this.props.showPopup('cluster-select', {
@@ -394,7 +404,7 @@ class Map extends Component {
       onSelectEvent: this.onEventSymbolClick,
       onSelectSubject: this.onMapSubjectClick,
     });
-  }
+  };
 
   onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
     if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
@@ -404,7 +414,7 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
-  })
+  });
 
   onClusterLeafClick = this.withLocationPickerState((report) => {
     this.onEventSymbolClick({ layer: { properties: report } });
@@ -415,7 +425,7 @@ class Map extends Component {
 
     this.props.showPopup('feature-symbol', { geometry, properties, coordinates });
     mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  })
+  });
 
   onAnalyzerGroupEnter = (e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new 
@@ -429,14 +439,14 @@ class Map extends Component {
     this.currentAnalyzerIds = groupIds;
     const { map } = this.props;
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);
-  }
+  };
 
   onAnalyzerGroupExit = (e, groupIds) => {
     // shortcircuit when the analyzer popup is displayed
     if (this.props.popup && this.props.popup.type === 'analyzer-config') return;
     const { map } = this.props;
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
-  }
+  };
 
   onAnalyzerFeatureClick = this.withLocationPickerState((e) => {
     const { map } = this.props;
@@ -446,7 +456,7 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, this.props.analyzerFeatures);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
-  })
+  });
 
   hideUnpinnedTrackLayers(map, event) {
     const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible: visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
@@ -488,12 +498,12 @@ class Map extends Component {
         });
       }
     });
-  })
+  });
 
   onCurrentUserLocationClick = this.withLocationPickerState((location) => {
     this.props.showPopup('current-user-location', { location, coordinates: [location.coords.longitude, location.coords.latitude] });
     mapInteractionTracker.track('Click Current User Location Icon');
-  })
+  });
 
   onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
     if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
@@ -518,7 +528,7 @@ class Map extends Component {
     const { geometry, properties } = layer;
 
     this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
-  })
+  });
 
   setMap(map) {
     // don't set zoom if not hydrated
@@ -699,11 +709,12 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
     maps,
+    userLocation,
     eventTypes,
     heatmapSubjectIDs,
     tracks,
