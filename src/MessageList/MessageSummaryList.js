@@ -67,10 +67,10 @@ const MessageSummaryList = (props) => {
       dispatch(updateMessageFromRealtime(msg));
     };
 
-    socket.on('radio_message', handleRealtimeMessage);
+    const [, fnRef] = socket.on('radio_message', handleRealtimeMessage);
 
     return () => {
-      socket.off('radio_message', handleRealtimeMessage);
+      socket.off('radio_message', fnRef);
     };
   }, [dispatch, socket]);
 

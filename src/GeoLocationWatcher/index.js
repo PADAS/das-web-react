@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
+import isEqual from 'react-fast-compare';
 
 import { GEOLOCATOR_OPTIONS } from '../constants';
 
@@ -9,9 +10,11 @@ import { showToast } from '../utils/toast';
 
 import { setCurrentUserLocation } from '../ducks/location';
 
+const ONE_MINUTE = 1000 * 60;
 
-const GeoLocationWatcher = ({ setCurrentUserLocation: onSuccess, user }) => {
 
+const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, updateRate = ONE_MINUTE }) => {
+  const localUserLocationState = useRef(userLocation);
   const errorToastId = useRef(null);
 
   const onError = useCallback((error) => {
@@ -36,7 +39,12 @@ const GeoLocationWatcher = ({ setCurrentUserLocation: onSuccess, user }) => {
 
   useEffect(() => {
     const startWatchingPosition = () => {
-      return window.navigator.geolocation.watchPosition(onSuccess, onError, GEOLOCATOR_OPTIONS);
+      return window.navigator.geolocation.watchPosition(
+        position =>
+          localUserLocationState.current = position,
+        onError,
+        GEOLOCATOR_OPTIONS,
+      );
     };
 
     const locationWatchId = startWatchingPosition();
@@ -44,10 +52,29 @@ const GeoLocationWatcher = ({ setCurrentUserLocation: onSuccess, user }) => {
     return () => {
       window.navigator.geolocation.clearWatch(locationWatchId);
     };
-  }, [onError, onSuccess]);
+  }, [onError]);
+
+  useEffect(() => {
+    const setUserLocationFromStateIfUpdated = () => {
+      if (!isEqual(localUserLocationState?.current?.coords, userLocation?.coords)) {
+        setCurrentUserLocation(localUserLocationState.current);
+      }
+    };
+
+    if (!userLocation && !!localUserLocationState?.current) {
+      setCurrentUserLocation(localUserLocationState.current);
+    }
+
+    const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [updateRate, userLocation, setCurrentUserLocation]);
 
   return null;
 };
 
-const mapStateToProps = ({ data: { user } }) => ({ user });
+const mapStateToProps = ({ data: { user }, view: { userLocation } }) => ({ user, userLocation });
+
 export default connect(mapStateToProps, { setCurrentUserLocation })(GeoLocationWatcher);

@@ -5,7 +5,6 @@ import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
-import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter, eventsApiErrorIsGeoPermissionsRelated } from '../utils/events';
 
@@ -59,19 +58,6 @@ const NEW_EVENT_TYPE = 'new_event';
 const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
-const shouldAddUserLocationToEventRequests = (state) => {
-  return userIsGeoPermissionRestricted(state?.data?.user);
-};
-
-const getUserCoords = (state) => {
-  const userLocation = state?.view?.userLocation;
-  if (!userLocation) return null;
-
-  const {  coords: { latitude, longitude } } = userLocation;
-
-  return { latitude, longitude };
-};
-
 export const socketEventData = (payload) => (dispatch) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
 
@@ -108,21 +94,11 @@ const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
 
   const fetchFn = (config, paramString) => (dispatch, getState) => {
-    const state = getState();
 
     cancelToken.cancel();
     cancelToken = CancelToken.source();
 
     let finalParamString = paramString;
-
-    if (shouldAddUserLocationToEventRequests(state)) {
-      const coords = getUserCoords(state);
-
-      if (coords) {
-
-        finalParamString = `${paramString}&location=${coords.longitude},${coords.latitude}`;
-      }
-    }
 
     dispatch({
       name,
@@ -371,7 +347,7 @@ export const cancelMapEventsFetch = () => {
   }
 };
 
-export const fetchMapEvents = (map) => async (dispatch, getState) => {
+export const fetchMapEvents = (map, parameters) => async (dispatch, getState) => {
   try {
 
     const state = getState();
@@ -383,15 +359,7 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
     if (!map && !lastKnownBbox) return Promise.reject('no map available');
 
     const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-    const params = { bbox, page_size: 25 };
-
-    if (shouldAddUserLocationToEventRequests(state)) {
-      const coords = getUserCoords(state);
-
-      if (coords) {
-        params.location = `${coords.longitude},${coords.latitude}`;
-      }
-    }
+    const params = { bbox, page_size: 25, ...parameters };
 
     const eventFilterParamString = calcEventFilterForRequest({ params });
 
