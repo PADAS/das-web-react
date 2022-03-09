@@ -38,7 +38,7 @@
     "react-mapbox-gl": "4.8.3",
     "react-redux": "^7.0.3",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "4.0.3",
+    "react-scripts": "5.0.0",
     "react-select": "^3.0.3",
     "react-toastify": "^5.4.0",
     "redux": "^4.0.0",
@@ -60,20 +60,20 @@
     "eject": "react-scripts eject",
     "lint": "CI=true eslint src",
     "stylelint": "node ./node_modules/stylelint/bin/stylelint.js ./src/**/*.scss",
-    "test-ci": "CI=true react-scripts test --silent --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
+    "test-ci": "CI=true react-scripts test --silent --detectOpenHandles --forceExit --transformIgnorePatterns \"node_modules/(?!geodesy)/\"",
     "test-cov": "yarn test-ci --coverage",
     "posttest-cov": "jest-coverage-thresholds-bumper --margin=1",
     "postinstall": "sh setUpLocalGitConfig.sh"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.17.0",
     "@babel/runtime": "^7.7.4",
     "@testing-library/dom": "^8.1.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.0.16",
-    "eslint": "^7.32.0",
+    "eslint": "^8.10.0",
     "eslint-config-airbnb": "^18.0.1",
-    "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-react": "^7.12.4",
     "eslint-plugin-react-hooks": "^1.6.0",
     "jest-coverage-thresholds-bumper": "^1.0.1",
@@ -91,9 +91,9 @@
   "jest": {
     "coverageThreshold": {
       "global": {
-        "branches": 23.59,
-        "functions": 22.51,
-        "lines": 36.18,
+        "branches": 24.87,
+        "functions": 23.56,
+        "lines": 37.2,
         "statements": 34.53
       }
     },
@@ -110,6 +110,7 @@
   "resolutions": {
     "eslint-loader": "3.0.2",
     "mapbox-gl": "2.4.1",
+    "node-fetch": "2.6.7",
     "immer": "9.0.6"
   }
 }

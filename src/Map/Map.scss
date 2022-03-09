@@ -1,3 +1,5 @@
+@import '../common/styles/layout';
+
 .main-map {
   h5 {
     line-height: normal;
@@ -51,6 +53,10 @@
       background: white;
     }
   }
+
+  @media (min-width: $md-layout-width-min) {
+    margin-left: var(--vertical-nav-width);
+  }
 }
 
 .map-legends {
@@ -58,6 +64,10 @@
   top: 0.5rem;
   left: 0.666rem;
   z-index: 11;
+
+  @media (min-width: $md-layout-width-min) {
+    margin-left: var(--vertical-nav-width);
+  }
 }
 
 .timeslider-active {
