@@ -44,16 +44,18 @@ describe('fetchMapEvents', () => {
         expect(error).toEqual('no map available');
       });
   });
-  test('appending a "location" parameter if geopermissions are enabled and a user location is available', async () => {
+  test('appending parameters when passed', async () => {
     store = mockStore({ data: { mapEvents: { bbox: '1,2,3,4' } }, view: { userLocation: { coords: { longitude: 1, latitude: 2 } }, systemConfig: { geoPermissionsEnabled: true } } });
 
     jest.spyOn(axios, 'get').mockImplementationOnce(() => Promise.resolve());
 
-    await store.dispatch(fetchMapEvents(map));
+    const PARAM_NAME = 'location';
+
+    await store.dispatch(fetchMapEvents(map, { [PARAM_NAME]: 'latitude=whatever,longitude=neato' }));
 
     expect(axios.get).toHaveBeenCalledTimes(1);
 
-    expect(axios.get.mock.calls[0][0].includes('location')).toBeTruthy();
+    expect(axios.get.mock.calls[0][0].includes(PARAM_NAME)).toBeTruthy();
   });
   test('handling 403 Forbidden errors for geo-permission-restricted users', () => {
     const server = setupServer(
