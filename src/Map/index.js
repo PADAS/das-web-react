@@ -63,7 +63,7 @@ import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
-import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
+import AddReport from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
