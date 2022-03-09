@@ -102,4 +102,10 @@
       width: 2.5rem;
     }
   }
+
+  .arrow {
+    &::after, &::before {
+      transform: translateY(-0.325rem);
+    }
+  }
 }

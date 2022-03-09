@@ -188,12 +188,28 @@
   }
 }
 
-.addReport button[class*=fill] svg {
-  width: 2rem;
-  height: 2rem;
+.addReport {
+  button[class*=addReportFill] svg {
+    width: 2rem;
+    height: 2rem;
+    background-color: white;
 
-  g rect {
-    fill: $secondary-medium-gray;
+    g {
+      path {
+        stroke: white;
+        fill: white;
+      }
+
+      rect {
+        fill: $secondary-medium-gray;
+      }
+    }
+  }
+
+  [class*=arrow] {
+    &::after, &::before {
+      transform: translateX(-0.325rem);
+    }
   }
 }
 

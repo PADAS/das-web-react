@@ -249,7 +249,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={`${styles.addReport} ${fill ? styles.fill : ''}`}
+          className={fill ? styles.addReportFill : styles.addReport}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}
