@@ -11,7 +11,7 @@ import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
 import { calcEventFilterForRequest } from '../utils/event-filter';
 
 
-const EVENTS_API_URL = `${API_URL}activity/events/`;
+export const EVENTS_API_URL = `${API_URL}activity/events/`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 
 // actions
@@ -93,15 +93,18 @@ const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
 
   const fetchFn = (config, paramString) => (dispatch, getState) => {
+
     cancelToken.cancel();
     cancelToken = CancelToken.source();
+
+    let finalParamString = paramString;
 
     dispatch({
       name,
       type: FEED_FETCH_START,
     });
 
-    return axios.get(`${EVENTS_API_URL}?${paramString}`, {
+    return axios.get(`${EVENTS_API_URL}?${finalParamString}`, {
       ...config,
       cancelToken: cancelToken.token,
     })
@@ -343,18 +346,21 @@ export const cancelMapEventsFetch = () => {
   }
 };
 
-export const fetchMapEvents = (map) => async (dispatch, getState) => {
+export const fetchMapEvents = (map, parameters) => async (dispatch, getState) => {
   try {
+
+    const state = getState();
 
     let lastKnownBbox;
     if (!map) {
-      lastKnownBbox = getState().data.mapEvents.bbox;
+      lastKnownBbox = state?.data?.mapEvents?.bbox;
     }
-
-    if (!map && !lastKnownBbox) return Promise.reject();
+    if (!map && !lastKnownBbox) return Promise.reject('no map available');
 
     const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-    const eventFilterParamString = calcEventFilterForRequest({ params: { bbox, page_size: 25 } });
+    const params = { bbox, page_size: 25, ...parameters };
+
+    const eventFilterParamString = calcEventFilterForRequest({ params });
 
     dispatch({
       type: FETCH_MAP_EVENTS_START,
@@ -377,8 +383,11 @@ export const fetchMapEvents = (map) => async (dispatch, getState) => {
         dispatch(fetchMapEventsError(error));
         return Promise.reject(error);
       });
-  } catch (e) {
-    return Promise.reject(e);
+  } catch (error) {
+    if (error?.response?.status === 403) {
+      console.warn('unauthorized map events request based on current permissions'); // https://support.google.com/chrome/answer/142065
+    }
+    return Promise.reject(error);
   }
 };
 

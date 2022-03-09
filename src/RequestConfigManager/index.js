@@ -6,11 +6,12 @@ import { withRouter } from 'react-router-dom';
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
+// const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
+
 const RequestConfigManager = (props) => {
   const { clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
   const userProfileHeaderInterceptor = useRef(null);
   const masterRequestCancelTokenManager = useRef(null);
-  const onAuthFailure = useRef(null);
 
   /* profile header */
   useEffect(() => {
@@ -51,6 +52,26 @@ const RequestConfigManager = (props) => {
   }, [masterRequestCancelToken]);
   /* end master cancel token */
 
+  /* 
+  const apiResponseErrorIsGeoPermissionsRelated = error =>
+    error.statuCode === 403
+    && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
+
+  useEffect(() => {
+    // specific failure-case routing for unauthorized requests related to geo-permissions
+    const handleGeoPermissionsAuthFailure = (response, error) => {
+      if (apiResponseErrorIsGeoPermissionsRelated(error)) {
+        // pop up some warning toast, or redirect to geo-permissions info route
+      }
+      return Promise.reject(error);
+    };
+
+    const interceptorId = axios.interceptors.response.use(handleGeoPermissionsAuthFailure);
+
+    return () => {
+      axios.interceptors.response.eject(interceptorId);
+    };
+  }, []); */
 
   /* boot to login on 401 */
   useEffect(() => {
@@ -67,17 +88,17 @@ const RequestConfigManager = (props) => {
       return Promise.reject(error);
     }];
 
-    if (onAuthFailure.current) {
-      axios.interceptors.response.eject(onAuthFailure.current);
-    }
+    const interceptorId = axios.interceptors.response.use(responseHandlerWithFailureCase);
 
-    onAuthFailure.current = axios.interceptors.response.use(...responseHandlerWithFailureCase);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => {
+      axios.interceptors.response.eject(interceptorId);
+    };
+  }, [clearAuth, history, location.search, resetMasterCancelToken]);
   /* end boot to login on 401 */
 
   /* auth header */
   useEffect(() => {
-    if (token && token.access_token) {
+    if (token?.access_token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token.access_token}`;
     }
   }, [token]);

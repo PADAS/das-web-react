@@ -189,12 +189,20 @@
 }
 
 .addReport {
-  button[class*=fill] svg {
+  button[class*=addReportFill] svg {
     width: 2rem;
     height: 2rem;
+    background-color: white;
 
-    g rect {
-      fill: $secondary-medium-gray;
+    g {
+      path {
+        stroke: white;
+        fill: white;
+      }
+
+      rect {
+        fill: $secondary-medium-gray;
+      }
     }
   }
 
