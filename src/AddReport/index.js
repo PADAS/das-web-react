@@ -11,11 +11,10 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
-import { patrolDrawerId } from '../Drawer';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
-import { showDrawer } from '../ducks/drawer';
+import { showPatrolDetailView } from '../ducks/patrols';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
@@ -168,7 +167,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
 
 
   const map = useContext(MapContext);
@@ -231,7 +230,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        showDrawer(patrolDrawerId, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
+        showPatrolDetailView({ newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
         return;
       }
 
@@ -242,7 +241,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showDrawer]);
+  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showPatrolDetailView]);
 
   return hasEventCategories &&
 
@@ -274,7 +273,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, { showDrawer })(memo(AddReport));
+export default connect(mapStateToProps, { showPatrolDetailView })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -315,5 +314,4 @@ AddReport.propTypes = {
     hidePatrols: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
-  showDrawer: PropTypes.func.isRequired,
 };
