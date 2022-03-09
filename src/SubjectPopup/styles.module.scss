@@ -58,19 +58,8 @@
     height: 1.5rem;
 
     svg {
-      background: $bright-blue;
-      border-radius: 50%;
       height: 1.75rem;
       width: 1.75rem;
-
-      path {
-        stroke: $bright-blue;;
-        fill: $bright-blue;
-      }
-
-      rect {
-          fill: white;
-      }
     }  
   }
 }
