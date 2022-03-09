@@ -654,10 +654,6 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
                 <CursorGpsDisplay />
                 <RotationControl
@@ -671,6 +667,10 @@ class Map extends Component {
                   }}
                 />
               </span>
+              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
             </div>
 
             <RightClickMarkerDropper />
