@@ -384,7 +384,9 @@ export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type,
   return state;
 };
 
-export const patrolDetailViewReducer = (state = {}, { type, payload }) => {
+const INITIAL_STATE = {};
+
+export const patrolDetailViewReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === UPDATE_PATROL_DETAIL_VIEW) {
     return {
       ...state,
@@ -393,7 +395,7 @@ export const patrolDetailViewReducer = (state = {}, { type, payload }) => {
   }
 
   if (type === CLEAR_PATROL_DETAIL_VIEW) {
-    return { ...state };
+    return { ...INITIAL_STATE };
   }
 
   return state;
