@@ -161,10 +161,10 @@ const NotificationMenu = ({ userNotifications = [], dispatch: _dispatch, ...rest
         return setNews([...formatUnreadNewsItemsAsNotifications([msg]), ...news]);
       };
 
-      socket.on('new_announcement', consumeMessage);
+      const [, fnRef] = socket.on('new_announcement', consumeMessage);
 
       return () => {
-        socket.off('new_announcement', consumeMessage);
+        socket.off('new_announcement', fnRef);
       };
     }
   }, [news, socket]);

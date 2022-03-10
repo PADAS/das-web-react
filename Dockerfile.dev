@@ -1,12 +1,8 @@
-FROM node:14.15.0-alpine
+FROM node:14.19.0-alpine
 WORKDIR /app
 RUN apk add --no-cache --virtual .build-deps git alpine-sdk python2
-# RUN apk --no-cache add --virtual native-deps \
-#   g++ gcc libgcc libstdc++ linux-headers make python && \
-#   npm install --quiet node-gyp -g &&\
-#   npm install --quiet && \
-#   apk del native-deps
 COPY ./package.json ./
+COPY ./yarn.lock ./
 RUN yarn --ignore-scripts
 RUN npm rebuild node-sass
 COPY ./ ./
