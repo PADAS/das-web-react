@@ -79,7 +79,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
             location: 'subject popover',
           }}
           className={styles.addReport}
-          fill
+          variant="secondary"
           reportData={{ location: locationObject, reportedById }}
           showLabel={false}
           popoverPlacement={popoverPlacement}

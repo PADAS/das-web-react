@@ -3,7 +3,7 @@
 @import '../common/styles/layout';
 @import '../common/styles/vars/colors';
 
-.addReport {
+.addReport-primary {
   @include addButton;
 
   svg {
@@ -22,7 +22,7 @@
   }
 }
 
-.addReportFill {
+.addReport-secondary {
   @include addButton;
 }
 

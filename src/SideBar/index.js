@@ -174,7 +174,7 @@ const SideBar = ({ map }) => {
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
                 <AddReport
                   className={styles.addReport}
-                  fill
+                  variant="secondary"
                   formProps={{
                     hidePatrols: sidebarTab !== TAB_KEYS.PATROLS,
                     hideReports: sidebarTab !== TAB_KEYS.REPORTS,
