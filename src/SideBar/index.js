@@ -172,7 +172,7 @@ const SideBar = ({ map }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-                <AddReport popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+                <AddReport className={styles.addReport} variant="secondary" popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
               </div>
 
               <h3>{tabTitle}</h3>

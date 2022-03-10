@@ -39,7 +39,7 @@ const MapSettingsControl = (props) => {
     mapInteractionTracker.track('Clicked Map Settings button');
   };
 
-  return <OverlayTrigger trigger="click" placement="right" rootClose={true} overlay={popover}>
+  return <OverlayTrigger trigger="click" placement="left" rootClose={true} overlay={popover}>
     <button type='button' className={styles.gearButton} ref={formRef}
       onClick={onButtonClick}>
       <GearIcon />

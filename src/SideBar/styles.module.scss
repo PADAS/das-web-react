@@ -188,6 +188,31 @@
   }
 }
 
+.addReport {
+  button[class*=addReport-secondary] svg {
+    width: 2rem;
+    height: 2rem;
+    background-color: white;
+
+    g {
+      path {
+        stroke: white;
+        fill: white;
+      }
+
+      rect {
+        fill: $secondary-medium-gray;
+      }
+    }
+  }
+
+  [class*=arrow] {
+    &::after, &::before {
+      transform: translateX(-0.325rem);
+    }
+  }
+}
+
 .mapLayers {
   height: 100%;
   overflow: hidden;

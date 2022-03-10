@@ -74,14 +74,15 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
           <h6>{properties.name}</h6>
         </div>
         <AddReport
-        analyticsMetadata={{
-          category: MAP_INTERACTION_CATEGORY,
-          location: 'subject popover',
-        }}
-        className={styles.addReport}
-        reportData={{ location: locationObject, reportedById }}
-        showLabel={false}
-        popoverPlacement={popoverPlacement}
+          analyticsMetadata={{
+            category: MAP_INTERACTION_CATEGORY,
+            location: 'subject popover',
+          }}
+          className={styles.addReport}
+          variant="secondary"
+          reportData={{ location: locationObject, reportedById }}
+          showLabel={false}
+          popoverPlacement={popoverPlacement}
         />
       </div>
       {coordProps.time && <div className={styles.dateTimeWrapper}>
