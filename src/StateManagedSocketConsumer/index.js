@@ -15,11 +15,6 @@ const StateManagedSocketConsumer = (props) => {
     if (socket) {
 
       const validateSocketIncrement = value => value === (mid.current+1);
-
-      const unbindSocketHandler = () => {
-        socket.off(type, socketHandler);
-      };
-
       const socketHandler = (payload) => {
         const { mid: newMid } = payload;
         if (!validateSocketIncrement(newMid)) {
@@ -30,7 +25,11 @@ const StateManagedSocketConsumer = (props) => {
         mid.current = newMid;
       };
 
-      socket.on(type, socketHandler);
+      const [, fnRef] = socket.on(type, socketHandler);
+
+      const unbindSocketHandler = () => {
+        socket.off(type, fnRef);
+      };
 
       return unbindSocketHandler;
     }
