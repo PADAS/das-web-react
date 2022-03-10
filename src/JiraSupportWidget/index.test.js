@@ -26,7 +26,13 @@ export const createQuerySelectorMockImplementationWithHelpButtonReference = () =
 describe('the Jira Support Widget integration', () => {
   let disconnectSpy;
   let observeSpy;
+  let mockQuerySelector;
+  let mockButton;
+
   beforeEach(() => {
+    [mockQuerySelector, mockButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
+    jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
+
     disconnectSpy = jest.fn();
     observeSpy = jest.fn();
     global.MutationObserver = class {
@@ -36,12 +42,10 @@ describe('the Jira Support Widget integration', () => {
       disconnect = disconnectSpy;
       observe = observeSpy.mockImplementation(() => this.callback([], this));
     };
-  });
-  test('disconnecting the startup observer once the JSM iframe is detected', () => {
-    jest.spyOn(global.document, 'querySelector').mockImplementationOnce(() => ({
-      contentDocument: 'some-fake-value-so-checking-presence-returns-true',
-    }));
 
+  });
+
+  test('disconnecting the startup observer once the JSM iframe is detected', () => {
     render(<JiraSupportWidget />);
 
     expect(disconnectSpy).toHaveBeenCalled();
@@ -49,8 +53,6 @@ describe('the Jira Support Widget integration', () => {
   });
 
   test('hiding the help button once the JSM iframe contents are loaded', () => {
-    const [mockQuerySelector, mockButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
-
     jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
 
     render(<JiraSupportWidget />);
