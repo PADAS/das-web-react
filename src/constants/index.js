@@ -1,12 +1,11 @@
 import { toast } from 'react-toastify';
 
-import * as packageJson from '../../package.json';
+import { buildbranch, buildnum } from '../../package.json';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import layoutVariables from '../common/styles/layout.module.scss';
 
 const { POSITION: TOAST_POSITIONS, Slide } = toast;
-const { buildbranch, buildnum } = packageJson;
 
 export const {
   REACT_APP_DAS_HOST,
@@ -306,7 +305,7 @@ export const PERMISSIONS = {
   DELETE: 'delete',
 };
 
-export const DEVELOPMENT_FLAGS = {
+export const DEVELOPMENT_FEATURES_FLAGS = {
   PATROL_NEW_UI: false,
 };
 

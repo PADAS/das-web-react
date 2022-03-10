@@ -4,9 +4,11 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
+import { DEVELOPMENT_FEATURES_FLAGS } from '../constants';
 import { patrolDrawerId } from '../Drawer';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
+import { openModalForPatrol } from '../utils/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
@@ -37,6 +39,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
@@ -395,11 +398,12 @@ const ReportForm = (props) => {
 
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
-    return fetchPatrol(patrolId).then(() => {
-      showDrawer(patrolDrawerId, { patrolId });
+    return fetchPatrol(patrolId).then(({ data: { data } }) => {
       removeModal();
+      if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { patrolId });
+      openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, removeModal, reportTracker, saveChanges, showDrawer]);
+  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showDrawer]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
