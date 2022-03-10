@@ -12,7 +12,11 @@ import TimeAgo from '../TimeAgo';
 import { /* advanceTimersByTime, */ runOnlyPendingTimers } from '../__test-helpers/timers';
 
 beforeEach(() => {
-  jest.useFakeTimers();
+  const mockSystemTime = new Date('2021-02-01');
+  mockSystemTime.setUTCHours(20);
+
+  jest.useFakeTimers('modern')
+    .setSystemTime(mockSystemTime.getTime());
 });
 
 afterEach(async () => {
@@ -42,22 +46,21 @@ describe('the TimeAgo component', () => {
     expect(component).toHaveTextContent('30 seconds');
   });
 
-  // it('displays abbreviated times for durations over one hour in the XXy XXmo XXd XXh XXm format', async () => {
-  //   const testDate =
-  //     subYears(
-  //       subMonths(
-  //         subDays(
-  //           subHours(new Date(), 2)
-  //           , 2)
-  //         , 1)
-  //       , 1);
+  it('displays abbreviated times for durations over one hour in the XXy XXmo XXd XXh XXm format', async () => {
+    const testDate = new Date('01-01-2021');
+    testDate.setUTCHours(20);
+    const date = subYears(
+      subMonths(
+        subHours(testDate, 2)
+        , 1)
+      , 1);
 
-  //   render(<TimeAgo date={testDate} />);
+    render(<TimeAgo date={date} />);
 
-  //   const component = await screen.findByTestId('time-ago');
+    const component = await screen.findByTestId('time-ago');
 
-  //   expect(component).toHaveTextContent('1y 1mo 2d 9h 30m');
-  // });
+    expect(component).toHaveTextContent('1y 2mo 1d 23h');
+  });
 
   it('displays a prefix', async () => {
     const testDate = subSeconds(new Date(), 30);
@@ -80,34 +83,4 @@ describe('the TimeAgo component', () => {
 
     expect(component).toHaveTextContent(`30 seconds ${testSuffix}`);
   });
-/* 
-  it('updates every second for values under one minute', async () => {
-    const testDate = subSeconds(new Date(), 30);
-
-    render(<TimeAgo date={testDate} />);
-
-    const component = await screen.findByTestId('time-ago');
-
-    expect(component).toHaveTextContent('30 seconds');
-
-    await advanceTimersByTime(1100);
-
-    expect(component).toHaveTextContent('31 seconds');
-
-
-  });
-
-  it('updates every minute for values over one minute', async () => {
-    const testDate = subMinutes(new Date(), 1);
-
-    render(<TimeAgo date={testDate} />);
-
-    const component = await screen.findByTestId('time-ago');
-
-    expect(component).toHaveTextContent('1 minute');
-
-    await advanceTimersByTime(61000);
-
-    expect(component).toHaveTextContent('2 minutes');
-  }); */
 });
