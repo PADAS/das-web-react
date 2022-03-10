@@ -394,7 +394,7 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    return showPatrolDetailView({ patrolId });
+    return showPatrolDetailView({ id: patrolId });
   }, [is_collection, removeModal, reportTracker, saveChanges, showPatrolDetailView]);
 
   const onStartAddToIncident = useCallback(() => {

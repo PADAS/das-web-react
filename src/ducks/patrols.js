@@ -268,21 +268,22 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
     });
 };
 
-export const INITIAL_PATROL_DETAIL_STATE = {
-  patrolId: '',
-  newPatrol: {},
-};
 
 export const showPatrolDetailView = (payload) => dispatch => {
-  if (payload !== INITIAL_PATROL_DETAIL_STATE) dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: TAB_KEYS.PATROLS }));
-
+  dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: TAB_KEYS.PATROLS }));
+  console.log('%c showPatrolDetailView', 'font-size:30px;color:yellow;', payload);
   return dispatch({
     type: UPDATE_PATROL_DETAIL_VIEW,
-    payload: { ...INITIAL_PATROL_DETAIL_STATE, ...payload }
+    payload: payload
   });
 };
 
+// export const clearPatrolDetailView = () => ({
+//   type: CLEAR_PATROL_DETAIL_VIEW,
+// });
+
 export const clearPatrolDetailView = () => dispatch => {
+  console.log('%c clearPatrolDetailView', 'font-size:30px;color:green;');
   return dispatch({
     type: CLEAR_PATROL_DETAIL_VIEW,
   });
@@ -383,7 +384,7 @@ export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type,
   return state;
 };
 
-export const patrolDetailViewReducer = (state = INITIAL_PATROL_DETAIL_STATE, { type, payload }) => {
+export const patrolDetailViewReducer = (state = {}, { type, payload }) => {
   if (type === UPDATE_PATROL_DETAIL_VIEW) {
     return {
       ...state,
@@ -392,7 +393,7 @@ export const patrolDetailViewReducer = (state = INITIAL_PATROL_DETAIL_STATE, { t
   }
 
   if (type === CLEAR_PATROL_DETAIL_VIEW) {
-    return { ...INITIAL_PATROL_DETAIL_STATE };
+    return { ...state };
   }
 
   return state;

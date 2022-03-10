@@ -230,8 +230,8 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        showPatrolDetailView({ newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
-        return;
+        showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        return setPopoverState(false);
       }
 
     }

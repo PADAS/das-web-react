@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 
 import { isEmpty } from 'lodash';
-import { showPatrolDetailView, clearPatrolDetailView } from '../ducks/patrols';
+import { clearPatrolDetailView } from '../ducks/patrols';
 
 import PatrolFilter from '../PatrolFilter';
 import PatrolList from '../PatrolList';
@@ -10,48 +10,65 @@ import PatrolDrawer from '../PatrolDrawer';
 
 import styles from './styles.module.scss';
 
-const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState, changeNestedNavigation, patrolDetailView, showPatrolDetailView, clearPatrolDetailView }) => {
+const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState, changeNestedNavigation, patrolDetailView, clearPatrolDetailView }) => {
 
-  const [selectedPatrol, setSelectedPatrol] = useState('');
+  const [selectedPatrolId, setSelectedPatrolId] = useState('');
+  const [newPatrolData, setNewPatrolData] = useState({});
   const [showPatrolDrawer, setShowPatrolDrawer] = useState(false);
 
-  const openPatrolDetailView = useCallback((patrolId = '') => {
-    setSelectedPatrol(patrolId);
+  const openPatrolDetailView = useCallback(() => {
     setShowPatrolDrawer(true);
     changeNestedNavigation(true);
-    console.log('%c openPatrolDetailView!', 'font-size:20px;color:yellow;');
   }, [changeNestedNavigation]);
 
+  const handleItemClick = useCallback((patrolId) => {
+    setSelectedPatrolId(patrolId);
+    openPatrolDetailView();
+  }, [openPatrolDetailView]);
+
   const handleCloseDetailView = useCallback(() => {
-    setSelectedPatrol('');
+    setSelectedPatrolId('');
+    setNewPatrolData({});
     setShowPatrolDrawer(false);
     changeNestedNavigation(false);
     clearPatrolDetailView();
-    console.log('%c handleCloseDetailView!', 'font-size:20px;color:orange;');
-  }, [changeNestedNavigation, clearPatrolDetailView]);
+    console.log('%c clearPatrolDetailView', 'font-size:30px;color:green;', patrolDetailView);
+    console.log('%c setNewPatrolData', 'font-size:30px;color:yellow;', setNewPatrolData);
+  }, [changeNestedNavigation, setNewPatrolData]);
 
   useEffect(() => {
-    console.log('%c nestedNavigationState!', 'font-size:20px;color:white;', nestedNavigationState);
-    if (!nestedNavigationState) return handleCloseDetailView();
-
-  }, [handleCloseDetailView, nestedNavigationState]);
-
-  useEffect(() => {
-    if (!!patrolDetailView?.patrolId.length){
-      console.log('%c isOpen!', 'font-size:20px;color:red;');
-      openPatrolDetailView(patrolDetailView.patrolId);
+    if (!nestedNavigationState) {
+      handleCloseDetailView();
     }
+    // if (patrolDetailView) {
+    //   openPatrolDetailView();
+    // }
+    // else {
+    //   openPatrolDetailView();
+    // }
 
-    if (!isEmpty(patrolDetailView?.newPatrol)){
+  }, [handleCloseDetailView, nestedNavigationState, selectedPatrolId, openPatrolDetailView]);
+
+  useEffect(() => {
+    if (!isEmpty(patrolDetailView)) {
+      // console.log('%c patrolDetailView.patrol', 'font-size:30px;color:green;', patrolDetailView);
+      if (!!patrolDetailView?.id) {
+        setSelectedPatrolId(patrolDetailView.id);
+      } else {
+        setNewPatrolData(patrolDetailView);
+      }
+      // console.log('%c selectedPatrolId', 'font-size:30px;color:white;', selectedPatrolId);
+      console.log('%c newPatrolData', 'font-size:30px;color:white;', newPatrolData);
       openPatrolDetailView();
     }
-  }, [patrolDetailView, openPatrolDetailView]);
+  }, [newPatrolData, patrolDetailView, selectedPatrolId, openPatrolDetailView]);
 
   return <>
-    {showPatrolDrawer ? <PatrolDrawer patrolId={selectedPatrol} newPatrol={patrolDetailView?.newPatrol ?? {}} className={styles.patrolDetailView} onCloseDetailView={handleCloseDetailView}/> :
+    {showPatrolDrawer ?
+      <PatrolDrawer patrolId={selectedPatrolId} newPatrol={newPatrolData} className={styles.patrolDetailView} onCloseDetailView={handleCloseDetailView}/> :
       (<>
         <PatrolFilter />
-        <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={(id) => showPatrolDetailView({ patrolId: id })} />
+        <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={handleItemClick} />
       </>)
     }
   </>;
@@ -71,4 +88,4 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState,
 
 const mapStateToProps = ({ view: { patrolDetailView } }) => ({ patrolDetailView });
 
-export default connect(mapStateToProps, { showPatrolDetailView, clearPatrolDetailView })(memo(PatrolsTab));
+export default connect(mapStateToProps, { clearPatrolDetailView })(PatrolsTab);

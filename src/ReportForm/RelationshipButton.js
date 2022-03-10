@@ -44,7 +44,7 @@ const RelationshipButton = (props) => {
     reportTracker.track('Click \'Go to Patrol\' button');
 
     removeModal();
-    return showPatrolDetailView({ patrolId });
+    return showPatrolDetailView({ id: patrolId });
   }, [removeModal, report.patrols, reportTracker, showPatrolDetailView]);
 
   return <Fragment>

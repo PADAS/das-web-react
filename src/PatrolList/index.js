@@ -1,13 +1,9 @@
 import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-// import { findDOMNode } from 'react-dom';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-// import { patrolDrawerId } from '../Drawer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-// import { showDrawer } from '../ducks/drawer';
 import { sortPatrolList } from '../utils/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -22,7 +18,6 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    // showDrawer(patrolDrawerId, { patrolId: patrol.id });
     onItemClick(patrol.id);
   }, [onItemClick, patrol]);
 
