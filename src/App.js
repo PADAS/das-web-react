@@ -218,16 +218,15 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { userLocation, trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
+const mapStateToProps = ({ view: { trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
-  const userLocationIsKnown = !!userLocation;
 
   return {
     trackLength,
     pickingLocationOnMap,
     sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
-    showGeoPermWarningMessage: geoPermRestricted && userLocationIsKnown && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
+    showGeoPermWarningMessage: geoPermRestricted && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
     userIsGeoPermissionRestricted: geoPermRestricted,
   };
 };
