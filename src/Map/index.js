@@ -604,7 +604,7 @@ class Map extends Component {
         center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
-          <AddReport className="general-add-button" fill popoverPlacement="left" showLabel={false} />
+          <AddReport className="general-add-button" variant="secondary" popoverPlacement="left" showLabel={false} />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
