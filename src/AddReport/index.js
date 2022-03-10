@@ -17,17 +17,18 @@ import { openModalForReport, createNewReportForEventType } from '../utils/events
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { showDrawer } from '../ducks/drawer';
 import { trackEvent } from '../utils/analytics';
-import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
+import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURES_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
@@ -231,8 +232,8 @@ const AddReport = ({ analyticsMetadata, className = '', formProps, patrolTypes, 
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        showDrawer(patrolDrawerId, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
-        return;
+        if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
+        return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
 
     }

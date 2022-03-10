@@ -1,20 +1,22 @@
 import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-// import { findDOMNode } from 'react-dom';
+
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
+import { DEVELOPMENT_FEATURES_FLAGS } from '../constants';
 import { patrolDrawerId } from '../Drawer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { showDrawer } from '../ducks/drawer';
-import { sortPatrolList } from '../utils/patrols';
+import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
@@ -22,8 +24,9 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    showDrawer(patrolDrawerId, { patrolId: patrol.id });
-  }, [patrol.id, showDrawer]);
+    if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { patrolId: patrol.id });
+    openModalForPatrol(patrol, map);
+  }, [map, patrol, showDrawer]);
 
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
