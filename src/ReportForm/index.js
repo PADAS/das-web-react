@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { DEVELOPMENT_FEATURES_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { patrolDrawerId } from '../Drawer';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
@@ -39,7 +39,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;

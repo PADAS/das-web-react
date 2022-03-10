@@ -2,7 +2,7 @@ import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { DEVELOPMENT_FEATURES_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { patrolDrawerId } from '../Drawer';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
 import { openModalForPatrol } from '../utils/patrols';
@@ -19,7 +19,7 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const RelationshipButton = (props) => {
   const { fetchEvent, fetchPatrol, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal, showDrawer } = props;
 

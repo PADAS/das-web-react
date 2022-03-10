@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-import { DEVELOPMENT_FEATURES_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { patrolDrawerId } from '../Drawer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
@@ -16,7 +16,7 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */

@@ -305,7 +305,7 @@ export const PERMISSIONS = {
   DELETE: 'delete',
 };
 
-export const DEVELOPMENT_FEATURES_FLAGS = {
+export const DEVELOPMENT_FEATURE_FLAGS = {
   PATROL_NEW_UI: false,
 };
 

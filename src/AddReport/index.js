@@ -22,13 +22,13 @@ import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportC
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURES_FLAGS } from '../constants';
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURES_FLAGS;
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
