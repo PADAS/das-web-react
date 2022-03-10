@@ -8,7 +8,12 @@
 
   svg,
   svg > svg {
-    --dimensions: 2rem;
+    --dimensions: 1.75rem;
+
+    @media (min-width: $md-layout-width-min) {
+      --dimensions: 2rem;
+    }
+
     --half-size: calc(var(--dimensions) / 2);
 
     fill: white;

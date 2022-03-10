@@ -24,7 +24,7 @@
 
 .search {
   flex-basis: 100%;  
-  margin-bottom: 0;
+  margin-bottom: 0.75rem;
   margin-right: 0.2rem;
   width: 50%;
 
@@ -103,9 +103,20 @@ div.filterPopover {
 
 .controls {
   align-items: center;
+  justify-content: flex-end;
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  
+  button {
+    margin-left: 0.5rem;
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    button {
+      margin-left: 0;
+    }
+  }
 
   @media (min-width: $lg-layout-width-min) {
     flex-wrap: initial;
