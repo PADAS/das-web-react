@@ -3,6 +3,26 @@ import { render } from '@testing-library/react';
 
 import JiraSupportWidget, { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR } from '../JiraSupportWidget';
 
+export const createQuerySelectorMockImplementationWithHelpButtonReference = () => {
+  const mockButton = document.createElement('button');
+  mockButton.click = jest.fn();
+
+  const querySelectorMockImplementation = (selector) => {
+    if (selector === JIRA_WIDGET_IFRAME_SELECTOR) {
+      return {
+        contentDocument: {
+          querySelector: querySelectorMockImplementation,
+        }
+      };
+    }
+    if (selector === JIRA_IFRAME_HELP_BUTTON_SELECTOR) {
+      return mockButton;
+    }
+  };
+
+  return [querySelectorMockImplementation, mockButton];
+};
+
 describe('the Jira Support Widget integration', () => {
   let disconnectSpy;
   let observeSpy;
@@ -29,22 +49,9 @@ describe('the Jira Support Widget integration', () => {
   });
 
   test('hiding the help button once the JSM iframe contents are loaded', () => {
-    const mockButton = document.createElement('button');
+    const [mockQuerySelector, mockButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
 
-    const querySelectorMockImplementation = (selector) => {
-      if (selector === JIRA_WIDGET_IFRAME_SELECTOR) {
-        return {
-          contentDocument: {
-            querySelector: querySelectorMockImplementation,
-          }
-        };
-      }
-      if (selector === JIRA_IFRAME_HELP_BUTTON_SELECTOR) {
-        return mockButton;
-      }
-    };
-
-    jest.spyOn(global.document, 'querySelector').mockImplementation(querySelectorMockImplementation);
+    jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
 
     render(<JiraSupportWidget />);
 

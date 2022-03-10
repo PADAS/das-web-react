@@ -121,7 +121,7 @@ const GlobalMenuDrawer = ({
   const onContactSupportClick = () => {
     mainToolbarTracker.track('Click \'Contact Support\'');
 
-    const supportiFrame = window.document.body.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
+    const supportiFrame = window.document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
     const supportHelpButton = supportiFrame.contentDocument.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
     if (supportHelpButton) {
       supportHelpButton.click();

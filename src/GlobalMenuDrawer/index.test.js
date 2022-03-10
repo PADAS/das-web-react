@@ -9,6 +9,7 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
 
@@ -233,7 +234,22 @@ describe('GlobalMenuDrawer', () => {
   });
 
   test('clicks the "show" button inside the Jira Support Management widget when clicking "Contact Support"', async () => {
+    const [mockQuerySelector, mockHelpButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
 
+    jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
+
+    render(
+      <Provider store={mockStore(store)}>
+        <GlobalMenuDrawer />
+      </Provider>
+    );
+
+    expect(global.open).toHaveBeenCalledTimes(0);
+
+    const supportButton = await screen.findByText('Contact Support');
+    userEvent.click(supportButton);
+
+    expect(mockHelpButton.click).toHaveBeenCalled();
   });
 
   test('opens a page to the community site when clicking the Community button', async () => {
