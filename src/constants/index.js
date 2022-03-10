@@ -306,4 +306,8 @@ export const PERMISSIONS = {
   DELETE: 'delete',
 };
 
+export const DEVELOPMENT_FLAGS = {
+  PATROL_NEW_UI: false,
+};
+
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
