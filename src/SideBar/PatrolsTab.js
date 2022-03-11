@@ -32,36 +32,29 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState,
     setShowPatrolDrawer(false);
     changeNestedNavigation(false);
     clearPatrolDetailView();
-    console.log('%c clearPatrolDetailView', 'font-size:30px;color:green;', patrolDetailView);
-    console.log('%c setNewPatrolData', 'font-size:30px;color:yellow;', setNewPatrolData);
-  }, [changeNestedNavigation, setNewPatrolData]);
+  }, [changeNestedNavigation, clearPatrolDetailView]);
 
   useEffect(() => {
-    if (!nestedNavigationState) {
+    //!!!!!!! inicia y hace loop porque no está nunca nesteado
+    if (!nestedNavigationState & (!isEmpty(selectedPatrolId) || !isEmpty(newPatrolData))) {
+      console.log('%c nestedNavigationState', 'font-size:30px;color:#006cd9;', nestedNavigationState);
       handleCloseDetailView();
     }
-    // if (patrolDetailView) {
-    //   openPatrolDetailView();
-    // }
-    // else {
-    //   openPatrolDetailView();
-    // }
-
-  }, [handleCloseDetailView, nestedNavigationState, selectedPatrolId, openPatrolDetailView]);
+  }, [handleCloseDetailView, nestedNavigationState, newPatrolData, selectedPatrolId]);
 
   useEffect(() => {
     if (!isEmpty(patrolDetailView)) {
-      // console.log('%c patrolDetailView.patrol', 'font-size:30px;color:green;', patrolDetailView);
+      console.log('%c patrolDetailView', 'font-size:30px;color:purple;', patrolDetailView);
       if (!!patrolDetailView?.id) {
         setSelectedPatrolId(patrolDetailView.id);
       } else {
         setNewPatrolData(patrolDetailView);
       }
       // console.log('%c selectedPatrolId', 'font-size:30px;color:white;', selectedPatrolId);
-      console.log('%c newPatrolData', 'font-size:30px;color:white;', newPatrolData);
+      console.log('%c newPatrolData', 'font-size:30px;color:red;', newPatrolData);
       openPatrolDetailView();
     }
-  }, [newPatrolData, patrolDetailView, selectedPatrolId, openPatrolDetailView]);
+  }, [patrolDetailView, newPatrolData, selectedPatrolId, openPatrolDetailView]);
 
   return <>
     {showPatrolDrawer ?

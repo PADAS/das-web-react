@@ -167,7 +167,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
 
 
   const map = useContext(MapContext);
