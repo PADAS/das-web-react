@@ -28,7 +28,7 @@ import styles from './styles.module.scss';
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, fetchNextEventFeedPage, eventFilter, map } = props;
+  const { sidebarOpen, events, fetchEventFeed, userLocationCoords, fetchNextEventFeedPage, eventFilter, map, } = props;
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -45,11 +45,15 @@ const ReportsTab = (props) => {
   const optionalFeedProps = useMemo(() => {
     let value = {};
 
+    if (userLocationCoords) {
+      value.location = `${userLocationCoords.longitude},${userLocationCoords.latitude}`;
+    }
+
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
     }
     return value;
-  }, [eventFilter]);
+  }, [eventFilter, userLocationCoords]);
 
   const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
@@ -135,6 +139,7 @@ const ReportsTab = (props) => {
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
+  userLocationCoords: state?.view?.userLocation?.coords,
 });
 
 export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, updateEventFilter, resetGlobalDateRange })(memo(ReportsTab));

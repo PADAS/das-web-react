@@ -63,7 +63,7 @@ import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
-import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
+import AddReport from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -196,6 +196,10 @@ class Map extends Component {
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
       this.debouncedFetchMapData();
+    }
+    if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
+      console.log('location update, re-fetching map events');
+      this.debouncedFetchMapEvents();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -332,7 +336,13 @@ class Map extends Component {
   }
 
   fetchMapEvents() {
-    return this.props.fetchMapEvents(this.props.map)
+    let params;
+    if (this.props.userLocation?.coords) {
+      params = {
+        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+      };
+    }
+    return this.props.fetchMapEvents(this.props.map, params)
       .catch((e) => {
         console.warn('error fetching map events', e);
       });
@@ -594,7 +604,7 @@ class Map extends Component {
         center={this.mapCenter}
         className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
         controls={<Fragment>
-          <AddReport className="general-add-button" fill popoverPlacement="left" showLabel={false} />
+          <AddReport className="general-add-button" variant="secondary" popoverPlacement="left" showLabel={false} />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
@@ -644,10 +654,6 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
                 <CursorGpsDisplay />
                 <RotationControl
@@ -661,6 +667,10 @@ class Map extends Component {
                   }}
                 />
               </span>
+              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
             </div>
 
             <RightClickMarkerDropper />
@@ -699,11 +709,12 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
     maps,
+    userLocation,
     eventTypes,
     heatmapSubjectIDs,
     tracks,

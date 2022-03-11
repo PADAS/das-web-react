@@ -117,28 +117,30 @@ const SideBar = ({ map }) => {
         }
       };
 
-      socket._on('new_event', updateEventsBadge);
-      socket._on('update_event', updateEventsBadge);
+      const [, newEventFnRef] = socket.on('new_event', updateEventsBadge);
+      const [, updateEventFnRef] = socket.on('update_event', updateEventsBadge);
 
       return () => {
-        socket.off('new_event', updateEventsBadge);
-        socket.off('update_event', updateEventsBadge);
+        socket.off('new_event', newEventFnRef);
+        socket.off('update_event', updateEventFnRef);
       };
     }
   }, [sidebarOpen, sidebarTab, socket]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
-    setPatrolLoadState(true);
-    fetchAndLoadPatrolData();
-    return () => {
-      const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
+    if (showPatrols) {
+      setPatrolLoadState(true);
+      fetchAndLoadPatrolData();
+      return () => {
+        const priorRequestCancelToken = patrolFetchRef?.current?.cancelToken;
 
-      if (priorRequestCancelToken) {
-        priorRequestCancelToken.cancel();
-      }
-    };
-  }, [fetchAndLoadPatrolData, patrolFilterParams]);
+        if (priorRequestCancelToken) {
+          priorRequestCancelToken.cancel();
+        }
+      };
+    }
+  }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
     if (VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
@@ -182,7 +184,7 @@ const SideBar = ({ map }) => {
                     <ArrowLeftIcon />
                   </button>
                    :
-                  <AddReport className={styles.addReport} fill popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+                  <AddReport className={styles.addReport} variant="secondary" popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
                 }
               </div>
 

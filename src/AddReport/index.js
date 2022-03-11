@@ -166,8 +166,8 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
+const AddReport = ({ analyticsMetadata, className = '', variant, formProps, patrolTypes, reportData, eventsByCategory,
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
 
 
   const map = useContext(MapContext);
@@ -241,7 +241,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showPatrolDetailView]);
+  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
 
   return hasEventCategories &&
 
@@ -250,7 +250,7 @@ const AddReport = ({ analyticsMetadata, className = '', fill, formProps, patrolT
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={`${styles.addReport} ${fill ? styles.fill : ''}`}
+          className={styles[`addReport-${variant}`]}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}
@@ -284,7 +284,7 @@ AddReport.defaultProps = {
   showIcon: true,
   showLabel: true,
   title: 'Add',
-  fill: false,
+  variant: 'primary',
   formProps: {
     hidePatrols: false,
     isPatrolReport: false,
@@ -306,7 +306,7 @@ AddReport.propTypes = {
   patrolTypes: PropTypes.array,
   popoverPlacement: PropTypes.string,
   reportData: PropTypes.object,
-  fill: PropTypes.bool,
+  variant: PropTypes.string,
   formProps: PropTypes.shape({
     relationshipButtonDisabled: PropTypes.bool,
     onSaveSuccess: PropTypes.func,

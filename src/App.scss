@@ -202,7 +202,7 @@ aside {
   top: 1rem;
   transition: all 0.3s linear;
   width: 100vw;
-  z-index: 7;
+  z-index: 12;
   flex-wrap: wrap;
 
   @media (min-width: $md-layout-width-min) {
@@ -486,6 +486,7 @@ div.mapboxgl-popup-tip {
     display: none !important;
   }
 
+  [class*=sideBar],
   .primary-nav {
     color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;

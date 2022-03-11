@@ -61,6 +61,9 @@
 }
 
 .map-legends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   position: absolute;
   top: 0.5rem;
   right: 0.666rem;
@@ -84,6 +87,7 @@
   justify-content: flex-end;
   max-width: 11rem;
   width: 30vw;
+  margin-bottom: 0.5rem;
 }
 
 .rotation-control {
@@ -104,6 +108,12 @@
     svg {
       height: 2.5rem;
       width: 2.5rem;
+    }
+  }
+
+  .arrow {
+    &::after, &::before {
+      transform: translateY(-0.325rem);
     }
   }
 }
