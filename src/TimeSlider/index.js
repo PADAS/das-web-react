@@ -128,7 +128,9 @@ const TimeSlider = (props) => {
 
   const sidebarOpenStyles = UFA_NAVIGATION_UI ? styles.sidebarOpen : '';
 
-  return <div className={`${styles.wrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}>
+  return <div
+    className={`${UFA_NAVIGATION_UI ? styles.wrapper : styles.oldNavigationWrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}
+    >
     <OverlayTrigger target={leftPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={PopoverContent} flip={true}>
       <div ref={leftPopoverTrigger} onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
         <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(startDate)}</span>

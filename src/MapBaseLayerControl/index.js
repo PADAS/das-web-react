@@ -84,7 +84,7 @@ const BaseLayerControl = (props) => {
     </button>
     <Overlay placement={UFA_NAVIGATION_UI ? 'left' : 'right'} show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title='Base Layers'>
-        <ul className={styles.layerList}>
+        <ul className={UFA_NAVIGATION_UI ? styles.layerList : styles.oldNavigationLayerList}>
           {baseLayers.map(layer => {
             const logoSrc = renderLayerLogoSrc(layer);
 

@@ -322,16 +322,32 @@ const EventFilter = (props) => {
   </Popover>;
 
   return <>
-    <form className={`${styles.form} ${className}`} onSubmit={e => e.preventDefault()}>
-      <div className={styles.controls}>
-        <SearchBar className={`${styles.search} ${!hasChildrenComponents ? styles.wider : ''}`} placeholder='Search Reports...' value={filterText} onChange={onSearchChange} onClear={onSearchClear} />
+    <form className={`${styles.form} ${className} ${UFA_NAVIGATION_UI ? styles.oldNavigation : ''}`} onSubmit={e => e.preventDefault()}>
+      <div className={UFA_NAVIGATION_UI ? styles.controls : styles.oldNavigationControls}>
+        <SearchBar
+          className={`${UFA_NAVIGATION_UI ? styles.search : styles.oldNavigationSearch} ${!hasChildrenComponents ? styles.wider : ''}`}
+          placeholder='Search Reports...'
+          value={filterText}
+          onChange={onSearchChange}
+          onClear={onSearchClear}
+        />
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement={UFA_NAVIGATION_UI ? 'bottom' : 'auto'} overlay={FilterPopover} flip={true}>
-          <Button variant={filterModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='filter-btn'>
+          <Button
+            variant={filterModified ? 'primary' : 'light'}
+            size='sm'
+            className={UFA_NAVIGATION_UI ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
+            data-testid='filter-btn'
+          >
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
           </Button>
         </OverlayTrigger>
         <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={FilterDatePopover} flip={true}>
-          <Button variant={dateRangeModified ? 'primary' : 'light'} size='sm' className={styles.popoverTrigger} data-testid='date-filter-btn'>
+          <Button
+            variant={dateRangeModified ? 'primary' : 'light'}
+            size='sm'
+            className={UFA_NAVIGATION_UI ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
+            data-testid='date-filter-btn'
+          >
             <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
             <span>Dates</span>
           </Button>

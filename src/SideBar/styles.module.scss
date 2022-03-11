@@ -437,3 +437,112 @@
 .analyzerTitle {
   @extend .featureTitle;
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationTab {
+  height: 100%;
+  overflow: hidden;
+
+  &:hover,
+  &:focus {
+    border: none;
+  }
+
+  .oldNavigationMapLayers {
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+    padding-bottom: 4rem;
+    > .noItems {
+      visibility: hidden;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 1rem;
+    }
+    > .noItems:only-child {
+      visibility: visible;
+    }
+  }
+}
+
+.tabBar {
+  height: 3rem;
+  margin-left: 4rem;
+
+  [class*=nav-link] {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    &:not([class*=active]):not(:last-child) {
+      border-right: 1px solid $gray-border;
+
+      &:hover {
+        border-right: 1px solid $gray-border;
+      }
+    }
+
+    &[class*=active] {
+      background: white;
+    }
+  }
+}
+
+.addReportContainer {
+  position: absolute;
+  top: 0.3666rem;
+  left: 0.5rem;
+  z-index: 10;
+}
+
+@mixin slideIn($height, $duration: 0.4s) {
+  @keyframes slideFilterHeight {
+    from {
+      height: 0;
+    }
+
+    to {
+      height: $height;
+    }
+  }
+
+  animation: slideFilterHeight $duration linear;
+}
+
+@mixin slideInMaxHeight($maxHeight, $duration: 0.4s) {
+  @keyframes slideFilterMaxHeight {
+    from {
+      max-height: 0;
+    }
+
+    to {
+      max-height: $maxHeight;
+    }
+  }
+
+  animation: slideFilterMaxHeight $duration linear;
+}
+
+.filterWrapper {
+  --animation-duration: 0.2s;
+  --max-height: 7.5em;
+
+  @include slideInMaxHeight(var(--max-height),  var(--animation-duration));
+
+  height: auto;
+  max-height: var(--max-height);
+  margin-bottom: 0;
+  overflow: hidden;
+  transition: var(--animation-duration) all linear;
+}
+
+.sidebarOpen {
+  .filterWrapper {
+    border-bottom: 1px solid $light-gray-border;
+    height: var(--height);
+    margin-bottom: -0.75rem;
+    padding-top: 0.5rem;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

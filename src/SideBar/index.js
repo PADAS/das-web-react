@@ -261,20 +261,20 @@ const SideBar = ({ map, onHandleClick }) => {
             <AddReport popoverPlacement={addReportPopoverPlacement} showLabel={false} type={activeTab.current} />
           </div>}
           <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
-            <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Reports">
+            <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.REPORTS} title="Reports">
               <ReportsTab map={map} sidebarOpen={sidebarOpen}/>
             </Tab>
 
-            {showPatrols && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+            {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
               <Suspense fallback={null}>
                 <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
               </Suspense>
             </Tab>}
 
-            <Tab className={styles.tab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
+            <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
               <ErrorBoundary>
                 <MapLayerFilter />
-                <div className={styles.mapLayers}>
+                <div className={styles.oldNavigationMapLayers}>
                   <ReportMapControl/>
                   <SubjectGroupList map={map} />
                   <FeatureLayerList map={map} />

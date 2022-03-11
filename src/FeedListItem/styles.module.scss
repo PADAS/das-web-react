@@ -69,3 +69,38 @@
 .controlsContainer {
   padding-right: 0;
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationIconContainer {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  position: relative;
+  width: 3.75rem;
+}
+
+.oldNavigationListItem {
+  --listItemHeight: 3.85rem;
+
+  align-items: center;
+  color: $primary-font-color;
+  height: var(--listItemHeight);
+  display: flex;
+  line-height: normal;
+  padding: 0 0.5rem 0 0;
+
+  + .oldNavigationListItem {
+    border-top: 1px solid $light-gray-border;
+  }
+
+  > * {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

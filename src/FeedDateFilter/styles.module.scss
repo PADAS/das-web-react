@@ -25,3 +25,14 @@
     left: 10rem;
   }
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationEndDateLabel {
+  [class*=datePopover] {
+    margin-left: -5rem;
+  }
+  [class*=arrow] {
+    left: 5rem;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

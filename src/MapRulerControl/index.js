@@ -189,7 +189,7 @@ const MapRulerControl = (props) => {
 
 
   return <Fragment>
-    <div className={styles.buttons}>
+    <div className={UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}>
       {UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}

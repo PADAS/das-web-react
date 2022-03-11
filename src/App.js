@@ -176,7 +176,13 @@ const App = (props) => {
     }
   }, [map, sidebarOpen]);
 
-  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+  return <div
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    onDrop={finishDrag}
+    onDragLeave={finishDrag}
+    onDragOver={disallowDragAndDrop}
+    onDrop={disallowDragAndDrop} // eslint-disable-line react/jsx-no-duplicate-props
+    >
     <MapContext.Provider value={map}>
       <PrintTitle />
 

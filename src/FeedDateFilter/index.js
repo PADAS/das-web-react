@@ -1,13 +1,16 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
-import { dateIsValid } from '../utils/datetime';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { dateIsValid } from '../utils/datetime';
 
 import DateRangeSelector from '../DateRangeSelector';
 
 import styles from './styles.module.scss';
 
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const FeedDateFilter = (props) => {
   const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, ...rest } = props;
@@ -67,7 +70,7 @@ const FeedDateFilter = (props) => {
     isAtDefault={isAtDefault}
     placement={placement || 'auto'}
     endDate={endDate}
-    endDateLabelClass={styles.endDateLabel}
+    endDateLabelClass={UFA_NAVIGATION_UI ? styles.endDateLabel : styles.oldNavigationEndDateLabel}
     endDateNullMessage={endDateNullMessage}
     onClickDateRangePreset={onClickDateRangePreset}
     onEndDateChange={onEndDateChange}
