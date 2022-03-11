@@ -6,7 +6,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
+import { DEVELOPMENT_FEATURE_FLAGS, STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { hideZenDesk, initZenDesk } from './utils/zendesk';
@@ -20,6 +20,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
+import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -32,7 +33,11 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
 export const MapContext = createContext(null);
 
@@ -69,7 +74,7 @@ const animateResize = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, updateNetworkStatus, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
+    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -91,6 +96,10 @@ const App = (props) => {
     setDragState(false);
   }, []);
 
+  const onSidebarHandleClick = useCallback(() => {
+    updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
+  }, [sidebarOpen, updateUserPreferences]);
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
@@ -175,7 +184,7 @@ const App = (props) => {
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar map={map} />}
+        {!!map && <SideBar {...(UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
         <ModalRenderer map={map} />
       </div>
 
