@@ -63,11 +63,11 @@ const MapLocationPicker = (props) => {
   };
 
   return <div className={wrapperClassName}>
-    <button disabled={disabled} type='button' className={className} onClick={onSelectStart} title='Place marker on map'>
+    {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+    <button disabled={disabled} type='button' className={`${className} controlButton`} onClick={onSelectStart} title='Place marker on map'>
       <LocationIcon />
       <span>{label}</span>
     </button>
-    {showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
   </div>;
 };
 

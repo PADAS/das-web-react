@@ -76,13 +76,14 @@ $contrast: 25%;
 .wrapper {
   bottom: 1.5rem;
   display: flex;
-  left: 3.25rem;
+  left: 1rem;
   position: absolute;
-  width: 75%;
+  width: 70%;
   z-index: 10;
 
   @media (min-width: $md-layout-width-min) {
-    left: 8rem;
+    left: 5rem;
+    width: 75%;
     transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
 
     &.sidebarOpen {

@@ -76,8 +76,8 @@ const MapPrintControl = (props) => {
       className={`${styles.button} ${active ? styles.active : ''}`} >
       <PrinterIcon />
     </button>
-    <Overlay show={active} target={buttonRef.current} container={wrapperRef.current} placement='right'>
-      <Popover placement='right'>
+    <Overlay show={active} target={buttonRef.current} container={wrapperRef.current} placement='left'>
+      <Popover placement='left'>
 
         <Popover.Content>
           <form className={styles.form} onSubmit={onPrintFormSubmit}>

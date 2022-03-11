@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { cloneDeep } from 'lodash-es';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
@@ -8,11 +8,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
+import { SocketContext } from '../withSocketConnection';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, usePermissions } from '../hooks';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
+import BadgeIcon from '../Badge';
 import ClearAllControl from '../ClearAllControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
@@ -43,9 +45,12 @@ const SideBar = ({ map }) => {
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
+  const socket = useContext(SocketContext);
+
   const patrolFetchRef = useRef(null);
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
+  const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -91,6 +96,30 @@ const SideBar = ({ map }) => {
     }
   }, [dispatch, sidebarOpen, sidebarTab]);
 
+  useEffect(() => {
+    if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
+      setShowEventsBadge(false);
+    }
+  }, [showEventsBadge, sidebarOpen, sidebarTab]);
+
+  useEffect(() => {
+    if (socket) {
+      const updateEventsBadge = ({ matches_current_filter }) => {
+        if (matches_current_filter && (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+          setShowEventsBadge(true);
+        }
+      };
+
+      const [, newEventFnRef] = socket.on('new_event', updateEventsBadge);
+      const [, updateEventFnRef] = socket.on('update_event', updateEventsBadge);
+
+      return () => {
+        socket.off('new_event', newEventFnRef);
+        socket.off('update_event', updateEventFnRef);
+      };
+    }
+  }, [sidebarOpen, sidebarTab, socket]);
+
   // fetch patrols if filter itself has changed
   useEffect(() => {
     if (showPatrols) {
@@ -119,6 +148,7 @@ const SideBar = ({ map }) => {
           <Nav.Item>
             <Nav.Link eventKey={TAB_KEYS.REPORTS}>
               <DocumentIcon />
+              {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
               <span>Reports</span>
             </Nav.Link>
           </Nav.Item>
@@ -142,7 +172,7 @@ const SideBar = ({ map }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-                <AddReport popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+                <AddReport className={styles.addReport} variant="secondary" popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
               </div>
 
               <h3>{tabTitle}</h3>
