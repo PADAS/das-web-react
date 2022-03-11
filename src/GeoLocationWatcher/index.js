@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
 import isEqual from 'react-fast-compare';
@@ -14,7 +14,7 @@ const ONE_MINUTE = 1000 * 60;
 
 
 const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, updateRate = ONE_MINUTE }) => {
-  const localUserLocationState = useRef(userLocation);
+  const [localUserLocationState, setLocalUserLocationState] = useState(userLocation);
   const errorToastId = useRef(null);
 
   const onError = useCallback((error) => {
@@ -41,7 +41,7 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
     const startWatchingPosition = () => {
       return window.navigator.geolocation.watchPosition(
         position =>
-          localUserLocationState.current = position,
+          setLocalUserLocationState(position),
         onError,
         GEOLOCATOR_OPTIONS,
       );
@@ -56,13 +56,13 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
 
   useEffect(() => {
     const setUserLocationFromStateIfUpdated = () => {
-      if (!isEqual(localUserLocationState?.current?.coords, userLocation?.coords)) {
-        setCurrentUserLocation(localUserLocationState.current);
+      if (!isEqual(localUserLocationState?.coords, userLocation?.coords)) {
+        setCurrentUserLocation(localUserLocationState);
       }
     };
 
-    if (!userLocation && !!localUserLocationState?.current) {
-      setCurrentUserLocation(localUserLocationState.current);
+    if (!userLocation && !!localUserLocationState) {
+      setCurrentUserLocation(localUserLocationState);
     }
 
     const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
@@ -70,7 +70,7 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [updateRate, userLocation, setCurrentUserLocation]);
+  }, [updateRate, userLocation, localUserLocationState, setCurrentUserLocation]);
 
   return null;
 };
