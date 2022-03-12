@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 
+import { isEqual } from 'lodash';
 import { isEmpty } from 'lodash';
 import { clearPatrolDetailView } from '../ducks/patrols';
 
@@ -10,10 +11,9 @@ import PatrolDrawer from '../PatrolDrawer';
 
 import styles from './styles.module.scss';
 
-const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState, changeNestedNavigation, patrolDetailView, clearPatrolDetailView }) => {
+const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState, changeNestedNavigation, clearPatrolDetailView, patrolDetailView }) => {
 
-  const [selectedPatrolId, setSelectedPatrolId] = useState('');
-  const [newPatrolData, setNewPatrolData] = useState({});
+  const [activePatrol, setActivePatrol] = useState({});
   const [showPatrolDrawer, setShowPatrolDrawer] = useState(false);
 
   const openPatrolDetailView = useCallback(() => {
@@ -22,43 +22,34 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState,
   }, [changeNestedNavigation]);
 
   const handleItemClick = useCallback((patrolId) => {
-    setSelectedPatrolId(patrolId);
+    setActivePatrol({ id: patrolId });
     openPatrolDetailView();
-  }, [openPatrolDetailView]);
+  }, [openPatrolDetailView, activePatrol]);
 
   const handleCloseDetailView = useCallback(() => {
-    setSelectedPatrolId('');
-    setNewPatrolData({});
+    setActivePatrol({});
     setShowPatrolDrawer(false);
     changeNestedNavigation(false);
     clearPatrolDetailView();
   }, [changeNestedNavigation, clearPatrolDetailView]);
 
   useEffect(() => {
-    //!!!!!!! inicia y hace loop porque no está nunca nesteado
-    if (!nestedNavigationState & (!isEmpty(selectedPatrolId) || !isEmpty(newPatrolData))) {
-      console.log('%c nestedNavigationState', 'font-size:30px;color:#006cd9;', nestedNavigationState);
+    if (!nestedNavigationState & !isEmpty(activePatrol)) {
+
       handleCloseDetailView();
     }
-  }, [handleCloseDetailView, nestedNavigationState, newPatrolData, selectedPatrolId]);
+  }, [handleCloseDetailView, nestedNavigationState, activePatrol]);
 
   useEffect(() => {
-    if (!isEmpty(patrolDetailView)) {
-      console.log('%c patrolDetailView', 'font-size:30px;color:purple;', patrolDetailView);
-      if (!!patrolDetailView?.id) {
-        setSelectedPatrolId(patrolDetailView.id);
-      } else {
-        setNewPatrolData(patrolDetailView);
-      }
-      // console.log('%c selectedPatrolId', 'font-size:30px;color:white;', selectedPatrolId);
-      console.log('%c newPatrolData', 'font-size:30px;color:red;', newPatrolData);
+    if (isEmpty(activePatrol) && !isEqual(patrolDetailView, activePatrol)) {
+      setActivePatrol(patrolDetailView);
       openPatrolDetailView();
     }
-  }, [patrolDetailView, newPatrolData, selectedPatrolId, openPatrolDetailView]);
+  }, [patrolDetailView, activePatrol, openPatrolDetailView]);
 
   return <>
     {showPatrolDrawer ?
-      <PatrolDrawer patrolId={selectedPatrolId} newPatrol={newPatrolData} className={styles.patrolDetailView} onCloseDetailView={handleCloseDetailView}/> :
+      <PatrolDrawer patrolId={!!activePatrol?.id ? activePatrol.id : ''} newPatrol={!activePatrol?.id ? activePatrol : {}} className={styles.patrolDetailView} onCloseDetailView={handleCloseDetailView}/> :
       (<>
         <PatrolFilter />
         <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={handleItemClick} />

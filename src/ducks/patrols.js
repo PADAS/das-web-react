@@ -278,12 +278,7 @@ export const showPatrolDetailView = (payload) => dispatch => {
   });
 };
 
-// export const clearPatrolDetailView = () => ({
-//   type: CLEAR_PATROL_DETAIL_VIEW,
-// });
-
 export const clearPatrolDetailView = () => dispatch => {
-  console.log('%c clearPatrolDetailView', 'font-size:30px;color:green;');
   return dispatch({
     type: CLEAR_PATROL_DETAIL_VIEW,
   });
@@ -388,14 +383,11 @@ const INITIAL_STATE = {};
 
 export const patrolDetailViewReducer = (state = INITIAL_STATE, { type, payload }) => {
   if (type === UPDATE_PATROL_DETAIL_VIEW) {
-    return {
-      ...state,
-      ...payload,
-    };
+    return { ...payload };
   }
 
   if (type === CLEAR_PATROL_DETAIL_VIEW) {
-    return { ...INITIAL_STATE };
+    return INITIAL_STATE;
   }
 
   return state;
