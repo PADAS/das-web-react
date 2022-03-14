@@ -70,7 +70,7 @@ const FeedDateFilter = (props) => {
     isAtDefault={isAtDefault}
     placement={placement || 'auto'}
     endDate={endDate}
-    endDateLabelClass={UFA_NAVIGATION_UI ? styles.endDateLabel : styles.oldNavigationEndDateLabel}
+    endDateLabelClass={styles.endDateLabel}
     endDateNullMessage={endDateNullMessage}
     onClickDateRangePreset={onClickDateRangePreset}
     onEndDateChange={onEndDateChange}

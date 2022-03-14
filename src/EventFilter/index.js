@@ -264,7 +264,7 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover placement={UFA_NAVIGATION_UI ? 'bottom' : 'auto'} className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
+  const FilterDatePopover = <Popover {...(UFA_NAVIGATION_UI ? { placement: 'bottom' } : {})} className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
