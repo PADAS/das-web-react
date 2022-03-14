@@ -165,12 +165,12 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-const AddReport = ({ analyticsMetadata, className = '', variant, formProps, patrolTypes, reportData, eventsByCategory,
+const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
   popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
 
 
   const map = useContext(MapContext);
-  const { hidePatrols, hideReports } = formProps;
+  const { hidePatrols } = formProps;
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolWritePermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.CREATE);
@@ -286,7 +286,6 @@ AddReport.defaultProps = {
   variant: 'primary',
   formProps: {
     hidePatrols: false,
-    hideReports: false,
     isPatrolReport: false,
     relationshipButtonDisabled: false,
     onSaveSuccess() {
@@ -296,6 +295,7 @@ AddReport.defaultProps = {
     },
   },
   reportData: {},
+  hideReports: false,
 };
 
 AddReport.propTypes = {
@@ -312,7 +312,7 @@ AddReport.propTypes = {
     onSaveSuccess: PropTypes.func,
     onSaveError: PropTypes.func,
     hidePatrols: PropTypes.bool,
-    hideReports: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
+  hideReports: PropTypes.bool,
 };

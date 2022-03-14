@@ -1,5 +1,6 @@
 @import '../common/styles/vars/colors';
 
+$unfiltered-color : $secondary-medium-gray;
 $filtered-color : $highlight-color;
 
 .search {
@@ -18,16 +19,16 @@ $filtered-color : $highlight-color;
     width: 100%;
 
     &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-      color: $secondary-medium-gray;
+      color: $unfiltered-color;
       opacity: 1; /* Firefox */
     }
 
     &::-ms-input-placeholder { /* Microsoft Edge */
-      color: $secondary-medium-gray;
+      color: $unfiltered-color;
     }
 
     &:-ms-input-placeholder { /* Internet Explorer 10-11 */
-      color: $secondary-medium-gray;
+      color: $unfiltered-color;
     }
   }
 
@@ -42,12 +43,12 @@ $filtered-color : $highlight-color;
 
     circle {
       fill: none;
-      stroke: $secondary-medium-gray;
+      stroke: $unfiltered-color;
       stroke-width: 1rem;
     }
 
     path {
-      fill: $secondary-medium-gray;
+      fill: $unfiltered-color;
     }
 
     * {
@@ -69,7 +70,7 @@ $filtered-color : $highlight-color;
     cursor: pointer;
 
     svg * {
-      stroke: $secondary-medium-gray;
+      stroke: $unfiltered-color;
     }
 
     &:hover > svg * {
@@ -104,11 +105,11 @@ $filtered-color : $highlight-color;
   &:hover:not(.isFiltered) {
     .searchIcon {
       circle {
-        stroke: darken($secondary-medium-gray, 30%);
+        stroke: darken($unfiltered-color, 30%);
       }
 
       path {
-        fill: darken($secondary-medium-gray, 30%);
+        fill: darken($unfiltered-color, 30%);
       }
     }
   }

@@ -175,10 +175,8 @@ const SideBar = ({ map }) => {
                 <AddReport
                   className={styles.addReport}
                   variant="secondary"
-                  formProps={{
-                    hidePatrols: sidebarTab !== TAB_KEYS.PATROLS,
-                    hideReports: sidebarTab !== TAB_KEYS.REPORTS,
-                  }}
+                  formProps={{ hidePatrols: sidebarTab !== TAB_KEYS.PATROLS }}
+                  hideReports={sidebarTab !== TAB_KEYS.REPORTS}
                   popoverPlacement="bottom"
                   showLabel={false}
                   type={sidebarTab}
