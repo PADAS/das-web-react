@@ -13,7 +13,15 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { BREAKPOINTS, CLIENT_BUILD_VERSION, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import {
+  BREAKPOINTS,
+  DEVELOPMENT_FEATURE_FLAGS,
+  CLIENT_BUILD_VERSION,
+  FEATURE_FLAGS,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  TAB_KEYS,
+} from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -27,6 +35,8 @@ import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg'
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -176,7 +186,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {!isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}

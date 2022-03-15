@@ -30,6 +30,11 @@ export const TABLEAU_ANALYSIS_CATEGORY = 'Analysis (via Tableau)';
 export const ADD_INCIDENT_CATEGORY = 'Add To Incident';
 export const GPS_FORMAT_CATEGORY = 'GPS Format';
 export const ALERTS_CATEGORY = 'Alerts';
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+export const DRAWER_CATEGORY = 'Drawer';
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */
+
 export const FEED_CATEGORY = 'Feed';
 
 /**

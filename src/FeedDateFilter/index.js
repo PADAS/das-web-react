@@ -1,13 +1,13 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
-import { dateIsValid } from '../utils/datetime';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+
+import { dateIsValid } from '../utils/datetime';
 
 import DateRangeSelector from '../DateRangeSelector';
 
 import styles from './styles.module.scss';
-
 
 const FeedDateFilter = (props) => {
   const { children, defaultRange, nullUpperOverride = null, dateRange, updateFilter, afterClickPreset, afterStartChange, afterEndChange, placement, popoverClassName, filterSettings, ...rest } = props;
