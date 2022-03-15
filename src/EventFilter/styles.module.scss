@@ -125,10 +125,12 @@ div.filterPopover {
 }
 
 .popoverTrigger {
+  --iconDimensions: 0.875rem;
+
   svg {
     display: inline-block;
-    height: 0.875rem;
-    width: 0.875rem;
+    height: var(--iconDimensions);
+    width: var(--iconDimensions);
     margin-right: 0.25rem;
 
     * {
