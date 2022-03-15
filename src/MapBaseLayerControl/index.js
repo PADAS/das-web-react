@@ -6,13 +6,21 @@ import Popover from 'react-bootstrap/Popover';
 import { setBaseLayer } from '../ducks/layers';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY, BASE_LAYER_CATEGORY } from '../utils/analytics';
 
-import { VALID_LAYER_SOURCE_TYPES, TILE_LAYER_SOURCE_TYPES, MAPBOX_STYLE_LAYER_SOURCE_TYPES, GOOGLE_LAYER_SOURCE_TYPES } from '../constants';
+import {
+  DEVELOPMENT_FEATURE_FLAGS,
+  VALID_LAYER_SOURCE_TYPES,
+  TILE_LAYER_SOURCE_TYPES,
+  MAPBOX_STYLE_LAYER_SOURCE_TYPES,
+  GOOGLE_LAYER_SOURCE_TYPES,
+} from '../constants';
 import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
 import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
 import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
 
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
@@ -74,9 +82,9 @@ const BaseLayerControl = (props) => {
     <button title='Set Map Base Layer' type='button' className={styles.button} onClick={togglePopoverState} ref={buttonRef}>
       <BaseMapIcon />
     </button>
-    <Overlay placement='left' show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
+    <Overlay placement={UFA_NAVIGATION_UI ? 'left' : 'right'} show={popoverOpen} rootClose onHide={() => setPopoverOpenState(false)} container={wrapperRef.current} target={wrapperRef.current}>
       <Popover className={styles.popup} title='Base Layers'>
-        <ul className={styles.layerList}>
+        <ul className={UFA_NAVIGATION_UI ? styles.layerList : styles.oldNavigationLayerList}>
           {baseLayers.map(layer => {
             const logoSrc = renderLayerLogoSrc(layer);
 
