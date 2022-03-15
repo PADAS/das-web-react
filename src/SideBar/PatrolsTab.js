@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { isEqual } from 'lodash';
 import { isEmpty } from 'lodash';
@@ -7,37 +8,37 @@ import { clearPatrolDetailView } from '../ducks/patrols';
 
 import PatrolFilter from '../PatrolFilter';
 import PatrolList from '../PatrolList';
-import PatrolDrawer from '../PatrolDrawer';
+import PatrolDetailView from '../PatrolDetailView';
 
 import styles from './styles.module.scss';
 
-const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState, changeNestedNavigation, clearPatrolDetailView, patrolDetailView }) => {
+const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation, nestedNavigationState = false, clearPatrolDetailView, patrolDetailView }) => {
 
   const [activePatrol, setActivePatrol] = useState({});
-  const [showPatrolDrawer, setShowPatrolDrawer] = useState(false);
+  const [showPatrolDetailView, setShowPatrolDetailView] = useState(false);
 
   const openPatrolDetailView = useCallback(() => {
-    setShowPatrolDrawer(true);
+    setShowPatrolDetailView(true);
     changeNestedNavigation(true);
   }, [changeNestedNavigation]);
 
   const handleItemClick = useCallback((patrolId) => {
     setActivePatrol({ id: patrolId });
     openPatrolDetailView();
-  }, [openPatrolDetailView, activePatrol]);
+  }, [openPatrolDetailView]);
 
   const handleCloseDetailView = useCallback(() => {
-    setActivePatrol({});
-    setShowPatrolDrawer(false);
+    setShowPatrolDetailView(false);
     changeNestedNavigation(false);
     clearPatrolDetailView();
+    setActivePatrol({});
   }, [changeNestedNavigation, clearPatrolDetailView]);
 
   useEffect(() => {
     if (!nestedNavigationState & !isEmpty(activePatrol)) {
-
       handleCloseDetailView();
     }
+
   }, [handleCloseDetailView, nestedNavigationState, activePatrol]);
 
   useEffect(() => {
@@ -48,8 +49,12 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState,
   }, [patrolDetailView, activePatrol, openPatrolDetailView]);
 
   return <>
-    {showPatrolDrawer ?
-      <PatrolDrawer patrolId={!!activePatrol?.id ? activePatrol.id : ''} newPatrol={!activePatrol?.id ? activePatrol : {}} className={styles.patrolDetailView} onCloseDetailView={handleCloseDetailView}/> :
+    {showPatrolDetailView ?
+      <PatrolDetailView
+        className={styles.patrolDetailView}
+        patrolId={!!activePatrol?.id ? activePatrol.id : ''}
+        newPatrol={!activePatrol?.id ? activePatrol : {}}
+        onCloseDetailView={handleCloseDetailView}/> :
       (<>
         <PatrolFilter />
         <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={handleItemClick} />
@@ -58,17 +63,15 @@ const PatrolsTab = ({ loadingPatrols, map, patrolResults, nestedNavigationState,
   </>;
 };
 
-// DailyReportModal.propTypes = {
-//   id: PropTypes.string.isRequired,
-//   removeModal: PropTypes.func.isRequired,
-
-//   loadingPatrols
-//   map
-//   patrolResults
-//   nestedNavigationState
-//   changeNestedNavigation
-//   clearPatrolDetailView
-// };
+PatrolsTab.propTypes = {
+  map: PropTypes.object.isRequired,
+  patrolResults: PropTypes.array.isRequired,
+  loadingPatrols: PropTypes.bool.isRequired,
+  changeNestedNavigation: PropTypes.func.isRequired,
+  nestedNavigationState: PropTypes.bool,
+  clearPatrolDetailView: PropTypes.func,
+  patrolDetailView: PropTypes.object,
+};
 
 const mapStateToProps = ({ view: { patrolDetailView } }) => ({ patrolDetailView });
 

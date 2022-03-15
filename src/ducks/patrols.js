@@ -271,7 +271,6 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
 
 export const showPatrolDetailView = (payload) => dispatch => {
   dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: TAB_KEYS.PATROLS }));
-  console.log('%c showPatrolDetailView', 'font-size:30px;color:yellow;', payload);
   return dispatch({
     type: UPDATE_PATROL_DETAIL_VIEW,
     payload: payload
