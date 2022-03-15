@@ -6,12 +6,14 @@
   display: flex;
   padding: 1.25rem 0.5rem 0.5rem 0.75rem;
   width: 100%;
+  border-bottom: 1px solid $light-gray-border;
 }
 
 .search {
   margin-bottom: 0;
   margin-right: 0.75rem;
   width: 40%;
+  max-width: 11rem;
 
   @media (min-width: $md-layout-width-min) {
     width: 50%;
