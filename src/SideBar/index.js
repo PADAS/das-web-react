@@ -1,16 +1,41 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  lazy,
+  memo,
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { cloneDeep } from 'lodash-es';
+import isEqual from 'react-fast-compare';
+import isUndefined from 'lodash/isUndefined';
+import { MapContext } from 'react-mapbox-gl';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import {
+  BREAKPOINTS,
+  DEVELOPMENT_FEATURE_FLAGS,
+  FEATURE_FLAGS,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  TAB_KEYS,
+} from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
+import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
+import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
+import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -25,6 +50,7 @@ import SubjectGroupList from '../SubjectGroupList';
 import PatrolsTab from './PatrolsTab';
 import ReportsTab from './ReportsTab';
 
+import { ReactComponent as ChevronIcon } from '../common/images/icons/chevron.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
@@ -33,9 +59,31 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
+
+const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
+
+const SET_TAB = 'SET_TAB';
+const SIDEBAR_STATE_REDUCER_NAMESPACE = 'SIDEBAR_TAB';
+
+const { screenIsMediumLayoutOrLarger, screenIsExtraLargeWidth } = BREAKPOINTS;
+
+const setActiveTab = (tab) => ({ type: SET_TAB, payload: tab });
+
+const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
+  if (action.type === SET_TAB) {
+    return action.payload;
+  }
+  return state;
+};
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
-const SideBar = ({ map }) => {
+const SideBar = ({ map, onHandleClick }) => {
   const dispatch = useDispatch();
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
@@ -143,10 +191,114 @@ const SideBar = ({ map }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
+    if (UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sidebarTab);
     }
   }, [sidebarTab]);
+
+  /* --- OLD NAVIGATION STUFF STARTS HERE --- */
+  const eventFilter = useSelector((state) => state.data.eventFilter);
+
+  const activeTabPreClose = useRef(null);
+
+  const [activeTab, dispatchOld] = useReducer(
+    undoable(activeTabReducer, SIDEBAR_STATE_REDUCER_NAMESPACE),
+    calcInitialUndoableState(activeTabReducer)
+  );
+
+  const { filter: { overlap } } = patrolFilter;
+
+  const isExtraLargeLayout = useMatchMedia(screenIsExtraLargeWidth);
+  const isMediumLayout = useMatchMedia(screenIsMediumLayoutOrLarger);
+
+  const onTabsSelect = (eventKey) => {
+    dispatchOld(setActiveTab(eventKey));
+    let tabTitles = {
+      [TAB_KEYS.REPORTS]: 'Reports',
+      [TAB_KEYS.LAYERS]: 'Map Layers',
+      [TAB_KEYS.PATROLS]: 'Patrols',
+    };
+    drawerTracker.track(`Click '${tabTitles[eventKey]}' tab`);
+  };
+
+  useEffect(() => {
+    if (!UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+      fetchAndLoadPatrolData();
+    }
+  }, [overlap]); // eslint-disable-line
+
+  useEffect(() => {
+    if (!UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
+      if (!sidebarOpen) {
+        activeTabPreClose.current = activeTab.current;
+        dispatchOld(setActiveTab(TAB_KEYS.REPORTS));
+      } else {
+        if (activeTabPreClose.current !== TAB_KEYS.REPORTS) {
+          dispatchOld(undo(SIDEBAR_STATE_REDUCER_NAMESPACE));
+        }
+      }
+    }
+  }, [sidebarOpen]); /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  const addReportPopoverPlacement = isExtraLargeLayout
+    ? 'left'
+    : (isMediumLayout
+      ? sidebarOpen
+        ? 'auto'
+        : 'left'
+      : 'auto'
+    );
+
+  if (!UFA_NAVIGATION_UI && !map) return null;
+
+  const selectedTab = !!activeTab && activeTab.current;
+
+  if (!UFA_NAVIGATION_UI)  {
+    return <ErrorBoundary>
+      <MapContext.Provider value={map}>
+        <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+          <button onClick={onHandleClick} className="handle" type="button"><span><ChevronIcon /></span></button>
+          {activeTab.current !== TAB_KEYS.LAYERS && <div className={styles.addReportContainer}>
+            <AddReport popoverPlacement={addReportPopoverPlacement} showLabel={false} type={activeTab.current} />
+          </div>}
+          <Tabs activeKey={selectedTab} onSelect={onTabsSelect} className={styles.tabBar}>
+            <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.REPORTS} title="Reports">
+              <ReportsTab map={map} sidebarOpen={sidebarOpen}/>
+            </Tab>
+
+            {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
+              <Suspense fallback={null}>
+                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+              </Suspense>
+            </Tab>}
+
+            <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.LAYERS} title="Map Layers">
+              <ErrorBoundary>
+                <MapLayerFilter />
+                <div className={styles.oldNavigationMapLayers}>
+                  <ReportMapControl/>
+                  <SubjectGroupList map={map} />
+                  <FeatureLayerList map={map} />
+                  <AnalyzerLayerList map={map} />
+                  <div className={styles.noItems}>No items to display.</div>
+                </div>
+                <div className={styles.mapLayerFooter}>
+                  <ClearAllControl map={map} />
+                </div>
+              </ErrorBoundary>
+            </Tab>
+          </Tabs>
+        </aside>
+      </MapContext.Provider>
+    </ErrorBoundary>;
+  }
+  /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
@@ -183,8 +335,16 @@ const SideBar = ({ map }) => {
                   <button type='button' onClick={() => setNestedNavigationState(false)}>
                     <ArrowLeftIcon />
                   </button>
-                   :
-                  <AddReport className={styles.addReport} variant="secondary" popoverPlacement="bottom" showLabel={false} type={sidebarTab} />
+                  :
+                  <AddReport
+                    className={styles.addReport}
+                    variant="secondary"
+                    formProps={{ hidePatrols: sidebarTab !== TAB_KEYS.PATROLS }}
+                    hideReports={sidebarTab !== TAB_KEYS.REPORTS}
+                    popoverPlacement="bottom"
+                    showLabel={false}
+                    type={sidebarTab}
+                  />
                 }
               </div>
 

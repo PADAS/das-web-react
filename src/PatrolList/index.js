@@ -6,10 +6,13 @@ import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { sortPatrolList } from '../utils/patrols';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
@@ -51,8 +54,11 @@ const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
 
   return <Fragment>
     <PatrolListTitle />
-    {!!listItems.length && <Flipper flipKey={listItems} element='ul' className={styles.patrolList}>
-
+    {!!listItems.length && <Flipper
+      flipKey={listItems}
+      element='ul'
+      className={UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
+    >
       {listItems.map((item) =>
         <ConnectedListItem
           patrol={item}

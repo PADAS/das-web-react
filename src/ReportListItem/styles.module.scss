@@ -8,7 +8,12 @@
 
   svg,
   svg > svg {
-    --dimensions: 2rem;
+    --dimensions: 1.75rem;
+
+    @media (min-width: $md-layout-width-min) {
+      --dimensions: 2rem;
+    }
+
     --half-size: calc(var(--dimensions) / 2);
 
     fill: white;
@@ -79,3 +84,44 @@
   font-size: 0.65rem;
   font-style: italic;
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationIcon {
+  @include unstyledButton;
+
+  height: 100%;
+  width: 100%;
+
+  svg,
+  svg > svg {
+    --dimensions: 2rem;
+    --half-size: calc(var(--dimensions) / 2);
+
+    fill: white;
+    height: var(--dimensions);
+    width: var(--dimensions);
+
+    &[class*=generic] {
+      height: var(--half-size);
+      width: var(--half-size);
+    }
+  }
+
+  .patrolIndicator {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 500;
+    height: 1.125rem;
+    justify-content: center;
+    left: 0;
+    line-height: 1em;
+    position: absolute;
+    top: 0;
+    text-transform: uppercase;
+    width: 1.125rem;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

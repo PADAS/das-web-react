@@ -11,6 +11,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
@@ -24,6 +25,8 @@ import EventTypeListItem from '../EventTypeListItem';
 import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -138,7 +141,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   return <Popover {...rest} ref={ref} className={styles.popover}>
     <Popover.Content>
       <Tabs activeKey={activeTab} onSelect={onTabSelect} className={styles.tabBar}>
-        <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
+        {!!eventsByCategory?.length && <Tab className={styles.tab} eventKey={TAB_KEYS.REPORTS} title="Add Report">
           <div className={styles.reportTypeSearchControls}>
             <SearchBar className={styles.search} placeholder='Search' value={reportFilter}
               onChange={onReportSearchValueChange} onClear={onReportFilterClear} />
@@ -153,7 +156,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
             />
           </div>
           <ReportTypeList ref={reportTypesListRef} categories={eventsByCategory} filter={reportFilter} onClickReportType={onClickReportType} />
-        </Tab>
+        </Tab>}
         {!!patrolCategories?.length && <Tab className={styles.tab} eventKey={TAB_KEYS.PATROLS} title="Add Patrol">
           <div className={styles.reportTypeSearchControls}>
             <SearchBar className={styles.search} placeholder='Search' value={patrolFilter}
@@ -166,7 +169,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
   </Popover>;
 });
 
-const AddReport = ({ analyticsMetadata, className = '', variant, formProps, patrolTypes, reportData, eventsByCategory,
+const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
   popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
 
 
@@ -246,11 +249,11 @@ const AddReport = ({ analyticsMetadata, className = '', variant, formProps, patr
   return hasEventCategories &&
 
   <PatrolTypesContext.Provider value={patrolCategories}>
-    <ReportTypesContext.Provider value={eventsByCategory}>
+    <ReportTypesContext.Provider value={hideReports ? [] : eventsByCategory}>
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={styles[`addReport-${variant}`]}
+          className={UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}
@@ -296,6 +299,7 @@ AddReport.defaultProps = {
     },
   },
   reportData: {},
+  hideReports: false,
 };
 
 AddReport.propTypes = {
@@ -314,4 +318,5 @@ AddReport.propTypes = {
     hidePatrols: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
+  hideReports: PropTypes.bool,
 };
