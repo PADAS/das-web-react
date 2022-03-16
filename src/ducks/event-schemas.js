@@ -20,9 +20,9 @@ export const fetchEventSchema = () => dispatch => get(EVENT_SCHEMA_API_URL)
 
 export const fetchEventTypeSchema = (name, event_id) => dispatch => {
   let reqString = `${EVENT_TYPE_SCHEMA_API_URL}${name}`;
-  /* if (event_id) {
+  if (event_id) {
     reqString += `?event_id=${event_id}`;
-  } */
+  }
 
   return get(reqString)
     .then(({ data: { data: schema } }) => {
