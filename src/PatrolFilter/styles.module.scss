@@ -4,18 +4,26 @@
 .form {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   padding: 1.25rem 0.5rem 0.5rem 0.75rem;
   width: 100%;
   border-bottom: 1px solid $light-gray-border;
+
+  @media (min-width: $md-layout-width-min) {
+    justify-content: flex-start;
+  }
 }
 
 .search {
-  margin-bottom: 0;
+  margin-bottom: 0.75rem;
   margin-right: 0.75rem;
-  width: 40%;
-  max-width: 11rem;
-
+  width: 100%;
+  
   @media (min-width: $md-layout-width-min) {
+    margin-bottom: 0;
+    width: 40%;
+    max-width: 11rem;
     width: 50%;
   }
 }
@@ -29,6 +37,48 @@
 }
 
 .popoverTrigger {
+  --iconDimensions: 0.875rem;
+
+  svg {
+    height: var(--iconDimensions);
+    width: var(--iconDimensions);
+    margin-right: 0.5rem;
+
+    * {
+      stroke: gray;
+    }
+  }
+
+  &[class*=btn-primary] {
+    svg {
+      * {
+        stroke: white;
+      }
+    }
+  }
+}
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationForm {
+  align-items: center;
+  display: flex;
+  padding: 1.25rem 0.5rem 0.5rem 0.75rem;
+  width: 100%;
+  border-bottom: 1px solid $light-gray-border;
+}
+
+.oldNavigationSearch {
+  margin-bottom: 0;
+  margin-right: 0.75rem;
+  width: 40%;
+  max-width: 11rem;
+
+  @media (min-width: $md-layout-width-min) {
+    width: 50%;
+  }
+}
+
+.oldNavigationPopoverTrigger {
   svg {
     height: 1.25rem;
     width: 1.25rem;
@@ -47,3 +97,4 @@
     }
   }
 }
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

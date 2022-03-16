@@ -76,11 +76,11 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
   return <>
     <div
       ref={containerRef}
-      className={`${patrolFilterStyles.form} ${className}`}
+      className={`${UFA_NAVIGATION_UI ? patrolFilterStyles.form : patrolFilterStyles.oldNavigationForm} ${className}`}
       onSubmit={e => e.preventDefault()}
       >
       <SearchBar
-        className={`${styles.search} ${patrolFilterStyles.search}`}
+        className={`${styles.search} ${UFA_NAVIGATION_UI ? patrolFilterStyles.search : patrolFilterStyles.oldNavigationSearch}`}
         placeholder='Search Patrols...'
         value={filterText}
         onChange={onSearchChange}
@@ -98,7 +98,7 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
         <Button
           variant={filtersModified ? 'primary' : 'light'}
           size='sm'
-          className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
+          className={`${UFA_NAVIGATION_UI ? patrolFilterStyles.popoverTrigger : patrolFilterStyles.oldNavigationPopoverTrigger} ${patrolFilterStyles.filterButton}`}
           onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           data-testid="patrolFilter-filtersButton"
         >
