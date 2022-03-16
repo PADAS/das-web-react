@@ -157,19 +157,17 @@ nav.tabBar {
     @include unstyledButton;
 
     font-weight: bold;
-    border: thin solid $light-gray-border;
-    border-top: none;
     height: 100%;
     width: 100%;
-
+    
     &:hover {
       text-decoration: underline;
-    }
+      border: none;
+      color: $bright-blue;
 
-    &:hover,
-    &:active {
-      border: thin solid $light-gray-border;
-      border-top: none;
+      svg {
+        fill: $bright-blue;
+      }      
     }
 
     span {
