@@ -11,7 +11,6 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
@@ -36,7 +35,14 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import {
+  BREAKPOINTS,
+  DEVELOPMENT_FEATURE_FLAGS,
+  REACT_APP_ENABLE_CLUSTERING,
+  LAYER_IDS,
+  LAYER_PICKER_IDS,
+  MAX_ZOOM,
+} from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
@@ -64,6 +70,7 @@ import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
+import AddReport from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -74,6 +81,8 @@ import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -196,6 +205,10 @@ class Map extends Component {
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
       this.debouncedFetchMapData();
+    }
+    if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
+      console.log('location update, re-fetching map events');
+      this.debouncedFetchMapEvents();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
@@ -332,7 +345,13 @@ class Map extends Component {
   }
 
   fetchMapEvents() {
-    return this.props.fetchMapEvents(this.props.map)
+    let params;
+    if (this.props.userLocation?.coords) {
+      params = {
+        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+      };
+    }
+    return this.props.fetchMapEvents(this.props.map, params)
       .catch((e) => {
         console.warn('error fetching map events', e);
       });
@@ -592,8 +611,14 @@ class Map extends Component {
     return (
       <EarthRangerMap
         center={this.mapCenter}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
         controls={<Fragment>
+          {UFA_NAVIGATION_UI && <AddReport
+            className="general-add-button"
+            variant="secondary"
+            popoverPlacement="left"
+            showLabel={false}
+          />}
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
@@ -643,11 +668,15 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+              {!UFA_NAVIGATION_UI && <>
+                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+                </>
+              }
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
+                {UFA_NAVIGATION_UI && <CursorGpsDisplay />}
                 <RotationControl
                   className='rotation-control'
                   style={{
@@ -658,8 +687,15 @@ class Map extends Component {
                     borderRadius: '0.25rem',
                   }}
                 />
-                <CursorGpsDisplay />
+                {!UFA_NAVIGATION_UI && <CursorGpsDisplay />}
               </span>
+              {UFA_NAVIGATION_UI && <>
+                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+                </>
+              }
             </div>
 
             <RightClickMarkerDropper />
@@ -698,11 +734,12 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
     maps,
+    userLocation,
     eventTypes,
     heatmapSubjectIDs,
     tracks,

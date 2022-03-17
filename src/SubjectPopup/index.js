@@ -15,6 +15,7 @@ import AddReport from '../AddReport';
 import { addModal } from '../ducks/modals';
 import { showPopup } from '../ducks/popup';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
@@ -22,6 +23,7 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import styles from './styles.module.scss';
 
 const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataModal'));
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
@@ -81,14 +83,15 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
           <h6>{properties.name}</h6>
         </div>
         <AddReport
-        analyticsMetadata={{
-          category: MAP_INTERACTION_CATEGORY,
-          location: 'subject popover',
-        }}
-        className={styles.addReport}
-        reportData={{ location: locationObject, reportedById }}
-        showLabel={false}
-        popoverPlacement={popoverPlacement}
+          analyticsMetadata={{
+            category: MAP_INTERACTION_CATEGORY,
+            location: 'subject popover',
+          }}
+          className={UFA_NAVIGATION_UI ? styles.addReport : styles.oldNavigationAddReport}
+          variant="secondary"
+          reportData={{ location: locationObject, reportedById }}
+          showLabel={false}
+          popoverPlacement={popoverPlacement}
         />
       </div>
       {coordProps.time && <div className={styles.dateTimeWrapper}>
