@@ -1,4 +1,4 @@
-import React, { useContext, memo, useCallback, useEffect, useState } from 'react';
+import React, { useContext, useMemo, memo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Provider, connect } from 'react-redux';
 import ReactDOM from 'react-dom';
@@ -33,10 +33,11 @@ const IMAGE_DATA = {
   }
 };
 
+const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
+
+
 const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNames, simplifyMapDataOnZoom: { enabled: isDataInMapSimplified } }) => {
   const map = useContext(MapContext);
-  const popup = new mapboxgl.Popup({ offset: [0, 0], anchor: 'bottom', closeButton: false });
-
   const showMapStaticSubjectsNames = showMapNames[STATIC_SENSOR]?.enabled ?? false;
   const [clickedLayerID, setClickedLayerID] = useState('');
   const [sensorsWithDefaultValue, setSensorsWithDefaultValue] = useState({});
@@ -52,7 +53,8 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
       featureWithDefaultValue =  set(feature, 'properties.show_map_names', showMapStaticSubjectsNames);
 
       if (!isEmpty(defaultProperty)) {
-        featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value} ${defaultProperty.units}`);
+        const propertyUnitsLabel = JSON.parse(JSON.stringify(defaultProperty.units)) ? ` ${defaultProperty.units}` : '';
+        featureWithDefaultValue = set(feature, 'properties.default_status_value', isTimeSliderActive ? 'No historical data' : `${defaultProperty.value}${propertyUnitsLabel}`);
       };
 
       if (!properties?.image?.length) {
@@ -106,7 +108,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
       setClickedLayerID('');
       setLayerVisibility(layer.layer.id);
     });
-  }, [popup, map, setLayerVisibility]);
+  }, [map, setLayerVisibility]);
 
   const onLayerClick = useCallback((event) => {
     const clickedLayer = getStaticSensorLayer(event);
@@ -166,7 +168,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
         map.on('click', layerID, onLayerClick);
       });
     }
-  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive, popup, clickedLayerID]);
+  }, [setLayerVisibility, createLayer, isDataInMapSimplified, map, onLayerClick, sensorsWithDefaultValue, isTimeSliderActive, clickedLayerID]);
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {
