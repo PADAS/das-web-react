@@ -2,20 +2,25 @@
 
 import React from 'react';
 import { Provider } from 'react-redux';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
+import { addModal } from '../ducks/modals';
 import { mockStore } from '../__test-helpers/MockStore';
 import { createMapMock } from '../__test-helpers/mocks';
 import { subjectFeatureWithMultipleDeviceProps, subjectFeatureWithOneDeviceProp, staticSubjectFeature } from '../__test-helpers/fixtures/subjects';
-
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import { GPS_FORMATS } from '../utils/location';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 
 import SubjectPopup from './';
 
-const store = mockStore({
+jest.mock('../ducks/modals', () => ({
+  ...jest.requireActual('../ducks/modals'),
+  addModal: jest.fn(),
+}));
+
+let store = mockStore({
   data: {
     eventFilter: {
       filter: {
@@ -52,20 +57,20 @@ const store = mockStore({
 });
 
 describe('SubjectPopup', () => {
-  let map;
-  beforeEach(() => {
-    jest.spyOn(document, 'querySelector').mockImplementation(() => ({
-      clientHeight: 1000,
-      clientWidth: 1000,
-    }));
+  describe('generic popup', () => {
+    let map;
+    beforeEach(() => {
+      jest.spyOn(document, 'querySelector').mockImplementation(() => ({
+        clientHeight: 1000,
+        clientWidth: 1000,
+      }));
 
-    map = createMapMock();
-    render(<Provider store={store}>
-      <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
-    </Provider>);
-  });
+      map = createMapMock();
+      render(<Provider store={store}>
+        <SubjectPopup data={subjectFeatureWithMultipleDeviceProps} map={map} />
+      </Provider>);
+    });
 
-  describe('the popup', () => {
     test('showing the subject name', () => {
       expect(screen.getByText('RD-001')).toBeInTheDocument();
     });
@@ -108,20 +113,40 @@ describe('SubjectPopup', () => {
       const additionalPropsValues = await screen.findAllByTestId('additional-props-value');
       expect(additionalPropsValues[1]).toHaveTextContent('false');
     });
+  });
 
-    test('render default featured property for static sensor subjects', async () => {
-      const defaultSubjectProperty = getSubjectDefaultDeviceProperty(staticSubjectFeature);
-      const defaultSubjectValue = `${defaultSubjectProperty.value} ${defaultSubjectProperty.units}`;
-      staticSubjectFeature.properties.default_status_value = defaultSubjectValue;
+  describe('Stationary Subjects popup', () => {
+    const defaultSubjectProperty = getSubjectDefaultDeviceProperty(staticSubjectFeature);
+    const defaultSubjectValue = `${defaultSubjectProperty.value} ${defaultSubjectProperty.units}`;
+    staticSubjectFeature.properties.default_status_value = defaultSubjectValue;
 
+    beforeEach(() => {
       render(<Provider store={store}>
         <SubjectPopup data={staticSubjectFeature} />
       </Provider>);
+    });
 
+    test('render default featured property for stationary subjects', async () => {
       const defaultStatusElement = await screen.findByTestId('header-default-status-property');
 
       expect(defaultStatusElement).toBeDefined();
       expect(defaultStatusElement).toHaveTextContent(defaultSubjectValue);
+    });
+
+    test('show button to open historical data modal for Stationary Sensors', async () => {
+      const historicalDataButton = await screen.getByTestId('show-historical-data-btn');
+      expect(historicalDataButton).toBeInTheDocument();
+    });
+
+    test('Open historical data modal after clicking on the button', async () => {
+      const addModalMock = jest.fn(() => () => {});
+      addModal.mockImplementation(addModalMock);
+
+      const historicalDataButton = await screen.getByTestId('show-historical-data-btn');
+      userEvent.click(historicalDataButton);
+
+      expect(addModal).toHaveBeenCalledTimes(1);
+      expect(addModal.mock.calls[0][0]).toMatchObject({ title: 'Historical Data' });
     });
   });
 });
