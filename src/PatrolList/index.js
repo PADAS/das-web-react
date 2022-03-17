@@ -1,44 +1,36 @@
 import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import merge from 'lodash/merge';
-// import { findDOMNode } from 'react-dom';
+
 import { Flipper, Flipped } from 'react-flip-toolkit';
-import LoadingOverlay from '../LoadingOverlay';
-import PatrolListTitle from './Title';
-import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
-import { updatePatrol } from '../ducks/patrols';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { patrolDrawerId } from '../Drawer';
+import LoadingOverlay from '../LoadingOverlay';
+import PatrolListTitle from './Title';
+import { showDrawer } from '../ducks/drawer';
+import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
+const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onPatrolSelfManagedStateChange, patrol, updatePatrol, ...rest } = props;
+  const { map, onPatrolSelfManagedStateChange, patrol, showDrawer, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
+    if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { patrolId: patrol.id });
     openModalForPatrol(patrol, map);
-  }, [map, patrol]);
-
-  const onPatrolChange = useCallback((value) => {
-    const merged = merge(patrol, value);
-
-    delete merged.updates;
-    updatePatrol(merged);
-  }, [patrol, updatePatrol]);
+  }, [map, patrol, showDrawer]);
 
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
       ref={ref}
       onTitleClick={onTitleClick}
-      onPatrolChange={onPatrolChange}
       onSelfManagedStateChange={onPatrolSelfManagedStateChange}
       patrol={patrol}
       map={map}
@@ -46,7 +38,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { updatePatrol })(ListItem);
+const ConnectedListItem = connect(null, { showDrawer })(ListItem);
 
 const PatrolList = (props) => {
   const { map, patrols = [], loading } = props;
