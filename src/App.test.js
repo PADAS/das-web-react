@@ -95,7 +95,8 @@ describe('The main app view', () => {
       jest.spyOn(socketExports, 'default').mockReturnValue(mockedSocket);
 
     });
-    beforeEach(() => {
+
+    test('rendering without crashing', () => {
       render(
         <BrowserRouter>
           <Provider store={store}>
