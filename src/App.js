@@ -71,6 +71,7 @@ const App = (props) => {
 
 
   useEffect(() => {
+    console.log('THE APP HAS BEGUN');
     /* use these catch blocks to provide error toasts if/as desired */
     fetchEventTypes();
     fetchEventSchema();
