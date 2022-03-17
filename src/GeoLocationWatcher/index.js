@@ -16,16 +16,21 @@ const ONE_MINUTE = 1000 * 60;
 
 const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, updateRate = ONE_MINUTE }) => {
   const [localUserLocationState, setLocalUserLocationState] = useState(userLocation);
+  const [isInit, setInit] = useState(false);
   const [isAllowed, setIsAllowed] = useState(false);
+  const locationWatchId = useRef(null);
 
   const errorToastId = useRef(null);
 
-  const onError = useCallback((error) => {
+  const onGeoSuccess = useCallback((location) => {
+    setLocalUserLocationState(location);
+  }, []);
+
+  const onGeoError = useCallback((error) => {
     setLocalUserLocationState(null);
     setCurrentUserLocation(null);
 
     if (error && error.code === error.PERMISSION_DENIED && userIsGeoPermissionRestricted(user)) {
-
       if (!errorToastId.current) {
         errorToastId.current = showToast({
           link: { href: 'https://support.google.com/chrome/answer/142065', title: 'Learn how' },
@@ -40,8 +45,16 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
         });
       }
     }
-    console.warn('error watching current location', error);
   }, [setCurrentUserLocation, user]);
+
+  const startWatchingPosition = useCallback(() => {
+    return window.navigator.geolocation.watchPosition(
+      onGeoSuccess,
+      onGeoError,
+      GEOLOCATOR_OPTIONS,
+    );
+  }, [onGeoSuccess, onGeoError]);
+
 
   useEffect(() => {
     const GRANTED_STATE = 'granted';
@@ -49,10 +62,9 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
 
     const setPermissionState = (state) => {
       if (state === GRANTED_STATE) {
-        setIsAllowed(true);
-      } else {
-        setIsAllowed(false);
+        return setIsAllowed(true);
       }
+      return setIsAllowed(false);
     };
 
     const handlePermissionStateChange = ({ target: { state } }) => setPermissionState(state);
@@ -73,46 +85,43 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
   }, []);
 
   useEffect(() => {
-    if (isAllowed) {
-      const startWatchingPosition = () => {
-        return window.navigator.geolocation.watchPosition(
-          (position) => {
-            setLocalUserLocationState(position);
-          },
-          onError,
-          GEOLOCATOR_OPTIONS,
-        );
-      };
-
-      const locationWatchId = startWatchingPosition();
-
-      return () => {
-        window.navigator.geolocation.clearWatch(locationWatchId);
-      };
-    } else {
-      onError();
-    }
-  }, [isAllowed, onError]);
+    setInit(true);
+  }, []);
 
   useEffect(() => {
-    if (isAllowed && localUserLocationState) {
-      const setUserLocationFromStateIfUpdated = () => {
-        if (!isEqual(localUserLocationState?.coords, userLocation?.coords)) {
-          setCurrentUserLocation(localUserLocationState);
-        }
-      };
+    if (isInit) {
+      if (!isAllowed) {
+        onGeoError();
+      } else {
+        window.navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, GEOLOCATOR_OPTIONS);
+      }
+    }
+  }, [isInit, onGeoError, onGeoSuccess, isAllowed]);
 
-      if (!userLocation && !!localUserLocationState) {
+  useEffect(() => {
+    locationWatchId.current = startWatchingPosition();
+    return () => {
+      window.navigator.geolocation.clearWatch(locationWatchId.current);
+    };
+  }, [startWatchingPosition]);
+
+  useEffect(() => {
+    const setUserLocationFromStateIfUpdated = () => {
+      if (!isEqual(localUserLocationState?.coords, userLocation?.coords)) {
         setCurrentUserLocation(localUserLocationState);
       }
+    };
 
-      const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
-
-      return () => {
-        window.clearInterval(intervalId);
-      };
+    if (!userLocation && !!localUserLocationState) {
+      setCurrentUserLocation(localUserLocationState);
     }
-  }, [isAllowed, updateRate, userLocation, localUserLocationState, setCurrentUserLocation]);
+
+    const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [updateRate, userLocation, localUserLocationState, setCurrentUserLocation]);
 
   return null;
 };

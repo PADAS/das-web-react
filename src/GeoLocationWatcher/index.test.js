@@ -20,24 +20,27 @@ const mockUserLocation = {
 describe('The GeoLocationWatcher', () => {
   let store;
 
+  console.log('global.navigator', global.navigator);
+
   beforeEach(() => {
     store = mockStore({ view: { userLocation: null }, data: { user: { } } });
     const mockGeolocation = {
       clearWatch: jest.fn(),
       getCurrentPosition: jest.fn().mockReturnValue(mockUserLocation),
       watchPosition: jest.fn().mockImplementation((updateFn, _errorFn) => {
-        updateFn(mockUserLocation);
+        updateFn(mockGeolocation.getCurrentPosition());
       }),
     };
+
+    global.navigator.geolocation = mockGeolocation;
 
     global.navigator.permissions = {
       query: jest.fn().mockReturnValue(Promise.resolve({ state: 'granted', addEventListener: jest.fn(), removeEventListener: jest.fn() })),
     };
 
-    global.navigator.geolocation = mockGeolocation;
   });
 
-  afterEach(() => {
+  afterAll(() => {
     jest.clearAllMocks();
   });
 
@@ -49,26 +52,18 @@ describe('The GeoLocationWatcher', () => {
     expect(global.navigator.permissions.query).toHaveBeenCalledWith({ name: 'geolocation' });
   });
 
-  /*   test('updating a user\'s location in the store when it changes', async () => {
+  test('updating a user\'s location in the store when it changes', async () => {
     render(<Provider store={store}>
       <GeoLocationWatcher />
     </Provider>);
 
-    await new Promise(process.nextTick);
-
     expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
-
-    await new Promise(process.nextTick);
 
     const actions = store.getActions();
 
-    expect(actions).toEqual([{
-      type: USER_LOCATION_RETRIEVED,
-      payload: mockUserLocation,
-    }]);
-
+    expect(actions[0].type).toEqual(USER_LOCATION_RETRIEVED);
   });
- */
+
   test('handling errors', () => {
 
   });
