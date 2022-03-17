@@ -38,7 +38,7 @@ export const GA_EVENT_CATEGORIES = {
   SYSTEM_STATUS: 'System Status',
 };
 
-export const MIN_ZOOM = 1;
+export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 18;
 
 export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;

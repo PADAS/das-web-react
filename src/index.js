@@ -78,7 +78,6 @@ ReactDOM.render(
           </Switch>
         </Suspense>
       </BrowserRouter>
-      <ToastContainer />
       <DetectOffline />
     </PersistGate>
     <GeoLocationWatcher />

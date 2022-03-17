@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
+
 import { Provider } from 'react-redux';
 
 import { mockStore } from '../__test-helpers/MockStore';
@@ -29,6 +30,10 @@ describe('The GeoLocationWatcher', () => {
       }),
     };
 
+    global.navigator.permissions = {
+      query: jest.fn().mockReturnValue(Promise.resolve({ state: 'granted', addEventListener: jest.fn(), removeEventListener: jest.fn() })),
+    };
+
     global.navigator.geolocation = mockGeolocation;
   });
 
@@ -36,12 +41,24 @@ describe('The GeoLocationWatcher', () => {
     jest.clearAllMocks();
   });
 
-  test('updating a user\'s location in the store when it changes', () => {
+  test('checking if geolocation permission has been granted', () => {
     render(<Provider store={store}>
       <GeoLocationWatcher />
     </Provider>);
 
+    expect(global.navigator.permissions.query).toHaveBeenCalledWith({ name: 'geolocation' });
+  });
+
+  /*   test('updating a user\'s location in the store when it changes', async () => {
+    render(<Provider store={store}>
+      <GeoLocationWatcher />
+    </Provider>);
+
+    await new Promise(process.nextTick);
+
     expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
+
+    await new Promise(process.nextTick);
 
     const actions = store.getActions();
 
@@ -51,7 +68,7 @@ describe('The GeoLocationWatcher', () => {
     }]);
 
   });
-
+ */
   test('handling errors', () => {
 
   });

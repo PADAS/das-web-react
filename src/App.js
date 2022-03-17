@@ -6,7 +6,6 @@ import { loadProgressBar } from 'axios-progress-bar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { geoPermWarningSplashToastIsDueToBeShown, userIsGeoPermissionRestricted } from './utils/geo-perms';
@@ -15,7 +14,6 @@ import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
-import { updateNetworkStatus } from './ducks/system-status';
 import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
@@ -38,8 +36,6 @@ import { showToast } from './utils/toast';
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
-const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
-
 export const MapContext = createContext(null);
 
 // use this block to do direct map event binding.
@@ -49,33 +45,9 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
-let mapResizeAnimation;
-
-const animateResize = (map) => {
-  const transitionLength = 500;
-  const numberOfFrames = 8;
-  let count = 0;
-
-  clearInterval(mapResizeAnimation);
-
-  mapResizeAnimation = setInterval(() => {
-    count += 1;
-
-    map.resize();
-
-    if (count === numberOfFrames) {
-      clearInterval(mapResizeAnimation);
-    }
-
-  }, (transitionLength / numberOfFrames));
-
-  return mapResizeAnimation;
-};
-
-
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, updateNetworkStatus, trackLength, setTrackLength, setDefaultCustomTrackLength, setSeenSplashWarningMessage, showGeoPermWarningMessage } = props;
+    sidebarOpen, trackLength, setTrackLength, setDefaultCustomTrackLength, setSeenSplashWarningMessage, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -100,33 +72,15 @@ const App = (props) => {
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
-    fetchEventTypes()
-      .catch(() => {
-      });
-    fetchEventSchema()
-      .catch(() => {
-        // 
-      });
-
-    fetchMaps()
-      .catch(() => {
-        // 
-      });
-    fetchSubjectGroups()
-      .catch(() => {
-        // 
-      });
-    fetchAnalyzers()
-      .catch(() => {
-        // 
-      });
+    fetchEventTypes();
+    fetchEventSchema();
+    fetchMaps();
+    fetchSubjectGroups();
+    fetchAnalyzers();
     fetchSystemStatus()
       .then(({ patrol_enabled, track_length }) => {
         if (patrol_enabled) {
-          fetchPatrolTypes()
-            .catch(() => {
-              // 
-            });
+          fetchPatrolTypes();
         }
         if (track_length) {
           const { defaultCustomTrackLength, length } = trackLength;
@@ -137,41 +91,15 @@ const App = (props) => {
             setDefaultCustomTrackLength(track_length);
           }
         }
-      })
-      .catch(() => {
-        /* toast('Error fetching system status. Please refresh and try again.', {
-          type: toast.TYPE.ERROR,
-        }); */
       });
+
     loadProgressBar();
-    window.addEventListener('online', () => {
-      updateNetworkStatus(HEALTHY_STATUS);
-    });
-    window.addEventListener('offline', () => {
-      updateNetworkStatus(UNHEALTHY_STATUS);
-    });
+
     initZenDesk();
     hideZenDesk();
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
-  useEffect(() => {
-    if (map) {
-      const resizeAnimation = () => animateResize(map);
-
-      window.addEventListener('resize', resizeAnimation);
-      return () => {
-        window.removeEventListener('resize', resizeAnimation);
-      };
-    }
-  }, [map]);
-
-  useEffect(() => {
-    if (map) {
-      animateResize(map);
-    }
-  }, [map, sidebarOpen]);
 
   useEffect(() => {
     if (showGeoPermWarningMessage) {
@@ -189,7 +117,7 @@ const App = (props) => {
     }
   }, [showGeoPermWarningMessage, setSeenSplashWarningMessage]);
 
-  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDrop={finishDrag} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
       <PrintTitle />
 
@@ -218,7 +146,7 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
+const mapStateToProps = ({ view: { userLocation, trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
@@ -226,12 +154,13 @@ const mapStateToProps = ({ view: { trackLength, geoPermMessageTimestamps: { last
     pickingLocationOnMap,
     sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
-    showGeoPermWarningMessage: geoPermRestricted && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
+    showGeoPermWarningMessage: !!userLocation && geoPermRestricted && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
     userIsGeoPermissionRestricted: geoPermRestricted,
   };
 };
 
-const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setSeenSplashWarningMessage, setDefaultCustomTrackLength })(memo(App));
+export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, setTrackLength, setSeenSplashWarningMessage, setDefaultCustomTrackLength })(memo(App));
+
 
 const AppWithSocketContext = () => <WithSocketContext>
   <ConnectedApp />

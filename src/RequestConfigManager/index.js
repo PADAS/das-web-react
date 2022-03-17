@@ -28,29 +28,32 @@ const RequestConfigManager = (props) => {
         });
       });
     }
-  }, [clearAuth, history, location.search, resetMasterCancelToken]);
+  }, [clearAuth, history, location?.search, resetMasterCancelToken]);
 
   const handleWarningHeader = useCallback((response) => {
     const warningHeader = response?.headers?.warning;
-    const lastShownWarningHeaderToast = geoPermMessageTimestamps?.lastSeenWarningHeaderMessage;
 
-    const shouldShowWarningHeaderToast = !lastShownWarningHeaderToast
-      || differenceInMinutes(new Date(), new Date(lastShownWarningHeaderToast) > WARNING_HEADER_TOAST_TIME_THRESHOLD);
+    if (warningHeader) {
+      const lastShownWarningHeaderToast = geoPermMessageTimestamps?.lastSeenWarningHeaderMessage;
 
-    if (!!warningHeader && shouldShowWarningHeaderToast) {
-      showToast({ message: warningHeader }, { onClose() {
+      const shouldShowWarningHeaderToast = !lastShownWarningHeaderToast
+        || (differenceInMinutes(new Date(), new Date(lastShownWarningHeaderToast)) > WARNING_HEADER_TOAST_TIME_THRESHOLD);
+
+      if (shouldShowWarningHeaderToast) {
         setSeenWarningHeaderMessage(new Date().toISOString());
-      } }); // TOAST here for geo-permission-protected data
-    };
+
+        showToast({ message: warningHeader });  // TOAST here for geo-permission-protected data
+      };
+    }
   }, [geoPermMessageTimestamps?.lastSeenWarningHeaderMessage, setSeenWarningHeaderMessage]);
 
   const handleGeoPermission403Errors = useCallback((error) => {
     const apiResponseErrorIsGeoPermissionsRelated = error =>
       error.statuCode === 403
-    && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
+      && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
 
     const shouldShowGeoPermErrorToast = !geoPermMessageTimestamps?.lastSeen403ErrorMessage
-    || differenceInMinutes(new Date(), new Date(geoPermMessageTimestamps?.lastSeen403ErrorMessage) > ACCESS_DENIED_NO_LOCATION_TOAST_THRESHOLD);
+      || differenceInMinutes(new Date(), new Date(geoPermMessageTimestamps?.lastSeen403ErrorMessage) > ACCESS_DENIED_NO_LOCATION_TOAST_THRESHOLD);
 
     if (apiResponseErrorIsGeoPermissionsRelated(error) && shouldShowGeoPermErrorToast) {
       showToast({ message: error.message }, { onClose() {
@@ -86,9 +89,8 @@ const RequestConfigManager = (props) => {
 
     const interceptorId = axios.interceptors.request.use(requestHandlers);
 
-    return () => {
-      axios.interceptors.request.eject(interceptorId);
-    };
+    return interceptorId;
+
   }, [addMasterCancelTokenToRequests, addUserProfileHeaderToRequestsIfNecessary]);
 
 
@@ -105,20 +107,26 @@ const RequestConfigManager = (props) => {
       }
     ];
 
-    const interceptorId = axios.interceptors.response.use(interceptorConfig);
+    const interceptorId = axios.interceptors.response.use(...interceptorConfig);
 
-    return () => {
-      axios.interceptors.response.eject(interceptorId);
-    };
+    return interceptorId;
   }, [handle401Errors, handleGeoPermission403Errors, handleWarningHeader]);
 
 
   useEffect(() => {
-    attachRequestInterceptors();
+    const interceptorId = attachRequestInterceptors();
+
+    return () => {
+      axios.interceptors.request.eject(interceptorId);
+    };
   }, [attachRequestInterceptors]);
 
   useEffect(() => {
-    attachResponseInterceptors();
+    const interceptorId = attachResponseInterceptors();
+
+    return () => {
+      axios.interceptors.response.eject(interceptorId);
+    };
   }, [attachResponseInterceptors]);
 
   /* auth header */

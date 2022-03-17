@@ -1,15 +1,24 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { DEFAULT_TOAST_CONFIG } from '../constants';
+import { updateNetworkStatus } from '../ducks/system-status';
 
-const DetectOffline = () => {
+import { DEFAULT_TOAST_CONFIG, STATUSES } from '../constants';
+
+const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+const DetectOffline = ({ updateNetworkStatus }) => {
   const [isOnline, setNetwork] = useState(window.navigator.onLine);
   const toastDelay = useRef(null);
   const toastId = useRef(null);
-  const updateNetwork = () => {
-    setNetwork(window.navigator.onLine);
-  };
+
+  const updateNetwork = useCallback(() => {
+    const { onLine } = window.navigator;
+
+    setNetwork(onLine);
+    updateNetworkStatus(onLine ? HEALTHY_STATUS : UNHEALTHY_STATUS);
+  }, [updateNetworkStatus]);
 
   const onToastClose = () => {
     if (toastId.current) {
@@ -18,13 +27,11 @@ const DetectOffline = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('offline', updateNetwork);
     window.addEventListener('online', updateNetwork);
     return () => {
       window.removeEventListener('offline', updateNetwork);
-      window.removeEventListener('online', updateNetwork);
     };
-  });
+  }, [updateNetwork]);
 
   const handleReconnect = () => {
     if (toastId.current) {
@@ -68,6 +75,8 @@ const DetectOffline = () => {
       clearTimeout(toastDelay.current);
     };
   }, [isOnline]);
+
+  return null;
 };
 
-export default memo(DetectOffline);
+export default connect(null, { updateNetworkStatus })(DetectOffline);
