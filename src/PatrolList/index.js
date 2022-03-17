@@ -10,13 +10,12 @@ import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { showDrawer } from '../ducks/drawer';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
-
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
@@ -59,8 +58,11 @@ const PatrolList = (props) => {
 
   return <Fragment>
     <PatrolListTitle />
-    {!!listItems.length && <Flipper flipKey={listItems} element='ul' className={styles.patrolList}>
-
+    {!!listItems.length && <Flipper
+      flipKey={listItems}
+      element='ul'
+      className={UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
+    >
       {listItems.map((item) =>
         <ConnectedListItem
           patrol={item}

@@ -109,3 +109,33 @@
     }
   }
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigation {
+  .map-controls-container {
+    bottom: 1.25rem;
+    left: 0.5rem;
+    right: auto;
+    align-items: flex-start;
+
+    @media (min-width: $md-layout-width-min) {
+      margin-left: 0;
+    }
+  }
+
+  .map-legends {
+    display: inline; 
+    left: 0.666rem;
+    right: auto;
+  }
+
+  .compass-wrapper {
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
+
+  .rotation-control {
+    inset: auto 10px auto auto !important;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

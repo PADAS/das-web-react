@@ -307,6 +307,7 @@ export const PERMISSIONS = {
 
 export const DEVELOPMENT_FEATURE_FLAGS = {
   PATROL_NEW_UI: false,
+  UFA_NAVIGATION_UI: false,
 };
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';

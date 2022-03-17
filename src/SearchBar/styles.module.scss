@@ -1,6 +1,6 @@
 @import '../common/styles/vars/colors';
 
-$unfiltered-color : $secondary-light-gray;
+$unfiltered-color : $secondary-medium-gray;
 $filtered-color : $highlight-color;
 
 .search {
@@ -12,6 +12,7 @@ $filtered-color : $highlight-color;
 
   input {
     border-radius: 0.25rem;
+    border: 1px solid $secondary-light-gray;
     flex-grow: 1;
     padding: 0.25rem 1.75rem;
     font-size: 0.875rem;
@@ -112,4 +113,52 @@ $filtered-color : $highlight-color;
       }
     }
   }
+
+  /* --- OLD NAVIGATION STUFF STARTS HERE --- */
+  &.oldNavigation {
+    input {
+      border: medium none color;
+
+      &::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        color: $secondary-light-gray;
+      }
+      &::-ms-input-placeholder { /* Microsoft Edge */
+        color: $secondary-light-gray;
+      }
+  
+      &:-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: $secondary-light-gray;
+      }
+    }
+
+    .searchIcon {
+      circle {
+        stroke: $secondary-light-gray;
+      }
+  
+      path {
+        fill: $secondary-light-gray;
+      }
+    }
+
+    .clearButton {
+      svg * {
+        stroke: $secondary-light-gray;
+      }
+    }
+
+    &.isActive:not(.isFiltered),
+    &:hover:not(.isFiltered) {
+      .searchIcon {
+        circle {
+          stroke: darken($secondary-light-gray, 30%);
+        }
+
+        path {
+          fill: darken($secondary-light-gray, 30%);
+        }
+      }
+    }
+  }
+  /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 }
