@@ -1,4 +1,4 @@
-import React, { memo, Fragment, useCallback, useMemo, useState } from 'react';
+import React, { lazy, memo, Fragment, useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import format from 'date-fns/format';
@@ -12,6 +12,7 @@ import SubjectControls from '../SubjectControls';
 import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 import AddReport from '../AddReport';
 
+import { addModal } from '../ducks/modals';
 import { showPopup } from '../ducks/popup';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
@@ -21,11 +22,12 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
+const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataModal'));
 const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
-const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) => {
+const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showPopup }) => {
   const  { geometry, properties } = data;
   const  { active: isTimeSliderActive } = timeSliderState;
 
@@ -56,8 +58,12 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
   }, [additionalPropsToggledOn]);
 
   const onClickMessagingIcon = useCallback(() => {
-    showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
+    showPopup('subject-messages', { geometry, properties: properties, coordinates: geometry.coordinates });
   }, [geometry, properties, showPopup]);
+
+  const onHistoricalDataClick = useCallback(() => {
+    addModal({ title: 'Historical Data', content: SubjectHistoricalDataModal, subjectId: properties.id });
+  }, [addModal, properties]);
 
   const locationObject = {
     longitude: geometry.coordinates[0],
@@ -115,6 +121,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       )}
     </ul>}
     {hasAdditionalDeviceProps && additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
+    {hasAdditionalDeviceProps && subjectIsStatic(data) && <Button data-testid='show-historical-data-btn' variant='light' size='sm' type='button' className={styles.historicalDataButton} onClick={onHistoricalDataClick} >Show historical data</Button>}
     {tracks_available && (
       <Fragment>
         <SubjectControls showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
@@ -129,7 +136,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
 };
 
 const mapStateToProps = ({ view: { timeSliderState } }) => ({ timeSliderState });
-export default connect(mapStateToProps, { showPopup })(memo(SubjectPopup));
+export default connect(mapStateToProps, { addModal, showPopup })(memo(SubjectPopup));
 
 SubjectPopup.propTypes = {
   data: PropTypes.object.isRequired,
