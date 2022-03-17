@@ -10,13 +10,13 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 import noop from 'lodash/noop';
 
-import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAGS, EVENT_STATE_CHOICES } from '../constants';
+import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAG_KEYS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, EVENT_FILTER_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
-import { useMatchMedia } from '../hooks';
+import { useDevelopmentFeatureFlag, useMatchMedia } from '../hooks';
 
 import { reportedBy } from '../selectors';
 
@@ -33,14 +33,14 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const reportsTracker = trackEventFactory(REPORTS_CATEGORY);
 
 const EventFilter = (props) => {
   const { children, className, eventFilter, eventTypes, feedEvents, reporters, resetGlobalDateRange, updateEventFilter, sortConfig = DEFAULT_EVENT_SORT, onResetAll = noop } = props;
   const { state, filter: { date_range, event_type: currentFilterReportTypes, priority, reported_by, text } } = eventFilter;
+
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const eventTypeIDs = eventTypes.map(type => type.id);
 
@@ -264,7 +264,7 @@ const EventFilter = (props) => {
     }
   }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const FilterDatePopover = <Popover {...(UFA_NAVIGATION_UI ? { placement: 'bottom' } : {})} className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
+  const FilterDatePopover = <Popover {...(ufaNavigationUIEnabled ? { placement: 'bottom' } : {})} className={styles.filterPopover} id='filter-date-popover' data-testid='filter-date-popover'>
     <Popover.Title>
       <div className={styles.popoverTitle}>
         <ClockIcon />Date Range
@@ -322,20 +322,20 @@ const EventFilter = (props) => {
   </Popover>;
 
   return <>
-    <form className={`${styles.form} ${className} ${UFA_NAVIGATION_UI ? styles.oldNavigation : ''}`} onSubmit={e => e.preventDefault()}>
-      <div className={UFA_NAVIGATION_UI ? styles.controls : styles.oldNavigationControls}>
+    <form className={`${styles.form} ${className} ${ufaNavigationUIEnabled ? styles.oldNavigation : ''}`} onSubmit={e => e.preventDefault()}>
+      <div className={ufaNavigationUIEnabled ? styles.controls : styles.oldNavigationControls}>
         <SearchBar
-          className={`${UFA_NAVIGATION_UI ? styles.search : styles.oldNavigationSearch} ${!hasChildrenComponents ? styles.wider : ''}`}
+          className={`${ufaNavigationUIEnabled ? styles.search : styles.oldNavigationSearch} ${!hasChildrenComponents ? styles.wider : ''}`}
           placeholder='Search Reports...'
           value={filterText}
           onChange={onSearchChange}
           onClear={onSearchClear}
         />
-        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement={UFA_NAVIGATION_UI ? 'bottom' : 'auto'} overlay={FilterPopover} flip={true}>
+        <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement={ufaNavigationUIEnabled ? 'bottom' : 'auto'} overlay={FilterPopover} flip={true}>
           <Button
             variant={filterModified ? 'primary' : 'light'}
             size='sm'
-            className={UFA_NAVIGATION_UI ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
+            className={ufaNavigationUIEnabled ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
             data-testid='filter-btn'
           >
             <FilterIcon className={styles.filterIcon} onClick={onEventFilterIconClicked} /> <span>Filters</span>
@@ -345,7 +345,7 @@ const EventFilter = (props) => {
           <Button
             variant={dateRangeModified ? 'primary' : 'light'}
             size='sm'
-            className={UFA_NAVIGATION_UI ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
+            className={ufaNavigationUIEnabled ? styles.popoverTrigger : styles.oldNavigationPopoverTrigger}
             data-testid='date-filter-btn'
           >
             <ClockIcon className={styles.clockIcon} onClick={onDateFilterIconClicked}/>
@@ -355,7 +355,7 @@ const EventFilter = (props) => {
         {children}
       </div>
     </form>
-    {(UFA_NAVIGATION_UI || isLargeLayout) && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
+    {(ufaNavigationUIEnabled || isLargeLayout) && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
       <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
       {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>}

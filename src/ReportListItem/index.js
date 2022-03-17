@@ -10,20 +10,18 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import { displayEventTypes } from '../selectors/event-types';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
 import { setBounceEventIDs } from '../ducks/map-ui';
 import { jumpToLocation } from '../utils/map';
 import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
-
+import { useDevelopmentFeatureFlag } from '../hooks';
 
 import colorVariables from '../common/styles/vars/colors.module.scss';
 
 import styles from './styles.module.scss';
-
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const PRIORITY_COLOR_MAP = {
   300: {
@@ -45,6 +43,8 @@ const PRIORITY_COLOR_MAP = {
 };
 
 const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, report, onTitleClick = () => {}, setBounceEventIDs, onIconClick = onTitleClick, showJumpButton = true, className, dispatch: _dispatch, ...rest }) => {
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+
   const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
 
@@ -90,7 +90,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
     themeBgColor={themeBgColor}
     themeColor={themeColor}
     IconComponent={
-      <button className={UFA_NAVIGATION_UI ? styles.icon : styles.oldNavigationIcon} type='button' onClick={() => iconClickHandler(report)}>
+      <button className={ufaNavigationUIEnabled ? styles.icon : styles.oldNavigationIcon} type='button' onClick={() => iconClickHandler(report)}>
         <EventIcon report={report} />
         {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
       </button>

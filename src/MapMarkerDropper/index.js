@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 
 import { withMap } from '../EarthRangerMap';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
 import { validateLngLat } from '../utils/location';
 import { addMapImage } from '../utils/map';
+import { useDevelopmentFeatureFlag } from '../hooks';
 
 import MapLocationPicker from '../MapLocationPicker';
 import MouseMarkerLayer from '../MouseMarkerLayer';
@@ -15,9 +16,9 @@ import MarkerImage from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...rest }) => {
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+
   const [moving, setMovingState] = useState(false);
   const [location, setMarkerLocation] = useState({});
   const [shouldCleanUpOnNextMapClick, setCleanupState] = useState(false);
@@ -102,7 +103,7 @@ const MapMarkerDropper = ({ map, onMarkerDropped, showMarkerPopup = true, ...res
       disabled={isValidLocation || moving}
       showCancelButton={moving}
       className={styles.mapControl}
-      wrapperClassName={UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}
+      wrapperClassName={ufaNavigationUIEnabled ? styles.buttons : styles.oldNavigationButtons}
       onLocationSelectCancel={hideMarker}
       onLocationSelectStart={startMovingReportMarker}
       onLocationSelect={onLocationSelect} />

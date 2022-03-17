@@ -9,13 +9,12 @@ import PatrolListTitle from './Title';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 import { updatePatrol } from '../ducks/patrols';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
+import { useDevelopmentFeatureFlag } from '../hooks';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
-
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
@@ -51,6 +50,8 @@ const ConnectedListItem = connect(null, { updatePatrol })(ListItem);
 const PatrolList = (props) => {
   const { map, patrols = [], loading } = props;
 
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+
   const [listItems, setListItems] = useState(patrols);
 
   const onPatrolSelfManagedStateChange = useCallback(() => {
@@ -69,7 +70,7 @@ const PatrolList = (props) => {
     {!!listItems.length && <Flipper
       flipKey={listItems}
       element='ul'
-      className={UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
+      className={ufaNavigationUIEnabled ? styles.patrolList : styles.oldNavigationPatrolList}
     >
       {listItems.map((item) =>
         <ConnectedListItem

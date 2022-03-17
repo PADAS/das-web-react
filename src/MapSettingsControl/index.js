@@ -2,7 +2,9 @@ import React, { useRef, memo } from 'react';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
+import { useDevelopmentFeatureFlag } from '../hooks';
+
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
@@ -14,12 +16,13 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 import styles from './styles.module.scss';
 import InactiveRadioControl from '../InactiveRadioControl';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapSettingsControl = (props) => {
   const { hasUserLocation } = props;
+
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+
   const formRef = useRef(null);
 
   const popover = (
@@ -42,7 +45,7 @@ const MapSettingsControl = (props) => {
     mapInteractionTracker.track('Clicked Map Settings button');
   };
 
-  return <OverlayTrigger trigger="click" placement={UFA_NAVIGATION_UI ? 'left' : 'right'} rootClose={true} overlay={popover}>
+  return <OverlayTrigger trigger="click" placement={ufaNavigationUIEnabled ? 'left' : 'right'} rootClose={true} overlay={popover}>
     <button type='button' className={styles.gearButton} ref={formRef}
       onClick={onButtonClick}>
       <GearIcon />

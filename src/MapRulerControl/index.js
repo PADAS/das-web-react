@@ -7,12 +7,13 @@ import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
 import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import MapRulerLayer from '../MapRulerLayer';
 import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.svg';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { useDevelopmentFeatureFlag } from '../hooks';
 
 import GpsFormatToggle from '../GpsFormatToggle';
 import AddReport from '../AddReport';
@@ -23,12 +24,13 @@ import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapRulerControl = (props) => {
   const { map, setPickingMapLocationState } = props;
+
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+
   const [active, setActiveState] = useState(false);
   const [points, setPointState] = useState([]);
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -189,8 +191,8 @@ const MapRulerControl = (props) => {
 
 
   return <Fragment>
-    <div className={UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}>
-      {UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
+    <div className={ufaNavigationUIEnabled ? styles.buttons : styles.oldNavigationButtons}>
+      {ufaNavigationUIEnabled && active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}
@@ -199,7 +201,7 @@ const MapRulerControl = (props) => {
         onClick={toggleActiveState}>
         <RulerIcon />
       </button>
-      {!UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
+      {!ufaNavigationUIEnabled && active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}

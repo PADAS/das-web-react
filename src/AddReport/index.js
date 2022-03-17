@@ -11,8 +11,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-import { useFeatureFlag, usePermissions } from '../hooks';
+import { useDevelopmentFeatureFlag, useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { trackEvent } from '../utils/analytics';
@@ -21,11 +20,9 @@ import { generatePseudoReportCategoryForPatrolTypes, openModalForPatrol, createN
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 
 import styles from './styles.module.scss';
-
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -171,6 +168,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
   popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
 
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -252,7 +250,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
+          className={ufaNavigationUIEnabled ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}

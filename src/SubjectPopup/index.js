@@ -15,21 +15,23 @@ import AddReport from '../AddReport';
 import { addModal } from '../ducks/modals';
 import { showPopup } from '../ducks/popup';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
 import { subjectIsARadioWithRecentVoiceActivity, subjectIsStatic } from '../utils/subjects';
 import { STANDARD_DATE_FORMAT } from '../utils/datetime';
 import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
+import { useDevelopmentFeatureFlag } from '../hooks';
 
 import styles from './styles.module.scss';
 
 const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataModal'));
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
 const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showPopup }) => {
   const  { geometry, properties } = data;
   const  { active: isTimeSliderActive } = timeSliderState;
+
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const device_status_properties =
       typeof properties?.device_status_properties === 'string' ?
@@ -87,7 +89,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
             category: MAP_INTERACTION_CATEGORY,
             location: 'subject popover',
           }}
-          className={UFA_NAVIGATION_UI ? styles.addReport : styles.oldNavigationAddReport}
+          className={ufaNavigationUIEnabled ? styles.addReport : styles.oldNavigationAddReport}
           variant="secondary"
           reportData={{ location: locationObject, reportedById }}
           showLabel={false}

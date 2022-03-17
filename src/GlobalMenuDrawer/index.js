@@ -15,7 +15,7 @@ import {
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
-  DEVELOPMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAG_KEYS,
   CLIENT_BUILD_VERSION,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
@@ -25,7 +25,7 @@ import {
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import { useDevelopmentFeatureFlag, useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
@@ -35,8 +35,6 @@ import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg'
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import styles from './styles.module.scss';
-
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -63,6 +61,8 @@ const GlobalMenuDrawer = ({
   updateUserPreferences,
   zendeskEnabled,
 }) => {
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -186,7 +186,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {ufaNavigationUIEnabled && !isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}

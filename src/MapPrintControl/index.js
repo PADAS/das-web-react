@@ -4,8 +4,9 @@ import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import Button from 'react-bootstrap/Button';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
 import { setPrintTitle } from '../ducks/map-ui';
+import { useDevelopmentFeatureFlag } from '../hooks';
 
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
 
@@ -13,12 +14,12 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapPrintControl = (props) => {
   const { printTitle, setPrintTitle } = props;
+
+  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const [active, setActiveState] = useState(false);
   const buttonRef = useRef(null);
@@ -83,9 +84,9 @@ const MapPrintControl = (props) => {
       show={active}
       target={buttonRef.current}
       container={wrapperRef.current}
-      placement={UFA_NAVIGATION_UI ? 'left' : 'right'}
+      placement={ufaNavigationUIEnabled ? 'left' : 'right'}
     >
-      <Popover placement={UFA_NAVIGATION_UI ? 'left' : 'right'}>
+      <Popover placement={ufaNavigationUIEnabled ? 'left' : 'right'}>
 
         <Popover.Content>
           <form className={styles.form} onSubmit={onPrintFormSubmit}>
