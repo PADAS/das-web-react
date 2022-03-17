@@ -1,0 +1,52 @@
+@import '../../common/styles/vars/colors';
+
+.header {
+  height: 1.625rem;
+  width: 100%;
+  margin-bottom: 1.125rem;
+  text-align: end;
+  font-size: 0.875rem;
+}
+
+.historyList {
+  height: calc(100% - 2.75rem);
+  overflow-y: auto;
+}
+
+.timeSortButton {
+  background-color: $light-gray;
+  border-color: $light-gray;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+
+.historyListItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.625rem 0;
+  border-top: 1px solid $light-gray-border;
+
+  [class*=user] {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  [class*=message] {
+    font-size: 0.75rem;
+    margin-bottom: 0;
+  }
+
+  [class*=secondaryMessage] {
+    font-size: 0.75rem;
+    margin-bottom: 0;
+    color: $light-font-color;
+  }
+
+  [class*=date] {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+  }
+}

@@ -67,29 +67,3 @@
     border-radius: 0.25rem;
   }
 }
-
-.kebabMenu {
-  display: flex;
-  --hamburger-menu-color: #1a2026;
-  align-items: center;
-  border-radius: 1rem;
-  height: 1.75rem;
-  justify-content: center;
-  right: 0.125rem;
-  transition: background 0.15s linear;
-  top: 0.125rem;
-  width: 1.75rem;
-  &:active {
-      background: rgba(0,0,0,0.17);
-  }
-  > button {
-    border: none;
-    outline: none;
-    background: none;
-    width: 100%;
-    padding: 44%;
-    &::after {
-      display: none;
-    }
-  }
-}
