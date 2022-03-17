@@ -12,8 +12,8 @@ import PatrolDetailView from '../PatrolDetailView';
 
 import styles from './styles.module.scss';
 
-const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation, nestedNavigationState = false, clearPatrolDetailView, patrolDetailView }) => {
 
+const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation, nestedNavigationState = false, clearPatrolDetailView, patrolDetailView }) => {
   const [activePatrol, setActivePatrol] = useState({});
   const [showPatrolDetailView, setShowPatrolDetailView] = useState(false);
 
@@ -29,11 +29,11 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
 
   const handleCloseDetailView = useCallback(() => {
     setShowPatrolDetailView(false);
-    changeNestedNavigation(false);
     clearPatrolDetailView();
+    changeNestedNavigation(false);
     setActivePatrol({});
-  }, [changeNestedNavigation, clearPatrolDetailView]);
 
+  }, [changeNestedNavigation, clearPatrolDetailView]);
   useEffect(() => {
     if (!nestedNavigationState & !isEmpty(activePatrol)) {
       handleCloseDetailView();
@@ -67,8 +67,8 @@ PatrolsTab.propTypes = {
   map: PropTypes.object.isRequired,
   patrolResults: PropTypes.array.isRequired,
   loadingPatrols: PropTypes.bool.isRequired,
-  changeNestedNavigation: PropTypes.func.isRequired,
   nestedNavigationState: PropTypes.bool,
+  changeNestedNavigation: PropTypes.func,
   clearPatrolDetailView: PropTypes.func,
   patrolDetailView: PropTypes.object,
 };

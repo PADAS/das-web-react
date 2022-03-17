@@ -274,7 +274,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
             {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
               <Suspense fallback={null}>
-                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} nestedNavigationState={false}/>
               </Suspense>
             </Tab>}
 

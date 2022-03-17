@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
+import { openModalForPatrol } from '../utils/patrols';
 import { addPatrolSegmentToEvent, eventBelongsToCollection, eventBelongsToPatrol, createNewIncidentCollection, openModalForReport, displayTitleForEvent, eventTypeTitleForEvent, generateErrorListForApiResponseDetails  } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
@@ -13,7 +15,7 @@ import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
 import { addModal } from '../ducks/modals';
-import { showPatrolDetailView } from '../ducks/patrols';
+import { fetchPatrol, showPatrolDetailView } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 
 import EventIcon from '../EventIcon';
@@ -35,6 +37,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
@@ -42,7 +45,7 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, showPatrolDetailView, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport, fetchPatrol } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -394,8 +397,12 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    return showPatrolDetailView({ id: patrolId });
-  }, [is_collection, removeModal, reportTracker, saveChanges, showPatrolDetailView]);
+    if (PATROL_NEW_UI) return showPatrolDetailView({ id: patrolId });
+
+    return fetchPatrol(patrolId).then(({ data: { data } }) => {
+      openModalForPatrol(data, map);
+    });
+  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showPatrolDetailView]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -551,6 +558,7 @@ export default memo(
         addEventToIncident: (...args) => addEventToIncident(...args),
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
+        fetchPatrol: id => fetchPatrol(id),
         showPatrolDetailView,
       }
     )

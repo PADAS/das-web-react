@@ -11,18 +11,17 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { showPatrolDetailView } from '../ducks/patrols';
 import { trackEvent } from '../utils/analytics';
-import { createNewPatrolForPatrolType, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
+import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -30,6 +29,7 @@ const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
@@ -233,7 +233,8 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        if (PATROL_NEW_UI) return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
         return setPopoverState(false);
       }
 

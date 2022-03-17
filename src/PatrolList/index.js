@@ -4,7 +4,7 @@ import { Flipper, Flipped } from 'react-flip-toolkit';
 
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { sortPatrolList } from '../utils/patrols';
+import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
@@ -12,8 +12,7 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
+const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
@@ -21,7 +20,8 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    onItemClick(patrol.id);
+    if (PATROL_NEW_UI) return onItemClick(patrol.id);
+    openModalForPatrol(patrol, map);
   }, [onItemClick, patrol]);
 
   return <Flipped flipId={patrol.id}>
