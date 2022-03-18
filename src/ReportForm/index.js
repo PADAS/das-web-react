@@ -582,4 +582,5 @@ ReportForm.propTypes = {
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
+  showPatrolDetailView: PropTypes.func,
 };

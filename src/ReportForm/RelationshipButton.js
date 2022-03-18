@@ -81,4 +81,5 @@ RelationshipButton.propTypes = {
   isPatrolReport: PropTypes.bool,
   onGoToCollection: PropTypes.func,
   map: PropTypes.object,
+  showPatrolDetailView: PropTypes.func.isRequired,
 };

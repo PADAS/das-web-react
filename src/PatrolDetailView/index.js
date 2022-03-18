@@ -32,7 +32,6 @@ const NAVIGATION_PLAN_EVENT_KEY = 'plan';
 const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
-// TODO: unused variables will be useful later
 /* eslint-disable no-unused-vars */
 const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView, trackData, startStopGeometries }) => {
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
@@ -184,4 +183,4 @@ const mapStateToProps = (state, props) => {
   return { ...createPatrolDataSelector()(state, { patrol }), patrolPermissions };
 };
 
-export default connect(mapStateToProps, null)(PatrolDetailView);
+export default connect(mapStateToProps)(PatrolDetailView);

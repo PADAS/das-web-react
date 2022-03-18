@@ -295,13 +295,6 @@ aside {
     width: 100vw;
   }
 
-  .map-legends,
-  .map-controls-container {
-    @media (min-width: $md-layout-width-min) {
-      transition: margin-left 0.3s ease-in-out;
-    }
-  }
-
   &.sidebar-open {
     .floating-report-filter {
       opacity: 0;

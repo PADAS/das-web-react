@@ -35,8 +35,6 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   </Flipped>;
 });
 
-const ConnectedListItem = ListItem;
-
 const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
 
   const [listItems, setListItems] = useState(patrols);
@@ -60,7 +58,7 @@ const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
       className={UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
     >
       {listItems.map((item) =>
-        <ConnectedListItem
+        <ListItem
           patrol={item}
           onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}
           map={map}

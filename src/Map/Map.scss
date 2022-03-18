@@ -54,10 +54,6 @@
       background: white;
     }
   }
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: var(--vertical-nav-width);
-  }
 }
 
 .map-legends {
@@ -68,10 +64,6 @@
   top: 0.5rem;
   right: 0.666rem;
   z-index: 11;
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: var(--vertical-nav-width);
-  }
 }
 
 .timeslider-active {
