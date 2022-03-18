@@ -63,8 +63,4 @@ describe('The GeoLocationWatcher', () => {
 
     expect(actions[0].type).toEqual(USER_LOCATION_RETRIEVED);
   });
-
-  test('handling errors', () => {
-
-  });
 });
