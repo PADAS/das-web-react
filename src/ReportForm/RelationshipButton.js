@@ -18,7 +18,7 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const RelationshipButton = (props) => {
   const { fetchEvent, fetchPatrol, showPatrolDetailView, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
   const report = useContext(FormDataContext);
@@ -47,7 +47,7 @@ const RelationshipButton = (props) => {
     reportTracker.track('Click \'Go to Patrol\' button');
 
     removeModal();
-    if (PATROL_NEW_UI) return showPatrolDetailView({ id: patrolId });
+    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView({ id: patrolId });
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });

@@ -25,11 +25,10 @@ import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEAT
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
@@ -233,9 +232,9 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        if (PATROL_NEW_UI) return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        setPopoverState(false);
+        if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
-        return setPopoverState(false);
       }
 
     }
@@ -245,7 +244,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
+  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showPatrolDetailView]);
 
   return hasEventCategories &&
 

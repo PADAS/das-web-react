@@ -20,9 +20,9 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    if (PATROL_NEW_UI) return onItemClick(patrol.id);
+    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return onItemClick(patrol.id);
     openModalForPatrol(patrol, map);
-  }, [onItemClick, patrol]);
+  }, [map, onItemClick, patrol]);
 
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
