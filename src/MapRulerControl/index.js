@@ -7,6 +7,7 @@ import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import MapRulerLayer from '../MapRulerLayer';
@@ -18,10 +19,11 @@ import AddReport from '../AddReport';
 import { setPickingMapLocationState } from '../ducks/map-ui';
 import { calcPositiveBearing } from '../utils/location';
 
-
 import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
 
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -187,13 +189,17 @@ const MapRulerControl = (props) => {
 
 
   return <Fragment>
-    <div className={styles.buttons}>
+    <div className={UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}>
+      {UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
+        onClick={toggleActiveState} type='button'>
+        {completed ? 'Close' : 'Cancel'}
+      </Button>}
       <button type='button' title='Map ruler'
         className={`${styles.button} ${active ? 'active' : ''}`}
         onClick={toggleActiveState}>
         <RulerIcon />
       </button>
-      {active && <Button variant='dark' size='sm' id='cancel-location-select'
+      {!UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}

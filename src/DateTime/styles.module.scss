@@ -5,14 +5,23 @@
   flex-flow: column;
   line-height: normal;
   white-space: nowrap;
-  font-style: italic;
   color: $secondary-medium-gray;
 }
 
 .date {
-  font-size: .7rem;
+  font-size: .75rem;
 }
 
 .elapsed {
+  font-size: .75rem;
+}
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationDate {
+  font-size: .7rem;
+}
+
+.oldNavigationElapsed {
   font-size: .65rem;
 }
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */
