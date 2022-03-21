@@ -23,8 +23,14 @@ import patrols from '../__test-helpers/fixtures/patrols';
 import PatrolListItem from './';
 
 import { createMapMock } from '../__test-helpers/mocks';
+import { updatePatrol } from '../ducks/patrols';
 
 import colorVariables from '../common/styles/vars/colors.module.scss';
+
+jest.mock('../ducks/patrols', () => ({
+  ...jest.requireActual('../ducks/patrols'),
+  updatePatrol: jest.fn(),
+}));
 
 const minimumNecessaryStoreStructure = {
   view: {
@@ -49,7 +55,6 @@ const minimumNecessaryStoreStructure = {
 let store = mockStore(minimumNecessaryStoreStructure);
 
 const onTitleClick = jest.fn();
-const onPatrolChange = jest.fn();
 const onPatrolSelfManagedStateChange = jest.fn();
 const map = createMapMock({ fitBounds: jest.fn() });
 
@@ -57,7 +62,11 @@ jest.spyOn(trackUtils, 'fetchTracksIfNecessary').mockImplementation(() => Promis
 
 let testPatrol;
 
+let updatePatrolMock;
 beforeEach(() => {
+  updatePatrolMock = jest.fn(() => () => {});
+  updatePatrol.mockImplementation(updatePatrolMock);
+
   jest.spyOn(customHooks, 'usePermissions').mockImplementation(() => true); // full permissions for list item read+write access
   jest.useFakeTimers('modern');
 });
@@ -67,7 +76,6 @@ test('rendering without crashing', () => {
 
   render(<Provider store={store}>
     <PatrolListItem onTitleClick={onTitleClick}
-      onPatrolChange={onPatrolChange}
       onSelfManagedStateChange={onPatrolSelfManagedStateChange}
       patrol={testPatrol}
       map={map} />
@@ -88,7 +96,6 @@ describe('the patrol list item', () => {
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
-        onPatrolChange={onPatrolChange}
         onSelfManagedStateChange={onPatrolSelfManagedStateChange}
         patrol={testPatrol}
         map={map} />
@@ -139,7 +146,6 @@ describe('for active patrols', () => {
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
-        onPatrolChange={onPatrolChange}
         onSelfManagedStateChange={onPatrolSelfManagedStateChange}
         patrol={testPatrol}
         map={map} />
@@ -185,9 +191,13 @@ describe('for active patrols', () => {
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
     userEvent.click(kebabButton);
 
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
     userEvent.click(cancelBtn);
-    expect(onPatrolChange).toHaveBeenCalledWith({ state: PATROL_API_STATES.CANCELLED });
+
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.CANCELLED);
   });
 
   test('ending a patrol from the kebab menu', async () => {
@@ -195,18 +205,15 @@ describe('for active patrols', () => {
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
     userEvent.click(kebabButton);
 
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const endBtn = await within(kebabMenu).findByText('End Patrol');
 
     userEvent.click(endBtn);
 
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
-      state: PATROL_API_STATES.DONE,
-      patrol_segments: [
-        { time_range: {
-          end_time: mockCurrentDate.toISOString(),
-        } }
-      ]
-    }));
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.DONE);
+    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBe(mockCurrentDate.toISOString());
   });
 
   test('theming', async () => {
@@ -232,24 +239,21 @@ describe('for scheduled patrols', () => {
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
-        onPatrolChange={onPatrolChange}
         onSelfManagedStateChange={onPatrolSelfManagedStateChange}
         patrol={testPatrol}
         map={map} />
     </Provider>);
   });
   test('showing a "start" button which starts the patrol', async () => {
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const startBtn = await screen.findByTestId(`patrol-list-item-start-btn-${testPatrol.id}`);
     userEvent.click(startBtn);
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
-      state: PATROL_API_STATES.OPEN,
-      patrol_segments: [
-        { time_range: {
-          end_time: null,
-          start_time: mockCurrentDate.toISOString(),
-        } }
-      ]
-    }));
+
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
+    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
+    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.start_time).toBe(mockCurrentDate.toISOString());
   });
 
   test('canceling the patrol from the kebab menu', async () => {
@@ -257,13 +261,14 @@ describe('for scheduled patrols', () => {
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
     userEvent.click(kebabButton);
 
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const cancelBtn = await within(kebabMenu).findByText('Cancel Patrol');
 
     userEvent.click(cancelBtn);
 
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
-      state: PATROL_API_STATES.CANCELLED,
-    }));
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.CANCELLED);
   });
 
   test('theming', async () => {
@@ -289,7 +294,6 @@ describe('for overdue patrols', () => {
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
-        onPatrolChange={onPatrolChange}
         onSelfManagedStateChange={onPatrolSelfManagedStateChange}
         patrol={testPatrol}
         map={map} />
@@ -322,7 +326,6 @@ describe('for cancelled patrols', () => {
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
-        onPatrolChange={onPatrolChange}
         onSelfManagedStateChange={onPatrolSelfManagedStateChange}
         patrol={testPatrol}
         map={map} />
@@ -330,19 +333,15 @@ describe('for cancelled patrols', () => {
   });
 
   test('showing a button to restore the patrol', async () => {
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const restoreBtn = await screen.findByTestId(`patrol-list-item-restore-btn-${testPatrol.id}`);
 
     userEvent.click(restoreBtn);
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
-      state: 'open',
-      patrol_segments: [
-        {
-          time_range: {
-            end_time: null,
-          },
-        },
-      ],
-    }));
+
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
+    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
   });
 
   test('restoring the patrol from the kebab menu', async () => {
@@ -350,20 +349,15 @@ describe('for cancelled patrols', () => {
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
     userEvent.click(kebabButton);
 
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
 
     userEvent.click(restoreBtn);
 
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
-      state: 'open',
-      patrol_segments: [
-        {
-          time_range: {
-            end_time: null,
-          },
-        },
-      ],
-    }));
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
+    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
   });
 
   test('theming', async () => {
@@ -388,7 +382,6 @@ describe('for completed patrols', () => {
 
     render(<Provider store={store}>
       <PatrolListItem onTitleClick={onTitleClick}
-        onPatrolChange={onPatrolChange}
         onSelfManagedStateChange={onPatrolSelfManagedStateChange}
         patrol={testPatrol}
         map={map} />
@@ -400,20 +393,15 @@ describe('for completed patrols', () => {
     const kebabButton = kebabMenu.querySelector('.dropdown-toggle');
     userEvent.click(kebabButton);
 
+    expect(updatePatrol).toHaveBeenCalledTimes(0);
+
     const restoreBtn = await within(kebabMenu).findByText('Restore Patrol');
 
     userEvent.click(restoreBtn);
 
-    expect(onPatrolChange).toHaveBeenCalledWith(expect.objectContaining({
-      state: 'open',
-      patrol_segments: [
-        {
-          time_range: {
-            end_time: null,
-          },
-        },
-      ],
-    }));
+    expect(updatePatrol).toHaveBeenCalledTimes(1);
+    expect(updatePatrol.mock.calls[0][0].state).toBe(PATROL_API_STATES.OPEN);
+    expect(updatePatrol.mock.calls[0][0].patrol_segments[0].time_range.end_time).toBeNull();
   });
 
   test('theming', async () => {

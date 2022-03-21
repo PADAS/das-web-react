@@ -11,17 +11,18 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { patrolDrawerId } from '../Drawer';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { showDrawer } from '../ducks/drawer';
 import { trackEvent } from '../utils/analytics';
-import { generatePseudoReportCategoryForPatrolTypes, openModalForPatrol, createNewPatrolForPatrolType } from '../utils/patrols';
+import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
@@ -29,6 +30,7 @@ const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
+const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
@@ -232,8 +234,8 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
-        return;
+        if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
+        return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
 
     }
@@ -243,7 +245,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData]);
+  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showDrawer]);
 
   return hasEventCategories &&
 
@@ -275,7 +277,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, null)(memo(AddReport));
+export default connect(mapStateToProps, { showDrawer })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -317,5 +319,6 @@ AddReport.propTypes = {
     hidePatrols: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
+  showDrawer: PropTypes.func.isRequired,
   hideReports: PropTypes.bool,
 };
