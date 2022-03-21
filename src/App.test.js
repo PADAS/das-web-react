@@ -88,9 +88,6 @@ describe('The main app view', () => {
         },
         heatmapSubjectIDs: [],
         trackLength: 12,
-        geoPermMessageTimestamps: {
-          lastSeenSplashWarning: null,
-        },
         userPreferences: {
           sidebarOpen: true,
         },

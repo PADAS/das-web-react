@@ -20,8 +20,6 @@ const mockUserLocation = {
 describe('The GeoLocationWatcher', () => {
   let store;
 
-  console.log('global.navigator', global.navigator);
-
   beforeEach(() => {
     store = mockStore({ view: { userLocation: null }, data: { user: { } } });
     const mockGeolocation = {

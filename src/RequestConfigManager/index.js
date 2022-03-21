@@ -11,6 +11,8 @@ import { WARNING_HEADER_TOAST_TIME_THRESHOLD, ACCESS_DENIED_NO_LOCATION_TOAST_TH
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
 
+const STARTUP_TIME = new Date();
+
 const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
 
 const RequestConfigManager = (props) => {
@@ -32,6 +34,7 @@ const RequestConfigManager = (props) => {
 
   const handleWarningHeader = useCallback((response) => {
     const warningHeader = response?.headers?.warning;
+    let toastRef;
 
     if (warningHeader) {
       const lastShownWarningHeaderToast = geoPermMessageTimestamps?.lastSeenWarningHeaderMessage;
@@ -39,10 +42,16 @@ const RequestConfigManager = (props) => {
       const shouldShowWarningHeaderToast = !lastShownWarningHeaderToast
         || (differenceInMinutes(new Date(), new Date(lastShownWarningHeaderToast)) > WARNING_HEADER_TOAST_TIME_THRESHOLD);
 
-      if (shouldShowWarningHeaderToast) {
+      if (shouldShowWarningHeaderToast
+          && !toastRef
+          &&  (new Date() - STARTUP_TIME > 4000)) {
         setSeenWarningHeaderMessage(new Date().toISOString());
 
-        showToast({ message: warningHeader });  // TOAST here for geo-permission-protected data
+        toastRef = showToast({ message: warningHeader, toastConfig: {
+          onClose() {
+            toastRef = null;
+          },
+        } });
       };
     }
   }, [geoPermMessageTimestamps?.lastSeenWarningHeaderMessage, setSeenWarningHeaderMessage]);

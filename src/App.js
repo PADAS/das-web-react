@@ -20,7 +20,6 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
-import { setSeenSplashWarningMessage } from './ducks/geo-perm-ui';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -47,7 +46,7 @@ const bindDirectMapEventing = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, trackLength, setTrackLength, setDefaultCustomTrackLength, setSeenSplashWarningMessage, showGeoPermWarningMessage } = props;
+    sidebarOpen, trackLength, setTrackLength, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -110,14 +109,13 @@ const App = (props) => {
         // details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
         // link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
         toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
-          setSeenSplashWarningMessage(new Date().toISOString());
         } } });
 
       return () => {
         toast.dismiss(toastId);
       };
     }
-  }, [showGeoPermWarningMessage, setSeenSplashWarningMessage]);
+  }, [showGeoPermWarningMessage]);
 
   return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
     <MapContext.Provider value={map}>
@@ -148,7 +146,7 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { userLocation, trackLength, geoPermMessageTimestamps: { lastSeenSplashWarning }, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
+const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
@@ -156,12 +154,12 @@ const mapStateToProps = ({ view: { userLocation, trackLength, geoPermMessageTime
     pickingLocationOnMap,
     sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
-    showGeoPermWarningMessage: !!userLocation && geoPermRestricted && geoPermWarningSplashToastIsDueToBeShown(lastSeenSplashWarning),
+    showGeoPermWarningMessage: geoPermRestricted,
     userIsGeoPermissionRestricted: geoPermRestricted,
   };
 };
 
-export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, setTrackLength, setSeenSplashWarningMessage, setDefaultCustomTrackLength })(memo(App));
+export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 
 const AppWithSocketContext = () => <WithSocketContext>
