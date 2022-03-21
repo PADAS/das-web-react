@@ -132,9 +132,14 @@ const GlobalMenuDrawer = ({
     mainToolbarTracker.track('Click \'Contact Support\'');
 
     const supportiFrame = window.document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
-    const supportHelpButton = supportiFrame.contentDocument.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
+    const supportHelpButton = supportiFrame?.contentDocument?.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
     if (supportHelpButton) {
       supportHelpButton.click();
+    } else {
+      window.open(
+        `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=Support request from user&body=How can we help you?`,
+        '_self'
+      );
     }
 
   };
