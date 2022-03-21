@@ -504,7 +504,7 @@ export const eventStoreReducer = (state, { type, payload }) => {
 
       accumulator[event.id] = { ...state[event.id], ...event };
 
-      if (!!event.is_contained_in.length) {
+      if (event?.is_contained_in?.length) {
         const incidentsToUpdate = event.is_contained_in
           .map(({ related_event: { id } }) => state[id])
           .filter(item => !!item);

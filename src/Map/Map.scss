@@ -1,4 +1,5 @@
 @import '../common/styles/layout';
+@import '../common/styles/vars/colors';
 
 .main-map {
   h5 {
@@ -30,10 +31,11 @@
 }
 
 .map-controls-container {
-  bottom: 1.25rem;
+  bottom: 4rem;
   display: flex;
+  align-items: flex-end;
   flex-flow: column;
-  left: 0.5rem;
+  right: 1rem;
   position: absolute;
   z-index: 6;
 
@@ -45,29 +47,23 @@
     z-index: -1 !important;
   }
 
-  [type="button"]:first-child {
+  [type="button"][class*=controlButton] {
     background: rgba(white, 0.8);
-    // border-radius: 0.333rem;
     &:hover,
     &:active {
       background: white;
     }
   }
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: var(--vertical-nav-width);
-  }
 }
 
 .map-legends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   position: absolute;
   top: 0.5rem;
-  left: 0.666rem;
+  right: 0.666rem;
   z-index: 11;
-
-  @media (min-width: $md-layout-width-min) {
-    margin-left: var(--vertical-nav-width);
-  }
 }
 
 .timeslider-active {
@@ -80,14 +76,66 @@
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: flex-end;
   max-width: 11rem;
   width: 30vw;
+  margin-bottom: 0.5rem;
 }
 
 .rotation-control {
+  inset: auto !important;
+
   > * {
     height: 2.25rem !important;
     width: 2.25rem !important;
   }
 }
+
+.general-add-button {
+  width: 2.5rem;
+
+  > button {
+    color: $bright-blue;
+
+    svg {
+      height: 2.5rem;
+      width: 2.5rem;
+    }
+  }
+
+  .arrow {
+    &::after, &::before {
+      transform: translateY(-0.325rem);
+    }
+  }
+}
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigation {
+  .map-controls-container {
+    bottom: 1.25rem;
+    left: 0.5rem;
+    right: auto;
+    align-items: flex-start;
+
+    @media (min-width: $md-layout-width-min) {
+      margin-left: 0;
+    }
+  }
+
+  .map-legends {
+    display: inline; 
+    left: 0.666rem;
+    right: auto;
+  }
+
+  .compass-wrapper {
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
+
+  .rotation-control {
+    inset: auto 10px auto auto !important;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

@@ -11,7 +11,6 @@ import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
-
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
@@ -36,7 +35,14 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, REACT_APP_ENABLE_CLUSTERING, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import {
+  BREAKPOINTS,
+  DEVELOPMENT_FEATURE_FLAGS,
+  REACT_APP_ENABLE_CLUSTERING,
+  LAYER_IDS,
+  LAYER_PICKER_IDS,
+  MAX_ZOOM,
+} from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
@@ -64,6 +70,7 @@ import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 
+import AddReport from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -74,6 +81,8 @@ import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -596,8 +605,14 @@ class Map extends Component {
     return (
       <EarthRangerMap
         center={this.mapCenter}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
         controls={<Fragment>
+          {UFA_NAVIGATION_UI && <AddReport
+            className="general-add-button"
+            variant="secondary"
+            popoverPlacement="left"
+            showLabel={false}
+          />}
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
           <MapRulerControl />
@@ -647,11 +662,15 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+              {!UFA_NAVIGATION_UI && <>
+                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+                </>
+              }
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
+                {UFA_NAVIGATION_UI && <CursorGpsDisplay />}
                 <RotationControl
                   className='rotation-control'
                   style={{
@@ -662,8 +681,15 @@ class Map extends Component {
                     borderRadius: '0.25rem',
                   }}
                 />
-                <CursorGpsDisplay />
+                {!UFA_NAVIGATION_UI && <CursorGpsDisplay />}
               </span>
+              {UFA_NAVIGATION_UI && <>
+                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+                </>
+              }
             </div>
 
             <RightClickMarkerDropper />

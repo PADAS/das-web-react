@@ -58,19 +58,8 @@
     height: 1.5rem;
 
     svg {
-      background: $bright-blue;
-      border-radius: 50%;
       height: 1.75rem;
       width: 1.75rem;
-
-      path {
-        stroke: $bright-blue;;
-        fill: $bright-blue;
-      }
-
-      rect {
-          fill: white;
-      }
     }  
   }
 }
@@ -169,6 +158,15 @@
   margin-bottom: 0.5rem;
 }
 
+.historicalDataButton {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  
+  &:focus {
+    box-shadow: none;
+  }
+}
+
 .trackControls {
   display: flex;
   justify-content: space-between;
@@ -187,3 +185,30 @@
     stroke: $primary-font-color;
   }
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationAddReport {
+  > button {
+    display: inline;
+    align-items: end;
+    padding: 0.4rem 0 0 0;
+    height: 1.5rem;
+
+    svg {
+      background: $bright-blue;
+      border-radius: 50%;
+      height: 1.75rem;
+      width: 1.75rem;
+
+      path {
+        stroke: $bright-blue;;
+        fill: $bright-blue;
+      }
+
+      rect {
+          fill: white;
+      }
+    }  
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

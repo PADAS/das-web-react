@@ -7,9 +7,7 @@
     flex-shrink: 0;
   }
   button + button {
-    font-size: 0.75rem;
     margin-left: 0.25rem;
-    padding: 0.25 0.5rem;
   }
 }
 
@@ -50,3 +48,18 @@
     width: 2rem;
   }
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationButtons {
+  align-items: center;
+  display: flex;
+  button {
+    flex-shrink: 0;
+  }
+  button + button {
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+    padding: 0.25 0.5rem;
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

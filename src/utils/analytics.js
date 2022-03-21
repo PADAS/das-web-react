@@ -14,6 +14,7 @@ export const MAP_INTERACTION_CATEGORY = 'Map Interaction';
 export const MAP_LAYERS_CATEGORY = 'Map Layers';
 export const BASE_LAYER_CATEGORY = 'Base Layer';
 export const PATROL_LIST_ITEM_CATEGORY = 'Patrol List Item';
+export const PATROL_DRAWER_CATEGORY = 'Patrol Drawer';
 export const PATROL_MODAL_CATEGORY = 'Patrol Modal';
 export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
@@ -30,6 +31,11 @@ export const TABLEAU_ANALYSIS_CATEGORY = 'Analysis (via Tableau)';
 export const ADD_INCIDENT_CATEGORY = 'Add To Incident';
 export const GPS_FORMAT_CATEGORY = 'GPS Format';
 export const ALERTS_CATEGORY = 'Alerts';
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+export const DRAWER_CATEGORY = 'Drawer';
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */
+
 export const FEED_CATEGORY = 'Feed';
 
 /**
