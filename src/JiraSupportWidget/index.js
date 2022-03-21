@@ -5,6 +5,12 @@ const DEFAULT_OBSERVER_CONFIG = { attributes: false, childList: true, subtree: t
 export const JIRA_WIDGET_IFRAME_SELECTOR = '#jsd-widget';
 export const JIRA_IFRAME_HELP_BUTTON_SELECTOR = '#help-button';
 
+export const selectSupportFormFieldByLabelText = (text) => {
+  const supportiFrameDocument = window.document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR)?.contentDocument;
+
+  return supportiFrameDocument?.querySelector(`[title="${text}"]`)?.closest('label')?.nextElementSibling;
+};
+
 const JiraSupportWidget = () => {
   const [widgetAppended, setWidgetAppended] = useState(false);
 

@@ -61,6 +61,7 @@ describe('GlobalMenuDrawer', () => {
           }
         },
       },
+      selectedUserProfile: null,
       view: {
         systemConfig: {
           alerts_enabled: true,

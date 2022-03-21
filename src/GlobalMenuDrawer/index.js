@@ -18,6 +18,7 @@ import {
   DEVELOPMENT_FEATURE_FLAGS,
   CLIENT_BUILD_VERSION,
   FEATURE_FLAGS,
+  REACT_APP_DAS_HOST,
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
@@ -34,7 +35,7 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
-import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR } from '../JiraSupportWidget';
+import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSupportFormFieldByLabelText } from '../JiraSupportWidget';
 
 import styles from './styles.module.scss';
 
@@ -63,6 +64,8 @@ const GlobalMenuDrawer = ({
   tableauEnabled,
   token,
   updateUserPreferences,
+  selectedUserProfile,
+  user,
 }) => {
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
@@ -135,6 +138,18 @@ const GlobalMenuDrawer = ({
     const supportHelpButton = supportiFrame?.contentDocument?.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
     if (supportHelpButton) {
       supportHelpButton.click();
+
+      const siteInput = selectSupportFormFieldByLabelText('ER Site');
+      if (siteInput) {
+        siteInput.value = REACT_APP_DAS_HOST;
+      }
+      const username = (selectedUserProfile?.id ? selectedUserProfile: user)?.username;
+      const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
+
+      if (userInput) {
+        userInput.value = username;
+      }
+
     } else {
       window.open(
         `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=Support request from user&body=How can we help you?`,
@@ -242,13 +257,15 @@ GlobalMenuDrawer.propTypes = {
   updateUserPreferences: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ data: { eventFilter, eventTypes, systemStatus, token }, view: { systemConfig } }) => ({
+const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile, systemStatus, token, user }, view: { systemConfig } }) => ({
   alertsEnabled: systemConfig.alerts_enabled,
   eventFilter,
   eventTypes,
+  selectedUserProfile,
   serverData: systemStatus.server,
   tableauEnabled: systemConfig.tableau_enabled,
   token,
+  user,
 });
 
 export default connect(
