@@ -7,7 +7,7 @@ import globallyResettableReducer from '../reducers/global-resettable';
 const { get } = axios;
 
 
-const EVENT_SCHEMA_API_URL = `${API_URL}activity/events/schema`;
+export const EVENT_SCHEMA_API_URL = `${API_URL}activity/events/schema`;
 const EVENT_TYPE_SCHEMA_API_URL = `${API_URL}activity/events/schema/eventtype/`;
 
 const FETCH_EVENT_TYPE_SCHEMA_SUCCESS = 'FETCH_EVENT_TYPE_SCHEMA_SUCCESS';

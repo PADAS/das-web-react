@@ -79,11 +79,12 @@ const App = (props) => {
     fetchSubjectGroups();
     fetchAnalyzers();
     fetchSystemStatus()
-      .then(({ patrol_enabled, track_length }) => {
-        if (patrol_enabled) {
+      .then((results = {}) => {
+        if (results.patrol_enabled) {
           fetchPatrolTypes();
         }
-        if (track_length) {
+        if (results.track_length) {
+          const { track_length } = results;
           const { defaultCustomTrackLength, length } = trackLength;
           if (defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
             setTrackLength(track_length);

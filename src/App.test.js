@@ -1,18 +1,22 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 
 import SocketProvider from './__test-helpers/MockSocketContext';
 
-import * as mapDuckExports from './ducks/maps';
-import * as systemStatusDuckExports from './ducks/system-status';
-import * as eventTypeDuckExports from './ducks/event-types';
-import * as subjectDuckExports from './ducks/subjects';
-import * as featuresetDuckExports from './ducks/features';
-import * as analyzerDuckExports from './ducks/analyzers';
-import * as patrolTypeDuckExports from './ducks/patrol-types';
-import * as eventSchemaDuckExports from './ducks/event-schemas';
+import { MAPS_API_URL } from './ducks/maps';
+import { STATUS_API_URL } from './ducks/system-status';
+import { EVENT_TYPE_API_URL } from './ducks/event-types';
+import { SUBJECT_GROUPS_API_URL } from './ducks/subjects';
+import { FEATURESET_API_URL } from './ducks/features';
+import { ANALYZERS_API_URL } from './ducks/analyzers';
+import { PATROL_TYPES_API_URL } from './ducks/patrol-types';
+import { EVENT_SCHEMA_API_URL } from './ducks/event-schemas';
+
 import { mockStore } from './__test-helpers/MockStore';
 import * as socketExports from './socket';
 import { mockedSocket } from './__test-helpers/MockSocketContext';
@@ -29,11 +33,42 @@ jest.mock('./utils/zendesk', () => {
   };
 });
 
+const generateEmptyResponse = () => ({ data: [] });
+
+const server = setupServer(
+  rest.get(MAPS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(STATUS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(EVENT_TYPE_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(SUBJECT_GROUPS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(FEATURESET_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(ANALYZERS_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(PATROL_TYPES_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+  rest.get(EVENT_SCHEMA_API_URL, (req, res, ctx) => {
+    return res(ctx.json(generateEmptyResponse()));
+  }),
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 
 describe('The main app view', () => {
   let store;
-
-  let mapFetchSpy, systemStatusFetchSpy, eventTypeFetchSpy, subjectGroupFetchSpy, featureSetFetchSpy, analyzerFetchSpy, patrolTypeFetchSpy, eventSchemaFetchSpy;
 
   beforeEach(() => {
     store = mockStore({
@@ -93,17 +128,6 @@ describe('The main app view', () => {
         },
       } } );
 
-    systemStatusFetchSpy = jest.spyOn(systemStatusDuckExports, 'fetchSystemStatus').mockImplementation(() => Promise.resolve({ data: { data: { patrol_enabled: true, track_length: 14 } } } ));
-    eventTypeFetchSpy = jest.spyOn(eventTypeDuckExports, 'fetchEventTypes').mockReturnValue(Promise.resolve({ data: [] }));
-    subjectGroupFetchSpy = jest.spyOn(subjectDuckExports, 'fetchSubjectGroups').mockReturnValue(Promise.resolve({ data: [] }));
-    featureSetFetchSpy = jest.spyOn(featuresetDuckExports, 'fetchFeaturesets').mockReturnValue(Promise.resolve({ data: [] }));
-    analyzerFetchSpy = jest.spyOn(analyzerDuckExports, 'fetchAnalyzers').mockReturnValue(Promise.resolve({ data: [] }));
-    patrolTypeFetchSpy = jest.spyOn(patrolTypeDuckExports, 'fetchPatrolTypes').mockReturnValue(Promise.resolve({ data: [] }));
-    eventSchemaFetchSpy = jest.spyOn(eventSchemaDuckExports, 'fetchEventSchema').mockReturnValue(Promise.resolve({ data: [] }));
-    mapFetchSpy = jest.spyOn(mapDuckExports, 'fetchMaps').mockImplementation(() => {
-      console.log('map fetch spy is totally being  called');
-      return Promise.resolve({ data: [] });
-    });
 
     jest.spyOn(socketExports, 'default').mockReturnValue(mockedSocket);
 
@@ -137,8 +161,5 @@ describe('The main app view', () => {
       </BrowserRouter>);
 
     expect(toastUtils.showToast).toHaveBeenCalled();
-  });
-  test('existing', () => {
-    expect(true).toBeTruthy();
   });
 });

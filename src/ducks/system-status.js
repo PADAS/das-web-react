@@ -4,7 +4,7 @@ import { combineReducers } from 'redux';
 import { API_URL, FEATURE_FLAGS, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
 
-const STATUS_API_URL = `${API_URL}status`;
+export const STATUS_API_URL = `${API_URL}status`;
 
 // actions
 const FETCH_SYSTEM_STATUS_SUCCESS = 'FETCH_SYSTEM_STATUS_SUCCESS';
