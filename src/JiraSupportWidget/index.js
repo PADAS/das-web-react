@@ -9,22 +9,29 @@ const JiraSupportWidget = () => {
   const [widgetAppended, setWidgetAppended] = useState(false);
 
   useEffect(() => {
+    const BOOTSTRAPPING_TIMEOUT_THRESHOLD = 1000 * 15; // fifteen seconds to time out and stop trying
+    let timeoutRef;
 
-    const onDocumentChange = (_tree, observer) => {
+    const disconnectObserver = () => {
+      documentObserver.disconnect();
+    };
+
+    const onDocumentChange = (_tree) => {
       const supportiFrameDocument = window.document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR)?.contentDocument;
       if (!!supportiFrameDocument) {
         setWidgetAppended(true);
-        observer.disconnect();
+        window.clearTimeout(timeoutRef);
+        disconnectObserver();
       }
     };
 
     const documentObserver = new MutationObserver(onDocumentChange);
 
+    timeoutRef = window.setTimeout(disconnectObserver, BOOTSTRAPPING_TIMEOUT_THRESHOLD);
+
     documentObserver.observe(window.document, DEFAULT_OBSERVER_CONFIG);
 
-    return () => {
-      documentObserver.disconnect();
-    };
+    return disconnectObserver;
   }, []);
 
   useEffect(() => {
