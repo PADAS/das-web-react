@@ -53,6 +53,7 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
   return <>
     {showPatrolDetailView ?
       <PatrolDetailView
+        data-testid='patrol-detail-view'
         className={styles.patrolDetailView}
         patrolId={!!activePatrol?.id ? activePatrol.id : ''}
         newPatrol={!activePatrol?.id ? activePatrol : {}}
