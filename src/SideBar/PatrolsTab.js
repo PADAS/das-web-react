@@ -19,6 +19,7 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
 
   const openPatrolDetailView = useCallback(() => {
     setShowPatrolDetailView(true);
+    console.log('%c showPatrolDetailView true', 'font-size:20px;color:green;');
     changeNestedNavigation(true);
   }, [changeNestedNavigation]);
 
@@ -29,6 +30,7 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
 
   const handleCloseDetailView = useCallback(() => {
     setShowPatrolDetailView(false);
+    console.log('%c showPatrolDetailView false', 'font-size:20px;color:red;');
     clearPatrolDetailView();
     changeNestedNavigation(false);
     setActivePatrol({});
@@ -44,25 +46,23 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
   }, [handleCloseDetailView, nestedNavigationState, activePatrol, showPatrolDetailView]);
 
   useEffect(() => {
-    if (isEmpty(activePatrol) && !isEqual(patrolDetailView, activePatrol)) {
-      setActivePatrol(patrolDetailView);
-      openPatrolDetailView();
+    if (!showPatrolDetailView){
+      if (isEmpty(activePatrol) && !isEqual(patrolDetailView, activePatrol)) {
+        setActivePatrol(patrolDetailView);
+        openPatrolDetailView();
+      }
     }
-  }, [patrolDetailView, activePatrol, openPatrolDetailView]);
+  }, [patrolDetailView, activePatrol, openPatrolDetailView, showPatrolDetailView]);
 
   return <>
-    {showPatrolDetailView ?
-      <PatrolDetailView
+    {showPatrolDetailView && <PatrolDetailView
         data-testid='patrol-detail-view'
         className={styles.patrolDetailView}
         patrolId={!!activePatrol?.id ? activePatrol.id : ''}
         newPatrol={!activePatrol?.id ? activePatrol : {}}
-        onCloseDetailView={handleCloseDetailView}/> :
-      (<>
-        <PatrolFilter />
-        <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={handleItemClick} />
-      </>)
-    }
+        onCloseDetailView={handleCloseDetailView}/>}
+    <PatrolFilter />
+    <PatrolList loading={loadingPatrols} map={map} patrols={patrolResults} onItemClick={handleItemClick} />
   </>;
 };
 
