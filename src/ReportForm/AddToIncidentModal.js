@@ -21,7 +21,7 @@ const addIncidentTracker = trackEventFactory(ADD_INCIDENT_CATEGORY);
 
 const AddToIncidentModal = (props) => {
   const { id, incidents, removeModal,
-    fetchIncidentFeed, fetchNextIncidentFeedPage, onAddToExistingIncident, onAddToNewIncident
+    fetchIncidentFeed, fetchNextIncidentFeedPage, onAddToExistingIncident, onAddToNewIncident, userLocationCoords,
   } = props;
 
   const scrollRef = useRef(null);
@@ -35,11 +35,15 @@ const AddToIncidentModal = (props) => {
 
   useEffect(() => {
     const fetchFeed = async () => {
-      await fetchIncidentFeed({}, 'is_collection=true&include_related_events=true&include_notes=true');
+      let paramString = 'is_collection=true&include_related_events=true&include_notes=true';
+      if (userLocationCoords) {
+        paramString = `${paramString}&location=${userLocationCoords.longitude},${userLocationCoords.latitude}`;
+      }
+      await fetchIncidentFeed({}, paramString);
       setLoadedState(true);
     };
     fetchFeed();
-  }, []); // eslint-disable-line
+  }, [fetchIncidentFeed, userLocationCoords]);
 
   const onExistingIncidentClick = (report) => {
     onAddToExistingIncident(report);
@@ -98,6 +102,7 @@ const AddToIncidentModal = (props) => {
 
 const mapStateToProps = (state) => ({
   incidents: getFeedIncidents(state),
+  userLocationCoords: state?.view?.userLocation?.coords,
 });
 
 export default connect(mapStateToProps, { removeModal, fetchIncidentFeed: (...args) => fetchIncidentFeed(...args), fetchNextIncidentFeedPage: (...args) => fetchNextIncidentFeedPage(...args), })(memo(AddToIncidentModal));

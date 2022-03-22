@@ -338,3 +338,10 @@ const addCustomLinksForExternalURIs = (schema) => Object.entries(schema.properti
     }
     return accumulator;
   }, {});
+
+export const getSchemasForEventTypeByEventId = (eventSchemas, event_type, event_id) => {
+  if (event_id) {
+    return eventSchemas?.[event_type]?.[event_id];
+  }
+  return eventSchemas?.[event_type]?.base;
+};

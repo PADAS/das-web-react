@@ -8,6 +8,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -20,6 +21,8 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import styles from './styles.module.scss';
 
 const { Title, Content } = Popover;
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const WINDOW_RESIZE_HANDLER_DEBOUNCE_DELAY = 300;
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
@@ -123,7 +126,11 @@ const TimeSlider = (props) => {
 
   const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
 
-  return <div className={`${styles.wrapper} ${sidebarOpen ? '' : styles.sidebarClosed}`}>
+  const sidebarOpenStyles = UFA_NAVIGATION_UI ? styles.sidebarOpen : '';
+
+  return <div
+    className={`${UFA_NAVIGATION_UI ? styles.wrapper : styles.oldNavigationWrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}
+    >
     <OverlayTrigger target={leftPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={PopoverContent} flip={true}>
       <div ref={leftPopoverTrigger} onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>
         <span className={styles.handleDate} title={generateCurrentTimeZoneTitle()}>{SetDateFormat(startDate)}</span>
@@ -147,7 +154,8 @@ const TimeSlider = (props) => {
   </div>;
 };
 
-const mapStatetoProps = ({ view: { timeSliderState }, data: { eventFilter: { filter: { date_range } } } }) => ({
+const mapStatetoProps = ({ view: { timeSliderState, userPreferences }, data: { eventFilter: { filter: { date_range } } } }) => ({
+  sidebarOpen: userPreferences.sidebarOpen,
   timeSliderState,
   since: date_range.lower,
   until: date_range.upper,
