@@ -362,7 +362,7 @@ const SideBar = ({ map, onHandleClick }) => {
               <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
             </Tab.Pane>
 
-            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
+            {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
               <PatrolsTab
                 loadingPatrols={loadingPatrols}
                 map={map}
@@ -370,7 +370,7 @@ const SideBar = ({ map, onHandleClick }) => {
                 nestedNavigationState={nestedNavigationState}
                 changeNestedNavigation={(value) => setNestedNavigationState(value)}
               />
-            </Tab.Pane>
+            </Tab.Pane>}
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
               <ErrorBoundary>

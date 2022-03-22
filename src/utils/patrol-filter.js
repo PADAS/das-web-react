@@ -62,7 +62,7 @@ export const validatePatrolAgainstPatrolFilter = (patrol) => {
   return patrolMatechesDateFilter();
 };
 
-
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
 export const calcPatrolListTitleFromFilter = (patrolFilter) => {
   const { filter: { date_range: { lower, upper } } } = patrolFilter;
   const dateRangeModified = isDateFilterModified(patrolFilter);
@@ -113,3 +113,11 @@ export const calcPatrolListTitleFromFilter = (patrolFilter) => {
 
   return returnValue;
 };
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */
+
+export const isFilterModified = ({ status, filter: { patrol_type, text, tracked_by } }) => (
+  !isEqual(INITIAL_FILTER_STATE.status, status)
+    || !isEqual(INITIAL_FILTER_STATE.filter.patrol_type, patrol_type)
+    || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
+    || !isEqual(INITIAL_FILTER_STATE.filter.tracked_by, tracked_by)
+);

@@ -7,11 +7,15 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 
 import { caseInsensitiveCompare } from '../utils/string';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { getPatrolList } from '../selectors/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
+import { isFilterModified } from '../utils/patrol-filter';
 import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 
 import DateRangePopover from './DateRangePopover';
 import FiltersPopover from './FiltersPopover';
+import FriendlyFilterString from '../FriendlyFilterString';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import SearchBar from '../SearchBar';
@@ -19,11 +23,13 @@ import SearchBar from '../SearchBar';
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
 
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
 const patrolFilterTracker = trackEventFactory(PATROL_FILTER_CATEGORY);
 
-const PatrolFilter = ({ className, patrolFilter, updatePatrolFilter }) => {
+const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) => {
   const containerRef = useRef(null);
 
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
@@ -67,59 +73,70 @@ const PatrolFilter = ({ className, patrolFilter, updatePatrolFilter }) => {
   const filtersModified = leadersFilterModified || patrolTypesFilterModified || statusModified;
   const dateRangeModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range);
 
-  return <div
+  return <>
+    <div
       ref={containerRef}
-      className={`${patrolFilterStyles.form} ${className}`}
+      className={`${UFA_NAVIGATION_UI ? patrolFilterStyles.form : patrolFilterStyles.oldNavigationForm} ${className}`}
       onSubmit={e => e.preventDefault()}
-    >
-    <SearchBar
-      className={`${styles.search} ${patrolFilterStyles.search}`}
-      placeholder='Search Patrols...'
-      value={filterText}
-      onChange={onSearchChange}
-      onClear={resetSearch}
-    />
-
-    <OverlayTrigger
-      shouldUpdatePosition={true}
-      rootClose
-      trigger='click'
-      placement='auto'
-      overlay={<FiltersPopover />}
-      flip={true}
-    >
-      <Button
-        variant={filtersModified ? 'primary' : 'light'}
-        size='sm'
-        className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
-        onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
-        data-testid="patrolFilter-filtersButton"
       >
-        <FilterIcon className={styles.filterIcon} />
-        <span>Filters</span>
-      </Button>
-    </OverlayTrigger>
+      <SearchBar
+        className={`${styles.search} ${UFA_NAVIGATION_UI ? patrolFilterStyles.search : patrolFilterStyles.oldNavigationSearch}`}
+        placeholder='Search Patrols...'
+        value={filterText}
+        onChange={onSearchChange}
+        onClear={resetSearch}
+      />
 
-    <OverlayTrigger
-      shouldUpdatePosition={true}
-      rootClose
-      trigger='click'
-      placement='auto'
-      overlay={<DateRangePopover containerRef={containerRef} />}
-      flip={true}
-    >
-      <Button
-        variant={dateRangeModified ? 'primary' : 'light'}
-        size='sm'
-        className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`}
-        onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
-        data-testid="patrolFilter-dateRangeButton"
+      <OverlayTrigger
+        shouldUpdatePosition={true}
+        rootClose
+        trigger='click'
+        placement='auto'
+        overlay={<FiltersPopover />}
+        flip={true}
       >
-        <ClockIcon className={styles.clockIcon} />
-        <span>Dates</span>
-      </Button>
-    </OverlayTrigger>
-  </div>;
+        <Button
+          variant={filtersModified ? 'primary' : 'light'}
+          size='sm'
+          className={`${UFA_NAVIGATION_UI ? patrolFilterStyles.popoverTrigger : patrolFilterStyles.oldNavigationPopoverTrigger} ${patrolFilterStyles.filterButton}`}
+          onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
+          data-testid="patrolFilter-filtersButton"
+        >
+          <FilterIcon className={styles.filterIcon} />
+          <span>Filters</span>
+        </Button>
+      </OverlayTrigger>
+
+      <OverlayTrigger
+        shouldUpdatePosition={true}
+        rootClose
+        trigger='click'
+        placement='auto'
+        overlay={<DateRangePopover containerRef={containerRef} />}
+        flip={true}
+      >
+        <Button
+          variant={dateRangeModified ? 'primary' : 'light'}
+          size='sm'
+          className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.dateFilterButton}`}
+          onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
+          data-testid="patrolFilter-dateRangeButton"
+        >
+          <ClockIcon className={styles.clockIcon} />
+          <span>Dates</span>
+        </Button>
+      </OverlayTrigger>
+    </div>
+
+    {UFA_NAVIGATION_UI && <div className={`${styles.filterStringWrapper} ${className}`}>
+      <FriendlyFilterString
+        className={styles.friendlyFilterString}
+        dateRange={patrolFilter.filter.date_range}
+        isFiltered={isFilterModified(patrolFilter)}
+        totalFeedCount={patrols.results.length}
+      />
+    </div>}
+  </>;
 };
 
 PatrolFilter.defaultProps = { className: '' };
@@ -140,6 +157,7 @@ PatrolFilter.propTypes = {
 
 const mapStateToProps = (state) => ({
   patrolFilter: state.data.patrolFilter,
+  patrols: getPatrolList(state),
 });
 
 export default connect(mapStateToProps, { updatePatrolFilter })(memo(PatrolFilter));
