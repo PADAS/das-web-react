@@ -34,12 +34,14 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
     setActivePatrol({});
 
   }, [changeNestedNavigation, clearPatrolDetailView]);
-  useEffect(() => {
-    if (!nestedNavigationState & !isEmpty(activePatrol)) {
-      handleCloseDetailView();
-    }
 
-  }, [handleCloseDetailView, nestedNavigationState, activePatrol]);
+  useEffect(() => {
+    if (showPatrolDetailView){
+      if (!nestedNavigationState & !isEmpty(activePatrol)) {
+        handleCloseDetailView();
+      }
+    }
+  }, [handleCloseDetailView, nestedNavigationState, activePatrol, showPatrolDetailView]);
 
   useEffect(() => {
     if (isEmpty(activePatrol) && !isEqual(patrolDetailView, activePatrol)) {
