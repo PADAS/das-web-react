@@ -13,15 +13,18 @@ jest.mock('../utils/save', () => ({
   executeSaveActions: jest.fn(),
 }));
 
+const onCloseDetailView = jest.fn();
+
 describe('PatrolDetailView', () => {
   let executeSaveActionsMock;
+
   beforeEach(() => {
     render(
       <Provider store={mockStore({
         data: { subjectStore: {}, user: { permissions: { patrol: ['change'] } } },
         view: {},
       })}>
-        <PatrolDetailView newPatrol={newPatrol} />
+        <PatrolDetailView newPatrol={newPatrol} onCloseDetailView={onCloseDetailView}/>
       </Provider>
     );
   });
@@ -68,6 +71,15 @@ describe('PatrolDetailView', () => {
     expect(titleInput).toHaveAttribute('value', 'Unknown patrol type2');
   });
 
+  test('closes the drawer when clicking the exit button', async () => {
+    expect(onCloseDetailView).toHaveBeenCalledTimes(0);
+
+    const exitButton = await screen.findByText('Exit');
+    userEvent.click(exitButton);
+
+    expect(onCloseDetailView).toHaveBeenCalledTimes(1);
+  });
+
   test('renders the save button when user is in the Plan tab', async () => {
     expect((await screen.findByText('Save'))).toBeDefined();
   });
@@ -84,5 +96,21 @@ describe('PatrolDetailView', () => {
     userEvent.click(historyTab);
 
     expect((await screen.queryByText('Save'))).toBeNull();
+  });
+
+  test('triggers executeSaveActions when user clicks the Save button and calls for closing the detail view', async () => {
+    executeSaveActionsMock = jest.fn(() => Promise.resolve());
+    executeSaveActions.mockImplementation(executeSaveActionsMock);
+
+    expect(executeSaveActions).toHaveBeenCalledTimes(0);
+    expect(onCloseDetailView).toHaveBeenCalledTimes(0);
+
+    const saveButton = await screen.findByText('Save');
+    userEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(executeSaveActions).toHaveBeenCalledTimes(1);
+      expect(onCloseDetailView).toHaveBeenCalledTimes(1);
+    });
   });
 });
