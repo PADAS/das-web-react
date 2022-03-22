@@ -349,9 +349,9 @@ const SideBar = ({ map, onHandleClick }) => {
               <ReportsTab map={map} sidebarOpen={sidebarOpen} />
             </Tab.Pane>
 
-            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
+            {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
               <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-            </Tab.Pane>
+            </Tab.Pane>}
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
               <ErrorBoundary>
