@@ -18,7 +18,6 @@ import {
   DEVELOPMENT_FEATURE_FLAGS,
   CLIENT_BUILD_VERSION,
   FEATURE_FLAGS,
-  REACT_APP_DAS_HOST,
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
@@ -141,7 +140,7 @@ const GlobalMenuDrawer = ({
 
       const siteInput = selectSupportFormFieldByLabelText('ER Site');
       if (siteInput) {
-        siteInput.value = REACT_APP_DAS_HOST;
+        siteInput.value = window.location.hostname;
       }
       const username = (selectedUserProfile?.id ? selectedUserProfile: user)?.username;
       const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
