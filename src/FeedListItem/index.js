@@ -2,8 +2,11 @@ import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;
@@ -11,8 +14,16 @@ const FeedListItem = (props) => {
   const iconSectionColor = themeColor;
   const bodyBackgroundColor = useMemo(() => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200), [themeBgColor, themeColor]);
 
-  return <li className={`${styles.listItem} ${className}`} style={{ backgroundColor: bodyBackgroundColor }} {...rest}>
-    {IconComponent && <div role='img' className={styles.iconContainer} style={{ backgroundColor: iconSectionColor }}>
+  return <li
+    className={`${UFA_NAVIGATION_UI ? styles.listItem : styles.oldNavigationListItem} ${className}`}
+    style={{ backgroundColor: bodyBackgroundColor }}
+    {...rest}
+    >
+    {IconComponent && <div
+      role='img'
+      className={UFA_NAVIGATION_UI ? styles.iconContainer : styles.oldNavigationIconContainer}
+      style={{ backgroundColor: iconSectionColor }}
+    >
       {IconComponent}
     </div>}
     <div className={styles.titleContainer} data-testid='feed-list-item-title-container'>

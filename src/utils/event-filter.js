@@ -9,7 +9,7 @@ import store from '../store';
 
 export const EVENT_SORT_OPTIONS = [
   {
-    label: 'Updated Date',
+    label: 'Date Updated',
     value: 'updated_at',
   },
   {

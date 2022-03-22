@@ -698,7 +698,7 @@ const PatrolModal = (props) => {
         }}
         onAddFiles={onAddFiles}
         onSaveNote={onSaveNote}>
-        {patrolSegmentId &&<AddReport map={map}
+        {patrolSegmentId &&<AddReport
           analyticsMetadata={{
             category: PATROL_MODAL_CATEGORY,
             location: 'patrol modal',

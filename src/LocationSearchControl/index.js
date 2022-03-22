@@ -63,15 +63,19 @@ const LocationSearch = (props) => {
     setQuery(event.target.value);
   };
 
-  const newInputValue = () => {
-    const locationObject = calcActualGpsPositionForRawText(query, gpsFormat);
-    const value = { lng: (parseFloat(locationObject.longitude) * 10) / 10, lat: (parseFloat(locationObject.latitude) * 10) / 10 };
-    console.log('value', value);
-    const coords = [value.lng, value.lat];
-    jumpToLocation(map, coords, 12);
-    const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
-    validatedCoords && showPopup('dropped-marker', { location: value, coords } );
-  };
+  const newInputValue = useCallback(() => {
+    try {
+      const locationObject = calcActualGpsPositionForRawText(query, gpsFormat);
+      const value = { lng: (parseFloat(locationObject.longitude) * 10) / 10, lat: (parseFloat(locationObject.latitude) * 10) / 10 };
+      console.log('value', value);
+      const coords = [value.lng, value.lat];
+      jumpToLocation(map, coords, 12);
+      const validatedCoords = coords[0] && coords[1] && validateLngLat(coords[0], coords[1]);
+      validatedCoords && showPopup('dropped-marker', { location: value, coords } );
+    } catch (error) {
+      console.log(error);
+    }
+  }, [gpsFormat, query, showPopup, map]);
 
   return <div className={styles.wrapper} ref={wrapperRef}>
     <button type='button'

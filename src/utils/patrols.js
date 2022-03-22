@@ -12,7 +12,9 @@ import isUndefined from 'lodash/isUndefined';
 import booleanEqual from '@turf/boolean-equal';
 import bbox from '@turf/bbox';
 import { featureCollection, point, multiLineString } from '@turf/helpers';
-import { default as TimeAgo } from 'react-timeago';
+import pluralize from 'pluralize';
+
+import TimeAgo from '../TimeAgo';
 
 import store from '../store';
 import { addModal } from '../ducks/modals';
@@ -235,7 +237,7 @@ export const actualEndTimeForPatrol = (patrol) => {
 };
 
 export const getLeaderForPatrol = (patrol, subjectStore) => {
-  if (!patrol.patrol_segments.length) return null;
+  if (!patrol?.patrol_segments.length) return null;
   const [firstLeg] = patrol.patrol_segments;
   const { leader }  = firstLeg;
   if (!leader) return null;
@@ -318,8 +320,8 @@ export const displayDurationForPatrol = (patrol) => {
     && (displayEndTime.getTime() <= nowTime);
 
   if (!hasEnded) {
-    const formatter = (val, unit, _suffix) => `${val} ${unit}${val > 1 ? 's' : ''}`;
-    return <TimeAgo date={displayStartTime} formatter={formatter} />;
+    const formatter = (val, unit, _suffix) => `${val} ${pluralize(unit, val)}`;
+    return <TimeAgo date={displayStartTime} formatterFn={formatter} />;
   }
 
   return distanceInWords(displayStartTime, displayEndTime);

@@ -5,6 +5,7 @@ import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
 
 
+const STATIONARY_SUBJECT_TYPE = 'stationary-subject';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];
@@ -19,8 +20,6 @@ export const subjectIsARadioWithRecentVoiceActivity = (properties) => {
     && !!properties.last_voice_call_start_at
     && properties.last_voice_call_start_at !== 'null'; /* extra check for bad deserialization from mapbox-held subject data */
 };
-
-export const subjectIsStatic = (s) => !!s?.static_position;
 
 export const isRadioWithImage = (subject) => subjectIsARadio(subject) && !!subject.last_position && !!subject.last_position.properties && subject.last_position.properties.image;
 
@@ -68,9 +67,15 @@ export const getUniqueSubjectGroupSubjects = (...groups) => uniqBy(getSubjectGro
 
 export const getUniqueSubjectGroupSubjectIDs = (...groups) => getUniqueSubjectGroupSubjects(...groups).map(subject => subject.id);
 
+export const subjectIsStatic = subject => {
+  return subject?.is_static ?? subject?.properties?.is_static ?? subject.last_position?.properties?.is_static ??
+  subject?.subject_type === STATIONARY_SUBJECT_TYPE ?? subject?.properties?.subject_type === STATIONARY_SUBJECT_TYPE;
+};
+
 export const canShowTrackForSubject = subject =>
   subject.tracks_available
   && !subjectIsAFixedPositionRadio(subject);
+
 
 export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubjectGroupSubjects(...groups)
   .filter(canShowTrackForSubject);
@@ -78,6 +83,11 @@ export const getHeatmapEligibleSubjectsFromGroups = (...groups) => getUniqueSubj
 export const getSubjectLastPositionCoordinates = subject => {
   return subject.last_position && subject.last_position.geometry ? subject.last_position.geometry.coordinates
     : subject.geometry ? subject.geometry.coordinates : null;
+};
+
+export const getSubjectDefaultDeviceProperty = subject => {
+  const deviceStatusProperties = subject?.properties?.device_status_properties ?? subject?.device_status_properties ?? [];
+  return deviceStatusProperties.find(deviceProperty => deviceProperty?.default ?? false) ?? {};
 };
 
 export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateObj) => {

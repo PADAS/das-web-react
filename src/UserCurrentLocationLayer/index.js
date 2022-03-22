@@ -1,15 +1,14 @@
-import React, { memo, Fragment, useEffect, useState, useRef } from 'react';
+import React, { memo, useMemo, Fragment, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Source, Layer } from 'react-mapbox-gl';
 import { point } from '@turf/helpers';
 import booleanContains from '@turf/boolean-contains';
 
-import { setCurrentUserLocation } from '../ducks/location';
 import { userLocationCanBeShown, bboxBoundsPolygon } from '../selectors';
 
 import { addMapImage } from '../utils/map';
-import { GEOLOCATOR_OPTIONS, MAP_ICON_SCALE } from '../constants';
+import { MAP_ICON_SCALE } from '../constants';
 import { withMap } from '../EarthRangerMap';
 import GpsLocationIcon from '../common/images/icons/gps-location-icon-blue.svg';
 
@@ -26,99 +25,74 @@ const symbolLayout = {
   'icon-size': 0.6 / MAP_ICON_SCALE,
 };
 
+const updateBlipAnimation = (animationState, setAnimationState) => {
+  setTimeout(() => {
+    const radius = animationState.radius + ((maxRadius - animationState.radius) / framesPerSecond);
+    const opacity = animationState.opacity - .05;
+    const strokeWidth = animationState.strokeWidth - .05;
+    if (opacity <= 0) {
+      setAnimationState({
+        radius: initialRadius, opacity: initialOpacity, strokeWidth: initialStrokeWidth,
+      });
+    } else {
+      setAnimationState({
+        radius, opacity, strokeWidth,
+      });
+    }
+  }, 1000 / framesPerSecond);
+};
 
 const UserCurrentLocationLayer = (props) => {
-  const { currentMapBbox, map, onIconClick, setCurrentUserLocation, userLocationCanBeShown, userLocation } = props;
-  const [locationWatcherID, setLocationWatcherID] = useState(null);
-  const [userLocationIsInMapBounds, setUserLocationWithinMapBounds] = useState(false);
-  const [initialized, setInitState] = useState(false);
+  const { currentMapBbox, map, onIconClick, userLocationCanBeShown, userLocation } = props;
 
   const animationFrameID = useRef(null);
+
   const [animationState, setAnimationState] = useState({
     opacity: initialOpacity,
     radius: initialRadius,
     strokeWidth: initialStrokeWidth,
   });
 
-  const updateBlipAnimation = (animationState) => {
-    setTimeout(() => {
-      const radius = animationState.radius + ((maxRadius - animationState.radius) / framesPerSecond);
-      const opacity = animationState.opacity - .05;
-      const strokeWidth = animationState.strokeWidth - .05;
-      if (opacity <= 0) {
-        setAnimationState({
-          radius: initialRadius, opacity: initialOpacity, strokeWidth: initialStrokeWidth,
-        });
-      } else {
-        setAnimationState({
-          radius, opacity, strokeWidth,
-        });
-      }
-    }, 1000 / framesPerSecond);
-  };
-
-  const blipAnimation = useRef(updateBlipAnimation);
-
-
-  const startWatchingPosition = () => {
-    return window.navigator.geolocation.watchPosition(setCurrentUserLocation, onLocationWatchError, GEOLOCATOR_OPTIONS);
-  };
-
-
-  const addImageToMap = () => {
-    if (!map.hasImage('current-location-icon')) {
-      addMapImage({ src: GpsLocationIcon, id: 'current-location-icon' });
-    }
-  };
-
-  const onLocationWatchError = (e) => {
-    console.log('error watching current location', e);
-  };
-
   const onCurrentLocationIconClick = () => {
     onIconClick(userLocation);
   };
 
   useEffect(() => {
-    if (!initialized) {
-      addImageToMap();
-      setInitState(true);
-      setLocationWatcherID(startWatchingPosition());
-      return () => {
-        window.navigator.geolocation.clearWatch(locationWatcherID);
-        window.cancelAnimationFrame(animationFrameID.current);
-      };
+    if (map && !map.hasImage('current-location-icon')) {
+      addMapImage({ src: GpsLocationIcon, id: 'current-location-icon' });
     }
-  }, []); // eslint-disable-line
+  }, [map]);
 
-  useEffect(() => {
-    userLocation && blipAnimation.current(animationState);
-  }, [userLocation]); // eslint-disable-line
-
-
-  useEffect(() => {
-    animationFrameID.current = window.requestAnimationFrame(() => blipAnimation.current(animationState));
-    return () => {
-      !!animationFrameID && !!animationFrameID.current && window.cancelAnimationFrame(animationFrameID.current);
-    };
-  }, [animationState]);
-
-  useEffect(() => {
-    const isInView = !!currentMapBbox && !!userLocation && !!userLocation.coords && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude]));
-    if (isInView !== userLocationIsInMapBounds) {
-      setUserLocationWithinMapBounds(isInView);
-    }
-  }, [currentMapBbox, userLocation]); // eslint-disable-line
+  const userLocationIsInMapBounds = useMemo(() => {
+    return !!currentMapBbox
+    && !!userLocation
+    && !!userLocation.coords
+    && booleanContains(currentMapBbox, point([userLocation.coords.longitude, userLocation.coords.latitude]));
+  }, [currentMapBbox, userLocation]);
 
   const showLayer = userLocationCanBeShown && userLocationIsInMapBounds;
 
-  const sourceData = showLayer && {
-    type: 'geojson',
-    data: point([
-      userLocation.coords.longitude,
-      userLocation.coords.latitude,
-    ]),
-  };
+  useEffect(() => {
+    if (showLayer) {
+      animationFrameID.current = window.requestAnimationFrame(() => updateBlipAnimation(animationState, setAnimationState));
+    }
+    return () => {
+      window.cancelAnimationFrame(animationFrameID.current);
+    };
+  }, [animationState, showLayer]);
+
+  const sourceData = useMemo(() => {
+    if (!showLayer) return null;
+
+    return {
+      type: 'geojson',
+      data: point([
+        userLocation.coords.longitude,
+        userLocation.coords.latitude,
+      ]),
+    };
+  }, [showLayer, userLocation]);
+
 
   return showLayer && <Fragment>
     <Source id='current-user-location' geoJsonSource={sourceData} />
@@ -140,7 +114,7 @@ const mapStateToProps = (state) => ({
   userLocation: state.view.userLocation,
   userLocationCanBeShown: userLocationCanBeShown(state),
 });
-export default connect(mapStateToProps, { setCurrentUserLocation })(withMap(memo(UserCurrentLocationLayer)));
+export default connect(mapStateToProps, null)(withMap(memo(UserCurrentLocationLayer)));
 
 UserCurrentLocationLayer.defaultProps = {
   onIconClick() {

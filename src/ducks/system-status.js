@@ -26,6 +26,7 @@ export const SET_PATROL_MANAGEMENT_ENABLED = 'SET_PATROL_MANAGEMENT_ENABLED';
 export const SET_ALERTS_ENABLED = 'SET_ALERTS_ENABLED';
 export const SET_EULA_ENABLED = 'SET_EULA_ENABLED';
 export const SET_SHOW_TRACK_DAYS = 'SET_SHOW_TRACK_DAYS';
+export const SET_GEOPERMISSIONS_ENABLED = 'SET_GEOPERMISSIONS_ENABLED';
 export const SET_SITENAME = 'SET_SITENAME';
 export const SET_TABLEAU_ENABLED = 'SET_TABLEAU_ENABLED';
 
@@ -101,6 +102,10 @@ const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
     type: SET_SHOW_TRACK_DAYS,
     payload: data.show_track_days,
+  });
+  dispatch({
+    type: SET_GEOPERMISSIONS_ENABLED,
+    payload: data?.geoPermissionsEnabled ?? false, // change this line to "true" to test the functionality of appending 'location' params to map event requests
   });
   dispatch({
     type: SET_SITENAME,
@@ -321,6 +326,7 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   [FEATURE_FLAGS.KML_EXPORT]: false,
   [FEATURE_FLAGS.ALERTS]: false,
   [FEATURE_FLAGS.EULA]: false,
+  geoPermissionsEnabled: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };
@@ -345,6 +351,9 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
   }
   case (SET_SHOW_TRACK_DAYS): {
     return { ...state, showTrackDays: payload, };
+  }
+  case (SET_GEOPERMISSIONS_ENABLED): {
+    return { ...state, geoPermissionsEnabled: true /* payload */ };
   }
   case (SET_EULA_ENABLED): {
     return { ...state, [FEATURE_FLAGS.EULA]: payload, };

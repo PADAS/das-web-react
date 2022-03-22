@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { withMap } from '../EarthRangerMap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
 import { fetchEvent } from '../ducks/events';
 import { removeModal } from '../ducks/modals';
+
+import { getSchemasForEventTypeByEventId } from '../utils/event-schemas';
 
 import EditableItem from '../EditableItem';
 
@@ -21,10 +23,9 @@ const ReportFormModal = (props) => {
   const { id: report_id, event_type } = report;
 
   const eventFromStore = eventStore[report_id];
-  const schemasFromStore = eventSchemas[event_type];
+  const schemas = useMemo(() => getSchemasForEventTypeByEventId(eventSchemas, event_type, report_id), [eventSchemas, event_type, report_id]);
 
   const [stateReport, setReport] = useState(report);
-  const [schemas, setSchemas] = useState(schemasFromStore);
   const [loaded, setLoadState] = useState(false);
 
   const onRemoveModal = useCallback(() => {
@@ -32,19 +33,17 @@ const ReportFormModal = (props) => {
   }, [modalId, removeModal]);
 
   useEffect(() => {
-    if (!schemasFromStore) {
-      fetchEventTypeSchema(event_type);
-    } else {
-      setSchemas(schemasFromStore);
+    if (!schemas) {
+      fetchEventTypeSchema(event_type, report_id);
     }
-  }, [event_type, fetchEventTypeSchema, schemasFromStore]);
+  }, [event_type, fetchEventTypeSchema, report_id, schemas]);
 
   useEffect(() => {
     if (!report_id) { // must be new, use what's been generated
       setReport(report);
     } else {
       if (eventFromStore) {
-        setReport(eventFromStore); // only draw report data from the central store
+        setReport(eventFromStore); // otherwise only draw report data from the central store
       } else {
         fetchEvent(report_id);
       }

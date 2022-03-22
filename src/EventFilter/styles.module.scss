@@ -24,7 +24,7 @@
 
 .search {
   flex-basis: 100%;  
-  margin-bottom: 0;
+  margin-bottom: 0.75rem;
   margin-right: 0.2rem;
   width: 50%;
 
@@ -87,16 +87,6 @@ div.filterPopover {
   max-width: 29rem;
   width: 90vw;
 
-  &[class*=bs-popover-bottom] {
-    @media (min-width: $lg-layout-width-min) {
-      margin-left: -5rem;
-
-      > [class*=arrow] {
-        margin-left: 5rem;
-      }
-    }
-  }
-
   [class*=popover-body] {
     overflow: hidden;
     padding: 0;
@@ -113,9 +103,20 @@ div.filterPopover {
 
 .controls {
   align-items: center;
+  justify-content: flex-end;
   display: flex;
   flex-wrap: wrap;
   width: 100%;
+  
+  button {
+    margin-left: 0.5rem;
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    button {
+      margin-left: 0;
+    }
+  }
 
   @media (min-width: $lg-layout-width-min) {
     flex-wrap: initial;
@@ -124,17 +125,13 @@ div.filterPopover {
 }
 
 .popoverTrigger {
-  --iconDimensions: 0.8rem;
-
-  @media (min-width: $md-layout-width-min) {
-    --iconDimensions: 1.25rem;
-  }
+  --iconDimensions: 0.875rem;
 
   svg {
     display: inline-block;
     height: var(--iconDimensions);
     width: var(--iconDimensions);
-    margin-right: 0.5rem;
+    margin-right: 0.25rem;
 
     * {
       stroke: gray;
@@ -345,3 +342,93 @@ div.filterPopover {
   transition: 0.3s all linear;
   width: 73.5%;
 }
+
+.userIcon {
+  height: 1.5rem;
+  color: $medium-light-gray;
+}
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigation {
+  div.filterPopover {
+    &[class*=bs-popover-bottom] {
+      @media (min-width: $lg-layout-width-min) {
+        margin-left: -5rem;
+  
+        > [class*=arrow] {
+          margin-left: 5rem;
+        }
+      }
+    }
+  }
+}
+
+.oldNavigationSearch {
+  flex-basis: 100%;  
+  margin-bottom: 0;
+  margin-right: 0.2rem;
+  width: 50%;
+
+  @media (min-width: $md-layout-width-min) {
+    margin-right: unset;
+    width: 35%;
+    
+    &.wider {
+      width: 56%;
+    };
+  }
+
+  @media (min-width: $lg-layout-width-min) {
+    flex-basis: initial;
+    margin-bottom: 0;
+    width: 35%;
+  }
+}
+
+.oldNavigationControls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+
+  @media (min-width: $lg-layout-width-min) {
+    flex-wrap: initial;
+    justify-content: space-between;
+  }
+}
+
+.oldNavigationPopoverTrigger {
+  --iconDimensions: 0.8rem;
+
+  @media (min-width: $md-layout-width-min) {
+    --iconDimensions: 1.25rem;
+  }
+
+  svg {
+    display: inline-block;
+    height: var(--iconDimensions);
+    width: var(--iconDimensions);
+    margin-right: 0.5rem;
+
+    * {
+      stroke: gray;
+    }
+  }
+
+  &[class*=btn-primary] {
+    svg {
+      * {
+        stroke: white;
+      }
+    }
+  }
+
+  span {
+    font-size: 0.725rem;
+
+    @media (min-width: $md-layout-width-min) {
+      font-size: 0.875rem;
+    }
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

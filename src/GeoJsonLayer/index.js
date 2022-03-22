@@ -69,13 +69,10 @@ const GeoJsonLayer = (props) => {
           paint,
         });
 
-        const eventHandlers = convertEventsToHandlers(props);
-        setStateHandlers(eventHandlers);
-
         map.setFilter(layerId, filter);
       }
     }
-  }, [before, data, filter, layerId, layout, map, paint, props, sourceId, type]);
+  }, [before, data, filter, layerId, layout, map, paint, sourceId, type]);
 
   /* update handlers in state */
   useEffect(() => {
@@ -161,10 +158,13 @@ const GeoJsonLayer = (props) => {
   }, [before, layerId, map, stateBefore]);
 
   useEffect(() => {
-    return () => {
-      !!map && map.removeLayer(layerId);
-    };
-  }, []); /* eslint-disable-line */
+    if (!!map && !!layerId){
+      const layer = map.getLayer(layerId);
+      return () => {
+        !!layer && map.removeLayer(layerId);
+      };
+    }
+  }, [layerId, map]);
 
   return null;
 };

@@ -1,4 +1,4 @@
-import React, { memo, Fragment } from 'react';
+import React, { memo } from 'react';
 import { Source, Layer } from 'react-mapbox-gl';
 
 import withMapViewConfig from '../WithMapViewConfig';
@@ -44,9 +44,8 @@ const lineLayout = {
 
 const AnalyzerLayer = (
   { warningLines, criticalLines, warningPolys, criticalPolys, minZoom,
-    layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick }
+    layerGroups, onAnalyzerGroupEnter, onAnalyzerGroupExit, onAnalyzerFeatureClick, isSubjectSymbolsLayerReady }
 ) => {
-
   const getLayerGroup = featureId => layerGroups
     .filter(group => !!group.feature_ids.includes(featureId))
     .reduce((accumulator, group) => [...accumulator, ...group.feature_ids], []);
@@ -84,7 +83,7 @@ const AnalyzerLayer = (
     data: criticalPolys,
   };
 
-  return <Fragment>
+  return <>
     <Source id={ANALYZER_POLYS_WARNING_SOURCE} geoJsonSource={warningPolysData} />
     <Source id={ANALYZER_POLYS_CRITICAL_SOURCE} geoJsonSource={criticalPolysData} />
     <Source id={ANALYZER_LINES_CRITICAL_SOURCE} geoJsonSource={warningLinesData} />
@@ -100,30 +99,32 @@ const AnalyzerLayer = (
       onMouseLeave={onAnalyzerFeatureExit}
       onClick={onAnalyzerFeatureClick} />
 
-    <Layer minZoom={minZoom} sourceId={ANALYZER_POLYS_CRITICAL_SOURCE} type='line'
-      before={SUBJECT_SYMBOLS}
-      id={ANALYZER_POLYS_CRITICAL}
-      paint={criticalLinePaint} layout={lineLayout}
-      onMouseEnter={onAnalyzerFeatureEnter}
-      onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerFeatureClick} />
+    {isSubjectSymbolsLayerReady && <>
+      <Layer minZoom={minZoom} sourceId={ANALYZER_POLYS_CRITICAL_SOURCE} type='line'
+        before={SUBJECT_SYMBOLS}
+        id={ANALYZER_POLYS_CRITICAL}
+        paint={criticalLinePaint} layout={lineLayout}
+        onMouseEnter={onAnalyzerFeatureEnter}
+        onMouseLeave={onAnalyzerFeatureExit}
+        onClick={onAnalyzerFeatureClick} />
 
-    <Layer minZoom={minZoom} sourceId={ANALYZER_LINES_CRITICAL_SOURCE} type='line'
-      before={SUBJECT_SYMBOLS}
-      id={ANALYZER_LINES_WARNING}
-      paint={linePaint} layout={lineLayout}
-      onMouseEnter={onAnalyzerFeatureEnter}
-      onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerFeatureClick} />
+      <Layer minZoom={minZoom} sourceId={ANALYZER_LINES_CRITICAL_SOURCE} type='line'
+        before={SUBJECT_SYMBOLS}
+        id={ANALYZER_LINES_WARNING}
+        paint={linePaint} layout={lineLayout}
+        onMouseEnter={onAnalyzerFeatureEnter}
+        onMouseLeave={onAnalyzerFeatureExit}
+        onClick={onAnalyzerFeatureClick} />
 
-    <Layer minZoom={minZoom} sourceId={ANALYZER_LINES_WARNING_SOURCE} type='line'
-      before={SUBJECT_SYMBOLS}
-      id={ANALYZER_LINES_CRITICAL}
-      paint={criticalLinePaint} layout={lineLayout}
-      onMouseEnter={onAnalyzerFeatureEnter}
-      onMouseLeave={onAnalyzerFeatureExit}
-      onClick={onAnalyzerFeatureClick} />
-  </Fragment>;
+      <Layer minZoom={minZoom} sourceId={ANALYZER_LINES_WARNING_SOURCE} type='line'
+        before={SUBJECT_SYMBOLS}
+        id={ANALYZER_LINES_CRITICAL}
+        paint={criticalLinePaint} layout={lineLayout}
+        onMouseEnter={onAnalyzerFeatureEnter}
+        onMouseLeave={onAnalyzerFeatureExit}
+        onClick={onAnalyzerFeatureClick} />
+    </>}
+  </>;
 };
 
 export default memo(withMapViewConfig(AnalyzerLayer));

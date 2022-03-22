@@ -23,7 +23,8 @@ $non-map-top-level-components: '.side-menu, nav, .mapboxgl-map button:not(#cance
 
 :root {
   --nav-height: 2.75rem;
-  --sidebar-width: calc(100vw - 2rem);
+  --vertical-nav-width: 4.375rem;
+  --sidebar-width: calc(100vw);
 
   @media (min-width: $md-layout-width-min) {
     --sidebar-width: 32rem;
@@ -195,23 +196,18 @@ aside {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 0.666rem;
   line-height: normal;
-  max-width: 15rem;
+  max-width: 14rem;
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
+  left: 1rem;
+  top: 1rem;
   transition: all 0.3s linear;
   width: 100vw;
-  z-index: 7;
+  z-index: 12;
   flex-wrap: wrap;
 
   @media (min-width: $md-layout-width-min) {
-    right: 4.5rem;
-    top: 0.5rem;
-    max-width: 18rem;
-  }
-
-  @media (min-width: $lg-layout-width-min) {
-    max-width: 22rem;
+    margin-left: var(--vertical-nav-width);
+    max-width: 25rem;
   }
 
   .report-filter {
@@ -226,12 +222,6 @@ aside {
       border-bottom: 1px solid $gray-border;
       padding-bottom: 0.25rem;
     }
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    max-width: 25rem;
-    right: 4.5rem;
-    top: 0.5rem;
   }
 
   [class*=search] {
@@ -302,7 +292,6 @@ aside {
 
   .mapboxgl-map {
     height: 100%;
-    transition: width 0.3s ease-in-out;
     width: 100vw;
   }
 
@@ -316,174 +305,11 @@ aside {
         cursor: pointer;
       }
     }
-
-
-    .side-menu {
-      transform: translateX(0);
-
-      span {
-        transform: rotate(0);
-      }
-    }
-
-    .mapboxgl-ctrl-scale {
-      transform: translate(-2.5rem, -0.8rem);
-    }
-
-    .mapbox-zoom-ctrl {
-      transform: scale(1.25) translate(0, -1rem);
-    }
-
-    .mapboxgl-map {
-      width: calc(100vw - var(--sidebar-width));
-    }
-
-    .mapboxgl-ctrl-attrib.er-map {
-      right: 0;
-    }
   }
 }
 
 .src-component-launcher-WidgetLauncher-wrapper {
   display: none;
-}
-
-.side-menu {
-  background: white;
-  box-shadow: 0 0 0.25rem rgb(38, 38, 38);
-  display: flex;
-  flex-flow: column;
-  flex-grow: 0;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  transition: transform 0.3s ease-in-out;
-  transform: translateX(var(--sidebar-width));
-  top: 0;
-  width: var(--sidebar-width);
-  z-index: 11;
-
-  [class*=addReportContainer] {
-    .bs-popover-left {
-      margin-left: -0.5rem;
-      margin-top: 3rem;
-    }
-  }
-
-  .bs-popover-left {
-    .arrow {
-      &::after,
-      &::before {
-        top: -3rem;
-      }
-
-      &::after {
-        border-left-color: $bright-blue;
-      }
-    }
-  }
-
-  .bs-popover-bottom {
-    margin-top: 0;
-
-    .arrow::after {
-      border-bottom-color: $popover-header-color;
-    }
-  }
-
-  .bs-popover-bottom .popover-header::before,
-  .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
-    display: none;
-  }
-
-  .nav-tabs,
-  .nav-item {
-    border: none;
-    border-radius: 0;
-  }
-
-  .nav-tabs .nav-link {
-    border: none;
-    border-radius: 0;
-  }
-
-  .nav-link {
-    background: linear-gradient(to bottom, #fff 0%, #f0f0f0 48%, #fff 100%);
-  }
-
-  .nav-item {
-    border: none;
-    flex-grow: 1;
-    font-weight: bold;
-    padding: 0.5rem;
-    text-align: center;
-
-    &:not(.active) {
-      background: lighten($title-bar-color, 15%);
-      color: white;
-
-      &:hover {
-        text-decoration: underline;
-      }
-
-      &:hover,
-      &:focus {
-        border: none;
-      }
-    }
-  }
-
-  .handle {
-    @include unstyledButton;
-
-    background-color: $off-black;
-    border: 1px solid lighten($off-black, 30%);
-    border-right: none;
-    border-radius: 0.5rem 0 0 0.5rem;
-    color: white;
-    font-size: 0.75rem;
-    height: 3.9rem;
-    width: 1.5rem;
-    left: -1.5rem;
-    top: 45.1%;
-    transition: 0.2s border-color linear, 0.2s background-color linear;
-    position: absolute;
-
-    &:hover,
-    &:active {
-      border: 1px solid lighten($off-black, 25%);
-      border-right: none;
-    }
-
-    &:hover {
-      background-color: darken($off-black, 10%);
-    }
-
-    &:active {
-      background-color: darken($off-black, 16%);
-    }
-
-    span {
-      display: block;
-      transform: rotate(180deg);
-      transition: transform 0.2s 0.3s ease-in-out;
-
-      svg {
-        width: 0.75rem;
-        height: 0.75rem;
-        fill: white;
-      }
-    }
-
-    @media (min-width: $md-layout-width-min) {
-      font-size: 0.5rem;
-    }
-  }
-
-  @media (min-width: $md-layout-width-min) {
-    transform: translateX(calc(var(--sidebar-width) - 4rem));
-    // width: var(--sidebar-width);
-  }
 }
 
 .mapboxgl-ctrl-bottom-right,
@@ -525,19 +351,20 @@ aside {
 }
 
 .mapboxgl-ctrl-scale {
-  opacity: 0.6;
-  transform: translate(-0.55rem, -0.8rem);
-
-  @media (min-width: $md-layout-width-min) {
-    transform: translate(-7.05rem, -0.8rem);
-  }
+  background-color:rgba(255, 255, 255, 0.75);
+  transform: translate(-5rem, -1.5rem);
 }
 
 .mapbox-zoom-ctrl {
-  transform: scale(1.25) translate(0, -1rem);
+  flex-direction: row !important;
+  transform: scale(1.25) translate(-0.5rem, -1rem);
 
-  @media (min-width: $md-layout-width-min) {
-    transform: scale(1.25) translate(-3.5rem, -1rem);
+  #zoomIn {
+    order: 2;
+  }
+
+  #zoomOut {
+    order: 1;
   }
 }
 
@@ -646,17 +473,16 @@ div.mapboxgl-popup-tip {
     }
   }
 
-  .side-menu,
   .map-controls-container,
   .mapbox-zoom-ctrl,
   .mapboxgl-ctrl-top-left {
     display: none !important;
   }
 
+  [class*=sideBar],
   .primary-nav {
     color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
-    // print-color-adjust: exact !important;
   }
 }
 
@@ -772,3 +598,243 @@ div.mapboxgl-popup-tip {
     margin-left: 5vw;
   }
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigation {
+  :root {
+    --sidebar-width: calc(100vw);
+
+    @media (min-width: $md-layout-width-min) {
+      --sidebar-width: 32rem;
+    }
+  }
+
+  .floating-report-filter {
+    max-width: 15rem;
+    right: 0.5rem;
+    top: 0.5rem;
+    left: auto;
+    z-index: 7;
+
+    @media (min-width: $md-layout-width-min) {
+      right: 4.5rem;
+      top: 0.5rem;
+      max-width: 18rem;
+      margin-left: 0;
+    }
+  
+    @media (min-width: $lg-layout-width-min) {
+      max-width: 22rem;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      max-width: 25rem;
+      right: 4.5rem;
+      top: 0.5rem;
+    }
+  }
+
+  .app-container {
+    .mapboxgl-map {
+      transition: width 0.3s ease-in-out;
+    }
+
+    &.sidebar-open {
+      .side-menu {
+        transform: translateX(0);
+  
+        span {
+          transform: rotate(0);
+        }
+      }
+  
+      .mapboxgl-ctrl-scale {
+        transform: translate(-2.5rem, -0.8rem);
+      }
+  
+      .mapbox-zoom-ctrl {
+        transform: scale(1.25) translate(0, -1rem);
+      }
+  
+      .mapboxgl-map {
+        width: calc(100vw - var(--sidebar-width));
+      }
+  
+      .mapboxgl-ctrl-attrib.er-map {
+        right: 0;
+      }
+    }
+  }
+
+  .side-menu {
+    background: white;
+    box-shadow: 0 0 0.25rem rgb(38, 38, 38);
+    display: flex;
+    flex-flow: column;
+    flex-grow: 0;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(var(--sidebar-width));
+    top: 0;
+    width: var(--sidebar-width);
+    z-index: 11;
+  
+    [class*=addReportContainer] {
+      .bs-popover-left {
+        margin-left: -0.5rem;
+        margin-top: 3rem;
+      }
+    }
+  
+    .bs-popover-left {
+      .arrow {
+        &::after,
+        &::before {
+          top: -3rem;
+        }
+  
+        &::after {
+          border-left-color: $bright-blue;
+        }
+      }
+    }
+  
+    .bs-popover-bottom {
+      margin-top: 0;
+  
+      .arrow::after {
+        border-bottom-color: $popover-header-color;
+      }
+    }
+  
+    .bs-popover-bottom .popover-header::before,
+    .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
+      display: none;
+    }
+  
+    .nav-tabs,
+    .nav-item {
+      border: none;
+      border-radius: 0;
+    }
+  
+    .nav-tabs .nav-link {
+      border: none;
+      border-radius: 0;
+    }
+  
+    .nav-link {
+      background: linear-gradient(to bottom, #fff 0%, #f0f0f0 48%, #fff 100%);
+    }
+  
+    .nav-item {
+      border: none;
+      flex-grow: 1;
+      font-weight: bold;
+      padding: 0.5rem;
+      text-align: center;
+  
+      &:not(.active) {
+        background: lighten($title-bar-color, 15%);
+        color: white;
+  
+        &:hover {
+          text-decoration: underline;
+        }
+  
+        &:hover,
+        &:focus {
+          border: none;
+        }
+      }
+    }
+  
+    .handle {
+      @include unstyledButton;
+  
+      background-color: $off-black;
+      border: 1px solid lighten($off-black, 30%);
+      border-right: none;
+      border-radius: 0.5rem 0 0 0.5rem;
+      color: white;
+      font-size: 0.75rem;
+      height: 3.9rem;
+      width: 1.5rem;
+      left: -1.5rem;
+      top: 45.1%;
+      transition: 0.2s border-color linear, 0.2s background-color linear;
+      position: absolute;
+  
+      &:hover,
+      &:active {
+        border: 1px solid lighten($off-black, 25%);
+        border-right: none;
+      }
+  
+      &:hover {
+        background-color: darken($off-black, 10%);
+      }
+  
+      &:active {
+        background-color: darken($off-black, 16%);
+      }
+  
+      span {
+        display: block;
+        transform: rotate(180deg);
+        transition: transform 0.2s 0.3s ease-in-out;
+  
+        svg {
+          width: 0.75rem;
+          height: 0.75rem;
+          fill: white;
+        }
+      }
+  
+      @media (min-width: $md-layout-width-min) {
+        font-size: 0.5rem;
+      }
+    }
+  
+    @media (min-width: $md-layout-width-min) {
+      transform: translateX(calc(var(--sidebar-width) - 4rem));
+      // width: var(--sidebar-width);
+    }
+  }
+
+  .mapboxgl-ctrl-scale {
+    opacity: 0.6;
+    transform: translate(-0.55rem, -0.8rem);
+    background-color: transparent;
+
+    @media (min-width: $md-layout-width-min) {
+      transform: translate(-7.05rem, -0.8rem);
+    }
+  }
+
+  .mapbox-zoom-ctrl {
+    flex-direction: column !important;
+    transform: scale(1.25) translate(0, -1rem);
+
+    #zoomIn {
+      order: 0;
+    }
+  
+    #zoomOut {
+      order: 0;
+    }
+  
+    @media (min-width: $md-layout-width-min) {
+      transform: scale(1.25) translate(-3.5rem, -1rem);
+    }
+  }
+
+  @media print {
+    .side-menu {
+      display: none !important;
+    }
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */
