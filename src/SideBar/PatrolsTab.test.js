@@ -16,10 +16,21 @@ const patrolFilter = { filter: {
 
 const loadingPatrols = false;
 const nestedNavigationState = true;
-const mockedPatrols = [ activePatrol ];
+const mockedPatrols = [activePatrol];
 const setNestedNavigationState = jest.fn();
 
-let store = { view: { patrolDetailView: {} }, data: { patrolFilter } };
+let store = {
+  view: {
+    patrolDetailView: {},
+  },
+  data: {
+    patrolFilter,
+    patrols: {
+      results: [],
+    },
+    subjectStore: {},
+  },
+};
 
 test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>
