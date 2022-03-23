@@ -19,16 +19,42 @@ const nestedNavigationState = true;
 const mockedPatrols = [activePatrol];
 const setNestedNavigationState = jest.fn();
 
-let store = {
-  view: {
-    patrolDetailView: {},
-  },
+const store = {
   data: {
+    eventSchemas: {
+      globalSchema: {
+        properties: {
+          reported_by: {
+            enum_ext: [{
+              value: { id: 'Leader 1' },
+            }, {
+              value: { id: 'Leader 2' },
+            }],
+          },
+        },
+      },
+    },
     patrolFilter,
+    patrolLeaderSchema: {
+      trackedbySchema: {
+        properties: {
+          leader: {
+            enum_ext: [{
+              value: { id: 'Leader 1' },
+            }, {
+              value: { id: 'Leader 2' },
+            }],
+          },
+        },
+      },
+    },
+    subjectStore: {},
     patrols: {
       results: [],
     },
-    subjectStore: {},
+  },
+  view: {
+    patrolDetailView: {},
   },
 };
 

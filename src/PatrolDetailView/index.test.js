@@ -21,7 +21,28 @@ describe('PatrolDetailView', () => {
   beforeEach(() => {
     render(
       <Provider store={mockStore({
-        data: { subjectStore: {}, user: { permissions: { patrol: ['change'] } } },
+        data: {
+          subjectStore: {},
+          user: {
+            permissions: { patrol: ['change'] }
+          },
+          eventSchemas: {
+            globalSchema: {
+              properties: {
+                reported_by: {
+                  enum_ext: [{
+                    value: { id: 'Leader 1' },
+                  }, {
+                    value: { id: 'Leader 2' },
+                  }],
+                },
+              },
+            },
+          },
+          patrolLeaderSchema: {
+            trackedbySchema: { },
+          },
+        },
         view: {},
       })}>
         <PatrolDetailView newPatrol={newPatrol} onCloseDetailView={onCloseDetailView}/>
@@ -61,7 +82,7 @@ describe('PatrolDetailView', () => {
   });
 
   test('updates the title when user types in it', async () => {
-    const titleInput = await screen.findByRole('textbox');
+    const titleInput = (await screen.findAllByRole('textbox'))[0];
 
     // Couldn't mock the patrol types to get the expected display title
     expect(titleInput).toHaveAttribute('value', 'Unknown patrol type');
