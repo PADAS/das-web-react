@@ -13,6 +13,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons/faArrowUp';
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 
+import JiraSupportWidget from './JiraSupportWidget';
 import GeoLocationWatcher from './GeoLocationWatcher';
 
 import store from './store';
@@ -81,6 +82,7 @@ ReactDOM.render(
       <DetectOffline />
     </PersistGate>
     <GeoLocationWatcher />
+    <JiraSupportWidget />
   </Provider>
   , document.getElementById('root'));
 

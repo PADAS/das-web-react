@@ -8,9 +8,8 @@ import 'axios-progress-bar/dist/nprogress.css';
 
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
-import { geoPermWarningSplashToastIsDueToBeShown, userIsGeoPermissionRestricted } from './utils/geo-perms';
-import { hideZenDesk, initZenDesk } from './utils/zendesk';
-import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
+import { userIsGeoPermissionRestricted } from './utils/geo-perms';
+import { DEVELOPMENT_FEATURE_FLAGS } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
@@ -20,6 +19,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
+import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -34,6 +34,7 @@ import './App.scss';
 import { showToast } from './utils/toast';
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const MapContext = createContext(null);
 
@@ -46,7 +47,7 @@ const bindDirectMapEventing = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, trackLength, setTrackLength, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
+    sidebarOpen, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -68,6 +69,10 @@ const App = (props) => {
     setDragState(false);
   }, []);
 
+  const onSidebarHandleClick = useCallback(() => {
+    updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
+  }, [sidebarOpen, updateUserPreferences]);
 
   useEffect(() => {
     console.log('THE APP HAS BEGUN');
@@ -96,9 +101,6 @@ const App = (props) => {
 
     loadProgressBar();
 
-    initZenDesk();
-    hideZenDesk();
-
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -117,7 +119,12 @@ const App = (props) => {
     }
   }, [showGeoPermWarningMessage]);
 
-  return <div className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`} onDragLeave={finishDrag} onDragOver={disallowDragAndDrop} onDrop={disallowDragAndDrop}> {/* eslint-disable-line react/jsx-no-duplicate-props */}
+  return <div
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    onDragLeave={finishDrag}
+    onDragOver={disallowDragAndDrop}
+    onDrop={disallowDragAndDrop} // eslint-disable-line react/jsx-no-duplicate-props
+    >
     <MapContext.Provider value={map}>
       <PrintTitle />
 
@@ -125,7 +132,7 @@ const App = (props) => {
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar map={map} />}
+        {!!map && <SideBar {...(UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
         <ModalRenderer map={map} />
       </div>
 

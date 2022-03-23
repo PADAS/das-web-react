@@ -1,23 +1,19 @@
-import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 
-import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
-
-import { actualEndTimeForPatrol, actualStartTimeForPatrol, displayDurationForPatrol, displayTitleForPatrol, iconTypeForPatrol,
-  calcPatrolState, calcColorThemeForPatrolState, formatPatrolStateTitleDate, getBoundsForPatrol, displayStartTimeForPatrol, patrolHasGeoDataToDisplay, patrolStateDetailsEndTime, patrolStateDetailsStartTime, patrolStateDetailsOverdueStartTime } from '../utils/patrols';
+import { calcPatrolState } from '../utils/patrols';
 import { fetchTracksIfNecessary } from '../utils/tracks';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
-import { createPatrolDataSelector } from '../selectors/patrols';
 import { fitMapBoundsForAnalyzer } from '../utils/analyzers';
-
+import usePatrol from '../hooks/usePatrol';
 
 import DasIcon from '../DasIcon';
 import FeedListItem from '../FeedListItem';
 import LocationJumpButton from '../LocationJumpButton';
 import PatrolAwareTrackToggleButton from '../TrackToggleButton/PatrolAwareTrackToggleButton';
 import PatrolDistanceCovered from '../Patrols/DistanceCovered';
-import PatrolMenu from './PatrolMenu';
+import PatrolMenu from '../PatrolMenu';
 
 import styles from './styles.module.scss';
 import { togglePatrolTrackState } from '../ducks/patrols';
@@ -28,35 +24,45 @@ const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
 const STATE_CHANGE_POLLING_INTERVAL = 3000;
 
-const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, map, patrolData, onPatrolChange, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
-  const { patrol, leader, trackData, startStopGeometries } = patrolData;
+const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, map, onSelfManagedStateChange, onTitleClick, dispatch: _dispatch, ...rest }, ref) => {
+  const {
+    patrolData,
+    patrolTrackState,
+    trackState,
+
+    isPatrolActive,
+    isPatrolCancelled,
+    isPatrolDone,
+    isPatrolScheduled,
+
+    actualEndTime,
+    actualStartTime,
+    canShowTrack,
+    displayTitle,
+    patrolBounds,
+    patrolElapsedTime,
+    patrolIconId,
+    patrolState,
+    scheduledStartTime,
+    theme,
+
+    dateComponentDateString,
+
+    setPatrolState,
+
+    onPatrolChange,
+    restorePatrol,
+    startPatrol,
+  } = usePatrol(patrolFromProps);
+
+  const { patrol, leader } = patrolData;
 
   const debouncedTrackFetch = useRef(null);
   const intervalRef = useRef(null);
   const menuRef = useRef(null);
   const trackToggleButtonRef = useRef(null);
 
-  const [patrolState, setPatrolState] = useState(calcPatrolState(patrol));
-
-  const isScheduledPatrol = patrolState === PATROL_UI_STATES.READY_TO_START
-  || patrolState === PATROL_UI_STATES.SCHEDULED
-  || patrolState === PATROL_UI_STATES.START_OVERDUE;
-
-  const isPatrolDone = patrolState === PATROL_UI_STATES.DONE;
-  const isPatrolActive = patrolState === PATROL_UI_STATES.ACTIVE;
   const isPatrolActiveOrDone = isPatrolActive || isPatrolDone;
-  const isPatrolCancelled = patrolState === PATROL_UI_STATES.CANCELLED;
-  const isPatrolOverdue = patrolState === PATROL_UI_STATES.START_OVERDUE;
-
-  const actualStartTime = useMemo(() => actualStartTimeForPatrol(patrol), [patrol]);
-  const actualEndTime = useMemo(() => actualEndTimeForPatrol(patrol), [patrol]);
-  const patrolIconId = useMemo(() => iconTypeForPatrol(patrol), [patrol]);
-  const patrolElapsedTime = useMemo(() => !!patrolState && displayDurationForPatrol(patrol), [patrol, patrolState]);
-  const scheduledStartTime = useMemo(() => patrolStateDetailsStartTime(patrol), [patrol]);
-  const displayTitle = useMemo(() => displayTitleForPatrol(patrol, leader), [leader, patrol]);
-  const theme = useMemo(() => calcColorThemeForPatrolState(patrolState), [patrolState]);
-  const canShowTrack = useMemo(() => patrolHasGeoDataToDisplay(trackData, startStopGeometries), [startStopGeometries, trackData]);
-  const patrolBounds = useMemo(() => getBoundsForPatrol(patrolData), [patrolData]);
 
   const { base: themeColor, background: themeBgColor } = theme;
 
@@ -72,33 +78,13 @@ const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, ma
         <span>{patrolElapsedTime}</span> | <span><PatrolDistanceCovered patrolsData={[patrolData]} suffix=' km' /></span>
       </span>;
     }
-    if (isScheduledPatrol || isPatrolCancelled) {
+    if (isPatrolScheduled || isPatrolCancelled) {
       return <span className={styles.titleDetails}>
         Scheduled: <span>{scheduledStartTime}</span>
       </span>;
     }
     return null;
-  }, [isPatrolCancelled, isPatrolActiveOrDone, isScheduledPatrol, patrolData, patrolElapsedTime, scheduledStartTime]);
-
-  const patrolCancellationTime = useMemo(() => {
-    if (!isPatrolCancelled) return null;
-
-    const cancellation = patrol?.updates?.find(update => update.type === 'update_patrol_state' && update.message.includes('cancelled')) ?? null;
-    if (!cancellation) return null;
-
-    return formatPatrolStateTitleDate(new Date(cancellation.time));
-
-  }, [isPatrolCancelled, patrol.updates]);
-
-  const dateComponentDateString = useMemo(() => {
-    if (isPatrolCancelled) return patrolCancellationTime;
-    if (isPatrolDone) return patrolStateDetailsEndTime(patrol);
-    if (isPatrolOverdue) return patrolStateDetailsOverdueStartTime(patrol);
-    if (isPatrolActive || isScheduledPatrol) return formatPatrolStateTitleDate(displayStartTimeForPatrol(patrol));
-
-    return null;
-
-  }, [isPatrolActive, isPatrolCancelled, isPatrolDone, isPatrolOverdue, isScheduledPatrol, patrol, patrolCancellationTime]);
+  }, [isPatrolCancelled, isPatrolActiveOrDone, isPatrolScheduled, patrolData, patrolElapsedTime, scheduledStartTime]);
 
   const onLocationClick = useCallback(() => {
     patrolListItemTracker.track('Click "jump to location" from patrol list item');
@@ -114,23 +100,23 @@ const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, ma
     fitMapBoundsForAnalyzer(map, patrolBounds);
   }, [leader, map, patrol.id, patrolBounds, patrolTrackState, trackState]);
 
-  const restorePatrol = useCallback(() => {
+  const restorePatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Restore patrol from patrol list item');
-    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { end_time: null } }] });
-  }, [onPatrolChange]);
+    restorePatrol();
+  }, [restorePatrol]);
 
-  const startPatrol = useCallback(() => {
+  const startPatrolAndTrack = useCallback(() => {
     patrolListItemTracker.track('Start patrol from patrol list item');
-    onPatrolChange({ state: PATROL_API_STATES.OPEN, patrol_segments: [{ time_range: { start_time: new Date().toISOString(), end_time: null } }] });
-  }, [onPatrolChange]);
+    startPatrol();
+  }, [startPatrol]);
 
   const StateDependentControls = () => {
     if (isPatrolActiveOrDone) return <div className={styles.patrolTrackControls}>
       {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton buttonRef={trackToggleButtonRef} patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
       {!!patrolBounds && <LocationJumpButton onClick={onLocationClick} bypassLocationValidation={true} data-testid={`patrol-list-item-jump-btn-${patrol.id}`} />}
     </div>;
-    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrol} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
-    if (isScheduledPatrol) return  <Button variant='light' size='sm' onClick={startPatrol} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;
+    if (isPatrolCancelled) return <Button variant='light' size='sm' onClick={restorePatrolAndTrack} data-testid={`patrol-list-item-restore-btn-${patrol.id}`}>Restore</Button>;
+    if (isPatrolScheduled) return  <Button variant='light' size='sm' onClick={startPatrolAndTrack} data-testid={`patrol-list-item-start-btn-${patrol.id}`}>Start</Button>;
     return null;
   };
 
@@ -157,12 +143,7 @@ const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, ma
 
     return () => window.clearInterval(intervalRef.current);
 
-  }, [onSelfManagedStateChange, patrol, patrolState]);
-
-  useEffect(() => {
-    setPatrolState(calcPatrolState(patrol));
-  }, [patrol]);
-
+  }, [onSelfManagedStateChange, patrol, patrolState, setPatrolState]);
 
   return <FeedListItem
     ref={ref}
@@ -198,21 +179,4 @@ const PatrolListItem = ({  patrolTrackState, trackState, showControls = true, ma
   />;
 };
 
-
-const makeMapStateToProps = () => {
-  const getDataForPatrolFromProps = createPatrolDataSelector();
-  const mapStateToProps = (state, props) => {
-    return {
-      patrolData: getDataForPatrolFromProps(state, props),
-      patrolTrackState: state?.view?.patrolTrackState,
-      trackState: state?.view?.subjectTrackState,
-    };
-  };
-  return mapStateToProps;
-};
-
-export default connect(makeMapStateToProps, { togglePatrolTrackState, toggleTrackState })(
-  memo(
-    forwardRef(PatrolListItem)
-  )
-);
+export default connect(null, { togglePatrolTrackState, toggleTrackState })(memo(forwardRef(PatrolListItem)));

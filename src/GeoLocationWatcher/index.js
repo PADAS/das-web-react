@@ -9,7 +9,6 @@ import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 import { showToast } from '../utils/toast';
 
 import { setCurrentUserLocation } from '../ducks/location';
-import { createResponseComposition } from 'msw';
 
 const ONE_MINUTE = 1000 * 60;
 

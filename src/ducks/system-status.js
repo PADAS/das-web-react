@@ -19,7 +19,6 @@ export const SOCKET_UNHEALTHY_STATUS = 'SOCKET_UNHEALTHY_STATUS';
 export const SOCKET_WARNING_STATUS = 'SOCKET_WARNING_STATUS';
 export const SOCKET_SERVICE_STATUS = 'SOCKET_SERVICE_STATUS';
 
-export const SET_ZENDESK_ENABLED = 'SET_ZENDESK_ENABLED';
 export const SET_DAILY_REPORT_ENABLED = 'SET_DAILY_REPORT_ENABLED';
 export const SET_EXPORT_KML_ENABLED = 'SET_EXPORT_KML_ENABLED';
 export const SET_PATROL_MANAGEMENT_ENABLED = 'SET_PATROL_MANAGEMENT_ENABLED';
@@ -44,7 +43,6 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
   },
 })
   .then((response) => {
-    dispatch(setZendeskConfigStatus(response));
     dispatch(setSystemConfig(response));
     dispatch(fetchSystemStatusSuccess(response));
     return response.data.data;
@@ -53,26 +51,6 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
     dispatch(fetchSystemStatusError(error));
     // throw error;
   });
-
-const setZendeskConfigStatus = (response) => (dispatch) => {
-  let enabled;
-  try {
-    window.zE(() => {
-      window.zE.identify({
-        name: response.data.data.eus_settings.name,
-        email: response.data.data.eus_settings.email,
-        organization: response.data.data.eus_settings.organization,
-      });
-    });
-    enabled = true;
-  } catch (e) {
-    enabled = false;
-  }
-  dispatch({
-    type: SET_ZENDESK_ENABLED,
-    payload: enabled,
-  });
-};
 
 const setSystemConfig = ({ data: { data } }) => (dispatch) => {
   dispatch({
@@ -332,9 +310,6 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
 };
 export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type, payload }) => {
   switch (type) {
-  case (SET_ZENDESK_ENABLED): {
-    return { ...state, zendeskEnabled: payload, };
-  }
   case (SET_DAILY_REPORT_ENABLED): {
     return { ...state, [FEATURE_FLAGS.DAILY_REPORT]: payload, };
   }

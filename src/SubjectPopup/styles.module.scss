@@ -28,19 +28,23 @@
     }
   }
 
-  > h6 {
-    font-weight: 700;
-    margin-bottom: 0;
+  h6 {
+    word-break: break-all;
   }
 
   .dateTimeWrapper{
-    display: inline;
+    display: flex;
+    flex-wrap: wrap;
     line-height: normal;
     white-space: nowrap;
   
     .dateTimeDetails {
       display: inline;
       color: white;
+    }
+
+    .dateTimeComma {
+      margin-right: 0.25rem;
     }
     
     .timeAgo {
@@ -58,19 +62,8 @@
     height: 1.5rem;
 
     svg {
-      background: $bright-blue;
-      border-radius: 50%;
       height: 1.75rem;
       width: 1.75rem;
-
-      path {
-        stroke: $bright-blue;;
-        fill: $bright-blue;
-      }
-
-      rect {
-          fill: white;
-      }
     }  
   }
 }
@@ -169,6 +162,15 @@
   margin-bottom: 0.5rem;
 }
 
+.historicalDataButton {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  
+  &:focus {
+    box-shadow: none;
+  }
+}
+
 .trackControls {
   display: flex;
   justify-content: space-between;
@@ -187,3 +189,30 @@
     stroke: $primary-font-color;
   }
 }
+
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
+.oldNavigationAddReport {
+  > button {
+    display: inline;
+    align-items: end;
+    padding: 0.4rem 0 0 0;
+    height: 1.5rem;
+
+    svg {
+      background: $bright-blue;
+      border-radius: 50%;
+      height: 1.75rem;
+      width: 1.75rem;
+
+      path {
+        stroke: $bright-blue;;
+        fill: $bright-blue;
+      }
+
+      rect {
+          fill: white;
+      }
+    }  
+  }
+}
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

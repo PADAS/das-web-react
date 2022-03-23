@@ -13,7 +13,15 @@ import {
   trackEventFactory,
 } from '../utils/analytics';
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { BREAKPOINTS, CLIENT_BUILD_VERSION, FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import {
+  BREAKPOINTS,
+  DEVELOPMENT_FEATURE_FLAGS,
+  CLIENT_BUILD_VERSION,
+  FEATURE_FLAGS,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  TAB_KEYS,
+} from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { updateUserPreferences } from '../ducks/user-preferences';
@@ -26,7 +34,11 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
+import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSupportFormFieldByLabelText } from '../JiraSupportWidget';
+
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -51,7 +63,8 @@ const GlobalMenuDrawer = ({
   tableauEnabled,
   token,
   updateUserPreferences,
-  zendeskEnabled,
+  selectedUserProfile,
+  user,
 }) => {
   const dailyReportEnabled = useFeatureFlag(FEATURE_FLAGS.DAILY_REPORT);
   const kmlExportEnabled = useFeatureFlag(FEATURE_FLAGS.KML_EXPORT);
@@ -120,12 +133,29 @@ const GlobalMenuDrawer = ({
   const onContactSupportClick = () => {
     mainToolbarTracker.track('Click \'Contact Support\'');
 
-    if (zendeskEnabled) return window.zE.activate({ hideOnClose: true });
+    const supportiFrame = window.document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
+    const supportHelpButton = supportiFrame?.contentDocument?.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
+    if (supportHelpButton) {
+      supportHelpButton.click();
 
-    return window.open(
-      `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=Support request from user&body=How can we help you?`,
-      '_self'
-    );
+      const siteInput = selectSupportFormFieldByLabelText('ER Site');
+      if (siteInput) {
+        siteInput.value = window.location.hostname;
+      }
+      const username = (selectedUserProfile?.id ? selectedUserProfile: user)?.username;
+      const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
+
+      if (userInput) {
+        userInput.value = username;
+      }
+
+    } else {
+      window.open(
+        `mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=Support request from user&body=How can we help you?`,
+        '_self'
+      );
+    }
+
   };
 
   const onCommunityClick = () => {
@@ -176,7 +206,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {!isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}
@@ -224,17 +254,17 @@ GlobalMenuDrawer.propTypes = {
   tableauEnabled: PropTypes.bool.isRequired,
   token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
   updateUserPreferences: PropTypes.func.isRequired,
-  zendeskEnabled: PropTypes.bool.isRequired,
 };
 
-const mapStateToProps = ({ data: { eventFilter, eventTypes, systemStatus, token }, view: { systemConfig } }) => ({
+const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile, systemStatus, token, user }, view: { systemConfig } }) => ({
   alertsEnabled: systemConfig.alerts_enabled,
   eventFilter,
   eventTypes,
+  selectedUserProfile,
   serverData: systemStatus.server,
   tableauEnabled: systemConfig.tableau_enabled,
   token,
-  zendeskEnabled: systemConfig.zendeskEnabled,
+  user,
 });
 
 export default connect(

@@ -25,14 +25,6 @@ import * as toastUtils from './utils/toast';
 
 import { ConnectedApp as App } from './App';
 
-jest.mock('./utils/zendesk', () => {
-  const real = jest.requireActual('./utils/zendesk');
-  return {
-    ...real,
-    initZenDesk: jest.fn(),
-  };
-});
-
 const generateEmptyResponse = () => ({ data: [] });
 
 const server = setupServer(
