@@ -21,9 +21,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
       fetchTrackedBySchema()
-        .catch(() => {
-        //
-        })
         .finally(() => setLoadingTrackedBy(false));
     } else {
       setLoadingTrackedBy(false);
@@ -87,7 +84,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     <label className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
       Tracked By
-      <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
+      <ReportedBySelect className={styles.reportedBySelect} placeholder='Select Device...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
     </label>
   </>;
 };
