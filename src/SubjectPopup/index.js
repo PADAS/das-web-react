@@ -96,7 +96,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
       </div>
       {coordProps.time && <div className={styles.dateTimeWrapper}>
         <DateTime date={coordProps.time} className={styles.dateTimeDetails} showElapsed={false}/>
-        <span>, </span>
+        <span className={styles.dateTimeComma}>, </span>
         <TimeAgo className={styles.timeAgo} date={coordProps.time} suffix="ago" />
       </div>}
     </div>
