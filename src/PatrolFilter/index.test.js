@@ -33,6 +33,9 @@ describe('PatrolFilter', () => {
           },
           status: INITIAL_FILTER_STATE.status,
         },
+        patrols: {
+          results: [],
+        },
         subjectStore: {},
       },
     };
