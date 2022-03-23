@@ -31,9 +31,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
 
   const displayTrackingSubject = useMemo(() => {
     if (!patrolForm?.patrol_segments?.length) return null;
-    const [firstLeg] = patrolForm.patrol_segments;
+    const [firstItem] = patrolForm.patrol_segments;
 
-    const { leader } = firstLeg;
+    const { leader } = firstItem;
     if (!leader) return null;
     return leader;
   }, [patrolForm.patrol_segments]);
@@ -69,7 +69,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           start_time: trackedSubjectLocationTime,
         };
       } else if (!value) {
-
         update.patrol_segments[0].start_location = null;
         update.patrol_segments[0].time_range = {
           start_time: new Date().toISOString(),
