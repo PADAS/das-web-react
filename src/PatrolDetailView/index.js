@@ -23,6 +23,7 @@ import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analyti
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
+import PlanTab from './PlanTab';
 
 import styles from './styles.module.scss';
 
@@ -125,7 +126,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
         <div className={styles.content}>
           <Tab.Content className={`${styles.tab} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-              Plan
+              <PlanTab patrolForm={patrolForm} />
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
