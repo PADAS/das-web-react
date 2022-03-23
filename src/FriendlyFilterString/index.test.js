@@ -6,7 +6,10 @@ import { EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../utils/event-filter';
 
 describe('FriendlyFilterString', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern').setSystemTime(new Date('February 20 2022 12:30 GMT-0600').getTime());
+    const mockSystemTime = new Date('2022-02-20');
+    mockSystemTime.setUTCHours(20);
+
+    jest.useFakeTimers('modern').setSystemTime(mockSystemTime.getTime());
   });
 
   test('prints a friendly string for a non-filtered case', async () => {
