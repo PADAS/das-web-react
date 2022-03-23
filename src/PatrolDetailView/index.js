@@ -54,6 +54,10 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
     setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
   }, [leader, patrol]);
 
+  const onPatrolChange = useCallback((patrolNewData) => {
+    setPatrolForm({ ...patrol, ...patrolNewData });
+  }, [patrol]);
+
   const onSave = useCallback(() => {
     patrolDetailViewTracker.track(`Click "save" button for ${patrolTrackStatus} patrol`);
     setSaveState(true);
@@ -126,7 +130,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
         <div className={styles.content}>
           <Tab.Content className={`${styles.tab} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-              <PlanTab patrolForm={patrolForm} />
+              <PlanTab patrolForm={patrolForm} onPatrolChange={onPatrolChange}/>
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>

@@ -1,14 +1,20 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import merge from 'lodash/merge';
 
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
+import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
+import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
+
 
 import styles from './styles.module.scss';
 
-const PlanTab = ({ patrolForm, patrolLeaderSchema, fetchTrackedBySchema }) => {
+const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
+
+const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
 
@@ -24,6 +30,8 @@ const PlanTab = ({ patrolForm, patrolLeaderSchema, fetchTrackedBySchema }) => {
     }
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
 
+  const patrolLeaders = patrolLeaderSchema?.trackedbySchema ? patrolLeaderSchema.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value): [];
+
   const displayTrackingSubject = useMemo(() => {
     if (!patrolForm?.patrol_segments?.length) return null;
     const [firstLeg] = patrolForm.patrol_segments;
@@ -34,15 +42,51 @@ const PlanTab = ({ patrolForm, patrolLeaderSchema, fetchTrackedBySchema }) => {
   }, [patrolForm.patrol_segments]);
 
   const onSelectTrackedSubject = useCallback((value) => {
-    console.log('%c onSelectTrackedSubject', 'font-size:20px;color:purple', value);
-  }, []);
+    const patrolIsNew = !patrolForm.id;
 
-  const patrolLeaders = patrolLeaderSchema?.trackedbySchema ? patrolLeaderSchema.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value): [];
+    patrolModalTracker.track(`${value ? 'Set' : 'Unset'} patrol tracked subject`);
+
+    const update = {
+      patrol_segments: [
+        {
+          leader: value || null,
+        },
+      ],
+    };
+
+    if (patrolIsNew) {
+      const trackedSubjectLocation = value?.last_position?.geometry?.coordinates;
+      const trackedSubjectLocationTime = value?.last_position?.properties?.coordinateProperties?.time;
+
+      if (radioHasRecentActivity(value)
+        && subjectIsARadio(value)
+        && !!trackedSubjectLocation
+        && !!trackedSubjectLocationTime) {
+
+        update.patrol_segments[0].start_location = {
+          latitude: trackedSubjectLocation[1],
+          longitude: trackedSubjectLocation[0],
+        };
+
+        update.patrol_segments[0].time_range = {
+          start_time: trackedSubjectLocationTime,
+        };
+      } else if (!value) {
+
+        update.patrol_segments[0].start_location = null;
+        update.patrol_segments[0].time_range = {
+          start_time: new Date().toISOString(),
+        };
+      }
+    }
+
+    onPatrolChange(merge({}, patrolForm, update));
+  }, [patrolForm, onPatrolChange]);
 
   return <>
     <label className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
-      Tracking:
+      Tracked By
       <ReportedBySelect className={styles.reportedBySelect} placeholder='Tracked By...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
     </label>
   </>;

@@ -1,10 +1,16 @@
+@import '../../common/styles/vars/colors';
+
 .trackedByLabel {
+  margin-top: 2.125rem;
   width: 65%;
   position: relative;
+  color: $secondary-medium-gray;
+
   &.loading {
     cursor: not-allowed;
     pointer-events: none;
   }
+
   .loadingTrackedBy {
     background: none;
     z-index: 1000;
