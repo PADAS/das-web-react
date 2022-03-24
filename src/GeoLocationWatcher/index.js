@@ -14,7 +14,7 @@ const ONE_MINUTE = 1000 * 60;
 
 
 const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, updateRate = ONE_MINUTE }) => {
-  const [localUserLocationState, setLocalUserLocationState] = useState(userLocation);
+  const localUserLocationState = useRef(userLocation);
   const [isInit, setInit] = useState(false);
   const [isAllowed, setIsAllowed] = useState(false);
   const locationWatchId = useRef(null);
@@ -22,11 +22,11 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
   const errorToastId = useRef(null);
 
   const onGeoSuccess = useCallback((location) => {
-    setLocalUserLocationState(location);
+    localUserLocationState.current = location;
   }, []);
 
   const onGeoError = useCallback((error) => {
-    setLocalUserLocationState(null);
+    localUserLocationState.current = null;
     setCurrentUserLocation(null);
 
     if (error && error.code === error.PERMISSION_DENIED && userIsGeoPermissionRestricted(user)) {
@@ -106,13 +106,13 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
 
   useEffect(() => {
     const setUserLocationFromStateIfUpdated = () => {
-      if (!isEqual(localUserLocationState?.coords, userLocation?.coords)) {
+      if (!isEqual(localUserLocationState?.current?.coords, userLocation?.coords)) {
         setCurrentUserLocation(localUserLocationState);
       }
     };
 
-    if (!userLocation && !!localUserLocationState) {
-      setCurrentUserLocation(localUserLocationState);
+    if (!userLocation && !!localUserLocationState.current) {
+      setCurrentUserLocation(localUserLocationState.current);
     }
 
     const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
@@ -120,7 +120,7 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [updateRate, userLocation, localUserLocationState, setCurrentUserLocation]);
+  }, [updateRate, userLocation, setCurrentUserLocation]);
 
   return null;
 };
