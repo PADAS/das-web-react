@@ -107,13 +107,11 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
   useEffect(() => {
     const setUserLocationFromStateIfUpdated = () => {
       if (!isEqual(localUserLocationState?.current?.coords, userLocation?.coords)) {
-        setCurrentUserLocation(localUserLocationState);
+        setCurrentUserLocation(localUserLocationState.current);
       }
     };
 
-    if (!userLocation && !!localUserLocationState.current) {
-      setCurrentUserLocation(localUserLocationState.current);
-    }
+    setCurrentUserLocation(localUserLocationState.current);
 
     const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
 
