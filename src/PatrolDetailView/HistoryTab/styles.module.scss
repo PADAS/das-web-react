@@ -32,12 +32,18 @@
   &:hover {
     background-color: $secondary-light-gray;
     border-color: $secondary-light-gray;
+  }
 
+  &:hover, &[class*=btn-primary] {
     svg {
       path {
         fill: white;
       }
     }
+  }
+
+  &:focus {
+    box-shadow: none;
   }
 }
 
