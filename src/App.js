@@ -107,8 +107,6 @@ const App = (props) => {
     if (showGeoPermWarningMessage) {
       const toastId = showToast({
         message: 'Some data may only be displayed when you are near its location.',
-        // details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
-        // link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
         toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
         } } });
 
