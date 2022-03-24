@@ -20,7 +20,7 @@ const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
   padding: '4px 10px',
   cursor: 'pointer',
 };
-const FEATURE_ICON_HTML_STYLES = { width: '16px', height: '24px' };
+const FEATURE_ICON_HTML_STYLES = { width: '22px', height: '22px' };
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
 
