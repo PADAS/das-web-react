@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 
 import Button from 'react-bootstrap/Button';
 
@@ -13,7 +13,7 @@ const ToastBody = ({ message = 'An error has occured', details = '', link = null
     showDetails(!detailsShown);
   };
 
-  return <Fragment>
+  return <>
     <div className={styles.summary}>
       <h6 className={styles.header}>{message}
         {details && <Button onClick={toggleShowDetails} variant='link' className={styles.detailsButton}>{detailsShown ? 'Hide' : 'See'} Details</Button>}
@@ -23,7 +23,7 @@ const ToastBody = ({ message = 'An error has occured', details = '', link = null
     {details && detailsShown && <div className={styles.details}>
       {details}
     </div>}
-  </Fragment>;
+  </>;
 };
 
 export default ToastBody;
