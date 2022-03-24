@@ -1,7 +1,5 @@
 
 const GEO_PERMISSION_KEY_SUBSTRING = '_geographic_distance';
-export const WARNING_HEADER_TOAST_TIME_THRESHOLD = 2; // two minutes
-export const ACCESS_DENIED_NO_LOCATION_TOAST_THRESHOLD = 2; // two minutes
 
 export const userIsGeoPermissionRestricted = user =>
   Object.keys(user?.permissions ?? {})

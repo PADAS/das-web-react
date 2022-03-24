@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import { Provider } from 'react-redux';
 
@@ -24,7 +24,7 @@ describe('The GeoLocationWatcher', () => {
     store = mockStore({ view: { userLocation: null }, data: { user: { } } });
     const mockGeolocation = {
       clearWatch: jest.fn(),
-      getCurrentPosition: jest.fn().mockReturnValue(mockUserLocation),
+      getCurrentPosition: jest.fn().mockImplementation((successFn) => successFn && successFn(mockUserLocation)),
       watchPosition: jest.fn().mockImplementation((updateFn, _errorFn) => {
         updateFn(mockGeolocation.getCurrentPosition());
       }),
@@ -33,7 +33,16 @@ describe('The GeoLocationWatcher', () => {
     global.navigator.geolocation = mockGeolocation;
 
     global.navigator.permissions = {
-      query: jest.fn().mockReturnValue(Promise.resolve({ state: 'granted', addEventListener: jest.fn(), removeEventListener: jest.fn() })),
+      query: jest.fn().mockReturnValue(
+        Promise.resolve(
+          { state: 'granted',
+            addEventListener: jest.fn()
+              .mockImplementation((_eventType, callback) => {
+                callback({ target: { state: 'granted' } });
+              }),
+            removeEventListener: jest.fn() }
+        )
+      ),
     };
 
   });
@@ -55,7 +64,9 @@ describe('The GeoLocationWatcher', () => {
       <GeoLocationWatcher />
     </Provider>);
 
-    expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
+    });
 
     const actions = store.getActions();
 

@@ -75,7 +75,6 @@ const App = (props) => {
   }, [sidebarOpen, updateUserPreferences]);
 
   useEffect(() => {
-    console.log('THE APP HAS BEGUN');
     /* use these catch blocks to provide error toasts if/as desired */
     fetchEventTypes();
     fetchEventSchema();
@@ -107,7 +106,7 @@ const App = (props) => {
   useEffect(() => {
     if (showGeoPermWarningMessage) {
       const toastId = showToast({
-        message: 'Some data will only be displayed when you are near its location.',
+        message: 'Some data may only be displayed when you are near its location.',
         // details: ' asdf a4r asd fa4ofi ads faq4r fashdf a4r aoiernfd ',
         // link: { href: 'https://earthranger.com', title: 'click it fuckhead' },
         toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
-import isEqual from 'react-fast-compare';
 
 import { GEOLOCATOR_OPTIONS } from '../constants';
 
@@ -12,47 +11,56 @@ import { setCurrentUserLocation } from '../ducks/location';
 
 const ONE_MINUTE = 1000 * 60;
 
-
 const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, updateRate = ONE_MINUTE }) => {
-  const localUserLocationState = useRef(userLocation);
-  const [isInit, setInit] = useState(false);
-  const [isAllowed, setIsAllowed] = useState(false);
-  const locationWatchId = useRef(null);
+  const [locationAccessGranted, setLocationAccessGranted] = useState(false);
 
+  const localUserLocationState = useRef(userLocation);
+  const locationWatchId = useRef(null);
   const errorToastId = useRef(null);
 
-  const onGeoSuccess = useCallback((location) => {
+  const showPermissionsToast = useCallback(() => {
+    if (!errorToastId.current) {
+      errorToastId.current = showToast({
+        link: { href: 'https://support.google.com/chrome/answer/142065', title: 'Learn how' },
+        message: 'Share your location to view data with geo-permissions',
+        toastConfig: {
+          autoClose: false,
+          type: toast.TYPE.ERROR,
+          onClose() {
+            errorToastId.current = null;
+          },
+        },
+      });
+    }
+  }, []);
+
+  const clearUserLocation = useCallback(() => {
+    localUserLocationState.current = null;
+    setCurrentUserLocation(null);
+  }, [setCurrentUserLocation]);
+
+  const onGeoUpdateSuccess = useCallback((location) => {
     localUserLocationState.current = location;
   }, []);
 
-  const onGeoError = useCallback((error) => {
-    localUserLocationState.current = null;
-    setCurrentUserLocation(null);
+  const onGeoInitSuccess = useCallback((location) => {
+    onGeoUpdateSuccess();
+    setCurrentUserLocation(location);
+  }, [onGeoUpdateSuccess, setCurrentUserLocation]);
 
+  const onGeoError = useCallback((error) => {
     if (error && error.code === error.PERMISSION_DENIED && userIsGeoPermissionRestricted(user)) {
-      if (!errorToastId.current) {
-        errorToastId.current = showToast({
-          link: { href: 'https://support.google.com/chrome/answer/142065', title: 'Learn how' },
-          message: 'Share your location to view data with geo-permissions',
-          toastConfig: {
-            autoClose: false,
-            type: toast.TYPE.ERROR,
-            onClose() {
-              errorToastId.current = null;
-            },
-          },
-        });
-      }
+      clearUserLocation();
     }
-  }, [setCurrentUserLocation, user]);
+  }, [clearUserLocation, user]);
 
   const startWatchingPosition = useCallback(() => {
     return window.navigator.geolocation.watchPosition(
-      onGeoSuccess,
+      onGeoUpdateSuccess,
       onGeoError,
       GEOLOCATOR_OPTIONS,
     );
-  }, [onGeoSuccess, onGeoError]);
+  }, [onGeoUpdateSuccess, onGeoError]);
 
 
   useEffect(() => {
@@ -61,9 +69,10 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
 
     const setPermissionState = (state) => {
       if (state === GRANTED_STATE) {
-        return setIsAllowed(true);
+        toast.dismiss(errorToastId.current);
+        return setLocationAccessGranted(true);
       }
-      return setIsAllowed(false);
+      return setLocationAccessGranted(false);
     };
 
     const handlePermissionStateChange = ({ target: { state } }) => setPermissionState(state);
@@ -84,36 +93,36 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
   }, []);
 
   useEffect(() => {
-    setInit(true);
-  }, []);
+    window.navigator.geolocation.getCurrentPosition(onGeoInitSuccess, onGeoError, GEOLOCATOR_OPTIONS);
+  }, [onGeoInitSuccess, onGeoError]);
 
   useEffect(() => {
-    if (isInit) {
-      if (!isAllowed) {
-        onGeoError();
-      } else {
-        window.navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError, GEOLOCATOR_OPTIONS);
-      }
+    if (!locationAccessGranted && userIsGeoPermissionRestricted(user)) {
+      clearUserLocation();
+      showPermissionsToast();
     }
-  }, [isInit, onGeoError, onGeoSuccess, isAllowed]);
+  }, [clearUserLocation, showPermissionsToast, locationAccessGranted, user]);
 
   useEffect(() => {
-    locationWatchId.current = startWatchingPosition();
+    if (locationAccessGranted) {
+      window.navigator.geolocation.getCurrentPosition(onGeoInitSuccess, onGeoError, GEOLOCATOR_OPTIONS);
+      locationWatchId.current = startWatchingPosition();
+    }
     return () => {
       window.navigator.geolocation.clearWatch(locationWatchId.current);
     };
-  }, [startWatchingPosition]);
+  }, [startWatchingPosition, onGeoError, onGeoInitSuccess, locationAccessGranted]);
 
   useEffect(() => {
-    const setUserLocationFromStateIfUpdated = () => {
-      if (!isEqual(localUserLocationState?.current?.coords, userLocation?.coords)) {
-        setCurrentUserLocation(localUserLocationState.current);
-      }
+    const setNewUserLocation = () => {
+      setCurrentUserLocation(localUserLocationState.current);
     };
 
-    setCurrentUserLocation(localUserLocationState.current);
+    if (localUserLocationState.current && !userLocation) {
+      setNewUserLocation();
+    }
 
-    const intervalId = window.setInterval(setUserLocationFromStateIfUpdated, updateRate);
+    const intervalId = window.setInterval(setNewUserLocation, updateRate);
 
     return () => {
       window.clearInterval(intervalId);

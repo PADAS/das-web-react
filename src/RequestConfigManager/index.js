@@ -1,12 +1,11 @@
 import { memo, useCallback, useEffect } from 'react';
+import debounce from 'lodash/debounce';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import differenceInMinutes from 'date-fns/difference_in_minutes';
+import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
-import { setSeenWarningHeaderMessage, setSeen403ErrorMessage } from '../ducks/geo-perm-ui';
-import { WARNING_HEADER_TOAST_TIME_THRESHOLD, ACCESS_DENIED_NO_LOCATION_TOAST_THRESHOLD } from '../utils/geo-perms';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
@@ -15,10 +14,58 @@ const STARTUP_TIME = new Date();
 
 const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
 
+
+let warningToastRef;
+
+const handleWarningHeader = (response) => {
+  const warningHeader = response?.headers?.warning;
+
+  if (warningHeader
+      && (new Date() - STARTUP_TIME > 4000)
+  ) {
+
+    if (warningToastRef?.id) {
+      toast.dismiss(warningToastRef.id);
+    }
+
+    warningToastRef = {
+      message: warningHeader,
+      id: showToast({ message: warningHeader, toastConfig: {
+        onClose() {
+          warningToastRef = null;
+        },
+      } }),
+    };
+  }
+};
+
+const handleGeoPermission403Errors = (error) => {
+  const apiResponseErrorIsGeoPermissionsRelated = error =>
+    error.statuCode === 403
+      && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
+  let toastRef;
+
+  if (apiResponseErrorIsGeoPermissionsRelated(error) && (new Date() - STARTUP_TIME > 4000)) {
+    toast.dismiss(toastRef);
+
+    toastRef = showToast({ message: error.message, toastConfig: {
+      autoClose: false,
+      onClose() {
+        toastRef = null;
+      },
+    } });
+  }
+};
+
+const debouncedHandleWarningHeader = debounce(handleWarningHeader, 1500);
+const debouncedHandleGeoPermission403Errors = debounce(handleGeoPermission403Errors, 1000);
+
+/* debounce(}, 1000) */
+
 const RequestConfigManager = (props) => {
-  const { clearAuth, geoPermMessageTimestamps, history, location,
+  const { clearAuth, history, location,
     masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token,
-    user, setSeenWarningHeaderMessage, setSeen403ErrorMessage } = props;
+    user } = props;
 
   const handle401Errors = useCallback((error) => {
     if (error && error.toString().includes('401')) {
@@ -32,44 +79,9 @@ const RequestConfigManager = (props) => {
     }
   }, [clearAuth, history, location?.search, resetMasterCancelToken]);
 
-  const handleWarningHeader = useCallback((response) => {
-    const warningHeader = response?.headers?.warning;
-    let toastRef;
+  const handleWarningHeader = useCallback(debouncedHandleWarningHeader, []);
 
-    if (warningHeader) {
-      const lastShownWarningHeaderToast = geoPermMessageTimestamps?.lastSeenWarningHeaderMessage;
-
-      const shouldShowWarningHeaderToast = !lastShownWarningHeaderToast
-        || (differenceInMinutes(new Date(), new Date(lastShownWarningHeaderToast)) > WARNING_HEADER_TOAST_TIME_THRESHOLD);
-
-      if (shouldShowWarningHeaderToast
-          && !toastRef
-          &&  (new Date() - STARTUP_TIME > 4000)) {
-        setSeenWarningHeaderMessage(new Date().toISOString());
-
-        toastRef = showToast({ message: warningHeader, toastConfig: {
-          onClose() {
-            toastRef = null;
-          },
-        } });
-      };
-    }
-  }, [geoPermMessageTimestamps?.lastSeenWarningHeaderMessage, setSeenWarningHeaderMessage]);
-
-  const handleGeoPermission403Errors = useCallback((error) => {
-    const apiResponseErrorIsGeoPermissionsRelated = error =>
-      error.statuCode === 403
-      && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
-
-    const shouldShowGeoPermErrorToast = !geoPermMessageTimestamps?.lastSeen403ErrorMessage
-      || differenceInMinutes(new Date(), new Date(geoPermMessageTimestamps?.lastSeen403ErrorMessage) > ACCESS_DENIED_NO_LOCATION_TOAST_THRESHOLD);
-
-    if (apiResponseErrorIsGeoPermissionsRelated(error) && shouldShowGeoPermErrorToast) {
-      showToast({ message: error.message }, { onClose() {
-        setSeen403ErrorMessage(new Date().toISOString());
-      } });
-    }
-  }, [geoPermMessageTimestamps?.lastSeen403ErrorMessage, setSeen403ErrorMessage]);
+  const handleGeoPermission403Errors = useCallback(debouncedHandleGeoPermission403Errors, []);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -149,9 +161,9 @@ const RequestConfigManager = (props) => {
   return null;
 };
 
-const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token }, view: { geoPermMessageTimestamps } }) => ({
-  selectedUserProfile, user, masterRequestCancelToken, token, geoPermMessageTimestamps,
+const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token } }) => ({
+  selectedUserProfile, user, masterRequestCancelToken, token,
 });
 
 
-export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken, setSeenWarningHeaderMessage, setSeen403ErrorMessage })(memo(withRouter(RequestConfigManager)));
+export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(withRouter(RequestConfigManager)));
