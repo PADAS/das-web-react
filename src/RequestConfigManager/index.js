@@ -21,7 +21,7 @@ const handleWarningHeader = (response) => {
   const warningHeader = response?.headers?.warning;
 
   if (warningHeader
-      && (new Date() - STARTUP_TIME > 4000)
+      && (new Date() - STARTUP_TIME > 5000)
   ) {
 
     if (warningToastRef?.id) {
@@ -30,7 +30,7 @@ const handleWarningHeader = (response) => {
 
     warningToastRef = {
       message: warningHeader,
-      id: showToast({ message: warningHeader, toastConfig: {
+      id: showToast({ message: warningHeader.replace('199 - ', ''), toastConfig: {
         onClose() {
           warningToastRef = null;
         },

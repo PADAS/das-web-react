@@ -152,7 +152,7 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap }, data: { user } }) => {
+const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap, userLocation }, data: { user } }) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
@@ -160,7 +160,7 @@ const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }
     pickingLocationOnMap,
     sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
-    showGeoPermWarningMessage: geoPermRestricted,
+    showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
     userIsGeoPermissionRestricted: geoPermRestricted,
   };
 };
