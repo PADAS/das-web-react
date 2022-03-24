@@ -6,7 +6,7 @@ import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
-  uniqueEventIds, validateReportAgainstCurrentEventFilter, eventsApiErrorIsGeoPermissionsRelated } from '../utils/events';
+  uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { showToast } from '../utils/toast';
@@ -348,48 +348,40 @@ export const cancelMapEventsFetch = () => {
 };
 
 export const fetchMapEvents = (map, parameters) => async (dispatch, getState) => {
-  try {
+  const state = getState();
 
-    const state = getState();
-
-    let lastKnownBbox;
-    if (!map) {
-      lastKnownBbox = state?.data?.mapEvents?.bbox;
-    }
-    if (!map && !lastKnownBbox) return Promise.reject('no map available');
-
-    const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-    const params = { bbox, page_size: 25, ...parameters };
-
-    const eventFilterParamString = calcEventFilterForRequest({ params });
-
-    dispatch({
-      type: FETCH_MAP_EVENTS_START,
-      payload: { bbox },
-    });
-
-    const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
-
-    cancelMapEventsFetch();
-
-    const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-      cancelToken: generateNewCancelToken(),
-    });
-
-    return recursivePaginatedQuery(request, onEachRequest)
-      .then((finalResults) =>
-        finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
-      )
-      .catch((error) => {
-        dispatch(fetchMapEventsError(error));
-        return Promise.reject(error);
-      });
-  } catch (error) {
-    if (eventsApiErrorIsGeoPermissionsRelated(error)) {
-      showToast({ message: 'geo permissions error', details: 'neato' });
-    }
-    return Promise.reject(error);
+  let lastKnownBbox;
+  if (!map) {
+    lastKnownBbox = state?.data?.mapEvents?.bbox;
   }
+  if (!map && !lastKnownBbox) return Promise.reject('no map available');
+
+  const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
+  const params = { bbox, page_size: 25, ...parameters };
+
+  const eventFilterParamString = calcEventFilterForRequest({ params });
+
+  dispatch({
+    type: FETCH_MAP_EVENTS_START,
+    payload: { bbox },
+  });
+
+  const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
+
+  cancelMapEventsFetch();
+
+  const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
+    cancelToken: generateNewCancelToken(),
+  });
+
+  return recursivePaginatedQuery(request, onEachRequest)
+    .then((finalResults) =>
+      finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
+    )
+    .catch((error) => {
+      dispatch(fetchMapEventsError(error));
+      return Promise.reject(error);
+    });
 };
 
 const fetchMapEventsSucess = results => (dispatch) => {

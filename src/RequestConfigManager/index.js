@@ -12,9 +12,6 @@ import { showToast } from '../utils/toast';
 
 const STARTUP_TIME = new Date();
 
-const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
-
-
 let warningToastRef;
 
 const handleWarningHeader = (response) => {
@@ -39,26 +36,7 @@ const handleWarningHeader = (response) => {
   }
 };
 
-const handleGeoPermission403Errors = (error) => {
-  const apiResponseErrorIsGeoPermissionsRelated = error =>
-    error.statuCode === 403
-      && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
-  let toastRef;
-
-  if (apiResponseErrorIsGeoPermissionsRelated(error) && (new Date() - STARTUP_TIME > 4000)) {
-    toast.dismiss(toastRef);
-
-    toastRef = showToast({ message: error.message, toastConfig: {
-      autoClose: false,
-      onClose() {
-        toastRef = null;
-      },
-    } });
-  }
-};
-
 const debouncedHandleWarningHeader = debounce(handleWarningHeader, 1500);
-const debouncedHandleGeoPermission403Errors = debounce(handleGeoPermission403Errors, 1000);
 
 /* debounce(}, 1000) */
 
@@ -80,8 +58,6 @@ const RequestConfigManager = (props) => {
   }, [clearAuth, history, location?.search, resetMasterCancelToken]);
 
   const handleWarningHeader = useCallback(debouncedHandleWarningHeader, []);
-
-  const handleGeoPermission403Errors = useCallback(debouncedHandleGeoPermission403Errors, []);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -123,7 +99,6 @@ const RequestConfigManager = (props) => {
       },
       (error) => {
         handle401Errors(error);
-        handleGeoPermission403Errors(error);
         return Promise.reject(error);
       }
     ];
@@ -131,7 +106,7 @@ const RequestConfigManager = (props) => {
     const interceptorId = axios.interceptors.response.use(...interceptorConfig);
 
     return interceptorId;
-  }, [handle401Errors, handleGeoPermission403Errors, handleWarningHeader]);
+  }, [handle401Errors, handleWarningHeader]);
 
 
   useEffect(() => {
