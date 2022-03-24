@@ -17,6 +17,7 @@ const patrolFilter = { filter: {
 const loadingPatrols = false;
 const nestedNavigationState = true;
 const mockedPatrols = [activePatrol];
+const map = createMapMock();
 const setNestedNavigationState = jest.fn();
 
 let store = {
@@ -36,7 +37,7 @@ test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>
     <PatrolsTab
       loadingPatrols={loadingPatrols}
-      map={createMapMock()}
+      map={map}
       patrolResults={mockedPatrols}
       nestedNavigationState={nestedNavigationState}
       changeNestedNavigation={setNestedNavigationState}
@@ -49,7 +50,7 @@ describe('Patrol Detail View', () => {
     render(<Provider store={mockStore(store)}>
       <PatrolsTab
         loadingPatrols={loadingPatrols}
-        map={createMapMock()}
+        map={map}
         patrolResults={mockedPatrols}
         nestedNavigationState={nestedNavigationState}
         changeNestedNavigation={setNestedNavigationState}
@@ -64,7 +65,7 @@ describe('Patrol Detail View', () => {
     render(<Provider store={mockStore(store)}>
       <PatrolsTab
         loadingPatrols={loadingPatrols}
-        map={createMapMock()}
+        map={map}
         patrolResults={mockedPatrols}
         nestedNavigationState={nestedNavigationState}
         changeNestedNavigation={setNestedNavigationState}

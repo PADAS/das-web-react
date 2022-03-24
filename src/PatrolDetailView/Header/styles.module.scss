@@ -57,7 +57,7 @@
   width: 10rem;
 
   @media (min-width: $md-layout-width-min) {
-    width: 15rem;
+    width: 16rem;
   }
 
   input {
@@ -72,12 +72,11 @@
 
     @media (min-width: $md-layout-width-min) {
       font-size: 1.375rem;
-      width: 15rem;
+      width: 16rem;
     }
   }
 
   span {
-    display: block;
     font-size: 0.75rem;
     margin-top: 0.25rem;
 

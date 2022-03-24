@@ -20,6 +20,25 @@
   height: 1.75rem;
   padding: 0;
   margin-left: 0.5rem;
+
+  svg {
+    margin-bottom: 0.19rem;
+
+    path {
+      fill: $secondary-medium-gray;
+    }
+  }
+
+  &:hover {
+    background-color: $secondary-light-gray;
+    border-color: $secondary-light-gray;
+
+    svg {
+      path {
+        fill: white;
+      }
+    }
+  }
 }
 
 .historyListItem {
