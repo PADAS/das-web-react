@@ -38,8 +38,6 @@ const handleWarningHeader = (response) => {
 
 const debouncedHandleWarningHeader = debounce(handleWarningHeader, 1500);
 
-/* debounce(}, 1000) */
-
 const RequestConfigManager = (props) => {
   const { clearAuth, history, location,
     masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token,

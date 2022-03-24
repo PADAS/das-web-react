@@ -1,18 +1,3 @@
-/* export const handleServerRequestError = (error) => {
-  const isCancelation = !!error.__CANCEL__;
-
-  if (!isCancelation) {
-    console.log('axios error', error);
-    console.log('error.config', error.config);
-    console.log('error.message', error.message);
-    console.log('error.details', error.details);
-    console.log('error.request', error.request);
-    console.log('error.response', error.response);
-  } else {
-    console.log('request canceled');
-  }
-}; */
-
 const errorHasAResponse = error => !!error.response;
 const errorHasAResponseStatusCode = error => errorHasAResponse(error) && !!error.response.status && !!error.response.status.code;
 
