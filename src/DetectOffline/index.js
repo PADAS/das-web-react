@@ -29,7 +29,7 @@ const DetectOffline = ({ updateNetworkStatus }) => {
   useEffect(() => {
     window.addEventListener('online', updateNetwork);
     return () => {
-      window.removeEventListener('offline', updateNetwork);
+      window.removeEventListener('online', updateNetwork);
     };
   }, [updateNetwork]);
 
