@@ -17,19 +17,24 @@ let warningToastRef;
 const handleWarningHeader = (response) => {
   const warningHeader = response?.headers?.warning;
 
+  const dismissToast = () => {
+    toast.dismiss(warningToastRef.id);
+    warningToastRef = null;
+  };
+
   if (warningHeader
       && (new Date() - STARTUP_TIME > 5000)
   ) {
 
     if (warningToastRef?.id) {
-      toast.dismiss(warningToastRef.id);
+      dismissToast();
     }
 
     warningToastRef = {
       message: warningHeader,
       id: showToast({ message: warningHeader.replace('199 - ', ''), toastConfig: {
         onClose() {
-          warningToastRef = null;
+          dismissToast();
         },
       } }),
     };
