@@ -75,7 +75,7 @@ const RelationshipButton = (props) => {
 };
 
 
-export default memo(connect(null, { fetchEvent: id => fetchEvent(id), fetchPatrol: id => fetchPatrol(id), showDrawer })(RelationshipButton));
+export default memo(connect(null, { fetchEvent: (...args) => fetchEvent(...args), fetchPatrol: id => fetchPatrol(id), showDrawer })(RelationshipButton));
 
 RelationshipButton.propTypes = {
   onNewReportSaved: PropTypes.func,

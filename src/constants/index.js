@@ -5,7 +5,7 @@ import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import layoutVariables from '../common/styles/layout.module.scss';
 
-const { POSITION: TOAST_POSITIONS, Slide } = toast;
+const { POSITION: TOAST_POSITIONS } = toast;
 const { buildbranch, buildnum } = packageJson;
 
 export const {
@@ -272,7 +272,6 @@ export const GEOLOCATOR_OPTIONS = {
 export const DEFAULT_TOAST_CONFIG = {
   closeOnClick: false,
   position: TOAST_POSITIONS.TOP_RIGHT,
-  transition: Slide,
   type: toast.TYPE.ERROR,
 };
 

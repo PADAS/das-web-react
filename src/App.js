@@ -3,7 +3,7 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { fetchMaps } from './ducks/maps';
@@ -146,7 +146,7 @@ const App = (props) => {
 
       <ServiceWorkerWatcher />
     </MapContext.Provider>
-    <ToastContainer />
+    <ToastContainer transition={Slide} />
   </div>;
 };
 

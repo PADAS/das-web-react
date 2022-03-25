@@ -9,7 +9,7 @@ import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { showToast } from '../utils/toast';
+import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 
 
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
@@ -223,11 +223,22 @@ export const addEventToIncident = (event_id, incident_id) => (_dispatch) => axio
   to_event_id: event_id,
 });
 
-export const fetchEvent = event_id => dispatch => axios.get(`${EVENT_API_URL}${event_id}`)
-  .then((response) => {
-    dispatch(updateEventStore(response.data.data));
-    return response;
-  });
+export const fetchEvent = (event_id, params = {}) =>
+  (dispatch, getState) => {
+    const state = getState();
+
+    if (state?.view?.userLocation?.coords) {
+      params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+    }
+
+    return axios.get(`${EVENT_API_URL}${event_id}`, {
+      params,
+    })
+      .then((response) => {
+        dispatch(updateEventStore(response.data.data));
+        return response;
+      });
+  };
 
 export const deleteFileFromEvent = (event_id, file_id) => axios.delete(`${EVENT_API_URL}${event_id}/files/${file_id}`);
 

@@ -20,6 +20,7 @@ import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../u
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
+import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -348,7 +349,7 @@ class Map extends Component {
     let params;
     if (this.props.userLocation?.coords) {
       params = {
-        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+        location: calcLocationParamStringForUserLocationCoords(this.props.userLocation.coords),
       };
     }
     return this.props.fetchMapEvents(this.props.map, params)

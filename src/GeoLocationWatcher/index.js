@@ -97,9 +97,11 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, user, userLocation, update
   }, [onGeoInitSuccess, onGeoError]);
 
   useEffect(() => {
-    if (!locationAccessGranted && userIsGeoPermissionRestricted(user)) {
+    if (!locationAccessGranted) {
       clearUserLocation();
-      showPermissionsToast();
+      if (userIsGeoPermissionRestricted(user)) {
+        showPermissionsToast();
+      }
     }
   }, [clearUserLocation, showPermissionsToast, locationAccessGranted, user]);
 
