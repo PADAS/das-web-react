@@ -21,7 +21,7 @@ describe('The GeoLocationWatcher', () => {
   let store;
 
   beforeEach(() => {
-    store = mockStore({ view: { userLocation: null }, data: { user: { } } });
+    store = mockStore({ view: { userLocation: null, userLocationAccessGranted: { granted: true } }, data: { user: { } } });
     const mockGeolocation = {
       clearWatch: jest.fn(),
       getCurrentPosition: jest.fn().mockImplementation((successFn) => successFn && successFn(mockUserLocation)),
