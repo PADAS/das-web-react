@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
-import { activePatrol, newPatrol } from '../__test-helpers/fixtures/patrols';
+import { activePatrol, newPatrol, patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 
 import PatrolsTab from './PatrolsTab';
 
@@ -19,44 +19,9 @@ const nestedNavigationState = true;
 const mockedPatrols = [activePatrol];
 const setNestedNavigationState = jest.fn();
 
-const store = {
-  data: {
-    eventSchemas: {
-      globalSchema: {
-        properties: {
-          reported_by: {
-            enum_ext: [{
-              value: { id: 'Leader 1' },
-            }, {
-              value: { id: 'Leader 2' },
-            }],
-          },
-        },
-      },
-    },
-    patrolFilter,
-    patrolLeaderSchema: {
-      trackedbySchema: {
-        properties: {
-          leader: {
-            enum_ext: [{
-              value: { id: 'Leader 1' },
-            }, {
-              value: { id: 'Leader 2' },
-            }],
-          },
-        },
-      },
-    },
-    subjectStore: {},
-    patrols: {
-      results: [],
-    },
-  },
-  view: {
-    patrolDetailView: {},
-  },
-};
+let store = patrolDefaultStoreData;
+store.data.patrolFilter = patrolFilter;
+store.view = { patrolDetailView: {} };
 
 test('rendering without crashing', () => {
   render(<Provider store={mockStore(store)}>

@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
-import { newPatrol } from '../__test-helpers/fixtures/patrols';
+import { newPatrol, patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
 
 jest.mock('../utils/save', () => ({
@@ -15,36 +15,16 @@ jest.mock('../utils/save', () => ({
 
 const onCloseDetailView = jest.fn();
 
+let store = patrolDefaultStoreData;
+store.data.subjectStore = {};
+store.data.user = { permissions: { patrol: ['change'] } };
+
 describe('PatrolDetailView', () => {
   let executeSaveActionsMock;
 
   beforeEach(() => {
     render(
-      <Provider store={mockStore({
-        data: {
-          subjectStore: {},
-          user: {
-            permissions: { patrol: ['change'] }
-          },
-          eventSchemas: {
-            globalSchema: {
-              properties: {
-                reported_by: {
-                  enum_ext: [{
-                    value: { id: 'Leader 1' },
-                  }, {
-                    value: { id: 'Leader 2' },
-                  }],
-                },
-              },
-            },
-          },
-          patrolLeaderSchema: {
-            trackedbySchema: { },
-          },
-        },
-        view: {},
-      })}>
+      <Provider store={mockStore(store)}>
         <PatrolDetailView newPatrol={newPatrol} onCloseDetailView={onCloseDetailView}/>
       </Provider>
     );

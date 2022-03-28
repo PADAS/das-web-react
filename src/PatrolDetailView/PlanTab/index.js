@@ -72,7 +72,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   }, [patrolForm, onPatrolChange]);
 
   return <>
-    <label className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
+    <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
       Tracked By
       <ReportedBySelect className={styles.reportedBySelect} placeholder='Select Device...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
