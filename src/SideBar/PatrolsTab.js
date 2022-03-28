@@ -19,7 +19,6 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
 
   const openPatrolDetailView = useCallback(() => {
     setShowPatrolDetailView(true);
-    console.log('%c showPatrolDetailView true', 'font-size:20px;color:green;');
     changeNestedNavigation(true);
   }, [changeNestedNavigation]);
 
@@ -30,7 +29,6 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
 
   const handleCloseDetailView = useCallback(() => {
     setShowPatrolDetailView(false);
-    console.log('%c showPatrolDetailView false', 'font-size:20px;color:red;');
     clearPatrolDetailView();
     changeNestedNavigation(false);
     setActivePatrol({});

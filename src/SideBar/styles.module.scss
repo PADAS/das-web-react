@@ -67,11 +67,13 @@
   overflow: hidden;
   left: 0;
   top: 0;
-  width: 0;
-  transition: width 0.4s ease-in-out;
+  min-width: 0;
+  width: auto;
+  transition: min-width 0.4s ease-in-out;
 
   &[class*=open] {
     width: auto;
+    min-width: var(--vertical-nav-width);
   }
 
   @media (min-width: $md-layout-width-min) {
@@ -83,6 +85,7 @@
   background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.65) 100%);
   backdrop-filter: blur(16px);
   width: auto;
+  min-width: var(--vertical-nav-width);
   transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
   transition: transform 0.4s ease-in-out;
 
@@ -104,6 +107,8 @@
   height: calc(100% - 3rem);
   overflow: hidden;
   position: relative;
+  width: auto;
+  transition: width 0.4s ease-in-out;
 
   &:hover,
   &:focus {
@@ -114,9 +119,9 @@
     width: var(--sidebar-width);
   }
 
-  .reportsTab, .patrolsList {
-    width: var(--sidebar-width);
-  }
+  // .reportsTab, .patrolsList {
+  //   width: var(--sidebar-width);
+  // }
 
   .mapLayers {
     background-color: white;
@@ -138,10 +143,10 @@
     }
   }
 
-  .patrolDetailView{
-    position: absolute;
-    top: 0;
-  }
+  // .patrolDetailView{
+  //   position: absolute;
+  //   top: 0;
+  // }
 }
 
 .header {
