@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect } from 'react';
-import debounce from 'lodash/debounce';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -14,40 +13,43 @@ const STARTUP_TIME = new Date();
 
 let warningToastRef;
 
-const handleWarningHeader = (response) => {
-  const warningHeader = response?.headers?.warning ?? false;
+const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
+  if (userLocationAccessGranted) {
 
-  const dismissToast = () => {
-    if (warningToastRef) {
-      toast.dismiss(warningToastRef.id);
-      warningToastRef = null;
-    }
-  };
+    const warningHeader = response?.headers?.warning ?? false;
 
-  if (warningHeader
+    const dismissToast = () => {
+      if (warningToastRef) {
+        toast.dismiss(warningToastRef.id);
+        warningToastRef = null;
+      }
+    };
+
+    if (warningHeader
       && (new Date() - STARTUP_TIME > 5000)
       && (warningToastRef?.message !== warningHeader)
-  ) {
+    ) {
 
-    if (warningToastRef?.id) {
-      dismissToast();
+      if (warningToastRef?.id) {
+        dismissToast();
+      }
+
+      warningToastRef = {
+        message: warningHeader,
+        id: showToast({ message: warningHeader.replace('199 - ', ''), toastConfig: {
+          autoClose: 18000,
+          onClose() {
+            dismissToast();
+          },
+        } }),
+      };
     }
-
-    warningToastRef = {
-      message: warningHeader,
-      id: showToast({ message: warningHeader.replace('199 - ', ''), toastConfig: {
-        autoClose: 18000,
-        onClose() {
-          dismissToast();
-        },
-      } }),
-    };
   }
 };
 
 
 const RequestConfigManager = (props) => {
-  const { clearAuth, history, location,
+  const { clearAuth, history, location, userLocationAccessGranted,
     masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token,
     user } = props;
 
@@ -98,7 +100,7 @@ const RequestConfigManager = (props) => {
   const attachResponseInterceptors = useCallback(() => {
     const interceptorConfig = [
       (response) => {
-        handleWarningHeader(response);
+        handleGeoPermWarningHeader(response, userLocationAccessGranted);
         return response;
       },
       (error) => {
@@ -110,7 +112,7 @@ const RequestConfigManager = (props) => {
     const interceptorId = axios.interceptors.response.use(...interceptorConfig);
 
     return interceptorId;
-  }, [handle401Errors]);
+  }, [handle401Errors, userLocationAccessGranted]);
 
 
   useEffect(() => {
@@ -140,8 +142,8 @@ const RequestConfigManager = (props) => {
   return null;
 };
 
-const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token } }) => ({
-  selectedUserProfile, user, masterRequestCancelToken, token,
+const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token }, view: { userLocationAccessGranted } }) => ({
+  selectedUserProfile, user, masterRequestCancelToken, token, userLocationAccessGranted: userLocationAccessGranted.granted,
 });
 
 
