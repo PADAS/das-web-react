@@ -15,15 +15,18 @@ const STARTUP_TIME = new Date();
 let warningToastRef;
 
 const handleWarningHeader = (response) => {
-  const warningHeader = response?.headers?.warning;
+  const warningHeader = response?.headers?.warning ?? false;
 
   const dismissToast = () => {
-    toast.dismiss(warningToastRef.id);
-    warningToastRef = null;
+    if (warningToastRef) {
+      toast.dismiss(warningToastRef.id);
+      warningToastRef = null;
+    }
   };
 
   if (warningHeader
       && (new Date() - STARTUP_TIME > 5000)
+      && (warningToastRef?.message !== warningHeader)
   ) {
 
     if (warningToastRef?.id) {
@@ -33,6 +36,7 @@ const handleWarningHeader = (response) => {
     warningToastRef = {
       message: warningHeader,
       id: showToast({ message: warningHeader.replace('199 - ', ''), toastConfig: {
+        autoClose: 18000,
         onClose() {
           dismissToast();
         },
@@ -41,7 +45,6 @@ const handleWarningHeader = (response) => {
   }
 };
 
-const debouncedHandleWarningHeader = debounce(handleWarningHeader, 1500);
 
 const RequestConfigManager = (props) => {
   const { clearAuth, history, location,
@@ -59,8 +62,6 @@ const RequestConfigManager = (props) => {
       });
     }
   }, [clearAuth, history, location?.search, resetMasterCancelToken]);
-
-  const handleWarningHeader = useCallback(debouncedHandleWarningHeader, []);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
@@ -109,7 +110,7 @@ const RequestConfigManager = (props) => {
     const interceptorId = axios.interceptors.response.use(...interceptorConfig);
 
     return interceptorId;
-  }, [handle401Errors, handleWarningHeader]);
+  }, [handle401Errors]);
 
 
   useEffect(() => {
