@@ -28,19 +28,23 @@
     }
   }
 
-  > h6 {
-    font-weight: 700;
-    margin-bottom: 0;
+  h6 {
+    word-break: break-all;
   }
 
   .dateTimeWrapper{
-    display: inline;
+    display: flex;
+    flex-wrap: wrap;
     line-height: normal;
     white-space: nowrap;
   
     .dateTimeDetails {
       display: inline;
       color: white;
+    }
+
+    .dateTimeComma {
+      margin-right: 0.25rem;
     }
     
     .timeAgo {
