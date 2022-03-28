@@ -54,8 +54,8 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
     setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
   }, [leader, patrol]);
 
-  const onPatrolChange = useCallback((patrolNewData) => {
-    setPatrolForm({ ...patrol, ...patrolNewData });
+  const onPatrolChange = useCallback((patrolChanges) => {
+    setPatrolForm({ ...patrol, ...patrolChanges });
   }, [patrol]);
 
   const onSave = useCallback(() => {

@@ -29,15 +29,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
 
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema ? patrolLeaderSchema.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value): [];
 
-  const displayTrackingSubject = useMemo(() => {
-    if (!patrolForm?.patrol_segments?.length) return null;
-    const [firstItem] = patrolForm.patrol_segments;
-
-    const { leader } = firstItem;
-    if (!leader) return null;
-    return leader;
-  }, [patrolForm.patrol_segments]);
-
+  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader || null, [patrolForm.patrol_segments]);
   const onSelectTrackedSubject = useCallback((value) => {
     const patrolIsNew = !patrolForm.id;
 

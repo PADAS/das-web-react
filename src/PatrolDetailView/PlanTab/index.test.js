@@ -63,6 +63,10 @@ describe('Tracked by input', () => {
     render(<Provider store={mockStore(store)}>
       <PlanTab patrolForm={overduePatrol} />
     </Provider>);
+
+    const patrolLeaderInput = await screen.findByRole('textbox');
+
+    expect(patrolLeaderInput).toHaveAttribute('value', '');
   });
 
   test('it should show the name of the tracking subject for patrols that already exist', async () => {
