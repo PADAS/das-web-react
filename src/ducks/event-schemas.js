@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import { API_URL } from '../constants';
 import { generateFormSchemasFromEventTypeSchema } from '../utils/event-schemas';
+import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
+
 import globallyResettableReducer from '../reducers/global-resettable';
 
 const { get } = axios;
@@ -18,19 +20,25 @@ export const fetchEventSchema = () => dispatch => get(EVENT_SCHEMA_API_URL)
     dispatch(fetchEventSchemaSuccess(data));
   });
 
-export const fetchEventTypeSchema = (name, event_id) => dispatch => {
+export const fetchEventTypeSchema = (name, event_id) => (dispatch, getState) => {
+  const state = getState();
+  const params = {};
+
   let reqString = `${EVENT_TYPE_SCHEMA_API_URL}${name}`;
   if (event_id) {
-    reqString += `?event_id=${event_id}`;
+    params.event_id = event_id;
   }
 
-  return get(reqString)
+  if (state?.view?.userLocation?.coords) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
+  return get(reqString, { params })
     .then(({ data: { data: schema } }) => {
       dispatch(fetchEventTypeSchemaSuccess({ name, schema, event_id }));
     }
     );
 };
-
 
 const fetchEventTypeSchemaSuccess = payload => ({
   type: FETCH_EVENT_TYPE_SCHEMA_SUCCESS,
