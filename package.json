@@ -95,8 +95,8 @@
       "global": {
         "branches": 27.53,
         "functions": 27.55,
-        "lines": 40.4,
-        "statements": 38.74
+        "lines": 41.45,
+        "statements": 39.75
       }
     },
     "coverageReporters": [
