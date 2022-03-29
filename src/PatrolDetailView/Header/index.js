@@ -61,12 +61,12 @@ const Header = ({ patrol, setTitle, title }) => {
   ]);
 
   const restorePatrolAndTrack = useCallback(() => {
-    patrolDetailViewTracker.track('Restore patrol from patrol drawer header');
+    patrolDetailViewTracker.track('Restore patrol from patrol detail view header');
     restorePatrol();
   }, [restorePatrol]);
 
   const startPatrolAndTrack = useCallback(() => {
-    patrolDetailViewTracker.track('Start patrol from patrol drawer header');
+    patrolDetailViewTracker.track('Start patrol from patrol detail view header');
     startPatrol();
   }, [startPatrol]);
 

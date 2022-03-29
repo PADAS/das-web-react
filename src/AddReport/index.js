@@ -319,4 +319,5 @@ AddReport.propTypes = {
     isPatrolReport: PropTypes.bool,
   }),
   hideReports: PropTypes.bool,
+  showPatrolDetailView: PropTypes.func,
 };

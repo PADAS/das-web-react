@@ -9,7 +9,6 @@ import 'axios-progress-bar/dist/nprogress.css';
 import { DEVELOPMENT_FEATURE_FLAGS, STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
-import { hideZenDesk, initZenDesk } from './utils/zendesk';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
@@ -153,8 +152,6 @@ const App = (props) => {
     window.addEventListener('offline', () => {
       updateNetworkStatus(UNHEALTHY_STATUS);
     });
-    initZenDesk();
-    hideZenDesk();
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
