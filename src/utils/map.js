@@ -8,11 +8,11 @@ import store from '../store';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import { DEVELOPMENT_FEATURE_FLAGS, MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
+import { ENVIRONMENT_FEATURE_FLAGS, MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
   let timeoutRemaining = MAX_TIMEOUT;
@@ -282,7 +282,7 @@ export const metersPerPixel = (lat, zoom) => {
 export const calculatePopoverPlacement = async (map, popoverLocation) => {
   if (!map || !popoverLocation) return 'auto';
 
-  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = UFA_NAVIGATION_UI ?  0.8 : 0.7;
+  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = ENABLE_UFA_NAVIGATION_UI ?  0.8 : 0.7;
 
   const mapBounds = await waitForMapBounds(map);
   const mapRelativeWidth = mapBounds._ne.lng - mapBounds._sw.lng;
@@ -290,7 +290,7 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
   const popoverRelativeCoordinateX = popoverLocation.lng - mapBounds._sw.lng;
   const popoverRelativeCoordinateY = popoverLocation.lat - mapBounds._ne.lat;
 
-  if (!UFA_NAVIGATION_UI) {
+  if (!ENABLE_UFA_NAVIGATION_UI) {
     if (popoverRelativeCoordinateX / mapRelativeWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
       return 'left';
     }

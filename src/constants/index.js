@@ -18,12 +18,6 @@ export const {
   REACT_APP_BASE_MAP_STYLES,
 } = process.env;
 
-const {
-  REACT_APP_ENABLE_CLUSTERING: REACT_APP_ENABLE_CLUSTERING_STRING,
-} = process.env;
-export const REACT_APP_ENABLE_CLUSTERING =
-  REACT_APP_ENABLE_CLUSTERING_STRING === 'true';
-
 export const CLIENT_BUILD_VERSION = `${buildbranch}-${buildnum}`;
 
 export const GA_EVENT_CATEGORIES = {
@@ -306,14 +300,11 @@ export const PERMISSIONS = {
   DELETE: 'delete',
 };
 
-export const DEVELOPMENT_FEATURE_FLAG_KEYS = {
-  PATROL_NEW_UI: 'PATROL_NEW_UI',
-  UFA_NAVIGATION_UI: 'UFA_NAVIGATION_UI',
-};
-
-export const DEVELOPMENT_FEATURE_FLAGS = {
-  [DEVELOPMENT_FEATURE_FLAG_KEYS.PATROL_NEW_UI]: true, // this flag is temporal activated to let you test the feature, I'll changed before merging
-  [DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI]: true,
-};
-
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
+
+console.log(process.env);
+export const ENVIRONMENT_FEATURE_FLAGS = {
+  ENABLE_NEW_CLUSTERING: process.env.REACT_APP_ENABLE_NEW_CLUSTERING === 'true',
+  ENABLE_PATROL_NEW_UI: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true',
+  ENABLE_UFA_NAVIGATION_UI: process.env.REACT_APP_ENABLE_UFA_NAVIGATION_UI === 'true',
+};

@@ -8,18 +8,19 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 
-import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
+import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-import { useDevelopmentFeatureFlag } from '../hooks';
 
 import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 const { Title, Content } = Popover;
 
@@ -28,8 +29,6 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const TimeSlider = (props) => {
   const { sidebarOpen, timeSliderState, since, until, clearVirtualDate, setVirtualDate, resetGlobalDateRange } = props;
-
-  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const [sliderPositionValue, setSliderPositionValue] = useState(100);
   const handleTextRef = useRef(null);
@@ -128,10 +127,10 @@ const TimeSlider = (props) => {
 
   const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
 
-  const sidebarOpenStyles = ufaNavigationUIEnabled ? styles.sidebarOpen : '';
+  const sidebarOpenStyles = ENABLE_UFA_NAVIGATION_UI ? styles.sidebarOpen : '';
 
   return <div
-    className={`${ufaNavigationUIEnabled ? styles.wrapper : styles.oldNavigationWrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}
+    className={`${ENABLE_UFA_NAVIGATION_UI ? styles.wrapper : styles.oldNavigationWrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}
     >
     <OverlayTrigger target={leftPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={PopoverContent} flip={true}>
       <div ref={leftPopoverTrigger} onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>

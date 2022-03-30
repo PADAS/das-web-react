@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   BREAKPOINTS,
-  DEVELOPMENT_FEATURE_FLAG_KEYS,
+  ENVIRONMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -35,7 +35,7 @@ import { SocketContext } from '../withSocketConnection';
 import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { useDevelopmentFeatureFlag, useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -58,6 +58,8 @@ import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg'
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
@@ -82,8 +84,6 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = ({ map, onHandleClick }) => {
-  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
-
   const dispatch = useDispatch();
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
@@ -191,10 +191,10 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (ufaNavigationUIEnabled && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sidebarTab);
     }
-  }, [sidebarTab, ufaNavigationUIEnabled]);
+  }, [sidebarTab]);
 
   /* --- OLD NAVIGATION STUFF STARTS HERE --- */
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -222,19 +222,19 @@ const SideBar = ({ map, onHandleClick }) => {
   };
 
   useEffect(() => {
-    if (!ufaNavigationUIEnabled && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
     }
-  }, [activeTab, ufaNavigationUIEnabled]);
+  }, [activeTab]);
 
   useEffect(() => {
-    if (!ufaNavigationUIEnabled && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       fetchAndLoadPatrolData();
     }
   }, [overlap]); // eslint-disable-line
 
   useEffect(() => {
-    if (!ufaNavigationUIEnabled && !isUndefined(sidebarOpen)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
       if (!sidebarOpen) {
         activeTabPreClose.current = activeTab.current;
         dispatchOld(setActiveTab(TAB_KEYS.REPORTS));
@@ -255,11 +255,11 @@ const SideBar = ({ map, onHandleClick }) => {
       : 'auto'
     );
 
-  if (!ufaNavigationUIEnabled && !map) return null;
+  if (!ENABLE_UFA_NAVIGATION_UI && !map) return null;
 
   const selectedTab = !!activeTab && activeTab.current;
 
-  if (!ufaNavigationUIEnabled)  {
+  if (!ENABLE_UFA_NAVIGATION_UI)  {
     return <ErrorBoundary>
       <MapContext.Provider value={map}>
         <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>

@@ -9,9 +9,11 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
+import { ENVIRONMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
-import { LAYER_IDS, REACT_APP_ENABLE_CLUSTERING, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+
+const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, SUBJECT_SYMBOLS } = LAYER_IDS;
 
@@ -56,7 +58,7 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
       ]}
       id={`${SUBJECT_SYMBOLS}-unclustered`}
       onClick={onSubjectSymbolClick}
-      onInit={REACT_APP_ENABLE_CLUSTERING ? () => setSubjectLayerIds([
+      onInit={ENABLE_NEW_CLUSTERING ? () => setSubjectLayerIds([
         SUBJECT_SYMBOLS,
         `${SUBJECT_SYMBOLS}-labels`,
         `${SUBJECT_SYMBOLS}-unclustered`,
@@ -66,7 +68,7 @@ const SubjectsLayer = ({ map, mapImages, onSubjectClick }) => {
       type="symbol"
     />
 
-    {REACT_APP_ENABLE_CLUSTERING && !!map.getSource(CLUSTERS_SOURCE_ID) && <>
+    {ENABLE_NEW_CLUSTERING && !!map.getSource(CLUSTERS_SOURCE_ID) && <>
       <LabeledPatrolSymbolLayer
         filter={[
           'all',

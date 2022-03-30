@@ -6,7 +6,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { DEVELOPMENT_FEATURE_FLAG_KEYS, STATUSES } from './constants';
+import { ENVIRONMENT_FEATURE_FLAGS, STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -20,7 +20,6 @@ import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
-import { useDevelopmentFeatureFlag } from './hooks';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -32,6 +31,8 @@ import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
+
+const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
@@ -73,8 +74,6 @@ const animateResize = (map) => {
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
     sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
-
-  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const [map, setMap] = useState(null);
 
@@ -181,7 +180,7 @@ const App = (props) => {
   }, [map, sidebarOpen]);
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${ufaNavigationUIEnabled ? '' : 'oldNavigation'}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
     onDrop={onDrop}
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}
@@ -193,7 +192,7 @@ const App = (props) => {
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar {...(ufaNavigationUIEnabled ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
+        {!!map && <SideBar {...(ENABLE_UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
         <ModalRenderer map={map} />
       </div>
 

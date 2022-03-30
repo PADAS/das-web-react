@@ -37,8 +37,7 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 
 import {
   BREAKPOINTS,
-  DEVELOPMENT_FEATURE_FLAGS,
-  REACT_APP_ENABLE_CLUSTERING,
+  ENVIRONMENT_FEATURE_FLAGS,
   LAYER_IDS,
   LAYER_PICKER_IDS,
   MAX_ZOOM,
@@ -82,7 +81,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING, ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -355,7 +354,7 @@ class Map extends Component {
       map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
       , layer => layer.properties.id);
     let hidePopup = true, clusterFeaturesAtPoint = [];
-    if (REACT_APP_ENABLE_CLUSTERING) {
+    if (ENABLE_NEW_CLUSTERING) {
       const clusterApproxGeometry = [
         [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
         [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
@@ -605,9 +604,9 @@ class Map extends Component {
     return (
       <EarthRangerMap
         center={this.mapCenter}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
         controls={<Fragment>
-          {UFA_NAVIGATION_UI && <AddReport
+          {ENABLE_UFA_NAVIGATION_UI && <AddReport
             className="general-add-button"
             variant="secondary"
             popoverPlacement="left"
@@ -631,7 +630,7 @@ class Map extends Component {
           <Fragment>
             {children}
 
-            {REACT_APP_ENABLE_CLUSTERING && <ClustersLayer
+            {ENABLE_NEW_CLUSTERING && <ClustersLayer
               onShowClusterSelectPopup={this.onShowClusterSelectPopup}
             />}
 
@@ -662,7 +661,7 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {!UFA_NAVIGATION_UI && <>
+              {!ENABLE_UFA_NAVIGATION_UI && <>
                   {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
                   {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
                   {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
@@ -670,7 +669,7 @@ class Map extends Component {
                 </>
               }
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
-                {UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+                {ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
                 <RotationControl
                   className='rotation-control'
                   style={{
@@ -681,9 +680,9 @@ class Map extends Component {
                     borderRadius: '0.25rem',
                   }}
                 />
-                {!UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+                {!ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
               </span>
-              {UFA_NAVIGATION_UI && <>
+              {ENABLE_UFA_NAVIGATION_UI && <>
                   {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
                   {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
                   {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}

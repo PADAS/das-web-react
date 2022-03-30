@@ -1,17 +1,18 @@
 import { createSelector } from 'reselect';
 
+import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
 import { getTimeSliderState } from './';
-import { REACT_APP_ENABLE_CLUSTERING } from '../constants';
+
+const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
 
 export const getShowReportsOnMap = ({ view: { showReportsOnMap } }) => showReportsOnMap;
 
-// This is the place to query a redux configuration flag to cluster / uncluster things
 export const getShouldEventsBeClustered = createSelector(
   [getShowReportsOnMap, getTimeSliderState],
-  (showReportsOnMap, timeSliderState) => REACT_APP_ENABLE_CLUSTERING && showReportsOnMap && !timeSliderState.active
+  (showReportsOnMap, timeSliderState) => ENABLE_NEW_CLUSTERING && showReportsOnMap && !timeSliderState.active
 );
 
 export const getShouldSubjectsBeClustered = createSelector(
   [getTimeSliderState],
-  (timeSliderState) => REACT_APP_ENABLE_CLUSTERING && !timeSliderState.active
+  (timeSliderState) => ENABLE_NEW_CLUSTERING && !timeSliderState.active
 );

@@ -1,15 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
-
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 export const useFeatureFlag = flag =>
   useSelector(state =>
     !!state?.view?.systemConfig?.[flag]
   );
-
-export const useDevelopmentFeatureFlag = (flag) => useMemo(() => DEVELOPMENT_FEATURE_FLAGS[flag], [flag]);
 
 export const usePermissions = (permissionKey, ...permissions) =>  {
   const permissionSet = useSelector(state => {

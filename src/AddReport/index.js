@@ -11,7 +11,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
-import { useDevelopmentFeatureFlag, useFeatureFlag, usePermissions } from '../hooks';
+import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { showPatrolDetailView } from '../ducks/patrols';
@@ -22,7 +22,7 @@ import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
 import {
-  DEVELOPMENT_FEATURE_FLAG_KEYS,
+  ENVIRONMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -30,6 +30,8 @@ import {
 } from '../constants';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_PATROL_NEW_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -175,9 +177,6 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
   popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
 
-  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
-  const patrolNewUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.PATROL_NEW_UI);
-
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
 
@@ -239,7 +238,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
       if (isPatrol) {
         setPopoverState(false);
-        if (patrolNewUIEnabled && ufaNavigationUIEnabled) {
+        if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
           return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
@@ -257,11 +256,9 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     analyticsMetadata.location,
     formProps,
     map,
-    patrolNewUIEnabled,
     patrolsEnabled,
     reportData,
     showPatrolDetailView,
-    ufaNavigationUIEnabled,
   ]);
 
   return hasEventCategories &&
@@ -271,7 +268,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={ufaNavigationUIEnabled ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
+          className={ENABLE_UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}

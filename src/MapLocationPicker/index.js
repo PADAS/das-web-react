@@ -4,13 +4,14 @@ import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 
-import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
+import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-import { useDevelopmentFeatureFlag } from '../hooks';
 
 import { withMap } from '../EarthRangerMap';
 
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
+
+const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 
 const bindExternal = function (map, eventType, toInvoke) {
   map.on(eventType, toInvoke);
@@ -25,8 +26,6 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapLocationPicker = (props) => {
   const { className, disabled, label, map, onLocationSelect, onLocationSelectCancel, onLocationSelectStart, setPickingMapLocationState, showCancelButton, wrapperClassName } = props;
-
-  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const clickFunc = useRef(null);
   const keydownFunc = useRef((event) => {
@@ -68,18 +67,18 @@ const MapLocationPicker = (props) => {
   };
 
   return <div className={wrapperClassName}>
-    {ufaNavigationUIEnabled && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+    {ENABLE_UFA_NAVIGATION_UI && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
     <button
       disabled={disabled}
       type='button'
-      className={`${className} ${ufaNavigationUIEnabled ? 'controlButton' : ''}`}
+      className={`${className} ${ENABLE_UFA_NAVIGATION_UI ? 'controlButton' : ''}`}
       onClick={onSelectStart}
       title='Place marker on map'
     >
       <LocationIcon />
       <span>{label}</span>
     </button>
-    {!ufaNavigationUIEnabled && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+    {!ENABLE_UFA_NAVIGATION_UI && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
   </div>;
 };
 

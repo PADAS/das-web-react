@@ -1,18 +1,17 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { DEVELOPMENT_FEATURE_FLAG_KEYS } from '../constants';
-import { useDevelopmentFeatureFlag } from '../hooks';
+import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 
 import styles from './styles.module.scss';
 
+const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+
 const SearchBar = (props) => {
   const { value, onChange, onClear, placeholder, className, ...rest } = props;
-
-  const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
 
   const [isActive, setIsActiveState] = useState(false);
   const isFiltered = !!value && !!value.length;
@@ -37,7 +36,7 @@ const SearchBar = (props) => {
     onClear(e);
   };
 
-  return <label className={`${styles.search} ${ufaNavigationUIEnabled ? styles.oldNavigation : ''} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
+  return <label className={`${styles.search} ${ENABLE_UFA_NAVIGATION_UI ? styles.oldNavigation : ''} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
     <input placeholder={placeholder} value={value} type="text" onKeyDown={onKeyDown} onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur} data-testid='search-input'/>
     <button className={styles.clearButton} onClick={onClearClick} data-testid='reset-search-button'>

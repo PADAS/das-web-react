@@ -4,7 +4,7 @@ import { calculatePopoverPlacement, waitForMapBounds } from './map';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { UFA_NAVIGATION_UI: true },
+  ENVIRONMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
 }));
 
 let map;

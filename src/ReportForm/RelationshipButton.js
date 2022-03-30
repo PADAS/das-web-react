@@ -2,7 +2,7 @@ import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
 import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol, showPatrolDetailView } from '../ducks/patrols';
@@ -18,7 +18,8 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+
 const RelationshipButton = (props) => {
   const { fetchEvent, fetchPatrol, showPatrolDetailView, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
   const report = useContext(FormDataContext);
@@ -47,7 +48,7 @@ const RelationshipButton = (props) => {
     reportTracker.track('Click \'Go to Patrol\' button');
 
     removeModal();
-    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView({ id: patrolId });
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return showPatrolDetailView({ id: patrolId });
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import LoadingOverlay from '../LoadingOverlay';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
@@ -37,7 +37,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
@@ -397,7 +397,7 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView({ id: patrolId });
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return showPatrolDetailView({ id: patrolId });
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
