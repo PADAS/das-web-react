@@ -9,6 +9,7 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import GlobalMenuDrawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
+import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
 
@@ -57,11 +58,11 @@ describe('GlobalMenuDrawer', () => {
           }
         },
       },
+      selectedUserProfile: null,
       view: {
         systemConfig: {
           alerts_enabled: true,
           tableau_enabled: true,
-          zendeskEnabled: true,
         },
       },
     };
@@ -234,26 +235,11 @@ describe('GlobalMenuDrawer', () => {
     expect(addModal.mock.calls[0][0].title).toBe('Alerts');
   });
 
-  test('activates ZD when clicking the Contact Support button and ZD is enabled', async () => {
-    global.zE = { activate: jest.fn() };
-    render(
-      <Provider store={mockStore(store)}>
-        <GlobalMenuDrawer />
-      </Provider>
-    );
+  test('clicks the "show" button inside the Jira Support Management widget when clicking "Contact Support"', async () => {
+    const [mockQuerySelector, mockHelpButton] = createQuerySelectorMockImplementationWithHelpButtonReference();
 
-    expect(global.zE.activate).toHaveBeenCalledTimes(0);
+    jest.spyOn(global.document, 'querySelector').mockImplementation(mockQuerySelector);
 
-    const contactSupportButton = await screen.findByText('Contact Support');
-    userEvent.click(contactSupportButton);
-
-    expect(global.zE.activate).toHaveBeenCalledTimes(1);
-    expect(global.zE.activate).toHaveBeenCalledWith({ hideOnClose: true });
-  });
-
-  test('opens a mailto when clicking the Contact Support button and ZD is not enabled', async () => {
-    global.open = jest.fn();
-    store.view.systemConfig.zendeskEnabled = false;
     render(
       <Provider store={mockStore(store)}>
         <GlobalMenuDrawer />
@@ -262,11 +248,10 @@ describe('GlobalMenuDrawer', () => {
 
     expect(global.open).toHaveBeenCalledTimes(0);
 
-    const contactSupportButton = await screen.findByText('Contact Support');
-    userEvent.click(contactSupportButton);
+    const supportButton = await screen.findByText('Contact Support');
+    userEvent.click(supportButton);
 
-    expect(global.open).toHaveBeenCalledTimes(1);
-    expect(global.open).toHaveBeenCalledWith('mailto:support@pamdas.org?subject=Support request from user&body=How can we help you?', '_self');
+    expect(mockHelpButton.click).toHaveBeenCalled();
   });
 
   test('opens a page to the community site when clicking the Community button', async () => {

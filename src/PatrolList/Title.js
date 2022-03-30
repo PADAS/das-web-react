@@ -1,3 +1,4 @@
+/* --- OLD NAVIGATION STUFF STARTS HERE --- */
 import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 
@@ -28,3 +29,4 @@ const PatrolListTitle = (props) => {
 const mapStateToProps = ({ data: { patrolFilter } }) => ({ patrolFilter });
 
 export default connect(mapStateToProps, null)(memo(PatrolListTitle));
+/* --- OLD NAVIGATION STUFF ENDS HERE --- */

@@ -167,7 +167,7 @@ const ReportForm = (props) => {
     const onSubmit = () => {
       return saveChanges()
         .then((results) => {
-          removeModal();
+          if (!!results) removeModal();
           return results;
         });
     };

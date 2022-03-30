@@ -98,8 +98,8 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
       </div>
       {coordProps.time && <div className={styles.dateTimeWrapper}>
         <DateTime date={coordProps.time} className={styles.dateTimeDetails} showElapsed={false}/>
-        <span>, </span>
-        <TimeAgo className={styles.timeAgo} date={coordProps.time} />
+        <span className={styles.dateTimeComma}>, </span>
+        <TimeAgo className={styles.timeAgo} date={coordProps.time} suffix="ago" />
       </div>}
     </div>
 
@@ -108,7 +108,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
       <h5>Mic activity</h5>
       <div>
         <span>{format(properties.last_voice_call_start_at, STANDARD_DATE_FORMAT)}</span>
-        <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} />
+        <TimeAgo className={styles.timeAgo} date={new Date(properties.last_voice_call_start_at)} suffix="ago" />
       </div>
     </div>}
     {tracks_available && <TrackLength className={styles.trackLength} trackId={properties.id} />}

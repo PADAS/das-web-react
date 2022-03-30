@@ -61,7 +61,7 @@ const PatrolList = (props) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
-    <PatrolListTitle />
+    {!UFA_NAVIGATION_UI && <PatrolListTitle />}
     {!!listItems.length && <Flipper
       flipKey={listItems}
       element='ul'

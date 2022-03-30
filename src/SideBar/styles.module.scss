@@ -90,8 +90,6 @@
     transform: translateX(0);
 
     .filterWrapper {
-      border-bottom: 1px solid $light-gray-border;
-      height: var(--height);
       margin-bottom: -0.75rem;
       padding-top: 1rem;
     }
@@ -524,7 +522,7 @@
   animation: slideFilterMaxHeight $duration linear;
 }
 
-.filterWrapper {
+.oldNavigationFilterWrapper {
   --animation-duration: 0.2s;
   --max-height: 7.5em;
 
@@ -538,9 +536,8 @@
 }
 
 .sidebarOpen {
-  .filterWrapper {
-    border-bottom: 1px solid $light-gray-border;
-    height: var(--height);
+  .oldNavigationFilterWrapper {
+    height: auto;
     margin-bottom: -0.75rem;
     padding-top: 0.5rem;
   }

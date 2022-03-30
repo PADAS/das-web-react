@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getFeedEvents } from '../selectors';
 import { openModalForReport } from '../utils/events';
 
@@ -24,6 +25,8 @@ import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
 
 import styles from './styles.module.scss';
+
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -105,7 +108,7 @@ const ReportsTab = (props) => {
   return <>
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
-        <div className={styles.filterWrapper} data-testid='filter-wrapper'>
+        <div className={`${styles.filterWrapper} ${!UFA_NAVIGATION_UI ? styles.oldNavigationFilterWrapper : ''}`} data-testid='filter-wrapper'>
           <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort} onResetAll={resetFeedSort}>
             <ColumnSort className={styles.dateSort} sortOptions={EVENT_SORT_OPTIONS} orderOptions={EVENT_SORT_ORDER_OPTIONS} value={feedSort} onChange={onFeedSortChange}/>
           </EventFilter>

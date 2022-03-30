@@ -1,4 +1,5 @@
 import { post, get } from 'axios';
+import { Buffer } from 'buffer';
 
 export const uploadFile = (url, file, progressHandler = () => null) => {
   const formData = new FormData();
@@ -23,7 +24,7 @@ export const fetchImageAsBase64FromUrl = async (url) => {
     responseType: 'arraybuffer',
   });
 
-  return `data:image/png;base64, ${new Buffer(response.data, 'binary').toString('base64')}`;
+  return `data:image/png;base64, ${new Buffer.from(response.data, 'binary').toString('base64')}`;
 };
 
 export const filterDuplicateUploadFilenames = (currentFiles, newFilesToUpload) => newFilesToUpload.filter((file) => {

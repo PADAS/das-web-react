@@ -25,33 +25,28 @@ export const generateSaveActionsForReportLikeObject = (formData, type = 'report'
   return [primarySaveOperation, ...fileOperations, ...noteOperations].sort((a, b) => b.priority - a.priority);
 };
 
-export const executeSaveActions = (saveActions) => {
-  let dataId;
-  let responses = [];
+export const executeSaveActions = async (saveActions) => {
+  const iterateActions = async (saveActions)  => {
+    let dataId;
+    let responses = [];
 
-  return new Promise((resolve, reject) => {
-    try {
-      saveActions.reduce(async (action, { action: nextAction }, index, collection) => {
-        const isPrimaryAction = index === 1;
-        const isLast = index === collection.length - 1;
-        const results = await action;
+    for (var i = 0; i < saveActions.length; i++) {
+      const { action } = saveActions[i];
+      const isPrimaryAction = i === 0;
 
-        if (isPrimaryAction) {
-          dataId = results.data.data.id;
-        }
+      const results = await action(dataId);
 
-        return nextAction(dataId)
-          .then((results) => {
-            responses.push(results);
-            if (isLast) {
-              return resolve(responses);
-            }
-            return results;
-          })
-          .catch((error) => reject(error));
-      }, Promise.resolve());
-    } catch (e) {
-      return reject(e);
+      if (isPrimaryAction) {
+        dataId = results.data.data.id;
+      }
+
+      responses.push(results);
     }
-  });
+
+    return responses;
+  };
+
+  const results = await iterateActions(saveActions);
+
+  return results;
 };

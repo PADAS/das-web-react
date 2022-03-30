@@ -12,7 +12,7 @@ import noop from 'lodash/noop';
 
 import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAG_KEYS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { DEFAULT_EVENT_SORT } from '../utils/event-filter';
+import { DEFAULT_EVENT_SORT, isFilterModified } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, EVENT_FILTER_CATEGORY, REPORTS_CATEGORY } from '../utils/analytics';
 import { caseInsensitiveCompare } from '../utils/string';
@@ -26,7 +26,7 @@ import PriorityPicker from '../PriorityPicker';
 import ReportedBySelect from '../ReportedBySelect';
 import CheckMark from '../Checkmark';
 import SearchBar from '../SearchBar';
-import FriendlyEventFilterString from '../EventFilter/FriendlyEventFilterString';
+import FriendlyFilterString from '../FriendlyFilterString';
 import { ReactComponent as FilterIcon } from '../common/images/icons/filter-icon.svg';
 import { ReactComponent as UserIcon } from '../common/images/icons/user-profile.svg';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
@@ -356,7 +356,13 @@ const EventFilter = (props) => {
       </div>
     </form>
     {(ufaNavigationUIEnabled || isLargeLayout) && <div className={`${styles.filterStringWrapper} ${className}`} data-testid='general-reset-wrapper'>
-      <FriendlyEventFilterString className={styles.friendlyFilterString} sortConfig={sortConfig} totalFeedEventCount={feedEvents.count} />
+      <FriendlyFilterString
+        className={styles.friendlyFilterString}
+        dateRange={date_range}
+        isFiltered={isFilterModified(eventFilter)}
+        sortConfig={sortConfig}
+        totalFeedEventCount={feedEvents.count}
+      />
       {(filterModified || dateRangeModified || isSortModified) && <Button type="button" variant='light' size='sm' onClick={resetAllFilters} data-testid='general-reset-btn'><RefreshIcon /> Reset</Button>}
     </div>}
   </>;
