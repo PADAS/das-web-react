@@ -27,9 +27,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     }
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
 
-  const patrolLeaders = patrolLeaderSchema?.trackedbySchema ? patrolLeaderSchema.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value): [];
+  const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
 
-  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader || null, [patrolForm.patrol_segments]);
+  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
   const onSelectTrackedSubject = useCallback((value) => {
     const patrolIsNew = !patrolForm.id;
 
