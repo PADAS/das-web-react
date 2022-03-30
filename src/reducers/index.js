@@ -3,7 +3,7 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
-import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer, reportDetailViewReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
 import patrolsReducer, { patrolStoreReducer, patrolTracksReducer, patrolDetailViewReducer } from '../ducks/patrols';
@@ -125,6 +125,7 @@ const rootReducer = combineReducers({
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
+    reportDetailView: reportDetailViewReducer,
   }),
 });
 

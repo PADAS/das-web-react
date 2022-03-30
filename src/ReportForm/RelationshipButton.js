@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { openModalForPatrol } from '../utils/patrols';
-import { fetchEvent } from '../ducks/events';
+import { fetchEvent, showReportDetailView } from '../ducks/events';
 import { fetchPatrol, showPatrolDetailView } from '../ducks/patrols';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
 
@@ -18,9 +18,19 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { PATROL_NEW_UI, REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const RelationshipButton = (props) => {
-  const { fetchEvent, fetchPatrol, showPatrolDetailView, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
+  const {
+    fetchEvent,
+    fetchPatrol,
+    showPatrolDetailView,
+    hidePatrols,
+    navigateRelationships = true,
+    onNewReportSaved,
+    map,
+    removeModal,
+    showReportDetailView,
+  } = props;
   const report = useContext(FormDataContext);
 
   const isPatrolReport = useMemo(() => eventBelongsToPatrol(report), [report]);
@@ -37,9 +47,13 @@ const RelationshipButton = (props) => {
 
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
-      openModalForReport(data, map);
+      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+        showReportDetailView({ event: data });
+      } else {
+        openModalForReport(data, map);
+      }
     });
-  }, [fetchEvent, map, removeModal, report, reportTracker]);
+  }, [fetchEvent, map, removeModal, report, reportTracker, showReportDetailView]);
 
   const goToParentPatrol = useCallback(() => {
     const [patrolId] = report.patrols;
@@ -73,7 +87,12 @@ const RelationshipButton = (props) => {
 };
 
 
-export default memo(connect(null, { fetchEvent: id => fetchEvent(id), fetchPatrol: id => fetchPatrol(id), showPatrolDetailView })(RelationshipButton));
+export default memo(connect(null, {
+  fetchEvent: id => fetchEvent(id),
+  fetchPatrol: id => fetchPatrol(id),
+  showPatrolDetailView,
+  showReportDetailView,
+})(RelationshipButton));
 
 RelationshipButton.propTypes = {
   onNewReportSaved: PropTypes.func,
@@ -82,4 +101,5 @@ RelationshipButton.propTypes = {
   onGoToCollection: PropTypes.func,
   map: PropTypes.object,
   showPatrolDetailView: PropTypes.func.isRequired,
+  showReportDetailView: PropTypes.func.isRequired,
 };

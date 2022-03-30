@@ -16,7 +16,7 @@ import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REP
 
 import { addModal } from '../ducks/modals';
 import { fetchPatrol, showPatrolDetailView } from '../ducks/patrols';
-import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
+import { createEvent, addEventToIncident, fetchEvent, setEventState, showReportDetailView } from '../ducks/events';
 
 import EventIcon from '../EventIcon';
 
@@ -37,7 +37,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { PATROL_NEW_UI, REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
@@ -45,7 +45,7 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, showPatrolDetailView, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport, fetchPatrol } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport, fetchPatrol, showReportDetailView } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -317,7 +317,12 @@ const ReportForm = (props) => {
       `Open ${report.is_collection?'Incident':'Event'} Report from Incident`,
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
-      openModalForReport(data, map, { navigateRelationships: false });
+      const formProps = { navigateRelationships: false };
+      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+        showReportDetailView({ event: data, formProps });
+      } else {
+        openModalForReport(data, map, formProps);
+      }
     });
   };
 
@@ -369,10 +374,23 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
-      openModalForReport(data, map);
+      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+        showReportDetailView({ event: data });
+      } else {
+        openModalForReport(data, map);
+      }
       removeModal();
     });
-  }, [addEventToIncident, createEvent, fetchEvent, map, removeModal, reportTracker, saveChanges]);
+  }, [
+    addEventToIncident,
+    createEvent,
+    fetchEvent,
+    map,
+    removeModal,
+    reportTracker,
+    saveChanges,
+    showReportDetailView,
+  ]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
     const [{ data: { data: thisReport } }] = await saveChanges();
@@ -381,10 +399,14 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
-      openModalForReport(data, map);
+      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+        showReportDetailView({ event: data });
+      } else {
+        openModalForReport(data, map);
+      }
       removeModal();
     });
-  }, [addEventToIncident, fetchEvent, map, removeModal, reportTracker, saveChanges]);
+  }, [addEventToIncident, fetchEvent, map, removeModal, reportTracker, saveChanges, showReportDetailView]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
     const patrolId = patrol.id;
@@ -428,7 +450,11 @@ const ReportForm = (props) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
-              openModalForReport(data, map);
+              if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+                showReportDetailView({ event: data });
+              } else {
+                openModalForReport(data, map);
+              }
               removeModal();
             });
           } else {
@@ -439,7 +465,11 @@ const ReportForm = (props) => {
             return fetchEvent(incidentID).then((results) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
-              openModalForReport(data, map);
+              if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+                showReportDetailView({ event: data });
+              } else {
+                openModalForReport(data, map);
+              }
               removeModal();
             });
           }
@@ -560,6 +590,7 @@ export default memo(
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
         showPatrolDetailView,
+        showReportDetailView,
       }
     )
     (ReportForm)
@@ -582,5 +613,6 @@ ReportForm.propTypes = {
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
-  showPatrolDetailView: PropTypes.func,
+  showPatrolDetailView: PropTypes.func.isRequired,
+  showReportDetailView: PropTypes.func.isRequired,
 };

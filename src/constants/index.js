@@ -308,7 +308,8 @@ export const PERMISSIONS = {
 
 export const DEVELOPMENT_FEATURE_FLAGS = {
   PATROL_NEW_UI: true, // these values are temporal activated to let you test the feature
-  UFA_NAVIGATION_UI: true, // I'll changed before merging
+  REPORT_NEW_UI: true, // I'll changed before merging
+  UFA_NAVIGATION_UI: true,
 };
 
 export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';

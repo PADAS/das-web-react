@@ -10,7 +10,7 @@ import { getFeedEvents } from '../selectors';
 import { openModalForReport } from '../utils/events';
 
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../utils/event-filter';
-import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
+import { fetchEventFeed, fetchNextEventFeedPage, showReportDetailView } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
@@ -23,16 +23,25 @@ import EventFilter from '../EventFilter';
 import ColumnSort from '../ColumnSort';
 import ErrorMessage from '../ErrorMessage';
 import EventFeed from '../EventFeed';
+import ReportDetailView from '../ReportDetailView';
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
-const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, userLocationCoords, fetchNextEventFeedPage, eventFilter, map, } = props;
-
+const ReportsTab = ({
+  sidebarOpen,
+  events,
+  fetchEventFeed,
+  userLocationCoords,
+  fetchNextEventFeedPage,
+  eventFilter,
+  map,
+  reportDetailView,
+  showReportDetailView,
+}) => {
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -77,7 +86,11 @@ const ReportsTab = (props) => {
   }, [events.next, fetchNextEventFeedPage]);
 
   const onEventTitleClick = (event) => {
-    openModalForReport(event, map);
+    if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+      showReportDetailView({ event });
+    } else {
+      openModalForReport(event, map);
+    }
     const reportType = event.is_collection ? 'Incident' : 'Event';
     feedTracker.track(`Open ${reportType} Report`, `Event Type:${event.event_type}`);
   };
@@ -106,6 +119,8 @@ const ReportsTab = (props) => {
   }, [events.results, optionalFeedProps.exclude_contained]);
 
   return <>
+    {reportDetailView.show && <ReportDetailView />}
+
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
         <div className={`${styles.filterWrapper} ${!UFA_NAVIGATION_UI ? styles.oldNavigationFilterWrapper : ''}`} data-testid='filter-wrapper'>
@@ -142,14 +157,25 @@ const ReportsTab = (props) => {
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
+  reportDetailView: state.view.reportDetailView,
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, updateEventFilter, resetGlobalDateRange })(memo(ReportsTab));
+export default connect(mapStateToProps, {
+  fetchEventFeed,
+  fetchNextEventFeedPage,
+  updateEventFilter,
+  resetGlobalDateRange,
+  showReportDetailView,
+})(memo(ReportsTab));
 
 ReportsTab.propTypes = {
   fetchEventFeed: PropTypes.func.isRequired,
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
+  reportDetailView: PropTypes.shape({
+
+  }).isRequired,
+  showReportDetailView: PropTypes.func.isRequired,
 };

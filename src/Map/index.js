@@ -12,7 +12,7 @@ import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
-import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
+import { clearEventData, fetchMapEvents, cancelMapEventsFetch, showReportDetailView } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
@@ -82,7 +82,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -422,7 +422,11 @@ class Map extends Component {
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
-    openModalForReport(event, map);
+    if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+      this.props.showReportDetailView({ event });
+    } else {
+      openModalForReport(event, map);
+    }
   });
 
   onClusterLeafClick = this.withLocationPickerState((report) => {
@@ -779,6 +783,7 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
+  showReportDetailView,
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,
