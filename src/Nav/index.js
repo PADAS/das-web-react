@@ -50,7 +50,7 @@ const Nav = ({
   };
 
   const onCurrentLocationClick = (location) => {
-    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
+    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], (MAX_ZOOM - 2));
     mainToolbarTracker.track('Click \'My Current Location\'');
   };
 
