@@ -24,3 +24,14 @@
     }
   }
 }
+
+.objectiveLabel {
+  width: 100%;
+  font-size: 1.12rem;
+  font-weight: 500;
+  margin-top: 1.2rem;
+
+  > textarea {
+    height: '4.25rem';
+  }
+}

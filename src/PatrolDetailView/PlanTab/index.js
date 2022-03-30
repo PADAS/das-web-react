@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { connect } from 'react-redux';
+import Form from 'react-bootstrap/Form';
 import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 
@@ -9,8 +10,9 @@ import ReportedBySelect from '../../ReportedBySelect';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
 
-
 import styles from './styles.module.scss';
+
+const { Control } = Form;
 
 const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
 
@@ -28,8 +30,12 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
 
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema ? patrolLeaderSchema.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value): [];
-
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader || null, [patrolForm.patrol_segments]);
+
+  const updatePatrol = useCallback((update) => {
+    onPatrolChange(merge({}, patrolForm, update));
+  }, [onPatrolChange, patrolForm]);
+
   const onSelectTrackedSubject = useCallback((value) => {
     const patrolIsNew = !patrolForm.id;
 
@@ -68,14 +74,31 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       }
     }
 
-    onPatrolChange(merge({}, patrolForm, update));
-  }, [patrolForm, onPatrolChange]);
+    updatePatrol(update);
+  }, [patrolForm.id, updatePatrol]);
+
+  const onInputChange = useCallback((event) => {
+    event.preventDefault();
+    const { value } = event.target;
+
+    updatePatrol({ objective: value });
+  }, [updatePatrol]);
 
   return <>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
       {loadingTrackedBy && <LoadingOverlay className={styles.loadingTrackedBy} message={''} />}
       Tracked By
       <ReportedBySelect className={styles.reportedBySelect} placeholder='Select Device...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
+    </label>
+
+    <label data-testid="patrol-objective" className={styles.objectiveLabel}>
+      Objective
+      <Control
+        as="textarea"
+        placeholder="Patrol objective..."
+        value={patrolForm?.objective ?? ''}
+        onChange={onInputChange}
+      />
     </label>
   </>;
 };
