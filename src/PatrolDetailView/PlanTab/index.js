@@ -95,6 +95,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       Objective
       <Control
         as="textarea"
+        data-testid="patrol-objective-input"
         placeholder="Patrol objective..."
         value={patrolForm?.objective ?? ''}
         onChange={onInputChange}

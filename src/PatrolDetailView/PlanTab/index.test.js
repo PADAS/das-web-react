@@ -63,3 +63,24 @@ describe('Tracked by input', () => {
     expect(placeholderText).toBeDefined();
   });
 });
+
+
+describe('Objective input', () => {
+  test('it should show the objective for patrols that already exist', async () => {
+    render(<Provider store={mockStore(store)}>
+      <PlanTab patrolForm={overduePatrol} />
+    </Provider>);
+
+    const objectiveInput = await screen.getByTestId('patrol-objective-input');
+    expect(objectiveInput).toHaveTextContent('very ambitious objective');
+  });
+
+  test('it should show the field empty for new patrols', async () => {
+    render(<Provider store={mockStore(store)}>
+      <PlanTab patrolForm={newPatrol} />
+    </Provider>);
+
+    const objectiveInput = await screen.getByTestId('patrol-objective-input');
+    expect(objectiveInput).toHaveTextContent('');
+  });
+});
