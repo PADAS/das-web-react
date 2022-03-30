@@ -11,11 +11,10 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
-import { patrolDrawerId } from '../Drawer';
 import { useDevelopmentFeatureFlag, useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
-import { showDrawer } from '../ducks/drawer';
+import { showPatrolDetailView } from '../ducks/patrols';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
@@ -28,14 +27,12 @@ import {
   PERMISSION_KEYS,
   PERMISSIONS,
   TAB_KEYS,
-  DEVELOPMENT_FEATURE_FLAGS,
 } from '../constants';
 
 import styles from './styles.module.scss';
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ReportTypesContext = createContext(null);
 const PatrolTypesContext = createContext(null);
 
@@ -176,9 +173,10 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect }) => {
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
 
   const ufaNavigationUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.UFA_NAVIGATION_UI);
+  const patrolNewUIEnabled = useDevelopmentFeatureFlag(DEVELOPMENT_FEATURE_FLAG_KEYS.PATROL_NEW_UI);
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -240,7 +238,10 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       const isPatrol = reportType.category.value === 'patrols';
 
       if (isPatrol) {
-        if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
+        setPopoverState(false);
+        if (patrolNewUIEnabled && ufaNavigationUIEnabled) {
+          return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
 
@@ -251,7 +252,17 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showDrawer]);
+  }, [
+    analyticsMetadata.category,
+    analyticsMetadata.location,
+    formProps,
+    map,
+    patrolNewUIEnabled,
+    patrolsEnabled,
+    reportData,
+    showPatrolDetailView,
+    ufaNavigationUIEnabled,
+  ]);
 
   return hasEventCategories &&
 
@@ -283,7 +294,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, { showDrawer })(memo(AddReport));
+export default connect(mapStateToProps, { showPatrolDetailView })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -325,6 +336,6 @@ AddReport.propTypes = {
     hidePatrols: PropTypes.bool,
     isPatrolReport: PropTypes.bool,
   }),
-  showDrawer: PropTypes.func.isRequired,
   hideReports: PropTypes.bool,
+  showPatrolDetailView: PropTypes.func,
 };

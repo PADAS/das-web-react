@@ -159,11 +159,12 @@ describe('SideBar', () => {
       type: 'UPDATE_USER_PREFERENCES',
     });
 
-    userEvent.click(tabs[2]);
-
-    expect(mockStoreInstance.getActions()[2]).toEqual({
-      payload: { sidebarOpen: true, sidebarTab: 'layers' },
-      type: 'UPDATE_USER_PREFERENCES',
+    waitFor(() => {
+      userEvent.click(tabs[2]);
+      expect(mockStoreInstance.getActions()[1]).toEqual({
+        payload: { sidebarOpen: true, sidebarTab: 'layers' },
+        type: 'UPDATE_USER_PREFERENCES',
+      });
     });
   });
 

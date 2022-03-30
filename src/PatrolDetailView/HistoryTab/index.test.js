@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import HistoryTab from './';
 
-describe('PatrolDrawer', () => {
+describe('PatrolDetailView', () => {
   beforeEach(() => {
     render(<HistoryTab patrolForm={{
       files: [],

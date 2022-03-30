@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import LoadingOverlay from '../LoadingOverlay';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-import { patrolDrawerId } from '../Drawer';
 import { fetchImageAsBase64FromUrl, filterDuplicateUploadFilenames } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { openModalForPatrol } from '../utils/patrols';
@@ -16,9 +15,8 @@ import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
 import { addModal } from '../ducks/modals';
-import { fetchPatrol } from '../ducks/patrols';
+import { fetchPatrol, showPatrolDetailView } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
-import { showDrawer } from '../ducks/drawer';
 
 import EventIcon from '../EventIcon';
 
@@ -39,15 +37,15 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
 const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Footer } = EditableItem;
 
 const ReportForm = (props) => {
-  const { eventTypes, map, data: originalReport, fetchPatrol, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, showDrawer, isPatrolReport } = props;
+  const { eventTypes, map, data: originalReport, showPatrolDetailView, formProps = {}, removeModal, onSaveSuccess, onSaveError,
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport, fetchPatrol } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -398,12 +396,13 @@ const ReportForm = (props) => {
 
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
+    removeModal();
+    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView({ id: patrolId });
+
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
-      removeModal();
-      if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { patrolId });
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showDrawer]);
+  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showPatrolDetailView]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -560,7 +559,7 @@ export default memo(
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
-        showDrawer,
+        showPatrolDetailView,
       }
     )
     (ReportForm)
@@ -583,5 +582,5 @@ ReportForm.propTypes = {
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
-  showDrawer: PropTypes.func,
+  showPatrolDetailView: PropTypes.func,
 };
