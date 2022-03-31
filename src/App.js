@@ -6,7 +6,7 @@ import { loadProgressBar } from 'axios-progress-bar';
 
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { ENVIRONMENT_FEATURE_FLAGS, STATUSES } from './constants';
+import { DEVELOPMENT_FEATURE_FLAGS, STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -32,7 +32,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 
 import './App.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 

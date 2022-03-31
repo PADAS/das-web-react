@@ -9,11 +9,11 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { ENVIRONMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 
-const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, SUBJECT_SYMBOLS } = LAYER_IDS;
 

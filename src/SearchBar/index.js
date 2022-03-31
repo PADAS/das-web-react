@@ -1,14 +1,14 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const SearchBar = (props) => {
   const { value, onChange, onClear, placeholder, className, ...rest } = props;

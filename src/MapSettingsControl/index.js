@@ -2,7 +2,7 @@ import React, { useRef, memo } from 'react';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
@@ -15,7 +15,7 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 import styles from './styles.module.scss';
 import InactiveRadioControl from '../InactiveRadioControl';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

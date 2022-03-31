@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
 import { calcImgIdFromUrlForMapImages, calcUrlForImage } from '../utils/img';
-import { ENVIRONMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { subjectIsStatic } from '../utils/subjects';
 
 import SearchBar from '../SearchBar';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { EVENT_SYMBOLS } = LAYER_IDS;
 

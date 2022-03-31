@@ -8,11 +8,11 @@ import store from '../store';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import { ENVIRONMENT_FEATURE_FLAGS, MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
   let timeoutRemaining = MAX_TIMEOUT;

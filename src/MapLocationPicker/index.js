@@ -4,14 +4,14 @@ import { setPickingMapLocationState } from '../ducks/map-ui';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import { withMap } from '../EarthRangerMap';
 
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const bindExternal = function (map, eventType, toInvoke) {
   map.on(eventType, toInvoke);

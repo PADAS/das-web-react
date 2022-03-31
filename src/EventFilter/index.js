@@ -10,7 +10,7 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 import noop from 'lodash/noop';
 
-import { BREAKPOINTS, ENVIRONMENT_FEATURE_FLAGS, EVENT_STATE_CHOICES } from '../constants';
+import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAGS, EVENT_STATE_CHOICES } from '../constants';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { DEFAULT_EVENT_SORT, isFilterModified } from '../utils/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -33,7 +33,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventFilterTracker = trackEventFactory(EVENT_FILTER_CATEGORY);
 const reportsTracker = trackEventFactory(REPORTS_CATEGORY);

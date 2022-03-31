@@ -4,7 +4,7 @@ import Popover from 'react-bootstrap/Popover';
 import Overlay from 'react-bootstrap/Overlay';
 import Button from 'react-bootstrap/Button';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { setPrintTitle } from '../ducks/map-ui';
 
 import { ReactComponent as PrinterIcon } from '../common/images/icons/printer-icon.svg';
@@ -13,7 +13,7 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

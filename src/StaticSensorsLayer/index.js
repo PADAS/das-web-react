@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import store from '../store';
 import { MapContext } from '../App';
-import { ENVIRONMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
@@ -16,7 +16,7 @@ import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 import SubjectPopup from '../SubjectPopup';
 
-const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 

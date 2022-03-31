@@ -1,9 +1,9 @@
 import { createSelector } from 'reselect';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getTimeSliderState } from './';
 
-const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const getShowReportsOnMap = ({ view: { showReportsOnMap } }) => showReportsOnMap;
 

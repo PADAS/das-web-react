@@ -7,7 +7,7 @@ import { setBaseLayer } from '../ducks/layers';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY, BASE_LAYER_CATEGORY } from '../utils/analytics';
 
 import {
-  ENVIRONMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAGS,
   VALID_LAYER_SOURCE_TYPES,
   TILE_LAYER_SOURCE_TYPES,
   MAPBOX_STYLE_LAYER_SOURCE_TYPES,
@@ -21,7 +21,7 @@ import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.s
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);

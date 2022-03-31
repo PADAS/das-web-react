@@ -2,11 +2,11 @@ import React, { memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import { adjustColorLightnessByPercentage } from '../utils/colors';
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;

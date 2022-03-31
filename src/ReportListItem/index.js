@@ -10,7 +10,7 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import { displayEventTypes } from '../selectors/event-types';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
@@ -22,7 +22,7 @@ import colorVariables from '../common/styles/vars/colors.module.scss';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const PRIORITY_COLOR_MAP = {
   300: {

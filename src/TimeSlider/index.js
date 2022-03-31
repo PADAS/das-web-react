@@ -8,7 +8,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -20,7 +20,7 @@ import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.s
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { Title, Content } = Popover;
 

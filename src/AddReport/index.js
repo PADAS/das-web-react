@@ -22,7 +22,7 @@ import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
 import {
-  ENVIRONMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -31,7 +31,7 @@ import {
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI, ENABLE_PATROL_NEW_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 

@@ -7,7 +7,7 @@ import length from '@turf/length';
 import { lineString } from '@turf/helpers';
 import isEqual from 'react-fast-compare';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { calculatePopoverPlacement } from '../utils/map';
 import { withMap } from '../EarthRangerMap';
 import MapRulerLayer from '../MapRulerLayer';
@@ -23,7 +23,7 @@ import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

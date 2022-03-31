@@ -37,7 +37,7 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 
 import {
   BREAKPOINTS,
-  ENVIRONMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAGS,
   LAYER_IDS,
   LAYER_PICKER_IDS,
   MAX_ZOOM,
@@ -81,7 +81,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
 
-const { ENABLE_NEW_CLUSTERING, ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 

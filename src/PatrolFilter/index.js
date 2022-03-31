@@ -7,7 +7,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 
 import { caseInsensitiveCompare } from '../utils/string';
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getPatrolList } from '../selectors/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import { isFilterModified } from '../utils/patrol-filter';
@@ -23,7 +23,7 @@ import SearchBar from '../SearchBar';
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 

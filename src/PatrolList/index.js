@@ -2,7 +2,7 @@ import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState,
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
@@ -12,7 +12,7 @@ import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 

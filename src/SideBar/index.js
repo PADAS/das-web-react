@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   BREAKPOINTS,
-  ENVIRONMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -59,7 +59,7 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));

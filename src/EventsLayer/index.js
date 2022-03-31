@@ -15,7 +15,7 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
   DEFAULT_SYMBOL_LAYOUT,
-  ENVIRONMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAGS,
   IF_IS_GENERIC,
   LAYER_IDS,
   MAX_ZOOM,
@@ -28,7 +28,7 @@ import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFr
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
 
-const { ENABLE_NEW_CLUSTERING } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,

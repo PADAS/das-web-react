@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getFeedEvents } from '../selectors';
 import { openModalForReport } from '../utils/events';
 
@@ -26,7 +26,7 @@ import EventFeed from '../EventFeed';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 

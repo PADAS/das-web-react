@@ -16,7 +16,7 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
-  ENVIRONMENT_FEATURE_FLAGS,
+  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -38,7 +38,7 @@ import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSu
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));

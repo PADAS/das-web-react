@@ -2,13 +2,13 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import format from 'date-fns/format';
 
-import { ENVIRONMENT_FEATURE_FLAGS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import TimeAgo from '../TimeAgo';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle } from '../utils/datetime';
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = ENVIRONMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export default class DateTime extends PureComponent {
   render() {
