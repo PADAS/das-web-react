@@ -1,5 +1,6 @@
 @import '../common/styles/vars/colors';
 @import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
 
 $unfiltered-color : $secondary-light-gray;
 $filtered-color : $highlight-color;
@@ -20,11 +21,7 @@ $filtered-color : $highlight-color;
   position: relative;
   max-width: 20rem;
   width: 100vw;
-  .results {
-    overflow-y: scroll;
-    height: 20vh;
-    width: 100%;
-  }
+  padding: 0.5rem;
 }
 
 .loading_indicator, .zero_results {
@@ -141,15 +138,23 @@ $filtered-color : $highlight-color;
   }
 }
 
-.suggestion {
-  list-style: none;
-  text-align: justify;
-  padding: 0.25rem;
+.wrapper {
+  span[class*=value] { 
+    display: none;
+  }
+  input {
+    width: 100%;
+  }
+  .errorInput {
+    border: 1px solid $error-border;
+  }
+  small {
+    color: $light-font-color;
+    font-style: italic;
+  }
 }
 
-.suggestion:hover {
-  cursor: pointer;
-  background-color: lightgrey;
-  border-radius: 5px;
-  padding-left: 0.5rem;
+.errorMessage {
+  margin: 0.5rem 0 0;
+  padding: 0.25rem;
 }

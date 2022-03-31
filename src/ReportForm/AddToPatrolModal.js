@@ -131,12 +131,12 @@ const AddToPatrolModal = (props) => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('new_patrol', onPatrolSocketMessage);
-      socket.on('update_patrol', onPatrolSocketMessage);
+      const [, newPatrolFnRef] = socket.on('new_patrol', onPatrolSocketMessage);
+      const [, updatePatrolFnRef] = socket.on('update_patrol', onPatrolSocketMessage);
 
       return () => {
-        socket.off('new_patrol', onPatrolSocketMessage);
-        socket.off('update_patrol', onPatrolSocketMessage);
+        socket.off('new_patrol', newPatrolFnRef);
+        socket.off('update_patrol', updatePatrolFnRef);
       };
     }
   }, [onPatrolSocketMessage, socket]);

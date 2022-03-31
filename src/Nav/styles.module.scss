@@ -3,17 +3,23 @@
 .messageMenu {
   margin-right: 1rem;
   position: relative;
+
+  svg {
+    opacity: 0.8;
+  }
+
+  &:hover {
+    svg {
+      opacity: 1;
+    }
+  }
+
   [class*=dropdown-menu] {
     border: none;
     margin-right: -1rem;
     padding: 0;
   }
-  &.active {
-    opacity: 0.9;
-    svg * {
-      stroke: white;
-    }
-  }
+
   .badge {
     color: white;
     font-size: 0.6rem;

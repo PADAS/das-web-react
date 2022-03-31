@@ -8,10 +8,11 @@ import store from '../store';
 
 import { addImageToMapIfNecessary } from '../ducks/map-images';
 
-import { MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, MAP_ICON_SIZE, MAP_ICON_SCALE, FIT_TO_BOUNDS_PADDING } from '../constants';
 import { formatEventSymbolDate } from '../utils/datetime';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const waitForMapBounds = (map, MAX_TIMEOUT = 1000, INTERVAL_LENGTH = 125) => new Promise((resolve, reject) => {
   let timeoutRemaining = MAX_TIMEOUT;
@@ -69,14 +70,14 @@ export const addMapImage = async ({ src, id, height, width, options = {} }) => {
   };
 };
 
-export const addFeatureCollectionImagesToMap = (collection) => {
+export const addFeatureCollectionImagesToMap = (collection, options = {}) => {
   const { features } = collection;
 
   const images = features
     .filter(({ properties: { image } }) => !!image)
     .map(({ properties }) => properties)
     .filter((properties, index, array) =>  array.findIndex(item => item.image === properties.image) === index)
-    .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width }));
+    .map(properties => addMapImage({ src: properties.image, height: properties.height, width: properties.width, options }));
 
   return Promise.all(images).then(results => results);
 };
@@ -249,32 +250,25 @@ export const metersToPixelsAtMaxZoom = (meters, latitude) =>
 /* const getPixelsPerMeterAtMaxZoom = (map) => {
   map.setZoom(MAX_ZOOM);
   const maxWidth = 100;
-
   const getDistance = (latlng1, latlng2) => {
     // Uses spherical law of cosines approximation.
     const R = 6371000;
-
     const rad = Math.PI / 180,
       lat1 = latlng1.lat * rad,
       lat2 = latlng2.lat * rad,
       a = Math.sin(lat1) * Math.sin(lat2) +
         Math.cos(lat1) * Math.cos(lat2) * Math.cos((latlng2.lng - latlng1.lng) * rad);
-
     const maxMeters = R * Math.acos(Math.min(a, 1));
     return maxMeters;
-
   };
-
   const y = map._container.clientHeight / 2;
   const maxMeters = getDistance(map.unproject([0, y]), map.unproject([maxWidth, y]));
-
   return maxMeters / maxWidth;
 }; */
 
 
 /* 
 CANCEL MAPBOX ZOOM PROGRMAMATICALLY
-
 Unfortunately there’s no public Mapbox method to cancel a camera movement, but you can change the zoom level to trigger a halt.
 map.setZoom(map.getZoom() + 0.01);
 */
@@ -288,7 +282,7 @@ export const metersPerPixel = (lat, zoom) => {
 export const calculatePopoverPlacement = async (map, popoverLocation) => {
   if (!map || !popoverLocation) return 'auto';
 
-  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = 0.7;
+  const EDGE_NEARNESS_PERCENTAGE_THRESHOLD = UFA_NAVIGATION_UI ?  0.8 : 0.7;
 
   const mapBounds = await waitForMapBounds(map);
   const mapRelativeWidth = mapBounds._ne.lng - mapBounds._sw.lng;
@@ -296,11 +290,30 @@ export const calculatePopoverPlacement = async (map, popoverLocation) => {
   const popoverRelativeCoordinateX = popoverLocation.lng - mapBounds._sw.lng;
   const popoverRelativeCoordinateY = popoverLocation.lat - mapBounds._ne.lat;
 
-  if (popoverRelativeCoordinateX / mapRelativeWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if (!UFA_NAVIGATION_UI) {
+    if (popoverRelativeCoordinateX / mapRelativeWidth > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+      return 'left';
+    }
+    if (popoverRelativeCoordinateY / mapRelativeHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+      return 'right';
+    }
+    return 'auto';
+  }
+
+  const popoverXPlacementRatio = popoverRelativeCoordinateX / mapRelativeWidth;
+  const popoverYPlacementRatio = popoverRelativeCoordinateY / mapRelativeHeight;
+
+  if (popoverXPlacementRatio > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'left';
   }
-  if (popoverRelativeCoordinateY / mapRelativeHeight > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+  if ((1 - popoverXPlacementRatio) > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
     return 'right';
+  }
+  if (popoverYPlacementRatio > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'top';
+  }
+  if ((1 - popoverYPlacementRatio) > EDGE_NEARNESS_PERCENTAGE_THRESHOLD) {
+    return 'bottom';
   }
   return 'auto';
 };

@@ -5,6 +5,7 @@ import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
+import observationsReducer from '../ducks/observations';
 import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer from '../ducks/patrol-filter';
@@ -26,6 +27,7 @@ import eventFilterReducer from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
+import drawerReducer from '../ducks/drawer';
 import eulaReducer from '../ducks/eula';
 import eventSchemaReducer from '../ducks/event-schemas';
 import featuresReducer from '../ducks/features';
@@ -74,6 +76,7 @@ const rootReducer = combineReducers({
     maps: persistReducer(mapsPersistanceConfig, mapsReducer),
     mapSubjects: mapSubjectReducer,
     masterRequestCancelToken: masterRequestTokenReducer,
+    observations: observationsReducer,
     patrols: patrolsReducer,
     patrolTypes: patrolTypesReducer,
     reports: externalReportingReducer,
@@ -106,6 +109,7 @@ const rootReducer = combineReducers({
     showReportsOnMap: displayReportsOnMapReducer,
     simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),
     modals: modalsReducer,
+    drawer: drawerReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),

@@ -9,10 +9,13 @@ import format from 'date-fns/format';
 import setSeconds from 'date-fns/set_seconds';
 import setMilliseconds from 'date-fns/set_milliseconds';
 import isFuture from 'date-fns/is_future';
+import humanizeDuration from 'humanize-duration';
+import pluralize from 'pluralize';
 
 export const DEFAULT_FRIENDLY_DATE_FORMAT = 'Mo MMM YYYY';
 
 export const EVENT_SYMBOL_DATE_FORMAT = 'DD MMM YY';
+
 
 export const dateIsValid = date => date instanceof Date && !isNaN(date.valueOf());
 
@@ -70,3 +73,61 @@ export const timeValuesAreEqualToTheMinute = (val1, val2) => {
   return flattenDate(val1).getTime() === flattenDate(val2).getTime();
 };
 
+const DEFAULT_HUMANIZED_DURATION_PROPS = {
+  delimiter: ' ',
+  maxDecimalPoints: 0,
+};
+
+export const HUMANIZED_DURATION_CONFIGS = {
+  FULL_FORMAT: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'en',
+    units: ['y', 'mo', 'd', 'h', 'm', 's'],
+  },
+  MINUTES_ONLY: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'minutes_only',
+    languages: {
+      minutes_only: {
+        m: (n) => pluralize('minute', n),
+      },
+    },
+    units: ['m'],
+    spacer: ' ',
+  },
+  ABBREVIATED_FORMAT: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'abbreviated',
+    languages: {
+      abbreviated: {
+        y: () => 'y',
+        mo: () => 'mo',
+        w: () => 'w',
+        d: () => 'd',
+        h: () => 'h',
+        m: () => 'm',
+        s: () => 's',
+      },
+    },
+    units: ['y', 'mo', 'w', 'd', 'h', 'm', 's'],
+    spacer: '',
+  },
+  LONG_TERM_ABRREVIATED: {
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language: 'long_term',
+    languages: {
+      long_term: {
+        y: () => 'y',
+        mo: () => 'mo',
+        w: () => 'w',
+        d: () => 'd',
+        h: () => 'h',
+        m: () => 'm',
+      },
+    },
+    units: ['y', 'mo', 'w', 'd', 'h', 'm'],
+    spacer: '',
+  }
+};
+
+export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT) => humanizeDuration.humanizer(config);

@@ -13,6 +13,8 @@ import { ReactComponent as GpsLocationIcon } from '../../common/images/icons/gps
 import styles from './styles.module.scss';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../../utils/analytics';
 
+import { ReactComponent as ArrowDownSmallIcon } from '../../common/images/icons/arrow-down-small.svg';
+
 const { Toggle, Menu, Item, Divider } = Dropdown;
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
@@ -28,7 +30,7 @@ const NavHomeMenu = function NavHomeMenu(props) {
   return (
     <Dropdown className="home-select" onToggle={onDropdownToggle} alignRight>
       <Toggle className={styles.toggle}>
-        <NavHomeItem {...selectedMap} showIcon={true} /> {isMediumLayout && <span className={styles.dropdownArrow}>&or;</span>}
+        <NavHomeItem {...selectedMap} showIcon={true} /> {isMediumLayout && <ArrowDownSmallIcon />}
       </Toggle>
       <Menu className={styles.menu}>
         {maps.map(map =>

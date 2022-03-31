@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
+
 import { withRouter } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
+import uniqBy from 'lodash/uniqBy';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
-import uniqBy from 'lodash/uniqBy';
 import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
-
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -23,9 +23,9 @@ import { openModalForReport } from '../utils/events';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
+import { subjectIsStatic } from '../utils/subjects';
 import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
-import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
@@ -35,12 +35,20 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
-import { BREAKPOINTS, LAYER_IDS, LAYER_PICKER_IDS, MAX_ZOOM } from '../constants';
+import {
+  BREAKPOINTS,
+  DEVELOPMENT_FEATURE_FLAGS,
+  REACT_APP_ENABLE_CLUSTERING,
+  LAYER_IDS,
+  LAYER_PICKER_IDS,
+  MAX_ZOOM,
+} from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
 import EarthRangerMap, { withMap } from '../EarthRangerMap';
 import EventsLayer from '../EventsLayer';
 import SubjectsLayer from '../SubjectsLayer';
+import StaticSensorsLayer from '../StaticSensorsLayer';
 import TrackLayers from '../TracksLayer';
 import PatrolStartStopLayer from '../PatrolStartStopLayer';
 import FeatureLayer from '../FeatureLayer';
@@ -57,11 +65,12 @@ import TimeSliderMapControl from '../TimeSlider/TimeSliderMapControl';
 import ReportsHeatLayer from '../ReportsHeatLayer';
 import ReportsHeatmapLegend from '../ReportsHeatmapLegend';
 import MessageBadgeLayer from '../MessageBadgeLayer';
-// import IsochroneLayer from '../IsochroneLayer';
 import MapImagesLayer from '../MapImagesLayer';
 import ReloadOnProfileChange from '../ReloadOnProfileChange';
 import SleepDetector from '../SleepDetector';
+import ClustersLayer from '../ClustersLayer';
 
+import AddReport from '../AddReport';
 import MapRulerControl from '../MapRulerControl';
 import MapPrintControl from '../MapPrintControl';
 import MapMarkerDropper from '../MapMarkerDropper';
@@ -74,8 +83,14 @@ import LocationSearch from '../LocationSearchControl';
 
 import './Map.scss';
 
+const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
+const CLUSTER_APPROX_WIDTH = 40;
+const CLUSTER_APPROX_HEIGHT = 25;
+
+const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
 class Map extends Component {
 
   constructor(props) {
@@ -137,7 +152,7 @@ class Map extends Component {
     if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
       this.props.hidePopup(this.props.popup.id);
     }
-  }, 100)
+  }, 100);
 
   withLocationPickerState(func) {
     return (...args) => {
@@ -192,6 +207,10 @@ class Map extends Component {
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
       this.debouncedFetchMapData();
     }
+    if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
+      console.log('location update, re-fetching map events');
+      this.debouncedFetchMapEvents();
+    }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
       this.onSubjectHeatmapClose();
     }
@@ -238,7 +257,7 @@ class Map extends Component {
   onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
     this.props.showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
-  })
+  });
 
   onMapMoveStart() {
     mapSubjectsFetchCancelToken.cancel();
@@ -254,7 +273,7 @@ class Map extends Component {
       bearing: 0,
       pitch: 0,
     });
-  }
+  };
 
   toggleMapLockState() {
     return toggleMapLockState();
@@ -286,7 +305,7 @@ class Map extends Component {
     }
   }
 
-  debouncedFetchMapData = debounce(this.fetchMapData, 500)
+  debouncedFetchMapData = debounce(this.fetchMapData, 500);
   debouncedFetchMapEvents = debounce(this.fetchMapEvents, 300);
 
   fetchMapSubjects() {
@@ -321,23 +340,42 @@ class Map extends Component {
   fetchMapSubjectTracksForTimeslider(subjects) {
     this.resetTrackRequestCancelToken();
     return fetchTracksIfNecessary(subjects
+      .filter(subject => !subjectIsStatic(subject))
       .filter(({ last_position_date }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
       .map(({ id }) => id));
   }
 
   fetchMapEvents() {
-    return this.props.fetchMapEvents(this.props.map)
+    let params;
+    if (this.props.userLocation?.coords) {
+      params = {
+        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+      };
+    }
+    return this.props.fetchMapEvents(this.props.map, params)
       .catch((e) => {
         console.warn('error fetching map events', e);
       });
   }
   onMapClick = this.withLocationPickerState((map, event) => {
-    const clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
     const clickedLayersOfInterest = uniqBy(
       map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
       , layer => layer.properties.id);
+    let hidePopup = true, clusterFeaturesAtPoint = [];
+    if (REACT_APP_ENABLE_CLUSTERING) {
+      const clusterApproxGeometry = [
+        [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
+        [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
+      ];
+      const clustersAtPoint = map.queryRenderedFeatures(
+        clusterApproxGeometry,
+        { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
+      );
 
-    let showingMultiPopup;
+      hidePopup = !clustersAtPoint.length;
+    } else {
+      clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
+    }
 
     if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
@@ -346,7 +384,7 @@ class Map extends Component {
     if (clickedLayersOfInterest.length > 1) {
       if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
         this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-        showingMultiPopup = true;
+        hidePopup = false;
       }
     }
 
@@ -357,16 +395,26 @@ class Map extends Component {
         const { map } = this.props;
         setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
       }
-      if (!showingMultiPopup) {
+      if (hidePopup) {
         this.props.hidePopup(this.props.popup.id);
       }
     }
+
     this.hideUnpinnedTrackLayers(map, event);
 
     if (this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
       this.props.updateUserPreferences({ sidebarOpen: false });
     }
-  })
+  });
+
+  onShowClusterSelectPopup = (layers, coordinates) => {
+    this.props.showPopup('cluster-select', {
+      layers,
+      coordinates,
+      onSelectEvent: this.onEventSymbolClick,
+      onSelectSubject: this.onMapSubjectClick,
+    });
+  };
 
   onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
     if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
@@ -376,7 +424,7 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     openModalForReport(event, map);
-  })
+  });
 
   onClusterLeafClick = this.withLocationPickerState((report) => {
     this.onEventSymbolClick({ layer: { properties: report } });
@@ -387,7 +435,7 @@ class Map extends Component {
 
     this.props.showPopup('feature-symbol', { geometry, properties, coordinates });
     mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  })
+  });
 
   onAnalyzerGroupEnter = (e, groupIds) => {
     // if an analyzer popup is open, and the user selects a new 
@@ -401,14 +449,14 @@ class Map extends Component {
     this.currentAnalyzerIds = groupIds;
     const { map } = this.props;
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);
-  }
+  };
 
   onAnalyzerGroupExit = (e, groupIds) => {
     // shortcircuit when the analyzer popup is displayed
     if (this.props.popup && this.props.popup.type === 'analyzer-config') return;
     const { map } = this.props;
     setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
-  }
+  };
 
   onAnalyzerFeatureClick = this.withLocationPickerState((e) => {
     const { map } = this.props;
@@ -418,7 +466,7 @@ class Map extends Component {
     const geometry = e.lngLat;
     const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, this.props.analyzerFeatures);
     this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
-  })
+  });
 
   hideUnpinnedTrackLayers(map, event) {
     const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible: visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
@@ -442,7 +490,7 @@ class Map extends Component {
   }
 
   onClusterClick = this.withLocationPickerState(({ point }) => {
-    const features = this.props.map.queryRenderedFeatures(point, { layers: [LAYER_IDS.EVENT_CLUSTERS_CIRCLES] });
+    const features = this.props.map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
     const clusterId = features[0].properties.cluster_id;
     const clusterSource = this.props.map.getSource('events-data-clustered');
 
@@ -460,12 +508,12 @@ class Map extends Component {
         });
       }
     });
-  })
+  });
 
   onCurrentUserLocationClick = this.withLocationPickerState((location) => {
     this.props.showPopup('current-user-location', { location, coordinates: [location.coords.longitude, location.coords.latitude] });
     mapInteractionTracker.track('Click Current User Location Icon');
-  })
+  });
 
   onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
     if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
@@ -490,7 +538,7 @@ class Map extends Component {
     const { geometry, properties } = layer;
 
     this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
-  })
+  });
 
   setMap(map) {
     // don't set zoom if not hydrated
@@ -539,9 +587,9 @@ class Map extends Component {
 
   render() {
     const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
-      mapEventFeatureCollection, mapFeaturesFeatureCollection, analyzersFeatureCollection,
+      mapFeaturesFeatureCollection, analyzersFeatureCollection,
       heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
-      patrolTrackState, subjectsOnActivePatrol, timeSliderState: { active: timeSliderActive } } = this.props;
+      patrolTrackState, timeSliderState: { active: timeSliderActive } } = this.props;
 
     const { showReportHeatmap } = this.props;
 
@@ -558,11 +606,20 @@ class Map extends Component {
 
     const enableEventClustering = timeSliderActive ? false : true;
 
+    const staticFeatures = (mapSubjectFeatureCollection?.features ?? []).filter(subjectFeature => subjectIsStatic(subjectFeature));
+    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
+
     return (
       <EarthRangerMap
         center={this.mapCenter}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
         controls={<Fragment>
+          {UFA_NAVIGATION_UI && <AddReport
+            className="general-add-button"
+            variant="secondary"
+            popoverPlacement="left"
+            showLabel={false}
+          />}
           <LocationSearch />
           <MapBaseLayerControl />
           <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
@@ -582,26 +639,27 @@ class Map extends Component {
           <Fragment>
             {children}
 
+            {REACT_APP_ENABLE_CLUSTERING && <ClustersLayer
+              onShowClusterSelectPopup={this.onShowClusterSelectPopup}
+            />}
+
             <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
               <EventsLayer
                 enableClustering={enableEventClustering}
-                events={mapEventFeatureCollection}
                 mapImages={mapImages}
                 onEventClick={this.onEventSymbolClick}
                 onClusterClick={this.onClusterClick}
-                bounceEventIDs={bounceEventIDs} />
+                bounceEventIDs={bounceEventIDs}
+              />
             </DelayedUnmount>
+
+            <SubjectsLayer mapImages={mapImages} onSubjectClick={this.onMapSubjectClick} />
 
             <MapImagesLayer map={map} />
 
             <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
 
-            <SubjectsLayer
-              mapImages={mapImages}
-              subjects={mapSubjectFeatureCollection}
-              subjectsOnActivePatrol={subjectsOnActivePatrol}
-              onSubjectIconClick={this.onMapSubjectClick}
-            />
+            <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 
@@ -611,13 +669,16 @@ class Map extends Component {
               </div>
             </DelayedUnmount>
 
-
             <div className='map-legends'>
-              {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-              {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-              {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-              {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+              {!UFA_NAVIGATION_UI && <>
+                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+                </>
+              }
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
+                {UFA_NAVIGATION_UI && <CursorGpsDisplay />}
                 <RotationControl
                   className='rotation-control'
                   style={{
@@ -628,8 +689,15 @@ class Map extends Component {
                     borderRadius: '0.25rem',
                   }}
                 />
-                <CursorGpsDisplay />
+                {!UFA_NAVIGATION_UI && <CursorGpsDisplay />}
               </span>
+              {UFA_NAVIGATION_UI && <>
+                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
+                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
+                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
+                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
+                </>
+              }
             </div>
 
             <RightClickMarkerDropper />
@@ -642,14 +710,12 @@ class Map extends Component {
 
             {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
 
-            {/* uncomment the below coordinates and go southeast of seattle for a demo of the isochrone layer */}
-            {/* <IsochroneLayer coords={[-122.01062903346423, 47.47666150363713]} /> */}
-
             <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
 
             <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
               criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
-              onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map} />
+              onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map}
+              isSubjectSymbolsLayerReady={!!map.getLayer(SUBJECT_SYMBOLS)} />
 
             {!!popup && <PopupLayer
               popup={popup} />
@@ -670,11 +736,12 @@ const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userPreferences, showReportsOnMap } = view;
+    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
     maps,
+    userLocation,
     eventTypes,
     heatmapSubjectIDs,
     tracks,
@@ -693,7 +760,6 @@ const mapStatetoProps = (state) => {
     bounceEventIDs,
     trackLength,
     trackLengthOrigin,
-    mapEventFeatureCollection: getMapEventFeatureCollectionWithVirtualDate(state),
     mapImages: state.view.mapImages,
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
