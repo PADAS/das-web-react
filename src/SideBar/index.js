@@ -143,6 +143,7 @@ const SideBar = ({ map, onHandleClick }) => {
       dispatch(updateUserPreferences({ sidebarOpen: false, sidebarTab: clickedSidebarTab }));
     } else {
       dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: clickedSidebarTab }));
+      setNestedNavigationState(false);
     }
   }, [dispatch, sidebarOpen, sidebarTab]);
 
@@ -332,7 +333,7 @@ const SideBar = ({ map, onHandleClick }) => {
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
                 {nestedNavigationState ?
-                  <button type='button' onClick={() => setNestedNavigationState(false)}>
+                  <button className={styles.backButton} type='button' onClick={() => setNestedNavigationState(false)}>
                     <ArrowLeftIcon />
                   </button>
                   :
