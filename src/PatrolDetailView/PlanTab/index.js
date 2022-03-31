@@ -76,7 +76,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol(update);
   }, [patrolForm.id, updatePatrol]);
 
-  const onInputChange = useCallback((event) => {
+  const onObjectiveChange = useCallback((event) => {
     event.preventDefault();
     const { value } = event.target;
 
@@ -96,8 +96,9 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         as="textarea"
         data-testid="patrol-objective-input"
         placeholder="Describe the purpose of the patrol..."
+        rows={3}
         value={patrolForm?.objective ?? ''}
-        onChange={onInputChange}
+        onChange={onObjectiveChange}
       />
     </label>
   </>;
