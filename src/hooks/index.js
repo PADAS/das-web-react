@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-
-import { useSelector } from 'react-redux';
 import isEqual from 'react-fast-compare';
+import { useSelector } from 'react-redux';
 
 export const useFeatureFlag = flag =>
   useSelector(state =>

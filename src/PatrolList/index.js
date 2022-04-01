@@ -2,17 +2,18 @@ import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState,
 import PropTypes from 'prop-types';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 import PatrolListItem from '../PatrolListItem';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
@@ -20,7 +21,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return onItemClick(patrol.id);
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return onItemClick(patrol.id);
     openModalForPatrol(patrol, map);
   }, [map, onItemClick, patrol]);
 
@@ -36,7 +37,6 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
 });
 
 const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
-
   const [listItems, setListItems] = useState(patrols);
 
   const onPatrolSelfManagedStateChange = useCallback(() => {
@@ -51,11 +51,11 @@ const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
   if (loading) return <LoadingOverlay className={styles.loadingOverlay} />;
 
   return <Fragment>
-    {!UFA_NAVIGATION_UI && <PatrolListTitle />}
+    {!ENABLE_UFA_NAVIGATION_UI && <PatrolListTitle />}
     {!!listItems.length && <Flipper
       flipKey={listItems}
       element='ul'
-      className={UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
+      className={ENABLE_UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
     >
       {listItems.map((item) =>
         <ListItem

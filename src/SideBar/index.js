@@ -60,6 +60,8 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
 
@@ -79,8 +81,6 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
   return state;
 };
 /* --- OLD NAVIGATION STUFF ENDS HERE --- */
-
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
@@ -197,7 +197,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sidebarTab);
     }
   }, [sidebarTab]);
@@ -228,19 +228,19 @@ const SideBar = ({ map, onHandleClick }) => {
   };
 
   useEffect(() => {
-    if (!UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
     }
   }, [activeTab]);
 
   useEffect(() => {
-    if (!UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       fetchAndLoadPatrolData();
     }
   }, [overlap]); // eslint-disable-line
 
   useEffect(() => {
-    if (!UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
       if (!sidebarOpen) {
         activeTabPreClose.current = activeTab.current;
         dispatchOld(setActiveTab(TAB_KEYS.REPORTS));
@@ -261,11 +261,11 @@ const SideBar = ({ map, onHandleClick }) => {
       : 'auto'
     );
 
-  if (!UFA_NAVIGATION_UI && !map) return null;
+  if (!ENABLE_UFA_NAVIGATION_UI && !map) return null;
 
   const selectedTab = !!activeTab && activeTab.current;
 
-  if (!UFA_NAVIGATION_UI)  {
+  if (!ENABLE_UFA_NAVIGATION_UI)  {
     return <ErrorBoundary>
       <MapContext.Provider value={map}>
         <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>

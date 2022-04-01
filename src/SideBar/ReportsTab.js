@@ -27,7 +27,7 @@ import ReportDetailView from '../ReportDetailView';
 
 import styles from './styles.module.scss';
 
-const { REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -86,7 +86,7 @@ const ReportsTab = ({
   }, [events.next, fetchNextEventFeedPage]);
 
   const onEventTitleClick = (event) => {
-    if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
       showReportDetailView({ report: event });
     } else {
       openModalForReport(event, map);
@@ -123,7 +123,7 @@ const ReportsTab = ({
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
-        <div className={`${styles.filterWrapper} ${!UFA_NAVIGATION_UI ? styles.oldNavigationFilterWrapper : ''}`} data-testid='filter-wrapper'>
+        <div className={`${styles.filterWrapper} ${!ENABLE_UFA_NAVIGATION_UI ? styles.oldNavigationFilterWrapper : ''}`} data-testid='filter-wrapper'>
           <EventFilter className={styles.eventFilter} data-testid='reports-filter' sortConfig={feedSort} onResetAll={resetFeedSort}>
             <ColumnSort className={styles.dateSort} sortOptions={EVENT_SORT_OPTIONS} orderOptions={EVENT_SORT_ORDER_OPTIONS} value={feedSort} onChange={onFeedSortChange}/>
           </EventFilter>

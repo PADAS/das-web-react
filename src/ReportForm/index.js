@@ -37,7 +37,8 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { PATROL_NEW_UI, REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const ACTIVE_STATES = ['active', 'new'];
 
 const reportIsActive = (state) => ACTIVE_STATES.includes(state) || !state;
@@ -165,7 +166,7 @@ const ReportForm = (props) => {
     const onSubmit = () => {
       return saveChanges()
         .then((results) => {
-          removeModal();
+          if (!!results) removeModal();
           return results;
         });
     };
@@ -318,7 +319,7 @@ const ReportForm = (props) => {
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
-      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+      if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
         showReportDetailView({ formProps, report: data });
       } else {
         openModalForReport(data, map, formProps);
@@ -374,7 +375,7 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
-      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+      if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
         showReportDetailView({ report: data });
       } else {
         openModalForReport(data, map);
@@ -399,7 +400,7 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
-      if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+      if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
         showReportDetailView({ report: data });
       } else {
         openModalForReport(data, map);
@@ -419,7 +420,7 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView({ id: patrolId });
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return showPatrolDetailView({ id: patrolId });
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
@@ -450,7 +451,7 @@ const ReportForm = (props) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
-              if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+              if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
                 showReportDetailView({ report: data });
               } else {
                 openModalForReport(data, map);
@@ -465,7 +466,7 @@ const ReportForm = (props) => {
             return fetchEvent(incidentID).then((results) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
-              if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
+              if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
                 showReportDetailView({ report: data });
               } else {
                 openModalForReport(data, map);
