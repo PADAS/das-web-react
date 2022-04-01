@@ -48,7 +48,7 @@ const RelationshipButton = (props) => {
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-        showReportDetailView({ event: data });
+        showReportDetailView({ report: data });
       } else {
         openModalForReport(data, map);
       }

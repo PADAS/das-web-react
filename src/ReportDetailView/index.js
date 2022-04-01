@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { connect } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
-import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
@@ -12,27 +10,37 @@ import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
 import { hideReportDetailView } from '../ducks/events';
-// import { REPORT_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 
 import Header from './Header';
 
 import styles from './styles.module.scss';
-
-// const reportDetailViewTracker = trackEventFactory(REPORT_DETAIL_VIEW_CATEGORY);
 
 const NAVIGATION_DETAILS_EVENT_KEY = 'details';
 const NAVIGATION_NOTES_EVENT_KEY = 'notes';
 const NAVIGATION_ATTACHMENTS_EVENT_KEY = 'attachments';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
-/* eslint-disable no-unused-vars */
 const ReportDetailView = () => {
   const dispatch = useDispatch();
 
+  const { formProps = {}, report } = useSelector((state) => state.view.reportDetailView);
+  const {
+    navigateRelationships,
+    relationshipButtonDisabled,
+    onSaveError,
+    onSaveSuccess,
+    hidePatrols,
+  } = formProps;
+
+  const [reportForm, setReportForm] = useState({ ...report });
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
   return <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
-    <Header />
+    <Header
+      report={report}
+      setTitle={(value) => setReportForm({ ...reportForm, title: value })}
+      title={reportForm.title}
+    />
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
       <div className={styles.body}>
@@ -87,6 +95,23 @@ const ReportDetailView = () => {
 
           <div className={styles.footer}>
             <div>
+              <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
+                <NoteIcon />
+                Note
+              </Button>
+
+              <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
+                <AttachmentIcon />
+                Attachment
+              </Button>
+
+              <Button className={styles.footerActionButton} onClick={() => {}} type="button" variant="secondary">
+                <HistoryIcon />
+                Report
+              </Button>
+            </div>
+
+            <div>
               <Button
                 className={styles.cancelButton}
                 onClick={() => dispatch(hideReportDetailView())}
@@ -107,8 +132,4 @@ const ReportDetailView = () => {
   </div>;
 };
 
-ReportDetailView.propTypes = { onCloseDetailView: PropTypes.func.isRequired };
-
-const mapStateToProps = (state, props) => {};
-
-export default connect(mapStateToProps)(ReportDetailView);
+export default ReportDetailView;

@@ -319,7 +319,7 @@ const ReportForm = (props) => {
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
       if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-        showReportDetailView({ event: data, formProps });
+        showReportDetailView({ formProps, report: data });
       } else {
         openModalForReport(data, map, formProps);
       }
@@ -375,7 +375,7 @@ const ReportForm = (props) => {
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-        showReportDetailView({ event: data });
+        showReportDetailView({ report: data });
       } else {
         openModalForReport(data, map);
       }
@@ -400,7 +400,7 @@ const ReportForm = (props) => {
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-        showReportDetailView({ event: data });
+        showReportDetailView({ report: data });
       } else {
         openModalForReport(data, map);
       }
@@ -451,7 +451,7 @@ const ReportForm = (props) => {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
               if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-                showReportDetailView({ event: data });
+                showReportDetailView({ report: data });
               } else {
                 openModalForReport(data, map);
               }
@@ -466,7 +466,7 @@ const ReportForm = (props) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
               if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-                showReportDetailView({ event: data });
+                showReportDetailView({ report: data });
               } else {
                 openModalForReport(data, map);
               }

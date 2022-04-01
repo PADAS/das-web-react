@@ -617,7 +617,7 @@ const PatrolModal = (props) => {
       navigateRelationships: false,
     };
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showReportDetailView({ event: item, formProps });
+      showReportDetailView({ formProps, report: item });
     } else {
       openModalForReport(item, map, formProps);
     }

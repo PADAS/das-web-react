@@ -423,7 +423,7 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      this.props.showReportDetailView({ event });
+      this.props.showReportDetailView({ report: event });
     } else {
       openModalForReport(event, map);
     }

@@ -87,7 +87,7 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showReportDetailView({ event });
+      showReportDetailView({ report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -175,7 +175,7 @@ ReportsTab.propTypes = {
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
   reportDetailView: PropTypes.shape({
-
+    show: PropTypes.bool,
   }).isRequired,
   showReportDetailView: PropTypes.func.isRequired,
 };

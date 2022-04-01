@@ -30,6 +30,7 @@ import {
 } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
+import { hideReportDetailView } from '../ducks/events';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
 import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
@@ -88,6 +89,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
+  const reportDetailView = useSelector((state) => state.view.reportDetailView);
   const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
   const sidebarTab = useSelector((state) => state.view.userPreferences.sidebarTab);
 
@@ -151,6 +153,11 @@ const SideBar = ({ map, onHandleClick }) => {
     setNestedNavigationState(false);
   }, [dispatch]);
 
+  const onClickBackNestedNavigationState = useCallback(() => {
+    setNestedNavigationState(false);
+    dispatch(hideReportDetailView());
+  }, [dispatch]);
+
   useEffect(() => {
     if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
       setShowEventsBadge(false);
@@ -189,6 +196,10 @@ const SideBar = ({ map, onHandleClick }) => {
       };
     }
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
+
+  useEffect(() => {
+    setNestedNavigationState(reportDetailView.show);
+  }, [reportDetailView.show]);
 
   useEffect(() => {
     if (UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
@@ -332,7 +343,7 @@ const SideBar = ({ map, onHandleClick }) => {
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
                 {nestedNavigationState ?
-                  <button type='button' onClick={() => setNestedNavigationState(false)}>
+                  <button type='button' onClick={onClickBackNestedNavigationState}>
                     <ArrowLeftIcon />
                   </button>
                   :

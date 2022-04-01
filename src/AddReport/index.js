@@ -244,7 +244,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     const newReport = createNewReportForEventType(reportType, reportData);
 
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showReportDetailView({ event: newReport, formProps });
+      showReportDetailView({ formProps, report: newReport });
     } else {
       openModalForReport(newReport, map, formProps);
     }
