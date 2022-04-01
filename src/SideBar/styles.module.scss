@@ -98,7 +98,7 @@
   }
 
   @media (min-width: $md-layout-width-min) {
-    transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
+    transform: translateX(calc(calc(46rem + var(--vertical-nav-width)) * -1));
   }
 }
 

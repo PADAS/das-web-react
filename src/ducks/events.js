@@ -59,7 +59,6 @@ const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const UPDATE_REPORT_DETAIL_VIEW = 'UPDATE_REPORT_DETAIL_VIEW';
-const CLEAR_REPORT_DETAIL_VIEW = 'CLEAR_REPORT_DETAIL_VIEW';
 
 export const socketEventData = (payload) => (dispatch) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
@@ -646,13 +645,10 @@ export default globallyResettableReducer(eventStoreReducer, INITIAL_STORE_STATE)
 
 const INITIAL_REPORT_DETAIL_VIEW_STATE = { show: false };
 
-export const reportDetailViewReducer = (state = {}, { type, payload }) => {
+export const reportDetailViewReducer = (state = INITIAL_REPORT_DETAIL_VIEW_STATE, { type, payload }) => {
   switch (type) {
   case UPDATE_REPORT_DETAIL_VIEW:
     return { ...payload };
-
-  case CLEAR_REPORT_DETAIL_VIEW:
-    return INITIAL_REPORT_DETAIL_VIEW_STATE;
 
   default:
     return state;

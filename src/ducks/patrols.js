@@ -37,8 +37,6 @@ export const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
 export const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
 
 const UPDATE_PATROL_DETAIL_VIEW = 'UPDATE_PATROL_DETAIL_VIEW';
-const CLEAR_PATROL_DETAIL_VIEW = 'CLEAR_PATROL_DETAIL_VIEW';
-
 
 // for now, assume that a realtime update of a patrol can
 // use the same reducer as the results of the restful updat
@@ -269,19 +267,15 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
 };
 
 
-export const showPatrolDetailView = (payload) => dispatch => {
+export const showPatrolDetailView = (payload) => (dispatch) => {
   dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: TAB_KEYS.PATROLS }));
-  return dispatch({
-    type: UPDATE_PATROL_DETAIL_VIEW,
-    payload: payload
-  });
+  dispatch({ type: UPDATE_PATROL_DETAIL_VIEW, payload: { ...payload, show: true } });
 };
 
-export const clearPatrolDetailView = () => dispatch => {
-  return dispatch({
-    type: CLEAR_PATROL_DETAIL_VIEW,
-  });
-};
+export const hidePatrolDetailView = () => (dispatch) => dispatch({
+  type: UPDATE_PATROL_DETAIL_VIEW,
+  payload: { show: false },
+});
 
 export const INITIAL_PATROLS_STATE = {
   count: null,
@@ -378,16 +372,14 @@ export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type,
   return state;
 };
 
-const INITIAL_STATE = {};
+const INITIAL_PATROL_DETAIL_VIEW_STATE = { show: false };
 
-export const patrolDetailViewReducer = (state = INITIAL_STATE, { type, payload }) => {
-  if (type === UPDATE_PATROL_DETAIL_VIEW) {
+export const patrolDetailViewReducer = (state = INITIAL_PATROL_DETAIL_VIEW_STATE, { type, payload }) => {
+  switch (type) {
+  case UPDATE_PATROL_DETAIL_VIEW:
     return { ...payload };
-  }
 
-  if (type === CLEAR_PATROL_DETAIL_VIEW) {
-    return INITIAL_STATE;
+  default:
+    return state;
   }
-
-  return state;
 };

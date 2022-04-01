@@ -173,9 +173,9 @@ PatrolDetailView.propTypes = {
 };
 
 const mapStateToProps = (state, props) => {
-  const patrol = !!props.patrolId
-    ? getPatrolList(state).results.find((patrol) => patrol.id === props.patrolId)
-    : props.newPatrol;
+  const patrol = !!state.view.patrolDetailView.id
+    ? getPatrolList(state).results.find((patrol) => patrol.id === state.view.patrolDetailView.id)
+    : state.view.patrolDetailView.newPatrol;
 
   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];

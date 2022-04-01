@@ -234,7 +234,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
       if (isPatrol) {
         setPopoverState(false);
-        if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView({ newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
 

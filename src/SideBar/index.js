@@ -28,7 +28,7 @@ import {
   PERMISSIONS,
   TAB_KEYS,
 } from '../constants';
-import { fetchPatrols } from '../ducks/patrols';
+import { fetchPatrols, hidePatrolDetailView } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
 import { hideReportDetailView } from '../ducks/events';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
@@ -89,6 +89,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
+  const patrolDetailView = useSelector((state) => state.view.patrolDetailView);
   const reportDetailView = useSelector((state) => state.view.reportDetailView);
   const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
   const sidebarTab = useSelector((state) => state.view.userPreferences.sidebarTab);
@@ -102,7 +103,6 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
-  const [nestedNavigationState, setNestedNavigationState] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -150,13 +150,12 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const handleCloseSideBar = useCallback(() => {
     dispatch(updateUserPreferences({ sidebarOpen: false }));
-    setNestedNavigationState(false);
   }, [dispatch]);
 
-  const onClickBackNestedNavigationState = useCallback(() => {
-    setNestedNavigationState(false);
-    dispatch(hideReportDetailView());
-  }, [dispatch]);
+  const onClickBackFromDetailView = useCallback(() => {
+    if (sidebarTab === TAB_KEYS.PATROLS) dispatch(hidePatrolDetailView());
+    else if (sidebarTab === TAB_KEYS.REPORTS) dispatch(hideReportDetailView());
+  }, [dispatch, sidebarTab]);
 
   useEffect(() => {
     if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
@@ -196,10 +195,6 @@ const SideBar = ({ map, onHandleClick }) => {
       };
     }
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
-
-  useEffect(() => {
-    setNestedNavigationState(reportDetailView.show);
-  }, [reportDetailView.show]);
 
   useEffect(() => {
     if (UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
@@ -285,7 +280,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
             {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
               <Suspense fallback={null}>
-                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} nestedNavigationState={false}/>
+                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
               </Suspense>
             </Tab>}
 
@@ -310,6 +305,9 @@ const SideBar = ({ map, onHandleClick }) => {
     </ErrorBoundary>;
   }
   /* --- OLD NAVIGATION STUFF ENDS HERE --- */
+
+  const detailViewOpened = (sidebarTab === TAB_KEYS.PATROLS && patrolDetailView.show)
+    || (sidebarTab === TAB_KEYS.REPORTS && reportDetailView.show);
 
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
@@ -342,8 +340,8 @@ const SideBar = ({ map, onHandleClick }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-                {nestedNavigationState ?
-                  <button type='button' onClick={onClickBackNestedNavigationState}>
+                {detailViewOpened ?
+                  <button type='button' onClick={onClickBackFromDetailView}>
                     <ArrowLeftIcon />
                   </button>
                   :
@@ -374,13 +372,7 @@ const SideBar = ({ map, onHandleClick }) => {
             </Tab.Pane>
 
             {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-              <PatrolsTab
-                loadingPatrols={loadingPatrols}
-                map={map}
-                patrolResults={patrols.results}
-                nestedNavigationState={nestedNavigationState}
-                changeNestedNavigation={(value) => setNestedNavigationState(value)}
-              />
+              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
             </Tab.Pane>}
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
