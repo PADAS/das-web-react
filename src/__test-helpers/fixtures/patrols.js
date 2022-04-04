@@ -1260,7 +1260,7 @@ export const overduePatrol = {
   'id': 'fe65464e-ea6d-4144-bba0-f9d901ffa46b',
   'priority': 0,
   'state': 'open',
-  'objective': null,
+  'objective': 'very ambitious objective',
   'serial_number': 1551,
   'title': null,
   'files': [],
