@@ -1,0 +1,26 @@
+@import '../../common/styles/vars/colors';
+
+.trackedByLabel {
+  margin-top: 1rem;
+  width: 65%;
+  position: relative;
+  color: $secondary-medium-gray;
+
+  &.loading {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .loadingTrackedBy {
+    background: none;
+    z-index: 1000;
+    [class*=spinner] {
+      height: 1.5rem;
+      right: 1.4rem;
+      position: absolute;
+      width: 1.5rem;
+      right: 3.125rem;
+      top: 1.875rem;
+    }
+  }
+}

@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
-import { newPatrol } from '../__test-helpers/fixtures/patrols';
+import { newPatrol, patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
 
 jest.mock('../utils/save', () => ({
@@ -15,15 +15,16 @@ jest.mock('../utils/save', () => ({
 
 const onCloseDetailView = jest.fn();
 
+let store = patrolDefaultStoreData;
+store.data.subjectStore = {};
+store.data.user = { permissions: { patrol: ['change'] } };
+
 describe('PatrolDetailView', () => {
   let executeSaveActionsMock;
 
   beforeEach(() => {
     render(
-      <Provider store={mockStore({
-        data: { subjectStore: {}, user: { permissions: { patrol: ['change'] } } },
-        view: {},
-      })}>
+      <Provider store={mockStore(store)}>
         <PatrolDetailView newPatrol={newPatrol} onCloseDetailView={onCloseDetailView}/>
       </Provider>
     );
@@ -61,7 +62,7 @@ describe('PatrolDetailView', () => {
   });
 
   test('updates the title when user types in it', async () => {
-    const titleInput = await screen.findByRole('textbox');
+    const titleInput = (await screen.findAllByRole('textbox'))[0];
 
     // Couldn't mock the patrol types to get the expected display title
     expect(titleInput).toHaveAttribute('value', 'Unknown patrol type');

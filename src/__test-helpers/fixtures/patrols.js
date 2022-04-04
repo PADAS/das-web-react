@@ -1578,3 +1578,40 @@ export const cancelledPatrol = {
     }
   ]
 };
+
+export const patrolDefaultStoreData = {
+  data: {
+    patrols: [],
+    eventSchemas: {
+      globalSchema: {
+        properties: {
+          reported_by: {
+            enum_ext: [{
+              value: { id: 'Leader 1' },
+            }, {
+              value: { id: 'Leader 2' },
+            }],
+          },
+        },
+      },
+    },
+    patrolLeaderSchema: {
+      trackedbySchema: {
+        properties: {
+          leader: {
+            enum_ext: [{
+              value: { id: 'Leader 1' },
+            }, {
+              value: { id: 'Leader 2' },
+            }],
+          },
+        },
+      },
+    },
+    subjectStore: {},
+    patrols: {
+      results: [],
+    },
+  },
+  view: {},
+};
