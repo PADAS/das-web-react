@@ -5,18 +5,26 @@ import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
-import { fetchPatrols } from '../ducks/patrols';
+import { fetchPatrols, hidePatrolDetailView } from '../ducks/patrols';
+import { hideReportDetailView } from '../ducks/events';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
-import patrols from '../__test-helpers/fixtures/patrols';
+import patrols, { newPatrol } from '../__test-helpers/fixtures/patrols';
+import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
+import { report } from '../__test-helpers/fixtures/reports';
 
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   fetchPatrols: jest.fn(),
+  hidePatrolDetailView: jest.fn(),
+}));
+jest.mock('../ducks/events', () => ({
+  ...jest.requireActual('../ducks/events'),
+  hideReportDetailView: jest.fn(),
 }));
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
@@ -25,10 +33,14 @@ jest.mock('../hooks', () => ({
 }));
 
 describe('SideBar', () => {
-  let fetchPatrolsMock, map, store;
+  let fetchPatrolsMock, hidePatrolDetailViewMock, hideReportDetailViewMock, map, store;
   beforeEach(() => {
     fetchPatrolsMock = jest.fn(() => () => ({ request: Promise.resolve() }));
     fetchPatrols.mockImplementation(fetchPatrolsMock);
+    hidePatrolDetailViewMock = jest.fn(() => () => {});
+    hidePatrolDetailView.mockImplementation(hidePatrolDetailViewMock);
+    hideReportDetailViewMock = jest.fn(() => () => {});
+    hideReportDetailView.mockImplementation(hideReportDetailViewMock);
 
     map = createMapMock();
 
@@ -64,6 +76,7 @@ describe('SideBar', () => {
         },
         patrolStore: patrols.reduce((accumulator, patrol) => ({ ...accumulator, [patrol.id]: patrol }), {}),
         patrols: INITIAL_PATROLS_STATE,
+        patrolTypes,
         subjectGroups: [],
         user: {
           permissions: {
@@ -73,6 +86,8 @@ describe('SideBar', () => {
       },
       view: {
         hiddenAnalyzerIDs: [],
+        patrolDetailView: { show: false },
+        reportDetailView: { show: false },
         userPreferences: { sidebarOpen: true, sidebarTab: TAB_KEYS.REPORTS },
       },
     };
@@ -330,5 +345,69 @@ describe('SideBar', () => {
       payload: { sidebarOpen: false, sidebarTab: 'reports' },
       type: 'UPDATE_USER_PREFERENCES',
     });
+  });
+
+  test('shows a back button if the detail view of the current tab is open', () => {
+    store.view.reportDetailView = { report, show: true };
+    render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <SideBar map={map} />
+        </MockSocketProvider>
+      </Provider>
+    );
+
+    expect(screen.getByTestId('sideBar-backDetailViewButton')).toBeDefined();
+  });
+
+  test('does not show the back button if the detail view of another tab is open', () => {
+    store.view.reportDetailView = { report, show: true };
+    store.view.userPreferences.sidebarTab = TAB_KEYS.PATROLS;
+    render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <SideBar map={map} />
+        </MockSocketProvider>
+      </Provider>
+    );
+
+    expect(screen.queryByTestId('sideBar-backDetailViewButton')).toBeNull();
+  });
+
+  test('hides the report detail view if it was opened but user clicked the back button', () => {
+    store.view.reportDetailView = { report, show: true };
+    render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <SideBar map={map} />
+        </MockSocketProvider>
+      </Provider>
+    );
+
+    expect(hideReportDetailView).toHaveBeenCalledTimes(0);
+
+    const backDetailViewButton = screen.getByTestId('sideBar-backDetailViewButton');
+    userEvent.click(backDetailViewButton);
+
+    expect(hideReportDetailView).toHaveBeenCalledTimes(1);
+  });
+
+  test('hides the patrol detail view if it was opened but user clicked the back button', () => {
+    store.view.patrolDetailView = { newPatrol, show: true };
+    store.view.userPreferences.sidebarTab = TAB_KEYS.PATROLS;
+    render(
+      <Provider store={mockStore(store)}>
+        <MockSocketProvider>
+          <SideBar map={map} />
+        </MockSocketProvider>
+      </Provider>
+    );
+
+    expect(hidePatrolDetailView).toHaveBeenCalledTimes(0);
+
+    const backDetailViewButton = screen.getByTestId('sideBar-backDetailViewButton');
+    userEvent.click(backDetailViewButton);
+
+    expect(hidePatrolDetailView).toHaveBeenCalledTimes(1);
   });
 });

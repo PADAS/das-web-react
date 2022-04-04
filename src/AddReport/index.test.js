@@ -4,14 +4,26 @@ import { Provider } from 'react-redux';
 
 import AddReport from './';
 import { createMapMock } from '../__test-helpers/mocks';
-import { createNewReportForEventType, openModalForReport } from '../utils/events';
+import { createNewReportForEventType } from '../utils/events';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
+import { showReportDetailView } from '../ducks/events';
 
+jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
+  DEVELOPMENT_FEATURE_FLAGS: {
+    ENABLE_PATROL_NEW_UI: true,
+    ENABLE_REPORT_NEW_UI: true,
+    ENABLE_UFA_NAVIGATION_UI: true,
+  },
+}));
 jest.mock('../utils/events', () => ({
   ...jest.requireActual('../utils/events'),
   createNewReportForEventType: jest.fn(),
-  openModalForReport: jest.fn(),
+}));
+jest.mock('../ducks/events', () => ({
+  ...jest.requireActual('../ducks/events'),
+  showReportDetailView: jest.fn(),
 }));
 
 describe('AddReport', () => {
@@ -75,18 +87,18 @@ describe('AddReport', () => {
     });
   });
 
-  test('starts the addition of a new report', async () => {
+  test('opens the report detail view to add a new report', async () => {
     const createNewReportForEventTypeMock = jest.fn();
     createNewReportForEventType.mockImplementation(createNewReportForEventTypeMock);
-    const openModalForReportMock = jest.fn();
-    openModalForReport.mockImplementation(openModalForReportMock);
+    const showReportDetailViewMock = jest.fn(() => () => {});
+    showReportDetailView.mockImplementation(showReportDetailViewMock);
 
     const addRepportButton = await screen.getByTestId('addReport-button');
     fireEvent.click(addRepportButton);
 
     await waitFor(() => {
       expect(createNewReportForEventType).toHaveBeenCalledTimes(0);
-      expect(openModalForReportMock).toHaveBeenCalledTimes(0);
+      expect(showReportDetailView).toHaveBeenCalledTimes(0);
     });
 
     const categoryListButton = await screen.findAllByTestId('categoryList-button-d0884b8c-4ecb-45da-841d-f2f8d6246abf');
@@ -94,7 +106,7 @@ describe('AddReport', () => {
 
     await waitFor(() => {
       expect(createNewReportForEventType).toHaveBeenCalled();
-      expect(openModalForReportMock).toHaveBeenCalled();
+      expect(showReportDetailView).toHaveBeenCalled();
     });
   });
 });

@@ -1581,7 +1581,6 @@ export const cancelledPatrol = {
 
 export const patrolDefaultStoreData = {
   data: {
-    patrols: [],
     eventSchemas: {
       globalSchema: {
         properties: {
@@ -1613,5 +1612,9 @@ export const patrolDefaultStoreData = {
       results: [],
     },
   },
-  view: {},
+  view: {
+    patrolDetailView: {
+      newPatrol,
+    },
+  },
 };

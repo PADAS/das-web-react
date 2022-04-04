@@ -112,18 +112,24 @@ const ReportDetailView = () => {
             </div>
 
             <div>
-              <Button
-                className={styles.cancelButton}
-                onClick={() => dispatch(hideReportDetailView())}
-                type="button"
-                variant="secondary"
-              >
-                Cancel
-              </Button>
+              {tab === NAVIGATION_DETAILS_EVENT_KEY && <>
+                <Button
+                  className={styles.cancelButton}
+                  onClick={() => dispatch(hideReportDetailView())}
+                  type="button"
+                  variant="secondary"
+                >
+                  Cancel
+                </Button>
 
-              <Button className={styles.saveButton} onClick={() => {}} type="button">
-                Save
-              </Button>
+                <Button
+                  className={styles.saveButton}
+                  onClick={() => {}}
+                  type="button"
+                >
+                  Save
+                </Button>
+              </>}
             </div>
           </div>
         </div>

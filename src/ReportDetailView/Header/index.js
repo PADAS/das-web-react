@@ -11,7 +11,7 @@ const Header = ({ report, setTitle, title }) => {
   const { title: originalReportTitle } = useReport(report);
 
   return <div className={styles.header}>
-    <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`}>
+    <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
       <EventIcon report={report} />
     </div>
 

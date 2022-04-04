@@ -341,7 +341,7 @@ const SideBar = ({ map, onHandleClick }) => {
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
                 {detailViewOpened ?
-                  <button type='button' onClick={onClickBackFromDetailView}>
+                  <button type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
                     <ArrowLeftIcon />
                   </button>
                   :
