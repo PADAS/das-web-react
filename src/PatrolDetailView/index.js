@@ -23,6 +23,7 @@ import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analyti
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
+import PlanTab from './PlanTab';
 
 import styles from './styles.module.scss';
 
@@ -52,6 +53,10 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
   useEffect(() => {
     setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
   }, [leader, patrol]);
+
+  const onPatrolChange = useCallback((patrolChanges) => {
+    setPatrolForm({ ...patrol, ...patrolChanges });
+  }, [patrol]);
 
   const onSave = useCallback(() => {
     patrolDetailViewTracker.track(`Click "save" button for ${patrolTrackStatus} patrol`);
@@ -125,7 +130,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
         <div className={styles.content}>
           <Tab.Content className={`${styles.tab} ${hasEditPatrolsPermission ? '' : 'readonly'}`}>
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_PLAN_EVENT_KEY}>
-              Plan
+              <PlanTab patrolForm={patrolForm} onPatrolChange={onPatrolChange}/>
             </Tab.Pane>
 
             <Tab.Pane className={styles.tabPane} eventKey={NAVIGATION_TIMELINE_EVENT_KEY}>
