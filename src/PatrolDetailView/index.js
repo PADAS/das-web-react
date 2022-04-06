@@ -81,7 +81,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
     });
 
     const actions = generateSaveActionsForReportLikeObject(patrolToSubmit, 'patrol', [], newFiles);
-    executeSaveActions(actions)
+    return executeSaveActions(actions)
       .then(() => {
         patrolDetailViewTracker.track(`Saved ${patrolTrackStatus} patrol`);
       })
@@ -89,8 +89,8 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
         patrolDetailViewTracker.track(`Error saving ${patrolTrackStatus} patrol`);
         console.warn('failed to save new patrol', error);
       })
-      .finally(async () => {
-        await setSaveState(false);
+      .finally(() => {
+        setSaveState(false);
         onCloseDetailView();
       });
   }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, onCloseDetailView]);
@@ -143,7 +143,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
           </Tab.Content>
 
           <div className={styles.footer}>
-            <Button className={styles.exitButton} onClick={() => onCloseDetailView()} type="button" variant="secondary">
+            <Button className={styles.exitButton} onClick={onCloseDetailView} type="button" variant="secondary">
               Exit
             </Button>
 

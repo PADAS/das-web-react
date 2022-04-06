@@ -29,13 +29,12 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     }
   }, [fetchTrackedBySchema, patrolLeaderSchema]);
 
-  const patrolLeaders = patrolLeaderSchema?.trackedbySchema ? patrolLeaderSchema.trackedbySchema?.properties?.leader?.enum_ext?.map(({ value }) => value): [];
-  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader || null, [patrolForm.patrol_segments]);
+  const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
+  const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
 
   const updatePatrol = useCallback((update) => {
     onPatrolChange(merge({}, patrolForm, update));
   }, [onPatrolChange, patrolForm]);
-
   const onSelectTrackedSubject = useCallback((value) => {
     const patrolIsNew = !patrolForm.id;
 
@@ -77,7 +76,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrol(update);
   }, [patrolForm.id, updatePatrol]);
 
-  const onInputChange = useCallback((event) => {
+  const onObjectiveChange = useCallback((event) => {
     event.preventDefault();
     const { value } = event.target;
 
@@ -96,9 +95,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <Control
         as="textarea"
         data-testid="patrol-objective-input"
-        placeholder="Patrol objective..."
+        placeholder="Describe the purpose of the patrol..."
+        rows={3}
         value={patrolForm?.objective ?? ''}
-        onChange={onInputChange}
+        onChange={onObjectiveChange}
       />
     </label>
   </>;

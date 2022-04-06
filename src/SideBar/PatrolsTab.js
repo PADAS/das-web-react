@@ -36,12 +36,8 @@ const PatrolsTab = ({ map, patrolResults, loadingPatrols, changeNestedNavigation
   }, [changeNestedNavigation, clearPatrolDetailView]);
 
   useEffect(() => {
-    if (showPatrolDetailView){
-      if (!nestedNavigationState & !isEmpty(activePatrol)) {
-        handleCloseDetailView();
-      }
-    }
-  }, [handleCloseDetailView, nestedNavigationState, activePatrol, showPatrolDetailView]);
+    if (showPatrolDetailView && !nestedNavigationState) handleCloseDetailView();
+  }, [handleCloseDetailView, nestedNavigationState, showPatrolDetailView]);
 
   useEffect(() => {
     if (!showPatrolDetailView){
