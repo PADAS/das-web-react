@@ -47,7 +47,8 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, formProps = {}, removeModal, onSaveSuccess, onSaveError,
-    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport, fetchPatrol, showDetailView } = props;
+    schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport,
+    fetchPatrol, showVerticalNavigationBarDetailView } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -321,7 +322,7 @@ const ReportForm = (props) => {
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
+        showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
       } else {
         openModalForReport(data, map, formProps);
       }
@@ -377,7 +378,7 @@ const ReportForm = (props) => {
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showDetailView(TAB_KEYS.REPORTS, { report: data });
+        showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: data });
       } else {
         openModalForReport(data, map);
       }
@@ -391,7 +392,7 @@ const ReportForm = (props) => {
     removeModal,
     reportTracker,
     saveChanges,
-    showDetailView,
+    showVerticalNavigationBarDetailView,
   ]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
@@ -402,13 +403,21 @@ const ReportForm = (props) => {
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showDetailView(TAB_KEYS.REPORTS, { report: data });
+        showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: data });
       } else {
         openModalForReport(data, map);
       }
       removeModal();
     });
-  }, [addEventToIncident, fetchEvent, map, removeModal, reportTracker, saveChanges, showDetailView]);
+  }, [
+    addEventToIncident,
+    fetchEvent,
+    map,
+    removeModal,
+    reportTracker,
+    saveChanges,
+    showVerticalNavigationBarDetailView,
+  ]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
     const patrolId = patrol.id;
@@ -421,12 +430,14 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return showDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
+      return showVerticalNavigationBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+    }
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showDetailView]);
+  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showVerticalNavigationBarDetailView]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -453,7 +464,7 @@ const ReportForm = (props) => {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
               if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-                showDetailView(TAB_KEYS.REPORTS, { report: data });
+                showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: data });
               } else {
                 openModalForReport(data, map);
               }
@@ -468,7 +479,7 @@ const ReportForm = (props) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
               if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-                showDetailView(TAB_KEYS.REPORTS, { report: data });
+                showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: data });
               } else {
                 openModalForReport(data, map);
               }
@@ -591,7 +602,7 @@ export default memo(
         fetchEvent: id => fetchEvent(id),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
-        showDetailView,
+        showVerticalNavigationBarDetailView: showDetailView,
       }
     )
     (ReportForm)
@@ -614,5 +625,5 @@ ReportForm.propTypes = {
   onSubmit: PropTypes.func,
   onSaveSuccess: PropTypes.func,
   onSaveError: PropTypes.func,
-  showDetailView: PropTypes.func.isRequired,
+  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
 };

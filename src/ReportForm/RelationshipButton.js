@@ -30,7 +30,7 @@ const RelationshipButton = (props) => {
     onNewReportSaved,
     map,
     removeModal,
-    showDetailView,
+    showVerticalNavigationBarDetailView,
   } = props;
   const report = useContext(FormDataContext);
 
@@ -49,12 +49,12 @@ const RelationshipButton = (props) => {
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showDetailView(TAB_KEYS.REPORTS, { report: data });
+        showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: data });
       } else {
         openModalForReport(data, map);
       }
     });
-  }, [fetchEvent, map, removeModal, report, reportTracker, showDetailView]);
+  }, [fetchEvent, map, removeModal, report, reportTracker, showVerticalNavigationBarDetailView]);
 
   const goToParentPatrol = useCallback(() => {
     const [patrolId] = report.patrols;
@@ -62,11 +62,13 @@ const RelationshipButton = (props) => {
     reportTracker.track('Click \'Go to Patrol\' button');
 
     removeModal();
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return showDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
+      return showVerticalNavigationBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+    }
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, showDetailView]);
+  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, showVerticalNavigationBarDetailView]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>
@@ -91,7 +93,7 @@ const RelationshipButton = (props) => {
 export default memo(connect(null, {
   fetchEvent: id => fetchEvent(id),
   fetchPatrol: id => fetchPatrol(id),
-  showDetailView,
+  showVerticalNavigationBarDetailView: showDetailView,
 })(RelationshipButton));
 
 RelationshipButton.propTypes = {
@@ -100,5 +102,5 @@ RelationshipButton.propTypes = {
   isPatrolReport: PropTypes.bool,
   onGoToCollection: PropTypes.func,
   map: PropTypes.object,
-  showDetailView: PropTypes.func.isRequired,
+  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
 };

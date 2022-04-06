@@ -1609,6 +1609,7 @@ export const patrolDefaultStoreData = {
         },
       },
     },
+    patrolStore: {},
     subjectStore: {},
     patrols: {
       results: [],
@@ -1617,9 +1618,7 @@ export const patrolDefaultStoreData = {
   view: {
     verticalNavigationBar: {
       currentTab: TAB_KEYS.PATROLS,
-      data: {
-        newPatrol,
-      },
+      data: newPatrol,
       showDetailView: false,
     },
   },

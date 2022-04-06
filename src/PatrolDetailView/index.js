@@ -10,7 +10,7 @@ import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import { addPatrolSegmentToEvent } from '../utils/events';
-import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
+import { createPatrolDataSelector } from '../selectors/patrols';
 import {
   displayPatrolSegmentId,
   displayTitleForPatrol,
@@ -179,9 +179,8 @@ PatrolDetailView.propTypes = {
 };
 
 const mapStateToProps = (state, props) => {
-  const patrol = !!state.view.verticalNavigationBar.data?.id
-    ? getPatrolList(state).results.find((patrol) => patrol.id === state.view.verticalNavigationBar.data.id)
-    : state.view.verticalNavigationBar.data?.newPatrol;
+  const patrol = state.data.patrolStore[state.view.verticalNavigationBar.data?.id]
+    || state.view.verticalNavigationBar.data;
 
   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];

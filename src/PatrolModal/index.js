@@ -87,7 +87,7 @@ const PatrolModal = (props) => {
     patrolLeaderSchema,
     autoEndPatrols,
     eventStore,
-    showDetailView,
+    showVerticalNavigationBarDetailView,
   } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
@@ -619,11 +619,11 @@ const PatrolModal = (props) => {
       navigateRelationships: false,
     };
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
+      showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showDetailView]);
+  }, [eventStore, fetchEvent, map, onAddReport, showVerticalNavigationBarDetailView]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -784,10 +784,10 @@ export default connect(mapStateToProps, {
   removeModal,
   updateUserPreferences,
   setModalVisibilityState,
-  showDetailView,
+  showVerticalNavigationBarDetailView: showDetailView,
 })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
-  showDetailView: PropTypes.func.isRequired,
+  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
 };

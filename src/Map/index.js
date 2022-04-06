@@ -418,7 +418,7 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      this.props.showDetailView(TAB_KEYS.REPORTS, { report: event });
+      this.props.showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -778,7 +778,7 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
-  showDetailView,
+  showVerticalNavigationBarDetailView: showDetailView,
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,

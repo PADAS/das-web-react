@@ -175,7 +175,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showDetailView }) => {
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showVerticalNavigationBarDetailView }) => {
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -239,7 +239,10 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       if (isPatrol) {
         setPopoverState(false);
         if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
-          return showDetailView(TAB_KEYS.PATROLS, { newPatrol: createNewPatrolForPatrolType(reportType, reportData) });
+          return showVerticalNavigationBarDetailView(
+            TAB_KEYS.PATROLS,
+            createNewPatrolForPatrolType(reportType, reportData)
+          );
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
@@ -250,7 +253,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     const newReport = createNewReportForEventType(reportType, reportData);
 
     if (DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI && DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI) {
-      showDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
+      showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
     } else {
       openModalForReport(newReport, map, formProps);
     }
@@ -262,7 +265,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     map,
     patrolsEnabled,
     reportData,
-    showDetailView,
+    showVerticalNavigationBarDetailView,
   ]);
 
   return hasEventCategories &&
@@ -295,7 +298,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, { showDetailView })(memo(AddReport));
+export default connect(mapStateToProps, { showVerticalNavigationBarDetailView: showDetailView })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -338,5 +341,5 @@ AddReport.propTypes = {
     isPatrolReport: PropTypes.bool,
   }),
   hideReports: PropTypes.bool,
-  showDetailView: PropTypes.func.isRequired,
+  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
 };

@@ -39,7 +39,7 @@ const ReportsTab = ({
   fetchNextEventFeedPage,
   eventFilter,
   map,
-  showDetailView,
+  showVerticalNavigationBarDetailView,
   verticalNavigationBar,
 }) => {
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
@@ -87,7 +87,7 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showDetailView(TAB_KEYS.REPORTS, { report: event });
+      showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -163,7 +163,7 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { fetchEventFeed, fetchNextEventFeedPage, showDetailView }
+  { fetchEventFeed, fetchNextEventFeedPage, showVerticalNavigationBarDetailView: showDetailView }
 )(memo(ReportsTab));
 
 ReportsTab.propTypes = {
@@ -175,5 +175,5 @@ ReportsTab.propTypes = {
     currentTab: PropTypes.string,
     showDetailView: PropTypes.bool,
   }).isRequired,
-  showDetailView: PropTypes.func.isRequired,
+  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
 };

@@ -15,7 +15,7 @@ const PatrolsTab = ({
   map,
   patrolResults,
   loadingPatrols,
-  showDetailView,
+  showVerticalNavigationBarDetailView,
   verticalNavigationBar,
 }) => <>
   {verticalNavigationBar.currentTab === TAB_KEYS.PATROLS && verticalNavigationBar.showDetailView &&
@@ -25,7 +25,7 @@ const PatrolsTab = ({
     loading={loadingPatrols}
     map={map}
     patrols={patrolResults}
-    onItemClick={(id) => showDetailView(TAB_KEYS.PATROLS, { id })}
+    onItemClick={(id) => showVerticalNavigationBarDetailView(TAB_KEYS.PATROLS, { id })}
   />
 </>;
 
@@ -34,9 +34,9 @@ PatrolsTab.propTypes = {
   patrolResults: PropTypes.array.isRequired,
   loadingPatrols: PropTypes.bool.isRequired,
   verticalNavigationBar: PropTypes.object,
-  showDetailView: PropTypes.func.isRequired,
+  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ view: { verticalNavigationBar } }) => ({ verticalNavigationBar });
 
-export default connect(mapStateToProps, { showDetailView })(PatrolsTab);
+export default connect(mapStateToProps, { showVerticalNavigationBarDetailView: showDetailView })(PatrolsTab);

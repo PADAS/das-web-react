@@ -51,7 +51,7 @@ describe('PatrolsTab', () => {
   });
 
   test('it should show the detail patrols view if this contains some data', async () => {
-    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: { newPatrol }, showDetailView: true };
+    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
     render(<Provider store={mockStore(store)}>
       <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={mockedPatrols} />
     </Provider>);

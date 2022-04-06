@@ -396,7 +396,7 @@ describe('SideBar', () => {
   });
 
   test('hides the patrol detail view if it was opened but user clicked the back button', () => {
-    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: { newPatrol }, showDetailView: true };
+    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
