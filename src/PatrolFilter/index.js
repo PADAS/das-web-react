@@ -133,7 +133,7 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
         className={styles.friendlyFilterString}
         dateRange={patrolFilter.filter.date_range}
         isFiltered={isFilterModified(patrolFilter)}
-        totalFeedCount={patrols.results.length}
+        totalFeedCount={patrols?.results?.length ?? 0}
       />
     </div>}
   </>;

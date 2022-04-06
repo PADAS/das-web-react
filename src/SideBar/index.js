@@ -338,7 +338,7 @@ const SideBar = ({ map, onHandleClick }) => {
                 data-testid="sideBar-addReportButton"
               >
                 {verticalNavigationBar.showDetailView ?
-                  <button type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
+                  <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
                     <ArrowLeftIcon />
                   </button>
                   :
