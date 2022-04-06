@@ -97,7 +97,6 @@ class Map extends Component {
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
-    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.debouncedFetchMapEvents = this.debouncedFetchMapEvents.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
@@ -123,8 +122,6 @@ class Map extends Component {
     this.onSleepDetected = this.onSleepDetected.bind(this);
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
-
-    this.fetchingMapData = false;
 
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
 
@@ -204,7 +201,7 @@ class Map extends Component {
       this.onTrackLengthChange();
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
-      this.debouncedFetchMapData();
+      this.fetchMapData();
     }
     if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
       console.log('location update, re-fetching map events');
@@ -289,19 +286,16 @@ class Map extends Component {
   }
 
   fetchMapData() {
-    if (!this.fetchingMapData) {
-      this.fetchingMapData = true;
-      return Promise.all([
-        this.fetchMapEvents(),
-        this.fetchMapSubjects(),
-      ])
-        .catch((e) => {
-          console.warn('error loading map data', e);
-        })
-        .finally(() => {
-          this.fetchingMapData = false;
-        });
-    }
+    this.onMapMoveStart();
+    return Promise.all([
+      this.fetchMapEvents(),
+      this.fetchMapSubjects(),
+    ])
+      .catch((e) => {
+        console.warn('error loading map data', e);
+      })
+      .finally(() => {
+      });
   }
 
   debouncedFetchMapData = debounce(this.fetchMapData, 500);
