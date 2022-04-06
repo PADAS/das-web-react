@@ -3,10 +3,10 @@ import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import localForage from 'localforage';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
-import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer, reportDetailViewReducer } from '../ducks/events';
+import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
-import patrolsReducer, { patrolStoreReducer, patrolTracksReducer, patrolDetailViewReducer } from '../ducks/patrols';
+import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
@@ -39,6 +39,7 @@ import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
+import verticalNavigationBarReducer from '../ducks/vertical-navigation-bar';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -102,7 +103,6 @@ const rootReducer = combineReducers({
     hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     patrolTrackState: patrolTracksReducer,
-    patrolDetailView: patrolDetailViewReducer,
     mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
@@ -125,7 +125,7 @@ const rootReducer = combineReducers({
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
-    reportDetailView: reportDetailViewReducer,
+    verticalNavigationBar: verticalNavigationBarReducer,
   }),
 });
 

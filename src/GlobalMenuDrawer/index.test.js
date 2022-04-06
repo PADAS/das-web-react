@@ -121,8 +121,12 @@ describe('GlobalMenuDrawer', () => {
     userEvent.click(reportsNavigationButton);
 
     expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true, sidebarTab: 'reports' },
+      payload: { sidebarOpen: true },
       type: 'UPDATE_USER_PREFERENCES',
+    });
+    expect(mockStoreInstance.getActions()[1]).toEqual({
+      payload: { currentTab: 'reports' },
+      type: 'OPEN_TAB',
     });
   });
 
@@ -152,8 +156,12 @@ describe('GlobalMenuDrawer', () => {
     userEvent.click(patrolsNavigationButton);
 
     expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true, sidebarTab: 'patrols' },
+      payload: { sidebarOpen: true },
       type: 'UPDATE_USER_PREFERENCES',
+    });
+    expect(mockStoreInstance.getActions()[1]).toEqual({
+      payload: { currentTab: 'patrols' },
+      type: 'OPEN_TAB',
     });
   });
 
@@ -170,8 +178,12 @@ describe('GlobalMenuDrawer', () => {
     userEvent.click(mapLayersNavigationButton);
 
     expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true, sidebarTab: 'layers' },
+      payload: { sidebarOpen: true },
       type: 'UPDATE_USER_PREFERENCES',
+    });
+    expect(mockStoreInstance.getActions()[1]).toEqual({
+      payload: { currentTab: 'layers' },
+      type: 'OPEN_TAB',
     });
   });
 

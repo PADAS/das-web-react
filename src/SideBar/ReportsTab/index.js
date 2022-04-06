@@ -5,13 +5,14 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
 import { getFeedEvents } from '../../selectors';
 import { openModalForReport } from '../../utils/events';
 
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
-import { fetchEventFeed, fetchNextEventFeedPage, showReportDetailView } from '../../ducks/events';
+import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { showDetailView } from '../../ducks/vertical-navigation-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
@@ -38,8 +39,8 @@ const ReportsTab = ({
   fetchNextEventFeedPage,
   eventFilter,
   map,
-  reportDetailView,
-  showReportDetailView,
+  showDetailView,
+  verticalNavigationBar,
 }) => {
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -86,7 +87,7 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showReportDetailView({ report: event });
+      showDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -118,7 +119,8 @@ const ReportsTab = ({
   }, [events.results, optionalFeedProps.exclude_contained]);
 
   return <>
-    {reportDetailView.show && <ReportDetailView />}
+    {verticalNavigationBar.currentTab === TAB_KEYS.REPORTS && verticalNavigationBar.showDetailView &&
+      <ReportDetailView />}
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
@@ -155,13 +157,13 @@ const ReportsTab = ({
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
-  reportDetailView: state.view.reportDetailView,
+  verticalNavigationBar: state.view.verticalNavigationBar,
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
 export default connect(
   mapStateToProps,
-  { fetchEventFeed, fetchNextEventFeedPage, showReportDetailView }
+  { fetchEventFeed, fetchNextEventFeedPage, showDetailView }
 )(memo(ReportsTab));
 
 ReportsTab.propTypes = {
@@ -169,8 +171,9 @@ ReportsTab.propTypes = {
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
-  reportDetailView: PropTypes.shape({
-    show: PropTypes.bool,
+  verticalNavigationBar: PropTypes.shape({
+    currentTab: PropTypes.string,
+    showDetailView: PropTypes.bool,
   }).isRequired,
-  showReportDetailView: PropTypes.func.isRequired,
+  showDetailView: PropTypes.func.isRequired,
 };

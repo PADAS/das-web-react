@@ -3,10 +3,12 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
-import { fetchEventFeed, fetchNextEventFeedPage, showReportDetailView } from '../../ducks/events';
+import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
+import { showDetailView } from '../../ducks/vertical-navigation-bar';
+import { TAB_KEYS } from '../../constants';
 
 import ReportsTab from './';
 
@@ -14,19 +16,23 @@ jest.mock('../../ducks/events', () => ({
   ...jest.requireActual('../../ducks/events'),
   fetchEventFeed: jest.fn(),
   fetchNextEventFeedPage: jest.fn(),
-  showReportDetailView: jest.fn(),
+}));
+
+jest.mock('../../ducks/vertical-navigation-bar', () => ({
+  ...jest.requireActual('../../ducks/vertical-navigation-bar'),
+  showDetailView: jest.fn(),
 }));
 
 describe('ReportsTab', () => {
-  let fetchEventFeedMock, fetchNextEventFeedPageMock, showReportDetailViewMock, store;
+  let fetchEventFeedMock, fetchNextEventFeedPageMock, showDetailViewMock, store;
 
   beforeEach(() => {
     fetchEventFeedMock = jest.fn(() => Promise.resolve());
     fetchEventFeed.mockImplementation(fetchEventFeedMock);
     fetchNextEventFeedPageMock = jest.fn(() => Promise.resolve());
     fetchNextEventFeedPage.mockImplementation(fetchNextEventFeedPageMock);
-    showReportDetailViewMock = jest.fn(() => () => {});
-    showReportDetailView.mockImplementation(showReportDetailViewMock);
+    showDetailViewMock = jest.fn(() => () => {});
+    showDetailView.mockImplementation(showDetailViewMock);
 
     store = {
       data: {
@@ -35,7 +41,7 @@ describe('ReportsTab', () => {
         patrolTypes,
       },
       view: {
-        reportDetailView: { show: false },
+        verticalNavigationBar: { currentTab: TAB_KEYS.REPORTS, showDetailView: false },
       },
     };
   });

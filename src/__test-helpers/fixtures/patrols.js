@@ -1,3 +1,5 @@
+import { TAB_KEYS } from '../../constants';
+
 const patrols = [
   {
     'id': '91970025-c4dc-4680-822d-21a686595985',
@@ -1613,8 +1615,12 @@ export const patrolDefaultStoreData = {
     },
   },
   view: {
-    patrolDetailView: {
-      newPatrol,
+    verticalNavigationBar: {
+      currentTab: TAB_KEYS.PATROLS,
+      data: {
+        newPatrol,
+      },
+      showDetailView: false,
     },
   },
 };

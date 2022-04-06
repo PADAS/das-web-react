@@ -24,7 +24,7 @@ const Header = ({ report, setTitle, title }) => {
 Header.propTypes = {
   report: PropTypes.object.isRequired,
   setTitle: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
 };
 
 export default Header;

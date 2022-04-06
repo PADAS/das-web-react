@@ -12,7 +12,7 @@ import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
-import { clearEventData, fetchMapEvents, cancelMapEventsFetch, showReportDetailView } from '../ducks/events';
+import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
 import { fetchBaseLayers } from '../ducks/layers';
 import { TRACK_LENGTH_ORIGINS, setTrackLength } from '../ducks/tracks';
 import { showPopup, hidePopup } from '../ducks/popup';
@@ -34,6 +34,7 @@ import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
+import { showDetailView } from '../ducks/vertical-navigation-bar';
 
 import {
   BREAKPOINTS,
@@ -41,6 +42,7 @@ import {
   LAYER_IDS,
   LAYER_PICKER_IDS,
   MAX_ZOOM,
+  TAB_KEYS,
 } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
@@ -416,7 +418,7 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      this.props.showReportDetailView({ report: event });
+      this.props.showDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -776,7 +778,7 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
-  showReportDetailView,
+  showDetailView,
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,

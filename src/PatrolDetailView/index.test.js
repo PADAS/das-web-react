@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { executeSaveActions } from '../utils/save';
-import { hidePatrolDetailView } from '../ducks/patrols';
+import { hideDetailView } from '../ducks/vertical-navigation-bar';
 import { mockStore } from '../__test-helpers/MockStore';
 import { patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
@@ -13,9 +13,9 @@ jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
   executeSaveActions: jest.fn(),
 }));
-jest.mock('../ducks/patrols', () => ({
-  ...jest.requireActual('../ducks/patrols'),
-  hidePatrolDetailView: jest.fn(),
+jest.mock('../ducks/vertical-navigation-bar', () => ({
+  ...jest.requireActual('../ducks/vertical-navigation-bar'),
+  hideDetailView: jest.fn(),
 }));
 
 let store = patrolDefaultStoreData;
@@ -23,11 +23,11 @@ store.data.subjectStore = {};
 store.data.user = { permissions: { patrol: ['change'] } };
 
 describe('PatrolDetailView', () => {
-  let executeSaveActionsMock, hidePatrolDetailViewMock;
+  let executeSaveActionsMock, hideDetailViewMock;
 
   beforeEach(() => {
-    hidePatrolDetailViewMock = jest.fn(() => () => {});
-    hidePatrolDetailView.mockImplementation(hidePatrolDetailViewMock);
+    hideDetailViewMock = jest.fn(() => () => {});
+    hideDetailView.mockImplementation(hideDetailViewMock);
 
     render(
       <Provider store={mockStore(store)}>
@@ -79,12 +79,12 @@ describe('PatrolDetailView', () => {
   });
 
   test('closes the drawer when clicking the exit button', async () => {
-    expect(hidePatrolDetailView).toHaveBeenCalledTimes(0);
+    expect(hideDetailView).toHaveBeenCalledTimes(0);
 
     const exitButton = await screen.findByText('Exit');
     userEvent.click(exitButton);
 
-    expect(hidePatrolDetailView).toHaveBeenCalledTimes(1);
+    expect(hideDetailView).toHaveBeenCalledTimes(1);
   });
 
   test('renders the save button when user is in the Plan tab', async () => {
@@ -110,14 +110,14 @@ describe('PatrolDetailView', () => {
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
-    expect(hidePatrolDetailView).toHaveBeenCalledTimes(0);
+    expect(hideDetailView).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(executeSaveActions).toHaveBeenCalledTimes(1);
-      expect(hidePatrolDetailView).toHaveBeenCalledTimes(1);
+      expect(hideDetailView).toHaveBeenCalledTimes(1);
     });
   });
 });

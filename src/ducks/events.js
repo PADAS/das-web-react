@@ -1,7 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
 
-import { API_URL, TAB_KEYS } from '../constants';
+import { API_URL } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
@@ -9,8 +9,6 @@ import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
-import { updateUserPreferences } from '../ducks/user-preferences';
-
 
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -57,8 +55,6 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 const NEW_EVENT_TYPE = 'new_event';
 const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
-
-const UPDATE_REPORT_DETAIL_VIEW = 'UPDATE_REPORT_DETAIL_VIEW';
 
 export const socketEventData = (payload) => (dispatch) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
@@ -420,16 +416,6 @@ const updateEventStore = (...results) => ({
   payload: results,
 });
 
-export const showReportDetailView = (payload) => (dispatch) => {
-  dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: TAB_KEYS.REPORTS }));
-  dispatch({ type: UPDATE_REPORT_DETAIL_VIEW, payload: { ...payload, show: true } });
-};
-
-export const hideReportDetailView = () => (dispatch) => dispatch({
-  type: UPDATE_REPORT_DETAIL_VIEW,
-  payload: { show: false },
-});
-
 // higher-order reducers
 const namedFeedReducer = (name, reducer = state => state) => globallyResettableReducer((state, action) => {
   const isInitializationCall = state === undefined;
@@ -642,15 +628,3 @@ export const mapEventsReducer = globallyResettableReducer((state, { type, payloa
 }, INITIAL_MAP_EVENTS_STATE);
 
 export default globallyResettableReducer(eventStoreReducer, INITIAL_STORE_STATE);
-
-const INITIAL_REPORT_DETAIL_VIEW_STATE = { show: false };
-
-export const reportDetailViewReducer = (state = INITIAL_REPORT_DETAIL_VIEW_STATE, { type, payload }) => {
-  switch (type) {
-  case UPDATE_REPORT_DETAIL_VIEW:
-    return { ...payload };
-
-  default:
-    return state;
-  }
-};

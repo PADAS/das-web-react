@@ -18,7 +18,7 @@ import {
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { hidePatrolDetailView } from '../ducks/patrols';
+import { hideDetailView } from '../ducks/vertical-navigation-bar';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 
@@ -35,7 +35,7 @@ const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 /* eslint-disable no-unused-vars */
-const PatrolDetailView = ({ patrol, leader, patrolPermissions, hidePatrolDetailView, trackData, startStopGeometries }) => {
+const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, trackData, startStopGeometries }) => {
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
@@ -92,9 +92,9 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hidePatrolDetailV
       })
       .finally(async () => {
         await setSaveState(false);
-        hidePatrolDetailView();
+        hideDetailView();
       });
-  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, hidePatrolDetailView]);
+  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, hideDetailView]);
 
   return !!patrolForm && <div className={styles.patrolDetailView} data-testid="patrolDetailViewContainer">
     <Header
@@ -144,7 +144,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hidePatrolDetailV
           </Tab.Content>
 
           <div className={styles.footer}>
-            <Button className={styles.exitButton} onClick={() => hidePatrolDetailView()} type="button" variant="secondary">
+            <Button className={styles.exitButton} onClick={() => hideDetailView()} type="button" variant="secondary">
               Exit
             </Button>
 
@@ -163,7 +163,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hidePatrolDetailV
 };
 
 PatrolDetailView.propTypes = {
-  hidePatrolDetailView: PropTypes.func.isRequired,
+  hideDetailView: PropTypes.func.isRequired,
   leader: PropTypes.shape({
     name: PropTypes.string,
   }),
@@ -179,9 +179,9 @@ PatrolDetailView.propTypes = {
 };
 
 const mapStateToProps = (state, props) => {
-  const patrol = !!state.view.patrolDetailView.id
-    ? getPatrolList(state).results.find((patrol) => patrol.id === state.view.patrolDetailView.id)
-    : state.view.patrolDetailView.newPatrol;
+  const patrol = !!state.view.verticalNavigationBar.data?.id
+    ? getPatrolList(state).results.find((patrol) => patrol.id === state.view.verticalNavigationBar.data.id)
+    : state.view.verticalNavigationBar.data?.newPatrol;
 
   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
@@ -189,4 +189,4 @@ const mapStateToProps = (state, props) => {
   return { ...createPatrolDataSelector()(state, { patrol }), patrolPermissions };
 };
 
-export default connect(mapStateToProps, { hidePatrolDetailView })(PatrolDetailView);
+export default connect(mapStateToProps, { hideDetailView })(PatrolDetailView);

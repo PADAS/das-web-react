@@ -5,29 +5,31 @@ import userEvent from '@testing-library/user-event';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
-import { hideReportDetailView } from '../ducks/events';
+import { hideDetailView } from '../ducks/vertical-navigation-bar';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { report } from '../__test-helpers/fixtures/reports';
 import ReportDetailView from './';
 
-jest.mock('../ducks/events', () => ({
-  ...jest.requireActual('../ducks/events'),
-  hideReportDetailView: jest.fn(),
+jest.mock('../ducks/vertical-navigation-bar', () => ({
+  ...jest.requireActual('../ducks/vertical-navigation-bar'),
+  hideDetailView: jest.fn(),
 }));
 
 describe('ReportDetailView', () => {
-  let hideReportDetailViewMock, store;
+  let hideDetailViewMock, store;
 
   beforeEach(() => {
-    hideReportDetailViewMock = jest.fn(() => () => {});
-    hideReportDetailView.mockImplementation(hideReportDetailViewMock);
+    hideDetailViewMock = jest.fn(() => () => {});
+    hideDetailView.mockImplementation(hideDetailViewMock);
 
     store = {
       data: { eventTypes, patrolTypes },
       view: {
-        reportDetailView: {
-          formProps: {},
-          report,
+        verticalNavigationBar: {
+          data: {
+            formProps: {},
+            report,
+          },
         },
       },
     };
@@ -108,12 +110,12 @@ describe('ReportDetailView', () => {
   });
 
   test('hides the detail view when clicking the cancel button', async () => {
-    expect(hideReportDetailView).toHaveBeenCalledTimes(0);
+    expect(hideDetailView).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByText('Cancel');
     userEvent.click(cancelButton);
 
-    expect(hideReportDetailView).toHaveBeenCalledTimes(1);
+    expect(hideDetailView).toHaveBeenCalledTimes(1);
   });
 
   test('renders the save and cancel buttons when user is in the Details tab', async () => {

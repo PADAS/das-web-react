@@ -12,7 +12,7 @@ import { isEmpty } from 'lodash';
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { fetchEvent, showReportDetailView } from '../ducks/events';
+import { fetchEvent } from '../ducks/events';
 import { filterDuplicateUploadFilenames, fetchImageAsBase64FromUrl } from '../utils/file';
 import { downloadFileFromUrl } from '../utils/download';
 import { addPatrolSegmentToEvent, getEventIdsForCollection } from '../utils/events';
@@ -20,6 +20,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
+import { showDetailView } from '../ducks/vertical-navigation-bar';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -36,6 +37,7 @@ import {
   PERMISSION_KEYS,
   PERMISSIONS,
   PATROL_API_STATES,
+  TAB_KEYS,
 } from '../constants';
 
 import EditableItem from '../EditableItem';
@@ -85,7 +87,7 @@ const PatrolModal = (props) => {
     patrolLeaderSchema,
     autoEndPatrols,
     eventStore,
-    showReportDetailView,
+    showDetailView,
   } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
@@ -617,11 +619,11 @@ const PatrolModal = (props) => {
       navigateRelationships: false,
     };
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showReportDetailView({ formProps, report: item });
+      showDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showReportDetailView]);
+  }, [eventStore, fetchEvent, map, onAddReport, showDetailView]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -782,10 +784,10 @@ export default connect(mapStateToProps, {
   removeModal,
   updateUserPreferences,
   setModalVisibilityState,
-  showReportDetailView,
+  showDetailView,
 })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
-  showReportDetailView: PropTypes.func.isRequired,
+  showDetailView: PropTypes.func.isRequired,
 };

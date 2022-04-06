@@ -9,7 +9,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
-import { hideReportDetailView } from '../ducks/events';
+import { hideDetailView } from '../ducks/vertical-navigation-bar';
 
 import Header from './Header';
 
@@ -23,7 +23,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const ReportDetailView = () => {
   const dispatch = useDispatch();
 
-  const { formProps = {}, report } = useSelector((state) => state.view.reportDetailView);
+  const { data: { formProps = {}, report } } = useSelector((state) => state.view.verticalNavigationBar);
   const {
     navigateRelationships,
     relationshipButtonDisabled,
@@ -115,7 +115,7 @@ const ReportDetailView = () => {
               {tab === NAVIGATION_DETAILS_EVENT_KEY && <>
                 <Button
                   className={styles.cancelButton}
-                  onClick={() => dispatch(hideReportDetailView())}
+                  onClick={() => dispatch(hideDetailView())}
                   type="button"
                   variant="secondary"
                 >

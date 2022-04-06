@@ -6,13 +6,14 @@ import userEvent from '@testing-library/user-event';
 import { activePatrol, newPatrol, patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { mockStore } from '../../__test-helpers/MockStore';
-import { showPatrolDetailView } from '../../ducks/patrols';
+import { showDetailView } from '../../ducks/vertical-navigation-bar';
+import { TAB_KEYS } from '../../constants';
 
 import PatrolsTab from './';
 
-jest.mock('../../ducks/patrols', () => ({
-  ...jest.requireActual('../../ducks/patrols'),
-  showPatrolDetailView: jest.fn(),
+jest.mock('../../ducks/vertical-navigation-bar', () => ({
+  ...jest.requireActual('../../ducks/vertical-navigation-bar'),
+  showDetailView: jest.fn(),
 }));
 
 const patrolFilter = { filter: {
@@ -27,13 +28,12 @@ const map = createMapMock();
 
 let store = patrolDefaultStoreData;
 store.data.patrolFilter = patrolFilter;
-store.view = { patrolDetailView: {} };
 
 describe('PatrolsTab', () => {
-  let showPatrolDetailViewMock;
+  let showDetailViewMock;
   beforeEach(() => {
-    showPatrolDetailViewMock = jest.fn(() => () => {});
-    showPatrolDetailView.mockImplementation(showPatrolDetailViewMock);
+    showDetailViewMock = jest.fn(() => () => {});
+    showDetailView.mockImplementation(showDetailViewMock);
   });
 
   test('rendering without crashing', () => {
@@ -51,7 +51,7 @@ describe('PatrolsTab', () => {
   });
 
   test('it should show the detail patrols view if this contains some data', async () => {
-    store.view.patrolDetailView = { newPatrol, show: true };
+    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: { newPatrol }, showDetailView: true };
     render(<Provider store={mockStore(store)}>
       <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={mockedPatrols} />
     </Provider>);
@@ -60,7 +60,7 @@ describe('PatrolsTab', () => {
   });
 
   test('opens the patrol detail view if an item from the list is clicked', async () => {
-    store.view.patrolDetailView = { show: false };
+    store.view.verticalNavigationBar = { showDetailView: false };
     render(<Provider store={mockStore(store)}>
       <PatrolsTab
         loadingPatrols={loadingPatrols}
@@ -69,11 +69,11 @@ describe('PatrolsTab', () => {
       />
     </Provider>);
 
-    expect(showPatrolDetailView).toHaveBeenCalledTimes(0);
+    expect(showDetailView).toHaveBeenCalledTimes(0);
 
     const patrolItemButton = await screen.findByTestId('patrol-list-item-icon-05113dd3-3f41-49ef-aa7d-fbc6b7379533');
     userEvent.click(patrolItemButton);
 
-    expect(showPatrolDetailView).toHaveBeenCalledTimes(1);
+    expect(showDetailView).toHaveBeenCalledTimes(1);
   });
 });
