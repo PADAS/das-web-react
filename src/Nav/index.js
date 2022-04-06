@@ -85,7 +85,9 @@ const Nav = ({
   return <nav className="primary-nav">
     <div className="left-controls">
       <HamburgerMenuIcon className="global-menu-button" onClick={() => showDrawer(globalMenuDrawerId)} />
-      {isMediumLayoutOrLarger && <EarthRangerLogo className="logo" />}
+      <div className="logo-wrapper">
+        <EarthRangerLogo className="logo" />
+      </div>
       {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
