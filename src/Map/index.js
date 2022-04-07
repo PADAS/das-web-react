@@ -34,7 +34,7 @@ import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
-import { showDetailView } from '../ducks/vertical-navigation-bar';
+import { showDetailView } from '../ducks/side-bar';
 
 import {
   BREAKPOINTS,
@@ -418,7 +418,7 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      this.props.showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      this.props.showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -778,7 +778,7 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
-  showVerticalNavigationBarDetailView: showDetailView,
+  showSideBarDetailView: showDetailView,
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,

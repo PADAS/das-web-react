@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { createMapMock } from '../__test-helpers/mocks';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols } from '../ducks/patrols';
-import { hideDetailView } from '../ducks/vertical-navigation-bar';
+import { hideDetailView } from '../ducks/side-bar';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
@@ -25,8 +25,8 @@ jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   fetchPatrols: jest.fn(),
 }));
-jest.mock('../ducks/vertical-navigation-bar', () => ({
-  ...jest.requireActual('../ducks/vertical-navigation-bar'),
+jest.mock('../ducks/side-bar', () => ({
+  ...jest.requireActual('../ducks/side-bar'),
   hideDetailView: jest.fn(),
 }));
 jest.mock('../hooks', () => ({
@@ -87,7 +87,7 @@ describe('SideBar', () => {
       view: {
         hiddenAnalyzerIDs: [],
         userPreferences: { sidebarOpen: true },
-        verticalNavigationBar: { currentTab: TAB_KEYS.REPORTS, showDetailView: false },
+        sideBar: { currentTab: TAB_KEYS.REPORTS, showDetailView: false },
       },
     };
   });
@@ -130,7 +130,7 @@ describe('SideBar', () => {
   });
 
   test('sets the tab title for the Patrols tab', () => {
-    store.view.verticalNavigationBar.currentTab = TAB_KEYS.PATROLS;
+    store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -143,7 +143,7 @@ describe('SideBar', () => {
   });
 
   test('sets the tab title for the Map Layers tab', () => {
-    store.view.verticalNavigationBar.currentTab = TAB_KEYS.LAYERS;
+    store.view.sideBar.currentTab = TAB_KEYS.LAYERS;
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -234,7 +234,7 @@ describe('SideBar', () => {
   });
 
   test('shows the reports badge also when the sidebar is open but not in the reports tab', () => {
-    store.view.verticalNavigationBar.currentTab = TAB_KEYS.PATROLS;
+    store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -253,7 +253,7 @@ describe('SideBar', () => {
   });
 
   test('removes the reports badge when the user opens the reports tab', () => {
-    store.view.verticalNavigationBar.currentTab = TAB_KEYS.PATROLS;
+    store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -304,7 +304,7 @@ describe('SideBar', () => {
   });
 
   test('hides the Add Report button in the map layers tab', () => {
-    store.view.verticalNavigationBar.currentTab = TAB_KEYS.LAYERS;
+    store.view.sideBar.currentTab = TAB_KEYS.LAYERS;
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -355,7 +355,7 @@ describe('SideBar', () => {
   });
 
   test('shows a back button if the detail view of the current tab is open', () => {
-    store.view.verticalNavigationBar = { data: { report }, showDetailView: true };
+    store.view.sideBar = { data: { report }, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -368,7 +368,7 @@ describe('SideBar', () => {
   });
 
   test('does not show the back button if the detail view of another tab is open', () => {
-    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: { report }, showDetailView: true };
+    store.view.sideBar = { currentTab: TAB_KEYS.PATROLS, data: { report }, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -381,7 +381,7 @@ describe('SideBar', () => {
   });
 
   test('hides the report detail view if it was opened but user clicked the back button', () => {
-    store.view.verticalNavigationBar = { data: { report }, showDetailView: true };
+    store.view.sideBar = { data: { report }, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>
@@ -399,7 +399,7 @@ describe('SideBar', () => {
   });
 
   test('hides the patrol detail view if it was opened but user clicked the back button', () => {
-    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
+    store.view.sideBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
         <MockSocketProvider>

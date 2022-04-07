@@ -8,7 +8,7 @@ import { createNewReportForEventType, openModalForReport } from '../utils/events
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
-import { showDetailView } from '../ducks/vertical-navigation-bar';
+import { showDetailView } from '../ducks/side-bar';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
@@ -23,8 +23,8 @@ jest.mock('../utils/events', () => ({
   createNewReportForEventType: jest.fn(),
   openModalForReport: jest.fn(),
 }));
-jest.mock('../ducks/vertical-navigation-bar', () => ({
-  ...jest.requireActual('../ducks/vertical-navigation-bar'),
+jest.mock('../ducks/side-bar', () => ({
+  ...jest.requireActual('../ducks/side-bar'),
   showDetailView: jest.fn(),
 }));
 

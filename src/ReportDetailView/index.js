@@ -9,7 +9,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
-import { hideDetailView } from '../ducks/vertical-navigation-bar';
+import { hideDetailView } from '../ducks/side-bar';
 
 import Header from './Header';
 
@@ -23,7 +23,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const ReportDetailView = () => {
   const dispatch = useDispatch();
 
-  const { data: { formProps = {}, report } } = useSelector((state) => state.view.verticalNavigationBar);
+  const { data: { formProps = {}, report } } = useSelector((state) => state.view.sideBar);
   const {
     navigateRelationships,
     relationshipButtonDisabled,

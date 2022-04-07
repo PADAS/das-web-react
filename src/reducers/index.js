@@ -39,7 +39,7 @@ import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
-import verticalNavigationBarReducer from '../ducks/vertical-navigation-bar';
+import sideBarReducer from '../ducks/side-bar';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -125,7 +125,7 @@ const rootReducer = combineReducers({
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
-    verticalNavigationBar: verticalNavigationBarReducer,
+    sideBar: sideBarReducer,
   }),
 });
 

@@ -18,7 +18,7 @@ import {
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
-import { hideDetailView } from '../ducks/vertical-navigation-bar';
+import { hideDetailView } from '../ducks/side-bar';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 
@@ -179,8 +179,8 @@ PatrolDetailView.propTypes = {
 };
 
 const mapStateToProps = (state, props) => {
-  const patrol = state.data.patrolStore[state.view.verticalNavigationBar.data?.id]
-    || state.view.verticalNavigationBar.data;
+  const patrol = state.data.patrolStore[state.view.sideBar.data?.id]
+    || state.view.sideBar.data;
 
   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];

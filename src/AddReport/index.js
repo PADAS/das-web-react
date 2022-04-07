@@ -14,7 +14,7 @@ import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
-import { showDetailView } from '../ducks/vertical-navigation-bar';
+import { showDetailView } from '../ducks/side-bar';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
@@ -175,7 +175,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showVerticalNavigationBarDetailView }) => {
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showSideBarDetailView }) => {
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -239,7 +239,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       if (isPatrol) {
         setPopoverState(false);
         if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
-          return showVerticalNavigationBarDetailView(
+          return showSideBarDetailView(
             TAB_KEYS.PATROLS,
             createNewPatrolForPatrolType(reportType, reportData)
           );
@@ -253,7 +253,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     const newReport = createNewReportForEventType(reportType, reportData);
 
     if (DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI && DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI) {
-      showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
+      showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
     } else {
       openModalForReport(newReport, map, formProps);
     }
@@ -265,7 +265,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     map,
     patrolsEnabled,
     reportData,
-    showVerticalNavigationBarDetailView,
+    showSideBarDetailView,
   ]);
 
   return hasEventCategories &&
@@ -298,7 +298,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, { showVerticalNavigationBarDetailView: showDetailView })(memo(AddReport));
+export default connect(mapStateToProps, { showSideBarDetailView: showDetailView })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -341,5 +341,5 @@ AddReport.propTypes = {
     isPatrolReport: PropTypes.bool,
   }),
   hideReports: PropTypes.bool,
-  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
+  showSideBarDetailView: PropTypes.func.isRequired,
 };

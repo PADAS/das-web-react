@@ -7,7 +7,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
-import { showDetailView } from '../../ducks/vertical-navigation-bar';
+import { showDetailView } from '../../ducks/side-bar';
 import { TAB_KEYS } from '../../constants';
 
 import ReportsTab from './';
@@ -18,8 +18,8 @@ jest.mock('../../ducks/events', () => ({
   fetchNextEventFeedPage: jest.fn(),
 }));
 
-jest.mock('../../ducks/vertical-navigation-bar', () => ({
-  ...jest.requireActual('../../ducks/vertical-navigation-bar'),
+jest.mock('../../ducks/side-bar', () => ({
+  ...jest.requireActual('../../ducks/side-bar'),
   showDetailView: jest.fn(),
 }));
 
@@ -41,7 +41,7 @@ describe('ReportsTab', () => {
         patrolTypes,
       },
       view: {
-        verticalNavigationBar: { currentTab: TAB_KEYS.REPORTS, showDetailView: false },
+        sideBar: { currentTab: TAB_KEYS.REPORTS, showDetailView: false },
       },
     };
   });

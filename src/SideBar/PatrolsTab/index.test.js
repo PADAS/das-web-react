@@ -6,13 +6,13 @@ import userEvent from '@testing-library/user-event';
 import { activePatrol, newPatrol, patrolDefaultStoreData } from '../../__test-helpers/fixtures/patrols';
 import { createMapMock } from '../../__test-helpers/mocks';
 import { mockStore } from '../../__test-helpers/MockStore';
-import { showDetailView } from '../../ducks/vertical-navigation-bar';
+import { showDetailView } from '../../ducks/side-bar';
 import { TAB_KEYS } from '../../constants';
 
 import PatrolsTab from './';
 
-jest.mock('../../ducks/vertical-navigation-bar', () => ({
-  ...jest.requireActual('../../ducks/vertical-navigation-bar'),
+jest.mock('../../ducks/side-bar', () => ({
+  ...jest.requireActual('../../ducks/side-bar'),
   showDetailView: jest.fn(),
 }));
 
@@ -51,7 +51,7 @@ describe('PatrolsTab', () => {
   });
 
   test('it should show the detail patrols view if this contains some data', async () => {
-    store.view.verticalNavigationBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
+    store.view.sideBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
     render(<Provider store={mockStore(store)}>
       <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={mockedPatrols} />
     </Provider>);
@@ -60,7 +60,7 @@ describe('PatrolsTab', () => {
   });
 
   test('opens the patrol detail view if an item from the list is clicked', async () => {
-    store.view.verticalNavigationBar = { showDetailView: false };
+    store.view.sideBar = { showDetailView: false };
     render(<Provider store={mockStore(store)}>
       <PatrolsTab
         loadingPatrols={loadingPatrols}

@@ -26,7 +26,7 @@ const INITIAL_STATE = {
   showDetailView: false,
 };
 
-const verticalNavigationBarReducer = (state = INITIAL_STATE, { type, payload }) => {
+const sideBarReducer = (state = INITIAL_STATE, { type, payload }) => {
   switch (type) {
   case OPEN_TAB:
     return { ...state, ...payload, showDetailView: false };
@@ -42,4 +42,4 @@ const verticalNavigationBarReducer = (state = INITIAL_STATE, { type, payload }) 
   }
 };
 
-export default verticalNavigationBarReducer;
+export default sideBarReducer;

@@ -5,13 +5,13 @@ import userEvent from '@testing-library/user-event';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
-import { hideDetailView } from '../ducks/vertical-navigation-bar';
+import { hideDetailView } from '../ducks/side-bar';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { report } from '../__test-helpers/fixtures/reports';
 import ReportDetailView from './';
 
-jest.mock('../ducks/vertical-navigation-bar', () => ({
-  ...jest.requireActual('../ducks/vertical-navigation-bar'),
+jest.mock('../ducks/side-bar', () => ({
+  ...jest.requireActual('../ducks/side-bar'),
   hideDetailView: jest.fn(),
 }));
 
@@ -25,7 +25,7 @@ describe('ReportDetailView', () => {
     store = {
       data: { eventTypes, patrolTypes },
       view: {
-        verticalNavigationBar: {
+        sideBar: {
           data: {
             formProps: {},
             report,

@@ -4,7 +4,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { executeSaveActions } from '../utils/save';
-import { hideDetailView } from '../ducks/vertical-navigation-bar';
+import { hideDetailView } from '../ducks/side-bar';
 import { mockStore } from '../__test-helpers/MockStore';
 import { patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
@@ -13,8 +13,8 @@ jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
   executeSaveActions: jest.fn(),
 }));
-jest.mock('../ducks/vertical-navigation-bar', () => ({
-  ...jest.requireActual('../ducks/vertical-navigation-bar'),
+jest.mock('../ducks/side-bar', () => ({
+  ...jest.requireActual('../ducks/side-bar'),
   hideDetailView: jest.fn(),
 }));
 

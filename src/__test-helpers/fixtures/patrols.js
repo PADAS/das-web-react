@@ -1616,7 +1616,7 @@ export const patrolDefaultStoreData = {
     },
   },
   view: {
-    verticalNavigationBar: {
+    sideBar: {
       currentTab: TAB_KEYS.PATROLS,
       data: newPatrol,
       showDetailView: false,

@@ -20,7 +20,7 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
-import { showDetailView } from '../ducks/vertical-navigation-bar';
+import { showDetailView } from '../ducks/side-bar';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -87,7 +87,7 @@ const PatrolModal = (props) => {
     patrolLeaderSchema,
     autoEndPatrols,
     eventStore,
-    showVerticalNavigationBarDetailView,
+    showSideBarDetailView,
   } = props;
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
@@ -619,11 +619,11 @@ const PatrolModal = (props) => {
       navigateRelationships: false,
     };
     if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
+      showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showVerticalNavigationBarDetailView]);
+  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -784,10 +784,10 @@ export default connect(mapStateToProps, {
   removeModal,
   updateUserPreferences,
   setModalVisibilityState,
-  showVerticalNavigationBarDetailView: showDetailView,
+  showSideBarDetailView: showDetailView,
 })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
-  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
+  showSideBarDetailView: PropTypes.func.isRequired,
 };

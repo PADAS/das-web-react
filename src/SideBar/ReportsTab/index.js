@@ -12,7 +12,7 @@ import { openModalForReport } from '../../utils/events';
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
 import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
-import { showDetailView } from '../../ducks/vertical-navigation-bar';
+import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
@@ -39,8 +39,8 @@ const ReportsTab = ({
   fetchNextEventFeedPage,
   eventFilter,
   map,
-  showVerticalNavigationBarDetailView,
-  verticalNavigationBar,
+  showSideBarDetailView,
+  sideBar,
 }) => {
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -87,7 +87,7 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showVerticalNavigationBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
     }
@@ -119,7 +119,7 @@ const ReportsTab = ({
   }, [events.results, optionalFeedProps.exclude_contained]);
 
   return <>
-    {verticalNavigationBar.currentTab === TAB_KEYS.REPORTS && verticalNavigationBar.showDetailView &&
+    {sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView &&
       <ReportDetailView />}
 
     <DelayedUnmount isMounted={sidebarOpen}>
@@ -157,13 +157,13 @@ const ReportsTab = ({
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
-  verticalNavigationBar: state.view.verticalNavigationBar,
+  sideBar: state.view.sideBar,
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
 export default connect(
   mapStateToProps,
-  { fetchEventFeed, fetchNextEventFeedPage, showVerticalNavigationBarDetailView: showDetailView }
+  { fetchEventFeed, fetchNextEventFeedPage, showSideBarDetailView: showDetailView }
 )(memo(ReportsTab));
 
 ReportsTab.propTypes = {
@@ -171,9 +171,9 @@ ReportsTab.propTypes = {
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
-  verticalNavigationBar: PropTypes.shape({
+  sideBar: PropTypes.shape({
     currentTab: PropTypes.string,
     showDetailView: PropTypes.bool,
   }).isRequired,
-  showVerticalNavigationBarDetailView: PropTypes.func.isRequired,
+  showSideBarDetailView: PropTypes.func.isRequired,
 };

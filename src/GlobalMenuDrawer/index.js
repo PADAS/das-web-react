@@ -24,7 +24,7 @@ import {
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { openTab } from '../ducks/vertical-navigation-bar';
+import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';

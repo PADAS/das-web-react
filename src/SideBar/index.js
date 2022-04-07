@@ -30,7 +30,7 @@ import {
 } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
-import { hideDetailView, openTab } from '../ducks/vertical-navigation-bar';
+import { hideDetailView, openTab } from '../ducks/side-bar';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
 import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
@@ -89,7 +89,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
-  const verticalNavigationBar = useSelector((state) => state.view.verticalNavigationBar);
+  const sideBar = useSelector((state) => state.view.sideBar);
   const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
@@ -115,7 +115,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [patrolFilter]);
 
   const tabTitle = useMemo(() => {
-    switch (verticalNavigationBar.currentTab) {
+    switch (sideBar.currentTab) {
     case TAB_KEYS.REPORTS:
       return 'Reports';
     case TAB_KEYS.PATROLS:
@@ -125,7 +125,7 @@ const SideBar = ({ map, onHandleClick }) => {
     default:
       return '';
     }
-  }, [verticalNavigationBar.currentTab]);
+  }, [sideBar.currentTab]);
 
   const fetchAndLoadPatrolData = useCallback(() => {
     patrolFetchRef.current = dispatch(fetchPatrols());
@@ -139,12 +139,12 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [dispatch]);
 
   const onSelectTab = useCallback((clickedSidebarTab) => {
-    if (clickedSidebarTab === verticalNavigationBar.currentTab && sidebarOpen) {
+    if (clickedSidebarTab === sideBar.currentTab && sidebarOpen) {
       dispatch(updateUserPreferences({ sidebarOpen: false }));
     } else {
       dispatch(openTab(clickedSidebarTab));
     }
-  }, [dispatch, sidebarOpen, verticalNavigationBar.currentTab]);
+  }, [dispatch, sidebarOpen, sideBar.currentTab]);
 
   const handleCloseSideBar = useCallback(() => {
     dispatch(updateUserPreferences({ sidebarOpen: false }));
@@ -155,15 +155,15 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (showEventsBadge && sidebarOpen && verticalNavigationBar.currentTab === TAB_KEYS.REPORTS) {
+    if (showEventsBadge && sidebarOpen && sideBar.currentTab === TAB_KEYS.REPORTS) {
       setShowEventsBadge(false);
     }
-  }, [showEventsBadge, sidebarOpen, verticalNavigationBar.currentTab]);
+  }, [showEventsBadge, sidebarOpen, sideBar.currentTab]);
 
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (verticalNavigationBar.currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+        if (matches_current_filter && (sideBar.currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
           setShowEventsBadge(true);
         }
       };
@@ -176,7 +176,7 @@ const SideBar = ({ map, onHandleClick }) => {
         socket.off('update_event', updateEventFnRef);
       };
     }
-  }, [sidebarOpen, verticalNavigationBar.currentTab, socket]);
+  }, [sidebarOpen, sideBar.currentTab, socket]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -194,10 +194,10 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(verticalNavigationBar.currentTab)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, verticalNavigationBar.currentTab);
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sideBar.currentTab)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sideBar.currentTab);
     }
-  }, [verticalNavigationBar.currentTab]);
+  }, [sideBar.currentTab]);
 
   /* --- OLD NAVIGATION STUFF STARTS HERE --- */
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -305,7 +305,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
-      <Tab.Container activeKey={verticalNavigationBar.currentTab} onSelect={onSelectTab}>
+      <Tab.Container activeKey={sideBar.currentTab} onSelect={onSelectTab}>
         <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
           <Nav.Item>
             <Nav.Link eventKey={TAB_KEYS.REPORTS}>
@@ -334,10 +334,10 @@ const SideBar = ({ map, onHandleClick }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div
-                className={verticalNavigationBar.currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+                className={sideBar.currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
                 data-testid="sideBar-addReportButton"
               >
-                {verticalNavigationBar.showDetailView ?
+                {sideBar.showDetailView ?
                   <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
                     <ArrowLeftIcon />
                   </button>
@@ -345,11 +345,11 @@ const SideBar = ({ map, onHandleClick }) => {
                   <AddReport
                     className={styles.addReport}
                     variant="secondary"
-                    formProps={{ hidePatrols: verticalNavigationBar.currentTab !== TAB_KEYS.PATROLS }}
-                    hideReports={verticalNavigationBar.currentTab !== TAB_KEYS.REPORTS}
+                    formProps={{ hidePatrols: sideBar.currentTab !== TAB_KEYS.PATROLS }}
+                    hideReports={sideBar.currentTab !== TAB_KEYS.REPORTS}
                     popoverPlacement="bottom"
                     showLabel={false}
-                    type={verticalNavigationBar.currentTab}
+                    type={sideBar.currentTab}
                   />
                 }
               </div>
