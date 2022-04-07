@@ -13,6 +13,10 @@ import { createQuerySelectorMockImplementationWithHelpButtonReference } from '..
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
 
+jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
+}));
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
   addModal: jest.fn(),
@@ -27,7 +31,6 @@ jest.mock('../ducks/drawer', () => ({
 }));
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
-  useDevelopmentFeatureFlag: () => true,
   useFeatureFlag: () => true,
   useMatchMedia: jest.fn(),
 }));
