@@ -1,0 +1,25 @@
+@import '../common/styles/inputs';
+@import '../common/styles/vars/colors';
+
+.datePickerCustomInput {
+  @include defaultTextInput;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  min-width: 10.625rem;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+
+  > svg {
+    &:first-child {
+      margin-right: 0.625rem;
+      height: 1rem;
+      width: 1rem;
+    }
+
+    &:not(:first-child) {
+      margin-left: 0.625rem;
+      color: $secondary-medium-light-gray;
+    }
+  }
+}

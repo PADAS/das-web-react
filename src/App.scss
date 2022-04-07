@@ -243,22 +243,74 @@ aside {
   }
 }
 
+.react-datepicker {
+  font-weight: 400;
+  border: none;
+  border-radius: 0.125rem;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
+  
+  .react-datepicker__header {
+    border: none;
+    padding-bottom: 0rem;
+    
+    .react-datepicker__day-names {
+      color: $dark-gray;
+      background-color: white;
+    }
+  }
+  
+  .react-datepicker__day--outside-month {
+    color: $secondary-medium-light-gray;
+  }
+  
+  .react-datepicker__day {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    border-radius: 0rem;
+    color: $dark-gray;
+    
+    &:hover {
+      border-radius: 0rem;
+      background-color: white;
+      border: 0.062rem solid $bright-blue;
+    }
+  }
+
+  .react-datepicker__day--selected {
+    color: white;
+    border-radius: 0rem;
+    background-color: $bright-blue;
+
+    &:hover {
+      color: $bright-blue;
+    }
+  }
+}
+
 .react-calendar {
   border: none;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 3px $light-gray-border;
+  // border-radius: 0.25rem;
+  box-shadow: 0px 0px 15px $light-gray-border;
   padding: 0.5rem;
 
   .react-calendar__month-view__days {
     button {
-      border-radius: 100%;
-      height: 3rem;
-      width: 3rem;
+      // border-radius: 100%;
+      height: 1.5rem;
+      width: 1.5rem;
+      padding: 0px;
+      font-size: 14px;
 
       &:not(:disabled):hover,
       &.react-calendar__tile--active,
       &.react-calendar__tile--now {
-        border: 1px solid $light-gray-border;
+        border: 1px solid $bright-blue;
+      }
+
+      &.react-calendar__tile--active {
+        background-color: $bright-blue;
       }
 
       &.react-calendar__tile--now {
