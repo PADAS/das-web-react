@@ -16,7 +16,7 @@ import { PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { UFA_NAVIGATION_UI: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true, ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),

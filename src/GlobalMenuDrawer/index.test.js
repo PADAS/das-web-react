@@ -15,7 +15,7 @@ import { useMatchMedia } from '../hooks';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { UFA_NAVIGATION_UI: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),

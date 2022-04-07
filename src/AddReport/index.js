@@ -21,11 +21,17 @@ import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportC
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import {
+  DEVELOPMENT_FEATURE_FLAGS,
+  FEATURE_FLAGS,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  TAB_KEYS,
+} from '../constants';
 
 import styles from './styles.module.scss';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -171,7 +177,6 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
   popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
 
-
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
 
@@ -233,7 +238,9 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
       if (isPatrol) {
         setPopoverState(false);
-        if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
+          return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
 
@@ -244,7 +251,15 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     openModalForReport(newReport, map, formProps);
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showPatrolDetailView]);
+  }, [
+    analyticsMetadata.category,
+    analyticsMetadata.location,
+    formProps,
+    map,
+    patrolsEnabled,
+    reportData,
+    showPatrolDetailView,
+  ]);
 
   return hasEventCategories &&
 
@@ -253,7 +268,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
+          className={ENABLE_UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}

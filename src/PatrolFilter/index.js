@@ -23,7 +23,7 @@ import SearchBar from '../SearchBar';
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
@@ -76,11 +76,11 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
   return <>
     <div
       ref={containerRef}
-      className={`${UFA_NAVIGATION_UI ? patrolFilterStyles.form : patrolFilterStyles.oldNavigationForm} ${className}`}
+      className={`${ENABLE_UFA_NAVIGATION_UI ? patrolFilterStyles.form : patrolFilterStyles.oldNavigationForm} ${className}`}
       onSubmit={e => e.preventDefault()}
       >
       <SearchBar
-        className={`${styles.search} ${UFA_NAVIGATION_UI ? patrolFilterStyles.search : patrolFilterStyles.oldNavigationSearch}`}
+        className={`${styles.search} ${ENABLE_UFA_NAVIGATION_UI ? patrolFilterStyles.search : patrolFilterStyles.oldNavigationSearch}`}
         placeholder='Search Patrols...'
         value={filterText}
         onChange={onSearchChange}
@@ -98,7 +98,7 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
         <Button
           variant={filtersModified ? 'primary' : 'light'}
           size='sm'
-          className={`${UFA_NAVIGATION_UI ? patrolFilterStyles.popoverTrigger : patrolFilterStyles.oldNavigationPopoverTrigger} ${patrolFilterStyles.filterButton}`}
+          className={`${ENABLE_UFA_NAVIGATION_UI ? patrolFilterStyles.popoverTrigger : patrolFilterStyles.oldNavigationPopoverTrigger} ${patrolFilterStyles.filterButton}`}
           onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           data-testid="patrolFilter-filtersButton"
         >
@@ -128,7 +128,7 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
       </OverlayTrigger>
     </div>
 
-    {UFA_NAVIGATION_UI && <div className={`${styles.filterStringWrapper} ${className}`}>
+    {ENABLE_UFA_NAVIGATION_UI && <div className={`${styles.filterStringWrapper} ${className}`}>
       <FriendlyFilterString
         className={styles.friendlyFilterString}
         dateRange={patrolFilter.filter.date_range}
