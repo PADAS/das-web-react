@@ -55,8 +55,11 @@ import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
@@ -78,8 +81,6 @@ const activeTabReducer = (state = TAB_KEYS.REPORTS, action) => {
 };
 /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
 const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = ({ map, onHandleClick }) => {
@@ -99,6 +100,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
+  const [nestedNavigationState, setNestedNavigationState] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -141,8 +143,14 @@ const SideBar = ({ map, onHandleClick }) => {
       dispatch(updateUserPreferences({ sidebarOpen: false, sidebarTab: clickedSidebarTab }));
     } else {
       dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: clickedSidebarTab }));
+      setNestedNavigationState(false);
     }
   }, [dispatch, sidebarOpen, sidebarTab]);
+
+  const handleCloseSideBar = useCallback(() => {
+    dispatch(updateUserPreferences({ sidebarOpen: false }));
+    setNestedNavigationState(false);
+  }, [dispatch]);
 
   useEffect(() => {
     if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
@@ -184,7 +192,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sidebarTab);
     }
   }, [sidebarTab]);
@@ -215,19 +223,19 @@ const SideBar = ({ map, onHandleClick }) => {
   };
 
   useEffect(() => {
-    if (!UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(activeTab.current)) {
       window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, activeTab.current);
     }
   }, [activeTab]);
 
   useEffect(() => {
-    if (!UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && !isEqual(eventFilter, INITIAL_FILTER_STATE)) {
       fetchAndLoadPatrolData();
     }
   }, [overlap]); // eslint-disable-line
 
   useEffect(() => {
-    if (!UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
+    if (!ENABLE_UFA_NAVIGATION_UI && !isUndefined(sidebarOpen)) {
       if (!sidebarOpen) {
         activeTabPreClose.current = activeTab.current;
         dispatchOld(setActiveTab(TAB_KEYS.REPORTS));
@@ -248,11 +256,11 @@ const SideBar = ({ map, onHandleClick }) => {
       : 'auto'
     );
 
-  if (!UFA_NAVIGATION_UI && !map) return null;
+  if (!ENABLE_UFA_NAVIGATION_UI && !map) return null;
 
   const selectedTab = !!activeTab && activeTab.current;
 
-  if (!UFA_NAVIGATION_UI)  {
+  if (!ENABLE_UFA_NAVIGATION_UI)  {
     return <ErrorBoundary>
       <MapContext.Provider value={map}>
         <aside className={`${'side-menu'} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
@@ -267,7 +275,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
             {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
               <Suspense fallback={null}>
-                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} nestedNavigationState={false}/>
               </Suspense>
             </Tab>}
 
@@ -324,33 +332,45 @@ const SideBar = ({ map, onHandleClick }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-                <AddReport
-                  className={styles.addReport}
-                  variant="secondary"
-                  formProps={{ hidePatrols: sidebarTab !== TAB_KEYS.PATROLS }}
-                  hideReports={sidebarTab !== TAB_KEYS.REPORTS}
-                  popoverPlacement="bottom"
-                  showLabel={false}
-                  type={sidebarTab}
-                />
+                {nestedNavigationState ?
+                  <button className={styles.backButton} type='button' onClick={() => setNestedNavigationState(false)}>
+                    <ArrowLeftIcon />
+                  </button>
+                  :
+                  <AddReport
+                    className={styles.addReport}
+                    variant="secondary"
+                    formProps={{ hidePatrols: sidebarTab !== TAB_KEYS.PATROLS }}
+                    hideReports={sidebarTab !== TAB_KEYS.REPORTS}
+                    popoverPlacement="bottom"
+                    showLabel={false}
+                    type={sidebarTab}
+                  />
+                }
               </div>
 
               <h3>{tabTitle}</h3>
 
               <button
                 data-testid="sideBar-closeButton"
-                onClick={() => dispatch(updateUserPreferences({ sidebarOpen: false }))}
+                onClick={handleCloseSideBar}
               >
                 <CrossIcon />
               </button>
             </div>
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-              <ReportsTab map={map} sidebarOpen={sidebarOpen} />
+              <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
             </Tab.Pane>
 
             {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+              <PatrolsTab
+                loadingPatrols={loadingPatrols}
+                map={map}
+                patrolResults={patrols.results}
+                nestedNavigationState={nestedNavigationState}
+                changeNestedNavigation={(value) => setNestedNavigationState(value)}
+              />
             </Tab.Pane>}
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>

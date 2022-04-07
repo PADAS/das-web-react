@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
-import { PATROL_DRAWER_CATEGORY, trackEventFactory } from '../../utils/analytics';
+import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
 import usePatrol from '../../hooks/usePatrol';
 
 import DasIcon from '../../DasIcon';
@@ -13,7 +13,7 @@ import PatrolMenu from '../../PatrolMenu';
 
 import styles from './styles.module.scss';
 
-const patrolDrawerTracker = trackEventFactory(PATROL_DRAWER_CATEGORY);
+const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
 const Header = ({ patrol, setTitle, title }) => {
   const {
@@ -61,12 +61,12 @@ const Header = ({ patrol, setTitle, title }) => {
   ]);
 
   const restorePatrolAndTrack = useCallback(() => {
-    patrolDrawerTracker.track('Restore patrol from patrol drawer header');
+    patrolDetailViewTracker.track('Restore patrol from patrol detail view header');
     restorePatrol();
   }, [restorePatrol]);
 
   const startPatrolAndTrack = useCallback(() => {
-    patrolDrawerTracker.track('Start patrol from patrol drawer header');
+    patrolDetailViewTracker.track('Start patrol from patrol detail view header');
     startPatrol();
   }, [startPatrol]);
 

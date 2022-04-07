@@ -98,7 +98,7 @@ const EditableItemHeader = (props) => {
             <div className={styles.historyItem}>
               <div className={styles.historyDetails}>
                 <div className={styles.historyMessage}>{update.message.replace(/ by [ \w+\b]*$/g, '')}</div>
-                <div className={styles.historyUser}>{`${update.user.first_name} ${update.user.last_name}`.trim()}</div>
+                {update?.user?.first_name && <div className={styles.historyUser}>{`${update.user.first_name} ${update.user.last_name}`.trim()}</div>}
               </div>
               <DateTime className={styles.historyDate} date={update.time}/>
             </div>

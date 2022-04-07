@@ -19,7 +19,7 @@ const HistoryListItem = ({ date, message, secondaryMessage, user }) => <div
     data-testid="historyListItem"
   >
   <div>
-    <p className="user">{user}</p>
+    {user.first_name && <p className="user">{`${user.first_name} ${user?.last_name ?? ''}`}</p>}
     <p className="message">{message}</p>
     <p className="secondaryMessage">{secondaryMessage}</p>
   </div>
@@ -65,7 +65,7 @@ const HistoryTab = ({ patrolForm }) => {
         key={update.time}
         message={update.message}
         secondaryMessage=""
-        user={`${update.user.first_name} ${update.user.last_name}`}
+        user={update.user}
       />)}
     </div>
   </>;

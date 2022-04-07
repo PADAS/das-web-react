@@ -11,7 +11,7 @@ import { withMap } from '../EarthRangerMap';
 
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const bindExternal = function (map, eventType, toInvoke) {
   map.on(eventType, toInvoke);
@@ -67,18 +67,18 @@ const MapLocationPicker = (props) => {
   };
 
   return <div className={wrapperClassName}>
-    {UFA_NAVIGATION_UI && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+    {ENABLE_UFA_NAVIGATION_UI && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
     <button
       disabled={disabled}
       type='button'
-      className={`${className} ${UFA_NAVIGATION_UI ? 'controlButton' : ''}`}
+      className={`${className} ${ENABLE_UFA_NAVIGATION_UI ? 'controlButton' : ''}`}
       onClick={onSelectStart}
       title='Place marker on map'
     >
       <LocationIcon />
       <span>{label}</span>
     </button>
-    {!UFA_NAVIGATION_UI && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
+    {!ENABLE_UFA_NAVIGATION_UI && showCancelButton && <Button variant='dark' size='sm' id='cancel-location-select' onClick={onCancel} type='button'>Cancel</Button>}
   </div>;
 };
 

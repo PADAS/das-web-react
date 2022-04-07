@@ -8,14 +8,14 @@ import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle } from '../utils/dat
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export default class DateTime extends PureComponent {
   render() {
     const { date, showElapsed, className, ...rest } = this.props;
     return <div className={`${styles.container} ${className || ''}`} title={generateCurrentTimeZoneTitle()} {...rest}>
-      <span className={UFA_NAVIGATION_UI ? styles.date : styles.oldNavigationDate}>{format(new Date(date), STANDARD_DATE_FORMAT)}</span>
-      {showElapsed && <TimeAgo className={UFA_NAVIGATION_UI ? styles.elapsed : styles.oldNavigationElapsed} date={date} {...rest} />}
+      <span className={ENABLE_UFA_NAVIGATION_UI ? styles.date : styles.oldNavigationDate}>{format(new Date(date), STANDARD_DATE_FORMAT)}</span>
+      {showElapsed && <TimeAgo className={ENABLE_UFA_NAVIGATION_UI ? styles.elapsed : styles.oldNavigationElapsed} date={date} {...rest} />}
     </div>;
   }
 }

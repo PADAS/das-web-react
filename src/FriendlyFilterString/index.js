@@ -20,7 +20,7 @@ const FriendlyFilterString = ({ children, className, dateRange, isFiltered, sort
 
   return <p className={className || ''}>
     <span>{resultString}</span>
-    {isFiltered && 'filtered'} from <strong>{friendlyDurationString}</strong>{children}
+    {isFiltered && ' filtered'} from <strong>{friendlyDurationString}</strong>{children}
     {hasSortConfig && sortModified
       ? <span>, sorted {sortDirectionString}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>
       : ''}
