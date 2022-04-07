@@ -67,11 +67,13 @@
   overflow: hidden;
   left: 0;
   top: 0;
-  width: 0;
-  transition: width 0.4s ease-in-out;
+  min-width: 0;
+  width: auto;
+  transition: min-width 0.4s ease-in-out;
 
   &[class*=open] {
-    width: var(--sidebar-width);
+    width: auto;
+    min-width: var(--vertical-nav-width);
   }
 
   @media (min-width: $md-layout-width-min) {
@@ -82,16 +84,16 @@
 .tab {
   background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.65) 100%);
   backdrop-filter: blur(16px);
-  width: var(--sidebar-width);
+  width: auto;
+  min-width: var(--vertical-nav-width);
   transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
   transition: transform 0.4s ease-in-out;
 
   &[class*=open] {
     transform: translateX(0);
-
     .filterWrapper {
       margin-bottom: -0.75rem;
-      padding-top: 1rem;
+      padding-top: 0.812rem;
     }
   }
 
@@ -104,10 +106,17 @@
   min-height: calc(100% - 3rem) !important;
   height: calc(100% - 3rem);
   overflow: hidden;
+  position: relative;
+  width: auto;
+  transition: width 0.4s ease-in-out;
 
   &:hover,
   &:focus {
     border: none;
+  }
+  
+  & > :not(.patrolDetailView) {
+    width: var(--sidebar-width);
   }
 
   .mapLayers {
@@ -142,6 +151,10 @@
   font-size: 1.375rem;
   padding: 0 1rem;
 
+  .backButton {
+    min-width: 2rem
+  }
+
   button {
     background: none;
     color: inherit;
@@ -156,7 +169,6 @@
   h3 {
     margin: 0;
   }
-
 
   [class*=hidden] {
     visibility: hidden;

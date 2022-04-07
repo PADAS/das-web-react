@@ -1,15 +1,12 @@
 import React, { forwardRef, Fragment, /* useRef, */ memo, useCallback, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
 import { Flipper, Flipped } from 'react-flip-toolkit';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-import { patrolDrawerId } from '../Drawer';
 import LoadingOverlay from '../LoadingOverlay';
 import PatrolListTitle from './Title';
-import { showDrawer } from '../ducks/drawer';
 import { openModalForPatrol, sortPatrolList } from '../utils/patrols';
+
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { trackEventFactory, PATROL_LIST_ITEM_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
@@ -19,13 +16,13 @@ const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const patrolListItemTracker = trackEventFactory(PATROL_LIST_ITEM_CATEGORY);
 
 const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/display-name */
-  const { map, onPatrolSelfManagedStateChange, patrol, showDrawer, ...rest } = props;
+  const { map, onPatrolSelfManagedStateChange, patrol, onItemClick, ...rest } = props;
 
   const onTitleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item to open patrol modal');
-    if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { patrolId: patrol.id });
+    if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return onItemClick(patrol.id);
     openModalForPatrol(patrol, map);
-  }, [map, patrol, showDrawer]);
+  }, [map, onItemClick, patrol]);
 
   return <Flipped flipId={patrol.id}>
     <PatrolListItem
@@ -38,10 +35,7 @@ const ListItem = forwardRef((props, ref) => { /* eslint-disable-line react/displ
   </Flipped>;
 });
 
-const ConnectedListItem = connect(null, { showDrawer })(ListItem);
-
-const PatrolList = (props) => {
-  const { map, patrols = [], loading } = props;
+const PatrolList = ({ map, patrols = [], loading, onItemClick }) => {
 
   const [listItems, setListItems] = useState(patrols);
 
@@ -64,11 +58,12 @@ const PatrolList = (props) => {
       className={UFA_NAVIGATION_UI ? styles.patrolList : styles.oldNavigationPatrolList}
     >
       {listItems.map((item) =>
-        <ConnectedListItem
+        <ListItem
           patrol={item}
           onPatrolSelfManagedStateChange={onPatrolSelfManagedStateChange}
           map={map}
-          key={item.id}/>
+          key={item.id}
+          onItemClick={onItemClick}/>
       )}
     </Flipper>}
     {!listItems.length && <div className={styles.emptyMessage} key='no-patrols-to-display'>No patrols to display.</div>}

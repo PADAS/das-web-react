@@ -134,7 +134,7 @@ const ReportedBySelect = (props) => {
     const { data } = props;
 
     const radioImage = isRadioWithImage(data) || calcUrlForImage(data.image_url);
-    return <div className={styles.singleValue}>
+    return <div className={styles.singleValue} data-testid="select-single-value">
       {radioImage && <img src={radioImage} alt={`Radio icon for ${data.name} value`} />}
       <components.SingleValue {...props} />
     </div>;

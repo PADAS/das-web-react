@@ -4,14 +4,12 @@ import PropTypes from 'prop-types';
 
 import { hideDrawer } from '../ducks/drawer';
 
-import PatrolDrawer from '../PatrolDrawer';
 import GlobalMenuDrawer from '../GlobalMenuDrawer';
 
 import styles from './styles.module.scss';
 
 const ESC_KEY_CODE = 27;
 
-export const patrolDrawerId = 'patrol';
 export const globalMenuDrawerId = 'global-menu';
 
 const Drawer = ({ drawer, hideDrawer }) => {
@@ -30,8 +28,6 @@ const Drawer = ({ drawer, hideDrawer }) => {
 
   const drawerRendered = useMemo(() => {
     switch (drawer.drawerId) {
-    case patrolDrawerId:
-      return <PatrolDrawer {...drawer.data} />;
     case globalMenuDrawerId:
       return <GlobalMenuDrawer />;
     default:

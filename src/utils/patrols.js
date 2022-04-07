@@ -515,7 +515,7 @@ export const sortPatrolList = (patrols) => {
     return 6;
   };
 
-  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments[0]?.leader).toLowerCase();
+  const patrolDisplayTitleFunc = (patrol) => displayTitleForPatrol(patrol, patrol?.patrol_segments?.[0]?.leader).toLowerCase();
 
   return orderBy(patrols, [sortFunc, patrolDisplayTitleFunc], ['asc', 'asc']);
 };

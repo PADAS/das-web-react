@@ -307,7 +307,7 @@ export const PERMISSIONS = {
 };
 
 export const DEVELOPMENT_FEATURE_FLAGS = {
-  PATROL_NEW_UI: false,
+  PATROL_NEW_UI: true, // this flag is temporal activated to let you test the feature, I'll changed before merging
   UFA_NAVIGATION_UI: true,
 };
 
