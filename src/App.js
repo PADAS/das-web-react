@@ -33,8 +33,9 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 import './App.scss';
 import { showToast } from './utils/toast';
 
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const MapContext = createContext(null);
 
@@ -68,6 +69,11 @@ const App = (props) => {
   const finishDrag = useCallback(() => {
     setDragState(false);
   }, []);
+
+  const onDrop = useCallback((e) => {
+    disallowDragAndDrop(e);
+    finishDrag(e);
+  }, [disallowDragAndDrop, finishDrag]);
 
   const onSidebarHandleClick = useCallback(() => {
     updateUserPreferences({ sidebarOpen: !sidebarOpen });
@@ -117,10 +123,10 @@ const App = (props) => {
   }, [showGeoPermWarningMessage]);
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    onDrop={onDrop}
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}
-    onDrop={disallowDragAndDrop} // eslint-disable-line react/jsx-no-duplicate-props
     >
     <MapContext.Provider value={map}>
       <PrintTitle />
@@ -129,7 +135,7 @@ const App = (props) => {
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar {...(UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
+        {!!map && <SideBar {...(ENABLE_UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
         <ModalRenderer map={map} />
       </div>
 

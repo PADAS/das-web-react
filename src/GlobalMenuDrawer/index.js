@@ -15,8 +15,8 @@ import {
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
-  DEVELOPMENT_FEATURE_FLAGS,
   CLIENT_BUILD_VERSION,
+  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -38,7 +38,7 @@ import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSu
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -206,7 +206,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {ENABLE_UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}

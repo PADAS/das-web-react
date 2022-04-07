@@ -29,16 +29,19 @@ const cancelableMapSubjectsFetch = () => {
   const fetchFn = (map, params) => async (dispatch, getState) => {
     try {
 
-
+      const state = getState();
       let lastKnownBbox;
 
       if (!map) {
-        lastKnownBbox = getState().data.mapSubjects.bbox;
+        lastKnownBbox = state?.data?.mapSubjects?.bbox;
       }
 
       if (!map && !lastKnownBbox) return Promise.reject();
 
+      const timeSliderActive = state?.view?.timeSliderState?.active;
+
       const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
+      const use_lkl = !timeSliderActive;
 
       dispatch({
         type: FETCH_MAP_SUBJECTS_START,
@@ -52,6 +55,7 @@ const cancelableMapSubjectsFetch = () => {
         cancelToken: cancelToken.token,
         params: {
           bbox,
+          use_lkl,
           ...params,
         }
       })

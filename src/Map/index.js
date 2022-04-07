@@ -39,7 +39,6 @@ import { updateUserPreferences } from '../ducks/user-preferences';
 import {
   BREAKPOINTS,
   DEVELOPMENT_FEATURE_FLAGS,
-  REACT_APP_ENABLE_CLUSTERING,
   LAYER_IDS,
   LAYER_PICKER_IDS,
   MAX_ZOOM,
@@ -84,7 +83,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -99,7 +98,6 @@ class Map extends Component {
     this.setMap = this.setMap.bind(this);
     this.onMapMoveStart = this.onMapMoveStart.bind(this);
     this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
-    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
     this.debouncedFetchMapEvents = this.debouncedFetchMapEvents.bind(this);
     this.withLocationPickerState = this.withLocationPickerState.bind(this);
     this.onClusterClick = this.onClusterClick.bind(this);
@@ -125,8 +123,6 @@ class Map extends Component {
     this.onSleepDetected = this.onSleepDetected.bind(this);
     this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
     this.currentAnalyzerIds = [];
-
-    this.fetchingMapData = false;
 
     const location = new URLSearchParams(this.props.location.search).get('lnglat');
 
@@ -206,7 +202,7 @@ class Map extends Component {
       this.onTrackLengthChange();
     }
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
-      this.debouncedFetchMapData();
+      this.fetchMapData();
     }
     if (userIsGeoPermissionRestricted(this.props.user) && !isEqual(prev.userLocation, this.props.userLocation)) {
       this.debouncedFetchMapEvents();
@@ -290,19 +286,16 @@ class Map extends Component {
   }
 
   fetchMapData() {
-    if (!this.fetchingMapData) {
-      this.fetchingMapData = true;
-      return Promise.all([
-        this.fetchMapEvents(),
-        this.fetchMapSubjects(),
-      ])
-        .catch((e) => {
-          console.warn('error loading map data', e);
-        })
-        .finally(() => {
-          this.fetchingMapData = false;
-        });
-    }
+    this.onMapMoveStart();
+    return Promise.all([
+      this.fetchMapEvents(),
+      this.fetchMapSubjects(),
+    ])
+      .catch((e) => {
+        console.warn('error loading map data', e);
+      })
+      .finally(() => {
+      });
   }
 
   debouncedFetchMapData = debounce(this.fetchMapData, 500);
@@ -362,7 +355,7 @@ class Map extends Component {
       map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
       , layer => layer.properties.id);
     let hidePopup = true, clusterFeaturesAtPoint = [];
-    if (REACT_APP_ENABLE_CLUSTERING) {
+    if (ENABLE_NEW_CLUSTERING) {
       const clusterApproxGeometry = [
         [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
         [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
@@ -612,9 +605,9 @@ class Map extends Component {
     return (
       <EarthRangerMap
         center={this.mapCenter}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
         controls={<Fragment>
-          {UFA_NAVIGATION_UI && <AddReport
+          {ENABLE_UFA_NAVIGATION_UI && <AddReport
             className="general-add-button"
             variant="secondary"
             popoverPlacement="left"
@@ -638,7 +631,7 @@ class Map extends Component {
           <Fragment>
             {children}
 
-            {REACT_APP_ENABLE_CLUSTERING && <ClustersLayer
+            {ENABLE_NEW_CLUSTERING && <ClustersLayer
               onShowClusterSelectPopup={this.onShowClusterSelectPopup}
             />}
 
@@ -669,7 +662,7 @@ class Map extends Component {
             </DelayedUnmount>
 
             <div className='map-legends'>
-              {!UFA_NAVIGATION_UI && <>
+              {!ENABLE_UFA_NAVIGATION_UI && <>
                   {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
                   {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
                   {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
@@ -677,7 +670,7 @@ class Map extends Component {
                 </>
               }
               <span className='compass-wrapper' onClick={this.onRotationControlClick} >
-                {UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+                {ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
                 <RotationControl
                   className='rotation-control'
                   style={{
@@ -688,9 +681,9 @@ class Map extends Component {
                     borderRadius: '0.25rem',
                   }}
                 />
-                {!UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+                {!ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
               </span>
-              {UFA_NAVIGATION_UI && <>
+              {ENABLE_UFA_NAVIGATION_UI && <>
                   {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
                   {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
                   {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}

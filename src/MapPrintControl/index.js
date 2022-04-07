@@ -13,7 +13,7 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -83,9 +83,9 @@ const MapPrintControl = (props) => {
       show={active}
       target={buttonRef.current}
       container={wrapperRef.current}
-      placement={UFA_NAVIGATION_UI ? 'left' : 'right'}
+      placement={ENABLE_UFA_NAVIGATION_UI ? 'left' : 'right'}
     >
-      <Popover placement={UFA_NAVIGATION_UI ? 'left' : 'right'}>
+      <Popover placement={ENABLE_UFA_NAVIGATION_UI ? 'left' : 'right'}>
 
         <Popover.Content>
           <form className={styles.form} onSubmit={onPrintFormSubmit}>

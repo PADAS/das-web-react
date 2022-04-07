@@ -6,7 +6,7 @@ import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
-import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
+import patrolsReducer, { patrolStoreReducer, patrolTracksReducer, patrolDetailViewReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
@@ -102,6 +102,7 @@ const rootReducer = combineReducers({
     hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     patrolTrackState: patrolTracksReducer,
+    patrolDetailView: patrolDetailViewReducer,
     mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,

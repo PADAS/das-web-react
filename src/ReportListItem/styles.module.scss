@@ -54,6 +54,7 @@
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   color: $secondary-medium-gray;
+  min-width: 1.25rem;
 
   @media (min-width: $md-layout-width-min) {
     display: flex;

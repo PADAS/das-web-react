@@ -5,9 +5,10 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import { ReactComponent as SearchIcon } from '../common/images/icons/search-icon.svg';
 import { ReactComponent as ClearIcon } from '../common/images/icons/close-icon.svg';
+
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const SearchBar = (props) => {
   const { value, onChange, onClear, placeholder, className, ...rest } = props;
@@ -35,7 +36,7 @@ const SearchBar = (props) => {
     onClear(e);
   };
 
-  return <label className={`${styles.search} ${UFA_NAVIGATION_UI ? styles.oldNavigation : ''} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
+  return <label className={`${styles.search} ${ENABLE_UFA_NAVIGATION_UI ? styles.oldNavigation : ''} ${isFiltered && styles.isFiltered} ${isActive && styles.isActive} ${className ? className : ''}`} {...rest}>
     <SearchIcon className={styles.searchIcon} />
     <input placeholder={placeholder} value={value} type="text" onKeyDown={onKeyDown} onChange={onInputChange} onFocus={onInputFocus} onBlur={onInputBlur} data-testid='search-input'/>
     <button className={styles.clearButton} onClick={onClearClick} data-testid='reset-search-button'>

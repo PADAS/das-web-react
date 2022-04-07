@@ -3,12 +3,11 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-import { patrolDrawerId } from '../Drawer';
-import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
 import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
-import { fetchPatrol } from '../ducks/patrols';
-import { showDrawer } from '../ducks/drawer';
+import { fetchPatrol, showPatrolDetailView } from '../ducks/patrols';
+import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
+
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
 import { FormDataContext } from '../EditableItem/context';
@@ -19,10 +18,10 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const { PATROL_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
-const RelationshipButton = (props) => {
-  const { fetchEvent, fetchPatrol, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal, showDrawer } = props;
+const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
+const RelationshipButton = (props) => {
+  const { fetchEvent, fetchPatrol, showPatrolDetailView, hidePatrols, navigateRelationships = true, onNewReportSaved, map, removeModal } = props;
   const report = useContext(FormDataContext);
 
   const isPatrolReport = useMemo(() => eventBelongsToPatrol(report), [report]);
@@ -48,12 +47,12 @@ const RelationshipButton = (props) => {
 
     reportTracker.track('Click \'Go to Patrol\' button');
 
+    removeModal();
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) return showPatrolDetailView({ id: patrolId });
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
-      removeModal();
-      if (PATROL_NEW_UI) return showDrawer(patrolDrawerId, { patrolId });
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, showDrawer]);
+  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, showPatrolDetailView]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>
@@ -75,7 +74,7 @@ const RelationshipButton = (props) => {
 };
 
 
-export default memo(connect(null, { fetchEvent: (...args) => fetchEvent(...args), fetchPatrol: id => fetchPatrol(id), showDrawer })(RelationshipButton));
+export default memo(connect(null, { fetchEvent: (...args) => fetchEvent(...args), fetchPatrol: id => fetchPatrol(id), showPatrolDetailView })(RelationshipButton));
 
 RelationshipButton.propTypes = {
   onNewReportSaved: PropTypes.func,
@@ -83,5 +82,5 @@ RelationshipButton.propTypes = {
   isPatrolReport: PropTypes.bool,
   onGoToCollection: PropTypes.func,
   map: PropTypes.object,
-  showDrawer: PropTypes.func.isRequired,
+  showPatrolDetailView: PropTypes.func.isRequired,
 };

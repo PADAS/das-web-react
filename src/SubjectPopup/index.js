@@ -22,8 +22,9 @@ import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import styles from './styles.module.scss';
 
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+
 const SubjectHistoricalDataModal = lazy(() => import('../SubjectHistoricalDataModal'));
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STORAGE_KEY = 'showSubjectDetailsByDefault';
 
@@ -87,7 +88,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, addModal, showP
             category: MAP_INTERACTION_CATEGORY,
             location: 'subject popover',
           }}
-          className={UFA_NAVIGATION_UI ? styles.addReport : styles.oldNavigationAddReport}
+          className={ENABLE_UFA_NAVIGATION_UI ? styles.addReport : styles.oldNavigationAddReport}
           variant="secondary"
           reportData={{ location: locationObject, reportedById }}
           showLabel={false}

@@ -23,12 +23,13 @@ import { RULER_POINTS_LAYER_ID } from '../MapRulerLayer';
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const MapRulerControl = (props) => {
   const { map, setPickingMapLocationState } = props;
+
   const [active, setActiveState] = useState(false);
   const [points, setPointState] = useState([]);
   const [pointerLocation, setPointerLocation] = useState(null);
@@ -189,8 +190,8 @@ const MapRulerControl = (props) => {
 
 
   return <Fragment>
-    <div className={UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}>
-      {UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
+    <div className={ENABLE_UFA_NAVIGATION_UI ? styles.buttons : styles.oldNavigationButtons}>
+      {ENABLE_UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}
@@ -199,7 +200,7 @@ const MapRulerControl = (props) => {
         onClick={toggleActiveState}>
         <RulerIcon />
       </button>
-      {!UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
+      {!ENABLE_UFA_NAVIGATION_UI && active && <Button variant='dark' size='sm' id='cancel-location-select'
         onClick={toggleActiveState} type='button'>
         {completed ? 'Close' : 'Cancel'}
       </Button>}

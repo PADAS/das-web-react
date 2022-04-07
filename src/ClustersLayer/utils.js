@@ -20,9 +20,12 @@ const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
   padding: '4px 10px',
   cursor: 'pointer',
 };
-const FEATURE_ICON_HTML_STYLES = { width: '16px', height: '24px' };
+const FEATURE_ICON_HTML_STYLES = { maxWidth: '24px', minWidth: '18px', height: '24px', margin: '0 1px' };
 const FEATURE_SS_ICON_HTML_STYLES = { filter: 'brightness(0)' };
 const FEATURE_COUNT_HTML_STYLES = { fontSize: '16px', fontWeight: '500', paddingLeft: '4px', margin: '0' };
+
+const getFeatureIcon = (feature, mapImages) =>
+  mapImages[`${feature.properties.icon_id}-${feature.properties.priority}`]?.image;
 
 export const getClusterIconFeatures = (clusterFeatures) => {
   const { eventFeatures, subjectFeatures } = clusterFeatures.reduce((accumulator, feature) => {
@@ -65,7 +68,13 @@ export const getClusterIconFeatures = (clusterFeatures) => {
   return clusterIconFeatures.slice(0, CLUSTER_ICON_DISPLAY_LENGTH);
 };
 
-export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onMouseOverCluster, onMouseLeaveCluster) => {
+export const createClusterHTMLMarker = (
+  clusterFeatures,
+  mapImages,
+  onClusterClick,
+  onMouseOverCluster,
+  onMouseLeaveCluster
+) => {
   const clusterHTMLMarkerContainer = document.createElement('div');
   clusterHTMLMarkerContainer.onclick = onClusterClick;
   clusterHTMLMarkerContainer.onmouseover = onMouseOverCluster;
@@ -73,8 +82,11 @@ export const createClusterHTMLMarker = (clusterFeatures, onClusterClick, onMouse
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
   getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    const featureImageHTML = document.createElement('img');
-    featureImageHTML.src = feature.properties.image;
+    let featureImageHTML = getFeatureIcon(feature, mapImages);
+    if (!featureImageHTML) {
+      featureImageHTML = document.createElement('img');
+      featureImageHTML.src = feature.properties.image;
+    }
     injectStylesToElement(featureImageHTML, FEATURE_ICON_HTML_STYLES);
     if (subjectIsStatic(feature)) {
       injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
@@ -150,6 +162,7 @@ export const addNewClusterMarkers = (
   clusterMarkerHashMapRef,
   clustersSource,
   map,
+  mapImages,
   removeClusterPolygon,
   renderClusterPolygon,
   renderedClusterFeatures,
@@ -170,6 +183,7 @@ export const addNewClusterMarkers = (
       const clusterPoint = centroid(clusterFeatureCollection);
       const newClusterHTMLMarkerContainer = createClusterHTMLMarker(
         clusterFeatures,
+        mapImages,
         onClusterClick(
           clusterPoint.geometry.coordinates,
           clusterFeatures,
@@ -198,6 +212,7 @@ export const updateClusterMarkers = async (
   clusterMarkerHashMapRef,
   onShowClusterSelectPopup,
   map,
+  mapImages,
   removeClusterPolygon,
   renderClusterPolygon,
   source
@@ -214,6 +229,7 @@ export const updateClusterMarkers = async (
     clusterMarkerHashMapRef,
     source,
     map,
+    mapImages,
     removeClusterPolygon,
     renderClusterPolygon,
     renderedClusterFeatures,

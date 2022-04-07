@@ -15,18 +15,20 @@ import ClusterIcon from '../common/images/icons/cluster-icon.svg';
 import { addBounceToEventMapFeatures } from '../utils/events';
 import {
   DEFAULT_SYMBOL_LAYOUT,
+  DEVELOPMENT_FEATURE_FLAGS,
   IF_IS_GENERIC,
   LAYER_IDS,
   MAX_ZOOM,
   DEFAULT_SYMBOL_PAINT,
   MAP_ICON_SCALE,
-  REACT_APP_ENABLE_CLUSTERING,
   SYMBOL_TEXT_SIZE_EXPRESSION,
 } from '../constants';
 import { getMapEventFeatureCollectionWithVirtualDate } from '../selectors/events';
 import MapImageFromSvgSpriteRenderer, { calcSvgImageIconId } from '../MapImageFromSvgSpriteRenderer';
 import { getShouldEventsBeClustered, getShowReportsOnMap } from '../selectors/clusters';
 import useClusterBufferPolygon from '../hooks/useClusterBufferPolygon';
+
+const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const {
   CLUSTER_BUFFER_POLYGON_LAYER_ID,
@@ -296,7 +298,7 @@ const EventsLayer = ({
   return <>
     <Source id='events-data-unclustered' geoJsonSource={sourceData} />
 
-    {!REACT_APP_ENABLE_CLUSTERING && <>
+    {!ENABLE_NEW_CLUSTERING && <>
       <Source id='events-data-clustered' geoJsonSource={{ ...sourceData, ...CLUSTER_CONFIG }} />
 
       {enableClustering && isSubjectSymbolsLayerReady && <>
@@ -314,19 +316,19 @@ const EventsLayer = ({
         layout={eventIconLayout}
         minZoom={minZoom}
         onClick={onEventSymbolClick}
-        onInit={REACT_APP_ENABLE_CLUSTERING ? () => setEventLayerIds([
+        onInit={ENABLE_NEW_CLUSTERING ? () => setEventLayerIds([
           EVENT_SYMBOLS,
           `${EVENT_SYMBOLS}-labels`,
           `${EVENT_SYMBOLS}-unclustered`,
           `${EVENT_SYMBOLS}-unclustered-labels`,
         ]) : setEventLayerIds}
-        sourceId={!REACT_APP_ENABLE_CLUSTERING && enableClustering ? 'events-data-clustered' : 'events-data-unclustered'}
+        sourceId={!ENABLE_NEW_CLUSTERING && enableClustering ? 'events-data-clustered' : 'events-data-unclustered'}
         textLayout={eventLabelLayout}
         textPaint={EVENTS_LAYER_TEXT_PAINT}
         type="symbol"
       />
 
-      {REACT_APP_ENABLE_CLUSTERING && !!map.getSource(CLUSTERS_SOURCE_ID) && <>
+      {ENABLE_NEW_CLUSTERING && !!map.getSource(CLUSTERS_SOURCE_ID) && <>
         <LabeledSymbolLayer
           before={SUBJECT_SYMBOLS}
           filter={['all', ['has', 'event_type'], ['!has', 'point_count']]}
