@@ -9,7 +9,7 @@ import { calcUrlForImage } from '../utils/img';
 import { getUniqueSubjectGroupSubjects, updateSubjectLastPositionFromSocketStatusUpdate } from '../utils/subjects';
 
 const SUBJECTS_API_URL = `${API_URL}subjects`;
-const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
+export const SUBJECT_GROUPS_API_URL = `${API_URL}subjectgroups`;
 
 // actions
 

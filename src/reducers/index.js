@@ -25,7 +25,7 @@ import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
-import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
+import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
 import drawerReducer from '../ducks/drawer';
 import eulaReducer from '../ducks/eula';
@@ -116,6 +116,7 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
+    userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
     trackLength: persistReducer(trackLengthPersistanceConfig, trackDateRangeReducer),
     userNotifications: userNotificationReducer,

@@ -5,7 +5,7 @@ import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 
 import layoutVariables from '../common/styles/layout.module.scss';
 
-const { POSITION: TOAST_POSITIONS, Slide } = toast;
+const { POSITION: TOAST_POSITIONS } = toast;
 const { buildbranch, buildnum } = packageJson;
 
 export const {
@@ -32,7 +32,7 @@ export const GA_EVENT_CATEGORIES = {
   SYSTEM_STATUS: 'System Status',
 };
 
-export const MIN_ZOOM = 1;
+export const MIN_ZOOM = 2.5;
 export const MAX_ZOOM = 18;
 
 export const CLUSTER_CLICK_ZOOM_THRESHOLD = 13;
@@ -137,6 +137,7 @@ export const FEATURE_FLAGS = {
   EULA: 'eula_enabled',
   KML_EXPORT: 'export_kml_enabled',
   TABLEAU: 'tableau_enabled',
+  GEOPERMISSIONS: 'geopermissions_enabled',
 };
 
 export const SOURCE_IDS = {
@@ -263,8 +264,9 @@ export const GEOLOCATOR_OPTIONS = {
 };
 
 export const DEFAULT_TOAST_CONFIG = {
-  position: TOAST_POSITIONS.TOP_CENTER,
-  transition: Slide,
+  closeOnClick: false,
+  position: TOAST_POSITIONS.TOP_RIGHT,
+  type: toast.TYPE.ERROR,
 };
 
 export const MAPBOX_STYLE_LAYER_SOURCE_TYPES = ['mapbox_style'];

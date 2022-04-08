@@ -4,7 +4,7 @@ import { combineReducers } from 'redux';
 import { API_URL, FEATURE_FLAGS, REACT_APP_DAS_HOST, STATUSES, DEFAULT_SHOW_TRACK_DAYS } from '../constants';
 import { setServerVersionAnalyticsDimension, setSitenameDimension } from '../utils/analytics';
 
-const STATUS_API_URL = `${API_URL}status`;
+export const STATUS_API_URL = `${API_URL}status`;
 
 // actions
 const FETCH_SYSTEM_STATUS_SUCCESS = 'FETCH_SYSTEM_STATUS_SUCCESS';
@@ -304,7 +304,7 @@ const INITIAL_SYSTEM_CONFIG_STATE = {
   [FEATURE_FLAGS.KML_EXPORT]: false,
   [FEATURE_FLAGS.ALERTS]: false,
   [FEATURE_FLAGS.EULA]: false,
-  geoPermissionsEnabled: false,
+  [FEATURE_FLAGS.GEOPERMISSIONS]: false,
   showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
   sitename: '',
 };
@@ -328,7 +328,7 @@ export const systemConfigReducer = (state = INITIAL_SYSTEM_CONFIG_STATE, { type,
     return { ...state, showTrackDays: payload, };
   }
   case (SET_GEOPERMISSIONS_ENABLED): {
-    return { ...state, geoPermissionsEnabled: true /* payload */ };
+    return { ...state, [FEATURE_FLAGS.GEOPERMISSIONS]: payload };
   }
   case (SET_EULA_ENABLED): {
     return { ...state, [FEATURE_FLAGS.EULA]: payload, };
