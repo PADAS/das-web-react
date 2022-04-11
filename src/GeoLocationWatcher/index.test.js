@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
+
 import { Provider } from 'react-redux';
 
 import { mockStore } from '../__test-helpers/MockStore';
@@ -20,39 +21,55 @@ describe('The GeoLocationWatcher', () => {
   let store;
 
   beforeEach(() => {
-    store = mockStore({ view: { userLocation: null } });
+    store = mockStore({ view: { userLocation: null, userLocationAccessGranted: { granted: true } }, data: { user: { } } });
     const mockGeolocation = {
       clearWatch: jest.fn(),
-      getCurrentPosition: jest.fn().mockReturnValue(mockUserLocation),
+      getCurrentPosition: jest.fn().mockImplementation((successFn) => successFn && successFn(mockUserLocation)),
       watchPosition: jest.fn().mockImplementation((updateFn, _errorFn) => {
-        updateFn(mockUserLocation);
+        updateFn(mockGeolocation.getCurrentPosition());
       }),
     };
 
     global.navigator.geolocation = mockGeolocation;
+
+    global.navigator.permissions = {
+      query: jest.fn().mockReturnValue(
+        Promise.resolve(
+          { state: 'granted',
+            addEventListener: jest.fn()
+              .mockImplementation((_eventType, callback) => {
+                callback({ target: { state: 'granted' } });
+              }),
+            removeEventListener: jest.fn() }
+        )
+      ),
+    };
+
   });
 
-  afterEach(() => {
+  afterAll(() => {
     jest.clearAllMocks();
   });
 
-  test('updating a user\'s location in the store when it changes', () => {
+  test('checking if geolocation permission has been granted', () => {
     render(<Provider store={store}>
       <GeoLocationWatcher />
     </Provider>);
 
-    expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
+    expect(global.navigator.permissions.query).toHaveBeenCalledWith({ name: 'geolocation' });
+  });
+
+  test('updating a user\'s location in the store when it changes', async () => {
+    render(<Provider store={store}>
+      <GeoLocationWatcher />
+    </Provider>);
+
+    await waitFor(() => {
+      expect(global.navigator.geolocation.watchPosition).toHaveBeenCalled();
+    });
 
     const actions = store.getActions();
 
-    expect(actions).toEqual([{
-      type: USER_LOCATION_RETRIEVED,
-      payload: mockUserLocation,
-    }]);
-
-  });
-
-  test('handling errors', () => {
-
+    expect(actions[0].type).toEqual(USER_LOCATION_RETRIEVED);
   });
 });

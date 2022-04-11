@@ -91,7 +91,7 @@ const RelationshipButton = (props) => {
 
 
 export default memo(connect(null, {
-  fetchEvent: id => fetchEvent(id),
+  fetchEvent: (...args) => fetchEvent(...args),
   fetchPatrol: id => fetchPatrol(id),
   showSideBarDetailView: showDetailView,
 })(RelationshipButton));

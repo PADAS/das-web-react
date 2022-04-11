@@ -3,16 +3,16 @@ import Map from './Map';
 import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
-
+import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'axios-progress-bar/dist/nprogress.css';
 
-import { DEVELOPMENT_FEATURE_FLAGS, STATUSES } from './constants';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
+import { userIsGeoPermissionRestricted } from './utils/geo-perms';
+import { DEVELOPMENT_FEATURE_FLAGS } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
 import { updateUserPreferences } from './ducks/user-preferences';
-import { updateNetworkStatus } from './ducks/system-status';
 import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
@@ -31,10 +31,9 @@ import { ReactComponent as ReportTypeIconSprite } from './common/images/sprites/
 import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
 
 import './App.scss';
+import { showToast } from './utils/toast';
 
 const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
-const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
@@ -47,34 +46,9 @@ const bindDirectMapEventing = (map) => {
   setDirectMapBindingsForFeatureHighlightStates(map);
 };
 
-let mapResizeAnimation;
-
-const animateResize = (map) => {
-  const transitionLength = 500;
-  const numberOfFrames = 8;
-  let count = 0;
-
-  clearInterval(mapResizeAnimation);
-
-  mapResizeAnimation = setInterval(() => {
-    count += 1;
-
-    map.resize();
-
-    if (count === numberOfFrames) {
-      clearInterval(mapResizeAnimation);
-    }
-
-  }, (transitionLength / numberOfFrames));
-
-  return mapResizeAnimation;
-};
-
-
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, updateNetworkStatus, updateUserPreferences, trackLength, setTrackLength, setDefaultCustomTrackLength } = props;
-
+    sidebarOpen, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -108,35 +82,18 @@ const App = (props) => {
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
-    fetchEventTypes()
-      .catch(() => {
-      });
-    fetchEventSchema()
-      .catch(() => {
-        // 
-      });
-
-    fetchMaps()
-      .catch(() => {
-        // 
-      });
-    fetchSubjectGroups()
-      .catch(() => {
-        // 
-      });
-    fetchAnalyzers()
-      .catch(() => {
-        // 
-      });
+    fetchEventTypes();
+    fetchEventSchema();
+    fetchMaps();
+    fetchSubjectGroups();
+    fetchAnalyzers();
     fetchSystemStatus()
-      .then(({ patrol_enabled, track_length }) => {
-        if (patrol_enabled) {
-          fetchPatrolTypes()
-            .catch(() => {
-              // 
-            });
+      .then((results = {}) => {
+        if (results.patrol_enabled) {
+          fetchPatrolTypes();
         }
-        if (track_length) {
+        if (results.track_length) {
+          const { track_length } = results;
           const { defaultCustomTrackLength, length } = trackLength;
           if (defaultCustomTrackLength === undefined || defaultCustomTrackLength === length) {
             setTrackLength(track_length);
@@ -145,39 +102,25 @@ const App = (props) => {
             setDefaultCustomTrackLength(track_length);
           }
         }
-      })
-      .catch(() => {
-        /* toast('Error fetching system status. Please refresh and try again.', {
-          type: toast.TYPE.ERROR,
-        }); */
       });
+
     loadProgressBar();
-    window.addEventListener('online', () => {
-      updateNetworkStatus(HEALTHY_STATUS);
-    });
-    window.addEventListener('offline', () => {
-      updateNetworkStatus(UNHEALTHY_STATUS);
-    });
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   useEffect(() => {
-    if (map) {
-      const resizeAnimation = () => animateResize(map);
+    if (showGeoPermWarningMessage) {
+      const toastId = showToast({
+        message: 'Some data may only be displayed when you are near its location.',
+        toastConfig: { type: toast.TYPE.INFO, autoClose: false, onClose() {
+        } } });
 
-      window.addEventListener('resize', resizeAnimation);
       return () => {
-        window.removeEventListener('resize', resizeAnimation);
+        toast.dismiss(toastId);
       };
     }
-  }, [map]);
-
-  useEffect(() => {
-    if (map) {
-      animateResize(map);
-    }
-  }, [map, sidebarOpen]);
+  }, [showGeoPermWarningMessage]);
 
   return <div
     className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
@@ -209,11 +152,25 @@ const App = (props) => {
 
       <ServiceWorkerWatcher />
     </MapContext.Provider>
+    <ToastContainer transition={Slide} />
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap } }) => ({ trackLength, pickingLocationOnMap, sidebarOpen });
-const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, updateNetworkStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
+const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap, userLocation }, data: { user } }) => {
+  const geoPermRestricted = userIsGeoPermissionRestricted(user);
+
+  return {
+    trackLength,
+    pickingLocationOnMap,
+    sidebarOpen,
+    lastSeenGeoPermSplashWarning: null,
+    showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
+    userIsGeoPermissionRestricted: geoPermRestricted,
+  };
+};
+
+export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, setTrackLength, setDefaultCustomTrackLength })(memo(App));
+
 
 const AppWithSocketContext = () => <WithSocketContext>
   <ConnectedApp />

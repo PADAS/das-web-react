@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { API_URL } from '../constants';
 
-const PATROL_TYPES_API_URL = `${API_URL}activity/patrols/types`;
+export const PATROL_TYPES_API_URL = `${API_URL}activity/patrols/types`;
 
 const { get } = axios;
 

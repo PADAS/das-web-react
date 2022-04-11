@@ -20,6 +20,7 @@ import { cleanUpBadlyStoredValuesFromMapSymbolLayer, jumpToLocation } from '../u
 import { setAnalyzerFeatureActiveStateForIDs } from '../utils/analyzers';
 import { getPatrolsForLeaderId } from '../utils/patrols';
 import { openModalForReport } from '../utils/events';
+import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcPatrolFilterForRequest } from '../utils/patrol-filter';
 import { fetchTracksIfNecessary } from '../utils/tracks';
@@ -82,6 +83,7 @@ import CursorGpsDisplay from '../CursorGpsDisplay';
 import RightClickMarkerDropper from '../RightClickMarkerDropper';
 
 import './Map.scss';
+import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 const { ENABLE_NEW_CLUSTERING, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -204,8 +206,7 @@ class Map extends Component {
     if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
       this.fetchMapData();
     }
-    if (!isEqual(prev.userLocation, this.props.userLocation) && !!this.props?.userLocation?.coords) {
-      console.log('location update, re-fetching map events');
+    if (userIsGeoPermissionRestricted(this.props.user) && !isEqual(prev.userLocation, this.props.userLocation)) {
       this.debouncedFetchMapEvents();
     }
     if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
@@ -343,7 +344,7 @@ class Map extends Component {
     let params;
     if (this.props.userLocation?.coords) {
       params = {
-        location: `${this.props.userLocation.coords.longitude},${this.props.userLocation.coords.latitude}`,
+        location: calcLocationParamStringForUserLocationCoords(this.props.userLocation.coords),
       };
     }
     return this.props.fetchMapEvents(this.props.map, params)
@@ -731,7 +732,7 @@ class Map extends Component {
 
 const mapStatetoProps = (state) => {
   const { data, view } = state;
-  const { maps, tracks, eventFilter, eventTypes, patrolFilter } = data;
+  const { maps, tracks, eventFilter, user, eventTypes, patrolFilter } = data;
   const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
     showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
 
@@ -748,6 +749,7 @@ const mapStatetoProps = (state) => {
     mapIsLocked,
     patrolTrackState,
     popup,
+    user,
     eventFilter,
     patrolFilter,
     subjectTrackState,

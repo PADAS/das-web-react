@@ -599,7 +599,7 @@ export default memo(
         addModal,
         createEvent: (...args) => createEvent(...args),
         addEventToIncident: (...args) => addEventToIncident(...args),
-        fetchEvent: id => fetchEvent(id),
+        fetchEvent: (...args) => fetchEvent(...args),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
         showSideBarDetailView: showDetailView,

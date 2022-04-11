@@ -1,18 +1,23 @@
 import React, { Fragment, memo, useState } from 'react';
 
-import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 
-const ErrorMessage = ({ variant = 'danger', message = 'An error has occured', details = '' }) => {
+import styles from './styles.module.scss';
+
+const ErrorMessage = ({ message = 'An error has occured', details = '' }) => {
   const [detailsShown, showDetails] = useState(false);
 
-  const toggleShowDetails = () => showDetails(!detailsShown);
+  const toggleShowDetails = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    showDetails(!detailsShown);
+  };
 
   return <Fragment>
-    <h6>{message} {details && <Button onClick={toggleShowDetails} variant='link'>{detailsShown ? 'Hide' : 'Show'} Details</Button>}</h6>
-    {details && detailsShown && <Alert variant={variant}>
+    <h6 className={styles.header}>{message} {details && <Button onClick={toggleShowDetails} variant='link' className={styles.detailsButton}>{detailsShown ? 'Hide' : 'See'} Details</Button>}</h6>
+    {details && detailsShown && <div className={styles.details}>
       {details}
-    </Alert>}
+    </div>}
   </Fragment>;
 };
 

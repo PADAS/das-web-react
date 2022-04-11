@@ -27,7 +27,7 @@ const setHomeMapIfNecessary = (maps) => (dispatch, getState) => {
   const { view: { homeMap } } = getState();
   const defaultMap = maps.find(map => map.default === true) || maps[0];
 
-  if (!homeMap) {
+  if (!homeMap?.id) {
     return dispatch(setHomeMap(defaultMap));
   }
 

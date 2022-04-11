@@ -779,7 +779,7 @@ const ConnectedDistanceCovered = connect(makeMapStateToProps, null)(memo((props)
 
 export default connect(mapStateToProps, {
   addModal,
-  fetchEvent: id => fetchEvent(id),
+  fetchEvent: (...args) => fetchEvent(...args),
   fetchTrackedBySchema,
   removeModal,
   updateUserPreferences,

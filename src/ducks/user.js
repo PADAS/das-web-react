@@ -14,6 +14,8 @@ const FETCH_USER_PROFILES_SUCCESS = 'FETCH_USER_PROFILES_SUCCESS';
 const SET_USER_PROFILE = 'SET_USER_PROFILE';
 const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 
+const SET_USER_LOCATION_ACESS_GRANTED = 'SET_USER_LOCATION_ACESS_GRANTED';
+
 // action creators
 
 export const fetchCurrentUser = () => (dispatch, getState) => axios.get(CURRENT_USER_API_URL)
@@ -78,10 +80,15 @@ const fetchUserProfileSuccess = payload => ({
   payload,
 });
 
+export const setUserLocationAccessGranted = (granted = false) => ({
+  type: SET_USER_LOCATION_ACESS_GRANTED,
+  payload: granted,
+});
+
 
 // reducers
 const INITIAL_USER_STATE = {};
-export default (state = INITIAL_USER_STATE, action = {}) => {
+const userReducer = (state = INITIAL_USER_STATE, action = {}) => {
   const { type, payload } = action;
 
   switch (type) {
@@ -94,6 +101,7 @@ export default (state = INITIAL_USER_STATE, action = {}) => {
   }
 };
 
+export default userReducer;
 
 const INITIAL_USER_PROFILE_STATE = [];
 export const userProfilesReducer = globallyResettableReducer((state, action = {}) => {
@@ -125,3 +133,14 @@ export const selectedUserProfileReducer = globallyResettableReducer((state, acti
   }
   }
 }, INITIAL_SELECTED_PROFILE_STATE);
+
+const INITIAL_USER_LOCATION_ACCESS_STATE = { granted: false };
+export const userLocationAccessGrantedReducer = (state = INITIAL_USER_LOCATION_ACCESS_STATE, action) => {
+  const { type, payload } = action;
+
+  if (type === SET_USER_LOCATION_ACESS_GRANTED) {
+    return { granted: payload };
+  }
+
+  return state;
+};

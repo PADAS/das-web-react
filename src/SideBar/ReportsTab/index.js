@@ -77,7 +77,7 @@ const ReportsTab = ({
 
   useEffect(() => {
     loadFeedEvents();
-  }, [eventFilter, feedSort]); // eslint-disable-line
+  }, [loadFeedEvents]);
 
   const onScroll = useCallback(() => {
     if (events.next) {

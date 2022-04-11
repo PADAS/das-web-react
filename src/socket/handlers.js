@@ -1,7 +1,9 @@
+import { toast } from 'react-toastify';
+
 import store from '../store';
 
 import { displayTitleForEvent, eventWasRecentlyCreatedByCurrentUser } from '../utils/events';
-import { showErrorToast } from '../utils/toast';
+import { showToast } from '../utils/toast';
 
 export const showFilterMismatchToastForHiddenReports = (msg) => {
   const { event_data, matches_current_filter } = msg;
@@ -15,9 +17,11 @@ export const showFilterMismatchToastForHiddenReports = (msg) => {
     const eventTypes = store.getState().data.eventTypes;
     const displayTitle = displayTitleForEvent(event_data, eventTypes);
 
-    showErrorToast({
+    showToast({
       message: `${event_data.serial_number} "${displayTitle}" has been created but does not match the current filter`,
-      variant: 'warning',
+      toastConfig: {
+        type: toast.TYPE.INFO,
+      },
     });
   }
 };
