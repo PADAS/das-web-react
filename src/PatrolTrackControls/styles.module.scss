@@ -1,0 +1,11 @@
+.patrolTrackControls {
+  --buttonDimensions: 1.75rem;
+  display: flex;
+  
+  button {
+    min-height: var(--buttonDimensions);
+    min-width: var(--buttonDimensions);
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+  }
+}

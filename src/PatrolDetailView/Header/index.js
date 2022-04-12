@@ -8,6 +8,7 @@ import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/anal
 import usePatrol from '../../hooks/usePatrol';
 
 import DasIcon from '../../DasIcon';
+import PatrolTrackControls from '../../PatrolTrackControls';
 import PatrolDistanceCovered from '../../Patrols/DistanceCovered';
 import PatrolMenu from '../../PatrolMenu';
 
@@ -70,6 +71,10 @@ const Header = ({ patrol, setTitle, title }) => {
     startPatrol();
   }, [startPatrol]);
 
+  const onLocationClick = useCallback(() => {
+    patrolDetailViewTracker.track('Click "jump to location" from patrol detail view');
+  }, []);
+
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
       <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} type='events' iconId={patrolIconId}  />
@@ -88,6 +93,8 @@ const Header = ({ patrol, setTitle, title }) => {
       <br />
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
+
+    {(isPatrolActive || isPatrolDone) && <PatrolTrackControls patrol={patrol} onLocationClick={onLocationClick} className={styles.patrolTrackControls}/>}
 
     {(isPatrolScheduled || isPatrolOverdue) && <Button
       className={`${styles.startPatrolButton} ${isNewPatrol ? 'newPatrol' : ''}`}
