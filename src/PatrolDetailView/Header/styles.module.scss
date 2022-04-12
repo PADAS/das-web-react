@@ -102,11 +102,16 @@
 }
 
 .patrolTrackControls {
+  display: none;
   --buttonDimensions: 2.5rem;
 
   button {
     height: var(--buttonDimensions);
     width: var(--buttonDimensions);
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
   }
 }
 
