@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Select, { components } from 'react-select';
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import isString from 'lodash/isString';
@@ -55,7 +55,11 @@ const SelectField = (props) => {
     return (label || name);
   };
   const getOptionValue = (val) => isPlainObject(val) ? val.value : val;
-  const isOptionDisabled = (option) => schema.inactive_enum && schema.inactive_enum.includes(option.value.toLowerCase());
+  const schemaInactiveEnumLowercase = useMemo(
+    () => (schema.inactive_enum || []).map((inactiveOption) => inactiveOption.toLowerCase()),
+    [schema]
+  );
+  const isOptionDisabled = (option) => schemaInactiveEnumLowercase.includes(option.value.toLowerCase());
 
   const selected = enumOptions.find((item) => value ?
     item.value ===
