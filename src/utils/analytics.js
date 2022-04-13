@@ -21,6 +21,7 @@ export const PATROL_FILTER_CATEGORY = 'Patrol Filter';
 export const ADD_TO_PATROL_CATEGORY = 'Add To Patrol';
 export const REPORTS_CATEGORY = 'Reports';
 export const REPORT_NOTE_CATEGORY = 'Report Note';
+export const REPORT_DETAIL_VIEW_CATEGORY = 'Report Detail View';
 export const REPORT_MODAL_CATEGORY = 'Report Modal';
 export const REPORT_EXPORT_CATEGORY = 'Report Export';
 export const INCIDENT_REPORT_CATEGORY = 'Incident Report';

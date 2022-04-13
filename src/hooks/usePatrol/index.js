@@ -22,7 +22,7 @@ import { createPatrolDataSelector } from '../../selectors/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
 
-export default (patrolFromProps) => {
+const usePatrol = (patrolFromProps) => {
   const dispatch = useDispatch();
 
   const { patrolData, patrolTrackState, trackState } = useSelector((state) => {
@@ -149,3 +149,5 @@ export default (patrolFromProps) => {
     startPatrol,
   };
 };
+
+export default usePatrol;

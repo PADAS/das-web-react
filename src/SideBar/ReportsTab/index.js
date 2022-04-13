@@ -5,34 +5,43 @@ import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-import { getFeedEvents } from '../selectors';
-import { openModalForReport } from '../utils/events';
+import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
+import { getFeedEvents } from '../../selectors';
+import { openModalForReport } from '../../utils/events';
 
-import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../utils/event-filter';
-import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
-import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
-import { resetGlobalDateRange } from '../ducks/global-date-range';
-import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
+import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
+import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
+import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { showDetailView } from '../../ducks/side-bar';
+import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 
-import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
+import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
-import DelayedUnmount from '../DelayedUnmount';
-import ErrorBoundary from '../ErrorBoundary';
-import EventFilter from '../EventFilter';
-import ColumnSort from '../ColumnSort';
-import ErrorMessage from '../ErrorMessage';
-import EventFeed from '../EventFeed';
+import DelayedUnmount from '../../DelayedUnmount';
+import ErrorBoundary from '../../ErrorBoundary';
+import EventFilter from '../../EventFilter';
+import ColumnSort from '../../ColumnSort';
+import ErrorMessage from '../../ErrorMessage';
+import EventFeed from '../../EventFeed';
+import ReportDetailView from '../../ReportDetailView';
 
-import styles from './styles.module.scss';
+import styles from './../styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
-const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, userLocationCoords, fetchNextEventFeedPage, eventFilter, map, } = props;
-
+const ReportsTab = ({
+  sidebarOpen,
+  events,
+  fetchEventFeed,
+  userLocationCoords,
+  fetchNextEventFeedPage,
+  eventFilter,
+  map,
+  showSideBarDetailView,
+  sideBar,
+}) => {
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
   const [feedEvents, setFeedEvents] = useState([]);
@@ -77,7 +86,11 @@ const ReportsTab = (props) => {
   }, [events.next, fetchNextEventFeedPage]);
 
   const onEventTitleClick = (event) => {
-    openModalForReport(event, map);
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+    } else {
+      openModalForReport(event, map);
+    }
     const reportType = event.is_collection ? 'Incident' : 'Event';
     feedTracker.track(`Open ${reportType} Report`, `Event Type:${event.event_type}`);
   };
@@ -106,6 +119,9 @@ const ReportsTab = (props) => {
   }, [events.results, optionalFeedProps.exclude_contained]);
 
   return <>
+    {sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView &&
+      <ReportDetailView />}
+
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
         <div className={`${styles.filterWrapper} ${!ENABLE_UFA_NAVIGATION_UI ? styles.oldNavigationFilterWrapper : ''}`} data-testid='filter-wrapper'>
@@ -125,16 +141,15 @@ const ReportsTab = (props) => {
         </Button>
       </div>}
       {!events.error && <EventFeed
-                className={styles.sidebarEventFeed}
-                hasMore={!!events.next}
-                map={map}
-                loading={loadingEvents}
-                sortConfig={feedSort}
-                events={feedEvents}
-                onScroll={onScroll}
-                onTitleClick={onEventTitleClick}
-              />
-              }
+        className={styles.sidebarEventFeed}
+        hasMore={!!events.next}
+        map={map}
+        loading={loadingEvents}
+        sortConfig={feedSort}
+        events={feedEvents}
+        onScroll={onScroll}
+        onTitleClick={onEventTitleClick}
+      />}
     </ErrorBoundary>
   </>;
 };
@@ -142,14 +157,23 @@ const ReportsTab = (props) => {
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
+  sideBar: state.view.sideBar,
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
-export default connect(mapStateToProps, { fetchEventFeed, fetchNextEventFeedPage, updateEventFilter, resetGlobalDateRange })(memo(ReportsTab));
+export default connect(
+  mapStateToProps,
+  { fetchEventFeed, fetchNextEventFeedPage, showSideBarDetailView: showDetailView }
+)(memo(ReportsTab));
 
 ReportsTab.propTypes = {
   fetchEventFeed: PropTypes.func.isRequired,
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
+  sideBar: PropTypes.shape({
+    currentTab: PropTypes.string,
+    showDetailView: PropTypes.bool,
+  }).isRequired,
+  showSideBarDetailView: PropTypes.func.isRequired,
 };

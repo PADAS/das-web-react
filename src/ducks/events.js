@@ -11,7 +11,6 @@ import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 
-
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 

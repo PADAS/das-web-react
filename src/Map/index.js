@@ -35,6 +35,7 @@ import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
+import { showDetailView } from '../ducks/side-bar';
 
 import {
   BREAKPOINTS,
@@ -42,6 +43,7 @@ import {
   LAYER_IDS,
   LAYER_PICKER_IDS,
   MAX_ZOOM,
+  TAB_KEYS,
 } from '../constants';
 
 import DelayedUnmount from '../DelayedUnmount';
@@ -83,7 +85,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { ENABLE_NEW_CLUSTERING, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_NEW_CLUSTERING, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -416,7 +418,11 @@ class Map extends Component {
     const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
-    openModalForReport(event, map);
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      this.props.showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+    } else {
+      openModalForReport(event, map);
+    }
   });
 
   onClusterLeafClick = this.withLocationPickerState((report) => {
@@ -774,6 +780,7 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
+  showSideBarDetailView: showDetailView,
   toggleMapLockState,
   updateUserPreferences,
   updateTrackState,
