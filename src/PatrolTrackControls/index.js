@@ -38,7 +38,7 @@ const PatrolTrackControls = ({ patrol, className, onLocationClick }) => {
 
     fitMapBoundsForAnalyzer(map, patrolBounds);
     onLocationClick();
-  }, [leader, map, onLocationClick, patrol.id, patrolBounds, patrolTrackState.pinned, patrolTrackState.visible, trackState.pinned, trackState.visible]);
+  }, [leader, map, onLocationClick, patrol.id, patrolBounds, patrolTrackState, patrolTrackState, trackState, trackState]);
 
   return <div className={`${styles.patrolTrackControls} ${className}`}>
     {!!canShowTrack && !!leader && <PatrolAwareTrackToggleButton buttonRef={trackToggleButtonRef} patrolData={patrolData} showLabel={false} data-testid={`patrol-list-item-track-btn-${patrol.id}`} />}
