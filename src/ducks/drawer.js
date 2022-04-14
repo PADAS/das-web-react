@@ -13,7 +13,7 @@ export const hideDrawer = () => (dispatch) => dispatch({ type: HIDE_DRAWER, payl
 //reducer
 const INITIAL_STATE = { data: null, drawerId: null, direction: 'left', isOpen: false };
 
-export default (state = INITIAL_STATE, action = {}) => {
+const drawerReducer = (state = INITIAL_STATE, action = {}) => {
   switch (action.type) {
   case SHOW_DRAWER:
     return { ...action.payload, isOpen: true };
@@ -25,3 +25,5 @@ export default (state = INITIAL_STATE, action = {}) => {
     return state;
   }
 };
+
+export default drawerReducer;

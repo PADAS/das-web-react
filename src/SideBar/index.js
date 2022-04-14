@@ -30,6 +30,7 @@ import {
 } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
+import { hideDetailView, openTab } from '../ducks/side-bar';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
 import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
@@ -88,8 +89,8 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
+  const sideBar = useSelector((state) => state.view.sideBar);
   const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
-  const sidebarTab = useSelector((state) => state.view.userPreferences.sidebarTab);
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
@@ -100,7 +101,6 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const [loadingPatrols, setPatrolLoadState] = useState(false);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
-  const [nestedNavigationState, setNestedNavigationState] = useState(false);
 
   const showPatrols = useMemo(
     () => !!patrolFlagEnabled && !!hasPatrolViewPermissions,
@@ -115,7 +115,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [patrolFilter]);
 
   const tabTitle = useMemo(() => {
-    switch (sidebarTab) {
+    switch (sideBar.currentTab) {
     case TAB_KEYS.REPORTS:
       return 'Reports';
     case TAB_KEYS.PATROLS:
@@ -125,7 +125,7 @@ const SideBar = ({ map, onHandleClick }) => {
     default:
       return '';
     }
-  }, [sidebarTab]);
+  }, [sideBar.currentTab]);
 
   const fetchAndLoadPatrolData = useCallback(() => {
     patrolFetchRef.current = dispatch(fetchPatrols());
@@ -139,29 +139,31 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [dispatch]);
 
   const onSelectTab = useCallback((clickedSidebarTab) => {
-    if (clickedSidebarTab === sidebarTab && sidebarOpen) {
-      dispatch(updateUserPreferences({ sidebarOpen: false, sidebarTab: clickedSidebarTab }));
+    if (clickedSidebarTab === sideBar.currentTab && sidebarOpen) {
+      dispatch(updateUserPreferences({ sidebarOpen: false }));
     } else {
-      dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: clickedSidebarTab }));
-      setNestedNavigationState(false);
+      dispatch(openTab(clickedSidebarTab));
     }
-  }, [dispatch, sidebarOpen, sidebarTab]);
+  }, [dispatch, sidebarOpen, sideBar.currentTab]);
 
   const handleCloseSideBar = useCallback(() => {
     dispatch(updateUserPreferences({ sidebarOpen: false }));
-    setNestedNavigationState(false);
+  }, [dispatch]);
+
+  const onClickBackFromDetailView = useCallback(() => {
+    dispatch(hideDetailView());
   }, [dispatch]);
 
   useEffect(() => {
-    if (showEventsBadge && sidebarOpen && sidebarTab === TAB_KEYS.REPORTS) {
+    if (showEventsBadge && sidebarOpen && sideBar.currentTab === TAB_KEYS.REPORTS) {
       setShowEventsBadge(false);
     }
-  }, [showEventsBadge, sidebarOpen, sidebarTab]);
+  }, [showEventsBadge, sidebarOpen, sideBar.currentTab]);
 
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (sidebarTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+        if (matches_current_filter && (sideBar.currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
           setShowEventsBadge(true);
         }
       };
@@ -174,7 +176,7 @@ const SideBar = ({ map, onHandleClick }) => {
         socket.off('update_event', updateEventFnRef);
       };
     }
-  }, [sidebarOpen, sidebarTab, socket]);
+  }, [sidebarOpen, sideBar.currentTab, socket]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -192,10 +194,10 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sidebarTab)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sidebarTab);
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sideBar.currentTab)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sideBar.currentTab);
     }
-  }, [sidebarTab]);
+  }, [sideBar.currentTab]);
 
   /* --- OLD NAVIGATION STUFF STARTS HERE --- */
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -275,7 +277,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
             {showPatrols && <Tab className={styles.oldNavigationTab} eventKey={TAB_KEYS.PATROLS} title="Patrols">
               <Suspense fallback={null}>
-                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} nestedNavigationState={false}/>
+                <PatrolsTabOld loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
               </Suspense>
             </Tab>}
 
@@ -303,7 +305,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
-      <Tab.Container activeKey={sidebarTab} onSelect={onSelectTab}>
+      <Tab.Container activeKey={sideBar.currentTab} onSelect={onSelectTab}>
         <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
           <Nav.Item>
             <Nav.Link eventKey={TAB_KEYS.REPORTS}>
@@ -331,20 +333,23 @@ const SideBar = ({ map, onHandleClick }) => {
         <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
-              <div className={sidebarTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
-                {nestedNavigationState ?
-                  <button className={styles.backButton} type='button' onClick={() => setNestedNavigationState(false)}>
+              <div
+                className={sideBar.currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+                data-testid="sideBar-addReportButton"
+              >
+                {sideBar.showDetailView ?
+                  <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
                     <ArrowLeftIcon />
                   </button>
                   :
                   <AddReport
                     className={styles.addReport}
                     variant="secondary"
-                    formProps={{ hidePatrols: sidebarTab !== TAB_KEYS.PATROLS }}
-                    hideReports={sidebarTab !== TAB_KEYS.REPORTS}
+                    formProps={{ hidePatrols: sideBar.currentTab !== TAB_KEYS.PATROLS }}
+                    hideReports={sideBar.currentTab !== TAB_KEYS.REPORTS}
                     popoverPlacement="bottom"
                     showLabel={false}
-                    type={sidebarTab}
+                    type={sideBar.currentTab}
                   />
                 }
               </div>
@@ -364,13 +369,7 @@ const SideBar = ({ map, onHandleClick }) => {
             </Tab.Pane>
 
             {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-              <PatrolsTab
-                loadingPatrols={loadingPatrols}
-                map={map}
-                patrolResults={patrols.results}
-                nestedNavigationState={nestedNavigationState}
-                changeNestedNavigation={(value) => setNestedNavigationState(value)}
-              />
+              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
             </Tab.Pane>}
 
             <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>

@@ -1,9 +1,8 @@
 import axios, { CancelToken } from 'axios';
 import merge from 'lodash/merge';
 
-import { API_URL, TAB_KEYS } from '../constants';
+import { API_URL } from '../constants';
 
-import { updateUserPreferences } from '../ducks/user-preferences';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { calcPatrolFilterForRequest/* , 
   validatePatrolAgainstCurrentPatrolFilter */ } from '../utils/patrol-filter';
@@ -35,10 +34,6 @@ export const UPDATE_PATROL_TRACK_STATE = 'UPDATE_PATROL_TRACK_STATE';
 const UPDATE_PATROL_SUCCESS = 'UPDATE_PATROL_SUCCESS';
 export const UPDATE_PATROL_REALTIME = 'UPDATE_PATROL_REALTIME';
 export const CREATE_PATROL_REALTIME = 'CREATE_PATROL_REALTIME';
-
-const UPDATE_PATROL_DETAIL_VIEW = 'UPDATE_PATROL_DETAIL_VIEW';
-const CLEAR_PATROL_DETAIL_VIEW = 'CLEAR_PATROL_DETAIL_VIEW';
-
 
 // for now, assume that a realtime update of a patrol can
 // use the same reducer as the results of the restful updat
@@ -268,21 +263,6 @@ export const uploadPatrolFile = (event_id, file, onUploadProgress = (event) => c
     });
 };
 
-
-export const showPatrolDetailView = (payload) => dispatch => {
-  dispatch(updateUserPreferences({ sidebarOpen: true, sidebarTab: TAB_KEYS.PATROLS }));
-  return dispatch({
-    type: UPDATE_PATROL_DETAIL_VIEW,
-    payload: payload
-  });
-};
-
-export const clearPatrolDetailView = () => dispatch => {
-  return dispatch({
-    type: CLEAR_PATROL_DETAIL_VIEW,
-  });
-};
-
 export const INITIAL_PATROLS_STATE = {
   count: null,
   next: null,
@@ -376,20 +356,4 @@ export const patrolTracksReducer = (state = INITIAL_PATROL_TRACKS_STATE, { type,
   }
 
   return state;
-};
-
-const INITIAL_STATE = {};
-
-export const patrolDetailViewReducer = (state = INITIAL_STATE, { type, payload }) => {
-  switch (type) {
-
-  case UPDATE_PATROL_DETAIL_VIEW:
-    return { ...payload };
-
-  case CLEAR_PATROL_DETAIL_VIEW:
-    return INITIAL_STATE;
-
-  default:
-    return state;
-  }
 };

@@ -4,28 +4,34 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { executeSaveActions } from '../utils/save';
+import { hideDetailView } from '../ducks/side-bar';
 import { mockStore } from '../__test-helpers/MockStore';
-import { newPatrol, patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
+import { patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
 import PatrolDetailView from './';
 
 jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
   executeSaveActions: jest.fn(),
 }));
-
-const onCloseDetailView = jest.fn();
+jest.mock('../ducks/side-bar', () => ({
+  ...jest.requireActual('../ducks/side-bar'),
+  hideDetailView: jest.fn(),
+}));
 
 let store = patrolDefaultStoreData;
 store.data.subjectStore = {};
 store.data.user = { permissions: { patrol: ['change'] } };
 
 describe('PatrolDetailView', () => {
-  let executeSaveActionsMock;
+  let executeSaveActionsMock, hideDetailViewMock;
 
   beforeEach(() => {
+    hideDetailViewMock = jest.fn(() => () => {});
+    hideDetailView.mockImplementation(hideDetailViewMock);
+
     render(
       <Provider store={mockStore(store)}>
-        <PatrolDetailView newPatrol={newPatrol} onCloseDetailView={onCloseDetailView}/>
+        <PatrolDetailView />
       </Provider>
     );
   });
@@ -73,12 +79,12 @@ describe('PatrolDetailView', () => {
   });
 
   test('closes the drawer when clicking the exit button', async () => {
-    expect(onCloseDetailView).toHaveBeenCalledTimes(0);
+    expect(hideDetailView).toHaveBeenCalledTimes(0);
 
     const exitButton = await screen.findByText('Exit');
     userEvent.click(exitButton);
 
-    expect(onCloseDetailView).toHaveBeenCalledTimes(1);
+    expect(hideDetailView).toHaveBeenCalledTimes(1);
   });
 
   test('renders the save button when user is in the Plan tab', async () => {
@@ -104,14 +110,14 @@ describe('PatrolDetailView', () => {
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
-    expect(onCloseDetailView).toHaveBeenCalledTimes(0);
+    expect(hideDetailView).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(executeSaveActions).toHaveBeenCalledTimes(1);
-      expect(onCloseDetailView).toHaveBeenCalledTimes(1);
+      expect(hideDetailView).toHaveBeenCalledTimes(1);
     });
   });
 });

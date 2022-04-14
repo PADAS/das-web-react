@@ -307,5 +307,6 @@ export const SUBJECT_FEATURE_CONTENT_TYPE = 'observations.subject';
 export const DEVELOPMENT_FEATURE_FLAGS = {
   ENABLE_NEW_CLUSTERING: process.env.REACT_APP_ENABLE_NEW_CLUSTERING === 'true',
   ENABLE_PATROL_NEW_UI: process.env.REACT_APP_ENABLE_PATROL_NEW_UI === 'true' || process.env.REACT_APP_DAS_HOST === 'https://develop.pamdas.org',
+  ENABLE_REPORT_NEW_UI: process.env.REACT_APP_ENABLE_REPORT_NEW_UI === 'true',
   ENABLE_UFA_NAVIGATION_UI: process.env.REACT_APP_ENABLE_UFA_NAVIGATION_UI === 'true',
 };

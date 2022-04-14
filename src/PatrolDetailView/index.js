@@ -10,7 +10,7 @@ import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 
 import { addPatrolSegmentToEvent } from '../utils/events';
-import { createPatrolDataSelector, getPatrolList } from '../selectors/patrols';
+import { createPatrolDataSelector } from '../selectors/patrols';
 import {
   displayPatrolSegmentId,
   displayTitleForPatrol,
@@ -18,6 +18,7 @@ import {
   patrolShouldBeMarkedOpen,
 } from '../utils/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
+import { hideDetailView } from '../ducks/side-bar';
 import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 
@@ -34,7 +35,7 @@ const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 /* eslint-disable no-unused-vars */
-const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView, trackData, startStopGeometries }) => {
+const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, trackData, startStopGeometries }) => {
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
@@ -91,9 +92,9 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
       })
       .finally(() => {
         setSaveState(false);
-        onCloseDetailView();
+        hideDetailView();
       });
-  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, onCloseDetailView]);
+  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, hideDetailView]);
 
   return !!patrolForm && <div className={styles.patrolDetailView} data-testid="patrolDetailViewContainer">
     <Header
@@ -143,7 +144,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
           </Tab.Content>
 
           <div className={styles.footer}>
-            <Button className={styles.exitButton} onClick={onCloseDetailView} type="button" variant="secondary">
+            <Button className={styles.exitButton} onClick={hideDetailView} type="button" variant="secondary">
               Exit
             </Button>
 
@@ -162,7 +163,7 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, onCloseDetailView
 };
 
 PatrolDetailView.propTypes = {
-  onCloseDetailView: PropTypes.func.isRequired,
+  hideDetailView: PropTypes.func.isRequired,
   leader: PropTypes.shape({
     name: PropTypes.string,
   }),
@@ -178,9 +179,8 @@ PatrolDetailView.propTypes = {
 };
 
 const mapStateToProps = (state, props) => {
-  const patrol = !!props.patrolId
-    ? getPatrolList(state).results.find((patrol) => patrol.id === props.patrolId)
-    : props.newPatrol;
+  const patrol = state.data.patrolStore[state.view.sideBar.data?.id]
+    || state.view.sideBar.data;
 
   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
@@ -188,4 +188,4 @@ const mapStateToProps = (state, props) => {
   return { ...createPatrolDataSelector()(state, { patrol }), patrolPermissions };
 };
 
-export default connect(mapStateToProps)(PatrolDetailView);
+export default connect(mapStateToProps, { hideDetailView })(PatrolDetailView);

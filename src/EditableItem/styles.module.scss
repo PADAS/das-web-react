@@ -239,9 +239,11 @@
     }
     > svg {
       height: auto;
+      max-height: 1.25rem;
       width: 1.5rem;
       @media #{$whenPageIsMediumHeightAndWidth} {
         margin-bottom: 0.5rem;
+        max-height: 2.25rem;
       }
       @media #{$whenPageIsTallAndMediumWidth} {
         width: 2rem;
