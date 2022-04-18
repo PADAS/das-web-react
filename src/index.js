@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ToastContainer } from 'react-toastify';
 import { library, dom } from '@fortawesome/fontawesome-svg-core';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -18,7 +17,13 @@ import GeoLocationWatcher from './GeoLocationWatcher';
 
 import store from './store';
 
-import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
+import {
+  DEVELOPMENT_FEATURE_FLAGS,
+  EXTERNAL_SAME_DOMAIN_ROUTES,
+  REACT_APP_ROUTE_PREFIX,
+  REACT_APP_GA_TRACKING_ID,
+  TAB_KEYS,
+} from './constants';
 
 import registerServiceWorker from './registerServiceWorker';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,6 +40,8 @@ import { setClientReleaseIdentifier } from './utils/analytics';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import PrivateRoute from './PrivateRoute';
 import EulaProtectedRoute from './EulaProtectedRoute';
+
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
@@ -72,9 +79,15 @@ ReactDOM.render(
         <RequestConfigManager />
         <Suspense fallback={<LoadingOverlay />}>
           <Switch>
-            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+            {!ENABLE_URL_NAVIGATION && <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />}
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
             <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
+            {ENABLE_URL_NAVIGATION &&
+              <EulaProtectedRoute
+                exact
+                path={`${REACT_APP_ROUTE_PREFIX}:tab(${Object.values(TAB_KEYS).join('|')})?/:id?`}
+                component={withTracker(App)}
+              />}
             <Route component={PathNormalizationRouteComponent} />
           </Switch>
         </Suspense>

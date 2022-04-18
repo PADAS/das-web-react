@@ -14,6 +14,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
+import useURLNavigation from '../../hooks/useURLNavigation';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
@@ -27,7 +28,7 @@ import ReportDetailView from '../../ReportDetailView';
 
 import styles from './../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -42,8 +43,13 @@ const ReportsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
+  const { navigate, params: urlParams } = useURLNavigation();
+
+  const currentTab = ENABLE_URL_NAVIGATION ? urlParams.tab : sideBar.currentTab;
+  const showDetailView = ENABLE_URL_NAVIGATION ? !!urlParams.id : sideBar.showDetailView;
+
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
-  const [loadingEvents, setEventLoadState] = useState(false);
+  const [loadingEvents, setEventLoadState] = useState(true);
   const [feedEvents, setFeedEvents] = useState([]);
 
   const onFeedSortChange = useCallback((newVal) => {
@@ -87,7 +93,11 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      if (ENABLE_URL_NAVIGATION) {
+        navigate(TAB_KEYS.REPORTS, event.id);
+      } else {
+        showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      }
     } else {
       openModalForReport(event, map);
     }
@@ -119,8 +129,7 @@ const ReportsTab = ({
   }, [events.results, optionalFeedProps.exclude_contained]);
 
   return <>
-    {sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView &&
-      <ReportDetailView />}
+    {currentTab === TAB_KEYS.REPORTS && showDetailView && <ReportDetailView loadingEvents={loadingEvents} />}
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>

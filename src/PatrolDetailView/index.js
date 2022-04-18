@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
@@ -12,6 +12,7 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { addPatrolSegmentToEvent } from '../utils/events';
 import { createPatrolDataSelector } from '../selectors/patrols';
 import {
+  createNewPatrolForPatrolType,
   displayPatrolSegmentId,
   displayTitleForPatrol,
   patrolShouldBeMarkedDone,
@@ -19,14 +20,17 @@ import {
 } from '../utils/patrols';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { hideDetailView } from '../ducks/side-bar';
-import { PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
+import useURLNavigation from '../hooks/useURLNavigation';
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
 import PlanTab from './PlanTab';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const patrolDetailViewTracker = trackEventFactory(PATROL_DETAIL_VIEW_CATEGORY);
 
@@ -35,11 +39,47 @@ const NAVIGATION_TIMELINE_EVENT_KEY = 'timeline';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 /* eslint-disable no-unused-vars */
-const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, trackData, startStopGeometries }) => {
+const PatrolDetailView = ({ loadingPatrols, patrolPermissions, hideDetailView }) => {
+  const { localData, navigate, params: urlParams, query: urlQuery } = useURLNavigation();
+
+  const patrol_OLD = useSelector((state) => state.data.patrolStore[state.view.sideBar.data?.id]
+    || state.view.sideBar.data);
+  const patrolStore = useSelector((state) => state.data.patrolStore);
+
+  const newPatrol = useMemo(
+    () => urlQuery.reportType ? createNewPatrolForPatrolType(urlQuery.reportType, urlQuery.reportData) : null,
+    [urlQuery]
+  );
+
+  const state = useSelector((state) => state);
+
+  const [patrolDataSelector, setPatrolDataSelector] = useState(null);
+
+  const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
+
+  useEffect(() => {
+    if (!loadingPatrols && patrolDataSelector?.patrol?.id !== urlParams.id) {
+      let patrol;
+      if (ENABLE_URL_NAVIGATION) {
+        if (urlParams.id === 'new') {
+          patrol = newPatrol;
+        } else if (patrolStore[urlParams.id]) {
+          patrol = patrolStore[urlParams.id];
+        } else {
+          navigate(TAB_KEYS.PATROLS);
+        }
+      } else {
+        patrol = patrol_OLD;
+      }
+      setPatrolDataSelector(patrol ? createPatrolDataSelector()(state, { patrol }) : {});
+    }
+  }, [loadingPatrols, navigate, newPatrol, patrolDataSelector, patrol_OLD, patrolStore, state, urlParams]);
+
+
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished
   const hasEditPatrolsPermission = patrolPermissions.includes(PERMISSIONS.UPDATE);
 
-  const patrolTrackStatus = !patrol.id ? 'new' : 'existing';
+  const patrolTrackStatus = !patrol?.id ? 'new' : 'existing';
 
   const [isSaving, setSaveState] = useState(false);
   const [newFiles, updateNewFiles] = useState([]);
@@ -47,12 +87,18 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, t
   const [patrolForm, setPatrolForm] = useState();
   const [tab, setTab] = useState(NAVIGATION_PLAN_EVENT_KEY);
 
-  const isNewPatrol = !patrol.id;
+  const isNewPatrol = !patrol?.id;
 
-  const patrolSegmentId = useMemo(() => displayPatrolSegmentId(patrol), [patrol]);
+  const patrolSegmentId = useMemo(() => {
+    if (patrol) {
+      return displayPatrolSegmentId(patrol);
+    }
+  }, [patrol]);
 
   useEffect(() => {
-    setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
+    if (patrol) {
+      setPatrolForm({ ...patrol, title: displayTitleForPatrol(patrol, leader) });
+    }
   }, [leader, patrol]);
 
   const onPatrolChange = useCallback((patrolChanges) => {
@@ -92,9 +138,11 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, t
       })
       .finally(() => {
         setSaveState(false);
-        hideDetailView();
+
+        if (ENABLE_URL_NAVIGATION) navigate(TAB_KEYS.PATROLS);
+        else hideDetailView();
       });
-  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, hideDetailView]);
+  }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, hideDetailView, navigate]);
 
   return !!patrolForm && <div className={styles.patrolDetailView} data-testid="patrolDetailViewContainer">
     <Header
@@ -144,7 +192,12 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, t
           </Tab.Content>
 
           <div className={styles.footer}>
-            <Button className={styles.exitButton} onClick={hideDetailView} type="button" variant="secondary">
+            <Button
+              className={styles.exitButton}
+              onClick={() => ENABLE_URL_NAVIGATION ? navigate(TAB_KEYS.PATROLS) : hideDetailView()}
+              type="button"
+              variant="secondary"
+            >
               Exit
             </Button>
 
@@ -164,28 +217,27 @@ const PatrolDetailView = ({ patrol, leader, patrolPermissions, hideDetailView, t
 
 PatrolDetailView.propTypes = {
   hideDetailView: PropTypes.func.isRequired,
-  leader: PropTypes.shape({
-    name: PropTypes.string,
-  }),
-  patrol: PropTypes.shape({
-    icon_id: PropTypes.string,
-    patrol_segments: PropTypes.array,
-    serial_number: PropTypes.number,
-    title: PropTypes.string,
-  }).isRequired,
   patrolPermissions: PropTypes.arrayOf(PropTypes.string).isRequired,
-  startStopGeometries: PropTypes.shape({}),
-  trackData: PropTypes.shape({}),
+  patrolDataSelector: PropTypes.shape({
+    leader: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    patrol: PropTypes.shape({
+      icon_id: PropTypes.string,
+      patrol_segments: PropTypes.array,
+      serial_number: PropTypes.number,
+      title: PropTypes.string,
+    }).isRequired,
+    startStopGeometries: PropTypes.shape({}),
+    trackData: PropTypes.shape({}),
+  }),
 };
 
 const mapStateToProps = (state, props) => {
-  const patrol = state.data.patrolStore[state.view.sideBar.data?.id]
-    || state.view.sideBar.data;
-
   const permissionSource = state.data.selectedUserProfile?.id ? state.data.selectedUserProfile : state.data.user;
   const patrolPermissions = permissionSource?.permissions?.[PERMISSION_KEYS.PATROLS] || [];
 
-  return { ...createPatrolDataSelector()(state, { patrol }), patrolPermissions };
+  return { patrolPermissions };
 };
 
 export default connect(mapStateToProps, { hideDetailView })(PatrolDetailView);

@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { showDetailView } from '../../ducks/side-bar';
-import { TAB_KEYS } from '../../constants';
+import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
+import useURLNavigation from '../../hooks/useURLNavigation';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
@@ -11,23 +12,33 @@ import PatrolDetailView from '../../PatrolDetailView';
 
 import styles from '../styles.module.scss';
 
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+
 const PatrolsTab = ({
   map,
   patrolResults,
   loadingPatrols,
   showSideBarDetailView,
   sideBar,
-}) => <>
-  {sideBar.currentTab === TAB_KEYS.PATROLS && sideBar.showDetailView &&
-    <PatrolDetailView className={styles.patrolDetailView} />}
-  <PatrolFilter />
-  <PatrolList
-    loading={loadingPatrols}
-    map={map}
-    patrols={patrolResults}
-    onItemClick={(id) => showSideBarDetailView(TAB_KEYS.PATROLS, { id })}
-  />
-</>;
+}) => {
+  const { navigate, params: urlParams } = useURLNavigation();
+  const currentTab = ENABLE_URL_NAVIGATION ? urlParams.tab : sideBar.currentTab;
+  const showDetailView = ENABLE_URL_NAVIGATION ? !!urlParams.id : sideBar.showDetailView;
+
+  return <>
+    {currentTab === TAB_KEYS.PATROLS && showDetailView &&
+      <PatrolDetailView className={styles.patrolDetailView} loadingPatrols={loadingPatrols} />}
+    <PatrolFilter />
+    <PatrolList
+      loading={loadingPatrols}
+      map={map}
+      patrols={patrolResults}
+      onItemClick={(id) => ENABLE_URL_NAVIGATION
+        ? navigate(TAB_KEYS.PATROLS, id)
+        : showSideBarDetailView(TAB_KEYS.PATROLS, { id })}
+    />
+  </>;
+};
 
 PatrolsTab.propTypes = {
   map: PropTypes.object.isRequired,

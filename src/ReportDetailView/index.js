@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
@@ -9,37 +9,64 @@ import { ReactComponent as HistoryIcon } from '../common/images/icons/history.sv
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
+import { createNewReportForEventType } from '../utils/events';
+import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import { hideDetailView } from '../ducks/side-bar';
+import useURLNavigation from '../hooks/useURLNavigation';
 
 import Header from './Header';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const NAVIGATION_DETAILS_EVENT_KEY = 'details';
 const NAVIGATION_NOTES_EVENT_KEY = 'notes';
 const NAVIGATION_ATTACHMENTS_EVENT_KEY = 'attachments';
 const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
-const ReportDetailView = () => {
+const ReportDetailView = ({ loadingEvents }) => {
   const dispatch = useDispatch();
 
-  const { data: { formProps = {}, report } } = useSelector((state) => state.view.sideBar);
+  const { localData, navigate, params: urlParams, query: urlQuery } = useURLNavigation();
+
+  const { data: sideBarData } = useSelector((state) => state.view.sideBar);
+  const eventStore = useSelector((state) => state.data.eventStore);
+
+  const [reportForm, setReportForm] = useState(null);
+  const [formProps, setFormProps] = useState(null);
+  const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
+
+  useEffect(() => {
+    if (!loadingEvents && reportForm?.id !== urlParams.id) {
+      if (ENABLE_URL_NAVIGATION) {
+        if (urlParams.id === 'new') {
+          setReportForm(createNewReportForEventType(urlQuery.reportType, urlQuery.reportData));
+        } else if (eventStore[urlParams.id]) {
+          setReportForm(eventStore[urlParams.id]);
+        } else {
+          navigate(TAB_KEYS.REPORTS);
+        }
+        setFormProps(localData?.formProps || {});
+      } else {
+        setFormProps(sideBarData?.formProps || {});
+        setReportForm(sideBarData.report);
+      }
+    }
+  }, [eventStore, loadingEvents, localData, navigate, reportForm, sideBarData, urlParams, urlQuery]);
+
   const {
     navigateRelationships,
     relationshipButtonDisabled,
     onSaveError,
     onSaveSuccess,
     hidePatrols,
-  } = formProps;
+  } = formProps || {};
 
-  const [reportForm, setReportForm] = useState({ ...report });
-  const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
-
-  return <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
+  return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     <Header
-      report={report}
+      report={reportForm || {}}
       setTitle={(value) => setReportForm({ ...reportForm, title: value })}
-      title={reportForm.title}
     />
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
@@ -115,7 +142,7 @@ const ReportDetailView = () => {
               {tab === NAVIGATION_DETAILS_EVENT_KEY && <>
                 <Button
                   className={styles.cancelButton}
-                  onClick={() => dispatch(hideDetailView())}
+                  onClick={() => ENABLE_URL_NAVIGATION ? navigate(TAB_KEYS.REPORTS) : dispatch(hideDetailView())}
                   type="button"
                   variant="secondary"
                 >
@@ -135,7 +162,7 @@ const ReportDetailView = () => {
         </div>
       </div>
     </Tab.Container>
-  </div>;
+  </div> : null;
 };
 
 export default ReportDetailView;

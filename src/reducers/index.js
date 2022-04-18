@@ -40,6 +40,7 @@ import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
 import sideBarReducer from '../ducks/side-bar';
+import navigationReducer from '../ducks/navigation';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -127,6 +128,7 @@ const rootReducer = combineReducers({
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
     sideBar: sideBarReducer,
+    navigation: navigationReducer,
   }),
 });
 

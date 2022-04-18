@@ -3,15 +3,17 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { MapContext } from '../App';
-import { BREAKPOINTS } from '../constants';
+import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
-
+import useURLNavigation from '../hooks/useURLNavigation';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
@@ -19,6 +21,8 @@ const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, byp
   zoom, updateUserPreferences, iconOverride, className, dispatch: _dispatch, ...rest }) => {
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
   const map = useContext(MapContext);
+
+  const { navigate } = useURLNavigation();
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?
@@ -28,7 +32,8 @@ const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, byp
 
   const closeSidebarForSmallViewports = () => {
     if (!screenIsMediumLayoutOrLarger.matches) {
-      updateUserPreferences({ sidebarOpen: false });
+      if (ENABLE_URL_NAVIGATION) navigate();
+      else updateUserPreferences({ sidebarOpen: false });
     }
   };
 

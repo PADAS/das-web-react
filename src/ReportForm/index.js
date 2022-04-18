@@ -18,6 +18,7 @@ import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 import { showDetailView } from '../ducks/side-bar';
+import useURLNavigation from '../hooks/useURLNavigation';
 
 import EventIcon from '../EventIcon';
 
@@ -38,7 +39,12 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const {
+  ENABLE_PATROL_NEW_UI,
+  ENABLE_REPORT_NEW_UI,
+  ENABLE_UFA_NAVIGATION_UI,
+  ENABLE_URL_NAVIGATION,
+} = DEVELOPMENT_FEATURE_FLAGS;
 
 const ACTIVE_STATES = ['active', 'new'];
 
@@ -51,6 +57,8 @@ const ReportForm = (props) => {
     fetchPatrol, showSideBarDetailView } = props;
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
+
+  const { navigate } = useURLNavigation();
 
   const formRef = useRef(null);
   const submitButtonRef = useRef(null);
@@ -322,7 +330,11 @@ const ReportForm = (props) => {
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
+        if (ENABLE_URL_NAVIGATION) {
+          navigate(TAB_KEYS.REPORTS, data.id, null, { formProps });
+        } else {
+          showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
+        }
       } else {
         openModalForReport(data, map, formProps);
       }
@@ -378,7 +390,11 @@ const ReportForm = (props) => {
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        if (ENABLE_URL_NAVIGATION) {
+          navigate(TAB_KEYS.REPORTS, data.id);
+        } else {
+          showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        }
       } else {
         openModalForReport(data, map);
       }
@@ -393,6 +409,7 @@ const ReportForm = (props) => {
     reportTracker,
     saveChanges,
     showSideBarDetailView,
+    navigate,
   ]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
@@ -403,7 +420,11 @@ const ReportForm = (props) => {
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        if (ENABLE_URL_NAVIGATION) {
+          navigate(TAB_KEYS.REPORTS, data.id);
+        } else {
+          showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        }
       } else {
         openModalForReport(data, map);
       }
@@ -417,6 +438,7 @@ const ReportForm = (props) => {
     reportTracker,
     saveChanges,
     showSideBarDetailView,
+    navigate,
   ]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
@@ -431,13 +453,17 @@ const ReportForm = (props) => {
 
     removeModal();
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
-      return showSideBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+      if (ENABLE_URL_NAVIGATION) {
+        return navigate(TAB_KEYS.PATROLS, patrolId);
+      } else {
+        return showSideBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+      }
     }
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showSideBarDetailView]);
+  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showSideBarDetailView, navigate]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -464,7 +490,11 @@ const ReportForm = (props) => {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
               if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-                showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                if (ENABLE_URL_NAVIGATION) {
+                  navigate(TAB_KEYS.REPORTS, data.id);
+                } else {
+                  showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                }
               } else {
                 openModalForReport(data, map);
               }
@@ -479,7 +509,11 @@ const ReportForm = (props) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
               if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-                showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                if (ENABLE_URL_NAVIGATION) {
+                  navigate(TAB_KEYS.REPORTS, data.id);
+                } else {
+                  showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                }
               } else {
                 openModalForReport(data, map);
               }

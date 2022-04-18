@@ -43,6 +43,7 @@ import {
   LAYER_IDS,
   LAYER_PICKER_IDS,
   MAX_ZOOM,
+  REACT_APP_ROUTE_PREFIX,
   TAB_KEYS,
 } from '../constants';
 
@@ -85,7 +86,12 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { ENABLE_NEW_CLUSTERING, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const {
+  ENABLE_NEW_CLUSTERING,
+  ENABLE_REPORT_NEW_UI,
+  ENABLE_UFA_NAVIGATION_UI,
+  ENABLE_URL_NAVIGATION,
+} = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -397,7 +403,7 @@ class Map extends Component {
 
     this.hideUnpinnedTrackLayers(map, event);
 
-    if (this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
+    if (!ENABLE_URL_NAVIGATION && this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
       this.props.updateUserPreferences({ sidebarOpen: false });
     }
   });
@@ -419,7 +425,11 @@ class Map extends Component {
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      this.props.showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      if (ENABLE_URL_NAVIGATION) {
+        this.props.history.push(`${REACT_APP_ROUTE_PREFIX}reports/${event.id}`);
+      } else {
+        this.props.showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      }
     } else {
       openModalForReport(event, map);
     }
@@ -661,7 +671,9 @@ class Map extends Component {
 
             <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
 
-            <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
+            <DelayedUnmount
+              isMounted={ENABLE_URL_NAVIGATION ? !this.props.match.params.tab : !this.props.userPreferences.sidebarOpen}
+            >
               <div className='floating-report-filter'>
                 <EventFilter className='report-filter'/>
               </div>

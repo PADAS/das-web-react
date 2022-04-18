@@ -37,6 +37,7 @@ import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import useURLNavigation from '../hooks/useURLNavigation';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -60,7 +61,7 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
@@ -90,16 +91,21 @@ const SideBar = ({ map, onHandleClick }) => {
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
-  const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
+  const sidebarOpen_OLD = useSelector((state) => state.view.userPreferences.sidebarOpen);
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const socket = useContext(SocketContext);
 
+  const { navigate, params: urlParams } = useURLNavigation();
+  const { tab } = urlParams;
+  const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
+  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
+
   const patrolFetchRef = useRef(null);
 
-  const [loadingPatrols, setPatrolLoadState] = useState(false);
+  const [loadingPatrols, setPatrolLoadState] = useState(true);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
@@ -115,7 +121,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [patrolFilter]);
 
   const tabTitle = useMemo(() => {
-    switch (sideBar.currentTab) {
+    switch (currentTab) {
     case TAB_KEYS.REPORTS:
       return 'Reports';
     case TAB_KEYS.PATROLS:
@@ -125,7 +131,7 @@ const SideBar = ({ map, onHandleClick }) => {
     default:
       return '';
     }
-  }, [sideBar.currentTab]);
+  }, [currentTab]);
 
   const fetchAndLoadPatrolData = useCallback(() => {
     patrolFetchRef.current = dispatch(fetchPatrols());
@@ -139,31 +145,35 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [dispatch]);
 
   const onSelectTab = useCallback((clickedSidebarTab) => {
-    if (clickedSidebarTab === sideBar.currentTab && sidebarOpen) {
-      dispatch(updateUserPreferences({ sidebarOpen: false }));
+    if (clickedSidebarTab === currentTab && sidebarOpen) {
+      if (ENABLE_URL_NAVIGATION) navigate();
+      else dispatch(updateUserPreferences({ sidebarOpen: false }));
     } else {
-      dispatch(openTab(clickedSidebarTab));
+      if (ENABLE_URL_NAVIGATION) navigate(clickedSidebarTab);
+      else dispatch(openTab(clickedSidebarTab));
     }
-  }, [dispatch, sidebarOpen, sideBar.currentTab]);
+  }, [dispatch, sidebarOpen, currentTab, navigate]);
 
   const handleCloseSideBar = useCallback(() => {
-    dispatch(updateUserPreferences({ sidebarOpen: false }));
-  }, [dispatch]);
+    if (ENABLE_URL_NAVIGATION) navigate();
+    else dispatch(updateUserPreferences({ sidebarOpen: false }));
+  }, [dispatch, navigate]);
 
   const onClickBackFromDetailView = useCallback(() => {
-    dispatch(hideDetailView());
-  }, [dispatch]);
+    if (ENABLE_URL_NAVIGATION) navigate(currentTab);
+    else dispatch(hideDetailView());
+  }, [dispatch, navigate, currentTab]);
 
   useEffect(() => {
-    if (showEventsBadge && sidebarOpen && sideBar.currentTab === TAB_KEYS.REPORTS) {
+    if (showEventsBadge && sidebarOpen && currentTab === TAB_KEYS.REPORTS) {
       setShowEventsBadge(false);
     }
-  }, [showEventsBadge, sidebarOpen, sideBar.currentTab]);
+  }, [showEventsBadge, sidebarOpen, currentTab]);
 
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (sideBar.currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+        if (matches_current_filter && (currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
           setShowEventsBadge(true);
         }
       };
@@ -176,7 +186,7 @@ const SideBar = ({ map, onHandleClick }) => {
         socket.off('update_event', updateEventFnRef);
       };
     }
-  }, [sidebarOpen, sideBar.currentTab, socket]);
+  }, [sidebarOpen, currentTab, socket]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -194,10 +204,10 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sideBar.currentTab)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sideBar.currentTab);
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(currentTab)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, currentTab);
     }
-  }, [sideBar.currentTab]);
+  }, [currentTab]);
 
   /* --- OLD NAVIGATION STUFF STARTS HERE --- */
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -303,9 +313,11 @@ const SideBar = ({ map, onHandleClick }) => {
   }
   /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
+  const showDetailView = ENABLE_URL_NAVIGATION ? !!urlParams.id : sideBar.showDetailView;
+
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
-      <Tab.Container activeKey={sideBar.currentTab} onSelect={onSelectTab}>
+      <Tab.Container activeKey={currentTab} onSelect={onSelectTab}>
         <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
           <Nav.Item>
             <Nav.Link eventKey={TAB_KEYS.REPORTS}>
@@ -334,10 +346,10 @@ const SideBar = ({ map, onHandleClick }) => {
           <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
             <div className={styles.header}>
               <div
-                className={sideBar.currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+                className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
                 data-testid="sideBar-addReportButton"
               >
-                {sideBar.showDetailView ?
+                {showDetailView ?
                   <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
                     <ArrowLeftIcon />
                   </button>
@@ -345,11 +357,11 @@ const SideBar = ({ map, onHandleClick }) => {
                   <AddReport
                     className={styles.addReport}
                     variant="secondary"
-                    formProps={{ hidePatrols: sideBar.currentTab !== TAB_KEYS.PATROLS }}
-                    hideReports={sideBar.currentTab !== TAB_KEYS.REPORTS}
+                    formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
+                    hideReports={currentTab !== TAB_KEYS.REPORTS}
                     popoverPlacement="bottom"
                     showLabel={false}
-                    type={sideBar.currentTab}
+                    type={currentTab}
                   />
                 }
               </div>

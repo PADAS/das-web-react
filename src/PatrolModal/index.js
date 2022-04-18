@@ -21,6 +21,7 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 import { showDetailView } from '../ducks/side-bar';
+import useURLNavigation from '../hooks/useURLNavigation';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -62,7 +63,7 @@ import LoadingOverlay from '../LoadingOverlay';
 import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
 
-const { REPORT_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
@@ -89,6 +90,9 @@ const PatrolModal = (props) => {
     eventStore,
     showSideBarDetailView,
   } = props;
+
+  const { navigate } = useURLNavigation();
+
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const [filesToUpload, updateFilesToUpload] = useState([]);
@@ -618,12 +622,16 @@ const PatrolModal = (props) => {
       relationshipButtonDisabled: !item.is_collection,
       navigateRelationships: false,
     };
-    if (REPORT_NEW_UI && UFA_NAVIGATION_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
+    if (ENABLE_REPORT_NEW_UI && ENABLE_UFA_NAVIGATION_UI) {
+      if (ENABLE_URL_NAVIGATION) {
+        navigate(TAB_KEYS.REPORTS, item.id, null, { formProps });
+      } else {
+        showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
+      }
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView]);
+  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView, navigate]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 

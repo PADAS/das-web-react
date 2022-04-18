@@ -26,6 +26,7 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import useURLNavigation from '../hooks/useURLNavigation';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
@@ -38,7 +39,7 @@ import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSu
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -73,6 +74,8 @@ const GlobalMenuDrawer = ({
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+
+  const { navigate } = useURLNavigation();
 
   const [modals, setModals] = useState([]);
 
@@ -186,8 +189,10 @@ const GlobalMenuDrawer = ({
 
   const onNavigationItemClick = useCallback((navigationItem) => () => {
     hideDrawer();
-    openTab(navigationItem.sidebarTab);
-  }, [hideDrawer, openTab]);
+
+    if (ENABLE_URL_NAVIGATION) navigate(navigationItem.sidebarTab);
+    else openTab(navigationItem.sidebarTab);
+  }, [hideDrawer, openTab, navigate]);
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
