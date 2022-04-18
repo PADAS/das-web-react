@@ -1,0 +1,18 @@
+.header {
+  align-items: center;
+  display: flex;
+  line-height: normal;
+}
+
+button.detailsButton {
+  color: white;
+  text-decoration: underline;
+  &:hover, &:active, &:visited {
+    color: white;
+  }
+}
+
+.details {
+  border-top: 1px solid rgba(white, 0.5);
+  padding: 0.5rem 0;
+}

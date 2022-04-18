@@ -68,7 +68,6 @@ const MessagesModal =  ({ id: modalId, showClose = true, onSelectSubject, select
   };
 
   const clearSelectedSubject = () => {
-    console.log('clearSelectedSubject fired');
     onSelectSubject(null);
   };
 

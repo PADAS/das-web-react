@@ -6,7 +6,7 @@ import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const FeedListItem = (props) => {
   const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', ...rest } = props;
@@ -15,13 +15,13 @@ const FeedListItem = (props) => {
   const bodyBackgroundColor = useMemo(() => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200), [themeBgColor, themeColor]);
 
   return <li
-    className={`${UFA_NAVIGATION_UI ? styles.listItem : styles.oldNavigationListItem} ${className}`}
+    className={`${ENABLE_UFA_NAVIGATION_UI ? styles.listItem : styles.oldNavigationListItem} ${className}`}
     style={{ backgroundColor: bodyBackgroundColor }}
     {...rest}
     >
     {IconComponent && <div
       role='img'
-      className={UFA_NAVIGATION_UI ? styles.iconContainer : styles.oldNavigationIconContainer}
+      className={ENABLE_UFA_NAVIGATION_UI ? styles.iconContainer : styles.oldNavigationIconContainer}
       style={{ backgroundColor: iconSectionColor }}
     >
       {IconComponent}

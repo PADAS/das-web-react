@@ -1,100 +1,135 @@
-import { memo, useRef, useEffect } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
-import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
-// const GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE = 'GEO_PERMISSIONS_UNAUTHORIZED';
+import { REACT_APP_ROUTE_PREFIX } from '../constants';
+import { showToast } from '../utils/toast';
+
+const STARTUP_TIME = new Date();
+
+let warningToastRef;
+
+const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
+  if (userLocationAccessGranted) {
+
+    const warningHeader = response?.headers?.warning ?? false;
+
+    const dismissToast = () => {
+      if (warningToastRef) {
+        toast.dismiss(warningToastRef.id);
+        warningToastRef = null;
+      }
+    };
+
+    if (warningHeader
+      && (new Date() - STARTUP_TIME > 5000)
+      && (warningToastRef?.message !== warningHeader)
+    ) {
+
+      if (warningToastRef?.id) {
+        dismissToast();
+      }
+
+      warningToastRef = {
+        message: warningHeader,
+        id: showToast({ message: warningHeader.replace('199 - ', ''), toastConfig: {
+          autoClose: 18000,
+          onClose() {
+            dismissToast();
+          },
+        } }),
+      };
+    }
+  }
+};
+
 
 const RequestConfigManager = (props) => {
-  const { clearAuth,  history, location, masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token, user } = props;
-  const userProfileHeaderInterceptor = useRef(null);
-  const masterRequestCancelTokenManager = useRef(null);
+  const { clearAuth, history, location, userLocationAccessGranted,
+    masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token,
+    user } = props;
 
-  /* profile header */
-  useEffect(() => {
+  const handle401Errors = useCallback((error) => {
+    if (error && error.toString().includes('401')) {
+      resetMasterCancelToken();
+      clearAuth().then(() => {
+        history.push({
+          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
+          search: location.search,
+        });
+      });
+    }
+  }, [clearAuth, history, location?.search, resetMasterCancelToken]);
+
+  const addMasterCancelTokenToRequests = useCallback((config) => {
+    config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);
+  }, [masterRequestCancelToken]);
+
+  const addUserProfileHeaderToRequestsIfNecessary = useCallback((config) => {
     const profile = (selectedUserProfile && selectedUserProfile.id)
-        && (user && user.id)
-        && (selectedUserProfile.id !== user.id)
-        && selectedUserProfile.id;
+    && (user && user.id)
+    && (selectedUserProfile.id !== user.id)
+    && selectedUserProfile.id;
 
-    const addUserProfileHeaderIfNecessary = (config) => {
+    if (config.url && !config.url.includes('/user/me') && profile) {
+      config.headers['USER-PROFILE'] = profile;
+    }
+  }, [selectedUserProfile, user]);
+
+  const attachRequestInterceptors = useCallback(() => {
+    const requestHandlers = (config) => {
       if (!config) return config;
 
-      if (config.url && !config.url.includes('/user/me') && profile) {
-        config.headers['USER-PROFILE'] = profile;
-      }
+      addMasterCancelTokenToRequests(config);
+      addUserProfileHeaderToRequestsIfNecessary(config);
+
       return config;
     };
-    if (userProfileHeaderInterceptor.current) {
-      axios.interceptors.request.eject(userProfileHeaderInterceptor.current);
-    }
-    userProfileHeaderInterceptor.current = axios.interceptors.request.use(addUserProfileHeaderIfNecessary);
-  }, [user, selectedUserProfile]);
-  /* end profile header */
+
+    const interceptorId = axios.interceptors.request.use(requestHandlers);
+
+    return interceptorId;
+
+  }, [addMasterCancelTokenToRequests, addUserProfileHeaderToRequestsIfNecessary]);
 
 
-  /* master cancel token */
-  useEffect(() => {
-    const addMasterCancelTokenForRequests = (config) => {
-      if (!config) return config;
-      return {
-        ...config,
-        cancelToken: config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token),
-      };
-    };
-    if (masterRequestCancelTokenManager.current) {
-      axios.interceptors.request.eject(masterRequestCancelTokenManager.current);
-    }
-    masterRequestCancelTokenManager.current = axios.interceptors.request.use(addMasterCancelTokenForRequests);
-  }, [masterRequestCancelToken]);
-  /* end master cancel token */
-
-  /* 
-  const apiResponseErrorIsGeoPermissionsRelated = error =>
-    error.statuCode === 403
-    && error.message === GEO_PERMISSIONS_AUTH_DENIED_ERROR_MESSAGE;
-
-  useEffect(() => {
-    // specific failure-case routing for unauthorized requests related to geo-permissions
-    const handleGeoPermissionsAuthFailure = (response, error) => {
-      if (apiResponseErrorIsGeoPermissionsRelated(error)) {
-        // pop up some warning toast, or redirect to geo-permissions info route
+  const attachResponseInterceptors = useCallback(() => {
+    const interceptorConfig = [
+      (response) => {
+        handleGeoPermWarningHeader(response, userLocationAccessGranted);
+        return response;
+      },
+      (error) => {
+        handle401Errors(error);
+        return Promise.reject(error);
       }
-      return Promise.reject(error);
-    };
+    ];
 
-    const interceptorId = axios.interceptors.response.use(handleGeoPermissionsAuthFailure);
+    const interceptorId = axios.interceptors.response.use(...interceptorConfig);
+
+    return interceptorId;
+  }, [handle401Errors, userLocationAccessGranted]);
+
+
+  useEffect(() => {
+    const interceptorId = attachRequestInterceptors();
+
+    return () => {
+      axios.interceptors.request.eject(interceptorId);
+    };
+  }, [attachRequestInterceptors]);
+
+  useEffect(() => {
+    const interceptorId = attachResponseInterceptors();
 
     return () => {
       axios.interceptors.response.eject(interceptorId);
     };
-  }, []); */
-
-  /* boot to login on 401 */
-  useEffect(() => {
-    const responseHandlerWithFailureCase = [response => response, (error) => {
-      if (error && error.toString().includes('401')) {
-        resetMasterCancelToken();
-        clearAuth().then(() => {
-          history.push({
-            pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-            search: location.search,
-          });
-        });
-      }
-      return Promise.reject(error);
-    }];
-
-    const interceptorId = axios.interceptors.response.use(responseHandlerWithFailureCase);
-
-    return () => {
-      axios.interceptors.response.eject(interceptorId);
-    };
-  }, [clearAuth, history, location.search, resetMasterCancelToken]);
-  /* end boot to login on 401 */
+  }, [attachResponseInterceptors]);
 
   /* auth header */
   useEffect(() => {
@@ -107,8 +142,8 @@ const RequestConfigManager = (props) => {
   return null;
 };
 
-const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token } }) => ({
-  selectedUserProfile, user, masterRequestCancelToken, token,
+const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token }, view: { userLocationAccessGranted } }) => ({
+  selectedUserProfile, user, masterRequestCancelToken, token, userLocationAccessGranted: userLocationAccessGranted.granted,
 });
 
 

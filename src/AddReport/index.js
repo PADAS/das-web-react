@@ -14,18 +14,24 @@ import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
-import { showPatrolDetailView } from '../ducks/patrols';
+import { showDetailView } from '../ducks/side-bar';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
 
 import SearchBar from '../SearchBar';
 import EventTypeListItem from '../EventTypeListItem';
 
-import { FEATURE_FLAGS, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import {
+  DEVELOPMENT_FEATURE_FLAGS,
+  FEATURE_FLAGS,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  TAB_KEYS,
+} from '../constants';
 
 import styles from './styles.module.scss';
 
-const { PATROL_NEW_UI, UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -169,8 +175,7 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showPatrolDetailView }) => {
-
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showSideBarDetailView }) => {
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -233,7 +238,12 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
       if (isPatrol) {
         setPopoverState(false);
-        if (PATROL_NEW_UI && UFA_NAVIGATION_UI) return showPatrolDetailView(createNewPatrolForPatrolType(reportType, reportData));
+        if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
+          return showSideBarDetailView(
+            TAB_KEYS.PATROLS,
+            createNewPatrolForPatrolType(reportType, reportData)
+          );
+        }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
 
@@ -242,9 +252,21 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     const newReport = createNewReportForEventType(reportType, reportData);
 
-    openModalForReport(newReport, map, formProps);
+    if (DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI && DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI) {
+      showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
+    } else {
+      openModalForReport(newReport, map, formProps);
+    }
     setPopoverState(false);
-  }, [analyticsMetadata.category, analyticsMetadata.location, formProps, map, patrolsEnabled, reportData, showPatrolDetailView]);
+  }, [
+    analyticsMetadata.category,
+    analyticsMetadata.location,
+    formProps,
+    map,
+    patrolsEnabled,
+    reportData,
+    showSideBarDetailView,
+  ]);
 
   return hasEventCategories &&
 
@@ -253,7 +275,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       <div ref={containerRef} tabIndex={0} onKeyDown={handleKeyDown} className={className} data-testid='addReport-container'>
         <button
           title={title}
-          className={UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
+          className={ENABLE_UFA_NAVIGATION_UI ? styles[`addReport-${variant}`] : styles.oldNavigationAddReport}
           ref={targetRef}
           type='button'
           onClick={onButtonClick}
@@ -276,7 +298,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, { showPatrolDetailView })(memo(AddReport));
+export default connect(mapStateToProps, { showSideBarDetailView: showDetailView })(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {
@@ -319,5 +341,5 @@ AddReport.propTypes = {
     isPatrolReport: PropTypes.bool,
   }),
   hideReports: PropTypes.bool,
-  showPatrolDetailView: PropTypes.func,
+  showSideBarDetailView: PropTypes.func.isRequired,
 };

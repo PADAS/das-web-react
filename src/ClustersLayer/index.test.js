@@ -82,7 +82,7 @@ describe('ClustersLayer', () => {
       map.getZoom.mockImplementation(() => CLUSTER_CLICK_ZOOM_THRESHOLD - 1);
 
       render(
-        <Provider store={mockStore({ data: {}, view: { timeSliderState: {} } })}>
+        <Provider store={mockStore({ data: {}, view: { mapImages: [], timeSliderState: {} } })}>
           <MapContext.Provider value={map}>
             <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
           </MapContext.Provider>
@@ -277,6 +277,7 @@ describe('ClustersLayer', () => {
       ];
       clusterHTMLMarker = createClusterHTMLMarker(
         clusterFeatures,
+        [],
         onClusterClick,
         onClusterMouseEnter,
         onClusterMouseLeave
@@ -491,6 +492,7 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         clustersSource,
         map,
+        [],
         onClusterMouseEnter,
         onClusterMouseLeave,
         renderedClusterFeatures,
@@ -508,6 +510,7 @@ describe('ClustersLayer', () => {
         clusterMarkerHashMapRef,
         clustersSource,
         map,
+        [],
         onClusterMouseEnter,
         onClusterMouseLeave,
         renderedClusterFeatures,

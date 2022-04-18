@@ -140,3 +140,6 @@ export const calcPositiveBearing = (point1, point2) => {
   if (bearingMeasurement >= 0) return bearingMeasurement;
   return (360 + bearingMeasurement);
 };
+
+
+export const calcLocationParamStringForUserLocationCoords = (coords) => `${coords.longitude},${coords.latitude}`;

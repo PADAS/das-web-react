@@ -33,7 +33,7 @@ const FriendlyEventFilterString = (props) => {
 
   return <p className={className || ''}>
     <span>{resultString}</span>
-    {filterModified && 'filtered'} from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
+    {filterModified && ' filtered'} from <strong>{calcFriendlyDurationString(date_range.lower, date_range.upper)}</strong>{children}
     {hasSortConfig && sortModified
       ?<span>, sorted {sortConfig[0] === SORT_DIRECTION.up ? ' ascending' : ''}{sortTypeName ? <> by <strong>{sortTypeName}</strong></> : ''}</span>
       : ''}

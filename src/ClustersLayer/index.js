@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
@@ -33,7 +33,7 @@ const CLUSTER_BUFFER_POLYGON_LAYER_CONFIGURATION = {
 };
 const CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION = { type: 'geojson' };
 
-const debouncedClusterMarkerUpdate = debounce(updateClusterMarkers, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
+const debouncedUpdateClusterMarkers = debounce(updateClusterMarkers, UPDATE_CLUSTER_MARKERS_DEBOUNCE_TIME);
 
 const ClustersLayer = ({ onShowClusterSelectPopup }) => {
   const map = useContext(MapContext);
@@ -46,6 +46,8 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     CLUSTER_BUFFER_POLYGON_SOURCE_CONFIGURATION,
     CLUSTER_BUFFER_POLYGON_SOURCE_ID
   );
+
+  const mapImages = useSelector((state) => state.view.mapImages);
 
   const shouldEventsBeClustered = useSelector(getShouldEventsBeClustered);
   const shouldSubjectsBeClustered = useSelector(getShouldSubjectsBeClustered);
@@ -64,6 +66,18 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     shouldSubjectsBeClustered,
     subjectFeatureCollection.features,
   ]);
+
+  const debouncedUpdateClusterMarkersCallback = useCallback(() => {
+    debouncedUpdateClusterMarkers(
+      clusterMarkerHashMapRef,
+      onShowClusterSelectPopup,
+      map,
+      mapImages,
+      removeClusterPolygon,
+      renderClusterPolygon,
+      map.getSource(CLUSTERS_SOURCE_ID)
+    );
+  }, [map, mapImages, onShowClusterSelectPopup, removeClusterPolygon, renderClusterPolygon]);
 
   useEffect(() => {
     if (map) {
@@ -94,18 +108,14 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
     }
   }, [map]);
 
+  // Everytime the callback gets updated we trigger it and reset the sourcedata listeners
   useEffect(() => {
     if (!!map && !!map.getSource(CLUSTERS_SOURCE_ID)) {
+      debouncedUpdateClusterMarkersCallback();
+
       const onSourceDataUpdated = (event) => {
         if (event.sourceId === CLUSTERS_SOURCE_ID) {
-          debouncedClusterMarkerUpdate(
-            clusterMarkerHashMapRef,
-            onShowClusterSelectPopup,
-            map,
-            removeClusterPolygon,
-            renderClusterPolygon,
-            map.getSource(CLUSTERS_SOURCE_ID)
-          );
+          debouncedUpdateClusterMarkersCallback();
         }
       };
       map.on('sourcedata', onSourceDataUpdated);
@@ -114,7 +124,7 @@ const ClustersLayer = ({ onShowClusterSelectPopup }) => {
         map.off('sourcedata', onSourceDataUpdated);
       };
     }
-  }, [map, onShowClusterSelectPopup, removeClusterPolygon, renderClusterPolygon]);
+  }, [debouncedUpdateClusterMarkersCallback, map]);
 
   return null;
 };

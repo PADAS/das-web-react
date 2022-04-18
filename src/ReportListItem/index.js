@@ -18,12 +18,11 @@ import { setBounceEventIDs } from '../ducks/map-ui';
 import { jumpToLocation } from '../utils/map';
 import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
 
-
 import colorVariables from '../common/styles/vars/colors.module.scss';
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const PRIORITY_COLOR_MAP = {
   300: {
@@ -90,7 +89,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
     themeBgColor={themeBgColor}
     themeColor={themeColor}
     IconComponent={
-      <button className={UFA_NAVIGATION_UI ? styles.icon : styles.oldNavigationIcon} type='button' onClick={() => iconClickHandler(report)}>
+      <button className={ENABLE_UFA_NAVIGATION_UI ? styles.icon : styles.oldNavigationIcon} type='button' onClick={() => iconClickHandler(report)}>
         <EventIcon report={report} />
         {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
       </button>

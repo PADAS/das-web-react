@@ -1,3 +1,5 @@
+import { TAB_KEYS } from '../../constants';
+
 const patrols = [
   {
     'id': '91970025-c4dc-4680-822d-21a686595985',
@@ -1581,7 +1583,6 @@ export const cancelledPatrol = {
 
 export const patrolDefaultStoreData = {
   data: {
-    patrols: [],
     eventSchemas: {
       globalSchema: {
         properties: {
@@ -1608,10 +1609,17 @@ export const patrolDefaultStoreData = {
         },
       },
     },
+    patrolStore: {},
     subjectStore: {},
     patrols: {
       results: [],
     },
   },
-  view: {},
+  view: {
+    sideBar: {
+      currentTab: TAB_KEYS.PATROLS,
+      data: newPatrol,
+      showDetailView: false,
+    },
+  },
 };

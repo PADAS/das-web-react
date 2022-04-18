@@ -6,7 +6,7 @@ import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
 import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
 import eventTypesReducer from '../ducks/event-types';
 import observationsReducer from '../ducks/observations';
-import patrolsReducer, { patrolStoreReducer, patrolTracksReducer, patrolDetailViewReducer } from '../ducks/patrols';
+import patrolsReducer, { patrolStoreReducer, patrolTracksReducer } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer from '../ducks/patrol-filter';
 import mapsReducer, { homeMapReducer } from '../ducks/maps';
@@ -25,7 +25,7 @@ import mapImagesReducer from '../ducks/map-images';
 import userPreferencesReducer from '../ducks/user-preferences';
 import eventFilterReducer from '../ducks/event-filter';
 import mapLayerFilterReducer from '../ducks/map-layer-filter';
-import userReducer, { userProfilesReducer, selectedUserProfileReducer } from '../ducks/user';
+import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
 import modalsReducer from '../ducks/modals';
 import drawerReducer from '../ducks/drawer';
 import eulaReducer from '../ducks/eula';
@@ -39,6 +39,7 @@ import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import patrolTrackedBySchemaReducer from '../ducks/trackedby';
+import sideBarReducer from '../ducks/side-bar';
 
 const generateStorageConfig = (key, storageMethod = storage) => ({
   key,
@@ -102,7 +103,6 @@ const rootReducer = combineReducers({
     hiddenAnalyzerIDs: hiddenAnalyzerIDsReducer,
     subjectTrackState: subjectTrackReducer,
     patrolTrackState: patrolTracksReducer,
-    patrolDetailView: patrolDetailViewReducer,
     mapImages: mapImagesReducer,
     mapIsLocked: mapLockStateReducer,
     showMapNames: displayMapNamesReducer,
@@ -116,6 +116,7 @@ const rootReducer = combineReducers({
     popup: popupReducer,
     userPreferences: persistReducer(userPrefPersistanceConfig, userPreferencesReducer),
     userLocation: userLocationReducer,
+    userLocationAccessGranted: userLocationAccessGrantedReducer,
     showReportHeatmap: reportHeatmapStateReducer,
     trackLength: persistReducer(trackLengthPersistanceConfig, trackDateRangeReducer),
     userNotifications: userNotificationReducer,
@@ -125,6 +126,7 @@ const rootReducer = combineReducers({
     bounceEventIDs: bounceEventReducer,
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
+    sideBar: sideBarReducer,
   }),
 });
 

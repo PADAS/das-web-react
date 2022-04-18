@@ -15,8 +15,8 @@ import {
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import {
   BREAKPOINTS,
-  DEVELOPMENT_FEATURE_FLAGS,
   CLIENT_BUILD_VERSION,
+  DEVELOPMENT_FEATURE_FLAGS,
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
@@ -24,7 +24,7 @@ import {
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { updateUserPreferences } from '../ducks/user-preferences';
+import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 
 import EarthRangerLogo from '../EarthRangerLogo';
@@ -38,7 +38,7 @@ import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSu
 
 import styles from './styles.module.scss';
 
-const { UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -59,10 +59,10 @@ const GlobalMenuDrawer = ({
   eventTypes,
   fetchTableauDashboard,
   hideDrawer,
+  openTab,
   serverData,
   tableauEnabled,
   token,
-  updateUserPreferences,
   selectedUserProfile,
   user,
 }) => {
@@ -186,8 +186,8 @@ const GlobalMenuDrawer = ({
 
   const onNavigationItemClick = useCallback((navigationItem) => () => {
     hideDrawer();
-    updateUserPreferences({ sidebarOpen: true, sidebarTab: navigationItem.sidebarTab });
-  }, [hideDrawer, updateUserPreferences]);
+    openTab(navigationItem.sidebarTab);
+  }, [hideDrawer, openTab]);
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
@@ -206,7 +206,7 @@ const GlobalMenuDrawer = ({
       </button>
     </div>
 
-    {UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
+    {ENABLE_UFA_NAVIGATION_UI && !isMediumLayoutOrLarger && <div className={styles.navigation}>
       {navigationItems.map((navigationItem) => <button
         key={navigationItem.title}
         onClick={onNavigationItemClick(navigationItem)}
@@ -253,7 +253,7 @@ GlobalMenuDrawer.propTypes = {
   serverData: PropTypes.shape({ version: PropTypes.string }).isRequired,
   tableauEnabled: PropTypes.bool.isRequired,
   token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
-  updateUserPreferences: PropTypes.func.isRequired,
+  openTab: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile, systemStatus, token, user }, view: { systemConfig } }) => ({
@@ -269,5 +269,5 @@ const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile,
 
 export default connect(
   mapStateToProps,
-  { addModal, fetchTableauDashboard, hideDrawer, updateUserPreferences }
+  { addModal, fetchTableauDashboard, hideDrawer, openTab }
 )(GlobalMenuDrawer);

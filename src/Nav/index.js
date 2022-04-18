@@ -13,6 +13,7 @@ import { useMatchMedia, usePermissions } from '../hooks';
 
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
+import EarthRangerLogo from '../EarthRangerLogo';
 import HamburgerMenuIcon from '../HamburgerMenuIcon';
 import NavHomeMenu from './NavHomeMenu';
 import UserMenu from '../UserMenu';
@@ -50,7 +51,7 @@ const Nav = ({
   };
 
   const onCurrentLocationClick = (location) => {
-    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], MAX_ZOOM);
+    jumpToLocation(map, [location.coords.longitude, location.coords.latitude], (MAX_ZOOM - 2));
     mainToolbarTracker.track('Click \'My Current Location\'');
   };
 
@@ -84,16 +85,21 @@ const Nav = ({
   return <nav className="primary-nav">
     <div className="left-controls">
       <HamburgerMenuIcon className="global-menu-button" onClick={() => showDrawer(globalMenuDrawerId)} />
+      <div className="logo-wrapper">
+        <EarthRangerLogo className="logo" />
+      </div>
       {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
     {!!maps.length &&
-      <NavHomeMenu
-        maps={maps}
-        selectedMap={homeMap}
-        onMapSelect={onHomeMapSelect}
-        onCurrentLocationClick={onCurrentLocationClick}
-      />}
+      <div className="center-controls">
+        <NavHomeMenu
+          maps={maps}
+          selectedMap={homeMap}
+          onMapSelect={onHomeMapSelect}
+          onCurrentLocationClick={onCurrentLocationClick}
+        />
+      </div>}
 
     <div className="rightMenus">
       {!!isMediumLayoutOrLarger && <SystemStatus />}

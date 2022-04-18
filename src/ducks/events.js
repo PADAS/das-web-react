@@ -9,7 +9,7 @@ import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
-
+import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
 
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -222,11 +222,22 @@ export const addEventToIncident = (event_id, incident_id) => (_dispatch) => axio
   to_event_id: event_id,
 });
 
-export const fetchEvent = event_id => dispatch => axios.get(`${EVENT_API_URL}${event_id}`)
-  .then((response) => {
-    dispatch(updateEventStore(response.data.data));
-    return response;
-  });
+export const fetchEvent = (event_id, params = {}) =>
+  (dispatch, getState) => {
+    const state = getState();
+
+    if (state?.view?.userLocation?.coords) {
+      params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+    }
+
+    return axios.get(`${EVENT_API_URL}${event_id}`, {
+      params,
+    })
+      .then((response) => {
+        dispatch(updateEventStore(response.data.data));
+        return response;
+      });
+  };
 
 export const deleteFileFromEvent = (event_id, file_id) => axios.delete(`${EVENT_API_URL}${event_id}/files/${file_id}`);
 
@@ -347,48 +358,40 @@ export const cancelMapEventsFetch = () => {
 };
 
 export const fetchMapEvents = (map, parameters) => async (dispatch, getState) => {
-  try {
+  const state = getState();
 
-    const state = getState();
-
-    let lastKnownBbox;
-    if (!map) {
-      lastKnownBbox = state?.data?.mapEvents?.bbox;
-    }
-    if (!map && !lastKnownBbox) return Promise.reject('no map available');
-
-    const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
-    const params = { bbox, page_size: 25, ...parameters };
-
-    const eventFilterParamString = calcEventFilterForRequest({ params });
-
-    dispatch({
-      type: FETCH_MAP_EVENTS_START,
-      payload: { bbox },
-    });
-
-    const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
-
-    cancelMapEventsFetch();
-
-    const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
-      cancelToken: generateNewCancelToken(),
-    });
-
-    return recursivePaginatedQuery(request, onEachRequest)
-      .then((finalResults) =>
-        finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
-      )
-      .catch((error) => {
-        dispatch(fetchMapEventsError(error));
-        return Promise.reject(error);
-      });
-  } catch (error) {
-    if (error?.response?.status === 403) {
-      console.warn('unauthorized map events request based on current permissions'); // https://support.google.com/chrome/answer/142065
-    }
-    return Promise.reject(error);
+  let lastKnownBbox;
+  if (!map) {
+    lastKnownBbox = state?.data?.mapEvents?.bbox;
   }
+  if (!map && !lastKnownBbox) return Promise.reject('no map available');
+
+  const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
+  const params = { bbox, page_size: 25, ...parameters };
+
+  const eventFilterParamString = calcEventFilterForRequest({ params });
+
+  dispatch({
+    type: FETCH_MAP_EVENTS_START,
+    payload: { bbox },
+  });
+
+  const onEachRequest = onePageOfResults => dispatch(fetchMapEventsPageSuccess(onePageOfResults));
+
+  cancelMapEventsFetch();
+
+  const request = axios.get(`${EVENTS_API_URL}?${eventFilterParamString}`, {
+    cancelToken: generateNewCancelToken(),
+  });
+
+  return recursivePaginatedQuery(request, onEachRequest)
+    .then((finalResults) =>
+      finalResults && dispatch(fetchMapEventsSucess(finalResults)) /* guard clause for canceled requests */
+    )
+    .catch((error) => {
+      dispatch(fetchMapEventsError(error));
+      return Promise.reject(error);
+    });
 };
 
 const fetchMapEventsSucess = results => (dispatch) => {

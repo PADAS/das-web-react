@@ -1,13 +1,24 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
-import { toast, Slide } from 'react-toastify';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { connect } from 'react-redux';
+import { toast } from 'react-toastify';
 
-const DetectOffline = () => {
+import { updateNetworkStatus } from '../ducks/system-status';
+
+import { DEFAULT_TOAST_CONFIG, STATUSES } from '../constants';
+
+const { HEALTHY_STATUS, UNHEALTHY_STATUS } = STATUSES;
+
+const DetectOffline = ({ updateNetworkStatus }) => {
   const [isOnline, setNetwork] = useState(window.navigator.onLine);
   const toastDelay = useRef(null);
   const toastId = useRef(null);
-  const updateNetwork = () => {
-    setNetwork(window.navigator.onLine);
-  };
+
+  const updateNetwork = useCallback(() => {
+    const { onLine } = window.navigator;
+
+    setNetwork(onLine);
+    updateNetworkStatus(onLine ? HEALTHY_STATUS : UNHEALTHY_STATUS);
+  }, [updateNetworkStatus]);
 
   const onToastClose = () => {
     if (toastId.current) {
@@ -16,13 +27,11 @@ const DetectOffline = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('offline', updateNetwork);
     window.addEventListener('online', updateNetwork);
     return () => {
-      window.removeEventListener('offline', updateNetwork);
       window.removeEventListener('online', updateNetwork);
     };
-  });
+  }, [updateNetwork]);
 
   const handleReconnect = () => {
     if (toastId.current) {
@@ -48,11 +57,10 @@ const DetectOffline = () => {
               EarthRanger may not function as expected.
               Please check your network connection.</p>
           </div>, {
-            autoClose: false,
-            closeOnClick: false,
+            autoClose: 10000,
+            type: toast.TYPE.ERROR,
             onClose: onToastClose,
-            position: toast.POSITION.TOP_CENTER,
-            transition: Slide,
+            ...DEFAULT_TOAST_CONFIG,
           });
         }, 2000);
     };
@@ -67,6 +75,8 @@ const DetectOffline = () => {
       clearTimeout(toastDelay.current);
     };
   }, [isOnline]);
+
+  return null;
 };
 
-export default memo(DetectOffline);
+export default connect(null, { updateNetworkStatus })(DetectOffline);

@@ -1,0 +1,42 @@
+
+@import '../common/styles/buttons';
+
+button.detailsButton {
+  color: white;
+  text-decoration: underline;
+  white-space: nowrap;
+  &:hover, &:active, &:visited {
+    color: white;
+  }
+}
+
+.summary {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  line-height: normal;
+  h6 {
+    line-height: normal;
+    margin: 0;
+  }
+}
+
+.details {
+  border-top: 1px solid rgba(white, 0.5);
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+}
+
+button.linkButton {
+  @include unstyledButton;
+  color: white;
+  font-weight: 600;
+  padding-top: 0;
+  text-transform: uppercase;
+  &:hover {
+    text-decoration: underline;
+  }
+  &:hover, &:active, &:visited {
+    color: white;
+  }
+}

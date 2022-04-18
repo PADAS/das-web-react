@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import ReportedBySelect from '../ReportedBySelect';
 
-import LocationSelectorInput from '../EditableItem/LocationSelectorInput'; // <LocationSelectorInput map={map} location={patrolStartLocation} onLocationChange={val => console.log('i am a new man with a new value', val)} />
+import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
