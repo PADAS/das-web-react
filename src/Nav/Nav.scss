@@ -28,15 +28,68 @@
     align-items: center;
     display: flex;
     justify-content: flex-start;
-    max-width: 9rem;
+    flex: 2;
+
+    .logo-wrapper {
+      display: none;
+      overflow: hidden;
+
+      .logo {
+        max-width: 8rem;
+        max-height: 2rem;
+      }
+
+      @media (min-width: $md-layout-width-min) {
+        display: block;
+        width: 1.25rem;
+      }
+
+      @media (min-width: $lg-layout-width-min) {
+        width: auto;
+      }
+    }
+
     .dropdown-item {
       padding: 1rem;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      .global-menu-button {
+        margin-right: 2rem;
+      }
+    }
+  }
+  .center-controls {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+
+    h6 {
+      max-width: 6rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    @media (min-width: $md-layout-width-min) {
+      flex: 2;
+
+      h6 {
+        max-width: 9rem;
+      }
+    }
+
+    @media (min-width: $lg-layout-width-min) {
+      h6 {
+        max-width: none;
+      }
     }
   }
   .rightMenus {
     align-items: center;
     display: flex;
     justify-content: flex-end;
+    flex: 2;
   }
   .dropdown.show {
     max-width: 95vw;
