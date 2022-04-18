@@ -323,7 +323,7 @@ export const displayInactiveRadiosReducer = (state = true, action) => {
   return state;
 };
 
-const INITIAL_MAP_CLUSTER_STATE = { events: true, subjects: true };
+const INITIAL_MAP_CLUSTER_STATE = { reports: true, subjects: true };
 export const mapClusterConfigReducer = (state = INITIAL_MAP_CLUSTER_STATE, action) => {
   const { type, payload } = action;
 
