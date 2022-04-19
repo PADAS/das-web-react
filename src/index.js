@@ -1,8 +1,8 @@
-import React, { lazy, Suspense, useEffect, useRef } from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 import { library, dom } from '@fortawesome/fontawesome-svg-core';
@@ -14,16 +14,11 @@ import { faArrowDown } from '@fortawesome/free-solid-svg-icons/faArrowDown';
 
 import JiraSupportWidget from './JiraSupportWidget';
 import GeoLocationWatcher from './GeoLocationWatcher';
+import PathNormalizationRoute from './PathNormalizationRoute';
 
 import store from './store';
 
-import {
-  DEVELOPMENT_FEATURE_FLAGS,
-  EXTERNAL_SAME_DOMAIN_ROUTES,
-  REACT_APP_ROUTE_PREFIX,
-  REACT_APP_GA_TRACKING_ID,
-  TAB_KEYS,
-} from './constants';
+import { REACT_APP_ROUTE_PREFIX, REACT_APP_GA_TRACKING_ID } from './constants';
 
 import registerServiceWorker from './registerServiceWorker';
 import 'react-toastify/dist/ReactToastify.css';
@@ -41,8 +36,6 @@ import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import PrivateRoute from './PrivateRoute';
 import EulaProtectedRoute from './EulaProtectedRoute';
 
-const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
-
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
@@ -57,21 +50,6 @@ setClientReleaseIdentifier();
 
 const persistor = persistStore(store);
 
-export const PathNormalizationRouteComponent = ({ location }) => {
-  const externalRedirectRef = useRef(null);
-
-  useEffect(() => {
-    !!externalRedirectRef.current && externalRedirectRef.current.click();
-  });
-
-  const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === location.pathname);
-  if (process.env.NODE_ENV !== 'production' || !localMatch) {
-    return <Redirect to={REACT_APP_ROUTE_PREFIX} />;
-  }
-
-  return <a href={localMatch} style={{ opacity: 0 }} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
-};
-
 ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
@@ -79,16 +57,10 @@ ReactDOM.render(
         <RequestConfigManager />
         <Suspense fallback={<LoadingOverlay />}>
           <Switch>
-            {!ENABLE_URL_NAVIGATION && <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />}
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
             <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
-            {ENABLE_URL_NAVIGATION &&
-              <EulaProtectedRoute
-                exact
-                path={`${REACT_APP_ROUTE_PREFIX}:tab(${Object.values(TAB_KEYS).join('|')})?/:id?`}
-                component={withTracker(App)}
-              />}
-            <Route component={PathNormalizationRouteComponent} />
+            <EulaProtectedRoute path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
+            <Route component={PathNormalizationRoute} />
           </Switch>
         </Suspense>
       </BrowserRouter>

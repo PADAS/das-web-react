@@ -40,6 +40,24 @@
     }
   }
 
+  .navItem {
+    width: 100%;
+    height: 5.5rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 0.75rem;
+    opacity: 0.75;
+    padding: 0;
+
+    svg {
+      margin-bottom: 0.5rem;
+    }
+  }
+
   &[class*=open] {
     a[class*=active] {
       background: rgba(255, 255, 255, 0.1);

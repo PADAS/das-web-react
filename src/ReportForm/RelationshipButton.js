@@ -8,7 +8,7 @@ import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
 import { showDetailView } from '../ducks/side-bar';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useNavigate } from '../hooks/navigation';
 
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
@@ -40,7 +40,7 @@ const RelationshipButton = (props) => {
   } = props;
   const report = useContext(FormDataContext);
 
-  const { navigate } = useURLNavigation();
+  const navigate = useNavigate();
 
   const isPatrolReport = useMemo(() => eventBelongsToPatrol(report), [report]);
   const isCollection = !!report.is_collection;

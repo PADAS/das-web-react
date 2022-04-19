@@ -12,7 +12,7 @@ import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_butt
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useNavigate } from '../hooks/navigation';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
 import { showDetailView } from '../ducks/side-bar';
@@ -189,7 +189,7 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     && !!patrolTypes.length
     && !hidePatrols;
 
-  const { navigate } = useURLNavigation();
+  const navigate = useNavigate();
 
   const patrolCategories = useMemo(() => patrolsEnabled && [generatePseudoReportCategoryForPatrolTypes(patrolTypes)], [patrolTypes, patrolsEnabled]);
 

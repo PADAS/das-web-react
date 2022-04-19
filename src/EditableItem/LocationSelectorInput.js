@@ -13,7 +13,7 @@ import { calcGpsDisplayString } from '../utils/location';
 
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
 import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useLocationParameters } from '../hooks/navigation';
 
 import GpsInput from '../GpsInput';
 import MapLocationPicker from '../MapLocationPicker';
@@ -76,8 +76,8 @@ const LocationSelectorInput = (props) => {
     showSideBar,
   } = props;
 
-  const { params: urlParams } = useURLNavigation();
-  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!urlParams.tab : sidebarOpen_OLD;
+  const { tab } = useLocationParameters();
+  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);

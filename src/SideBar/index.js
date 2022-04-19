@@ -13,6 +13,7 @@ import React, {
 import { cloneDeep } from 'lodash-es';
 import isEqual from 'react-fast-compare';
 import isUndefined from 'lodash/isUndefined';
+import { Link, Route, Switch } from 'react-router-dom';
 import { MapContext } from 'react-mapbox-gl';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
@@ -26,6 +27,7 @@ import {
   FEATURE_FLAGS,
   PERMISSION_KEYS,
   PERMISSIONS,
+  REACT_APP_ROUTE_PREFIX,
   TAB_KEYS,
 } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
@@ -37,7 +39,7 @@ import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useLocationParameters, useNavigate } from '../hooks/navigation';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -46,6 +48,7 @@ import ClearAllControl from '../ClearAllControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
 import MapLayerFilter from '../MapLayerFilter';
+import PathNormalizationRoute from '../PathNormalizationRoute';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
 
@@ -98,10 +101,11 @@ const SideBar = ({ map, onHandleClick }) => {
 
   const socket = useContext(SocketContext);
 
-  const { navigate, params: urlParams } = useURLNavigation();
-  const { tab } = urlParams;
+  const navigate = useNavigate();
+  const { itemId, tab } = useLocationParameters();
+
   const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
-  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
+  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!currentTab && sideBar.showSideBar : sidebarOpen_OLD;
 
   const patrolFetchRef = useRef(null);
 
@@ -313,95 +317,179 @@ const SideBar = ({ map, onHandleClick }) => {
   }
   /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
-  const showDetailView = ENABLE_URL_NAVIGATION ? !!urlParams.id : sideBar.showDetailView;
+  if (!ENABLE_URL_NAVIGATION) {
+    return <ErrorBoundary>
+      <aside className={styles.sideBar}>
+        <Tab.Container activeKey={currentTab} onSelect={onSelectTab}>
+          <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
+            <Nav.Item>
+              <Nav.Link eventKey={TAB_KEYS.REPORTS}>
+                <DocumentIcon />
+                {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+                <span>Reports</span>
+              </Nav.Link>
+            </Nav.Item>
+
+            {showPatrols && <Nav.Item>
+              <Nav.Link eventKey={TAB_KEYS.PATROLS}>
+                <PatrolIcon />
+                <span>Patrols</span>
+              </Nav.Link>
+            </Nav.Item>}
+
+            <Nav.Item>
+              <Nav.Link eventKey={TAB_KEYS.LAYERS}>
+                <LayersIcon />
+                <span>Map Layers</span>
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
+
+          <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+            <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
+              <div className={styles.header}>
+                <div
+                  className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+                  data-testid="sideBar-addReportButton"
+                >
+                  {sideBar.showDetailView ?
+                    <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
+                      <ArrowLeftIcon />
+                    </button>
+                    :
+                    <AddReport
+                      className={styles.addReport}
+                      variant="secondary"
+                      formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
+                      hideReports={currentTab !== TAB_KEYS.REPORTS}
+                      popoverPlacement="bottom"
+                      showLabel={false}
+                      type={currentTab}
+                    />
+                  }
+                </div>
+
+                <h3>{tabTitle}</h3>
+
+                <button
+                  data-testid="sideBar-closeButton"
+                  onClick={handleCloseSideBar}
+                >
+                  <CrossIcon />
+                </button>
+              </div>
+
+              <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
+                <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
+              </Tab.Pane>
+
+              {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
+                <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+              </Tab.Pane>}
+
+              <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
+                <ErrorBoundary>
+                  <MapLayerFilter />
+                  <div className={styles.mapLayers}>
+                    <ReportMapControl/>
+                    <SubjectGroupList map={map} />
+                    <FeatureLayerList map={map} />
+                    <AnalyzerLayerList map={map} />
+                    <div className={styles.noItems}>No items to display.</div>
+                  </div>
+                  <div className={styles.mapLayerFooter}>
+                    <ClearAllControl map={map} />
+                  </div>
+                </ErrorBoundary>
+              </Tab.Pane>
+            </Tab.Content>
+          </div>
+        </Tab.Container>
+      </aside>
+    </ErrorBoundary>;
+  }
 
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
-      <Tab.Container activeKey={currentTab} onSelect={onSelectTab}>
-        <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-          <Nav.Item>
-            <Nav.Link eventKey={TAB_KEYS.REPORTS}>
-              <DocumentIcon />
-              {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
-              <span>Reports</span>
-            </Nav.Link>
-          </Nav.Item>
+      <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
+        <Link className={styles.navItem} to={`${REACT_APP_ROUTE_PREFIX}reports`}>
+          <DocumentIcon />
+          {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+          <span>Reports</span>
+        </Link>
 
-          {showPatrols && <Nav.Item>
-            <Nav.Link eventKey={TAB_KEYS.PATROLS}>
-              <PatrolIcon />
-              <span>Patrols</span>
-            </Nav.Link>
-          </Nav.Item>}
+        {showPatrols && <Link className={styles.navItem} to={`${REACT_APP_ROUTE_PREFIX}patrols`}>
+          <PatrolIcon />
+          <span>Patrols</span>
+        </Link>}
 
-          <Nav.Item>
-            <Nav.Link eventKey={TAB_KEYS.LAYERS}>
-              <LayersIcon />
-              <span>Map Layers</span>
-            </Nav.Link>
-          </Nav.Item>
-        </Nav>
+        <Link className={styles.navItem} to={`${REACT_APP_ROUTE_PREFIX}layers`}>
+          <LayersIcon />
+          <span>Map Layers</span>
+        </Link>
+      </div>
 
-        <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
-          <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
-            <div className={styles.header}>
-              <div
-                className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
-                data-testid="sideBar-addReportButton"
-              >
-                {showDetailView ?
-                  <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
-                    <ArrowLeftIcon />
-                  </button>
-                  :
-                  <AddReport
-                    className={styles.addReport}
-                    variant="secondary"
-                    formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
-                    hideReports={currentTab !== TAB_KEYS.REPORTS}
-                    popoverPlacement="bottom"
-                    showLabel={false}
-                    type={currentTab}
-                  />
-                }
-              </div>
-
-              <h3>{tabTitle}</h3>
-
-              <button
-                data-testid="sideBar-closeButton"
-                onClick={handleCloseSideBar}
-              >
-                <CrossIcon />
+      <div className={`${styles.tabsContainer} ${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
+        <div className={styles.header}>
+          <div
+            className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+            data-testid="sideBar-addReportButton"
+          >
+            {!!itemId ?
+              <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
+                <ArrowLeftIcon />
               </button>
-            </div>
+              :
+              <AddReport
+                className={styles.addReport}
+                variant="secondary"
+                formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
+                hideReports={currentTab !== TAB_KEYS.REPORTS}
+                popoverPlacement="bottom"
+                showLabel={false}
+                type={currentTab}
+              />
+            }
+          </div>
 
-            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-              <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
-            </Tab.Pane>
+          <h3>{tabTitle}</h3>
 
-            {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-            </Tab.Pane>}
-
-            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
-              <ErrorBoundary>
-                <MapLayerFilter />
-                <div className={styles.mapLayers}>
-                  <ReportMapControl/>
-                  <SubjectGroupList map={map} />
-                  <FeatureLayerList map={map} />
-                  <AnalyzerLayerList map={map} />
-                  <div className={styles.noItems}>No items to display.</div>
-                </div>
-                <div className={styles.mapLayerFooter}>
-                  <ClearAllControl map={map} />
-                </div>
-              </ErrorBoundary>
-            </Tab.Pane>
-          </Tab.Content>
+          <button
+            data-testid="sideBar-closeButton"
+            onClick={handleCloseSideBar}
+          >
+            <CrossIcon />
+          </button>
         </div>
-      </Tab.Container>
+
+        <Switch>
+          <Route path={`${REACT_APP_ROUTE_PREFIX}reports/:id?`}>
+            <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
+          </Route>
+
+          <Route path={`${REACT_APP_ROUTE_PREFIX}patrols/:id?`}>
+            <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+          </Route>
+
+          <Route path={`${REACT_APP_ROUTE_PREFIX}layers`}>
+            <ErrorBoundary>
+              <MapLayerFilter />
+              <div className={styles.mapLayers}>
+                <ReportMapControl/>
+                <SubjectGroupList map={map} />
+                <FeatureLayerList map={map} />
+                <AnalyzerLayerList map={map} />
+                <div className={styles.noItems}>No items to display.</div>
+              </div>
+              <div className={styles.mapLayerFooter}>
+                <ClearAllControl map={map} />
+              </div>
+            </ErrorBoundary>
+          </Route>
+
+          <Route component={PathNormalizationRoute} />
+        </Switch>
+      </div>
     </aside>
   </ErrorBoundary>;
 };

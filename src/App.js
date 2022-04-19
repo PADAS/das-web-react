@@ -20,7 +20,7 @@ import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
-import useURLNavigation from './hooks/useURLNavigation';
+import { useLocationParameters } from './hooks/navigation';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -52,8 +52,8 @@ const App = (props) => {
     sidebarOpen: sidebarOpen_OLD, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
-  const { params: urlParams } = useURLNavigation();
-  let sidebarOpen = ENABLE_URL_NAVIGATION ? !!urlParams.tab : sidebarOpen_OLD;
+  const { tab } = useLocationParameters();
+  let sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
 
   const [isDragging, setDragState] = useState(false);
 

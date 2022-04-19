@@ -22,7 +22,7 @@ import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../u
 import { hideDetailView } from '../ducks/side-bar';
 import { DEVELOPMENT_FEATURE_FLAGS, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useLocationParameters, useNavigate } from '../hooks/navigation';
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
@@ -40,7 +40,8 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 /* eslint-disable no-unused-vars */
 const PatrolDetailView = ({ loadingPatrols, patrolPermissions, hideDetailView }) => {
-  const { localData, navigate, params: urlParams, query: urlQuery } = useURLNavigation();
+  const navigate = useNavigate();
+  const { localData, itemId, query: urlQuery } = useLocationParameters();
 
   const patrol_OLD = useSelector((state) => state.data.patrolStore[state.view.sideBar.data?.id]
     || state.view.sideBar.data);
@@ -58,22 +59,29 @@ const PatrolDetailView = ({ loadingPatrols, patrolPermissions, hideDetailView })
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
   useEffect(() => {
-    if (!loadingPatrols && patrolDataSelector?.patrol?.id !== urlParams.id) {
+    const isNewPatrol = itemId === 'new';
+
+    const idHasChanged = patrolDataSelector?.patrol?.id !== itemId;
+    const newPatrolTypeHasChanged = patrolDataSelector?.patrol?.icon_id !== urlQuery.reportType?.icon_id;
+    const selectedPatrolHasChanged = isNewPatrol ? newPatrolTypeHasChanged : idHasChanged;
+
+    if (!loadingPatrols && selectedPatrolHasChanged) {
       let patrol;
       if (ENABLE_URL_NAVIGATION) {
-        if (urlParams.id === 'new') {
+        if (isNewPatrol) {
           patrol = newPatrol;
-        } else if (patrolStore[urlParams.id]) {
-          patrol = patrolStore[urlParams.id];
+        } else if (patrolStore[itemId]) {
+          patrol = patrolStore[itemId];
         } else {
           navigate(TAB_KEYS.PATROLS);
         }
       } else {
         patrol = patrol_OLD;
       }
+
       setPatrolDataSelector(patrol ? createPatrolDataSelector()(state, { patrol }) : {});
     }
-  }, [loadingPatrols, navigate, newPatrol, patrolDataSelector, patrol_OLD, patrolStore, state, urlParams]);
+  }, [loadingPatrols, navigate, newPatrol, patrolDataSelector, patrol_OLD, patrolStore, state, itemId, urlQuery.reportType?.icon_id]);
 
 
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished

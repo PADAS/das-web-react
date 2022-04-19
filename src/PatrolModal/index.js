@@ -21,7 +21,7 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 import { showDetailView } from '../ducks/side-bar';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useNavigate } from '../hooks/navigation';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -91,7 +91,7 @@ const PatrolModal = (props) => {
     showSideBarDetailView,
   } = props;
 
-  const { navigate } = useURLNavigation();
+  const navigate = useNavigate();
 
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);

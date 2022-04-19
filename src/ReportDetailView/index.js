@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
@@ -12,7 +12,7 @@ import { ReactComponent as PencilWritingIcon } from '../common/images/icons/penc
 import { createNewReportForEventType } from '../utils/events';
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import { hideDetailView } from '../ducks/side-bar';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useLocationParameters, useNavigate } from '../hooks/navigation';
 
 import Header from './Header';
 
@@ -28,7 +28,8 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const ReportDetailView = ({ loadingEvents }) => {
   const dispatch = useDispatch();
 
-  const { localData, navigate, params: urlParams, query: urlQuery } = useURLNavigation();
+  const navigate = useNavigate();
+  const { localData, itemId, query: urlQuery } = useLocationParameters();
 
   const { data: sideBarData } = useSelector((state) => state.view.sideBar);
   const eventStore = useSelector((state) => state.data.eventStore);
@@ -37,13 +38,18 @@ const ReportDetailView = ({ loadingEvents }) => {
   const [formProps, setFormProps] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
+  const newReport = useMemo(
+    () => urlQuery.reportType ? createNewReportForEventType(urlQuery.reportType, urlQuery.reportData) : null,
+    [urlQuery]
+  );
+
   useEffect(() => {
-    if (!loadingEvents && reportForm?.id !== urlParams.id) {
+    if (!loadingEvents && reportForm?.id !== itemId) {
       if (ENABLE_URL_NAVIGATION) {
-        if (urlParams.id === 'new') {
-          setReportForm(createNewReportForEventType(urlQuery.reportType, urlQuery.reportData));
-        } else if (eventStore[urlParams.id]) {
-          setReportForm(eventStore[urlParams.id]);
+        if (itemId === 'new') {
+          setReportForm(newReport);
+        } else if (eventStore[itemId]) {
+          setReportForm(eventStore[itemId]);
         } else {
           navigate(TAB_KEYS.REPORTS);
         }
@@ -53,7 +59,7 @@ const ReportDetailView = ({ loadingEvents }) => {
         setReportForm(sideBarData.report);
       }
     }
-  }, [eventStore, loadingEvents, localData, navigate, reportForm, sideBarData, urlParams, urlQuery]);
+  }, [eventStore, loadingEvents, localData, navigate, reportForm, sideBarData, itemId, newReport]);
 
   const {
     navigateRelationships,

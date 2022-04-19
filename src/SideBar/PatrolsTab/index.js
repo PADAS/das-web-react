@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import { showDetailView } from '../../ducks/side-bar';
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
-import useURLNavigation from '../../hooks/useURLNavigation';
+import { useLocationParameters, useNavigate } from '../../hooks/navigation';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
@@ -21,9 +21,10 @@ const PatrolsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
-  const { navigate, params: urlParams } = useURLNavigation();
-  const currentTab = ENABLE_URL_NAVIGATION ? urlParams.tab : sideBar.currentTab;
-  const showDetailView = ENABLE_URL_NAVIGATION ? !!urlParams.id : sideBar.showDetailView;
+  const navigate= useNavigate();
+  const { itemId, tab } = useLocationParameters();
+  const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
+  const showDetailView = ENABLE_URL_NAVIGATION ? !!itemId : sideBar.showDetailView;
 
   return <>
     {currentTab === TAB_KEYS.PATROLS && showDetailView &&

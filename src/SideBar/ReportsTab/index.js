@@ -14,7 +14,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
-import useURLNavigation from '../../hooks/useURLNavigation';
+import { useLocationParameters, useNavigate } from '../../hooks/navigation';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
@@ -43,10 +43,11 @@ const ReportsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
-  const { navigate, params: urlParams } = useURLNavigation();
+  const navigate = useNavigate();
+  const { itemId, tab } = useLocationParameters();
 
-  const currentTab = ENABLE_URL_NAVIGATION ? urlParams.tab : sideBar.currentTab;
-  const showDetailView = ENABLE_URL_NAVIGATION ? !!urlParams.id : sideBar.showDetailView;
+  const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
+  const showDetailView = ENABLE_URL_NAVIGATION ? !!itemId : sideBar.showDetailView;
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(true);

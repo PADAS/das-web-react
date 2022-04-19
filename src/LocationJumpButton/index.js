@@ -8,7 +8,7 @@ import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useNavigate } from '../hooks/navigation';
 import { updateUserPreferences } from '../ducks/user-preferences';
 
 import styles from './styles.module.scss';
@@ -22,7 +22,7 @@ const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, byp
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
   const map = useContext(MapContext);
 
-  const { navigate } = useURLNavigation();
+  const navigate = useNavigate();
 
   const isValidLocation = bypassLocationValidation || (!!coordinates &&
     (Array.isArray(coordinates[0]) ?

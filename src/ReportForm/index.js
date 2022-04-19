@@ -18,7 +18,7 @@ import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
 import { showDetailView } from '../ducks/side-bar';
-import useURLNavigation from '../hooks/useURLNavigation';
+import { useNavigate } from '../hooks/navigation';
 
 import EventIcon from '../EventIcon';
 
@@ -58,7 +58,7 @@ const ReportForm = (props) => {
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
-  const { navigate } = useURLNavigation();
+  const navigate = useNavigate();
 
   const formRef = useRef(null);
   const submitButtonRef = useRef(null);
