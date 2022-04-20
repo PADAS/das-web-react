@@ -55,11 +55,12 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_UI_STATES.CANCELLED.status]: {
     base: colorVariables.patrolCancelledThemeColor,
     background: colorVariables.patrolCancelledThemeBgColor,
+    fontColor: colorVariables.patrolCancelledThemeFontColor,
   },
   [PATROL_UI_STATES.INVALID.status]: {
     base: colorVariables.patrolCancelledThemeColor,
     background: colorVariables.patrolCancelledThemeBgColor,
-    font: colorVariables.patrolCancelledThemeFontColor,
+    fontColor: colorVariables.patrolCancelledThemeFontColor,
   },
 };
 
