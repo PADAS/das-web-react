@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { connect } from 'react-redux';
 
 import { setMapClusterConfig } from '../../ducks/map-ui';
@@ -30,18 +30,18 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
   return <>
     <label>
       <input
-    type='checkbox'
-    disabled={disableAll}
-    id='cluster-config-control'
-    data-testid='cluster-config-control'
-    checked={fullyChecked}
-    ref={input => {
-      if (input) {
-        input.indeterminate = partiallyChecked;
-      }
-    }}
-    onChange={toggleAll}
-    />
+        type='checkbox'
+        disabled={disableAll}
+        id='cluster-config-control'
+        data-testid='cluster-config-control'
+        checked={fullyChecked}
+        ref={input => {
+          if (input) {
+            input.indeterminate = partiallyChecked;
+          }
+        }}
+        onChange={toggleAll}
+      />
       <span className={styles.checkboxlabel}>Cluster Map Data</span>
     </label>
     <ul className={styles.subListItems}>
@@ -59,4 +59,4 @@ const ClusterMemberControl = ({ mapClusterConfig, setMapClusterConfig, timeSlide
 
 const mapStateToProps = ({ view: { mapClusterConfig, timeSliderState } }) => ({ mapClusterConfig, timeSliderActive: timeSliderState.active });
 
-export default connect(mapStateToProps, { setMapClusterConfig })(ClusterMemberControl);
+export default connect(mapStateToProps, { setMapClusterConfig })(memo(ClusterMemberControl));

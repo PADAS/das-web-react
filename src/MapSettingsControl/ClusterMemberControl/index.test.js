@@ -55,6 +55,28 @@ describe('The cluster member control', () => {
     expect(reportControl).toHaveAttribute('disabled');
   });
 
+  test('toggling overall membership', async () => {
+    render(<Provider store={store}>
+      <ClusterMemberControl />
+    </Provider>);
+
+    const control = await screen.findByTestId('cluster-config-control');
+
+    expect(control).toBeChecked();
+    fireEvent.click(control);
+
+    const actions = store.getActions();
+
+    expect(actions[0]).toEqual({
+      type: SET_MAP_CLUSTER_CONFIG,
+      payload: {
+        subjects: false,
+        reports: false,
+      }
+    });
+
+  });
+
   test('toggling subject cluster membership', async () => {
     render(<Provider store={store}>
       <ClusterMemberControl />
