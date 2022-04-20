@@ -131,7 +131,7 @@ const PatrolListItem = ({ patrol: patrolFromProps, showControls = true, onSelfMa
     themeBgColor={themeBgColor}
     title={displayTitle}
     IconComponent={patrolIconId && <button onClick={handleTitleClick} data-testid={`patrol-list-item-icon-${patrol.id}`} className={styles.icon} type='button'>
-      <DasIcon type='events' iconId={patrolIconId} style={{ fill: theme.font ? theme.font : 'auto' }} />
+      <DasIcon type='events' iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} />
     </button>}
     TitleComponent={
       <>

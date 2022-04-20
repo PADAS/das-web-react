@@ -22,5 +22,5 @@ we have to do this in a separate *.module.scss file because of this bug https://
   patrolDoneThemeBgColor: map-get($patrol-done-theme, 'background');
   patrolCancelledThemeColor: map-get($patrol-cancelled-theme, 'base');
   patrolCancelledThemeBgColor: map-get($patrol-cancelled-theme, 'background');
-  patrolCancelledThemeFontColor: map-get($patrol-cancelled-theme, 'font');
+  patrolCancelledThemeFontColor: map-get($patrol-cancelled-theme, 'fontColor');
 }

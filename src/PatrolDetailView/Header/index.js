@@ -77,7 +77,7 @@ const Header = ({ patrol, setTitle, title }) => {
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
-      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.font ? theme.font : 'auto' }} type='events' iconId={patrolIconId}  />
+      <DasIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ? theme.fontColor : 'auto' }} type='events' iconId={patrolIconId}  />
     </div>
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>
@@ -89,7 +89,7 @@ const Header = ({ patrol, setTitle, title }) => {
     </div>
 
     {!isNewPatrol && <div className={styles.description} data-testid="patrol-drawer-header-description">
-      <span style={{ color: (theme?.font ?? theme?.base) }}>{patrolState.title}</span>
+      <span style={{ color: (theme?.fontColor ?? theme?.base) }}>{patrolState.title}</span>
       <br />
       <span className={styles.date}>{dateComponentDateString}</span>
     </div>}
