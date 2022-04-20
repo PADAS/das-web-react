@@ -105,6 +105,7 @@
   width: auto;
   transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
   transition: transform 0.4s ease-in-out;
+  height: 100%;
 
   &[class*=open] {
     transform: translateX(0);

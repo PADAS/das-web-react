@@ -412,83 +412,100 @@ const SideBar = ({ map, onHandleClick }) => {
   return <ErrorBoundary>
     <aside className={styles.sideBar}>
       <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-        <Link className={styles.navItem} to={`${REACT_APP_ROUTE_PREFIX}reports`}>
+        <Link
+          className={styles.navItem}
+          to={`${REACT_APP_ROUTE_PREFIX}${currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}`}
+        >
           <DocumentIcon />
           {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
           <span>Reports</span>
         </Link>
 
-        {showPatrols && <Link className={styles.navItem} to={`${REACT_APP_ROUTE_PREFIX}patrols`}>
+        {showPatrols && <Link
+          className={styles.navItem}
+          to={`${REACT_APP_ROUTE_PREFIX}${currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}`}
+        >
           <PatrolIcon />
           <span>Patrols</span>
         </Link>}
 
-        <Link className={styles.navItem} to={`${REACT_APP_ROUTE_PREFIX}layers`}>
+        <Link
+          className={styles.navItem}
+          to={`${REACT_APP_ROUTE_PREFIX}${currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}`}
+        >
           <LayersIcon />
           <span>Map Layers</span>
         </Link>
       </div>
 
-      <div className={`${styles.tabsContainer} ${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
-        <div className={styles.header}>
-          <div
-            className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
-            data-testid="sideBar-addReportButton"
-          >
-            {!!itemId ?
-              <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
-                <ArrowLeftIcon />
-              </button>
-              :
-              <AddReport
-                className={styles.addReport}
-                variant="secondary"
-                formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
-                hideReports={currentTab !== TAB_KEYS.REPORTS}
-                popoverPlacement="bottom"
-                showLabel={false}
-                type={currentTab}
-              />
-            }
+      <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+        <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
+          <div className={styles.header}>
+            <div
+              className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+              data-testid="sideBar-addReportButton"
+            >
+              {!!itemId ?
+                <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
+                  <ArrowLeftIcon />
+                </button>
+                :
+                <AddReport
+                  className={styles.addReport}
+                  variant="secondary"
+                  formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
+                  hideReports={currentTab !== TAB_KEYS.REPORTS}
+                  popoverPlacement="bottom"
+                  showLabel={false}
+                  type={currentTab}
+                />
+              }
+            </div>
+
+            <h3>{tabTitle}</h3>
+
+            <button
+              data-testid="sideBar-closeButton"
+              onClick={handleCloseSideBar}
+            >
+              <CrossIcon />
+            </button>
           </div>
 
-          <h3>{tabTitle}</h3>
+          <Switch>
+            <Route exact path={`${REACT_APP_ROUTE_PREFIX}reports/:id?`}>
+              <div className={styles.tabBody}>
+                <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
+              </div>
+            </Route>
 
-          <button
-            data-testid="sideBar-closeButton"
-            onClick={handleCloseSideBar}
-          >
-            <CrossIcon />
-          </button>
+            <Route exact path={`${REACT_APP_ROUTE_PREFIX}patrols/:id?`}>
+              <div className={styles.tabBody}>
+                <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+              </div>
+            </Route>
+
+            <Route exact path={`${REACT_APP_ROUTE_PREFIX}layers`}>
+              <div className={styles.tabBody}>
+                <ErrorBoundary>
+                  <MapLayerFilter />
+                  <div className={styles.mapLayers}>
+                    <ReportMapControl/>
+                    <SubjectGroupList map={map} />
+                    <FeatureLayerList map={map} />
+                    <AnalyzerLayerList map={map} />
+                    <div className={styles.noItems}>No items to display.</div>
+                  </div>
+                  <div className={styles.mapLayerFooter}>
+                    <ClearAllControl map={map} />
+                  </div>
+                </ErrorBoundary>
+              </div>
+            </Route>
+
+            <Route component={PathNormalizationRoute} />
+          </Switch>
         </div>
-
-        <Switch>
-          <Route path={`${REACT_APP_ROUTE_PREFIX}reports/:id?`}>
-            <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
-          </Route>
-
-          <Route path={`${REACT_APP_ROUTE_PREFIX}patrols/:id?`}>
-            <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-          </Route>
-
-          <Route path={`${REACT_APP_ROUTE_PREFIX}layers`}>
-            <ErrorBoundary>
-              <MapLayerFilter />
-              <div className={styles.mapLayers}>
-                <ReportMapControl/>
-                <SubjectGroupList map={map} />
-                <FeatureLayerList map={map} />
-                <AnalyzerLayerList map={map} />
-                <div className={styles.noItems}>No items to display.</div>
-              </div>
-              <div className={styles.mapLayerFooter}>
-                <ClearAllControl map={map} />
-              </div>
-            </ErrorBoundary>
-          </Route>
-
-          <Route component={PathNormalizationRoute} />
-        </Switch>
       </div>
     </aside>
   </ErrorBoundary>;
