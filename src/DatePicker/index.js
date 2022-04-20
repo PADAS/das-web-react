@@ -8,15 +8,14 @@ import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-const StyledDatePicker = ({ value, onChange, ...rest }) => {
+const StyledDatePicker = ({ value, onChange, children = null, ...rest }) => {
 
   return <>
     <DatePicker
-      isClearable
       selected={value}
       onChange={onChange}
       showPopperArrow={false}
-      customInput={<CustomInput value={value} onClick={onChange}/>}
+      customInput={children || <CustomInput value={value} onClick={onChange}/>}
       {...rest}
     />
   </>;
@@ -25,10 +24,11 @@ const StyledDatePicker = ({ value, onChange, ...rest }) => {
 
 // eslint-disable-next-line react/display-name
 const CustomInput = forwardRef(({ value, onClick }, ref) => {
-  const [isOpen, setIsOpen] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleClick = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsOpen(!isOpen);
     onClick();
   };

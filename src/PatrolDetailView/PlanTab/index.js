@@ -10,36 +10,19 @@ import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
+import { displayStartTimeForPatrol } from '../../utils/patrols';
 
 import styles from './styles.module.scss';
 
 const { Control } = Form;
 const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
-// const CALENDAR_CONFIG = {
-//   clearIcon: null,
-//   calendarIcon: null,
-//   format: 'yyyy-MM-dd HH:mm',
-//   minDate: new Date(2011, 1, 1),
-// };
-
-// const preventEventBubbling = (_value, event) => {
-//   event.preventDefault();
-//   event.stopPropagation();
-// };
-
-// const BLOCKED_EVENT_HANDLERS = { /* bugfix for odd react-calendar behavior in which clicks bubble up to every subsequent button control. issue to be filed w/react-calendar in github. */
-//   onClickMonth: preventEventBubbling,
-//   onClickYear: preventEventBubbling,
-//   onClickDecade: preventEventBubbling,
-// };
-
 
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
-  const startDate = useMemo(() => patrolForm.patrol_segments?.[0]?.time_range?.start_time, [patrolForm.patrol_segments]);
+  const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -129,7 +112,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     <h3>Start</h3>
     <label data-testid="patrol-objective" className={styles.objectiveLabel}>
       Start Date
-      {/* <Calendar {...CALENDAR_CONFIG} {...BLOCKED_EVENT_HANDLERS} onChange={handleCalendarChange} value={new Date(startDate) ?? new Date.now()} /> */}
       <DatePicker value={startDate ?? new Date()} onChange={handleCalendarChange}/>
     </label>
   </>;
