@@ -97,6 +97,13 @@ describe('The main app view', () => {
       },
       data: {
         selectedUserProfile: {},
+        eventFilter: {
+          filter: {
+            date_range: {
+              lower: '',
+            },
+          },
+        },
         maps: [],
         user: {
           name: 'joshua',

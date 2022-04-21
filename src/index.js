@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ToastContainer } from 'react-toastify';
 import { library, dom } from '@fortawesome/fontawesome-svg-core';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -33,12 +32,16 @@ import RequestConfigManager from './RequestConfigManager';
 import { setClientReleaseIdentifier } from './utils/analytics';
 
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
-import PrivateRoute from './PrivateRoute';
-import EulaProtectedRoute from './EulaProtectedRoute';
+import RequireAccessToken from './RequireAccessToken';
+import RequireEulaConfirmation from './RequireEulaConfirmation';
 
 const App = lazy(() => import('./App'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
+
+const AppWithTracker = withTracker(App);
+const EulaPageWithTracker = withTracker(EulaPage);
+const LoginWithTracker = withTracker(Login);
 
 // registering icons from fontawesome as needed
 library.add(faPlus, faTimes, faArrowUp, faArrowDown);
@@ -70,18 +73,43 @@ ReactDOM.render(
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
         <RequestConfigManager />
+
         <Suspense fallback={<LoadingOverlay />}>
           <Switch>
-            <EulaProtectedRoute exact path={REACT_APP_ROUTE_PREFIX} component={withTracker(App)} />
-            <Route path={`${REACT_APP_ROUTE_PREFIX}login`} component={withTracker(Login)} />
-            <PrivateRoute exact path={`${REACT_APP_ROUTE_PREFIX}eula`} component={withTracker(EulaPage)} />
-            <Route component={PathNormalizationRouteComponent} />
+            <Route
+              exact
+              path={REACT_APP_ROUTE_PREFIX}
+              render={() => <RequireEulaConfirmation>
+                <RequireAccessToken>
+                  <AppWithTracker />
+                </RequireAccessToken>
+              </RequireEulaConfirmation>}
+            />
+
+            <Route path={`${REACT_APP_ROUTE_PREFIX}login`}>
+              <LoginWithTracker />
+            </Route>
+
+            <Route
+              exact
+              path={`${REACT_APP_ROUTE_PREFIX}eula`}
+              render={() => <RequireAccessToken>
+                <EulaPageWithTracker />
+              </RequireAccessToken>}
+            />
+
+            <Route>
+              <PathNormalizationRouteComponent />
+            </Route>
           </Switch>
         </Suspense>
       </BrowserRouter>
+
       <DetectOffline />
     </PersistGate>
+
     <GeoLocationWatcher />
+
     <JiraSupportWidget />
   </Provider>
   , document.getElementById('root'));

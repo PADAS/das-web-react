@@ -1,6 +1,6 @@
 import React, { lazy, memo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
@@ -30,9 +30,7 @@ const Nav = ({
   clearUserProfile,
   fetchCurrentUser,
   fetchCurrentUserProfiles,
-  history,
   homeMap,
-  location,
   map,
   maps,
   setHomeMap,
@@ -42,6 +40,9 @@ const Nav = ({
   user,
   userProfiles,
 }) => {
+  const history = useHistory();
+  const location = useLocation();
+
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
 
@@ -123,4 +124,4 @@ const mapStatetoProps = ({ data: { maps, user, userProfiles, selectedUserProfile
 export default connect(
   mapStatetoProps,
   { clearAuth, clearUserProfile, fetchCurrentUser, setHomeMap, showDrawer, fetchCurrentUserProfiles, setUserProfile }
-)(memo(withRouter(Nav)));
+)(memo(Nav));

@@ -1,6 +1,6 @@
-import React, { Component, memo } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -17,95 +17,84 @@ import styles from './styles.module.scss';
 
 const { Control, Label } = Form;
 
-class LoginPage extends Component {
-  constructor(props) {
-    super(props);
+const LoginPage = ({
+  clearAuth,
+  eula: { eula_url },
+  fetchEula,
+  fetchSystemStatus,
+  postAuth,
+  systemConfig,
+}) => {
+  const history = useHistory();
+  const location = useLocation();
 
-    this.state = {
-      username: '',
-      password: '',
-      hasError: false,
-      error: {},
-      errorMessage: '',
-    };
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [hasError, setHasError] = useState(false);
+  const [error, setError] = useState({});
+  const [errorMessage, setErrorMessage] = useState('');
 
-    this.onFormSubmit = this.onFormSubmit.bind(this);
-    this.onInputChange = this.onInputChange.bind(this);
-  }
+  const eulaEnabled = systemConfig?.[FEATURE_FLAGS.EULA];
 
-  componentDidMount() {
-    this.props.clearAuth();
-    this.props.fetchEula();
-    this.props.fetchSystemStatus();
-  }
-
-  componentWillUnmount() {
-    this.isCancelled = true;
-  }
-  onFormSubmit(e) {
-    e.preventDefault();
-    const data = this.state;
-
-    this.props.postAuth(data)
-      .then(() => {
-        this.props.history.push({
-          pathname: REACT_APP_ROUTE_PREFIX,
-          search: this.props.location.search,
-        });
-      })
-      .catch((error) => {
-        let errorObject = error.toJSON();
-        this.props.clearAuth();
-
-        const errorMessage = errorObject
-          && errorObject.message
-          && errorObject.message.includes('400') ? 'Invalid credentials given. Please try again.'
-          : 'An error has occured. Please try again.';
-
-        !this.isCancelled && this.setState({
-          ...this.state,
-          hasError: true,
-          error: errorObject,
-          errorMessage,
-        });
-      });
-  }
-  onInputChange(event) {
+  const onFormSubmit = useCallback((event) => {
     event.preventDefault();
 
-    if (this.state.hasError) this.setState({ error: {}, hasError: false });
+    postAuth({ username, password, hasError, error, errorMessage })
+      .then(() => history.push({ pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
+      .catch((error) => {
+        const errorObject = error.toJSON();
 
-    const { value, id } = event.target;
-    this.setState({
-      [id]: value,
-    });
-  }
+        clearAuth();
 
+        const errorMessage = errorObject?.message?.includes('400')
+          ? 'Invalid credentials given. Please try again.'
+          : 'An error has occured. Please try again.';
 
-  render() {
-    const { systemConfig, eula: { eula_url } } = this.props;
+        setHasError(true);
+        setError(errorObject);
+        setErrorMessage(errorMessage);
+      });
+  }, [clearAuth, error, errorMessage, hasError, history, location.search, password, postAuth, username]);
 
-    const eulaEnabled = systemConfig?.[FEATURE_FLAGS.EULA];
+  const onInputChange = useCallback((event) => {
+    event.preventDefault();
 
-    return <div className={styles.container}>
-      <EarthRangerLogo className={styles.logo} />
-      <Form name='login' className={styles.form} onSubmit={this.onFormSubmit}>
-        <Label htmlFor='username'>Username</Label>
-        <Control value={this.state.username} required={true} onChange={this.onInputChange} type='text' name='username' id='username' />
-        <Label htmlFor='password'>Password</Label>
-        <Control value={this.state.password} required={true} onChange={this.onInputChange} type='password' name='password' id='password' />
-        <Button variant='primary' type='submit' name='submit'>Log in</Button>
-        {this.state.hasError && <Alert className={styles.error} variant='danger'>
-          {this.state.errorMessage}
-        </Alert>}
-      </Form>
-      {eulaEnabled === true &&
-        <p className={styles.eulalink}><a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
-        </p>}
-    </div>;
-  }
-}
+    if (hasError) {
+      setError({});
+      setHasError(false);
+    }
+
+    if (event.target.id === 'username') {
+      setUsername(event.target.value);
+    } else {
+      setPassword(event.target.value);
+    }
+  }, [hasError]);
+
+  useEffect(() => {
+    clearAuth();
+    fetchEula();
+    fetchSystemStatus();
+  }, [clearAuth, fetchEula, fetchSystemStatus]);
+
+  return <div className={styles.container}>
+    <EarthRangerLogo className={styles.logo} />
+
+    <Form name='login' className={styles.form} onSubmit={onFormSubmit}>
+      <Label htmlFor='username'>Username</Label>
+      <Control value={username} required={true} onChange={onInputChange} type='text' name='username' id='username' />
+      <Label htmlFor='password'>Password</Label>
+      <Control value={password} required={true} onChange={onInputChange} type='password' name='password' id='password' />
+      <Button variant='primary' type='submit' name='submit'>Log in</Button>
+      {hasError && <Alert className={styles.error} variant='danger'>{errorMessage}</Alert>}
+    </Form>
+
+    {eulaEnabled === true && <p className={styles.eulalink}>
+      <a href={eula_url} target='_blank' rel='noopener noreferrer'>EarthRanger EULA</a>
+    </p>}
+  </div>;
+};
 
 const mapStateToProps = ({ data: { eula, token }, view: { systemConfig } }) => ({ eula, token, systemConfig });
 
-export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(withRouter(LoginPage)));
+export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(LoginPage));

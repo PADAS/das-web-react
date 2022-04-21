@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
@@ -48,10 +48,17 @@ const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
 };
 
 
-const RequestConfigManager = (props) => {
-  const { clearAuth, history, location, userLocationAccessGranted,
-    masterRequestCancelToken, resetMasterCancelToken, selectedUserProfile, token,
-    user } = props;
+const RequestConfigManager = ({
+  clearAuth,
+  userLocationAccessGranted,
+  masterRequestCancelToken,
+  resetMasterCancelToken,
+  selectedUserProfile,
+  token,
+  user,
+}) => {
+  const history = useHistory();
+  const location = useLocation();
 
   const handle401Errors = useCallback((error) => {
     if (error && error.toString().includes('401')) {
@@ -147,4 +154,4 @@ const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCance
 });
 
 
-export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(withRouter(RequestConfigManager)));
+export default connect(mapStateToProps, { clearAuth, resetMasterCancelToken })(memo(RequestConfigManager));

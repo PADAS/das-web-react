@@ -1,13 +1,11 @@
-import React, { Component, Fragment } from 'react';
-
-import { withRouter } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
-import isEqual from 'react-fast-compare';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 
@@ -30,7 +28,11 @@ import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selecto
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
-import { updateTrackState, updateHeatmapSubjects, toggleMapLockState, setReportHeatmapVisibility } from '../ducks/map-ui';
+import {
+  updateTrackState,
+  updateHeatmapSubjects,
+  setReportHeatmapVisibility,
+} from '../ducks/map-ui';
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
@@ -93,281 +95,367 @@ const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
 
 const { EVENT_CLUSTERS_CIRCLES, SUBJECT_SYMBOLS } = LAYER_IDS;
-class Map extends Component {
 
-  constructor(props) {
-    super(props);
-    this.setMap = this.setMap.bind(this);
-    this.onMapMoveStart = this.onMapMoveStart.bind(this);
-    this.onMapMoveEnd = this.onMapMoveEnd.bind(this);
-    this.debouncedFetchMapEvents = this.debouncedFetchMapEvents.bind(this);
-    this.withLocationPickerState = this.withLocationPickerState.bind(this);
-    this.onClusterClick = this.onClusterClick.bind(this);
-    this.onMapClick = this.onMapClick.bind(this);
-    this.onMapZoom = this.onMapZoom.bind(this);
-    this.onMapSubjectClick = this.onMapSubjectClick.bind(this);
-    this.onMessageBadgeClick = this.onMessageBadgeClick.bind(this);
-    this.onTimepointClick = this.onTimepointClick.bind(this);
-    this.debouncedFetchMapData = this.debouncedFetchMapData.bind(this);
-    this.onSubjectHeatmapClose = this.onSubjectHeatmapClose.bind(this);
-    this.onTrackLegendClose = this.onTrackLegendClose.bind(this);
-    this.onPatrolTrackLegendClose = this.onPatrolTrackLegendClose.bind(this);
-    this.onEventSymbolClick = this.onEventSymbolClick.bind(this);
-    this.onClusterLeafClick = this.onClusterLeafClick.bind(this);
-    this.onFeatureSymbolClick = this.onFeatureSymbolClick.bind(this);
-    this.onReportMarkerDrop = this.onReportMarkerDrop.bind(this);
-    this.onCurrentUserLocationClick = this.onCurrentUserLocationClick.bind(this);
-    this.onTrackLengthChange = this.onTrackLengthChange.bind(this);
-    this.onCloseReportHeatmap = this.onCloseReportHeatmap.bind(this);
-    this.fetchMapData = this.fetchMapData.bind(this);
-    this.onRotationControlClick = this.onRotationControlClick.bind(this);
-    this.trackRequestCancelToken = CancelToken.source();
-    this.onSleepDetected = this.onSleepDetected.bind(this);
-    this.handleMultiFeaturesAtSameLocationClick = this.handleMultiFeaturesAtSameLocationClick.bind(this);
-    this.currentAnalyzerIds = [];
+const Map = ({
+  analyzersFeatureCollection,
+  analyzerFeatures,
+  bounceEventIDs,
+  children,
+  clearEventData,
+  clearSubjectData,
+  eventFilter,
+  fetchBaseLayers,
+  fetchMapEvents,
+  fetchMapSubjects,
+  heatmapSubjectIDs,
+  hiddenAnalyzerIDs,
+  hiddenFeatureIDs,
+  hidePopup,
+  homeMap,
+  map,
+  mapFeaturesFeatureCollection,
+  mapImages,
+  mapIsLocked,
+  maps,
+  mapSubjectFeatureCollection,
+  onMapLoad,
+  patrolFilter,
+  patrolTrackState,
+  pickingLocationOnMap,
+  popup,
+  setReportHeatmapVisibility,
+  setTrackLength,
+  showPopup,
+  showReportHeatmap,
+  showReportsOnMap,
+  showSideBarDetailView,
+  showTrackTimepoints,
+  socket,
+  subjectTrackState,
+  timeSliderState,
+  trackLength,
+  trackLengthOrigin,
+  updateHeatmapSubjects,
+  updatePatrolTrackState,
+  updateTrackState,
+  user,
+  userLocation,
+  userPreferences,
+}) => {
+  const history = useHistory();
+  const location = useLocation();
 
-    const location = new URLSearchParams(this.props.location.search).get('lnglat');
+  const trackRequestCancelToken = useRef(CancelToken.source());
+  const lngLatFromParams = useRef();
 
-    if (location) {
-      this.lngLatFromParams = location.replace(' ', '').split(',').map(n => parseFloat(n));
-      const newLocation = { ...this.props.location };
+  useEffect(() => {
+    const lnglat = new URLSearchParams(location.search).get('lnglat');
+    if (lnglat) {
+      lngLatFromParams.current = lnglat.replace(' ', '').split(',').map(n => parseFloat(n));
+      const newLocation = { ...location };
 
       delete newLocation.search;
-      this.props.history.push(newLocation);
+      history.push(newLocation);
     }
-  }
+  }, [history, location]);
 
+  const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
 
-  get mapCenter() {
-    return this.lngLatFromParams || this.props.homeMap.center;
-  }
+  const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
 
-  onSleepDetected() {
-    this.debouncedFetchMapData();
-  }
+  const {
+    analyzerWarningLines,
+    analyzerCriticalLines,
+    analyzerWarningPolys,
+    analyzerCriticalPolys,
+    layerGroups,
+  } = analyzersFeatureCollection;
 
-  onMapZoom = debounce(() => {
+  const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
+  const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
+  const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
 
-    if (!!this.props.popup && this.props.popup.type === 'multi-layer-select') {
-      this.props.hidePopup(this.props.popup.id);
+  const onReportMarkerDrop = useCallback((location) => {
+    const coordinates = [location.lng, location.lat];
+    showPopup('dropped-marker', { location, coordinates });
+  }, [showPopup]);
+
+  const onMapMoveStart = useCallback(() => {
+    mapSubjectsFetchCancelToken.cancel();
+    cancelMapEventsFetch();
+  }, []);
+
+  const fetchMapEventsFromLocation = useCallback(() => {
+    let params;
+    if (userLocation?.coords) {
+      params = { location: calcLocationParamStringForUserLocationCoords(userLocation.coords) };
+    }
+    return fetchMapEvents(map, params).catch((e) => console.warn('error fetching map events', e));
+  }, [fetchMapEvents, map, userLocation?.coords]);
+
+  const resetTrackRequestCancelToken = useCallback(() => {
+    trackRequestCancelToken.current.cancel();
+    trackRequestCancelToken.current = CancelToken.source();
+  }, []);
+
+  const fetchMapSubjectTracksForTimeslider = useCallback((subjects) => {
+    resetTrackRequestCancelToken();
+    return fetchTracksIfNecessary(subjects
+      .filter(subject => !subjectIsStatic(subject))
+      .filter(({ last_position_date }) =>
+        (new Date(last_position_date) - new Date(eventFilter.filter.date_range.lower) >= 0))
+      .map(({ id }) => id));
+  }, [eventFilter.filter.date_range.lower, resetTrackRequestCancelToken]);
+
+  const fetchMapSubjectsFromTimeslider = useCallback(() => {
+    const args = [map];
+    const timeSliderActive = timeSliderState.active;
+
+    if (timeSliderActive) {
+      const { lower: updated_since, upper: updated_until } = eventFilter.filter.date_range;
+
+      args.push({ updated_since, updated_until });
+    }
+
+    return fetchMapSubjects(...args)
+      .then((latestMapSubjects) => timeSliderActive
+        ? fetchMapSubjectTracksForTimeslider(latestMapSubjects)
+        : Promise.resolve(latestMapSubjects))
+      .catch(() => {});
+  }, [
+    eventFilter.filter.date_range,
+    fetchMapSubjectTracksForTimeslider,
+    fetchMapSubjects,
+    map,
+    timeSliderState.active,
+  ]);
+
+  const fetchMapData = useCallback(() => {
+    onMapMoveStart();
+
+    return Promise.all([fetchMapEventsFromLocation(), fetchMapSubjectsFromTimeslider()])
+      .catch((e) => console.warn('error loading map data', e))
+      .finally(() => {});
+  }, [fetchMapEventsFromLocation, fetchMapSubjectsFromTimeslider, onMapMoveStart]);
+
+  const debouncedFetchMapData = debounce(fetchMapData, 500);
+
+  const debouncedFetchMapEvents = debounce(fetchMapEventsFromLocation, 300);
+
+  const onMapMoveEnd = useCallback(() => {
+    debouncedFetchMapData();
+  }, [debouncedFetchMapData]);
+
+  const onMapZoom = debounce(() => {
+    if (popup?.type === 'multi-layer-select') {
+      hidePopup(popup.id);
     }
   }, 100);
 
-  withLocationPickerState(func) {
-    return (...args) => {
-      if (!this.props.pickingLocationOnMap) {
-        return func(...args);
-      }
-    };
-  }
+  const withLocationPickerState = useCallback((func) => (...args) => {
+    if (!pickingLocationOnMap) {
+      return func(...args);
+    }
+  }, [pickingLocationOnMap]);
 
-  componentDidMount() {
-    this.props.fetchBaseLayers();
-    if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-      this.setTrackLengthToEventFilterLowerValue();
-    }
-  }
+  const onMapSubjectClick = withLocationPickerState(async ({ event, layer }) => {
+    if (event?.originalEvent?.cancelBubble) return;
 
-  componentWillUnmount() {
-    this.props.clearEventData();
-    this.props.clearSubjectData(); // map data cleanup
-  }
-
-  componentDidUpdate(prev) {
-    if (!this.props.map) return;
-
-    if ((this.props.homeMap !== prev.homeMap)
-      && this.props.homeMap.id) {
-      const { zoom, center } = this.props.homeMap;
-      jumpToLocation(this.props.map, this.lngLatFromParams || center, zoom);
-      if (this.lngLatFromParams) {
-        delete this.lngLatFromParams;
-      }
-    }
-
-    if (!isEqual(prev.eventFilter, this.props.eventFilter)) {
-      this.props.socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
-      if (this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter
-        && !isEqual(prev.eventFilter.filter.date_range.lower, this.props.eventFilter.filter.date_range.lower)) {
-        this.setTrackLengthToEventFilterLowerValue();
-
-      }
-      this.debouncedFetchMapEvents();
-    }
-    if (!isEqual(prev.patrolFilter, this.props.patrolFilter)) {
-      this.props.socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
-    }
-    if (!isEqual(prev.trackLengthOrigin, this.props.trackLengthOrigin) && this.props.trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
-      this.setTrackLengthToEventFilterLowerValue();
-    }
-    if (!isEqual(prev.trackLength, this.props.trackLength)) {
-      this.onTrackLengthChange();
-    }
-    if (!isEqual(prev.timeSliderState.active, this.props.timeSliderState.active)) {
-      this.fetchMapData();
-    }
-    if (userIsGeoPermissionRestricted(this.props.user) && !isEqual(prev.userLocation, this.props.userLocation)) {
-      this.debouncedFetchMapEvents();
-    }
-    if (!isEqual(this.props.showReportHeatmap, prev.showReportHeatmap) && this.props.showReportHeatmap) {
-      this.onSubjectHeatmapClose();
-    }
-    if ((this.props.heatmapSubjectIDs !== prev.heatmapSubjectIDs) && !!this.props.heatmapSubjectIDs.length && this.props.showReportHeatmap) {
-      this.onCloseReportHeatmap();
-    }
-
-    if (!!this.props.timeSliderState.active && !!this.props.popup
-      && !isEqual(prev.timeSliderState.virtualDate, this.props.timeSliderState.virtualDate)
-    ) {
-      if (this.props.popup.type === 'subject') {
-        const subjectMatch = this.props.mapSubjectFeatureCollection.features.find(item => item.properties.id === this.props.popup.data.properties.id);
-
-        if (subjectMatch) {
-          this.props.showPopup('subject', {
-            geometry: subjectMatch.geometry,
-            properties: subjectMatch.properties,
-            coordinates: subjectMatch.geometry.coordinates,
-          });
-        }
-      }
-      if (this.props.popup.type === 'multi-layer-select') {
-        this.props.hidePopup(this.props.popup.id);
-      }
-    }
-    if (!!this.props.popup) {
-      const { type } = this.props.popup;
-
-      if (type === 'feature-symbol' && this.props.hiddenFeatureIDs.includes(this.props.popup.data.properties.id)) {
-        this.props.hidePopup(this.props.popup.id);
-      }
-      if (type === 'analyzer-config' && this.props.hiddenAnalyzerIDs.includes(this.props.popup.data.analyzerId)) {
-        this.props.hidePopup(this.props.popup.id);
-      }
-    }
-  }
-
-  setTrackLengthToEventFilterLowerValue() {
-    this.props.setTrackLength(differenceInCalendarDays(
-      new Date(),
-      this.props.eventFilter.filter.date_range.lower,
-    ));
-  }
-  onTimepointClick = this.withLocationPickerState((layer) => {
     const { geometry, properties } = layer;
-    this.props.showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
+    const { id, tracks_available } = properties;
+
+    showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
+
+    await tracks_available ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
+
+    if (tracks_available) {
+      updateTrackState({ visible: [...subjectTrackState.visible, id] });
+    }
+
+    mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
   });
 
-  onMapMoveStart() {
-    mapSubjectsFetchCancelToken.cancel();
-    cancelMapEventsFetch();
-  }
+  const onEventSymbolClick = withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
+    if (clickEvent?.originalEvent?.cancelBubble) return;
 
-  onMapMoveEnd() {
-    this.debouncedFetchMapData();
-  }
+    const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
 
-  onRotationControlClick = () => {
-    this.props.map.easeTo({
-      bearing: 0,
-      pitch: 0,
+    mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
+
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+    } else {
+      openModalForReport(event, map);
+    }
+  });
+
+  const handleMultiFeaturesAtSameLocationClick = useCallback((event, layers) => {
+    showPopup('multi-layer-select', {
+      layers,
+      coordinates: [event.lngLat.lng, event.lngLat.lat],
+      onSelectSubject: onMapSubjectClick,
+      onSelectEvent: onEventSymbolClick,
     });
-  };
+  }, [onEventSymbolClick, onMapSubjectClick, showPopup]);
 
-  toggleMapLockState() {
-    return toggleMapLockState();
-  }
+  const hideUnpinnedTrackLayers = useCallback((map, event) => {
+    const { visible } = subjectTrackState;
+    const { visible: visiblePatrolIds } = patrolTrackState;
 
-  resetTrackRequestCancelToken() {
-    this.trackRequestCancelToken.cancel();
-    this.trackRequestCancelToken = CancelToken.source();
-  }
+    if (!visible.length) return;
 
-  clearSelectedAnalyzerIds() {
-    setAnalyzerFeatureActiveStateForIDs(this.props.map, this.currentAnalyzerIds, false);
-    this.currentAnalyzerIds = [];
-  }
+    const clickedLayerIDs = map.queryRenderedFeatures(event.point)
+      .filter(({ properties }) => !!properties && properties.id)
+      .map(({ properties: { id } }) => id);
 
-  fetchMapData() {
-    this.onMapMoveStart();
-    return Promise.all([
-      this.fetchMapEvents(),
-      this.fetchMapSubjects(),
-    ])
-      .catch((e) => {
-        console.warn('error loading map data', e);
-      })
-      .finally(() => {
-      });
-  }
+    const matchingPatrolIds = clickedLayerIDs
+      .reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], [])
+      .map(({ id }) => id);
 
-  debouncedFetchMapData = debounce(this.fetchMapData, 500);
-  debouncedFetchMapEvents = debounce(this.fetchMapEvents, 300);
+    updateTrackState({ visible: visible.filter(id => clickedLayerIDs.includes(id)) });
+    updatePatrolTrackState({ visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)) });
+  }, [patrolTrackState, subjectTrackState, updatePatrolTrackState, updateTrackState]);
 
-  fetchMapSubjects() {
-    const args = [this.props.map];
-    const timeSliderActive = this.props.timeSliderState.active;
+  const setMap = useCallback((map) => {
+    // don't set zoom if not hydrated
+    if (homeMap && homeMap.zoom) {
+      if (lngLatFromParams.current) {
+        map.setZoom(16);
+      } else {
+        map.setZoom(homeMap.zoom);
+      }
+    };
+    window.map = map;
 
-    if (timeSliderActive) {
-      const { lower: updated_since, upper: updated_until } = this.props.eventFilter.filter.date_range;
+    onMapLoad(map);
+    debouncedFetchMapData();
+  }, [debouncedFetchMapData, homeMap, onMapLoad]);
 
-      args.push({
-        updated_since, updated_until,
-      });
+  const onShowClusterSelectPopup = useCallback((layers, coordinates) => {
+    showPopup('cluster-select', {
+      layers,
+      coordinates,
+      onSelectEvent: onEventSymbolClick,
+      onSelectSubject: onMapSubjectClick,
+    });
+  }, [onEventSymbolClick, onMapSubjectClick, showPopup]);
+
+  const onClusterClick = withLocationPickerState(({ point }) => {
+    const features = map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
+    const clusterId = features[0].properties.cluster_id;
+    const clusterSource = map.getSource('events-data-clustered');
+
+    clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
+      if (err) return;
+
+      const mapZoom = map.getZoom();
+      const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
+
+      if (mapZoom < MAX_ZOOM && mapZoom < zoom) {
+        map.easeTo({ center: features[0].geometry.coordinates, zoom: newMapZoom });
+      }
+    });
+  });
+
+  const onCurrentUserLocationClick = withLocationPickerState((location) => {
+    showPopup('current-user-location', {
+      location,
+      coordinates: [location.coords.longitude, location.coords.latitude],
+    });
+    mapInteractionTracker.track('Click Current User Location Icon');
+  });
+
+  const onMessageBadgeClick = withLocationPickerState(({ layer }) => {
+    const { geometry, properties } = layer;
+
+    showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
+  });
+
+  const onTrackLegendClose = useCallback(() =>  {
+    updateTrackState({ visible: [], pinned: [] });
+  }, [updateTrackState]);
+
+  const onSubjectHeatmapClose = useCallback(() => {
+    updateHeatmapSubjects([]);
+  }, [updateHeatmapSubjects]);
+
+  const onCloseReportHeatmap = useCallback(()  => {
+    setReportHeatmapVisibility(false);
+  }, [setReportHeatmapVisibility]);
+
+  const onPatrolTrackLegendClose = useCallback(() => {
+    updatePatrolTrackState({ visible: [], pinned: [] });
+  }, [updatePatrolTrackState]);
+
+  const onRotationControlClick = useCallback(() => {
+    map.easeTo({ bearing: 0, pitch: 0 });
+  }, [map]);
+
+  const onTimepointClick = withLocationPickerState((layer) => {
+    const { geometry, properties } = layer;
+    showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
+  });
+
+  const onFeatureSymbolClick = withLocationPickerState(({ geometry, properties }) => {
+    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
+
+    showPopup('feature-symbol', { geometry, properties, coordinates });
+    mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+  });
+
+  const onAnalyzerGroupEnter = useCallback((e, groupIds) => {
+    // if an analyzer popup is open, and the user selects a new analyzer, dismiss the current pop.
+    if (xor(groupIds, currentAnalyzerIds).length !== 0) {
+      if (popup?.type === 'analyzer-config') {
+        hidePopup(popup.id);
+      }
     }
+    setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, false);
+    setCurrentAnalyzerIds(groupIds);
+    setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);
+  }, [currentAnalyzerIds, hidePopup, map, popup?.id, popup?.type]);
 
-    return this.props.fetchMapSubjects(...args)
-      .then((latestMapSubjects) => timeSliderActive ? this.fetchMapSubjectTracksForTimeslider(latestMapSubjects) : Promise.resolve(latestMapSubjects))
-      .catch(() => {
-        // console.log('error fetching map subjects', e.__CANCEL__); handle errors here if not a cancelation
-      });
-  }
-  handleMultiFeaturesAtSameLocationClick(event, layers) {
-    this.props.showPopup('multi-layer-select',
-      {
-        layers,
-        coordinates: [event.lngLat.lng, event.lngLat.lat],
-        onSelectSubject: this.onMapSubjectClick,
-        onSelectEvent: this.onEventSymbolClick,
-      },
-    );
+  const onAnalyzerGroupExit = useCallback((e, groupIds) => {
+    // shortcircuit when the analyzer popup is displayed
+    if (popup?.type === 'analyzer-config') return;
+    setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
+  }, [map, popup?.type]);
 
-  }
-  fetchMapSubjectTracksForTimeslider(subjects) {
-    this.resetTrackRequestCancelToken();
-    return fetchTracksIfNecessary(subjects
-      .filter(subject => !subjectIsStatic(subject))
-      .filter(({ last_position_date }) => (new Date(last_position_date) - new Date(this.props.eventFilter.filter.date_range.lower) >= 0))
-      .map(({ id }) => id));
-  }
+  const onAnalyzerFeatureClick = withLocationPickerState((e) => {
+    const features = getAnalyzerFeaturesAtPoint(map, e.point);
+    setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, true);
+    const properties = features[0].properties;
+    const geometry = e.lngLat;
+    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, analyzerFeatures);
 
-  fetchMapEvents() {
-    let params;
-    if (this.props.userLocation?.coords) {
-      params = {
-        location: calcLocationParamStringForUserLocationCoords(this.props.userLocation.coords),
-      };
-    }
-    return this.props.fetchMapEvents(this.props.map, params)
-      .catch((e) => {
-        console.warn('error fetching map events', e);
-      });
-  }
-  onMapClick = this.withLocationPickerState((map, event) => {
+    showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
+  });
+
+  const onSleepDetected = useCallback(() => {
+    debouncedFetchMapData();
+  }, [debouncedFetchMapData]);
+
+  const onMapClick = withLocationPickerState((map, event) => {
     const clickedLayersOfInterest = uniqBy(
-      map.queryRenderedFeatures(event.point, { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) })
-      , layer => layer.properties.id);
-    let hidePopup = true, clusterFeaturesAtPoint = [];
+      map.queryRenderedFeatures(
+        event.point,
+        { layers: LAYER_PICKER_IDS.filter(id => !!map.getLayer(id)) }
+      ),
+      layer => layer.properties.id
+    );
+    let shouldHidePopup = true, clusterFeaturesAtPoint = [];
+
     if (ENABLE_NEW_CLUSTERING) {
       const clusterApproxGeometry = [
-        [ event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT ],
-        [ event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT ]
+        [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
+        [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
       ];
       const clustersAtPoint = map.queryRenderedFeatures(
         clusterApproxGeometry,
         { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
       );
 
-      hidePopup = !clustersAtPoint.length;
+      shouldHidePopup = !clustersAtPoint.length;
     } else {
       clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
     }
@@ -378,363 +466,314 @@ class Map extends Component {
 
     if (clickedLayersOfInterest.length > 1) {
       if (!clusterFeaturesAtPoint.length) {  /* cluster clicks take precendence over disambiguation popover */
-        this.handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
-        hidePopup = false;
+        handleMultiFeaturesAtSameLocationClick(event, clickedLayersOfInterest);
+        shouldHidePopup = false;
       }
     }
 
-    if (this.props.popup) {
-      // be sure to also deactivate the analyzer features
-      // when dismissing an analyzer popup
-      if (this.props.popup.type === 'analyzer-config') {
-        const { map } = this.props;
-        setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, false);
+    if (popup) {
+      // be sure to also deactivate the analyzer features when dismissing an analyzer popup
+      if (popup.type === 'analyzer-config') {
+        setAnalyzerFeatureActiveStateForIDs(map, currentAnalyzerIds, false);
       }
-      if (hidePopup) {
-        this.props.hidePopup(this.props.popup.id);
+      if (shouldHidePopup) {
+        hidePopup(popup.id);
       }
     }
 
-    this.hideUnpinnedTrackLayers(map, event);
+    hideUnpinnedTrackLayers(map, event);
 
-    if (this.props.userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
-      this.props.updateUserPreferences({ sidebarOpen: false });
+    if (userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
+      updateUserPreferences({ sidebarOpen: false });
     }
   });
 
-  onShowClusterSelectPopup = (layers, coordinates) => {
-    this.props.showPopup('cluster-select', {
-      layers,
-      coordinates,
-      onSelectEvent: this.onEventSymbolClick,
-      onSelectSubject: this.onMapSubjectClick,
-    });
-  };
+  // Workaround to lame issue with React Mapbox GL: https://github.com/alex3165/react-mapbox-gl/issues/963
+  const onMapClickRef = useRef(onMapClick);
 
-  onEventSymbolClick = this.withLocationPickerState(({ event: clickEvent, layer: { properties } }) => {
-    if (clickEvent && clickEvent.originalEvent && clickEvent.originalEvent.cancelBubble) return;
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
 
-    const { map } = this.props;
-    const event = cleanUpBadlyStoredValuesFromMapSymbolLayer(properties);
+  const setTrackLengthToEventFilterLowerValue = useCallback(() => {
+    setTrackLength(differenceInCalendarDays(new Date(), eventFilter.filter.date_range.lower));
+  }, [eventFilter.filter.date_range.lower, setTrackLength]);
 
-    mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      this.props.showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
-    } else {
-      openModalForReport(event, map);
+  const onTrackLengthChange = useCallback(() => {
+    resetTrackRequestCancelToken();
+    fetchTracksIfNecessary(uniq([...subjectTrackState.visible, ...subjectTrackState.pinned, ...heatmapSubjectIDs]));
+  }, [heatmapSubjectIDs, resetTrackRequestCancelToken, subjectTrackState.pinned, subjectTrackState.visible]);
+
+  useEffect(() => {
+    fetchBaseLayers();
+    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+      setTrackLengthToEventFilterLowerValue();
     }
-  });
 
-  onClusterLeafClick = this.withLocationPickerState((report) => {
-    this.onEventSymbolClick({ layer: { properties: report } });
-  });
-
-  onFeatureSymbolClick = this.withLocationPickerState(({ geometry, properties }) => {
-    const coordinates = Array.isArray(geometry.coordinates[0]) ? geometry.coordinates[0] : geometry.coordinates;
-
-    this.props.showPopup('feature-symbol', { geometry, properties, coordinates });
-    mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
-  });
-
-  onAnalyzerGroupEnter = (e, groupIds) => {
-    // if an analyzer popup is open, and the user selects a new 
-    // analyzer, dismiss the current pop. 
-    if (xor(groupIds, this.currentAnalyzerIds).length !== 0) {
-      if (this.props.popup && this.props.popup.type === 'analyzer-config') {
-        this.props.hidePopup(this.props.popup.id);
-      }
-    }
-    this.clearSelectedAnalyzerIds();
-    this.currentAnalyzerIds = groupIds;
-    const { map } = this.props;
-    setAnalyzerFeatureActiveStateForIDs(map, groupIds, true);
-  };
-
-  onAnalyzerGroupExit = (e, groupIds) => {
-    // shortcircuit when the analyzer popup is displayed
-    if (this.props.popup && this.props.popup.type === 'analyzer-config') return;
-    const { map } = this.props;
-    setAnalyzerFeatureActiveStateForIDs(map, groupIds, false);
-  };
-
-  onAnalyzerFeatureClick = this.withLocationPickerState((e) => {
-    const { map } = this.props;
-    const features = getAnalyzerFeaturesAtPoint(map, e.point);
-    setAnalyzerFeatureActiveStateForIDs(map, this.currentAnalyzerIds, true);
-    const properties = features[0].properties;
-    const geometry = e.lngLat;
-    const analyzerId = findAnalyzerIdByChildFeatureId(properties.id, this.props.analyzerFeatures);
-    this.props.showPopup('analyzer-config', { geometry, properties, analyzerId, coordinates: geometry });
-  });
-
-  hideUnpinnedTrackLayers(map, event) {
-    const { updatePatrolTrackState, updateTrackState, patrolTrackState: { visible: visiblePatrolIds }, subjectTrackState: { visible } } = this.props;
-    if (!visible.length) return;
-
-    const clickedLayerIDs = map.queryRenderedFeatures(event.point)
-      .filter(({ properties }) => !!properties && properties.id)
-      .map(({ properties: { id } }) => id);
-
-    const matchingPatrolIds = clickedLayerIDs.reduce((accumulator, id) => [...accumulator, ...getPatrolsForLeaderId(id)], []).map(({ id }) => id);
-
-    updateTrackState({
-      visible: visible.filter(id => clickedLayerIDs.includes(id)),
-    });
-    updatePatrolTrackState({
-      visible: visiblePatrolIds.filter(id => matchingPatrolIds.includes(id)),
-    });
-  }
-  onCloseReportHeatmap() {
-    this.props.setReportHeatmapVisibility(false);
-  }
-
-  onClusterClick = this.withLocationPickerState(({ point }) => {
-    const features = this.props.map.queryRenderedFeatures(point, { layers: [EVENT_CLUSTERS_CIRCLES] });
-    const clusterId = features[0].properties.cluster_id;
-    const clusterSource = this.props.map.getSource('events-data-clustered');
-
-    clusterSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
-      if (err) return;
-
-      const mapZoom = this.props.map.getZoom();
-      const newMapZoom = (zoom > MAX_ZOOM) ? MAX_ZOOM : zoom;
-
-      if (mapZoom < MAX_ZOOM
-        && mapZoom < zoom) {
-        this.props.map.easeTo({
-          center: features[0].geometry.coordinates,
-          zoom: newMapZoom
-        });
-      }
-    });
-  });
-
-  onCurrentUserLocationClick = this.withLocationPickerState((location) => {
-    this.props.showPopup('current-user-location', { location, coordinates: [location.coords.longitude, location.coords.latitude] });
-    mapInteractionTracker.track('Click Current User Location Icon');
-  });
-
-  onMapSubjectClick = this.withLocationPickerState(async ({ event, layer }) => {
-    if (event && event.originalEvent && event.originalEvent.cancelBubble) return;
-
-    const { geometry, properties } = layer;
-    const { id, tracks_available } = properties;
-    const { updateTrackState, subjectTrackState } = this.props;
-
-    this.props.showPopup('subject', { geometry, properties, coordinates: geometry.coordinates });
-
-    await (tracks_available) ? fetchTracksIfNecessary([id]) : new Promise(resolve => resolve());
-
-    if (tracks_available) {
-      updateTrackState({
-        visible: [...subjectTrackState.visible, id]
-      });
-    }
-    mapInteractionTracker.track('Click Map Subject Icon', `Subject Type:${properties.subject_type}`);
-  });
-
-  onMessageBadgeClick = this.withLocationPickerState(({ layer }) => {
-    const { geometry, properties } = layer;
-
-    this.props.showPopup('subject-messages', { geometry, properties, coordinates: geometry.coordinates });
-  });
-
-  setMap(map) {
-    // don't set zoom if not hydrated
-    if (this.props.homeMap && this.props.homeMap.zoom) {
-      if (this.lngLatFromParams) {
-        map.setZoom(16);
-      } else {
-        map.setZoom(this.props.homeMap.zoom);
-      }
+    return () => {
+      clearEventData();
+      clearSubjectData(); // map data cleanup
     };
-    window.map = map;
+  }, [clearEventData, clearSubjectData, fetchBaseLayers, setTrackLengthToEventFilterLowerValue, trackLengthOrigin]);
 
-    this.props.onMapLoad(map);
-    this.debouncedFetchMapData();
-  }
+  useEffect(() => {
+    if (!!map) {
+      const { zoom, center } = homeMap;
+      jumpToLocation(map, lngLatFromParams.current || center, zoom);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [homeMap, map]);
 
-  onSubjectHeatmapClose() {
-    this.props.updateHeatmapSubjects([]);
-  }
-  onTrackLegendClose() {
-    const { updateTrackState } = this.props;
-    updateTrackState({
-      visible: [],
-      pinned: [],
-    });
-  }
+  useEffect(() => {
+    if (!!map) {
+      socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
+      if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+        setTrackLengthToEventFilterLowerValue();
+      }
+      debouncedFetchMapEvents();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventFilter, map]);
 
-  onPatrolTrackLegendClose() {
-    const { updatePatrolTrackState } = this.props;
-    updatePatrolTrackState({
-      visible: [],
-      pinned: [],
-    });
-  }
+  useEffect(() => {
+    if (!!map) {
+      socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, patrolFilter]);
 
-  onReportMarkerDrop(location) {
-    const coordinates = [location.lng, location.lat];
+  useEffect(() => {
+    if (!!map && trackLengthOrigin === TRACK_LENGTH_ORIGINS.eventFilter) {
+      setTrackLengthToEventFilterLowerValue();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, trackLengthOrigin]);
 
-    this.props.showPopup('dropped-marker', { location, coordinates });
-  }
+  useEffect(() => {
+    if (!!map) {
+      onTrackLengthChange();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, trackLength]);
 
-  onTrackLengthChange() {
-    this.resetTrackRequestCancelToken();
-    fetchTracksIfNecessary(uniq([...this.props.subjectTrackState.visible, ...this.props.subjectTrackState.pinned, ...this.props.heatmapSubjectIDs]));
-  }
+  useEffect(() => {
+    if (!!map) {
+      fetchMapData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, timeSliderState.active]);
 
-  render() {
-    const { children, maps, map, mapImages, popup, mapSubjectFeatureCollection,
-      mapFeaturesFeatureCollection, analyzersFeatureCollection,
-      heatmapSubjectIDs, mapIsLocked, showTrackTimepoints, subjectTrackState, showReportsOnMap, bounceEventIDs,
-      patrolTrackState, timeSliderState: { active: timeSliderActive } } = this.props;
+  useEffect(() => {
+    if (!!map && userIsGeoPermissionRestricted(user)) {
+      debouncedFetchMapEvents();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, userLocation]);
 
-    const { showReportHeatmap } = this.props;
+  useEffect(() => {
+    if (!!map && showReportHeatmap) {
+      onSubjectHeatmapClose();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, showReportHeatmap]);
 
-    const { symbolFeatures, lineFeatures, fillFeatures } = mapFeaturesFeatureCollection;
+  useEffect(() => {
+    if (!!map && heatmapSubjectIDs.length && showReportHeatmap) {
+      onCloseReportHeatmap();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, heatmapSubjectIDs]);
 
-    const { analyzerWarningLines, analyzerCriticalLines,
-      analyzerWarningPolys, analyzerCriticalPolys, layerGroups } = analyzersFeatureCollection;
+  useEffect(() => {
+    if (!!map && !!timeSliderState.active && !!popup) {
+      if (popup.type === 'subject') {
+        const subjectMatch = mapSubjectFeatureCollection.features
+          .find(item => item.properties.id === popup.data.properties.id);
 
-    const subjectHeatmapAvailable = !!heatmapSubjectIDs.length;
-    const subjectTracksVisible = !!subjectTrackState.pinned.length || !!subjectTrackState.visible.length;
-    const patrolTracksVisible = !!patrolTrackState.pinned.length || !!patrolTrackState.visible.length;
+        if (subjectMatch) {
+          showPopup('subject', {
+            geometry: subjectMatch.geometry,
+            properties: subjectMatch.properties,
+            coordinates: subjectMatch.geometry.coordinates,
+          });
+        }
+      }
+      if (popup.type === 'multi-layer-select') {
+        hidePopup(popup.id);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, timeSliderState.virtualDate]);
 
-    if (!maps.length) return null;
+  useEffect(() => {
+    if (!!map) {
+      if (!!popup) {
+        const { type } = popup;
 
-    const enableEventClustering = timeSliderActive ? false : true;
+        if (type === 'feature-symbol' && hiddenFeatureIDs.includes(popup.data.properties.id)) {
+          hidePopup(popup.id);
+        }
+        if (type === 'analyzer-config' && hiddenAnalyzerIDs.includes(popup.data.analyzerId)) {
+          hidePopup(popup.id);
+        }
+      }
+    }
+  });
 
-    const staticFeatures = (mapSubjectFeatureCollection?.features ?? []).filter(subjectFeature => subjectIsStatic(subjectFeature));
-    const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
+  if (!maps.length) return null;
 
-    return (
-      <EarthRangerMap
-        center={this.mapCenter}
-        className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
-        controls={<Fragment>
-          {ENABLE_UFA_NAVIGATION_UI && <AddReport
-            className="general-add-button"
-            variant="secondary"
-            popoverPlacement="left"
-            showLabel={false}
-          />}
-          <MapBaseLayerControl />
-          <MapMarkerDropper onMarkerDropped={this.onReportMarkerDrop} />
-          <MapRulerControl />
-          <MapPrintControl />
-          <MapSettingsControl />
-          <TimeSliderMapControl />
-        </Fragment>}
-        onMoveStart={this.onMapMoveStart}
-        onMoveEnd={this.onMapMoveEnd}
-        onZoom={this.onMapZoom}
-        onClick={this.onMapClick}
-        onMapLoaded={this.setMap} >
+  const timeSliderActive = timeSliderState.active;
+  const enableEventClustering = timeSliderActive ? false : true;
 
+  const staticFeatures = (mapSubjectFeatureCollection?.features ?? [])
+    .filter(subjectFeature => subjectIsStatic(subjectFeature));
+  const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
 
-        {map && (
-          <Fragment>
-            {children}
+  return <EarthRangerMap
+    center={lngLatFromParams.current || homeMap.center}
+    className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    controls={<>
+      {ENABLE_UFA_NAVIGATION_UI && <AddReport
+        className="general-add-button"
+        variant="secondary"
+        popoverPlacement="left"
+        showLabel={false}
+      />}
+      <MapBaseLayerControl />
+      <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
+      <MapRulerControl />
+      <MapPrintControl />
+      <MapSettingsControl />
+      <TimeSliderMapControl />
+    </>}
+    onMoveStart={onMapMoveStart}
+    onMoveEnd={onMapMoveEnd}
+    onZoom={onMapZoom}
+    onClick={(map, event) => onMapClickRef.current(map, event)}
+    onMapLoaded={setMap}
+    >
+    {map && <>
+      {children}
 
-            {ENABLE_NEW_CLUSTERING && <ClustersLayer
-              onShowClusterSelectPopup={this.onShowClusterSelectPopup}
-            />}
+      {ENABLE_NEW_CLUSTERING && <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />}
 
-            <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
-              <EventsLayer
-                enableClustering={enableEventClustering}
-                mapImages={mapImages}
-                onEventClick={this.onEventSymbolClick}
-                onClusterClick={this.onClusterClick}
-                bounceEventIDs={bounceEventIDs}
-              />
-            </DelayedUnmount>
+      <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
+        <EventsLayer
+          enableClustering={enableEventClustering}
+          mapImages={mapImages}
+          onEventClick={onEventSymbolClick}
+          onClusterClick={onClusterClick}
+          bounceEventIDs={bounceEventIDs}
+        />
+      </DelayedUnmount>
 
-            <SubjectsLayer mapImages={mapImages} onSubjectClick={this.onMapSubjectClick} />
+      <SubjectsLayer mapImages={mapImages} onSubjectClick={onMapSubjectClick} />
 
-            <MapImagesLayer map={map} />
+      <MapImagesLayer map={map} />
 
-            <UserCurrentLocationLayer onIconClick={this.onCurrentUserLocationClick} />
+      <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-            <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
+      <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
 
-            <MessageBadgeLayer onBadgeClick={this.onMessageBadgeClick} />
+      <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-            <DelayedUnmount isMounted={!this.props.userPreferences.sidebarOpen}>
-              <div className='floating-report-filter'>
-                <EventFilter className='report-filter'/>
-              </div>
-            </DelayedUnmount>
+      <DelayedUnmount isMounted={!userPreferences.sidebarOpen}>
+        <div className='floating-report-filter'>
+          <EventFilter className='report-filter'/>
+        </div>
+      </DelayedUnmount>
 
-            <div className='map-legends'>
-              {!ENABLE_UFA_NAVIGATION_UI && <>
-                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
-                </>
-              }
-              <span className='compass-wrapper' onClick={this.onRotationControlClick} >
-                {ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
-                <RotationControl
-                  className='rotation-control'
-                  style={{
-                    position: 'relative',
-                    top: 'auto',
-                    margin: '0.5rem 0 0 0.5rem',
-                    borderStyle: 'none',
-                    borderRadius: '0.25rem',
-                  }}
-                />
-                {!ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
-              </span>
-              {ENABLE_UFA_NAVIGATION_UI && <>
-                  {subjectTracksVisible && <SubjectTrackLegend onClose={this.onTrackLegendClose} />}
-                  {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={this.onSubjectHeatmapClose} />}
-                  {showReportHeatmap && <ReportsHeatmapLegend onClose={this.onCloseReportHeatmap} />}
-                  {patrolTracksVisible && <PatrolTrackLegend onClose={this.onPatrolTrackLegendClose} />}
-                </>
-              }
-            </div>
+      <div className='map-legends'>
+        {!ENABLE_UFA_NAVIGATION_UI && <>
+          {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
+          {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
+          {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
+          {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
+        </>}
+        <span className='compass-wrapper' onClick={onRotationControlClick} >
+          {ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+          <RotationControl
+            className='rotation-control'
+            style={{
+              position: 'relative',
+              top: 'auto',
+              margin: '0.5rem 0 0 0.5rem',
+              borderStyle: 'none',
+              borderRadius: '0.25rem',
+            }}
+          />
+          {!ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+        </span>
+        {ENABLE_UFA_NAVIGATION_UI && <>
+          {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
+          {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
+          {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
+          {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
+        </>}
+      </div>
 
-            <RightClickMarkerDropper />
+      <RightClickMarkerDropper />
 
-            {subjectHeatmapAvailable && <SubjectHeatLayer />}
-            {showReportHeatmap && <ReportsHeatLayer />}
+      {subjectHeatmapAvailable && <SubjectHeatLayer />}
+      {showReportHeatmap && <ReportsHeatLayer />}
 
-            {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={this.onTimepointClick} />}
-            {patrolTracksVisible && <PatrolStartStopLayer />}
+      {subjectTracksVisible && <TrackLayers showTimepoints={showTrackTimepoints} onPointClick={onTimepointClick} />}
+      {patrolTracksVisible && <PatrolStartStopLayer />}
 
-            {patrolTracksVisible && <PatrolTracks onPointClick={this.onTimepointClick} />}
+      {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
-            <FeatureLayer symbols={symbolFeatures} lines={lineFeatures} polygons={fillFeatures} onFeatureSymbolClick={this.onFeatureSymbolClick} />
+      <FeatureLayer
+        symbols={symbolFeatures}
+        lines={lineFeatures}
+        polygons={fillFeatures}
+        onFeatureSymbolClick={onFeatureSymbolClick}
+      />
 
-            <AnalyzerLayer warningLines={analyzerWarningLines} criticalLines={analyzerCriticalLines} warningPolys={analyzerWarningPolys}
-              criticalPolys={analyzerCriticalPolys} layerGroups={layerGroups} onAnalyzerGroupEnter={this.onAnalyzerGroupEnter}
-              onAnalyzerGroupExit={this.onAnalyzerGroupExit} onAnalyzerFeatureClick={this.onAnalyzerFeatureClick} map={map}
-              isSubjectSymbolsLayerReady={!!map.getLayer(SUBJECT_SYMBOLS)} />
+      <AnalyzerLayer
+        warningLines={analyzerWarningLines}
+        criticalLines={analyzerCriticalLines}
+        warningPolys={analyzerWarningPolys}
+        criticalPolys={analyzerCriticalPolys}
+        layerGroups={layerGroups}
+        onAnalyzerGroupEnter={onAnalyzerGroupEnter}
+        onAnalyzerGroupExit={onAnalyzerGroupExit}
+        onAnalyzerFeatureClick={onAnalyzerFeatureClick}
+        map={map}
+        isSubjectSymbolsLayerReady={!!map.getLayer(SUBJECT_SYMBOLS)}
+      />
 
-            {!!popup && <PopupLayer
-              popup={popup} />
-            }
+      {!!popup && <PopupLayer popup={popup} />}
 
-          </Fragment>
-        )}
+    </>}
 
-        {timeSliderActive && <TimeSlider />}
-        <ReloadOnProfileChange />
-        <SleepDetector onSleepDetected={this.onSleepDetected} />
-      </EarthRangerMap>
-    );
-  }
-}
+    {timeSliderActive && <TimeSlider />}
+
+    <ReloadOnProfileChange />
+
+    <SleepDetector onSleepDetected={onSleepDetected} />
+  </EarthRangerMap>;
+};
 
 const mapStatetoProps = (state) => {
   const { data, view } = state;
   const { maps, tracks, eventFilter, user, eventTypes, patrolFilter } = data;
-  const { hiddenAnalyzerIDs, hiddenFeatureIDs, homeMap, mapIsLocked, patrolTrackState, popup, subjectTrackState, heatmapSubjectIDs, timeSliderState, bounceEventIDs,
-    showTrackTimepoints, trackLength: { length: trackLength, origin: trackLengthOrigin }, userLocation, userPreferences, showReportsOnMap } = view;
+  const {
+    hiddenAnalyzerIDs,
+    hiddenFeatureIDs,
+    homeMap,
+    mapIsLocked,
+    patrolTrackState,
+    popup,
+    subjectTrackState,
+    heatmapSubjectIDs,
+    timeSliderState,
+    bounceEventIDs,
+    showTrackTimepoints,
+    trackLength: { length: trackLength, origin: trackLengthOrigin },
+    userLocation,
+    userPreferences,
+    showReportsOnMap,
+  } = view;
 
   return ({
     analyzerFeatures: analyzerFeatures(state),
@@ -781,13 +820,12 @@ export default connect(mapStatetoProps, {
   setTrackLength,
   showPopup,
   showSideBarDetailView: showDetailView,
-  toggleMapLockState,
   updateUserPreferences,
   updateTrackState,
   updatePatrolTrackState,
   updateHeatmapSubjects,
 }
-)(withMap(withRouter(Map)));
+)(withMap(Map));
 
 // secret code burial ground
 // for future reference and potential experiments
