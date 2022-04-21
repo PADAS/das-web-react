@@ -1,3 +1,5 @@
+@import '../common/styles/vars/colors';
+
 .popover {
   height: 22rem;
   max-width: unset;
@@ -5,5 +7,16 @@
   width: 24rem;
   [class*=popover-body] {
     height: 15.5rem;
+  }
+
+  h6 {
+    svg {
+      margin-right: 0.666rem;
+      fill: $dark-gray;
+
+      path {
+        fill: $dark-gray;
+      }
+    }
   }
 }
