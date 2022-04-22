@@ -2,7 +2,7 @@ import React, { Fragment, memo } from 'react';
 
 import { ReactComponent as UserIcon } from '../common/images/icons/solid-user-icon.svg';
 
-import { isRadioWithImage } from '../utils/subjects';
+import { isRadioWithImage, subjectIsStatic } from '../utils/subjects';
 import { calcSenderNameForMessage } from '../utils/messaging';
 import { calcUrlForImage } from '../utils/img';
 import styles from './styles.module.scss';
@@ -23,6 +23,7 @@ const SenderDetails = (props) => {
   };
 
   const radioImage = isRadioWithImage(subject) || calcUrlForImage(subject.image_url);
+  const iconStyles = subjectIsStatic(subject) ? { filter: 'brightness(0.3)' } : {};
   const isOutgoing = message.message_type === 'outbox';
 
   if (senderDetailStyle === SENDER_DETAIL_STYLES.FULL) return <em className={styles.senderDetails}>
@@ -30,7 +31,8 @@ const SenderDetails = (props) => {
       {message?.sender?.content_type === 'accounts.user' && <UserIcon />}
       {`${calcSenderNameForMessage(message)} > `}
     </span>}
-    <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>{radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} />}
+    <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
+      {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} style={iconStyles} />}
       {subject.name}</span>
   </em>;
 
@@ -41,7 +43,7 @@ const SenderDetails = (props) => {
     </Fragment>}
     {!isOutgoing && <Fragment>
       <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
-        {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} />}
+        {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} style={iconStyles}/>}
         {subject.name}
       </span>
     </Fragment>}
@@ -49,7 +51,7 @@ const SenderDetails = (props) => {
 
   if (senderDetailStyle === SENDER_DETAIL_STYLES.SUBJECT) return <em className={styles.senderDetails}>
     <span className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`} onClick={onClickSubjectName}>
-      {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} />}
+      {radioImage && <img src={radioImage} alt={`Radio icon for ${subject.name}`} style={iconStyles}/>}
       {subject.name}
     </span>
   </em>;
