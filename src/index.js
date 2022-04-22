@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 import { library, dom } from '@fortawesome/fontawesome-svg-core';
@@ -62,7 +62,7 @@ export const PathNormalizationRouteComponent = ({ location }) => {
 
   const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === location.pathname);
   if (process.env.NODE_ENV !== 'production' || !localMatch) {
-    return <Redirect to={REACT_APP_ROUTE_PREFIX} />;
+    return <Navigate replace to={REACT_APP_ROUTE_PREFIX} />;
   }
 
   return <a href={localMatch} style={{ opacity: 0 }} target='_self' ref={externalRedirectRef}>{localMatch}</a>;
@@ -75,33 +75,27 @@ ReactDOM.render(
         <RequestConfigManager />
 
         <Suspense fallback={<LoadingOverlay />}>
-          <Switch>
+          <Routes>
             <Route
-              exact
               path={REACT_APP_ROUTE_PREFIX}
-              render={() => <RequireEulaConfirmation>
+              element={<RequireEulaConfirmation>
                 <RequireAccessToken>
                   <AppWithTracker />
                 </RequireAccessToken>
               </RequireEulaConfirmation>}
             />
 
-            <Route path={`${REACT_APP_ROUTE_PREFIX}login`}>
-              <LoginWithTracker />
-            </Route>
+            <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
 
             <Route
-              exact
               path={`${REACT_APP_ROUTE_PREFIX}eula`}
-              render={() => <RequireAccessToken>
+              element={<RequireAccessToken>
                 <EulaPageWithTracker />
               </RequireAccessToken>}
             />
 
-            <Route>
-              <PathNormalizationRouteComponent />
-            </Route>
-          </Switch>
+            <Route element={<PathNormalizationRouteComponent />} />
+          </Routes>
         </Suspense>
       </BrowserRouter>
 

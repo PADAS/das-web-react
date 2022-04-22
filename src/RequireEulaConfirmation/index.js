@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, useHistory, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { FEATURE_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
@@ -8,8 +8,8 @@ import { fetchSystemStatus } from '../ducks/system-status';
 import { useFeatureFlag } from '../hooks';
 
 const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus, user }) => {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
@@ -20,10 +20,10 @@ const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus
   useEffect(() => {
     fetchCurrentUser()
       .catch(() => {
-        history.push({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchCurrentUser]);
+  }, [fetchCurrentUser, navigate]);
 
   const eulaEnabled = useFeatureFlag(FEATURE_FLAGS.EULA);
 
@@ -38,7 +38,7 @@ const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus
   }, [eulaEnabled, user]);
 
   if (!eulaAccepted) {
-    return <Redirect to={{ pathname: `${REACT_APP_ROUTE_PREFIX}eula`, search: location.search }} />;
+    return <Navigate replace to={{ pathname: `${REACT_APP_ROUTE_PREFIX}eula`, search: location.search }} />;
   }
   return eulaAccepted === 'unknown' ? null : children;
 };

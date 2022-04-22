@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
@@ -57,20 +57,17 @@ const RequestConfigManager = ({
   token,
   user,
 }) => {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handle401Errors = useCallback((error) => {
     if (error && error.toString().includes('401')) {
       resetMasterCancelToken();
       clearAuth().then(() => {
-        history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: location.search,
-        });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
     }
-  }, [clearAuth, history, location?.search, resetMasterCancelToken]);
+  }, [clearAuth, location?.search, navigate, resetMasterCancelToken]);
 
   const addMasterCancelTokenToRequests = useCallback((config) => {
     config.cancelToken = config.cancelToken || (masterRequestCancelToken && masterRequestCancelToken.token);

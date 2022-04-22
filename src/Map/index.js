@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -142,8 +142,8 @@ const Map = ({
   userLocation,
   userPreferences,
 }) => {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
@@ -155,9 +155,9 @@ const Map = ({
       const newLocation = { ...location };
 
       delete newLocation.search;
-      history.push(newLocation);
+      navigate(newLocation);
     }
-  }, [history, location]);
+  }, [location, navigate]);
 
   const [currentAnalyzerIds, setCurrentAnalyzerIds] = useState([]);
 

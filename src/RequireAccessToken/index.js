@@ -1,24 +1,24 @@
 import React, { memo } from 'react';
-import { Redirect, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { getTemporaryAccessTokenFromCookies } from '../utils/auth';
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 
-const RequireAccessToken = ({ children }) => {
+const RequireAccessToken = ({ children, token }) => {
   const location = useLocation();
-
-  const token = useSelector((data) => data.token);
 
   const temporaryAccessToken = getTemporaryAccessTokenFromCookies();
 
   return (temporaryAccessToken || token.access_token)
     ? children
-    : <Redirect to={{
+    : <Navigate replace to={{
         pathname: `${REACT_APP_ROUTE_PREFIX}login`,
         search: location.search,
         state: { from: location }
       }}/>;
 };
 
-export default memo(RequireAccessToken);
+const mapStateToProps = ({ data: { token } }) => ({ token });
+
+export default connect(mapStateToProps)(memo(RequireAccessToken));

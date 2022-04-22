@@ -1,6 +1,6 @@
 import React, { lazy, memo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
@@ -40,8 +40,8 @@ const Nav = ({
   user,
   userProfiles,
 }) => {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);
@@ -75,13 +75,10 @@ const Nav = ({
   useEffect(() => {
     fetchCurrentUser()
       .catch(() => {
-        history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: location.search,
-        });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
     fetchCurrentUserProfiles();
-  }, []); // eslint-disable-line
+  }, [navigate]); // eslint-disable-line
 
   return <nav className="primary-nav">
     <div className="left-controls">

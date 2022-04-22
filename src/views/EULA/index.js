@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, useHistory, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -20,8 +20,8 @@ import styles from './styles.module.scss';
 const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, user, temporaryAccessToken }) => {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { eula_url, version: eula_version, id: eula_id } = eula;
 
@@ -50,14 +50,11 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
   useEffect(() => {
     fetchCurrentUser(generateTempAuthHeaderIfNecessary())
       .catch(() => {
-        history.push({
-          pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-          search: location.search,
-        });
+        navigate({ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search });
       });
     ;
     fetchEula(generateTempAuthHeaderIfNecessary());
-  }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary, history, location.search]);
+  }, [fetchCurrentUser, fetchEula, generateTempAuthHeaderIfNecessary, location.search, navigate]);
 
   useEffect(() => {
     if (rerouteCookieValue) {
@@ -80,7 +77,7 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
   useEffect(() => {
     if (user.hasOwnProperty('accepted_eula')) {
       if (!user.accepted_eula) setPageLoadState(true);
-      else history.goBack();
+      else navigate(-1);
     }
   }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
@@ -150,8 +147,8 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
         </Footer>
       </Form>
     </Dialog>;
-    {submitted && !rerouteCookieValue && <Redirect to={rerouteOnSuccess} />}
-    {canceled && !adminReferrer && <Redirect to={`${REACT_APP_ROUTE_PREFIX}login`} />}
+    {submitted && !rerouteCookieValue && <Navigate to={rerouteOnSuccess} />}
+    {canceled && !adminReferrer && <Navigate to={`${REACT_APP_ROUTE_PREFIX}login`} />}
   </div>;
 };
 

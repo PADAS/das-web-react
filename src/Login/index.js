@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -25,8 +25,8 @@ const LoginPage = ({
   postAuth,
   systemConfig,
 }) => {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +40,7 @@ const LoginPage = ({
     event.preventDefault();
 
     postAuth({ username, password, hasError, error, errorMessage })
-      .then(() => history.push({ pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
+      .then(() => navigate({ pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
       .catch((error) => {
         const errorObject = error.toJSON();
 
@@ -54,7 +54,7 @@ const LoginPage = ({
         setError(errorObject);
         setErrorMessage(errorMessage);
       });
-  }, [clearAuth, error, errorMessage, hasError, history, location.search, password, postAuth, username]);
+  }, [clearAuth, error, errorMessage, hasError, location.search, navigate, password, postAuth, username]);
 
   const onInputChange = useCallback((event) => {
     event.preventDefault();
