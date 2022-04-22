@@ -11,6 +11,8 @@ import { setCurrentUserLocation } from '../ducks/location';
 import { setUserLocationAccessGranted } from '../ducks/user';
 
 const ONE_MINUTE = 1000 * 60;
+const GRANTED_STATE = 'granted';
+const DENIED_STATE = 'denied';
 
 const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGranted, user, userLocation, userLocationAccessGranted, updateRate = ONE_MINUTE }) => {
   const localUserLocationState = useRef(userLocation);
@@ -63,7 +65,6 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
 
 
   useEffect(() => {
-    const GRANTED_STATE = 'granted';
     let permStatus;
 
     const setPermissionState = (state) => {
@@ -76,19 +77,30 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
 
     const handlePermissionStateChange = ({ target: { state } }) => setPermissionState(state);
 
+    if (navigator?.permissions?.query) {
+      window.navigator.permissions.query({ name: 'geolocation' })
+        .then(function(permissionStatus) {
+          permStatus = permissionStatus;
 
-    navigator.permissions.query({ name: 'geolocation' })
-      .then(function(permissionStatus) {
-        permStatus = permissionStatus;
+          setPermissionState(permStatus.state);
 
-        setPermissionState(permStatus.state);
+          permStatus.addEventListener('change', handlePermissionStateChange);
+        });
 
-        permStatus.addEventListener('change', handlePermissionStateChange);
-      });
+      return () => {
+        permStatus?.removeEventListener('change', handlePermissionStateChange);
+      };
+    }
 
-    return () => {
-      permStatus?.removeEventListener('change', handlePermissionStateChange);
-    };
+    else {
+      window.navigator.geolocation.getCurrentPosition()
+        .then(() => {
+          setPermissionState(GRANTED_STATE);
+        })
+        .catch(() => {
+          setPermissionState(DENIED_STATE);
+        });
+    }
   }, [setUserLocationAccessGranted]);
 
   useEffect(() => {
