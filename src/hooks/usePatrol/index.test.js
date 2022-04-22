@@ -9,7 +9,8 @@ import {
   activePatrol,
   overduePatrol,
   donePatrol,
-  cancelledPatrol
+  cancelledPatrol,
+  patrolDefaultStoreData
 } from '../../__test-helpers/fixtures/patrols';
 import { PATROL_API_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
@@ -19,6 +20,8 @@ jest.mock('../../ducks/patrols', () => ({
   ...jest.requireActual('../../ducks/patrols'),
   updatePatrol: jest.fn(),
 }));
+
+const store = mockStore(patrolDefaultStoreData);
 
 describe('usePatrol', () => {
   const Component = ({ patrol }) => {
@@ -39,7 +42,7 @@ describe('usePatrol', () => {
 
   test('provides the expected data for a new patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={newPatrol} />
       </Provider>
     );
@@ -49,7 +52,7 @@ describe('usePatrol', () => {
 
   test('provides the expected data for a scheduled patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={scheduledPatrol} />
       </Provider>
     );
@@ -59,7 +62,7 @@ describe('usePatrol', () => {
 
   test('provides the expected data for an active patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={activePatrol} />
       </Provider>
     );
@@ -69,7 +72,7 @@ describe('usePatrol', () => {
 
   test('provides the expected data for an overdue patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {}, tracks: [] }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={overduePatrol} />
       </Provider>
     );
@@ -79,7 +82,7 @@ describe('usePatrol', () => {
 
   test('provides the expected data for a done patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={donePatrol} />
       </Provider>
     );
@@ -89,7 +92,7 @@ describe('usePatrol', () => {
 
   test('provides the expected data for a cancelled patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={cancelledPatrol} />
       </Provider>
     );
@@ -106,7 +109,7 @@ describe('usePatrol', () => {
       return null;
     };
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={activePatrol} />
       </Provider>
     );
@@ -124,7 +127,7 @@ describe('usePatrol', () => {
       return null;
     };
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={activePatrol} />
       </Provider>
     );
@@ -142,7 +145,7 @@ describe('usePatrol', () => {
       return null;
     };
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Component patrol={activePatrol} />
       </Provider>
     );

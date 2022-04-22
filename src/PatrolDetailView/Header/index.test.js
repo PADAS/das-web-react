@@ -11,7 +11,8 @@ import {
   activePatrol,
   overduePatrol,
   donePatrol,
-  cancelledPatrol
+  cancelledPatrol,
+  patrolDefaultStoreData
 } from '../../__test-helpers/fixtures/patrols';
 import { updatePatrol } from '../../ducks/patrols';
 
@@ -19,6 +20,8 @@ jest.mock('../../ducks/patrols', () => ({
   ...jest.requireActual('../../ducks/patrols'),
   updatePatrol: jest.fn(),
 }));
+
+const store = mockStore(patrolDefaultStoreData);
 
 describe('Header', () => {
   const setTitle = jest.fn();
@@ -34,7 +37,7 @@ describe('Header', () => {
 
   test('renders correctly case of a new patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={newPatrol}
           setTitle={setTitle}
@@ -49,7 +52,7 @@ describe('Header', () => {
 
   test('renders correctly case of a scheduled patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={scheduledPatrol}
           setTitle={setTitle}
@@ -68,7 +71,7 @@ describe('Header', () => {
 
   test('renders correctly case of an active patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={activePatrol}
           setTitle={setTitle}
@@ -105,7 +108,7 @@ describe('Header', () => {
 
   test('renders correctly case of an done patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={donePatrol}
           setTitle={setTitle}
@@ -123,7 +126,7 @@ describe('Header', () => {
 
   test('renders correctly case of an cancelled patrol', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={cancelledPatrol}
           setTitle={setTitle}
@@ -139,7 +142,7 @@ describe('Header', () => {
 
   test('triggers setTitle callback when changing the title', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={newPatrol}
           setTitle={setTitle}
@@ -159,7 +162,7 @@ describe('Header', () => {
 
   test('triggers startPatrol callback when clicking the start button', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={scheduledPatrol}
           setTitle={setTitle}
@@ -179,7 +182,7 @@ describe('Header', () => {
 
   test('triggers restorePatrol callback when clicking the restore button', async () => {
     render(
-      <Provider store={mockStore({ data: { subjectStore: {} }, view: {} })}>
+      <Provider store={store}>
         <Header
           patrol={cancelledPatrol}
           setTitle={setTitle}
