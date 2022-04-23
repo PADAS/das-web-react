@@ -93,13 +93,10 @@ const GeoLocationWatcher = ({ setCurrentUserLocation, setUserLocationAccessGrant
     }
 
     else {
-      window.navigator.geolocation.getCurrentPosition()
-        .then(() => {
-          setPermissionState(GRANTED_STATE);
-        })
-        .catch(() => {
-          setPermissionState(DENIED_STATE);
-        });
+      window.navigator.geolocation.getCurrentPosition(
+        () =>  setPermissionState(GRANTED_STATE),
+        () => setPermissionState(DENIED_STATE)
+      );
     }
   }, [setUserLocationAccessGranted]);
 
