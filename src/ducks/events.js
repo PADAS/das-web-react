@@ -171,13 +171,22 @@ export const clearEventData = () => ({
   type: CLEAR_EVENT_DATA,
 });
 
-export const createEvent = event => (dispatch) => {
+export const createEvent = event => (dispatch, getState) => {
+  const params = {};
+  const state = getState();
+
+  if (state?.view?.userLocation?.coords) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
   dispatch({
     type: CREATE_EVENT_START,
     payload: event,
   });
 
-  return axios.post(EVENTS_API_URL, event)
+  return axios.post(EVENTS_API_URL, event, {
+    params,
+  })
     .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
@@ -241,7 +250,14 @@ export const fetchEvent = (event_id, params = {}) =>
 
 export const deleteFileFromEvent = (event_id, file_id) => axios.delete(`${EVENT_API_URL}${event_id}/files/${file_id}`);
 
-export const updateEvent = (event) => (dispatch) => {
+export const updateEvent = (event) => (dispatch, getState) => {
+  const state = getState();
+  const params = {};
+
+  if (state?.view?.userLocation?.coords) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
   dispatch({
     type: UPDATE_EVENT_START,
     payload: event,
@@ -250,7 +266,9 @@ export const updateEvent = (event) => (dispatch) => {
   let eventResults;
   let resp;
 
-  return axios.patch(`${EVENT_API_URL}${event.id}`, event)
+  return axios.patch(`${EVENT_API_URL}${event.id}`, event, {
+    params,
+  })
     .then((response) => {
       eventResults = response.data.data;
       resp = response;
@@ -280,13 +298,22 @@ export const updateEvent = (event) => (dispatch) => {
     });
 };
 
-export const setEventState = (id, state) => (dispatch) => {
+export const setEventState = (id, eventState) => (dispatch, getState) => {
+  const state = getState();
+  const params = {};
+
+  if (state?.view?.userLocation?.coords) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
   dispatch({
     type: SET_EVENT_STATE_START,
   });
 
   return axios.patch(`${EVENT_API_URL}${id}/state`, {
-    state,
+    state: eventState,
+  }, {
+    params,
   })
     .then((response) => {
       dispatch({
