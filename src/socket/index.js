@@ -42,12 +42,14 @@ const validateSocketIncrement = (type, mid) => {
   return updates.mid + 1 === mid;
 };
 
-export const pingSocket = (socket) => {
+const pingSocket = (socket) => {
   let pinged = false;
   socket.on('echo_resp', () => {
     pinged = true;
   });
-  const interval = window.setInterval(() => {
+  socket.emit('echo', { data: 'ping' });
+
+  return window.setInterval(() => {
     if (pinged) {
       pinged = false;
       socket.emit('echo', { data: 'ping' });
@@ -55,31 +57,32 @@ export const pingSocket = (socket) => {
       resetSocketStateTracking();
     }
   }, 30000);
-  socket.emit('echo', { data: 'ping' });
-  return interval;
 };
 
-const bindSocketEvents = (socket, store) => {
+export const bindSocketEvents = (socket, store) => {
   let eventsBound = false;
+  let pingInterval;
 
   socket.on('connect', () => {
-    console.log('realtime: connected');
     store.dispatch({ type: SOCKET_HEALTHY_STATUS });
     socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
+    console.log('realtime: connected');
   });
   socket.on('disconnect', (msg) => {
     console.log('realtime: disconnected', msg);
-    resetSocketStateTracking();
   });
-  socket.on('connect_error', () => {
-    console.log('realtime: connection error');
-    resetSocketStateTracking();
+  socket.on('connect_error', (msg) => {
+    console.log('realtime: connection error', msg);
   });
-  socket.on('resp_authorization', ({ status }) => {
+  socket.on('resp_authorization', (msg) => {
+    const { status } = msg;
+    console.log('realtime: authorized', msg);
     if (status.code === 401) {
       return store.dispatch(clearAuth());
     }
-    pingSocket(socket);
+
+    window.clearInterval(pingInterval);
+    pingInterval = pingSocket(socket);
 
     if (!eventsBound) {
       Object.entries(events).forEach(([event_name, actionTypes]) => {
@@ -111,6 +114,8 @@ const bindSocketEvents = (socket, store) => {
     socket.emit('event_filter', calcEventFilterForRequest({ format: 'object' }));
     socket.emit('patrol_filter', calcPatrolFilterForRequest({ format: 'object' }));
   });
+
+  return socket;
 };
 
 const resetSocketStateTracking = (socket) => {
@@ -124,9 +129,7 @@ export const unbindSocketEvents = (socket) => {
 
 const createSocket = (url = SOCKET_URL) => {
   const socket = io(url, {
-    reconnectionDelay: 3000,        // how long to initially wait before attempting a new reconnection
-    reconnectionDelayMax: 150000,     // maximum amount of time to wait between reconnection attempts. Each attempt increases the reconnection delay by 2x along with a randomization factor
-    randomizationFactor: 0.25,
+    reconnection: false,
   });
 
   socket._on = socket.on.bind(socket);
@@ -142,8 +145,6 @@ const createSocket = (url = SOCKET_URL) => {
     };
     return [socket._on(eventName, newFn), newFn];
   };
-
-  bindSocketEvents(socket, store);
 
   return socket;
 };

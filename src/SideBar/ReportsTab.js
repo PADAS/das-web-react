@@ -14,6 +14,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../ducks/events';
 import { updateEventFilter, INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { trackEventFactory, FEED_CATEGORY } from '../utils/analytics';
+import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 
@@ -31,7 +32,7 @@ const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
 const ReportsTab = (props) => {
-  const { sidebarOpen, events, fetchEventFeed, userLocationCoords, fetchNextEventFeedPage, eventFilter, map, } = props;
+  const { sidebarOpen, events, fetchEventFeed, userLocationCoords, fetchNextEventFeedPage, eventFilter, map, userIsGeoPermRestricted } = props;
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(false);
@@ -48,7 +49,7 @@ const ReportsTab = (props) => {
   const optionalFeedProps = useMemo(() => {
     let value = {};
 
-    if (userLocationCoords) {
+    if (userIsGeoPermRestricted && userLocationCoords) {
       value.location = `${userLocationCoords.longitude},${userLocationCoords.latitude}`;
     }
 
@@ -56,7 +57,7 @@ const ReportsTab = (props) => {
       value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
     }
     return value;
-  }, [eventFilter, userLocationCoords]);
+  }, [eventFilter, userIsGeoPermRestricted, userLocationCoords]);
 
   const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
@@ -142,6 +143,7 @@ const ReportsTab = (props) => {
 const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
+  userIsGeoPermRestricted: userIsGeoPermissionRestricted(state?.data?.user),
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
