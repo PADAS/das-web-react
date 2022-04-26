@@ -1,24 +1,17 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
-
-import createSocket, { bindSocketEvents, unbindSocketEvents } from '../socket';
-
-jest.mock('../socket', () => ({
-  __esModule: true,
-  default: jest.fn().mockImplementation(() => {
-    console.log('i am now returning a value', mockedSocket);
-    return mockedSocket;
-  }),
-  bindSocketEvents: jest.fn().mockImplementation(socket => socket),
-  unbindSocketEvents: jest.fn().mockImplementation(socket => socket),
-}));
+import * as socketExports from '../socket';
 
 const WithSocketConnectionImports = jest.requireActual('../withSocketConnection');
 
-const { default: WithSocketConnection } = WithSocketConnectionImports;
+jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
+jest.spyOn(socketExports, 'bindSocketEvents').mockReturnValue(mockedSocket);
+jest.spyOn(socketExports, 'unbindSocketEvents').mockReturnValue(mockedSocket);
 
+
+const { default: WithSocketConnection } = WithSocketConnectionImports;
 
 describe('initializing the web socket', () => {
   test('binding socket events', () => {
@@ -27,8 +20,8 @@ describe('initializing the web socket', () => {
     // </WithSocketConnection>
     // );
 
-    // expect(createSocket).toHaveBeenCalled();
-    // expect(bindSocketEvents).toHaveBeenCalledWith(mockedSocket);
+    // expect(socketExports.createSocket).toHaveBeenCalled();
+    // expect(socketExports.bindSocketEvents).toHaveBeenCalledWith(mockedSocket);
   });
 });
 

@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import createSocket, { bindSocketEvents, unbindSocketEvents } from '../socket';
+import { bindSocketEvents, createSocket, unbindSocketEvents } from '../socket';
 import store from '../store';
 
 const SocketContext = createContext(null);

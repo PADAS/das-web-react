@@ -127,7 +127,7 @@ export const unbindSocketEvents = (socket) => {
   socket.removeAllListeners();
 };
 
-const createSocket = (url = SOCKET_URL) => {
+export const createSocket = (url = SOCKET_URL) => {
   const socket = io(url, {
     reconnection: false,
   });
@@ -148,5 +148,3 @@ const createSocket = (url = SOCKET_URL) => {
 
   return socket;
 };
-
-export default createSocket;
