@@ -14,6 +14,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
+import { calcLocationParamStringForUserLocationCoords } from '../../utils/location';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
@@ -58,7 +59,7 @@ const ReportsTab = ({
     let value = {};
 
     if (userLocationCoords) {
-      value.location = `${userLocationCoords.longitude},${userLocationCoords.latitude}`;
+      value.location = calcLocationParamStringForUserLocationCoords(userLocationCoords);
     }
 
     if (isEqual(eventFilter, INITIAL_FILTER_STATE)) {

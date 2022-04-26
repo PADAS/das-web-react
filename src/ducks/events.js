@@ -7,9 +7,11 @@ import { getBboxParamsFromMap, recursivePaginatedQuery } from '../utils/query';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
   uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
+import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
+
 
 export const EVENTS_API_URL = `${API_URL}activity/events/`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
@@ -56,6 +58,10 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 const NEW_EVENT_TYPE = 'new_event';
 const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
+
+const shouldAppendLocationToRequest = (state) => {
+  return userIsGeoPermissionRestricted(state?.data?.user) && !!state?.view?.userLocation?.coords;
+};
 
 export const socketEventData = (payload) => (dispatch) => {
   const { count, event_id, event_data, matches_current_filter, type } = payload;
@@ -175,7 +181,7 @@ export const createEvent = event => (dispatch, getState) => {
   const params = {};
   const state = getState();
 
-  if (state?.view?.userLocation?.coords) {
+  if (shouldAppendLocationToRequest(state)) {
     params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
   }
 
@@ -184,9 +190,7 @@ export const createEvent = event => (dispatch, getState) => {
     payload: event,
   });
 
-  return axios.post(EVENTS_API_URL, event, {
-    params,
-  })
+  return axios.post(EVENTS_API_URL, event, { params })
     .then((response) => {
       dispatch({
         type: CREATE_EVENT_SUCCESS,
@@ -204,12 +208,19 @@ export const createEvent = event => (dispatch, getState) => {
     });
 };
 
-export const addNoteToEvent = (event_id, note) => (dispatch) => {
+export const addNoteToEvent = (event_id, note) => (dispatch, getState) => {
+  const params = {};
+  const state = getState();
+
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
   dispatch({
     type: ADD_EVENT_NOTE_START,
     payload: note,
   });
-  return axios.post(`${EVENT_API_URL}${event_id}/notes/`, note)
+  return axios.post(`${EVENT_API_URL}${event_id}/notes/`, note, { params })
     .then((response) => {
       dispatch({
         type: ADD_EVENT_NOTE_SUCCESS,
@@ -226,16 +237,26 @@ export const addNoteToEvent = (event_id, note) => (dispatch) => {
     });
 };
 
-export const addEventToIncident = (event_id, incident_id) => (_dispatch) => axios.post(`${EVENT_API_URL}${incident_id}/relationships`, {
-  type: 'contains',
-  to_event_id: event_id,
-});
+export const addEventToIncident = (event_id, incident_id) => (_dispatch, getState) => {
+  const params = {};
+  const state = getState();
 
-export const fetchEvent = (event_id, params = {}) =>
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
+
+  return axios.post(`${EVENT_API_URL}${incident_id}/relationships`, {
+    type: 'contains',
+    to_event_id: event_id,
+  }, { params });
+};
+
+export const fetchEvent = (event_id, parameters = {}) =>
   (dispatch, getState) => {
     const state = getState();
+    const params = { ...parameters };
 
-    if (state?.view?.userLocation?.coords) {
+    if (shouldAppendLocationToRequest(state)) {
       params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
     }
 
@@ -248,13 +269,11 @@ export const fetchEvent = (event_id, params = {}) =>
       });
   };
 
-export const deleteFileFromEvent = (event_id, file_id) => axios.delete(`${EVENT_API_URL}${event_id}/files/${file_id}`);
-
 export const updateEvent = (event) => (dispatch, getState) => {
-  const state = getState();
   const params = {};
+  const state = getState();
 
-  if (state?.view?.userLocation?.coords) {
+  if (shouldAppendLocationToRequest(state)) {
     params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
   }
 
@@ -266,9 +285,7 @@ export const updateEvent = (event) => (dispatch, getState) => {
   let eventResults;
   let resp;
 
-  return axios.patch(`${EVENT_API_URL}${event.id}`, event, {
-    params,
-  })
+  return axios.patch(`${EVENT_API_URL}${event.id}`, event, { params })
     .then((response) => {
       eventResults = response.data.data;
       resp = response;
@@ -298,12 +315,12 @@ export const updateEvent = (event) => (dispatch, getState) => {
     });
 };
 
-export const setEventState = (id, eventState) => (dispatch, getState) => {
-  const state = getState();
+export const setEventState = (id, state) => (dispatch, getState) => {
   const params = {};
+  const store = getState();
 
-  if (state?.view?.userLocation?.coords) {
-    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  if (shouldAppendLocationToRequest(store)) {
+    params.location = calcLocationParamStringForUserLocationCoords(store.view.userLocation.coords);
   }
 
   dispatch({
@@ -311,10 +328,8 @@ export const setEventState = (id, eventState) => (dispatch, getState) => {
   });
 
   return axios.patch(`${EVENT_API_URL}${id}/state`, {
-    state: eventState,
-  }, {
-    params,
-  })
+    state,
+  }, { params })
     .then((response) => {
       dispatch({
         type: SET_EVENT_STATE_SUCCESS,
@@ -332,8 +347,14 @@ export const setEventState = (id, eventState) => (dispatch, getState) => {
     });
 };
 
-export const uploadEventFile = (event_id, file, onUploadProgress = (event) => console.log('report file upload update', event)) => (dispatch) => {
+export const uploadEventFile = (event_id, file, onUploadProgress = (event) => console.log('report file upload update', event)) => (dispatch, getState) => {
   const uploadUrl = `${EVENT_API_URL}${event_id}/files/`;
+  const params = {};
+  const state = getState();
+
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
 
   dispatch({
     type: UPLOAD_EVENT_FILES_START,
@@ -350,6 +371,7 @@ export const uploadEventFile = (event_id, file, onUploadProgress = (event) => co
     headers: {
       'Content-Type': 'multipart/form-data',
     },
+    params,
     onUploadProgress,
   }).then((response) => {
     dispatch({
@@ -395,6 +417,10 @@ export const fetchMapEvents = (map, parameters) => async (dispatch, getState) =>
 
   const bbox = map ? await getBboxParamsFromMap(map) : lastKnownBbox;
   const params = { bbox, page_size: 25, ...parameters };
+
+  if (shouldAppendLocationToRequest(state)) {
+    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+  }
 
   const eventFilterParamString = calcEventFilterForRequest({ params });
 
