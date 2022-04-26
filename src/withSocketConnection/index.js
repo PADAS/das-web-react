@@ -13,8 +13,11 @@ const WithSocketContext = (props) => {
     let socketReconnectTimeout;
 
     const instantiate = () => {
+      console.log({ createSocket });
       const socket = createSocket();
+      console.log({ socket });
       const socketWithEvents = bindSocketEvents(socket, store);
+      console.log({ socketWithEvents });
       const failureMessages = ['error', 'disconnect', 'connect_error', 'reconnect_error', 'reconnect_failed'];
 
       console.log('bindSocketEvents called', socket, store);
@@ -41,8 +44,6 @@ const WithSocketContext = (props) => {
 
     return teardown;
   }, []);
-
-  console.log({ websocket });
 
   return !!websocket && <SocketContext.Provider value={websocket}>
     {children}
