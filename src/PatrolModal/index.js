@@ -661,8 +661,8 @@ const PatrolModal = (props) => {
             maxDate={displayEndTime || null}
             showClockIcon={true}
             isAuto={autoStartPatrols}
-            placement='bottom'
-            placeholder='Set Start Time'
+            popperPlacement='bottom'
+            placeholderText='Set Start Time'
             autoCheckLabel='Auto-start patrol'
             onAutoCheckToggle={setAutoStart}
             required={true}
@@ -708,8 +708,8 @@ const PatrolModal = (props) => {
             maxDate={null}
             showClockIcon={true}
             isAuto={autoEndPatrols}
-            placement='top'
-            placeholder='Set End Time'
+            popperPlacement='top'
+            placeholderText='Set End Time'
             startTime={displayStartTime}
             onAutoCheckToggle={setAutoEnd}
             autoCheckLabel='Auto-end patrol'

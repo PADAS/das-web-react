@@ -78,42 +78,65 @@ section.timeBar {
   }
   .timeInput {
     border: none;
-    input {
-      cursor: pointer;
-      max-width: 7.5rem;
+    min-width: 0.8rem;
+    margin-left: 0.5rem;
+
+    svg:last-child {
+      display: none;
     }
-    &:not([class*=empty]) {
+
+    &[class*=empty] {
+      background: white;
+      display: flex;
+      > span {
+        color: $light-blue;
+      }
+      svg * {
+        fill: $light-blue;
+      }
+    }
+
+    &:not([class*=empty]) , &[class*=editingDate] {
       background: none;
-      > input {
+      > span {
         color: white;
         &:hover {
           text-decoration: underline;
         }
       }
       svg * {
-        stroke: white;
-      }
-      svg[class*=clearIcon] {
-        display: none;
-      }
-      svg[class*=clearIcon] * {
         fill: white;
-      }
-      &:not(.editingDate):hover {
-        svg[class*=clearIcon] {
-          display: block;
-        }
-      }
-    }
-    &[class*=empty] {
-      background: white;
-      max-width: 9rem;
-      display: flex;
-      svg * {
-        stroke: $light-blue;
       }
     }
   }
+  
+  .dateTimePickerChildrenWrapper{
+    display: block;
+    
+    .dateTimePickerChildren {
+      align-items: center;
+      display: flex;
+      float: left;
+      justify-content: space-evenly;
+      margin: 0.5rem 0rem;
+      width: 100%;
+    
+      button {
+        padding: 0.065rem 0.37rem;
+      }
+  
+      label {
+        align-items: center;
+        display: flex;
+        margin: 0;
+      }
+      
+      [type=checkbox] {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
   ::placeholder {
     color: $light-blue;
     opacity: 1;
@@ -232,35 +255,25 @@ section.timeBar {
 }
 
 .editingDate:not([class*=react-calendar]) {
-  > input {
-    color: yellow !important;
-    font-style: italic;
+  button {
     width: 7.5rem;
+    background: none;
+
+    > span {     
+      color: yellow !important;
+      font-style: italic;
+    }
   }
+
   &::after {
     color: yellow;
     display: inline;
-    content: "*unsaved";
+    content: "\00a0*unsaved";
   }
   + .scheduledLabel {
     display: none;
   }
 } 
-
-.dateTimePickerChildren {
-  align-items: center;
-  display: flex;
-  justify-content: space-evenly;
-  margin-top: 1rem;
-  label {
-    align-items: center;
-    display: flex;
-    margin: 0;
-  }
-  [type=checkbox] {
-    margin-right: 0.5rem;
-  }
-}
 
 .patrolDetail {
   display: inline-block;

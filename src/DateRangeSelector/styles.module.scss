@@ -18,7 +18,7 @@
     pointer-events: none;
     position: absolute;
     top: 1.5rem;
-    width: 95%;
+    width: 80%;
     z-index: 2;
   }
   [class|=react-calendar] {
@@ -78,10 +78,19 @@
   padding: 0.5rem;
 }
 
+.dateInput {
+  height: 2.3rem;
+  font-size: 0.875rem;
+  svg {
+    display: none;
+  }
+}
+
 .datePopover {
-  left: unset;
-  position: fixed;
-  top: unset;
+  // left: unset;
+  // position: fixed;
+  // top: unset;
+  display: none;
 }
 
 @mixin buttonOpacity {

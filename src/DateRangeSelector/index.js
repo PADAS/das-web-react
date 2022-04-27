@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import endOfDay from 'date-fns/end_of_day';
 import subSeconds from 'date-fns/sub_seconds';
 
+import DatePicker from '../DatePicker';
 import DateTimePickerPopover from '../DateTimePickerPopover';
 import FilterSettingsControl from '../FilterSettingsControl';
 
@@ -68,7 +69,18 @@ const DateRangeSelector = (props) => {
         {startDateLabel && <span>{startDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showStartNullMessage && !endDate && <span className={styles.nullMessage}>{startDateNullMessage}</span>}
-          <DateTimePickerPopover placement={placement} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={true} maxDate={endDate ? endDate : maxDate} value={startDate} onChange={onStartDateChange} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} />
+          <DatePicker
+            placement={placement}
+            required={true}
+            maxDate={endDate ? endDate : maxDate}
+            value={startDate}
+            onChange={onStartDateChange}
+            className={styles.dateInput}
+            calendarClassName={`${styles.datePopover}
+            ${popoverClassName || ''}`}
+            {...DATEPICKER_DEFAULT_CONFIG}
+            {...rest}
+          />
         </span>
       </label>
       <span className={styles.dateRangeArrow}>⇨</span>
@@ -77,7 +89,20 @@ const DateRangeSelector = (props) => {
         {endDateLabel && <span>{endDateLabel}</span>}
         <span onClick={hideFilterSettings}>
           {showEndNullMessage && <span className={styles.nullMessage}>{endDateNullMessage}</span>}
-          <DateTimePickerPopover placement={placement} onClickDay={handleEndDateDayClick} popoverClassName={`${styles.datePopover} ${popoverClassName || ''}`} {...DATEPICKER_DEFAULT_CONFIG} {...rest} required={requireEnd} minDate={startDate} maxDate={hasEndMaxDate ? endMaxDate : maxDate} value={endDate} onChange={handleEndDateChange} />
+          <DatePicker
+            placement={placement}
+            onClickDay={handleEndDateDayClick}
+            className={styles.dateInput}
+            calendarClassName={`${styles.datePopover}
+            ${popoverClassName || ''}`}
+            required={requireEnd}
+            minDate={startDate}
+            maxDate={hasEndMaxDate ? endMaxDate : maxDate}
+            value={endDate}
+            onChange={handleEndDateChange}
+            {...DATEPICKER_DEFAULT_CONFIG}
+            {...rest}
+          />
         </span>
       </label>
     </div>
