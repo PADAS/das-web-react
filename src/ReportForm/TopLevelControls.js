@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { connect } from 'react-redux';
 
-import DateTimePickerPopover from '../DateTimePickerPopover';
+import DatePicker from '../DatePicker';
 import ReportedBySelect from '../ReportedBySelect';
 
 import LocationSelectorInput from '../EditableItem/LocationSelectorInput';
@@ -29,15 +29,16 @@ const ReportFormTopLevelControls = (props) => {
     <label>
       <ClockIcon className={styles.icon} />
       <span>Report time:</span>
-      <DateTimePickerPopover
+      <DatePicker
         {...DATEPICKER_DEFAULT_CONFIG}
-        clearIcon={null}
         value={report.time ? new Date(report.time) : null}
         placement='bottom'
         popoverClassName={styles.datePopover}
         required={true}
         maxDate={new Date()}
-        onChange={onReportDateChange}  />
+        onChange={onReportDateChange}
+        disableCustomInput={true}
+      />
     </label>
     <LocationSelectorInput map={map} location={reportLocation} onLocationChange={onReportLocationChange} />
   </div>;

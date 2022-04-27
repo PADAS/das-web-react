@@ -8,7 +8,7 @@ import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-const StyledDatePicker = ({ value, onChange, customInput = null, children = null, className, calendarIcon, placeholderText, ...rest }) => {
+const StyledDatePicker = ({ value, onChange, disableCustomInput, customInput = null, children = null, className, calendarIcon, placeholderText, ...rest }) => {
 
   return <>
     <DatePicker
@@ -16,14 +16,14 @@ const StyledDatePicker = ({ value, onChange, customInput = null, children = null
       onChange={onChange}
       showPopperArrow={false}
       timeInputLabel="Time:"
-      customInput={
+      customInput={ !disableCustomInput ?
         customInput || <CustomDefaultInput
         value={value}
         onClick={onChange}
         calendarIcon={calendarIcon}
         className={className}
         placeholderText={placeholderText}
-      />}
+      /> : null}
       {...rest}
       >
       {children}
