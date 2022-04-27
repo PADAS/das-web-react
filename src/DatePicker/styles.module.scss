@@ -3,12 +3,16 @@
 
 .datePickerCustomInput {
   @include defaultTextInput;
-  font-size: 14px;
+  font-size: 0.75rem;
   display: flex;
   align-items: center;
   min-width: 10.625rem;
   justify-content: space-between;
   padding: 0.25rem 0.5rem;
+
+  &:focus {
+    outline: none;
+  }
 
   > svg {
     &:first-child {
@@ -20,6 +24,12 @@
     &:not(:first-child) {
       margin-left: 0.625rem;
       color: $secondary-medium-light-gray;
+    }
+  }
+
+  > span {
+    &[class*=placeholder] {
+      color: $light-gray;
     }
   }
 }
