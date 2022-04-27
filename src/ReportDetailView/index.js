@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useContext, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
 import { ReactComponent as NoteIcon } from '../common/images/icons/note.svg';
 import { ReactComponent as PencilWritingIcon } from '../common/images/icons/pencil-writing.svg';
 
+import { createNewReportForEventType } from '../utils/events';
+import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
+import { getCurrentIdFromURL } from '../utils/navigation';
 import { hideDetailView } from '../ducks/side-bar';
+import { ReportsTabContext } from '../SideBar/ReportsTab';
 
 import Header from './Header';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const NAVIGATION_DETAILS_EVENT_KEY = 'details';
 const NAVIGATION_NOTES_EVENT_KEY = 'notes';
@@ -22,25 +29,55 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 
 const ReportDetailView = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const { data: { formProps = {}, report } } = useSelector((state) => state.view.sideBar);
+  const { loadingEvents } = useContext(ReportsTabContext);
+
+  const itemId = getCurrentIdFromURL(location.pathname);
+
+  const { data: sideBarData } = useSelector((state) => state.view.sideBar);
+  const eventStore = useSelector((state) => state.data.eventStore);
+  const navigationData = useSelector((state) => state.data.navigation);
+
+  const [reportForm, setReportForm] = useState(null);
+  const [formProps, setFormProps] = useState(null);
+  const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
+
+  const newReport = useMemo(
+    () => searchParams.reportType ? createNewReportForEventType(searchParams.reportType, searchParams.reportData) : null,
+    [searchParams]
+  );
+
+  useEffect(() => {
+    if (!loadingEvents && reportForm?.id !== itemId) {
+      if (ENABLE_URL_NAVIGATION) {
+        if (itemId === 'new') {
+          setReportForm(newReport);
+        } else if (eventStore[itemId]) {
+          setReportForm(eventStore[itemId]);
+        } else {
+          navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+        }
+        setFormProps(navigationData?.formProps || {});
+      } else {
+        setFormProps(sideBarData?.formProps || {});
+        setReportForm(sideBarData.report);
+      }
+    }
+  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, sideBarData, itemId, newReport]);
+
   const {
     navigateRelationships,
     relationshipButtonDisabled,
     onSaveError,
     onSaveSuccess,
     hidePatrols,
-  } = formProps;
+  } = formProps || {};
 
-  const [reportForm, setReportForm] = useState({ ...report });
-  const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
-
-  return <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
-    <Header
-      report={report}
-      setTitle={(value) => setReportForm({ ...reportForm, title: value })}
-      title={reportForm.title}
-    />
+  return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
+    <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />
 
     <Tab.Container activeKey={tab} onSelect={setTab}>
       <div className={styles.body}>
@@ -115,7 +152,7 @@ const ReportDetailView = () => {
               {tab === NAVIGATION_DETAILS_EVENT_KEY && <>
                 <Button
                   className={styles.cancelButton}
-                  onClick={() => dispatch(hideDetailView())}
+                  onClick={() => ENABLE_URL_NAVIGATION ? navigate(`/${TAB_KEYS.REPORTS}`) : dispatch(hideDetailView())}
                   type="button"
                   variant="secondary"
                 >
@@ -135,7 +172,7 @@ const ReportDetailView = () => {
         </div>
       </div>
     </Tab.Container>
-  </div>;
+  </div> : null;
 };
 
 export default ReportDetailView;

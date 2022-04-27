@@ -53,7 +53,7 @@ setClientReleaseIdentifier();
 
 const persistor = persistStore(store);
 
-export const PathNormalizationRouteComponent = ({ location }) => {
+const PathNormalizationRouteComponent = ({ location }) => {
   const externalRedirectRef = useRef(null);
 
   useEffect(() => {
@@ -76,15 +76,6 @@ ReactDOM.render(
 
         <Suspense fallback={<LoadingOverlay />}>
           <Routes>
-            <Route
-              path={REACT_APP_ROUTE_PREFIX}
-              element={<RequireEulaConfirmation>
-                <RequireAccessToken>
-                  <AppWithTracker />
-                </RequireAccessToken>
-              </RequireEulaConfirmation>}
-            />
-
             <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
 
             <Route
@@ -94,7 +85,16 @@ ReactDOM.render(
               </RequireAccessToken>}
             />
 
-            <Route element={<PathNormalizationRouteComponent />} />
+            <Route
+              path={`${REACT_APP_ROUTE_PREFIX}*`}
+              element={<RequireEulaConfirmation>
+                <RequireAccessToken>
+                  <AppWithTracker />
+                </RequireAccessToken>
+              </RequireEulaConfirmation>}
+            />
+
+            <Route path="*" element={<PathNormalizationRouteComponent />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

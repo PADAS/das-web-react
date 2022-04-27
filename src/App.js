@@ -4,6 +4,7 @@ import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { fetchMaps } from './ducks/maps';
@@ -20,6 +21,7 @@ import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
+import { getCurrentTabFromURL } from './utils/navigation';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -33,7 +35,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 import './App.scss';
 import { showToast } from './utils/toast';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
@@ -48,7 +50,13 @@ const bindDirectMapEventing = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
+    sidebarOpen: sidebarOpen_OLD, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
+
+  const location = useLocation();
+
+  const tab = getCurrentTabFromURL(location.pathname);
+  let sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
+
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);

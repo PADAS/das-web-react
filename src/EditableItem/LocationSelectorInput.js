@@ -2,13 +2,17 @@ import React, { memo, forwardRef, useCallback, useEffect, useMemo, useRef, useSt
 import PropTypes from 'prop-types';
 import debounceRender from 'react-debounce-render';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
+import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { setModalVisibilityState } from '../ducks/modals';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString } from '../utils/location';
+import { getCurrentTabFromURL } from '../utils/navigation';
+import { hideSideBar, showSideBar } from '../ducks/side-bar';
 import { trackEventFactory, EVENT_REPORT_CATEGORY } from '../utils/analytics';
 
 import GpsInput from '../GpsInput';
@@ -19,6 +23,8 @@ import TextCopyBtn from '../TextCopyBtn';
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
+
+const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -52,7 +58,28 @@ const PopoverComponent = memo(forwardRef((props, ref) => {
 }));
 
 const LocationSelectorInput = (props) => {
-  const { copyable = true, label, popoverClassName, iconPlacement, location, map, onLocationChange, placeholder, updateUserPreferences, setModalVisibilityState, sidebarOpen, gpsFormat, showUserLocation } = props;
+  const {
+    copyable = true,
+    label,
+    popoverClassName,
+    iconPlacement,
+    location,
+    map,
+    onLocationChange,
+    placeholder,
+    updateUserPreferences,
+    setModalVisibilityState,
+    sidebarOpen: sidebarOpen_OLD,
+    gpsFormat,
+    showUserLocation,
+    hideSideBar,
+    showSideBar,
+  } = props;
+
+  const routerLocation = useLocation();
+
+  const tab = getCurrentTabFromURL(routerLocation.pathname);
+  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
@@ -86,12 +113,15 @@ const LocationSelectorInput = (props) => {
   const onLocationSelectFromMapStart = useCallback(() => {
     sidebarOpenBeforeGpsSelectStart.current = !!sidebarOpen;
     setModalVisibilityState(false);
-    updateUserPreferences({ sidebarOpen: false });
-  }, [setModalVisibilityState, sidebarOpen, updateUserPreferences]);
+
+    if (ENABLE_URL_NAVIGATION) hideSideBar();
+    else updateUserPreferences({ sidebarOpen: false });
+  }, [setModalVisibilityState, sidebarOpen, updateUserPreferences, hideSideBar]);
 
   const onLocationSelectFromMapCancel = () => {
     if (sidebarOpenBeforeGpsSelectStart.current) {
-      updateUserPreferences({ sidebarOpen: true });
+      if (ENABLE_URL_NAVIGATION) showSideBar();
+      else updateUserPreferences({ sidebarOpen: true });
     }
 
     setModalVisibilityState(true);
@@ -109,14 +139,15 @@ const LocationSelectorInput = (props) => {
 
   const onLocationSelectFromMap = useCallback((event) => {
     if (sidebarOpenBeforeGpsSelectStart.current) {
-      updateUserPreferences({ sidebarOpen: true });
+      if (ENABLE_URL_NAVIGATION) showSideBar();
+      else updateUserPreferences({ sidebarOpen: true });
     }
 
     const { lngLat: { lat, lng } } = event;
     onLocationChange([lng, lat]);
     setModalVisibilityState(true);
     hideGpsPopover();
-  }, [hideGpsPopover, onLocationChange, setModalVisibilityState, updateUserPreferences]);
+  }, [hideGpsPopover, onLocationChange, setModalVisibilityState, updateUserPreferences, showSideBar]);
 
   const handleEscapePress = useCallback((event) => {
     const { key } = event;
@@ -183,6 +214,8 @@ const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsForma
 const mapDispatchToProps = (dispatch) => ({
   setModalVisibilityState: (state) => dispatch(setModalVisibilityState(state)),
   updateUserPreferences: (preference) => dispatch(updateUserPreferences(preference)),
+  hideSideBar: () => dispatch(hideSideBar()),
+  showSideBar: () => dispatch(showSideBar()),
 });
 
 export default debounceRender(connect(mapStateToProps, mapDispatchToProps)(memo(LocationSelectorInput)));

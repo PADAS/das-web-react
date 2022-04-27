@@ -1,6 +1,7 @@
 import React, { Fragment, memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -17,6 +18,7 @@ import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REP
 import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
+import { setData } from '../ducks/navigation';
 import { showDetailView } from '../ducks/side-bar';
 
 import EventIcon from '../EventIcon';
@@ -38,7 +40,12 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const {
+  ENABLE_PATROL_NEW_UI,
+  ENABLE_REPORT_NEW_UI,
+  ENABLE_UFA_NAVIGATION_UI,
+  ENABLE_URL_NAVIGATION,
+} = DEVELOPMENT_FEATURE_FLAGS;
 
 const ACTIVE_STATES = ['active', 'new'];
 
@@ -48,7 +55,9 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, formProps = {}, removeModal, onSaveSuccess, onSaveError,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport,
-    fetchPatrol, showSideBarDetailView } = props;
+    fetchPatrol, setNavigationData, showSideBarDetailView } = props;
+
+  const navigate = useNavigate();
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -322,7 +331,12 @@ const ReportForm = (props) => {
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
+        if (ENABLE_URL_NAVIGATION) {
+          setNavigationData({ formProps });
+          navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+        } else {
+          showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
+        }
       } else {
         openModalForReport(data, map, formProps);
       }
@@ -378,7 +392,11 @@ const ReportForm = (props) => {
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        if (ENABLE_URL_NAVIGATION) {
+          navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+        } else {
+          showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        }
       } else {
         openModalForReport(data, map);
       }
@@ -393,6 +411,7 @@ const ReportForm = (props) => {
     reportTracker,
     saveChanges,
     showSideBarDetailView,
+    navigate,
   ]);
 
   const onAddToExistingIncident = useCallback(async (incident) => {
@@ -403,7 +422,11 @@ const ReportForm = (props) => {
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        if (ENABLE_URL_NAVIGATION) {
+          navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+        } else {
+          showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+        }
       } else {
         openModalForReport(data, map);
       }
@@ -417,6 +440,7 @@ const ReportForm = (props) => {
     reportTracker,
     saveChanges,
     showSideBarDetailView,
+    navigate,
   ]);
 
   const onAddToPatrol = useCallback(async (patrol) => {
@@ -431,13 +455,17 @@ const ReportForm = (props) => {
 
     removeModal();
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
-      return showSideBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+      if (ENABLE_URL_NAVIGATION) {
+        return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
+      } else {
+        return showSideBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
+      }
     }
 
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showSideBarDetailView]);
+  }, [fetchPatrol, is_collection, map, removeModal, reportTracker, saveChanges, showSideBarDetailView, navigate]);
 
   const onStartAddToIncident = useCallback(() => {
     reportTracker.track('Click \'Add to Incident\'');
@@ -464,7 +492,11 @@ const ReportForm = (props) => {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
               if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-                showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                if (ENABLE_URL_NAVIGATION) {
+                  return navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+                } else {
+                  showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                }
               } else {
                 openModalForReport(data, map);
               }
@@ -479,7 +511,11 @@ const ReportForm = (props) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
               if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-                showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                if (ENABLE_URL_NAVIGATION) {
+                  navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+                } else {
+                  showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
+                }
               } else {
                 openModalForReport(data, map);
               }
@@ -602,6 +638,7 @@ export default memo(
         fetchEvent: (...args) => fetchEvent(...args),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
+        setNavigationData: setData,
         showSideBarDetailView: showDetailView,
       }
     )

@@ -27,6 +27,7 @@ import { getFeatureSetFeatureCollectionsByType } from '../selectors';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 import { findAnalyzerIdByChildFeatureId, getAnalyzerFeaturesAtPoint } from '../utils/analyzers';
+import { getCurrentTabFromURL } from '../utils/navigation';
 import { analyzerFeatures, getAnalyzerFeatureCollectionsByType } from '../selectors';
 import {
   updateTrackState,
@@ -87,7 +88,12 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { ENABLE_NEW_CLUSTERING, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const {
+  ENABLE_NEW_CLUSTERING,
+  ENABLE_REPORT_NEW_UI,
+  ENABLE_UFA_NAVIGATION_UI,
+  ENABLE_URL_NAVIGATION,
+} = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -144,6 +150,8 @@ const Map = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const tab = getCurrentTabFromURL(location.pathname);
 
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
@@ -283,7 +291,11 @@ const Map = ({
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
 
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      if (ENABLE_URL_NAVIGATION) {
+        navigate(`/reports/${event.id}`);
+      } else {
+        showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      }
     } else {
       openModalForReport(event, map);
     }
@@ -484,7 +496,8 @@ const Map = ({
     hideUnpinnedTrackLayers(map, event);
 
     if (userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
-      updateUserPreferences({ sidebarOpen: false });
+      if (ENABLE_URL_NAVIGATION) navigate('/');
+      else updateUserPreferences({ sidebarOpen: false });
     }
   });
 
@@ -677,7 +690,7 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={!userPreferences.sidebarOpen}>
+      <DelayedUnmount isMounted={ENABLE_URL_NAVIGATION ? !tab : !userPreferences.sidebarOpen}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>

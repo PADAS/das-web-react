@@ -1,14 +1,14 @@
-import React, { useState, useCallback, useEffect, useMemo, memo } from 'react';
+import React, { createContext, useState, useCallback, useEffect, useMemo, memo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
 import { getFeedEvents } from '../../selectors';
 import { openModalForReport } from '../../utils/events';
-
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
 import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
@@ -27,7 +27,9 @@ import ReportDetailView from '../../ReportDetailView';
 
 import styles from './../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+
+export const ReportsTabContext = createContext();
 
 const feedTracker = trackEventFactory(FEED_CATEGORY);
 
@@ -42,8 +44,10 @@ const ReportsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
+  const navigate = useNavigate();
+
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
-  const [loadingEvents, setEventLoadState] = useState(false);
+  const [loadingEvents, setEventLoadState] = useState(true);
   const [feedEvents, setFeedEvents] = useState([]);
 
   const onFeedSortChange = useCallback((newVal) => {
@@ -87,7 +91,11 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      if (ENABLE_URL_NAVIGATION) {
+        navigate(event.id);
+      } else {
+        showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
+      }
     } else {
       openModalForReport(event, map);
     }
@@ -119,8 +127,13 @@ const ReportsTab = ({
   }, [events.results, optionalFeedProps.exclude_contained]);
 
   return <>
-    {sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView &&
-      <ReportDetailView />}
+    {ENABLE_URL_NAVIGATION
+      ? <ReportsTabContext.Provider value={{ loadingEvents }}>
+        <Outlet />
+      </ReportsTabContext.Provider>
+      : sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView && <ReportDetailView
+        loadingEvents={loadingEvents}
+      />}
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>

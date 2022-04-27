@@ -13,6 +13,7 @@ import React, {
 import { cloneDeep } from 'lodash-es';
 import isEqual from 'react-fast-compare';
 import isUndefined from 'lodash/isUndefined';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { MapContext } from 'react-mapbox-gl';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
@@ -34,6 +35,7 @@ import { hideDetailView, openTab } from '../ducks/side-bar';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
 import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
+import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
@@ -45,6 +47,8 @@ import ClearAllControl from '../ClearAllControl';
 import ErrorBoundary from '../ErrorBoundary';
 import FeatureLayerList from '../FeatureLayerList';
 import MapLayerFilter from '../MapLayerFilter';
+import PatrolDetailView from '../PatrolDetailView';
+import ReportDetailView from '../ReportDetailView';
 import ReportMapControl from '../ReportMapControl';
 import SubjectGroupList from '../SubjectGroupList';
 
@@ -60,7 +64,7 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
@@ -86,20 +90,28 @@ const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 
 const SideBar = ({ map, onHandleClick }) => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
-  const sidebarOpen = useSelector((state) => state.view.userPreferences.sidebarOpen);
+  const sidebarOpen_OLD = useSelector((state) => state.view.userPreferences.sidebarOpen);
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const socket = useContext(SocketContext);
 
+  const tab = getCurrentTabFromURL(location.pathname);
+  const itemId = getCurrentIdFromURL(location.pathname);
+
+  const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
+  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!currentTab && sideBar.showSideBar : sidebarOpen_OLD;
+
   const patrolFetchRef = useRef(null);
 
-  const [loadingPatrols, setPatrolLoadState] = useState(false);
+  const [loadingPatrols, setPatrolLoadState] = useState(true);
   const [showEventsBadge, setShowEventsBadge] = useState(false);
 
   const showPatrols = useMemo(
@@ -115,7 +127,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [patrolFilter]);
 
   const tabTitle = useMemo(() => {
-    switch (sideBar.currentTab) {
+    switch (currentTab) {
     case TAB_KEYS.REPORTS:
       return 'Reports';
     case TAB_KEYS.PATROLS:
@@ -125,7 +137,7 @@ const SideBar = ({ map, onHandleClick }) => {
     default:
       return '';
     }
-  }, [sideBar.currentTab]);
+  }, [currentTab]);
 
   const fetchAndLoadPatrolData = useCallback(() => {
     patrolFetchRef.current = dispatch(fetchPatrols());
@@ -139,31 +151,41 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [dispatch]);
 
   const onSelectTab = useCallback((clickedSidebarTab) => {
-    if (clickedSidebarTab === sideBar.currentTab && sidebarOpen) {
-      dispatch(updateUserPreferences({ sidebarOpen: false }));
+    if (clickedSidebarTab === currentTab && sidebarOpen) {
+      if (ENABLE_URL_NAVIGATION) navigate('/');
+      else dispatch(updateUserPreferences({ sidebarOpen: false }));
     } else {
-      dispatch(openTab(clickedSidebarTab));
+      if (ENABLE_URL_NAVIGATION) navigate(`/${clickedSidebarTab}`);
+      else dispatch(openTab(clickedSidebarTab));
     }
-  }, [dispatch, sidebarOpen, sideBar.currentTab]);
+  }, [dispatch, sidebarOpen, currentTab, navigate]);
 
   const handleCloseSideBar = useCallback(() => {
-    dispatch(updateUserPreferences({ sidebarOpen: false }));
-  }, [dispatch]);
+    if (ENABLE_URL_NAVIGATION) navigate('/');
+    else dispatch(updateUserPreferences({ sidebarOpen: false }));
+  }, [dispatch, navigate]);
 
   const onClickBackFromDetailView = useCallback(() => {
-    dispatch(hideDetailView());
-  }, [dispatch]);
+    if (ENABLE_URL_NAVIGATION) navigate(`/${currentTab}`);
+    else dispatch(hideDetailView());
+  }, [dispatch, currentTab, navigate]);
 
   useEffect(() => {
-    if (showEventsBadge && sidebarOpen && sideBar.currentTab === TAB_KEYS.REPORTS) {
+    if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
+      navigate('/');
+    }
+  }, [currentTab, navigate]);
+
+  useEffect(() => {
+    if (showEventsBadge && sidebarOpen && currentTab === TAB_KEYS.REPORTS) {
       setShowEventsBadge(false);
     }
-  }, [showEventsBadge, sidebarOpen, sideBar.currentTab]);
+  }, [showEventsBadge, sidebarOpen, currentTab]);
 
   useEffect(() => {
     if (socket) {
       const updateEventsBadge = ({ matches_current_filter }) => {
-        if (matches_current_filter && (sideBar.currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
+        if (matches_current_filter && (currentTab !== TAB_KEYS.REPORTS || !sidebarOpen)) {
           setShowEventsBadge(true);
         }
       };
@@ -176,7 +198,7 @@ const SideBar = ({ map, onHandleClick }) => {
         socket.off('update_event', updateEventFnRef);
       };
     }
-  }, [sidebarOpen, sideBar.currentTab, socket]);
+  }, [sidebarOpen, currentTab, socket]);
 
   // fetch patrols if filter itself has changed
   useEffect(() => {
@@ -194,10 +216,10 @@ const SideBar = ({ map, onHandleClick }) => {
   }, [fetchAndLoadPatrolData, patrolFilterParams, showPatrols]);
 
   useEffect(() => {
-    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(sideBar.currentTab)) {
-      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, sideBar.currentTab);
+    if (ENABLE_UFA_NAVIGATION_UI && VALID_ADD_REPORT_TYPES.includes(currentTab)) {
+      window.localStorage.setItem(ADD_BUTTON_STORAGE_KEY, currentTab);
     }
-  }, [sideBar.currentTab]);
+  }, [currentTab]);
 
   /* --- OLD NAVIGATION STUFF STARTS HERE --- */
   const eventFilter = useSelector((state) => state.data.eventFilter);
@@ -303,93 +325,190 @@ const SideBar = ({ map, onHandleClick }) => {
   }
   /* --- OLD NAVIGATION STUFF ENDS HERE --- */
 
-  return <ErrorBoundary>
-    <aside className={styles.sideBar}>
-      <Tab.Container activeKey={sideBar.currentTab} onSelect={onSelectTab}>
-        <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-          <Nav.Item>
-            <Nav.Link eventKey={TAB_KEYS.REPORTS}>
-              <DocumentIcon />
-              {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
-              <span>Reports</span>
-            </Nav.Link>
-          </Nav.Item>
+  if (!ENABLE_URL_NAVIGATION) {
+    return <ErrorBoundary>
+      <aside className={styles.sideBar}>
+        <Tab.Container activeKey={currentTab} onSelect={onSelectTab}>
+          <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
+            <Nav.Item>
+              <Nav.Link eventKey={TAB_KEYS.REPORTS}>
+                <DocumentIcon />
+                {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+                <span>Reports</span>
+              </Nav.Link>
+            </Nav.Item>
 
-          {showPatrols && <Nav.Item>
-            <Nav.Link eventKey={TAB_KEYS.PATROLS}>
-              <PatrolIcon />
-              <span>Patrols</span>
-            </Nav.Link>
-          </Nav.Item>}
+            {showPatrols && <Nav.Item>
+              <Nav.Link eventKey={TAB_KEYS.PATROLS}>
+                <PatrolIcon />
+                <span>Patrols</span>
+              </Nav.Link>
+            </Nav.Item>}
 
-          <Nav.Item>
-            <Nav.Link eventKey={TAB_KEYS.LAYERS}>
-              <LayersIcon />
-              <span>Map Layers</span>
-            </Nav.Link>
-          </Nav.Item>
-        </Nav>
+            <Nav.Item>
+              <Nav.Link eventKey={TAB_KEYS.LAYERS}>
+                <LayersIcon />
+                <span>Map Layers</span>
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
 
-        <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
-          <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
-            <div className={styles.header}>
-              <div
-                className={sideBar.currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
-                data-testid="sideBar-addReportButton"
-              >
-                {sideBar.showDetailView ?
-                  <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
-                    <ArrowLeftIcon />
-                  </button>
-                  :
-                  <AddReport
-                    className={styles.addReport}
-                    variant="secondary"
-                    formProps={{ hidePatrols: sideBar.currentTab !== TAB_KEYS.PATROLS }}
-                    hideReports={sideBar.currentTab !== TAB_KEYS.REPORTS}
-                    popoverPlacement="bottom"
-                    showLabel={false}
-                    type={sideBar.currentTab}
-                  />
-                }
+          <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+            <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
+              <div className={styles.header}>
+                <div
+                  className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
+                  data-testid="sideBar-addReportButton"
+                >
+                  {sideBar.showDetailView ?
+                    <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
+                      <ArrowLeftIcon />
+                    </button>
+                    :
+                    <AddReport
+                      className={styles.addReport}
+                      variant="secondary"
+                      formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
+                      hideReports={currentTab !== TAB_KEYS.REPORTS}
+                      popoverPlacement="bottom"
+                      showLabel={false}
+                      type={currentTab}
+                    />
+                  }
+                </div>
+
+                <h3>{tabTitle}</h3>
+
+                <button
+                  data-testid="sideBar-closeButton"
+                  onClick={handleCloseSideBar}
+                >
+                  <CrossIcon />
+                </button>
               </div>
 
-              <h3>{tabTitle}</h3>
+              <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
+                <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
+              </Tab.Pane>
 
-              <button
-                data-testid="sideBar-closeButton"
-                onClick={handleCloseSideBar}
-              >
-                <CrossIcon />
-              </button>
+              {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
+                <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
+              </Tab.Pane>}
+
+              <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
+                <ErrorBoundary>
+                  <MapLayerFilter />
+                  <div className={styles.mapLayers}>
+                    <ReportMapControl/>
+                    <SubjectGroupList map={map} />
+                    <FeatureLayerList map={map} />
+                    <AnalyzerLayerList map={map} />
+                    <div className={styles.noItems}>No items to display.</div>
+                  </div>
+                  <div className={styles.mapLayerFooter}>
+                    <ClearAllControl map={map} />
+                  </div>
+                </ErrorBoundary>
+              </Tab.Pane>
+            </Tab.Content>
+          </div>
+        </Tab.Container>
+      </aside>
+    </ErrorBoundary>;
+  }
+
+  return <ErrorBoundary>
+    <aside className={styles.sideBar}>
+      <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
+        <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
+          <DocumentIcon />
+          {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
+          <span>Reports</span>
+        </Link>
+
+        {showPatrols && <Link className={styles.navItem} to={currentTab === TAB_KEYS.PATROLS ? '' : 'patrols'}>
+          <PatrolIcon />
+          <span>Patrols</span>
+        </Link>}
+
+        <Link className={styles.navItem} to={currentTab === TAB_KEYS.LAYERS ? '' : 'layers'}>
+          <LayersIcon />
+          <span>Map Layers</span>
+        </Link>
+      </div>
+
+      <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
+        <div className={`${styles.tab}  ${sidebarOpen ? 'open' : ''}`}>
+          <div className={styles.header}>
+            <div className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''} data-testid="sideBar-addReportButton">
+              {!!itemId
+                ? <button
+                  className={styles.backButton}
+                  type='button'
+                  onClick={onClickBackFromDetailView}
+                  data-testid="sideBar-backDetailViewButton"
+                >
+                  <ArrowLeftIcon />
+                </button>
+                : <AddReport
+                  className={styles.addReport}
+                  variant="secondary"
+                  formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
+                  hideReports={currentTab !== TAB_KEYS.REPORTS}
+                  popoverPlacement="bottom"
+                  showLabel={false}
+                  type={currentTab}
+                />}
             </div>
 
-            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-              <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
-            </Tab.Pane>
+            <h3>{tabTitle}</h3>
 
-            {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-              <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-            </Tab.Pane>}
+            <button data-testid="sideBar-closeButton" onClick={handleCloseSideBar}>
+              <CrossIcon />
+            </button>
+          </div>
 
-            <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
-              <ErrorBoundary>
-                <MapLayerFilter />
-                <div className={styles.mapLayers}>
-                  <ReportMapControl/>
-                  <SubjectGroupList map={map} />
-                  <FeatureLayerList map={map} />
-                  <AnalyzerLayerList map={map} />
-                  <div className={styles.noItems}>No items to display.</div>
-                </div>
-                <div className={styles.mapLayerFooter}>
-                  <ClearAllControl map={map} />
-                </div>
-              </ErrorBoundary>
-            </Tab.Pane>
-          </Tab.Content>
+          <div className={styles.tabBody}>
+            <Routes>
+              <Route
+                path="reports"
+                element={<ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>}
+              >
+                <Route path=":id" element={<ReportDetailView />} />
+              </Route>
+
+              <Route
+                path="patrols"
+                element={<PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />}
+              >
+                <Route
+                  path=":id"
+                  element={<PatrolDetailView className={styles.patrolDetailView} />}
+                />
+              </Route>
+
+              <Route
+                path="layers"
+                element={<ErrorBoundary>
+                  <MapLayerFilter />
+
+                  <div className={styles.mapLayers}>
+                    <ReportMapControl/>
+                    <SubjectGroupList map={map} />
+                    <FeatureLayerList map={map} />
+                    <AnalyzerLayerList map={map} />
+                    <div className={styles.noItems}>No items to display.</div>
+                  </div>
+
+                  <div className={styles.mapLayerFooter}>
+                    <ClearAllControl map={map} />
+                  </div>
+                </ErrorBoundary>}
+              />
+            </Routes>
+          </div>
         </div>
-      </Tab.Container>
+      </div>
     </aside>
   </ErrorBoundary>;
 };

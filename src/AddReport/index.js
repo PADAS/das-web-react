@@ -6,6 +6,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Select from 'react-select';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
@@ -14,6 +15,7 @@ import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
+import { setData } from '../ducks/navigation';
 import { showDetailView } from '../ducks/side-bar';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
@@ -31,7 +33,12 @@ import {
 
 import styles from './styles.module.scss';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const {
+  ENABLE_PATROL_NEW_UI,
+  ENABLE_REPORT_NEW_UI,
+  ENABLE_UFA_NAVIGATION_UI,
+  ENABLE_URL_NAVIGATION,
+} = DEVELOPMENT_FEATURE_FLAGS;
 
 export const STORAGE_KEY = 'selectedAddReportTab';
 
@@ -175,7 +182,8 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showSideBarDetailView }) => {
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showSideBarDetailView, setNavigationData }) => {
+  const navigate = useNavigate();
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -239,10 +247,18 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
       if (isPatrol) {
         setPopoverState(false);
         if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
-          return showSideBarDetailView(
-            TAB_KEYS.PATROLS,
-            createNewPatrolForPatrolType(reportType, reportData)
-          );
+          if (ENABLE_URL_NAVIGATION) {
+            setNavigationData({ reportData });
+            return navigate({
+              pathname: `${TAB_KEYS.PATROLS}/new`,
+              search: `?reportType=${reportType.id}`,
+            });
+          } else {
+            return showSideBarDetailView(
+              TAB_KEYS.PATROLS,
+              createNewPatrolForPatrolType(reportType, reportData)
+            );
+          }
         }
         return openModalForPatrol(createNewPatrolForPatrolType(reportType, reportData));
       }
@@ -252,8 +268,16 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     const newReport = createNewReportForEventType(reportType, reportData);
 
-    if (DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI && DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI) {
-      showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
+    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      if (ENABLE_URL_NAVIGATION) {
+        setNavigationData({ formProps, reportData });
+        navigate({
+          pathname: `${TAB_KEYS.REPORTS}/new`,
+          search: `?reportType=${reportType.id}`,
+        });
+      } else {
+        showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
+      }
     } else {
       openModalForReport(newReport, map, formProps);
     }
@@ -266,6 +290,8 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     patrolsEnabled,
     reportData,
     showSideBarDetailView,
+    navigate,
+    setNavigationData,
   ]);
 
   return hasEventCategories &&
@@ -298,7 +324,10 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps, { showSideBarDetailView: showDetailView })(memo(AddReport));
+export default connect(
+  mapStateToProps,
+  { setNavigationData: setData, showSideBarDetailView: showDetailView }
+)(memo(AddReport));
 
 AddReport.defaultProps = {
   analyticsMetadata: {

@@ -38,7 +38,6 @@ const LoginPage = ({
 
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
-
     postAuth({ username, password, hasError, error, errorMessage })
       .then(() => navigate({ pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
       .catch((error) => {
