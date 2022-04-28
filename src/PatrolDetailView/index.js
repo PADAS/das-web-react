@@ -48,42 +48,45 @@ const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
 
   const { loadingPatrols } = useContext(PatrolsTabContext);
 
-  const itemId = getCurrentIdFromURL(location.pathname);
+  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
+  const patrolTypeId = useMemo(() => searchParams.get('patrolType'), [searchParams]);
 
   const patrol_OLD = useSelector((state) => state.data.patrolStore[state.view.sideBar.data?.id]
     || state.view.sideBar.data);
   const patrolStore = useSelector((state) => state.data.patrolStore);
   const navigationData = useSelector((state) => state.data.navigation);
-
-  const newPatrol = useMemo(
-    () => searchParams.reportType
-      ? createNewPatrolForPatrolType(searchParams.reportType, navigationData?.reportData || {})
-      : null,
-    [navigationData, searchParams]
+  const patrolType = useSelector(
+    (state) => state.data.patrolTypes.find((patrolType) => patrolType.id === patrolTypeId)
   );
 
   const state = useSelector((state) => state);
 
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
-
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
+
+  const newPatrol = useMemo(
+    () => patrolType ? createNewPatrolForPatrolType(patrolType, navigationData?.patrolData) : null,
+    [navigationData?.patrolData, patrolType]
+  );
 
   useEffect(() => {
     const isNewPatrol = itemId === 'new';
 
     const idHasChanged = patrolDataSelector?.patrol?.id !== itemId;
-    const newPatrolTypeHasChanged = patrolDataSelector?.patrol?.icon_id !== searchParams.reportType?.icon_id;
+    const newPatrolTypeHasChanged = patrolDataSelector?.patrol?.icon_id !== patrolType?.icon_id;
     const selectedPatrolHasChanged = isNewPatrol ? newPatrolTypeHasChanged : idHasChanged;
+
+    if (ENABLE_URL_NAVIGATION && isNewPatrol && !patrolType) {
+      navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
+    }
 
     if (!loadingPatrols && selectedPatrolHasChanged) {
       let patrol;
       if (ENABLE_URL_NAVIGATION) {
-        if (isNewPatrol) {
-          patrol = newPatrol;
-        } else if (patrolStore[itemId]) {
-          patrol = patrolStore[itemId];
-        } else {
+        if (!isNewPatrol && !patrolStore[itemId]) {
           navigate(`/${TAB_KEYS.PATROLS}`, { replace: true });
+        } else {
+          patrol = isNewPatrol ? newPatrol : patrolStore[itemId];
         }
       } else {
         patrol = patrol_OLD;
@@ -100,7 +103,8 @@ const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
     patrolStore,
     state,
     itemId,
-    searchParams.reportType?.icon_id,
+    searchParams.patrolType?.icon_id,
+    patrolType,
   ]);
 
   // TODO: test that a user without permissions can't do any update actions once the implementation is finished

@@ -35,30 +35,32 @@ const ReportDetailView = () => {
 
   const { loadingEvents } = useContext(ReportsTabContext);
 
-  const itemId = getCurrentIdFromURL(location.pathname);
+  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
+  const reportTypeId = useMemo(() => searchParams.get('reportType'), [searchParams]);
 
   const { data: sideBarData } = useSelector((state) => state.view.sideBar);
   const eventStore = useSelector((state) => state.data.eventStore);
   const navigationData = useSelector((state) => state.data.navigation);
+  const reportType = useSelector(
+    (state) => state.data.eventTypes.find((eventType) => eventType.id === reportTypeId)
+  );
 
   const [reportForm, setReportForm] = useState(null);
   const [formProps, setFormProps] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
   const newReport = useMemo(
-    () => searchParams.reportType ? createNewReportForEventType(searchParams.reportType, searchParams.reportData) : null,
-    [searchParams]
+    () => reportType ? createNewReportForEventType(reportType, navigationData?.reportData) : null,
+    [navigationData?.reportData, reportType]
   );
 
   useEffect(() => {
     if (!loadingEvents && reportForm?.id !== itemId) {
       if (ENABLE_URL_NAVIGATION) {
-        if (itemId === 'new') {
-          setReportForm(newReport);
-        } else if (eventStore[itemId]) {
-          setReportForm(eventStore[itemId]);
-        } else {
+        if ((itemId === 'new' && !reportType) || ((itemId !== 'new' && !eventStore[itemId]))) {
           navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
+        } else {
+          setReportForm(itemId === 'new' ? newReport : eventStore[itemId]);
         }
         setFormProps(navigationData?.formProps || {});
       } else {
@@ -66,7 +68,7 @@ const ReportDetailView = () => {
         setReportForm(sideBarData.report);
       }
     }
-  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, sideBarData, itemId, newReport]);
+  }, [eventStore, loadingEvents, navigationData, navigate, reportForm, sideBarData, itemId, newReport, reportType]);
 
   const {
     navigateRelationships,

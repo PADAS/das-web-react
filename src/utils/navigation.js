@@ -7,7 +7,7 @@ export const getCurrentIdFromURL = (pathname) => {
 };
 
 export const getCurrentTabFromURL = (pathname) => {
-  const match = matchPath('/:tab', pathname) || matchPath({ path: '/:tab/:id' }, pathname);
+  const match = matchPath('/:tab/*', pathname);
 
   return match?.params?.tab;
 };

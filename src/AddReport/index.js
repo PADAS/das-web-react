@@ -248,10 +248,10 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
         setPopoverState(false);
         if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
           if (ENABLE_URL_NAVIGATION) {
-            setNavigationData({ reportData });
+            setNavigationData({ patrolData: reportData });
             return navigate({
               pathname: `${TAB_KEYS.PATROLS}/new`,
-              search: `?reportType=${reportType.id}`,
+              search: `?patrolType=${reportType.id}`,
             });
           } else {
             return showSideBarDetailView(
