@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 
 import { ReactComponent as DefaultCalendarIcon } from '../common/images/icons/calendar.svg';
@@ -8,7 +8,20 @@ import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-const StyledDatePicker = ({ value, onChange, disableCustomInput, customInput = null, children = null, className, calendarIcon, placeholderText, ...rest }) => {
+// Documentation
+// https://reactdatepicker.com/#example-custom-input
+
+const StyledDatePicker = ({ value,
+  onChange,
+  disableCustomInput,
+  customInput = null,
+  children = null,
+  className,
+  calendarIcon,
+  placeholderText = 'select a date',
+  ...rest }) => {
+
+  const [isOpen, setIsOpen] = useState(false);
 
   return <>
     <DatePicker
@@ -16,14 +29,17 @@ const StyledDatePicker = ({ value, onChange, disableCustomInput, customInput = n
       onChange={onChange}
       showPopperArrow={false}
       timeInputLabel="Time:"
+      onCalendarOpen={() => setIsOpen(true)}
+      onCalendarClose={() => setIsOpen(false)}
       customInput={ !disableCustomInput ?
         customInput || <CustomDefaultInput
-        value={value}
-        onClick={onChange}
-        calendarIcon={calendarIcon}
-        className={className}
-        placeholderText={placeholderText}
-      /> : null}
+          value={value}
+          onClick={onChange}
+          calendarIcon={calendarIcon}
+          className={className}
+          placeholderText={placeholderText}
+          isPopperOpen={isOpen}
+        /> : null}
       {...rest}
       >
       {children}
@@ -33,21 +49,26 @@ const StyledDatePicker = ({ value, onChange, disableCustomInput, customInput = n
 };
 
 // eslint-disable-next-line react/display-name
-const CustomDefaultInput = forwardRef(({ value, onClick, calendarIcon = null, placeholderText = null,  className = null }, ref) => {
-  const [isOpen, setIsOpen] = useState(false);
+const CustomDefaultInput = forwardRef(({
+  value,
+  onClick,
+  isPopperOpen = false,
+  calendarIcon = null,
+  placeholderText = null,
+  className = null
+}, ref) => {
 
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsOpen(!isOpen);
     onClick();
   };
 
   return <>
     <button className={`${styles.datePickerCustomInput} ${className}`} onClick={handleClick} ref={ref}>
       {calendarIcon || <DefaultCalendarIcon />}
-      <span className={placeholderText ? 'placeholder' : ''}>{value || placeholderText}</span>
-      {isOpen ? <ArrowUp /> : <ArrowDown />}
+      <span className={!value && placeholderText ? 'placeholder' : ''}>{value || placeholderText}</span>
+      {isPopperOpen ? <ArrowUp /> : <ArrowDown />}
     </button>
   </>;
 });
