@@ -38,6 +38,8 @@ const SET_BOUNCE_EVENT_ID = 'SET_BOUNCE_EVENT_ID';
 
 const SET_MAP_DATA_ZOOM_SIMPLIFICATION = 'SET_MAP_DATA_ZOOM_SIMPLIFICATION';
 
+export const SET_MAP_CLUSTER_CONFIG = 'SET_MAP_CLUSTER_CONFIG';
+
 
 // action creators
 export const setReportHeatmapVisibility = (show) => ({
@@ -179,6 +181,11 @@ export const setBounceEventIDs = (eventId) => ({
   payload: eventId,
 });
 
+export const setMapClusterConfig = (payload) => ({
+  type: SET_MAP_CLUSTER_CONFIG,
+  payload,
+});
+
 // reducers
 
 const INITIAL_PRINT_TITLE_STATE = '';
@@ -313,5 +320,14 @@ export const displayInactiveRadiosReducer = (state = true, action) => {
   if (type === SHOW_INACTIVE_RADIOS) {
     return !state;
   }
+  return state;
+};
+
+const INITIAL_MAP_CLUSTER_STATE = { reports: true, subjects: true };
+export const mapClusterConfigReducer = (state = INITIAL_MAP_CLUSTER_STATE, action) => {
+  const { type, payload } = action;
+
+  if (type === SET_MAP_CLUSTER_CONFIG) return payload;
+
   return state;
 };

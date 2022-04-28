@@ -1166,7 +1166,20 @@ export const activePatrol = {
     {
       'id': '0fa397c7-23ae-46ed-a811-7e33aa2190db',
       'patrol_type': 'The_Don_Patrol',
-      'leader': null,
+      'leader': {
+        'content_type': 'observations.subject',
+        'id': 'dba0e0a6-0083-41be-a0eb-99e956977748',
+        'name': 'Alex',
+        'subject_type': 'person',
+        'subject_subtype': 'ranger',
+        'common_name': null,
+        'additional': {},
+        'created_at': '2021-08-31T14:42:06.701541-07:00',
+        'updated_at': '2021-08-31T14:42:06.701557-07:00',
+        'is_active': true,
+        'tracks_available': false,
+        'image_url': '/static/ranger-black.svg'
+      },
       'scheduled_start': '2022-01-07T10:17:00-08:00',
       'scheduled_end': '2022-01-08T10:17:00-08:00',
       'time_range': {
@@ -1583,6 +1596,7 @@ export const cancelledPatrol = {
 
 export const patrolDefaultStoreData = {
   data: {
+    tracks: {},
     eventSchemas: {
       globalSchema: {
         properties: {
@@ -1616,6 +1630,15 @@ export const patrolDefaultStoreData = {
     },
   },
   view: {
+    timeSliderState: {
+      active: false
+    },
+    subjectTrackState: {
+      pinned: [], visible: []
+    },
+    patrolTrackState: {
+      pinned: [], visible: []
+    },
     sideBar: {
       currentTab: TAB_KEYS.PATROLS,
       data: newPatrol,

@@ -6,13 +6,14 @@ import { getTimeSliderState } from './';
 const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const getShowReportsOnMap = ({ view: { showReportsOnMap } }) => showReportsOnMap;
+const getClusterConfig = ({ view: { mapClusterConfig } }) => mapClusterConfig;
 
 export const getShouldEventsBeClustered = createSelector(
-  [getShowReportsOnMap, getTimeSliderState],
-  (showReportsOnMap, timeSliderState) => ENABLE_NEW_CLUSTERING && showReportsOnMap && !timeSliderState.active
+  [getClusterConfig, getShowReportsOnMap, getTimeSliderState],
+  (mapClusterConfig, showReportsOnMap, timeSliderState) => ENABLE_NEW_CLUSTERING && !!mapClusterConfig.reports && showReportsOnMap && !timeSliderState.active
 );
 
 export const getShouldSubjectsBeClustered = createSelector(
-  [getTimeSliderState],
-  (timeSliderState) => ENABLE_NEW_CLUSTERING && !timeSliderState.active
+  [getClusterConfig, getTimeSliderState],
+  (clusterConfig, timeSliderState) => ENABLE_NEW_CLUSTERING && !!clusterConfig.subjects && !timeSliderState.active
 );

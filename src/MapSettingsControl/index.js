@@ -12,8 +12,9 @@ import MapTrackTimepointsControl from '../MapTrackTimepointsControl';
 import Map3DToggleControl from './Map3DToggleControl';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics';
-import styles from './styles.module.scss';
+import ClusterMemberControl from './ClusterMemberControl';
 import InactiveRadioControl from '../InactiveRadioControl';
+import styles from './styles.module.scss';
 
 const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -32,6 +33,7 @@ const MapSettingsControl = (props) => {
           <li><MapNamesControl /></li>
           <li><MapTrackTimepointsControl /></li>
           <li><InactiveRadioControl /></li>
+          <li><ClusterMemberControl /></li>
           <li><MapDataZoomSimplificationControl /></li>
           <li><Map3DToggleControl /></li>
           {hasUserLocation && <li><UserLocationMapControl /></li>}

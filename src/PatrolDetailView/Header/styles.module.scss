@@ -94,11 +94,24 @@
   
   @media (min-width: $md-layout-width-min) {
     font-size: 1rem;
-    margin-right: 1rem;
   }
 
   span:first-child {
     font-weight: bold;
+  }
+}
+
+.patrolTrackControls {
+  display: none;
+  --buttonDimensions: 2.5rem;
+
+  button {
+    height: var(--buttonDimensions);
+    width: var(--buttonDimensions);
+  }
+
+  @media (min-width: $md-layout-width-min) {
+    display: flex;
   }
 }
 
