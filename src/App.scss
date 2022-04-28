@@ -628,6 +628,10 @@ div.mapboxgl-popup-tip {
   }
 }
 
+#jsd-widget {
+  pointer-events: none;
+}
+
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 .oldNavigation {
   :root {
