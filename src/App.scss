@@ -340,51 +340,6 @@ aside {
   }
 }
 
-// .react-calendar {
-//   border: none;
-//   // border-radius: 0.25rem;
-//   box-shadow: 0px 0px 15px $light-gray-border;
-//   padding: 0.5rem;
-
-//   .react-calendar__month-view__days {
-//     button {
-//       // border-radius: 100%;
-//       height: 1.5rem;
-//       width: 1.5rem;
-//       padding: 0px;
-//       font-size: 14px;
-
-//       &:not(:disabled):hover,
-//       &.react-calendar__tile--active,
-//       &.react-calendar__tile--now {
-//         border: 1px solid $bright-blue;
-//       }
-
-//       &.react-calendar__tile--active {
-//         background-color: $bright-blue;
-//       }
-
-//       &.react-calendar__tile--now {
-//         background: none;
-//       }
-
-//       &.react-calendar__tile--active {
-//         background: $primary-button-color;
-//         color: white;
-//       }
-//     }
-//   }
-
-//   .react-calendar__navigation__label {
-//     font-weight: bold;
-//   }
-
-//   .react-calendar__tile:disabled {
-//     background: none;
-//     opacity: 0.5;
-//   }
-// }
-
 .maplock {
   text-align: center;
 }
