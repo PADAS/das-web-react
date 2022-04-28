@@ -133,9 +133,13 @@ const DateRangeSelector = (props) => {
       }, 'last three months')}>Last three months</Button>
     </div>}
     {!!filterSettings && <div>
-      <button type='button' className={styles.gearButton} ref={settingsButtonRef
-      }
-      onClick={toggleFilterSettingsPopover}>
+      <button
+        type='button'
+        className={styles.gearButton}
+        ref={settingsButtonRef}
+        onClick={toggleFilterSettingsPopover}
+        data-testid='settings-gear-icon'
+        >
         <GearIcon />
       </button>
       <FilterSettingsControl ref={popoverRef} isOpen={filterSettingsOpen} target={settingsButtonRef} hideFilterSettings={hideFilterSettings}

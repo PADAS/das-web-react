@@ -1,7 +1,7 @@
-import React, { useState, forwardRef, useEffect } from 'react';
+import React, { useState, forwardRef } from 'react';
 import DatePicker from 'react-datepicker';
 
-import { ReactComponent as DefaultCalendarIcon } from '../common/images/icons/calendar.svg';
+import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down-small.svg';
 import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small.svg';
 
@@ -17,7 +17,6 @@ const StyledDatePicker = ({ value,
   customInput = null,
   children = null,
   className,
-  calendarIcon,
   placeholderText = 'select a date',
   ...rest }) => {
 
@@ -35,7 +34,6 @@ const StyledDatePicker = ({ value,
         customInput || <CustomDefaultInput
           value={value}
           onClick={onChange}
-          calendarIcon={calendarIcon}
           className={className}
           placeholderText={placeholderText}
           isPopperOpen={isOpen}
@@ -53,7 +51,6 @@ const CustomDefaultInput = forwardRef(({
   value,
   onClick,
   isPopperOpen = false,
-  calendarIcon = null,
   placeholderText = null,
   className = null
 }, ref) => {
@@ -65,8 +62,13 @@ const CustomDefaultInput = forwardRef(({
   };
 
   return <>
-    <button className={`${styles.datePickerCustomInput} ${className}`} onClick={handleClick} ref={ref}>
-      {calendarIcon || <DefaultCalendarIcon />}
+    <button
+      className={`${styles.datePickerCustomInput} ${className}`}
+      data-testid="custom-datepicker-button"
+      onClick={handleClick}
+      ref={ref}
+      >
+      <CalendarIcon/>
       <span className={!value && placeholderText ? 'placeholder' : ''}>{value || placeholderText}</span>
       {isPopperOpen ? <ArrowUp /> : <ArrowDown />}
     </button>
