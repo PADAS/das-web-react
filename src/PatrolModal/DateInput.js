@@ -15,7 +15,6 @@ const PatrolDateInput = (props) => {
   const { autoCheckLabel = 'Automatic', defaultValue, onAutoCheckToggle, calcSubmitButtonTitle,
     isAuto = false, value, onChange, className, ...rest } = props;
 
-  const DateInputRef = useRef(null);
   const [stateTime, setStateTime] = useState(value);
   const [tempPopoverProps, setTempPopoverProps] = useState({});
 
@@ -28,20 +27,17 @@ const PatrolDateInput = (props) => {
     const auto = !canShowAutoCheck ? true : isAuto;
 
     onChange(stateTime, auto);
-    DateInputRef.current.setOpen(false);
+
     setTempPopoverProps({ popoverOpen: false });
     setTimeout(() => setTempPopoverProps({}), 1000);
   }, [canShowAutoCheck, isAuto, onChange, stateTime]);
 
   const onTimeChange = useCallback((val) => {
-    console.log('%c onTimeChange', 'font-size:24px;color:red;', val);
-    console.log('%c stateTime', 'font-size:24px;color:red;', stateTime);
     setStateTime(
       !!val
         ? setSeconds(new Date(val), 0)
         : null
     );
-    console.log('%c stateTime', 'font-size:24px;color:red;', stateTime);
   }, []);
 
   const buttonTitle = useMemo(() =>
@@ -65,8 +61,6 @@ const PatrolDateInput = (props) => {
       string += ` ${className}`;
     }
 
-    console.log('%c string', 'font-size:20px;Color:purple;', string);
-
     return string;
   }, [className, timeBeingEdited, value]);
 
@@ -87,7 +81,6 @@ const PatrolDateInput = (props) => {
   }, [value]);
 
   return <DatePicker
-    ref={DateInputRef}
     showTimeInput
     className={timeClassName}
     value={stateTime}
