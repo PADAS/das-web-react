@@ -14,8 +14,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
-import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
-
+import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
 import DelayedUnmount from '../../DelayedUnmount';
