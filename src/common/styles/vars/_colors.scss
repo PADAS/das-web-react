@@ -117,7 +117,8 @@ $patrol-done-theme: (
 
 $patrol-cancelled-theme: (
   base: $very-light-gray-alt,
-  background: rgba($very-light-gray-alt, 0.1)
+  background: rgba($very-light-gray-alt, 0.1),
+  fontColor: $secondary-medium-light-gray
 );
 
 /////

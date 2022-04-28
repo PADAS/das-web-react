@@ -18,7 +18,7 @@ import {
   hiddenFeatureIDsReducer, heatmapSubjectIDsReducer, hiddenAnalyzerIDsReducer, subjectTrackReducer, mapLockStateReducer,
   mapDataZoomSimplificationReducer, pickingLocationOnMapReducer, printTitleReducer,
   displayUserLocationReducer, displayReportsOnMapReducer, bounceEventReducer,
-  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer,
+  displayTrackTimepointsReducer, reportHeatmapStateReducer, displayInactiveRadiosReducer, openMapFeatureTypesReducer, mapClusterConfigReducer,
 } from '../ducks/map-ui';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
@@ -57,6 +57,7 @@ const featureSetsPersistanceConfig = generateStorageConfig('featureSets', localF
 const analyzersPersistanceConfig = generateStorageConfig('analyzers', localForage);
 const mapDataZoomSimplificationConfig = generateStorageConfig('mapDataOnZoom', localForage);
 const trackLengthPersistanceConfig = generateStorageConfig('trackLength');
+const mapClusterStorageConfig = generateStorageConfig('mapClusterConfig');
 
 const rootReducer = combineReducers({
   data: combineReducers({
@@ -110,6 +111,7 @@ const rootReducer = combineReducers({
     showTrackTimepoints: displayTrackTimepointsReducer,
     showReportsOnMap: displayReportsOnMapReducer,
     simplifyMapDataOnZoom: persistReducer(mapDataZoomSimplificationConfig, mapDataZoomSimplificationReducer),
+    mapClusterConfig: persistReducer(mapClusterStorageConfig, mapClusterConfigReducer),
     modals: modalsReducer,
     drawer: drawerReducer,
     pickingLocationOnMap: pickingLocationOnMapReducer,
