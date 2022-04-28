@@ -7,7 +7,7 @@ import simplify from '@turf/simplify';
 import { CLUSTERS_MAX_ZOOM } from '../../constants';
 import { MapContext } from '../../App';
 
-export default (layerConfiguration, layerId, sourceConfiguration, sourceId) => {
+const useClusterBufferPolygon = (layerConfiguration, layerId, sourceConfiguration, sourceId) => {
   const map = useContext(MapContext);
 
   const [clusterBufferPolygon, setClusterBufferPolygon] = useState(featureCollection([]));
@@ -50,3 +50,5 @@ export default (layerConfiguration, layerId, sourceConfiguration, sourceId) => {
 
   return { removeClusterPolygon, renderClusterPolygon, setClusterBufferPolygon };
 };
+
+export default useClusterBufferPolygon;
