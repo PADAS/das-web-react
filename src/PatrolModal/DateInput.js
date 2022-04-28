@@ -93,8 +93,8 @@ const PatrolDateInput = (props) => {
     {...DATEPICKER_DEFAULT_CONFIG}
     {...rest}
     >
-    <div className={styles.dateTimePickerChildrenWrapper}>
-      <div className={styles.dateTimePickerChildren}>
+    <div className={styles.datePickerChildrenWrapper}>
+      <div className={styles.datePickerChildren}>
         <Button variant='primary' type='button' onClick={commitTimeChange}>
           {buttonTitle}
         </Button>

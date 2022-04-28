@@ -276,90 +276,114 @@ aside {
   border-radius: 0.125rem;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
   
-  .react-datepicker__header {
+  &-popper {
+    z-index: 9999;
+  }
+
+  &__header {
     border: none;
-    padding-bottom: 0rem;
-    
-    .react-datepicker__day-names {
-      color: $dark-gray;
-      background-color: white;
-    }
+    padding: 0px;
+    background: white;
+  }
+
+  &__current-month {
+    background-color: #f0f0f0;
+    padding: 5px 0px;
+  }
+
+  &__navigation:focus {
+    outline: none;
   }
   
-  .react-datepicker__day--outside-month {
-    color: $secondary-medium-light-gray;
-  }
-  
-  .react-datepicker__day {
+  &__day {
+    border: 0.062rem solid white;
     width: 1.5rem;
     height: 1.5rem;
     font-size: 0.875rem;
     line-height: 1.375rem;
-    border-radius: 0rem;
+    border-radius: 0.125rem;
     color: $dark-gray;
+    margin: 0.166rem 0.4rem;
     
     &:hover {
+      border-radius: 0.125rem;
+      background-color: $light-gray;
+      border: 0.062rem solid $light-gray;
+    }
+
+    &--disabled {
+      cursor: not-allowed;
+    }
+
+    &--selected {
+      color: white;
       border-radius: 0rem;
+      background-color: $bright-blue;
+  
+      &:hover {
+        color: $bright-blue;
+      }
+    }
+
+    &--outside-month {
+      color: $secondary-medium-light-gray;
+    }
+
+    &-name {
+      margin: 0.166rem 0.3rem;
+    }
+
+    &-names {
+      color: $dark-gray;
       background-color: white;
-      border: 0.062rem solid $bright-blue;
-    }
-  }
-
-  .react-datepicker__day--selected {
-    color: white;
-    border-radius: 0rem;
-    background-color: $bright-blue;
-
-    &:hover {
-      color: $bright-blue;
     }
   }
 }
 
-.react-calendar {
-  border: none;
-  // border-radius: 0.25rem;
-  box-shadow: 0px 0px 15px $light-gray-border;
-  padding: 0.5rem;
+// .react-calendar {
+//   border: none;
+//   // border-radius: 0.25rem;
+//   box-shadow: 0px 0px 15px $light-gray-border;
+//   padding: 0.5rem;
 
-  .react-calendar__month-view__days {
-    button {
-      // border-radius: 100%;
-      height: 1.5rem;
-      width: 1.5rem;
-      padding: 0px;
-      font-size: 14px;
+//   .react-calendar__month-view__days {
+//     button {
+//       // border-radius: 100%;
+//       height: 1.5rem;
+//       width: 1.5rem;
+//       padding: 0px;
+//       font-size: 14px;
 
-      &:not(:disabled):hover,
-      &.react-calendar__tile--active,
-      &.react-calendar__tile--now {
-        border: 1px solid $bright-blue;
-      }
+//       &:not(:disabled):hover,
+//       &.react-calendar__tile--active,
+//       &.react-calendar__tile--now {
+//         border: 1px solid $bright-blue;
+//       }
 
-      &.react-calendar__tile--active {
-        background-color: $bright-blue;
-      }
+//       &.react-calendar__tile--active {
+//         background-color: $bright-blue;
+//       }
 
-      &.react-calendar__tile--now {
-        background: none;
-      }
+//       &.react-calendar__tile--now {
+//         background: none;
+//       }
 
-      &.react-calendar__tile--active {
-        background: $primary-button-color;
-        color: white;
-      }
-    }
-  }
+//       &.react-calendar__tile--active {
+//         background: $primary-button-color;
+//         color: white;
+//       }
+//     }
+//   }
 
-  .react-calendar__navigation__label {
-    font-weight: bold;
-  }
+//   .react-calendar__navigation__label {
+//     font-weight: bold;
+//   }
 
-  .react-calendar__tile:disabled {
-    background: none;
-    opacity: 0.5;
-  }
-}
+//   .react-calendar__tile:disabled {
+//     background: none;
+//     opacity: 0.5;
+//   }
+// }
 
 .maplock {
   text-align: center;

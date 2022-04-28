@@ -5,7 +5,6 @@ import endOfDay from 'date-fns/end_of_day';
 import subSeconds from 'date-fns/sub_seconds';
 
 import DatePicker from '../DatePicker';
-import DateTimePickerPopover from '../DateTimePickerPopover';
 import FilterSettingsControl from '../FilterSettingsControl';
 
 import styles from './styles.module.scss';
