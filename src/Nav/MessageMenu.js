@@ -67,7 +67,7 @@ const MessageMenu = (props) => {
 
   return <Dropdown alignRight onToggle={onDropdownToggle} className={styles.messageMenu}>
     <Toggle>
-      <ChatIcon />
+      <ChatIcon className={styles.messageIcon} />
       {!!unreads.length && <Badge className={styles.badge} count={badgeCount} />}
     </Toggle>
     <Menu className={styles.messageMenu}>

@@ -5,7 +5,7 @@ import { findTimeEnvelopeIndices } from './tracks';
 import { getActivePatrolsForLeaderId } from './patrols';
 
 
-const STATIONARY_SUBJECT_TYPE = 'stationary-subject';
+const STATIONARY_SUBJECT_TYPE = 'stationary-object';
 const STATIONARY_RADIO_SUBTYPES = ['stationary-radio'];
 const MOBILE_RADIO_SUBTYPES = ['ranger'];
 const RADIO_SUBTYPES = [...STATIONARY_RADIO_SUBTYPES, ...MOBILE_RADIO_SUBTYPES];

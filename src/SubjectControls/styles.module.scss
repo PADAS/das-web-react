@@ -11,12 +11,11 @@
 }
 
 .messagingButton {
-  border: 1px solid black;
-  border-radius: 0.1666rem;
+  border: none;
+  padding: 0rem;
+
   svg {
-    stroke: black;
-    * {
-      stroke: black;
-    }
+    height: 2.2rem;
+    width: 2.2rem;
   }
 }
