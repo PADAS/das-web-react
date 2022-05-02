@@ -5,7 +5,6 @@ import setSeconds from 'date-fns/set_seconds';
 import isFuture from 'date-fns/is_future';
 
 import DatePicker from '../DatePicker';
-import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import { DATEPICKER_DEFAULT_CONFIG } from '../constants';
 
@@ -16,7 +15,7 @@ const PatrolDateInput = (props) => {
     isAuto = false, value, onChange, className, ...rest } = props;
 
   const [stateTime, setStateTime] = useState(value);
-  const [tempPopoverProps, setTempPopoverProps] = useState({});
+  const pickerRef = useRef(null);
 
   const canShowAutoCheck = useMemo(() =>
     Math.abs(differenceInMinutes(new Date(stateTime), new Date())) > 1
@@ -27,9 +26,7 @@ const PatrolDateInput = (props) => {
     const auto = !canShowAutoCheck ? true : isAuto;
 
     onChange(stateTime, auto);
-
-    setTempPopoverProps({ popoverOpen: false });
-    setTimeout(() => setTempPopoverProps({}), 1000);
+    pickerRef.current.setOpen(false);
   }, [canShowAutoCheck, isAuto, onChange, stateTime]);
 
   const onTimeChange = useCallback((val) => {
@@ -81,15 +78,14 @@ const PatrolDateInput = (props) => {
   }, [value]);
 
   return <DatePicker
+    innerRef={pickerRef}
     showTimeInput
     className={timeClassName}
     value={stateTime}
-    {...tempPopoverProps}
     shouldCloseOnSelect={false}
     onChange={onTimeChange}
     onCalendarOpen={onPopoverOpened}
     onCalendarClose={onPopoverClosed}
-    calendarIcon={ClockIcon}
     {...DATEPICKER_DEFAULT_CONFIG}
     {...rest}
     >

@@ -1,5 +1,6 @@
 import React, { useState, forwardRef } from 'react';
 import DatePicker from 'react-datepicker';
+import noop from 'lodash/noop';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
 import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down-small.svg';
@@ -18,18 +19,32 @@ const StyledDatePicker = ({ value,
   children = null,
   className,
   placeholderText = 'select a date',
+  onCalendarOpen = noop,
+  onCalendarClose = noop,
+  innerRef,
   ...rest }) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleOpen = () => {
+    setIsOpen(true);
+    onCalendarOpen();
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    onCalendarClose();
+  };
+
   return <>
     <DatePicker
+      ref={innerRef}
       selected={value}
       onChange={onChange}
       showPopperArrow={false}
       timeInputLabel="Time:"
-      onCalendarOpen={() => setIsOpen(true)}
-      onCalendarClose={() => setIsOpen(false)}
+      onCalendarOpen={handleOpen}
+      onCalendarClose={handleClose}
       customInput={ !disableCustomInput ?
         customInput || <CustomDefaultInput
           value={value}
