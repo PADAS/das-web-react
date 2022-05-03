@@ -16,7 +16,7 @@ import { getCurrentIdFromURL } from '../utils/navigation';
 import { hideDetailView } from '../ducks/side-bar';
 import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import Header from './Header';
 
@@ -32,7 +32,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const ReportDetailView = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const { loadingEvents } = useContext(ReportsTabContext);

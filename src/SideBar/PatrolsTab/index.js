@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom';
 
 import { showDetailView } from '../../ducks/side-bar';
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
-import useERNavigate from '../../hooks/useERNavigate';
+import useNavigate from '../../hooks/useNavigate';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
@@ -24,7 +24,7 @@ const PatrolsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
-  const navigate= useERNavigate();
+  const navigate= useNavigate();
 
   return <>
     {ENABLE_URL_NAVIGATION

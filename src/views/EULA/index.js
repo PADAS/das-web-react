@@ -8,7 +8,7 @@ import Form from 'react-bootstrap/Form';
 import { clearAuth } from '../../ducks/auth';
 import { fetchCurrentUser } from '../../ducks/user';
 import { fetchEula, acceptEula } from '../../ducks/eula';
-import useERNavigate from '../../hooks/useERNavigate';
+import useNavigate from '../../hooks/useNavigate';
 
 import { deleteCookie } from '../../utils/auth';
 
@@ -22,7 +22,7 @@ const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, user, temporaryAccessToken }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const { eula_url, version: eula_version, id: eula_id } = eula;
 

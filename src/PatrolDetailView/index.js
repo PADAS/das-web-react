@@ -25,7 +25,7 @@ import { hideDetailView } from '../ducks/side-bar';
 import { DEVELOPMENT_FEATURE_FLAGS, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { PatrolsTabContext } from '../SideBar/PatrolsTab';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
@@ -44,7 +44,7 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 /* eslint-disable no-unused-vars */
 const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const { loadingPatrols } = useContext(PatrolsTabContext);

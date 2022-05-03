@@ -6,11 +6,11 @@ import { FEATURE_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
 import { useFeatureFlag } from '../hooks';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus, user }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 

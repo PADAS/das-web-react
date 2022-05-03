@@ -13,7 +13,7 @@ import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
@@ -56,7 +56,7 @@ const ReportForm = (props) => {
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport,
     fetchPatrol, showSideBarDetailView } = props;
 
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 

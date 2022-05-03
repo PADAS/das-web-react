@@ -39,7 +39,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { showDetailView } from '../ducks/side-bar';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import {
   BREAKPOINTS,
@@ -150,7 +150,7 @@ const Map = ({
   userPreferences,
 }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const tab = getCurrentTabFromURL(location.pathname);
 

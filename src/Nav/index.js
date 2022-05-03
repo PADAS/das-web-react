@@ -10,7 +10,7 @@ import { showDrawer } from '../ducks/drawer';
 import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 import { useMatchMedia, usePermissions } from '../hooks';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
@@ -42,7 +42,7 @@ const Nav = ({
   userProfiles,
 }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);

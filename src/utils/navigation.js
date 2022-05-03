@@ -1,7 +1,7 @@
 import { matchPath } from 'react-router-dom';
 
 export const getCurrentIdFromURL = (pathname) => {
-  const match = matchPath({ path: '/:tab/:id' }, pathname);
+  const match = matchPath({ path: '/:tab/:id/*' }, pathname);
 
   return match?.params?.id;
 };

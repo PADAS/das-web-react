@@ -39,7 +39,7 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -92,7 +92,7 @@ const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 const SideBar = ({ map, onHandleClick }) => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
@@ -475,7 +475,7 @@ const SideBar = ({ map, onHandleClick }) => {
                 path="reports"
                 element={<ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>}
               >
-                <Route path=":id" element={<ReportDetailView />} />
+                <Route path=":id/*" element={<ReportDetailView />} />
               </Route>
 
               <Route
@@ -483,7 +483,7 @@ const SideBar = ({ map, onHandleClick }) => {
                 element={<PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />}
               >
                 <Route
-                  path=":id"
+                  path=":id/*"
                   element={<PatrolDetailView className={styles.patrolDetailView} />}
                 />
               </Route>

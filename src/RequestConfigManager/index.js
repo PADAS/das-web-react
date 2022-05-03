@@ -8,7 +8,7 @@ import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 const STARTUP_TIME = new Date();
 
@@ -59,7 +59,7 @@ const RequestConfigManager = ({
   user,
 }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const handle401Errors = useCallback((error) => {
     if (error && error.toString().includes('401')) {

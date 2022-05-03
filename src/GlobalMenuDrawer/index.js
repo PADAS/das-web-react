@@ -26,7 +26,7 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
@@ -75,7 +75,7 @@ const GlobalMenuDrawer = ({
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const [modals, setModals] = useState([]);
 

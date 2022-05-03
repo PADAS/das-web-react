@@ -61,7 +61,7 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -91,7 +91,7 @@ const PatrolModal = (props) => {
     showSideBarDetailView,
   } = props;
 
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);

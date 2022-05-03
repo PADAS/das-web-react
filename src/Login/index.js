@@ -10,7 +10,7 @@ import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
-import useERNavigate from '../hooks/useERNavigate';
+import useNavigate from '../hooks/useNavigate';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
@@ -27,7 +27,7 @@ const LoginPage = ({
   systemConfig,
 }) => {
   const location = useLocation();
-  const navigate = useERNavigate();
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
