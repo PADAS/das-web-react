@@ -3,8 +3,9 @@
 
 .label {
   position: relative;
-  width: 50%;
+  width: 40%;
   margin-bottom: 0;
+  margin-right: -0.625rem;
 
   .nullMessage {
     align-items: center;
@@ -48,8 +49,9 @@
 }
 
 .dateSelectorWrapper {
-  align-items: center;
   display: flex;
+  align-items: center;
+  justify-content: space-evenly;
   margin: 0.5rem 0 1rem;
   padding: 0 1rem;
   width: 100%;
@@ -77,16 +79,11 @@
 .dateInput {
   height: 2.3rem;
   font-size: 0.875rem;
+  min-width: 10.025rem;
+
   svg {
     display: none;
   }
-}
-
-.datePopover {
-  // left: unset;
-  // position: fixed;
-  // top: unset;
-  display: none;
 }
 
 @mixin buttonOpacity {
