@@ -47,12 +47,14 @@ const StyledDatePicker = ({ value,
       onCalendarClose={handleClose}
       customInput={ !disableCustomInput ?
         customInput || <CustomDefaultInput
-          value={value}
-          onClick={onChange}
-          className={className}
-          placeholderText={placeholderText}
-          isPopperOpen={isOpen}
+        value={value}
+        onClick={onChange}
+        className={className}
+        placeholderText={placeholderText}
+        isPopperOpen={isOpen}
         /> : null}
+      showMonthDropdown
+      showYearDropdown
       {...rest}
       >
       {children}

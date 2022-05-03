@@ -274,7 +274,7 @@ aside {
   font-weight: 400;
   border: none;
   border-radius: 0.125rem;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0rem 0rem 0.93rem rgba(0, 0, 0, 0.15);
   
   &-popper {
     z-index: 9999;
@@ -282,17 +282,51 @@ aside {
 
   &__header {
     border: none;
-    padding: 0px;
+    padding: 0rem;
     background: white;
+
+    &__dropdown{
+      font-size: 1rem;
+      margin-top: -2rem;
+      margin-bottom: 0.4rem;
+    }
+  }
+
+  &__month-dropdown-container {
+    padding-right: 1.87rem;
+  }
+
+  &__month-read-view--down-arrow, &__year-read-view--down-arrow {
+    margin-top: 0.375rem;
   }
 
   &__current-month {
-    background-color: #f0f0f0;
-    padding: 5px 0px;
+    color: transparent;
   }
 
-  &__navigation:focus {
-    outline: none;
+  &__current-month {
+    background-color: $very-light-gray;
+    padding: 0.312rem 0rem;
+  }
+
+  &__navigation {
+    color: $secondary-medium-light-gray;
+
+    &-icon {
+      top: 0.25rem;
+    }
+
+    &--years-upcoming::after {
+      content: '<'
+    }
+    
+    &--years-previous::after {
+      content: '>'
+    }
+
+    &:focus {
+      outline: none;
+    }
   }
   
   &__day {
