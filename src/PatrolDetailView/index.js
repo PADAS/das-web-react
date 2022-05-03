@@ -4,7 +4,7 @@ import { connect, useSelector } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
@@ -25,6 +25,7 @@ import { hideDetailView } from '../ducks/side-bar';
 import { DEVELOPMENT_FEATURE_FLAGS, PATROL_API_STATES, PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../utils/analytics';
 import { PatrolsTabContext } from '../SideBar/PatrolsTab';
+import useERNavigate from '../hooks/useERNavigate';
 
 import Header from './Header';
 import HistoryTab from './HistoryTab';
@@ -43,20 +44,16 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 /* eslint-disable no-unused-vars */
 const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
   const [searchParams] = useSearchParams();
 
   const { loadingPatrols } = useContext(PatrolsTabContext);
 
-  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
-  const patrolTypeId = useMemo(() => searchParams.get('patrolType'), [searchParams]);
-
   const patrol_OLD = useSelector((state) => state.data.patrolStore[state.view.sideBar.data?.id]
     || state.view.sideBar.data);
   const patrolStore = useSelector((state) => state.data.patrolStore);
-  const navigationData = useSelector((state) => state.data.navigation);
   const patrolType = useSelector(
-    (state) => state.data.patrolTypes.find((patrolType) => patrolType.id === patrolTypeId)
+    (state) => state.data.patrolTypes.find((patrolType) => patrolType.id === searchParams.get('patrolType'))
   );
 
   const state = useSelector((state) => state);
@@ -64,9 +61,12 @@ const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
   const [patrolDataSelector, setPatrolDataSelector] = useState(null);
   const { patrol, leader, trackData, startStopGeometries } = patrolDataSelector || {};
 
+  const patrolData = location.state?.patrolData;
+
+  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
   const newPatrol = useMemo(
-    () => patrolType ? createNewPatrolForPatrolType(patrolType, navigationData?.patrolData) : null,
-    [navigationData?.patrolData, patrolType]
+    () => patrolType ? createNewPatrolForPatrolType(patrolType, patrolData) : null,
+    [patrolData, patrolType]
   );
 
   useEffect(() => {

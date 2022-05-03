@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { ReactComponent as AttachmentIcon } from '../common/images/icons/attachment.svg';
 import { ReactComponent as HistoryIcon } from '../common/images/icons/history.svg';
@@ -14,7 +14,9 @@ import { createNewReportForEventType } from '../utils/events';
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import { getCurrentIdFromURL } from '../utils/navigation';
 import { hideDetailView } from '../ducks/side-bar';
+import { NavigationContext } from '../NavigationContextProvider';
 import { ReportsTabContext } from '../SideBar/ReportsTab';
+import useERNavigate from '../hooks/useERNavigate';
 
 import Header from './Header';
 
@@ -30,28 +32,28 @@ const NAVIGATION_HISTORY_EVENT_KEY = 'history';
 const ReportDetailView = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
   const [searchParams] = useSearchParams();
 
   const { loadingEvents } = useContext(ReportsTabContext);
-
-  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
-  const reportTypeId = useMemo(() => searchParams.get('reportType'), [searchParams]);
+  const { navigationData } = useContext(NavigationContext);
 
   const { data: sideBarData } = useSelector((state) => state.view.sideBar);
   const eventStore = useSelector((state) => state.data.eventStore);
-  const navigationData = useSelector((state) => state.data.navigation);
   const reportType = useSelector(
-    (state) => state.data.eventTypes.find((eventType) => eventType.id === reportTypeId)
+    (state) => state.data.eventTypes.find((eventType) => eventType.id === searchParams.get('reportType'))
   );
 
   const [reportForm, setReportForm] = useState(null);
-  const [formProps, setFormProps] = useState(null);
   const [tab, setTab] = useState(NAVIGATION_DETAILS_EVENT_KEY);
 
+  const formProps = ENABLE_URL_NAVIGATION ? navigationData?.formProps : sideBarData?.formProps;
+  const reportData = location.state?.reportData;
+
+  const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
   const newReport = useMemo(
-    () => reportType ? createNewReportForEventType(reportType, navigationData?.reportData) : null,
-    [navigationData?.reportData, reportType]
+    () => reportType ? createNewReportForEventType(reportType, reportData) : null,
+    [reportData, reportType]
   );
 
   useEffect(() => {
@@ -62,21 +64,11 @@ const ReportDetailView = () => {
         } else {
           setReportForm(itemId === 'new' ? newReport : eventStore[itemId]);
         }
-        setFormProps(navigationData?.formProps || {});
       } else {
-        setFormProps(sideBarData?.formProps || {});
         setReportForm(sideBarData.report);
       }
     }
   }, [eventStore, loadingEvents, navigationData, navigate, reportForm, sideBarData, itemId, newReport, reportType]);
-
-  const {
-    navigateRelationships,
-    relationshipButtonDisabled,
-    onSaveError,
-    onSaveSuccess,
-    hidePatrols,
-  } = formProps || {};
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />

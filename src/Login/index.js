@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -10,6 +10,7 @@ import { REACT_APP_ROUTE_PREFIX, FEATURE_FLAGS } from '../constants';
 
 import { fetchSystemStatus } from '../ducks/system-status';
 import { fetchEula } from '../ducks/eula';
+import useERNavigate from '../hooks/useERNavigate';
 
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo-vertical.svg';
 
@@ -26,7 +27,7 @@ const LoginPage = ({
   systemConfig,
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

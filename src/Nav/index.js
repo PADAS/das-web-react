@@ -1,6 +1,6 @@
 import React, { lazy, memo, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
 import { clearAuth } from '../ducks/auth';
@@ -10,6 +10,7 @@ import { showDrawer } from '../ducks/drawer';
 import { jumpToLocation } from '../utils/map';
 import { trackEventFactory, MAIN_TOOLBAR_CATEGORY } from '../utils/analytics';
 import { useMatchMedia, usePermissions } from '../hooks';
+import useERNavigate from '../hooks/useERNavigate';
 
 import { BREAKPOINTS, MAX_ZOOM, PERMISSION_KEYS, PERMISSIONS, REACT_APP_ROUTE_PREFIX } from '../constants';
 
@@ -41,7 +42,7 @@ const Nav = ({
   userProfiles,
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const canViewMessages = usePermissions(PERMISSION_KEYS.MESSAGING, PERMISSIONS.READ);

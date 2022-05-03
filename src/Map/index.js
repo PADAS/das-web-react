@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
 import uniq from 'lodash/uniq';
@@ -39,6 +39,7 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { showDetailView } from '../ducks/side-bar';
+import useERNavigate from '../hooks/useERNavigate';
 
 import {
   BREAKPOINTS,
@@ -149,7 +150,7 @@ const Map = ({
   userPreferences,
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const tab = getCurrentTabFromURL(location.pathname);
 

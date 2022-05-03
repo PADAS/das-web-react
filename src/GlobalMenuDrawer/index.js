@@ -2,7 +2,6 @@ import React, { lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import getYear from 'date-fns/get_year';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 import { addModal } from '../ducks/modals';
 import {
@@ -27,6 +26,7 @@ import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import useERNavigate from '../hooks/useERNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
@@ -75,7 +75,7 @@ const GlobalMenuDrawer = ({
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const [modals, setModals] = useState([]);
 

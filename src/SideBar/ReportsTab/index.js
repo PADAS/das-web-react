@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import isEqual from 'react-fast-compare';
 import uniq from 'lodash/uniq';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
 import { getFeedEvents } from '../../selectors';
@@ -14,6 +14,7 @@ import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
+import useERNavigate from '../../hooks/useERNavigate';
 
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
@@ -44,7 +45,7 @@ const ReportsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const [feedSort, setFeedSort] = useState(DEFAULT_EVENT_SORT);
   const [loadingEvents, setEventLoadState] = useState(true);

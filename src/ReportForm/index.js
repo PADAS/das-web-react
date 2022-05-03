@@ -1,7 +1,6 @@
 import React, { Fragment, memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import LoadingOverlay from '../LoadingOverlay';
 
@@ -14,11 +13,11 @@ import { calcTopRatedReportAndTypeForCollection  } from '../utils/event-types';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { extractObjectDifference } from '../utils/objects';
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
+import useERNavigate from '../hooks/useERNavigate';
 
 import { addModal } from '../ducks/modals';
 import { fetchPatrol } from '../ducks/patrols';
 import { createEvent, addEventToIncident, fetchEvent, setEventState } from '../ducks/events';
-import { setData } from '../ducks/navigation';
 import { showDetailView } from '../ducks/side-bar';
 
 import EventIcon from '../EventIcon';
@@ -55,9 +54,9 @@ const { ContextProvider, Header, Body, AttachmentList, AttachmentControls, Foote
 const ReportForm = (props) => {
   const { eventTypes, map, data: originalReport, formProps = {}, removeModal, onSaveSuccess, onSaveError,
     schema, uiSchema, addModal, createEvent, addEventToIncident, fetchEvent, setEventState, isPatrolReport,
-    fetchPatrol, setNavigationData, showSideBarDetailView } = props;
+    fetchPatrol, showSideBarDetailView } = props;
 
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const { navigateRelationships, relationshipButtonDisabled } = formProps;
 
@@ -332,8 +331,7 @@ const ReportForm = (props) => {
       const formProps = { navigateRelationships: false };
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
         if (ENABLE_URL_NAVIGATION) {
-          setNavigationData({ formProps });
-          navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
+          navigate(`/${TAB_KEYS.REPORTS}/${data.id}`, null, { formProps });
         } else {
           showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
         }
@@ -638,7 +636,6 @@ export default memo(
         fetchEvent: (...args) => fetchEvent(...args),
         setEventState: (id, state) => setEventState(id, state),
         fetchPatrol: id => fetchPatrol(id),
-        setNavigationData: setData,
         showSideBarDetailView: showDetailView,
       }
     )

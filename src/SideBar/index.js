@@ -13,7 +13,7 @@ import React, {
 import { cloneDeep } from 'lodash-es';
 import isEqual from 'react-fast-compare';
 import isUndefined from 'lodash/isUndefined';
-import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { MapContext } from 'react-mapbox-gl';
 import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
@@ -39,6 +39,7 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
 import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import useERNavigate from '../hooks/useERNavigate';
 
 import AddReport, { STORAGE_KEY as ADD_BUTTON_STORAGE_KEY } from '../AddReport';
 import AnalyzerLayerList from '../AnalyzerLayerList';
@@ -91,7 +92,7 @@ const VALID_ADD_REPORT_TYPES = [TAB_KEYS.REPORTS, TAB_KEYS.PATROLS];
 const SideBar = ({ map, onHandleClick }) => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
@@ -107,7 +108,7 @@ const SideBar = ({ map, onHandleClick }) => {
   const itemId = getCurrentIdFromURL(location.pathname);
 
   const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
-  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!currentTab && sideBar.showSideBar : sidebarOpen_OLD;
+  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!currentTab : sidebarOpen_OLD;
 
   const patrolFetchRef = useRef(null);
 
@@ -418,7 +419,7 @@ const SideBar = ({ map, onHandleClick }) => {
   }
 
   return <ErrorBoundary>
-    <aside className={styles.sideBar}>
+    <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>
       <div className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
         <Link className={styles.navItem} to={currentTab === TAB_KEYS.REPORTS ? '' : 'reports'}>
           <DocumentIcon />

@@ -1,15 +1,16 @@
 import React, { memo, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { FEATURE_FLAGS, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { fetchCurrentUser } from '../ducks/user';
 import { fetchSystemStatus } from '../ducks/system-status';
 import { useFeatureFlag } from '../hooks';
+import useERNavigate from '../hooks/useERNavigate';
 
 const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus, user }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 

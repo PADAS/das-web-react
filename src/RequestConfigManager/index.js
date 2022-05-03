@@ -1,13 +1,14 @@
 import { memo, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
 import { REACT_APP_ROUTE_PREFIX } from '../constants';
 import { showToast } from '../utils/toast';
+import useERNavigate from '../hooks/useERNavigate';
 
 const STARTUP_TIME = new Date();
 
@@ -58,7 +59,7 @@ const RequestConfigManager = ({
   user,
 }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const handle401Errors = useCallback((error) => {
     if (error && error.toString().includes('401')) {

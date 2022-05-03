@@ -6,16 +6,15 @@ import Overlay from 'react-bootstrap/Overlay';
 import Tabs from 'react-bootstrap/Tabs';
 import Tab from 'react-bootstrap/Tab';
 import Select from 'react-select';
-import { createSearchParams, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as AddButtonIcon } from '../common/images/icons/add_button.svg';
 
 import { MapContext } from '../App';
 import CustomPropTypes from '../proptypes';
 import { useFeatureFlag, usePermissions } from '../hooks';
+import useERNavigate from '../hooks/useERNavigate';
 import { openModalForReport, createNewReportForEventType } from '../utils/events';
 import { getUserCreatableEventTypesByCategory } from '../selectors';
-import { setData } from '../ducks/navigation';
 import { showDetailView } from '../ducks/side-bar';
 import { trackEvent } from '../utils/analytics';
 import { createNewPatrolForPatrolType, openModalForPatrol, generatePseudoReportCategoryForPatrolTypes } from '../utils/patrols';
@@ -182,8 +181,8 @@ const AddReportPopover = forwardRef((props, ref) => { /* eslint-disable-line rea
 });
 
 const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, formProps, patrolTypes, reportData, eventsByCategory,
-  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showSideBarDetailView, setNavigationData }) => {
-  const navigate = useNavigate();
+  popoverPlacement, showLabel, showIcon, title, clickSideEffect, showSideBarDetailView }) => {
+  const navigate = useERNavigate();
 
   const map = useContext(MapContext);
   const { hidePatrols } = formProps;
@@ -248,11 +247,10 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
         setPopoverState(false);
         if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
           if (ENABLE_URL_NAVIGATION) {
-            setNavigationData({ patrolData: reportData });
-            return navigate({
-              pathname: `${TAB_KEYS.PATROLS}/new`,
-              search: `?patrolType=${reportType.id}`,
-            });
+            return navigate(
+              { pathname: `${TAB_KEYS.PATROLS}/new`, search: `?patrolType=${reportType.id}` },
+              { state: { patrolData: reportData } }
+            );
           } else {
             return showSideBarDetailView(
               TAB_KEYS.PATROLS,
@@ -270,13 +268,13 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
 
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
       if (ENABLE_URL_NAVIGATION) {
-        setNavigationData({ formProps, reportData });
-        navigate({
-          pathname: `${TAB_KEYS.REPORTS}/new`,
-          search: `?reportType=${reportType.id}`,
-        });
+        navigate(
+          { pathname: `${TAB_KEYS.REPORTS}/new`, search: `?reportType=${reportType.id}` },
+          { state: { reportData } },
+          { formProps }
+        );
       } else {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: newReport });
+        showSideBarDetailView(TAB_KEYS.REPORTS, { report: newReport });
       }
     } else {
       openModalForReport(newReport, map, formProps);
@@ -291,7 +289,6 @@ const AddReport = ({ analyticsMetadata, className = '', hideReports, variant, fo
     reportData,
     showSideBarDetailView,
     navigate,
-    setNavigationData,
   ]);
 
   return hasEventCategories &&
@@ -326,7 +323,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 export default connect(
   mapStateToProps,
-  { setNavigationData: setData, showSideBarDetailView: showDetailView }
+  { showSideBarDetailView: showDetailView }
 )(memo(AddReport));
 
 AddReport.defaultProps = {

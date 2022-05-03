@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -8,6 +8,7 @@ import Form from 'react-bootstrap/Form';
 import { clearAuth } from '../../ducks/auth';
 import { fetchCurrentUser } from '../../ducks/user';
 import { fetchEula, acceptEula } from '../../ducks/eula';
+import useERNavigate from '../../hooks/useERNavigate';
 
 import { deleteCookie } from '../../utils/auth';
 
@@ -21,7 +22,7 @@ const { Dialog, Header, Title, Body, Footer } = Modal;
 
 const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, user, temporaryAccessToken }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const { eula_url, version: eula_version, id: eula_id } = eula;
 

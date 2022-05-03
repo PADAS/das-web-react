@@ -1,10 +1,11 @@
 import React, { createContext } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import { showDetailView } from '../../ducks/side-bar';
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
+import useERNavigate from '../../hooks/useERNavigate';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
@@ -23,7 +24,7 @@ const PatrolsTab = ({
   showSideBarDetailView,
   sideBar,
 }) => {
-  const navigate= useNavigate();
+  const navigate= useERNavigate();
 
   return <>
     {ENABLE_URL_NAVIGATION

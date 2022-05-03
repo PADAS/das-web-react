@@ -1,7 +1,6 @@
 import React, { memo, Fragment, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../constants';
 import { openModalForPatrol } from '../utils/patrols';
@@ -9,6 +8,7 @@ import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
 import { showDetailView } from '../ducks/side-bar';
+import useERNavigate from '../hooks/useERNavigate';
 
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
 
@@ -39,7 +39,7 @@ const RelationshipButton = (props) => {
     showSideBarDetailView,
   } = props;
 
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const report = useContext(FormDataContext);
 

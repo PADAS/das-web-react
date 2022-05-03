@@ -8,7 +8,6 @@ import differenceInMinutes from 'date-fns/difference_in_minutes';
 import merge from 'lodash/merge';
 import orderBy from 'lodash/orderBy';
 import { isEmpty } from 'lodash';
-import { useNavigate } from 'react-router-dom';
 
 import { createPatrolDataSelector } from '../selectors/patrols';
 import { addModal, removeModal, setModalVisibilityState } from '../ducks/modals';
@@ -22,7 +21,6 @@ import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
 import { showDetailView } from '../ducks/side-bar';
-import { setData } from '../ducks/navigation';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -63,6 +61,7 @@ import LoadingOverlay from '../LoadingOverlay';
 
 import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
+import useERNavigate from '../hooks/useERNavigate';
 
 const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
@@ -89,11 +88,10 @@ const PatrolModal = (props) => {
     patrolLeaderSchema,
     autoEndPatrols,
     eventStore,
-    setNavigationData,
     showSideBarDetailView,
   } = props;
 
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const [statePatrol, setStatePatrol] = useState(patrol);
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
@@ -626,15 +624,14 @@ const PatrolModal = (props) => {
     };
     if (ENABLE_REPORT_NEW_UI && ENABLE_UFA_NAVIGATION_UI) {
       if (ENABLE_URL_NAVIGATION) {
-        setNavigationData({ formProps });
-        navigate(`${TAB_KEYS.REPORTS}/${item.id}`);
+        navigate(`${TAB_KEYS.REPORTS}/${item.id}`, null, { formProps });
       } else {
         showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
       }
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView, navigate, setNavigationData]);
+  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView, navigate]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -795,7 +792,6 @@ export default connect(mapStateToProps, {
   removeModal,
   updateUserPreferences,
   setModalVisibilityState,
-  setNavigationData: setData,
   showSideBarDetailView: showDetailView,
 })(memo(PatrolModal));
 

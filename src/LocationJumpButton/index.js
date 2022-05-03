@@ -1,7 +1,6 @@
 import React, { Fragment, memo, useContext } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 import { MapContext } from '../App';
 import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
@@ -9,6 +8,7 @@ import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
+import useERNavigate from '../hooks/useERNavigate';
 
 import { updateUserPreferences } from '../ducks/user-preferences';
 
@@ -20,7 +20,7 @@ const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, bypassLocationValidation,
   zoom, updateUserPreferences, iconOverride, className, dispatch: _dispatch, ...rest }) => {
-  const navigate = useNavigate();
+  const navigate = useERNavigate();
 
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
   const map = useContext(MapContext);
