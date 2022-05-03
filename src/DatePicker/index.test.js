@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 
@@ -37,4 +37,24 @@ test('it should open the calendar if the user clicks on the custom button', asyn
   userEvent.click(customButton);
 
   expect(() => screen.getByRole('listbox')).toBeDefined();
+});
+
+test('Open historical data modal after clicking on the button', async () => {
+  const onCalendarOpenMock = jest.fn();
+  const onCalendarCloseMock = jest.fn();
+
+  render(<DatePicker onCalendarOpen={onCalendarOpenMock} onCalendarClose={onCalendarCloseMock}/>);
+
+  expect(onCalendarOpenMock).toHaveBeenCalledTimes(0);
+  expect(onCalendarCloseMock).toHaveBeenCalledTimes(0);
+
+  const customButton = await screen.getByTestId('custom-datepicker-button');
+  userEvent.click(customButton);
+
+  expect(onCalendarOpenMock).toHaveBeenCalledTimes(1);
+
+  // closing datepicker with escape
+  fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape', code: 'Escape' });
+
+  expect(onCalendarCloseMock).toHaveBeenCalledTimes(1);
 });
