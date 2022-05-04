@@ -34,13 +34,11 @@ const DataExportModal = ({ id, title, removeModal, params = {}, paramString, url
     downloadFileFromUrl(DOWNLOAD_URL, { params }, downloadCancelToken)
       .catch((e) => {
         console.warn('error downloading file', e);
+        setCancelToken(CancelToken.source());
+        setDownloadState(false);
       })
       .then(() => {
         removeModal(id);
-      })
-      .finally(() => {
-        setCancelToken(CancelToken.source());
-        setDownloadState(false);
       });
   };
 

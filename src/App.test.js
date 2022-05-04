@@ -123,7 +123,7 @@ describe('The main app view', () => {
       } } );
 
 
-    jest.spyOn(socketExports, 'default').mockReturnValue(mockedSocket);
+    jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
 
   });
 

@@ -106,10 +106,10 @@ export const updateSubjectLastPositionFromSocketStatusUpdate = (subject, updateO
       radio_state: update.properties.state || subject.last_position.radio_state,
     },
     last_position: {
-      ...subject.last_position, ...update, properties: {
-        ...subject.last_position.properties,
+      ...(subject?.last_position ?? {}), ...update, properties: {
+        ...(subject?.last_position?.properties ?? {}),
         ...update.properties,
-        radio_state: update.properties.state || subject.last_position.radio_state, // API incongruency band-aid :(
+        radio_state: update?.properties?.state ?? subject?.last_position?.radio_state, // API incongruency band-aid :(
       }
     },
     device_status_properties: {
