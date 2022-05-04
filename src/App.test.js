@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 
+import NavigationWrapper from './__test-helpers/navigationWrapper';
 import SocketProvider from './__test-helpers/MockSocketContext';
 
 import { MAPS_API_URL } from './ducks/maps';
@@ -135,26 +136,27 @@ describe('The main app view', () => {
 
   test('rendering without crashing', () => {
     render(
-      <BrowserRouter>
-        <Provider store={store}>
+      <Provider store={store}>
+        <NavigationWrapper>
           <SocketProvider>
             <App />
           </SocketProvider>
-        </Provider>
-      </BrowserRouter>);
+        </NavigationWrapper>
+      </Provider>
+    );
   });
 
   test('showing a geo-permission toast for geo-perm-restricted users', () => {
     jest.spyOn(toastUtils, 'showToast');
 
     render(
-      <BrowserRouter>
-        <Provider store={store}>
+      <Provider store={store}>
+        <NavigationWrapper>
           <SocketProvider>
             <App />
           </SocketProvider>
-        </Provider>
-      </BrowserRouter>);
+        </NavigationWrapper>
+      </Provider>);
 
     expect(toastUtils.showToast).toHaveBeenCalled();
   });

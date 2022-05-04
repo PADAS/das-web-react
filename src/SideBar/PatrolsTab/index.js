@@ -31,10 +31,12 @@ const PatrolsTab = ({
       ? <PatrolsTabContext.Provider value={{ loadingPatrols }}>
         <Outlet />
       </PatrolsTabContext.Provider>
-      : sideBar.currentTab === TAB_KEYS.PATROLS && sideBar.showDetailView && <PatrolDetailView
-        className={styles.patrolDetailView}
-        loadingPatrols={loadingPatrols}
-      />}
+      : sideBar.currentTab === TAB_KEYS.PATROLS && sideBar.showDetailView && <div data-testid="patrolDetailViewContainer">
+        <PatrolDetailView
+          className={styles.patrolDetailView}
+          loadingPatrols={loadingPatrols}
+        />
+      </div>}
 
     <PatrolFilter />
     <PatrolList

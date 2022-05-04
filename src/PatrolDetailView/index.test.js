@@ -4,18 +4,26 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { executeSaveActions } from '../utils/save';
-import { hideDetailView } from '../ducks/side-bar';
 import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { patrolDefaultStoreData } from '../__test-helpers/fixtures/patrols';
+import { PatrolsTabContext } from '../SideBar/PatrolsTab';
 import PatrolDetailView from './';
+import { TAB_KEYS } from '../constants';
+import useNavigate from '../hooks/useNavigate';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    pathname: '/patrols/new',
+    state: {},
+  }),
+  useSearchParams: () => ([new URLSearchParams({ patrolType: 'dog_patrol' })]),
+}));
+jest.mock('../hooks/useNavigate', () => jest.fn());
 jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
   executeSaveActions: jest.fn(),
-}));
-jest.mock('../ducks/side-bar', () => ({
-  ...jest.requireActual('../ducks/side-bar'),
-  hideDetailView: jest.fn(),
 }));
 
 let store = patrolDefaultStoreData;
@@ -23,15 +31,20 @@ store.data.subjectStore = {};
 store.data.user = { permissions: { patrol: ['change'] } };
 
 describe('PatrolDetailView', () => {
-  let executeSaveActionsMock, hideDetailViewMock;
+  let executeSaveActionsMock,  navigate, useNavigateMock;
 
   beforeEach(() => {
-    hideDetailViewMock = jest.fn(() => () => {});
-    hideDetailView.mockImplementation(hideDetailViewMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     render(
       <Provider store={mockStore(store)}>
-        <PatrolDetailView />
+        <NavigationWrapper>
+          <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
+            <PatrolDetailView />
+          </PatrolsTabContext.Provider>
+        </NavigationWrapper>
       </Provider>
     );
   });
@@ -79,12 +92,13 @@ describe('PatrolDetailView', () => {
   });
 
   test('closes the drawer when clicking the exit button', async () => {
-    expect(hideDetailView).toHaveBeenCalledTimes(0);
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const exitButton = await screen.findByText('Exit');
     userEvent.click(exitButton);
 
-    expect(hideDetailView).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.PATROLS}`);
   });
 
   test('renders the save button when user is in the Plan tab', async () => {
@@ -110,14 +124,15 @@ describe('PatrolDetailView', () => {
     executeSaveActions.mockImplementation(executeSaveActionsMock);
 
     expect(executeSaveActions).toHaveBeenCalledTimes(0);
-    expect(hideDetailView).toHaveBeenCalledTimes(0);
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const saveButton = await screen.findByText('Save');
     userEvent.click(saveButton);
 
     await waitFor(() => {
       expect(executeSaveActions).toHaveBeenCalledTimes(1);
-      expect(hideDetailView).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.PATROLS}`);
     });
   });
 });

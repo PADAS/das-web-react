@@ -57,7 +57,9 @@ const ReportDetailView = () => {
   );
 
   useEffect(() => {
-    if (!loadingEvents && reportForm?.id !== itemId) {
+    const newReportTypeHasChanged = reportForm?.icon_id !== reportType?.icon_id;
+
+    if (!loadingEvents && newReportTypeHasChanged) {
       if (ENABLE_URL_NAVIGATION) {
         if ((itemId === 'new' && !reportType) || ((itemId !== 'new' && !eventStore[itemId]))) {
           navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });

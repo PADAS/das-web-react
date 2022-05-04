@@ -5,12 +5,18 @@ import { render, screen } from '@testing-library/react';
 import { eventTypes } from '../../__test-helpers/fixtures/event-types';
 import { fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { mockStore } from '../../__test-helpers/MockStore';
+import NavigationWrapper from '../../__test-helpers/navigationWrapper';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { showDetailView } from '../../ducks/side-bar';
 import { TAB_KEYS } from '../../constants';
 
 import ReportsTab from './';
+
+jest.mock('../../constants', () => ({
+  ...jest.requireActual('../../constants'),
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_URL_NAVIGATION: true },
+}));
 
 jest.mock('../../ducks/events', () => ({
   ...jest.requireActual('../../ducks/events'),
@@ -49,7 +55,9 @@ describe('ReportsTab', () => {
   test('shows the list of reports if the reportDetailView.show is false', () => {
     render(
       <Provider store={mockStore(store)}>
-        <ReportsTab />
+        <NavigationWrapper>
+          <ReportsTab />
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -60,7 +68,9 @@ describe('ReportsTab', () => {
     store.view.reportDetailView = { report, show: true };
     render(
       <Provider store={mockStore(store)}>
-        <ReportsTab />
+        <NavigationWrapper>
+          <ReportsTab />
+        </NavigationWrapper>
       </Provider>
     );
 

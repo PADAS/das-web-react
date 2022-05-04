@@ -47,7 +47,7 @@ const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { loadingPatrols } = useContext(PatrolsTabContext);
+  const { loadingPatrols } = useContext(PatrolsTabContext) || {};
 
   const patrol_OLD = useSelector((state) => state.data.patrolStore[state.view.sideBar.data?.id]
     || state.view.sideBar.data);
@@ -175,7 +175,7 @@ const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
       });
   }, [newFiles, newReports, patrolForm, patrolSegmentId, patrolTrackStatus, hideDetailView, navigate]);
 
-  return !!patrolForm && <div className={styles.patrolDetailView} data-testid="patrolDetailViewContainer">
+  return !!patrolForm && <div className={styles.patrolDetailView}>
     <Header
       patrol={patrol}
       setTitle={(value) => setPatrolForm({ ...patrolForm, title: value })}

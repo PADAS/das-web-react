@@ -11,6 +11,7 @@ import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrols, { newPatrol } from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import SideBar from '.';
@@ -95,9 +96,11 @@ describe('SideBar', () => {
   test('shows the patrols tab if user has permissions', () => {
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -108,9 +111,11 @@ describe('SideBar', () => {
     store.data.user.permissions = {};
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -120,9 +125,11 @@ describe('SideBar', () => {
   test('sets the tab title for the Reports tab', () => {
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -133,9 +140,11 @@ describe('SideBar', () => {
     store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -146,9 +155,11 @@ describe('SideBar', () => {
     store.view.sideBar.currentTab = TAB_KEYS.LAYERS;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -159,31 +170,33 @@ describe('SideBar', () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
     const tabs = screen.getAllByRole('tab');
     userEvent.click(tabs[1]);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
+    expect(mockStoreInstance.getActions()[1]).toEqual({
       payload: { sidebarOpen: true },
       type: 'UPDATE_USER_PREFERENCES',
     });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
+    expect(mockStoreInstance.getActions()[2]).toEqual({
       payload: { currentTab: 'patrols' },
       type: 'OPEN_TAB',
     });
 
     waitFor(() => {
       userEvent.click(tabs[2]);
-      expect(mockStoreInstance.getActions()[2]).toEqual({
+      expect(mockStoreInstance.getActions()[3]).toEqual({
         payload: { sidebarOpen: true },
         type: 'UPDATE_USER_PREFERENCES',
       });
-      expect(mockStoreInstance.getActions()[3]).toEqual({
+      expect(mockStoreInstance.getActions()[4]).toEqual({
         payload: { currentTab: 'layers' },
         type: 'OPEN_TAB',
       });
@@ -194,9 +207,11 @@ describe('SideBar', () => {
     store.view.userPreferences.sidebarOpen = false;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -218,9 +233,11 @@ describe('SideBar', () => {
     store.view.userPreferences.sidebarOpen = false;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -237,9 +254,11 @@ describe('SideBar', () => {
     store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -256,9 +275,11 @@ describe('SideBar', () => {
     store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -274,9 +295,11 @@ describe('SideBar', () => {
   test('does not show the report badge if sidebar is open in reports tab', () => {
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -294,9 +317,11 @@ describe('SideBar', () => {
   test('shows the Add Report button', () => {
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -307,9 +332,11 @@ describe('SideBar', () => {
     store.view.sideBar.currentTab = TAB_KEYS.LAYERS;
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -320,16 +347,18 @@ describe('SideBar', () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
     const closeButton = screen.getByTestId('sideBar-closeButton');
     userEvent.click(closeButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
+    expect(mockStoreInstance.getActions()[1]).toEqual({
       payload: { sidebarOpen: false },
       type: 'UPDATE_USER_PREFERENCES',
     });
@@ -339,16 +368,18 @@ describe('SideBar', () => {
     const mockStoreInstance = mockStore(store);
     render(
       <Provider store={mockStoreInstance}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
     const tabs = screen.getAllByRole('tab');
     userEvent.click(tabs[0]);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
+    expect(mockStoreInstance.getActions()[1]).toEqual({
       payload: { sidebarOpen: false },
       type: 'UPDATE_USER_PREFERENCES',
     });
@@ -358,35 +389,26 @@ describe('SideBar', () => {
     store.view.sideBar = { data: { report }, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
     expect(screen.getByTestId('sideBar-backDetailViewButton')).toBeDefined();
   });
 
-  test('does not show the back button if the detail view of another tab is open', () => {
-    store.view.sideBar = { currentTab: TAB_KEYS.PATROLS, data: { report }, showDetailView: true };
-    render(
-      <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
-      </Provider>
-    );
-
-    expect(screen.queryByTestId('sideBar-backDetailViewButton')).toBeNull();
-  });
-
   test('hides the report detail view if it was opened but user clicked the back button', () => {
     store.view.sideBar = { data: { report }, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 
@@ -402,9 +424,11 @@ describe('SideBar', () => {
     store.view.sideBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
     render(
       <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <SideBar map={map} />
-        </MockSocketProvider>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
       </Provider>
     );
 

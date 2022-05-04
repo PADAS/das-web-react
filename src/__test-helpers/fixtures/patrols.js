@@ -1614,6 +1614,15 @@ export const patrolDefaultStoreData = {
     patrols: {
       results: [],
     },
+    patrolTypes: [{
+      display: 'Dog Patrol',
+      icon_id: 'dog-patrol-icon',
+      id: 'dog_patrol',
+    }, {
+      display: 'Fence Patrol',
+      icon_id: 'fence-patrol-icon',
+      id: 'fence_patrol',
+    }],
   },
   view: {
     sideBar: {

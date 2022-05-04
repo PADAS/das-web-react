@@ -5,38 +5,44 @@ import userEvent from '@testing-library/user-event';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
-import { hideDetailView } from '../ducks/side-bar';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
-import { report } from '../__test-helpers/fixtures/reports';
 import ReportDetailView from './';
+import { ReportsTabContext } from '../SideBar/ReportsTab';
+import { TAB_KEYS } from '../constants';
+import useNavigate from '../hooks/useNavigate';
 
-jest.mock('../ducks/side-bar', () => ({
-  ...jest.requireActual('../ducks/side-bar'),
-  hideDetailView: jest.fn(),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: () => ({
+    pathname: '/reports/new',
+    state: {},
+  }),
+  useSearchParams: () => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]),
 }));
 
+jest.mock('../hooks/useNavigate', () => jest.fn());
+
 describe('ReportDetailView', () => {
-  let hideDetailViewMock, store;
+  let navigate, useNavigateMock, store;
 
   beforeEach(() => {
-    hideDetailViewMock = jest.fn(() => () => {});
-    hideDetailView.mockImplementation(hideDetailViewMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     store = {
-      data: { eventTypes, patrolTypes },
-      view: {
-        sideBar: {
-          data: {
-            formProps: {},
-            report,
-          },
-        },
-      },
+      data: { eventStore: {}, eventTypes, patrolTypes },
+      view: { sideBar: {} },
     };
 
     render(
       <Provider store={mockStore(store)}>
-        <ReportDetailView />
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
       </Provider>
     );
   });
@@ -102,20 +108,21 @@ describe('ReportDetailView', () => {
   test('updates the title when user types in it', async () => {
     const titleInput = (await screen.findAllByRole('textbox'))[0];
 
-    expect(titleInput).toHaveAttribute('value', 'Light');
+    expect(titleInput).toHaveAttribute('value', 'Jenae Test Auto Resolve');
 
     userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveAttribute('value', 'Light2');
+    expect(titleInput).toHaveAttribute('value', 'Jenae Test Auto Resolve2');
   });
 
   test('hides the detail view when clicking the cancel button', async () => {
-    expect(hideDetailView).toHaveBeenCalledTimes(0);
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const cancelButton = await screen.findByText('Cancel');
     userEvent.click(cancelButton);
 
-    expect(hideDetailView).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.REPORTS}`);
   });
 
   test('renders the save and cancel buttons when user is in the Details tab', async () => {
