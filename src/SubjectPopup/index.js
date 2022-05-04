@@ -119,7 +119,7 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
       {additionalPropsShouldBeToggleable && <Button data-testid='additional-props-toggle-btn' variant='link' size='sm' type='button' onClick={toggleShowAdditionalProperties} className={styles.toggleAdditionalProps}>{additionalPropsToggledOn ? '< fewer details' : 'more details >'}</Button>}
     </>}
     <Fragment>
-      <SubjectControls showHistoryButton={hasAdditionalDeviceProps} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
+      <SubjectControls className={styles.controls} showHistoryButton={hasAdditionalDeviceProps} showJumpButton={false} subject={properties} />
     </Fragment>
   </>;
 };

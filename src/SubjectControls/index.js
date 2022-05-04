@@ -111,10 +111,6 @@ const SubjectControls = (props) => {
   return <div className={`${styles.controls} ${className || ''} 
     ${showTitles ? '' : styles.noTitles}`} {...rest}>
 
-    {isMessageable && <SubjectMessagesPopover
-      className={styles.messagingButton}
-      subject={subject}
-    />}
 
     {showTrackButton && canShowTrack && <TrackToggleButton
       showLabel={showLabels}
@@ -129,6 +125,12 @@ const SubjectControls = (props) => {
       loading={loadingHeatmap}
       onButtonClick={toggleHeatmapState}
       heatmapVisible={subjectIsInHeatmap}
+    />}
+
+    {isMessageable && <SubjectMessagesPopover
+      showLabel={showLabels}
+      className={styles.messagingButton}
+      subject={subject}
     />}
 
     {canShowHistoryButton && <SubjectHistoryButton showLabel={showLabels} onClick={onHistoricalDataClick} />}

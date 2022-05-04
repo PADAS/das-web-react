@@ -38,9 +38,7 @@ const SubjectMessagesPopover = (props) => {
   </Popover>;
 
   return  <OverlayTrigger shouldUpdatePosition={true} rootClose trigger='click' placement='auto' overlay={PopoverContent} flip={true}>
-    <div className={styles.container}>
-      <SubjectControlButton buttonClassName={buttonClassName} labelText='Messaging' {...rest} />
-    </div>
+    <SubjectControlButton buttonClassName={buttonClassName} containerClassName={styles.container} labelText='Messaging' {...rest} />
   </OverlayTrigger>;
 };
 
