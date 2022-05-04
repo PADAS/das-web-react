@@ -112,7 +112,13 @@ jobs:
           gsutil cp -r ./_results_/allure-raw gs://er-report-test/
           gsutil cp -r ./allure-report gs://er-report-test/
           if [[ ${TEST_RESULT} == 1 ]]; then echo "Tests failed"; fi
-
+  relyance: 
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      # TODO: Add "RELYANCE_TOKEN" as circleCI environment variable. The token is available in Step 2 on the "Source Code Integration" tab in the platform.
+      - run: curl -f --header "x-rel-access-token:$RELYANCE_TOKEN" 'https://allenai.relyance.ai/api/download?type=image' --output relyance_inspector.tar.gz && docker load --input relyance_inspector.tar.gz && docker run --rm -v `pwd`:/repo relyance_inspector:latest && docker image rm relyance_inspector:latest
 
 workflows:
   version: 2
@@ -127,3 +133,16 @@ workflows:
           context: padas-context
           requires:
             - production_build
+  nightly:
+    triggers:
+      - schedule:
+          # Run against your stable branch nightly
+          cron: '0 7 * * *'
+          filters:
+            branches:
+              only:
+                - "develop" 
+    jobs:
+      - relyance:
+          context:
+            - relyance

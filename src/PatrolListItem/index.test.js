@@ -11,6 +11,7 @@ import { PATROL_API_STATES, PATROL_UI_STATES } from '../constants';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
+import { MapContext } from '../App';
 import * as trackUtils from '../utils/tracks';
 import { UPDATE_SUBJECT_TRACK_STATE } from '../ducks/map-ui';
 import * as patrolUtils from '../utils/patrols';
@@ -77,10 +78,12 @@ test('rendering without crashing', () => {
 
   render(<Provider store={store}>
     <NavigationWrapper>
-      <PatrolListItem onTitleClick={onTitleClick}
-        onSelfManagedStateChange={onPatrolSelfManagedStateChange}
-        patrol={testPatrol}
-        map={map} />
+      <MapContext.Provider value={map}>
+        <PatrolListItem onTitleClick={onTitleClick}
+          onSelfManagedStateChange={onPatrolSelfManagedStateChange}
+          patrol={testPatrol}
+          map={map} />
+      </MapContext.Provider>
     </NavigationWrapper>
   </Provider>);
 });
@@ -99,10 +102,12 @@ describe('the patrol list item', () => {
 
     render(<Provider store={store}>
       <NavigationWrapper>
-        <PatrolListItem onTitleClick={onTitleClick}
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={testPatrol}
           map={map} />
+        </MapContext.Provider>
       </NavigationWrapper>
     </Provider>);
   });
@@ -151,10 +156,12 @@ describe('for active patrols', () => {
 
     render(<Provider store={store}>
       <NavigationWrapper>
-        <PatrolListItem onTitleClick={onTitleClick}
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={testPatrol}
           map={map} />
+        </MapContext.Provider>
       </NavigationWrapper>
     </Provider>);
   });
@@ -246,10 +253,12 @@ describe('for scheduled patrols', () => {
 
     render(<Provider store={store}>
       <NavigationWrapper>
-        <PatrolListItem onTitleClick={onTitleClick}
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={testPatrol}
           map={map} />
+        </MapContext.Provider>
       </NavigationWrapper>
     </Provider>);
   });
@@ -303,10 +312,12 @@ describe('for overdue patrols', () => {
 
     render(<Provider store={store}>
       <NavigationWrapper>
-        <PatrolListItem onTitleClick={onTitleClick}
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={testPatrol}
           map={map} />
+        </MapContext.Provider>
       </NavigationWrapper>
     </Provider>);
   });
@@ -337,10 +348,12 @@ describe('for cancelled patrols', () => {
 
     render(<Provider store={store}>
       <NavigationWrapper>
-        <PatrolListItem onTitleClick={onTitleClick}
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={testPatrol}
           map={map} />
+        </MapContext.Provider>
       </NavigationWrapper>
     </Provider>);
   });
@@ -395,10 +408,12 @@ describe('for completed patrols', () => {
 
     render(<Provider store={store}>
       <NavigationWrapper>
-        <PatrolListItem onTitleClick={onTitleClick}
+        <MapContext.Provider value={map}>
+          <PatrolListItem onTitleClick={onTitleClick}
           onSelfManagedStateChange={onPatrolSelfManagedStateChange}
           patrol={testPatrol}
           map={map} />
+        </MapContext.Provider>
       </NavigationWrapper>
     </Provider>);
   });

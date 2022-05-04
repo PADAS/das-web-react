@@ -26,6 +26,11 @@ import * as toastUtils from './utils/toast';
 
 import { ConnectedApp as App } from './App';
 
+jest.mock('./constants', () => ({
+  ...jest.requireActual('./constants'),
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_GEOPERMISSION_UI: true },
+}));
+
 const generateEmptyResponse = () => ({ data: [] });
 
 const server = setupServer(
@@ -126,7 +131,7 @@ describe('The main app view', () => {
       } } );
 
 
-    jest.spyOn(socketExports, 'default').mockReturnValue(mockedSocket);
+    jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
 
   });
 

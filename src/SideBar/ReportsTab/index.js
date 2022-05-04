@@ -16,6 +16,7 @@ import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 import useNavigate from '../../hooks/useNavigate';
 
+import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 import { ReactComponent as RefreshIcon } from '../../common/images/icons/refresh-icon.svg';
 
 import DelayedUnmount from '../../DelayedUnmount';
@@ -44,6 +45,7 @@ const ReportsTab = ({
   map,
   showSideBarDetailView,
   sideBar,
+  userIsGeoPermRestricted,
 }) => {
   const navigate = useNavigate();
 
@@ -62,7 +64,7 @@ const ReportsTab = ({
   const optionalFeedProps = useMemo(() => {
     let value = {};
 
-    if (userLocationCoords) {
+    if (userIsGeoPermRestricted && userLocationCoords) {
       value.location = `${userLocationCoords.longitude},${userLocationCoords.latitude}`;
     }
 
@@ -70,7 +72,7 @@ const ReportsTab = ({
       value.exclude_contained = true; /* consolidate reports into their parent incidents if the feed is in a 'default' state, but include them in results if users are searching/filtering for something */
     }
     return value;
-  }, [eventFilter, userLocationCoords]);
+  }, [eventFilter, userIsGeoPermRestricted, userLocationCoords]);
 
   const loadFeedEvents = useCallback(() => {
     setEventLoadState(true);
@@ -172,6 +174,7 @@ const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
   sideBar: state.view.sideBar,
+  userIsGeoPermRestricted: userIsGeoPermissionRestricted(state?.data?.user),
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 

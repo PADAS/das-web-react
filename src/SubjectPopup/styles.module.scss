@@ -1,4 +1,5 @@
 @import '../common/styles/vars/colors';
+$background_image_url: '../common/images/icons/';
 
 .header {
   text-align: left;
@@ -177,18 +178,42 @@
 }
 
 .controls {
-  align-items: center;
   display: flex;
-  justify-content: space-evenly;
-}
-
-.messagingIcon {
-  height: 2rem;
-  width: auto;
-  g {
-    stroke: $primary-font-color;
+  
+  .messageButton {
+    align-items: center;
+    display: flex;
+    flex-flow: row;
+    position: relative;
+    background-color: rgba($secondary-light-gray, 0.25);
+    border: 0.06rem solid $secondary-medium-light-gray;
+    border-radius: 0.2rem;
+    cursor: pointer;
+    margin-top: 0.31rem;
+  
+    button {
+      height: 1.8rem;
+      width: 1.8rem;
+      background: url('#{$background-image_url}chat-icon.svg');
+      background-size: cover;
+      border: none;
+      display: block;
+      outline: none;
+    
+      &:focus {
+        outline: none;
+      }
+    }
+  
+    span {
+      font-size: 0.68rem;
+      line-height: normal;
+      padding: .1rem .7rem;
+      margin: 0 -.2rem;
+    }
   }
 }
+
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 .oldNavigationAddReport {
