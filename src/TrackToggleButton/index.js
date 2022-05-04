@@ -1,20 +1,32 @@
-import React, { forwardRef, memo } from 'react';
+import React, { forwardRef, memo, useMemo } from 'react';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import LoadingOverlay from '../LoadingOverlay';
 import styles from './styles.module.scss';
 
+import SubjectControlButton from '../SubjectControls/button';
+
 const TrackToggleButton = (props, ref) => {
-  const { className: externalClassName, disabled, trackVisible, trackPinned, onClick, showLabel, loading, ...rest } = props;
-  const className = trackPinned ? 'pinned' : trackVisible ? 'visible' : '';
-  const labelText = className ? (className === 'pinned' ? 'Tracks pinned' : 'Tracks on') : 'Tracks off';
+  const { className = '', trackVisible, trackPinned, ...rest } = props;
+  const containerClasses = useMemo(() => {
+    let string = styles.container;
 
+    if (trackPinned) string+= ' pinned';
+    if (!trackPinned && trackVisible) string+= ' visible';
 
-  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={showLabel ? onClick : noop}>
-    {loading && <LoadingOverlay className={styles.loadingOverlay} />}
-    <button ref={ref} disabled={disabled} title={labelText} type="button" className={`${styles.button} ${styles[className]} ${externalClassName || ''}`} onClick={onClick} {...rest}></button>
-    {showLabel && <span>{labelText}</span>}
-  </div>;
+    return string;
+  }, [trackPinned, trackVisible]);
+
+  const buttonClasses = useMemo(() => {
+    let string = `${styles.button} ${className}`;
+    if (trackPinned) string+= ` ${styles.pinned}`;
+    if (!trackPinned && trackVisible) string+= ` ${styles.visible}`;
+
+    return string;
+  }, [className, trackPinned, trackVisible]);
+
+  const labelText = (trackPinned && 'Tracks pinned') || (trackVisible && 'Tracks on') || 'Tracks off';
+
+  return <SubjectControlButton ref={ref} buttonClassName={buttonClasses} containerClassName={containerClasses} labelText={labelText} {...rest} />;
 };
 
 export default memo(forwardRef(TrackToggleButton));

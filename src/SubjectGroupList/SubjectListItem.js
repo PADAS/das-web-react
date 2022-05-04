@@ -19,7 +19,7 @@ const SubjectListItem = (props) => {
       <span> {subject.name} </span>
       {!isEmpty(defaultProperty) && <span className={listStyles.defaultProperty}>{`${defaultProperty.label}: ${defaultProperty.value} ${defaultProperty.units}`}</span>}
     </p>
-    <SubjectControls showLabels={false} className={listStyles.controls} map={map} showTitles={false} subject={subject} showTrackButton={!isStaticTypeObject} showHeatmapButton={!isStaticTypeObject}/>
+    <SubjectControls showLabels={false} showHistoryButton={true} className={listStyles.controls} map={map} showTitles={false} subject={subject} showTrackButton={!isStaticTypeObject} showHeatmapButton={!isStaticTypeObject}/>
   </Fragment>;
 };
 

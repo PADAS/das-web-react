@@ -1,19 +1,21 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
-import LoadingOverlay from '../LoadingOverlay';
+
+import SubjectControlButton from '../SubjectControls/button';
 
 const HeatmapToggleButton = (props) => {
-  const { className: externalClass, heatmapVisible, heatmapPartiallyVisible, onButtonClick, showLabel, loading } = props;
-  const className = heatmapVisible ? 'visible' : heatmapPartiallyVisible ? 'partial' : '';
-  const labelText = className ? 'Heatmap on' : 'Heatmap off';
+  const { className: externalClass, heatmapVisible, heatmapPartiallyVisible, onButtonClick, ...rest } = props;
 
-  return <div className={`${styles.container} ${className} ${showLabel ? ` ${styles.hasLabel}` : ''}`} onClick={showLabel ? onButtonClick : noop}>
-    {loading && <LoadingOverlay className={styles.loadingOverlay} />}
-    <button title={labelText} type="button" className={`${styles.button} ${styles[className]} ${externalClass || ''}`} onClick={onButtonClick}></button>
-    {showLabel && <span>{labelText}</span>}
-  </div>;
+  const stateClassName = heatmapVisible ? 'visible' : heatmapPartiallyVisible ? 'partial' : '';
+
+  const containerClassName = `${styles.container} ${stateClassName}`;
+  const buttonClassName = `${styles.button} ${styles[stateClassName]} ${externalClass || ''}`;
+
+  const labelText = stateClassName ? 'Heatmap on' : 'Heatmap off';
+
+  return <SubjectControlButton buttonClassName={buttonClassName} containerClassName={containerClassName} onClick={onButtonClick} labelText={labelText} {...rest} />;
 };
 
 export default memo(HeatmapToggleButton);

@@ -1,61 +1,8 @@
 @import '../common/styles/buttons';
-
-$background_image_url: '../common/images/icons/';
-
-@mixin button($image: 'tracks_off') {
-  background: url('#{$background-image_url+$image}.svg');
-  background-size: cover;
-  border: none;
-  display: block;
-  height: $square-button-dimension;
-  outline: none;
-  width: $square-button-dimension;
-
-  &:focus {
-    outline: none;
-  }
-}
-
-.button {
-  @include button;
-  &.visible, &.pinned { 
-    filter: unset;
-  }
-}
+@import '../SubjectControls/mixins';
 
 .container {
-  display: flex;
-  align-items: center;
-  flex-flow: row;
-  position: relative;
-
-  &.hasLabel {
-    background-color: rgba($secondary-light-gray, .25);
-    border: 0.06px solid $secondary-medium-light-gray;
-    max-width: 5.75rem;
-    max-height: 1.85rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    
-    [class*=spinner] {
-      position: relative;
-      top: -16%;
-    }
-
-    button {
-      min-height: 1.80rem;
-      height: 1.80rem;
-      min-width: 1.80rem;
-      width: 1.80rem;
-    }
-
-    span {
-      font-size: 0.68rem;
-      line-height: normal;
-      padding: .1rem .7rem;
-      margin: 0 -.2rem;
-    }
-
+  @include control;
     &[class*=visible] {
       border: 0.06px solid $bright-blue;
       background-color: rgba($bright-blue, 0.1);
@@ -67,14 +14,11 @@ $background_image_url: '../common/images/icons/';
     }
   }
 
-}
-
-.visible {
-  @include button('tracks_on');
-}
-
-.pinned {
-  @include button('tracks_pinned');
+.button {
+  @include buttonBackground('tracks_off');
+  &.visible, &.pinned {
+    @include buttonBackground('tracks_on');
+  }
 }
 
 div.loadingOverlay {

@@ -1,0 +1,61 @@
+@mixin buttonBackground($image: 'tracks_off') {
+  $background_image_url: '../common/images/icons/';
+  background: url('#{$background_image_url+$image}.svg');
+  background-size: cover;
+}
+
+@mixin control {
+  align-items: center;
+  display: flex;
+  flex-flow: row;
+  position: relative;
+
+  &.hasLabel {
+    background-color: rgba($secondary-light-gray, .25);
+    border: 0.06rem solid $secondary-medium-light-gray;
+    border-radius: .12rem;
+    max-width: 5.75rem;
+    max-height: 1.85rem;
+    border-radius: 0.2rem;
+    cursor: pointer;
+
+    [class*=spinner] {
+      position: relative;
+      top: -16%;
+    }
+
+    button {
+      min-height: 1.80rem;
+      height: 1.80rem;
+      min-width: 1.80rem;
+      width: 1.80rem;
+    }
+
+    span {
+      font-size: 0.68rem;
+      line-height: normal;
+      padding: .1rem .7rem;
+      margin: 0 -.2rem;
+    }
+
+  }
+  
+  .button {
+    @include buttonBackground();
+    background-color: $subject-control-btn-bg;
+    border: none;
+    display: block;
+    filter: saturate(50%) grayscale(100%);
+    height: $square-button-dimension;
+    outline: none;
+    width: $square-button-dimension;
+  
+    &:focus {
+      outline: none;
+    }
+  
+    &.visible {
+      filter: unset;
+    }
+  }
+}

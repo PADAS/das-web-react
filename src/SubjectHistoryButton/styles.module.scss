@@ -1,0 +1,61 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+
+$background_image_url: '../common/images/icons/';
+
+@mixin button($image: 'tracks_off') {
+  background: url('#{$background-image_url+$image}.svg');
+  background-size: 85%;
+  background-position: 0.15rem 0.1rem;
+  background-repeat: no-repeat;
+  border: none;
+  display: block;
+  height: $square-button-dimension;
+  outline: none;
+  width: $square-button-dimension;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.button {
+  @include button('historical-data');
+  margin-top: 0.25rem;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  flex-flow: row;
+  position: relative;
+
+  &.hasLabel {
+    background-color: $subject-control-btn-bg;
+    border: 0.06px solid $secondary-medium-light-gray;
+    max-width: 5.75rem;
+    max-height: 1.85rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    
+    [class*=spinner] {
+      position: relative;
+      top: -16%;
+    }
+
+    button {
+      min-height: 1.80rem;
+      height: 1.80rem;
+      min-width: 1.80rem;
+      width: 1.80rem;
+    }
+
+    span {
+      font-size: 0.68rem;
+      line-height: normal;
+      padding: .1rem .7rem;
+      margin: 0 -.2rem;
+    }
+  }
+
+}

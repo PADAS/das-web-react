@@ -140,6 +140,11 @@
   margin: -0.25rem 0 0;
   padding: 0;
 
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
   li {
     display: flex;
     justify-content: space-between;
@@ -173,6 +178,7 @@
 
 .trackControls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
 }
 
