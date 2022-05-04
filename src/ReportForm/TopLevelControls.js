@@ -31,9 +31,10 @@ const ReportFormTopLevelControls = (props) => {
       <span>Report time:</span>
       <DatePicker
         {...DATEPICKER_DEFAULT_CONFIG}
+        showTimeInput
         value={report.time ? new Date(report.time) : null}
         placement='bottom'
-        popoverClassName={styles.datePopover}
+        popperClassName={styles.datePopover}
         required={true}
         maxDate={new Date()}
         onChange={onReportDateChange}

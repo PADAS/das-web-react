@@ -78,8 +78,8 @@ const PatrolDateInput = (props) => {
   }, [value]);
 
   return <DatePicker
-    innerRef={pickerRef}
     showTimeInput
+    innerRef={pickerRef}
     className={timeClassName}
     value={stateTime}
     shouldCloseOnSelect={false}
