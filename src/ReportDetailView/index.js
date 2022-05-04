@@ -59,7 +59,7 @@ const ReportDetailView = () => {
   useEffect(() => {
     const newReportTypeHasChanged = reportForm?.icon_id !== reportType?.icon_id;
 
-    if (!loadingEvents && newReportTypeHasChanged) {
+    if (!loadingEvents && (itemId !== 'new' || newReportTypeHasChanged)) {
       if (ENABLE_URL_NAVIGATION) {
         if ((itemId === 'new' && !reportType) || ((itemId !== 'new' && !eventStore[itemId]))) {
           navigate(`/${TAB_KEYS.REPORTS}`, { replace: true });
@@ -71,6 +71,8 @@ const ReportDetailView = () => {
       }
     }
   }, [eventStore, loadingEvents, navigationData, navigate, reportForm, sideBarData, itemId, newReport, reportType]);
+
+  console.log(reportForm);
 
   return !!reportForm ? <div className={styles.reportDetailView} data-testid="reportDetailViewContainer">
     <Header report={reportForm || {}} setTitle={(value) => setReportForm({ ...reportForm, title: value })} />

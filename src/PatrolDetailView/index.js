@@ -118,8 +118,6 @@ const PatrolDetailView = ({ patrolPermissions, hideDetailView }) => {
   const [patrolForm, setPatrolForm] = useState();
   const [tab, setTab] = useState(NAVIGATION_PLAN_EVENT_KEY);
 
-  const isNewPatrol = !patrol?.id;
-
   const patrolSegmentId = useMemo(() => {
     if (patrol) {
       return displayPatrolSegmentId(patrol);

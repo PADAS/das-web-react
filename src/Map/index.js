@@ -293,7 +293,7 @@ const Map = ({
 
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
       if (ENABLE_URL_NAVIGATION) {
-        navigate(`/reports/${event.id}`);
+        navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
       } else {
         showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
       }
