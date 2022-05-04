@@ -9,6 +9,8 @@ import listStyles from '../SideBar/styles.module.scss';
 const SubjectListItem = (props) => {
   const { map, ...subject } = props;
 
+  const hasAdditionalDeviceProps = !!subject?.device_status_properties?.length;
+
   const subjectRadioImage = useMemo(() => isRadioWithImage(props), [props]);
   const isStaticTypeObject = subjectIsStatic(subject);
   const defaultProperty = getSubjectDefaultDeviceProperty(subject);
@@ -19,7 +21,7 @@ const SubjectListItem = (props) => {
       <span> {subject.name} </span>
       {!isEmpty(defaultProperty) && <span className={listStyles.defaultProperty}>{`${defaultProperty.label}: ${defaultProperty.value} ${defaultProperty.units}`}</span>}
     </p>
-    <SubjectControls showLabels={false} showHistoryButton={true} className={listStyles.controls} map={map} showTitles={false} subject={subject} showTrackButton={!isStaticTypeObject} showHeatmapButton={!isStaticTypeObject}/>
+    <SubjectControls showLabels={false} showHistoryButton={hasAdditionalDeviceProps} className={listStyles.controls} map={map} showTitles={false} subject={subject} showTrackButton={!isStaticTypeObject} showHeatmapButton={!isStaticTypeObject}/>
   </Fragment>;
 };
 

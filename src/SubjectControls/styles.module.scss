@@ -1,5 +1,3 @@
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
 
 .controls {
   display: flex;
@@ -9,6 +7,14 @@
       display: none;
     }
   }
+}
+
+.container {
+  position: relative;
+}
+
+.loadingOverlay {
+  z-index: 1000;
 }
 
 .messagingButton {

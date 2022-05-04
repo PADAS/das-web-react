@@ -16,7 +16,6 @@ import { calcGpsDisplayString } from '../utils/location';
 /* calcGpsDisplayString(lat, lng, currentFormat) */
 
 import LoadingOverlay from '../LoadingOverlay';
-import TextCopyBtn from '../TextCopyBtn';
 import DateTime from '../DateTime';
 
 import styles from './styles.module.scss';
@@ -87,7 +86,7 @@ const SubjectHistoricalDataModal = ({ gpsFormat, title, subjectId, subjectIsStat
             return <tr key={id}>
               <td><DateTime className={styles.dateTime} date={recorded_at}/></td>
               {observationProperties.map(property => <td key={property}>{getMatchedProperty(property, device_status_properties)}</td>)}
-              {!!locationString && <td>{locationString} <TextCopyBtn text={locationString} />
+              {!!locationString && <td>{locationString}
               </td>}
             </tr>;
           })}

@@ -1,3 +1,7 @@
+@import '../common/styles/buttons';
+@import '../common/styles/vars/colors';
+
+
 @mixin buttonBackground($image: 'tracks_off') {
   $background_image_url: '../common/images/icons/';
   background: url('#{$background_image_url+$image}.svg');
@@ -45,7 +49,6 @@
     background-color: $subject-control-btn-bg;
     border: none;
     display: block;
-    filter: saturate(50%) grayscale(100%);
     height: $square-button-dimension;
     outline: none;
     width: $square-button-dimension;

@@ -16,8 +16,11 @@
 
 .button {
   @include buttonBackground('tracks_off');
-  &.visible, &.pinned {
+  &.visible {
     @include buttonBackground('tracks_on');
+  }
+  &.pinned {
+    @include buttonBackground('tracks_pinned');
   }
 }
 

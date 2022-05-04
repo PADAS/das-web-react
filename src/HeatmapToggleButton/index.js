@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';

@@ -48,6 +48,7 @@ const SubjectControls = (props) => {
     tracksLoaded,
     tracksVisible,
     tracksPinned,
+    map: _map,
     ...rest } = props;
 
   const [ loadingHeatmap, setHeatmapLoadingState ] = useState(false);
