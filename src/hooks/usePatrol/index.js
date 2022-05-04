@@ -18,6 +18,7 @@ import {
   patrolStateDetailsOverdueStartTime,
   patrolStateDetailsStartTime,
 } from '../../utils/patrols';
+
 import { createPatrolDataSelector } from '../../selectors/patrols';
 import { PATROL_API_STATES, PATROL_UI_STATES } from '../../constants';
 import { updatePatrol } from '../../ducks/patrols';
@@ -25,15 +26,12 @@ import { updatePatrol } from '../../ducks/patrols';
 const usePatrol = (patrolFromProps) => {
   const dispatch = useDispatch();
 
-  const { patrolData, patrolTrackState, trackState } = useSelector((state) => {
-    const getDataForPatrolFromProps = createPatrolDataSelector();
+  const getDataForPatrolFromProps = useMemo(createPatrolDataSelector, []);
+  const patrolFromPropsObject = useMemo(() => ({ patrol: patrolFromProps }), [patrolFromProps]);
 
-    return !!patrolFromProps && {
-      patrolData: getDataForPatrolFromProps(state, { patrol: patrolFromProps }),
-      patrolTrackState: state?.view?.patrolTrackState,
-      trackState: state?.view?.subjectTrackState,
-    };
-  });
+  const patrolData = useSelector((state) => getDataForPatrolFromProps(state, patrolFromPropsObject));
+  const patrolTrackState = useSelector(state =>  state?.view?.patrolTrackState);
+  const trackState = useSelector(state => state?.view?.subjectTrackState);
 
   const [patrolState, setPatrolState] = useState(calcPatrolState(patrolData.patrol));
 

@@ -9,7 +9,6 @@ import DateTime from '../DateTime';
 import GpsFormatToggle from '../GpsFormatToggle';
 import TrackLength from '../TrackLength';
 import SubjectControls from '../SubjectControls';
-import { ReactComponent as ChatIcon } from '../common/images/icons/chat-icon.svg';
 import AddReport from '../AddReport';
 
 import { showPopup } from '../ducks/popup';
@@ -121,11 +120,6 @@ const SubjectPopup = ({ data, popoverPlacement, timeSliderState, showPopup }) =>
     </>}
     <Fragment>
       <SubjectControls showHistoryButton={hasAdditionalDeviceProps} showMessageButton={false} showJumpButton={false} subject={properties} className={styles.trackControls} />
-      <div className={styles.controls}>
-        {isMessageable && <Button variant='link' type='button' onClick={onClickMessagingIcon}>
-          <ChatIcon className={styles.messagingIcon} />
-          </Button>}
-      </div>
     </Fragment>
   </>;
 };
