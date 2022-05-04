@@ -489,11 +489,17 @@ const Map = ({
   });
 
   // Workaround to lame issue with React Mapbox GL: https://github.com/alex3165/react-mapbox-gl/issues/963
+  const onMoveStartRef = useRef(onMapMoveStart);
+  const onMoveEndRef = useRef(onMapMoveEnd);
+  const onZoomRef = useRef(onMapZoom);
   const onMapClickRef = useRef(onMapClick);
+  const onMapLoadedRef = useRef(setMap);
 
-  useEffect(() => {
-    onMapClickRef.current = onMapClick;
-  }, [onMapClick]);
+  useEffect(() => { onMoveStartRef.current = onMapMoveStart; }, [onMapMoveStart]);
+  useEffect(() => { onMoveEndRef.current = onMapMoveEnd; }, [onMapMoveEnd]);
+  useEffect(() => { onZoomRef.current = onMapZoom; }, [onMapZoom]);
+  useEffect(() => { onMapClickRef.current = onMapClick; }, [onMapClick]);
+  useEffect(() => { onMapLoadedRef.current = setMap; }, [setMap]);
 
   const setTrackLengthToEventFilterLowerValue = useCallback(() => {
     setTrackLength(differenceInCalendarDays(new Date(), eventFilter.filter.date_range.lower));
@@ -646,11 +652,11 @@ const Map = ({
       <MapSettingsControl />
       <TimeSliderMapControl />
     </>}
-    onMoveStart={onMapMoveStart}
-    onMoveEnd={onMapMoveEnd}
-    onZoom={onMapZoom}
-    onClick={(map, event) => onMapClickRef.current(map, event)}
-    onMapLoaded={setMap}
+    onMoveStart={(...args) => onMoveStartRef.current(...args)}
+    onMoveEnd={(...args) => onMoveEndRef.current(...args)}
+    onZoom={(...args) => onZoomRef.current(...args)}
+    onClick={(...args) => onMapClickRef.current(...args)}
+    onMapLoaded={(...args) => onMapLoadedRef.current(...args)}
     >
     {map && <>
       {children}
