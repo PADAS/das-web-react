@@ -5,12 +5,13 @@ import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 
 import DatePicker from '../../DatePicker';
+import TimeRangeInput from '../../TimeRangeInput';
 import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import LoadingOverlay from '../../LoadingOverlay';
 import ReportedBySelect from '../../ReportedBySelect';
 import { trackEventFactory, PATROL_MODAL_CATEGORY } from '../../utils/analytics';
 import { subjectIsARadio, radioHasRecentActivity } from '../../utils/subjects';
-import { displayStartTimeForPatrol } from '../../utils/patrols';
+import { displayStartTimeForPatrol, displayEndTimeForPatrol } from '../../utils/patrols';
 
 import styles from './styles.module.scss';
 
@@ -20,9 +21,12 @@ const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
+  const [isAutoStart, setisAutoStart] = useState(false);
+  const [isAutoEnd, setisAutoEnd] = useState(false);
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
   const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
+  const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -81,13 +85,40 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const onObjectiveChange = useCallback((event) => {
     event.preventDefault();
     const { value } = event.target;
+    patrolModalTracker.track('Set patrol objective');
 
     updatePatrol({ objective: value });
   }, [updatePatrol]);
 
-  const handleCalendarChange = useCallback((value) => {
-    console.log('%c handleCalendarChange', 'font-size:20px; color:yellow;', value);
-    // updatePatrol(value);
+  const updatePatrolTime = useCallback((dateType, value, isAuto) => {
+    const segmentUpdate = { time_range: {} };
+    if (isAuto) {
+      segmentUpdate.time_range[`${dateType}_time`] = value;
+      segmentUpdate[`scheduled_${dateType}`] = null;
+    } else {
+      segmentUpdate.time_range[`${dateType}_time`] = null;
+      segmentUpdate[`scheduled_${dateType}`] = value;
+    }
+    updatePatrol({ patrol_segments: [segmentUpdate] });
+  }, [updatePatrol]);
+
+  const onStartDateChange = useCallback((value) => {
+    patrolModalTracker.track('Set patrol start time');
+    updatePatrolTime('start', value, isAutoStart);
+  }, [isAutoStart, updatePatrolTime]);
+
+  const onEndDateChange = useCallback((value) => {
+    patrolModalTracker.track('Set patrol start time');
+    updatePatrolTime('end', value, isAutoEnd);
+  }, [isAutoEnd, updatePatrolTime]);
+
+  const onStartTimeChange = useCallback((value) => {
+    // startDate
+    // console.log('%c handleCalendarChange', 'font-size:20px; color:yellow;', value);
+  }, []);
+  const onEndTimeChange = useCallback((value) => {
+    // endDate
+    // console.log('%c handleCalendarChange', 'font-size:20px; color:yellow;', value);
   }, []);
 
   return <>
@@ -97,7 +128,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       <ReportedBySelect className={styles.reportedBySelect} placeholder='Select Device...' value={displayTrackingSubject} onChange={onSelectTrackedSubject} options={patrolLeaders} />
     </label>
 
-    <label data-testid="patrol-objective" className={styles.objectiveLabel}>
+    <label data-testid="patrol-objective" className={styles.subheaderLabel}>
       Objective
       <Control
         as="textarea"
@@ -108,12 +139,26 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         onChange={onObjectiveChange}
       />
     </label>
-
-    <h3>Start</h3>
-    <label data-testid="patrol-objective" className={styles.objectiveLabel}>
-      Start Date
-      <DatePicker value={startDate ?? new Date()} onChange={handleCalendarChange}/>
-    </label>
+    <div className={styles.timeLocationRow}>
+      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+        Start Date
+        <DatePicker selected={startDate ?? new Date()} onChange={onStartDateChange} dateFormat="yyyy-MM-dd" selectsStart startDate={startDate}/>
+      </label>
+      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+        Start Time
+        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={onStartTimeChange}/>
+      </label>
+    </div>
+    <div className={styles.timeLocationRow}>
+      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+        End Date
+        <DatePicker selected={endDate} onChange={onEndDateChange} dateFormat="yyyy-MM-dd" selectsEnd startDate={startDate} endDate={endDate} minDate={startDate} />
+      </label>
+      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+        End Time
+        <TimeRangeInput dateValue={endDate} onTimeChange={onEndTimeChange} showOptionsDurationFromInitialValue={startDate?.toDateString() === endDate?.toDateString() }/>
+      </label>
+    </div>
   </>;
 };
 

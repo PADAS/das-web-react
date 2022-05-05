@@ -1,0 +1,43 @@
+@import '../common/styles/vars/colors';
+@import '../common/styles/inputs';
+
+$background_image_url: '../common/images/icons/';
+  
+.inputWrapper {
+  position:relative;
+}
+
+.icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  padding: 4px;
+  position: absolute;
+  box-sizing:border-box;
+  top:50%;
+  left:2px;
+  transform: translateY(-50%);
+  > g {
+    stroke: $secondary-medium-light-gray;
+  }
+}
+
+.timeInput {
+  @include defaultTextInput;
+  font-size: 0.875rem;
+  padding-left: 1.5rem;
+  width: 6.25rem;
+
+  &::-webkit-calendar-picker-indicator {
+    background: url('../common/images/icons/arrow-down-small.svg') no-repeat;
+    width: 1rem;
+    height: 1rem;
+    // width: 32px;
+    // height: 32px;
+    content: '';
+    display: block;
+    // position: absolute;
+    // top: 50%;
+    // right: 0;
+    padding-top: 0.312rem;
+  }
+}
