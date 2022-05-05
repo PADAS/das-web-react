@@ -11,7 +11,6 @@
 }
 
 .container {
-  @include control;
   .button {
     @include buttonBackground('chat-icon');
   }

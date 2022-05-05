@@ -2,7 +2,6 @@
 @import '../SubjectControls/mixins';
 
 .container {
-  @include control;
   .button {
     @include buttonBackground('heatmap');
     filter: saturate(50%) grayscale(100%);

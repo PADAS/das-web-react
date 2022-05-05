@@ -1,8 +1,11 @@
 
+@import '../common/styles/vars/colors';
+@import './mixins';
+
 .controls {
   align-items: center;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
   &.noTitles {
     span {
       display: none;
@@ -11,20 +14,41 @@
 }
 
 .container {
-  height: 2.25rem;
   position: relative;
+  @include control;
 }
 
 .loadingOverlay {
   z-index: 1000;
 }
 
-.messagingButton {
-  border: none;
-  padding: 0rem;
 
-  svg {
-    height: 2.2rem;
-    width: 2.2rem;
+.hasLabel {
+  background-color: rgba($secondary-light-gray, .25);
+  border: 0.06rem solid $secondary-medium-light-gray;
+  border-radius: .12rem;
+  max-width: 5.75rem;
+  max-height: 1.85rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+
+  [class*=spinner] {
+    position: relative;
+    top: -16%;
   }
+
+  .button {
+    min-height: 1.80rem;
+    height: 1.80rem;
+    min-width: 1.80rem;
+    width: 1.80rem;
+  }
+
+  span {
+    font-size: 0.68rem;
+    line-height: normal;
+    padding: .1rem .7rem;
+    margin: 0 -.2rem;
+  }
+
 }

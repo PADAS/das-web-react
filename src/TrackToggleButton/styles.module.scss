@@ -2,25 +2,23 @@
 @import '../SubjectControls/mixins';
 
 .container {
-  @include control;
-    &[class*=visible] {
-      border: 0.06px solid $bright-blue;
-      background-color: rgba($bright-blue, 0.1);
-    }
-    
-    &[class*=pinned] {
-      border: 0.06px solid $green;
-      background-color: rgba($green, 0.1);
-    }
+  &[class*=visible] {
+    border: 0.06px solid $bright-blue;
+    background-color: rgba($bright-blue, 0.1);
   }
-
-.button {
-  @include buttonBackground('tracks_off');
-  &.visible {
-    @include buttonBackground('tracks_on');
+  
+  &[class*=pinned] {
+    border: 0.06px solid $green;
+    background-color: rgba($green, 0.1);
   }
-  &.pinned {
-    @include buttonBackground('tracks_pinned');
+  .button {
+    @include buttonBackground('tracks_off');
+    &.visible {
+      @include buttonBackground('tracks_on');
+    }
+    &.pinned {
+      @include buttonBackground('tracks_pinned');
+    }
   }
 }
 
