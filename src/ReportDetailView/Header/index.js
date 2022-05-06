@@ -16,7 +16,11 @@ const Header = ({ report, setTitle }) => {
     </div>
 
     <div className={styles.title}>
-      <input onChange={(event) => setTitle(event.target.value)} type="text" value={report.title || originalReportTitle} />
+      <input
+        onChange={(event) => setTitle(event.target.value)}
+        type="text"
+        value={report.title || originalReportTitle}
+      />
     </div>
   </div>;
 };
@@ -24,7 +28,6 @@ const Header = ({ report, setTitle }) => {
 Header.propTypes = {
   report: PropTypes.object.isRequired,
   setTitle: PropTypes.func.isRequired,
-  title: PropTypes.string,
 };
 
 export default Header;

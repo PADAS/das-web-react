@@ -18,10 +18,6 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/patrols/new', state: {} }),
   useSearchParams: jest.fn(),
 }));
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_URL_NAVIGATION: true },
-}));
 jest.mock('../hooks/useNavigate', () => jest.fn());
 jest.mock('../utils/save', () => ({
   ...jest.requireActual('../utils/save'),
