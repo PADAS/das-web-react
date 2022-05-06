@@ -10,6 +10,7 @@ import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { report } from '../../__test-helpers/fixtures/reports';
 import { showDetailView } from '../../ducks/side-bar';
 import { TAB_KEYS } from '../../constants';
+import useNavigate from '../../hooks/useNavigate';
 
 import ReportsTab from './';
 
@@ -28,9 +29,10 @@ jest.mock('../../ducks/side-bar', () => ({
   ...jest.requireActual('../../ducks/side-bar'),
   showDetailView: jest.fn(),
 }));
+jest.mock('../../hooks/useNavigate', () => jest.fn());
 
 describe('ReportsTab', () => {
-  let fetchEventFeedMock, fetchNextEventFeedPageMock, showDetailViewMock, store;
+  let fetchEventFeedMock, fetchNextEventFeedPageMock, navigate, showDetailViewMock, store, useNavigateMock;
 
   beforeEach(() => {
     fetchEventFeedMock = jest.fn(() => Promise.resolve());
@@ -39,6 +41,9 @@ describe('ReportsTab', () => {
     fetchNextEventFeedPage.mockImplementation(fetchNextEventFeedPageMock);
     showDetailViewMock = jest.fn(() => () => {});
     showDetailView.mockImplementation(showDetailViewMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     store = {
       data: {

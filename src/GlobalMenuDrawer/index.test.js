@@ -13,10 +13,11 @@ import NavigationWrapper from '../__test-helpers/navigationWrapper';
 import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../JiraSupportWidget/index.test';
 import { PERMISSION_KEYS, PERMISSIONS, } from '../constants';
 import { useMatchMedia } from '../hooks';
+import useNavigate from '../hooks/useNavigate';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true, ENABLE_URL_NAVIGATION: true },
 }));
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
@@ -35,9 +36,10 @@ jest.mock('../hooks', () => ({
   useFeatureFlag: () => true,
   useMatchMedia: jest.fn(),
 }));
+jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('GlobalMenuDrawer', () => {
-  let addModalMock, fetchTableauDashboardMock, hideDrawerMock, store, useMatchMediaMock;
+  let addModalMock, fetchTableauDashboardMock, hideDrawerMock, navigate, store, useMatchMediaMock, useNavigateMock;
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
     addModal.mockImplementation(addModalMock);
@@ -47,6 +49,9 @@ describe('GlobalMenuDrawer', () => {
     hideDrawer.mockImplementation(hideDrawerMock);
     useMatchMediaMock = jest.fn(() => true);
     useMatchMedia.mockImplementation(useMatchMediaMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     store = {
       data: {
@@ -120,26 +125,21 @@ describe('GlobalMenuDrawer', () => {
 
   test('navigates to the Reports tab in the Sidebar when clicking the Reports navigation button', async () => {
     useMatchMedia.mockImplementation(() => false);
-    const mockStoreInstance = mockStore(store);
     render(
-      <Provider store={mockStoreInstance}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <GlobalMenuDrawer />
         </NavigationWrapper>
       </Provider>
     );
 
+    expect(navigate).toHaveBeenCalledTimes(0);
+
     const reportsNavigationButton = await screen.findByText('Reports');
     userEvent.click(reportsNavigationButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { currentTab: 'reports' },
-      type: 'OPEN_TAB',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/reports');
   });
 
   test('does not render the Patrols navigation button if user does not have permissions', async () => {
@@ -159,50 +159,40 @@ describe('GlobalMenuDrawer', () => {
 
   test('navigates to the Patrols tab in the Sidebar when clicking the Patrols navigation button', async () => {
     useMatchMedia.mockImplementation(() => false);
-    const mockStoreInstance = mockStore(store);
     render(
-      <Provider store={mockStoreInstance}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <GlobalMenuDrawer />
         </NavigationWrapper>
       </Provider>
     );
+
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const patrolsNavigationButton = await screen.findByText('Patrols');
     userEvent.click(patrolsNavigationButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { currentTab: 'patrols' },
-      type: 'OPEN_TAB',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates to the Map Layers tab in the Sidebar when clicking the Map Layers navigation button', async () => {
     useMatchMedia.mockImplementation(() => false);
-    const mockStoreInstance = mockStore(store);
     render(
-      <Provider store={mockStoreInstance}>
+      <Provider store={mockStore(store)}>
         <NavigationWrapper>
           <GlobalMenuDrawer />
         </NavigationWrapper>
       </Provider>
     );
 
+    expect(navigate).toHaveBeenCalledTimes(0);
+
     const mapLayersNavigationButton = await screen.findByText('Map Layers');
     userEvent.click(mapLayersNavigationButton);
 
-    expect(mockStoreInstance.getActions()[0]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { currentTab: 'layers' },
-      type: 'OPEN_TAB',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/layers');
   });
 
   test('does not render Tableau button if it is not enabled', async () => {

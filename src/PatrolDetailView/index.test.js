@@ -1,7 +1,8 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useSearchParams } from 'react-router-dom';
 
 import { executeSaveActions } from '../utils/save';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -14,11 +15,12 @@ import useNavigate from '../hooks/useNavigate';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: '/patrols/new',
-    state: {},
-  }),
-  useSearchParams: () => ([new URLSearchParams({ patrolType: 'dog_patrol' })]),
+  useLocation: () => ({ pathname: '/patrols/new', state: {} }),
+  useSearchParams: jest.fn(),
+}));
+jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_URL_NAVIGATION: true },
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
 jest.mock('../utils/save', () => ({
@@ -31,12 +33,14 @@ store.data.subjectStore = {};
 store.data.user = { permissions: { patrol: ['change'] } };
 
 describe('PatrolDetailView', () => {
-  let executeSaveActionsMock,  navigate, useNavigateMock;
+  let executeSaveActionsMock, navigate, useSearchParamsMock, useNavigateMock;
 
   beforeEach(() => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'dog_patrol' })]));
+    useSearchParams.mockImplementation(useSearchParamsMock);
 
     render(
       <Provider store={mockStore(store)}>
@@ -133,6 +137,27 @@ describe('PatrolDetailView', () => {
       expect(executeSaveActions).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledTimes(1);
       expect(navigate).toHaveBeenCalledWith(`/${TAB_KEYS.PATROLS}`);
+    });
+  });
+
+  test('redirects to /patrols if user tries to create a new patrol with an invalid patrolType', async () => {
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ patrolType: 'invalid' })]));
+    useSearchParams.mockImplementation(useSearchParamsMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <PatrolsTabContext.Provider value={{ loadingPatrols: false }}>
+            <PatrolDetailView />
+          </PatrolsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/patrols', { replace: true });
     });
   });
 });

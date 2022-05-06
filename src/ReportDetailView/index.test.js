@@ -1,7 +1,8 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useSearchParams } from 'react-router-dom';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -18,15 +19,17 @@ jest.mock('react-router-dom', () => ({
     pathname: '/reports/new',
     state: {},
   }),
-  useSearchParams: () => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]),
+  useSearchParams: jest.fn(),
 }));
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('ReportDetailView', () => {
-  let navigate, useNavigateMock, store;
+  let navigate, useNavigateMock, store, useSearchParamsMock;
 
   beforeEach(() => {
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]));
+    useSearchParams.mockImplementation(useSearchParamsMock);
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
@@ -152,5 +155,26 @@ describe('ReportDetailView', () => {
 
     expect((await screen.queryByText('Save'))).toBeNull();
     expect((await screen.queryByText('Cancel'))).toBeNull();
+  });
+
+  test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'invalid' })]));
+    useSearchParams.mockImplementation(useSearchParamsMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
+    });
   });
 });

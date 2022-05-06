@@ -1,47 +1,55 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
+import { useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchPatrols } from '../ducks/patrols';
-import { hideDetailView } from '../ducks/side-bar';
 import { INITIAL_FILTER_STATE } from '../ducks/patrol-filter';
 import { INITIAL_PATROLS_STATE } from '../ducks/patrols';
 import MockSocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import NavigationWrapper from '../__test-helpers/navigationWrapper';
-import patrols, { newPatrol } from '../__test-helpers/fixtures/patrols';
+import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
-import { report } from '../__test-helpers/fixtures/reports';
+import useNavigate from '../hooks/useNavigate';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useLocation: jest.fn(),
+}));
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true, ENABLE_UFA_NAVIGATION_UI: true },
+  DEVELOPMENT_FEATURE_FLAGS: {
+    ENABLE_NEW_CLUSTERING: true,
+    ENABLE_UFA_NAVIGATION_UI: true,
+    ENABLE_URL_NAVIGATION: true,
+  },
 }));
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   fetchPatrols: jest.fn(),
 }));
-jest.mock('../ducks/side-bar', () => ({
-  ...jest.requireActual('../ducks/side-bar'),
-  hideDetailView: jest.fn(),
-}));
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks'),
   useFeatureFlag: () => true,
 }));
+jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('SideBar', () => {
-  let fetchPatrolsMock, hideDetailViewMock, map, store;
+  let fetchPatrolsMock, map, navigate, store, useLocationMock, useNavigateMock;
   beforeEach(() => {
     fetchPatrolsMock = jest.fn(() => () => ({ request: Promise.resolve() }));
     fetchPatrols.mockImplementation(fetchPatrolsMock);
-    hideDetailViewMock = jest.fn(() => () => {});
-    hideDetailView.mockImplementation(hideDetailViewMock);
+    useLocationMock = jest.fn((() => ({ pathname: '/reports' })));
+    useLocation.mockImplementation(useLocationMock);
+    navigate = jest.fn();
+    useNavigateMock = jest.fn(() => navigate);
+    useNavigate.mockImplementation(useNavigateMock);
 
     map = createMapMock();
 
@@ -87,8 +95,8 @@ describe('SideBar', () => {
       },
       view: {
         hiddenAnalyzerIDs: [],
-        userPreferences: { sidebarOpen: true },
-        sideBar: { currentTab: TAB_KEYS.REPORTS, showDetailView: false },
+        userPreferences: {},
+        sideBar: {},
       },
     };
   });
@@ -137,7 +145,9 @@ describe('SideBar', () => {
   });
 
   test('sets the tab title for the Patrols tab', () => {
-    store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
+    useLocation.mockImplementation(useLocationMock);
+
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -152,7 +162,9 @@ describe('SideBar', () => {
   });
 
   test('sets the tab title for the Map Layers tab', () => {
-    store.view.sideBar.currentTab = TAB_KEYS.LAYERS;
+    useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
+    useLocation.mockImplementation(useLocationMock);
+
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -164,43 +176,6 @@ describe('SideBar', () => {
     );
 
     expect(screen.getAllByRole('heading')[0]).toHaveTextContent('Map Layers');
-  });
-
-  test('navigates to different tabs', () => {
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <SideBar map={map} />
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    const tabs = screen.getAllByRole('tab');
-    userEvent.click(tabs[1]);
-
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { sidebarOpen: true },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-    expect(mockStoreInstance.getActions()[2]).toEqual({
-      payload: { currentTab: 'patrols' },
-      type: 'OPEN_TAB',
-    });
-
-    waitFor(() => {
-      userEvent.click(tabs[2]);
-      expect(mockStoreInstance.getActions()[3]).toEqual({
-        payload: { sidebarOpen: true },
-        type: 'UPDATE_USER_PREFERENCES',
-      });
-      expect(mockStoreInstance.getActions()[4]).toEqual({
-        payload: { currentTab: 'layers' },
-        type: 'OPEN_TAB',
-      });
-    });
   });
 
   test('shows the reports badge when an event update comes through the socket and sidebar is closed', () => {
@@ -329,7 +304,9 @@ describe('SideBar', () => {
   });
 
   test('hides the Add Report button in the map layers tab', () => {
-    store.view.sideBar.currentTab = TAB_KEYS.LAYERS;
+    useLocationMock = jest.fn((() => ({ pathname: '/layers' })));
+    useLocation.mockImplementation(useLocationMock);
+
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -355,38 +332,19 @@ describe('SideBar', () => {
       </Provider>
     );
 
+    expect(navigate).toHaveBeenCalledTimes(0);
+
     const closeButton = screen.getByTestId('sideBar-closeButton');
     userEvent.click(closeButton);
 
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { sidebarOpen: false },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
-  });
-
-  test('closes the sidebar tabs when clicking a tab that is currently open', () => {
-    const mockStoreInstance = mockStore(store);
-    render(
-      <Provider store={mockStoreInstance}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <SideBar map={map} />
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    const tabs = screen.getAllByRole('tab');
-    userEvent.click(tabs[0]);
-
-    expect(mockStoreInstance.getActions()[1]).toEqual({
-      payload: { sidebarOpen: false },
-      type: 'UPDATE_USER_PREFERENCES',
-    });
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/');
   });
 
   test('shows a back button if the detail view of the current tab is open', () => {
-    store.view.sideBar = { data: { report }, showDetailView: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
+    useLocation.mockImplementation(useLocationMock);
+
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -401,7 +359,9 @@ describe('SideBar', () => {
   });
 
   test('hides the report detail view if it was opened but user clicked the back button', () => {
-    store.view.sideBar = { data: { report }, showDetailView: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/reports/new' })));
+    useLocation.mockImplementation(useLocationMock);
+
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -412,16 +372,19 @@ describe('SideBar', () => {
       </Provider>
     );
 
-    expect(hideDetailView).toHaveBeenCalledTimes(0);
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const backDetailViewButton = screen.getByTestId('sideBar-backDetailViewButton');
     userEvent.click(backDetailViewButton);
 
-    expect(hideDetailView).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/reports');
   });
 
   test('hides the patrol detail view if it was opened but user clicked the back button', () => {
-    store.view.sideBar = { currentTab: TAB_KEYS.PATROLS, data: newPatrol, showDetailView: true };
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols/new' })));
+    useLocation.mockImplementation(useLocationMock);
+
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -432,11 +395,32 @@ describe('SideBar', () => {
       </Provider>
     );
 
-    expect(hideDetailView).toHaveBeenCalledTimes(0);
+    expect(navigate).toHaveBeenCalledTimes(0);
 
     const backDetailViewButton = screen.getByTestId('sideBar-backDetailViewButton');
     userEvent.click(backDetailViewButton);
 
-    expect(hideDetailView).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/patrols');
+  });
+
+  test('redirects to map if a tab is not recognized', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/inalid' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <MockSocketProvider>
+            <SideBar map={map} />
+          </MockSocketProvider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/', { replace: true });
+    });
   });
 });

@@ -95,6 +95,6 @@ const LoginPage = ({
   </div>;
 };
 
-const mapStateToProps = ({ data: { eula, token }, view: { systemConfig } }) => ({ eula, token, systemConfig });
+const mapStateToProps = ({ data: { eula }, view: { systemConfig } }) => ({ eula, systemConfig });
 
 export default connect(mapStateToProps, { postAuth, clearAuth, fetchEula, fetchSystemStatus })(memo(LoginPage));

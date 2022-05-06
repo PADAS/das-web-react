@@ -173,7 +173,7 @@ const SideBar = ({ map, onHandleClick }) => {
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
-      navigate('/');
+      navigate('/', { replace: true });
     }
   }, [currentTab, navigate]);
 
@@ -471,6 +471,9 @@ const SideBar = ({ map, onHandleClick }) => {
 
           <div className={styles.tabBody}>
             <Routes>
+              {/* Gets rid of warning */}
+              <Route path="/" element={null} />
+
               <Route
                 path="reports"
                 element={<ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>}

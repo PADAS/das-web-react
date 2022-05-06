@@ -1,7 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { render } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -28,7 +27,7 @@ import { ConnectedApp as App } from './App';
 
 jest.mock('./constants', () => ({
   ...jest.requireActual('./constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_GEOPERMISSION_UI: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_GEOPERMISSION_UI: true, ENABLE_URL_NAVIGATION: true },
 }));
 
 const generateEmptyResponse = () => ({ data: [] });
