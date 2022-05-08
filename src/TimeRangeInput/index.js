@@ -1,19 +1,28 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import { durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
+import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down-small.svg';
+import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small.svg';
 
 import styles from './styles.module.scss';
 
 const MINUTES_INTERVALS = 30;
 const OPTIONS_TO_DISPLAY = 5;
+
 const getHoursAndMinutesString = (date) => {
-  return `${date.getHours()}:${date.getMinutes()}`;
+  const dateMinutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
+  const dateHours = (date.getHours()<10?'0':'') + date.getHours();
+  return `${dateHours}:${dateMinutes}`;
 };
 
-const TimeRangeInput = ({ dateValue = null, showOptionsDurationFromInitialValue: showDuration = false, onTimeChange }) => {
-
-  // const [temporalValue, settemporalValue] = useState(dateValue);
+const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOptionsDurationFromInitialValue: showDuration = false, onTimeChange }) => {
+  const targetRef = useRef(null);
+  const [isPopoverOpen, setPopoverState] = useState(false);
+  const [initialDate] = useState(!!dateValue ? new Date(dateValue) : starDateRange);
 
   const getTimeDuration = useMemo(() => {
     return durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
@@ -24,39 +33,57 @@ const TimeRangeInput = ({ dateValue = null, showOptionsDurationFromInitialValue:
     let accumulatedMinutes = MINUTES_INTERVALS;
 
     while (options.length < OPTIONS_TO_DISPLAY) {
-      const initialDate = dateValue ? new Date(dateValue) : new Date();
       const dateWithAccumulation = addMinutes(initialDate, accumulatedMinutes);
       const timeValue = getHoursAndMinutesString(dateWithAccumulation);
 
       options.push({
         value: timeValue,
-        label: `${showDuration ? ` (${getTimeDuration(dateWithAccumulation - initialDate)})` : ''}`,
+        duration: showDuration ? ` (${getTimeDuration(dateWithAccumulation - initialDate)})` : '',
       });
 
       accumulatedMinutes += MINUTES_INTERVALS;
     }
 
     return options;
-  }, [dateValue, getTimeDuration, showDuration]);
+  }, [getTimeDuration, initialDate, showDuration]);
 
-  return <div className={styles.inputWrapper}>
-    <ClockIcon className={styles.icon}/>
-    <input
-      type="time"
-      value={getHoursAndMinutesString(new Date(dateValue))}
-      // onMouseMove={(e) => {e.target.focus();  settemporalValue(e.target.value);}}
-      // onMouseDown={(e) => e.target.value = ''}
-      // onMouseUp={(e) => e.target.value = temporalValue}
-      list="timeOptions"
-      className={styles.timeInput}
-      onChange={(e) => onTimeChange(e.target.value)}
-      />
-    <datalist id="timeOptions">
-      {generateTimeOptions().map((option) => {
-        return <option value={option.value} label={option.label} key={option.value} />;
-      })}
-    </datalist>
-  </div>;
+  const handleTimeChange = useCallback((time) => {
+    const timeParts = time.split(':');
+    const timestampWithSelectedTime = new Date(initialDate).setHours(timeParts[0], timeParts[1], '00');
+    onTimeChange(new Date(timestampWithSelectedTime));
+  }, [initialDate, onTimeChange]);
+
+  const logSomething = useCallback((value) => {
+    console.log('%c handleCalendarChange', 'font-size:20px; color:purple;', value);
+  }, []);
+
+  return <>
+    <div className={styles.inputWrapper} >
+      <ClockIcon className={styles.clockIcon}/>
+      <OverlayTrigger target={targetRef.current} onToggle={logSomething} trigger='focus' placement="bottom" overlay={<Popover className={styles.popoverOptions}>
+        <ul>
+          {generateTimeOptions().map((option) => {
+          return <li onClick={() => handleTimeChange(option.value)} key={option.value} className={styles.timeOption}>
+            <span>{option.value}</span>
+            <span>{option.duration}</span>
+          </li>;
+        })}
+        </ul>
+      </Popover>}>
+        <input
+          type="time"
+          min="00:00"
+          ref={targetRef}
+          value={dateValue ? getHoursAndMinutesString(new Date(dateValue)) : ''}
+          onFocus={() => setPopoverState(true)}
+          onBlur={() => setPopoverState(false)}
+          className={styles.timeInput}
+          onChange={(e) => handleTimeChange(e.target.value)}
+          />
+      </OverlayTrigger>
+      {isPopoverOpen ? <ArrowUp className={styles.arrowIcon}/> : <ArrowDown className={styles.arrowIcon}/>}
+    </div>
+  </>;
 };
 
 export default TimeRangeInput;

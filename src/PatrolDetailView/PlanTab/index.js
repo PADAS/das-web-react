@@ -112,14 +112,13 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrolTime('end', value, isAutoEnd);
   }, [isAutoEnd, updatePatrolTime]);
 
-  const onStartTimeChange = useCallback((value) => {
-    // startDate
-    // console.log('%c handleCalendarChange', 'font-size:20px; color:yellow;', value);
-  }, []);
-  const onEndTimeChange = useCallback((value) => {
-    // endDate
-    // console.log('%c handleCalendarChange', 'font-size:20px; color:yellow;', value);
-  }, []);
+  const onStartTimeChange = useCallback((time) => {
+    updatePatrolTime('start', time, isAutoStart);
+  }, [isAutoStart, updatePatrolTime]);
+
+  const onEndTimeChange = useCallback((time) => {
+    updatePatrolTime('end', time, isAutoEnd);
+  }, [isAutoEnd, updatePatrolTime]);
 
   return <>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
@@ -156,7 +155,12 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       </label>
       <label data-testid="patrol-objective" className={styles.subheaderLabel}>
         End Time
-        <TimeRangeInput dateValue={endDate} onTimeChange={onEndTimeChange} showOptionsDurationFromInitialValue={startDate?.toDateString() === endDate?.toDateString() }/>
+        <TimeRangeInput
+          dateValue={endDate}
+          starDateRange={startDate}
+          onTimeChange={onEndTimeChange}
+          showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
+          />
       </label>
     </div>
   </>;

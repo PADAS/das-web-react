@@ -5,19 +5,29 @@ $background_image_url: '../common/images/icons/';
   
 .inputWrapper {
   position:relative;
-}
+  
+  svg:first-child {
+    height: 1.5rem;
+    width: 1.5rem;
+    padding: 4px;
+    position: absolute;
+    box-sizing:border-box;
+    top:50%;
+    left:0.125rem;
+    transform: translateY(-50%);
+    > g {
+      stroke: $secondary-medium-light-gray;
+    }
+  }
 
-.icon {
-  height: 1.5rem;
-  width: 1.5rem;
-  padding: 4px;
-  position: absolute;
-  box-sizing:border-box;
-  top:50%;
-  left:2px;
-  transform: translateY(-50%);
-  > g {
-    stroke: $secondary-medium-light-gray;
+  svg:not(:first-child) {
+    height: 0.6rem;
+    width: 0.6rem;
+    position: absolute;
+    box-sizing:border-box;
+    top:50%;
+    left:5.187rem;
+    transform: translateY(-50%);
   }
 }
 
@@ -28,16 +38,31 @@ $background_image_url: '../common/images/icons/';
   width: 6.25rem;
 
   &::-webkit-calendar-picker-indicator {
-    background: url('../common/images/icons/arrow-down-small.svg') no-repeat;
-    width: 1rem;
-    height: 1rem;
-    // width: 32px;
-    // height: 32px;
-    content: '';
-    display: block;
-    // position: absolute;
-    // top: 50%;
-    // right: 0;
-    padding-top: 0.312rem;
+    background: none;
+    display: none;
+  }
+}
+
+.popoverOptions {
+  margin: 0rem;
+  border: none;
+  inset: 0.5rem auto auto 0rem !important;
+  box-shadow: 0rem 0rem 0.937rem rgba(0, 0, 0, 0.25);
+
+  > ul {
+    margin-bottom: 0rem;
+  }
+
+  > div:first-child {
+    display: none;
+  }
+  
+  .timeOption {
+    min-width: 6.25rem;
+    padding: 0.125rem 0.562rem;
+  
+    > span:not(:first-child){
+      color: $secondary-medium-light-gray;
+    }
   }
 }
