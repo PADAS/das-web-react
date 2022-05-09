@@ -82,7 +82,7 @@ const ReportsTab = ({
   }, [eventFilter, userIsGeoPermRestricted, userLocationCoords]);
 
   useEffect(() => {
-    if (itemId && !eventStore[itemId]) {
+    if (itemId && itemId !== 'new' && !eventStore[itemId]) {
       setLoadingEventById(true);
       fetchEvent(itemId)
         .then(() => setLoadingEventById(false))

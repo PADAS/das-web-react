@@ -36,7 +36,7 @@ const PatrolsTab = ({
   const itemId = useMemo(() => getCurrentIdFromURL(location.pathname), [location.pathname]);
 
   useEffect(() => {
-    if (itemId && !patrolStore[itemId]) {
+    if (itemId && itemId !== 'new' && !patrolStore[itemId]) {
       setLoadingPatrolById(true);
       fetchPatrol(itemId)
         .then(() => setLoadingPatrolById(false))
