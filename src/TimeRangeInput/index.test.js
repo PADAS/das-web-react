@@ -90,5 +90,6 @@ test('should call onTimeChange and send a date with the time added', async () =>
 
   userEvent.click(timeOptionsListItems[0]);
 
-  expect(onTimeChange).toHaveBeenCalledTimes(1);
+  const expectedValue = new Date('Sun May 01 2022 10:00:00 GMT-0500 (Central Daylight Time)').setHours(10, 30);
+  expect(onTimeChange).toHaveBeenCalledWith(new Date(expectedValue));
 });
