@@ -53,14 +53,10 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOpti
     onTimeChange(new Date(timestampWithSelectedTime));
   }, [initialDate, onTimeChange]);
 
-  const logSomething = useCallback((value) => {
-    console.log('%c handleCalendarChange', 'font-size:20px; color:purple;', value);
-  }, []);
-
   return <>
     <div className={styles.inputWrapper} >
       <ClockIcon/>
-      <OverlayTrigger target={targetRef.current} onToggle={logSomething} trigger='focus' placement="bottom" overlay={<Popover className={styles.popoverOptions}>
+      <OverlayTrigger target={targetRef.current} trigger='focus' placement="bottom" overlay={<Popover className={styles.popoverOptions}>
         <ul>
           {generateTimeOptions().map((option) => {
           return <li onClick={() => handleTimeChange(option.value)} key={option.value} className={styles.timeOption}>
@@ -73,6 +69,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOpti
         <input
           type="time"
           min="00:00"
+          data-testid="time-input"
           ref={targetRef}
           value={dateValue ? getHoursAndMinutesString(new Date(dateValue)) : ''}
           onFocus={() => setPopoverState(true)}
