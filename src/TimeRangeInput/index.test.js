@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import TimeRangeInput from './';
 
-const testDate = 'Sun May 01 2022 10:00:00 GMT-0500 (Central Daylight Time)';
+const testDate = '2022-05-01T10:00:00';
 
 test('rendering without crashing', () => {
   render(<TimeRangeInput />);
@@ -46,7 +46,7 @@ test('time options should be given in intervals of 30 minutes', async () => {
 });
 
 test('if the date value is not provided, it should consider the starDateRange to take the time options', async () => {
-  render(<TimeRangeInput dateValue={null} starDateRange={'Tue May 10 2022 09:00:00 GMT-0500 (Central Daylight Time)'}/>);
+  render(<TimeRangeInput dateValue={null} starDateRange={'2022-05-10T09:00:00'}/>);
 
   const timeInput = await screen.findByTestId('time-input');
   userEvent.click(timeInput);
@@ -90,6 +90,6 @@ test('should call onTimeChange and send a date with the time added', async () =>
 
   userEvent.click(timeOptionsListItems[0]);
 
-  const expectedValue = new Date('Sun May 01 2022 10:00:00 GMT-0500 (Central Daylight Time)').setHours(10, 30);
+  const expectedValue = new Date('2022-05-01T10:00:00').setHours(10, 30);
   expect(onTimeChange).toHaveBeenCalledWith(new Date(expectedValue));
 });
