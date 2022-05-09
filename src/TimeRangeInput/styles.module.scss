@@ -28,6 +28,9 @@ $background_image_url: '../common/images/icons/';
     top:50%;
     left:5.187rem;
     transform: translateY(-50%);
+    path {
+      fill: $secondary-light-gray;
+    }
   }
 }
 

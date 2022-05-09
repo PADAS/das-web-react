@@ -59,7 +59,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOpti
 
   return <>
     <div className={styles.inputWrapper} >
-      <ClockIcon className={styles.clockIcon}/>
+      <ClockIcon/>
       <OverlayTrigger target={targetRef.current} onToggle={logSomething} trigger='focus' placement="bottom" overlay={<Popover className={styles.popoverOptions}>
         <ul>
           {generateTimeOptions().map((option) => {
@@ -81,7 +81,7 @@ const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOpti
           onChange={(e) => handleTimeChange(e.target.value)}
           />
       </OverlayTrigger>
-      {isPopoverOpen ? <ArrowUp className={styles.arrowIcon}/> : <ArrowDown className={styles.arrowIcon}/>}
+      {isPopoverOpen ? <ArrowUp/> : <ArrowDown/>}
     </div>
   </>;
 };
