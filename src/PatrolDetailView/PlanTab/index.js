@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
+import isFuture from 'date-fns/is_future';
 
 import DatePicker from '../../DatePicker';
 import TimeRangeInput from '../../TimeRangeInput';
@@ -92,7 +93,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
 
   const updatePatrolTime = useCallback((dateType, value, isAuto) => {
     const segmentUpdate = { time_range: {} };
-    if (isAuto) {
+    if (isAuto || isFuture(value)) {
       segmentUpdate.time_range[`${dateType}_time`] = value;
       segmentUpdate[`scheduled_${dateType}`] = null;
     } else {
@@ -139,21 +140,21 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       />
     </label>
     <div className={styles.timeLocationRow}>
-      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+      <label className={styles.subheaderLabel}>
         Start Date
-        <DatePicker selected={startDate ?? new Date()} onChange={onStartDateChange} dateFormat="yyyy-MM-dd" selectsStart startDate={startDate}/>
+        <DatePicker selected={startDate ?? new Date()} onChange={onStartDateChange} dateFormat="dd MMM yyyy" selectsStart startDate={startDate}/>
       </label>
-      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+      <label className={styles.subheaderLabel}>
         Start Time
         <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={onStartTimeChange}/>
       </label>
     </div>
     <div className={styles.timeLocationRow}>
-      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+      <label className={styles.subheaderLabel}>
         End Date
-        <DatePicker selected={endDate} onChange={onEndDateChange} dateFormat="yyyy-MM-dd" selectsEnd startDate={startDate} endDate={endDate} minDate={startDate} />
+        <DatePicker selected={endDate} onChange={onEndDateChange} dateFormat="dd MMM yyyy" selectsEnd startDate={startDate} endDate={endDate} minDate={startDate} />
       </label>
-      <label data-testid="patrol-objective" className={styles.subheaderLabel}>
+      <label className={styles.subheaderLabel}>
         End Time
         <TimeRangeInput
           dateValue={endDate}

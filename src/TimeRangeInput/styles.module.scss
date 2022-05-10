@@ -5,6 +5,7 @@ $background_image_url: '../common/images/icons/';
   
 .inputWrapper {
   position:relative;
+  width: 100%;
   
   svg:first-child {
     height: 1.5rem;
@@ -26,7 +27,7 @@ $background_image_url: '../common/images/icons/';
     position: absolute;
     box-sizing:border-box;
     top:50%;
-    left:5.187rem;
+    right: 0.6rem;
     transform: translateY(-50%);
     path {
       fill: $secondary-light-gray;
@@ -38,7 +39,7 @@ $background_image_url: '../common/images/icons/';
   @include defaultTextInput;
   font-size: 0.875rem;
   padding-left: 1.5rem;
-  width: 6.25rem;
+  width: 100%;
 
   &::-webkit-calendar-picker-indicator {
     background: none;
