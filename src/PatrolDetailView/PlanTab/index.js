@@ -93,7 +93,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
 
   const updatePatrolTime = useCallback((dateType, value, isAuto) => {
     const segmentUpdate = { time_range: {} };
-    if (isAuto || isFuture(value)) {
+    if (isAuto || !isFuture(value)) {
       segmentUpdate.time_range[`${dateType}_time`] = value;
       segmentUpdate[`scheduled_${dateType}`] = null;
     } else {

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import addMinutes from 'date-fns/add_minutes';
 import { durationHumanizer, HUMANIZED_DURATION_CONFIGS } from '../utils/datetime';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -22,7 +22,13 @@ const getHoursAndMinutesString = (date) => {
 const TimeRangeInput = ({ dateValue = null, starDateRange = new Date(), showOptionsDurationFromInitialValue: showDuration = false, onTimeChange }) => {
   const targetRef = useRef(null);
   const [isPopoverOpen, setPopoverState] = useState(false);
-  const [initialDate] = useState(!!dateValue ? new Date(dateValue) : starDateRange);
+  const [initialDate, setInitialDate] = useState(starDateRange);
+
+  useEffect(() => {
+    if (!!dateValue) {
+      setInitialDate(new Date(dateValue));
+    }
+  }, [dateValue]);
 
   const getTimeDuration = useMemo(() => {
     return durationHumanizer(HUMANIZED_DURATION_CONFIGS.ABBREVIATED_FORMAT);
