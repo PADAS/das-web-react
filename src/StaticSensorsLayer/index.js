@@ -8,15 +8,13 @@ import isEmpty from 'lodash/isEmpty';
 
 import store from '../store';
 import { MapContext } from '../App';
-import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getSubjectDefaultDeviceProperty } from '../utils/subjects';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 
 import LayerBackground from '../common/images/sprites/layer-background-sprite.png';
 import SubjectPopup from '../SubjectPopup';
-
-const { ENABLE_NEW_CLUSTERING } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { CLUSTERS_SOURCE_ID, STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 
@@ -138,7 +136,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
   useEffect(() => {
     if (map) {
       let renderedStaticSensors = [];
-      if (ENABLE_NEW_CLUSTERING && map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
+      if (map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
         renderedStaticSensors = map.queryRenderedFeatures({ layers: [UNCLUSTERED_STATIC_SENSORS_LAYER] })
           .map((feature) => feature?.properties?.id);
       }
@@ -149,8 +147,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
         const sourceData = { ...sensorsWithDefaultValue, features: [sensorsWithDefaultValue.features[index]] };
         const source = map.getSource(sourceId);
 
-        if (ENABLE_NEW_CLUSTERING
-          && !renderedStaticSensors.includes(feature.properties.id) && !isTimeSliderActive) {
+        if (!renderedStaticSensors.includes(feature.properties.id) && !isTimeSliderActive) {
           return map.getLayer(layerID) && setLayerVisibility(layerID, false);
         }
 
@@ -174,8 +171,7 @@ const StaticSensorsLayer = ({ staticSensors = {}, isTimeSliderActive, showMapNam
 
   // Renderless layer to query unclustered static sensors
   useEffect(() => {
-    if (ENABLE_NEW_CLUSTERING
-      && map
+    if (map
       && !!map.getSource(CLUSTERS_SOURCE_ID)
       && !map.getLayer(UNCLUSTERED_STATIC_SENSORS_LAYER)) {
       map.addLayer({

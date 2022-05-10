@@ -19,7 +19,7 @@ import { report } from '../__test-helpers/fixtures/reports';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true, ENABLE_UFA_NAVIGATION_UI: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),

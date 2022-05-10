@@ -87,7 +87,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { ENABLE_NEW_CLUSTERING, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -445,20 +445,16 @@ const Map = ({
     );
     let shouldHidePopup = true, clusterFeaturesAtPoint = [];
 
-    if (ENABLE_NEW_CLUSTERING) {
-      const clusterApproxGeometry = [
-        [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
-        [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
-      ];
-      const clustersAtPoint = map.queryRenderedFeatures(
-        clusterApproxGeometry,
-        { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
-      );
+    const clusterApproxGeometry = [
+      [event.point.x - CLUSTER_APPROX_WIDTH, event.point.y + CLUSTER_APPROX_HEIGHT],
+      [event.point.x + CLUSTER_APPROX_WIDTH, event.point.y - CLUSTER_APPROX_HEIGHT]
+    ];
+    const clustersAtPoint = map.queryRenderedFeatures(
+      clusterApproxGeometry,
+      { layers: [LAYER_IDS.CLUSTERS_LAYER_ID] }
+    );
 
-      shouldHidePopup = !clustersAtPoint.length;
-    } else {
-      clusterFeaturesAtPoint = map.queryRenderedFeatures(event.point, { layers: [EVENT_CLUSTERS_CIRCLES] });
-    }
+    shouldHidePopup = !clustersAtPoint.length;
 
     if (!!clusterFeaturesAtPoint.length || clickedLayersOfInterest.length > 1) { /* only propagate click events when not on clusters or areas which require disambiguation */
       event.originalEvent.cancelBubble = true;
@@ -661,7 +657,7 @@ const Map = ({
     {map && <>
       {children}
 
-      {ENABLE_NEW_CLUSTERING && <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />}
+      <ClustersLayer onShowClusterSelectPopup={onShowClusterSelectPopup} />
 
       <DelayedUnmount delay={100} isMounted={showReportsOnMap}>
         <EventsLayer
