@@ -91,7 +91,7 @@ export const createClusterHTMLMarker = (
     if (subjectIsStatic(feature)) {
       injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
     }
-    clusterHTMLMarkerContainer.appendChild(featureImageHTML);
+    clusterHTMLMarkerContainer.appendChild(featureImageHTML.cloneNode(true));
   });
 
   if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
