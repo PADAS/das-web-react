@@ -22,12 +22,12 @@ const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
   const [loadingTrackedBy, setLoadingTrackedBy] = useState(true);
-  const [isAutoStart, setisAutoStart] = useState(false);
-  const [isAutoEnd, setisAutoEnd] = useState(false);
   const patrolLeaders = patrolLeaderSchema?.trackedbySchema?.properties?.leader?.enum_ext?.map?.(({ value }) => value) ?? [];
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
   const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
+  const [isAutoStart, setIsAutoStart] = useState(false);
+  const [isAutoEnd, setIsAutoEnd] = useState(false);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -113,13 +113,6 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrolTime('end', value, isAutoEnd);
   }, [isAutoEnd, updatePatrolTime]);
 
-  const onStartTimeChange = useCallback((time) => {
-    updatePatrolTime('start', time, isAutoStart);
-  }, [isAutoStart, updatePatrolTime]);
-
-  const onEndTimeChange = useCallback((time) => {
-    updatePatrolTime('end', time, isAutoEnd);
-  }, [isAutoEnd, updatePatrolTime]);
 
   return <>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
@@ -146,7 +139,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       </label>
       <label className={styles.subheaderLabel}>
         Start Time
-        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={onStartTimeChange}/>
+        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={onStartDateChange}/>
       </label>
     </div>
     <div className={styles.timeLocationRow}>
@@ -159,7 +152,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         <TimeRangeInput
           dateValue={endDate}
           starDateRange={startDate}
-          onTimeChange={onEndTimeChange}
+          onTimeChange={onEndDateChange}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
       </label>
