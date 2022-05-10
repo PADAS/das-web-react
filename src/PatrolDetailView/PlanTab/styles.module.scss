@@ -127,3 +127,21 @@
   border-color: transparent;
   background-color: rgba(0, 0, 0, 0.6);
 }
+
+.autoFieldCheckbox > input:disabled {
+  opacity: 0;
+}
+
+.autoFieldCheckbox > input:disabled + span {
+  color: $secondary-medium-gray;
+  cursor: not-allowed;
+}
+
+// .autoFieldCheckbox > input:disabled + span::before {
+//   border-color: currentColor;
+// }
+
+// .autoFieldCheckbox > input:checked:disabled + span::before {
+//   border-color: transparent;
+//   background-color: currentColor;
+// }

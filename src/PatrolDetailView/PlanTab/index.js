@@ -152,7 +152,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       </label>
     </div>
     <label className={styles.autoFieldCheckbox}>
-      <input type='checkbox' checked={isAutoStart} onChange={onAutoStartChange} />
+      <input type='checkbox' checked={isAutoStart} onChange={onAutoStartChange} disabled={!startDate || !isFuture(startDate)}/>
       <span>Automatically start the patrol at this time</span>
     </label>
     <div className={styles.timeLocationRow}>
@@ -171,7 +171,7 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
       </label>
     </div>
     <label className={styles.autoFieldCheckbox}>
-      <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} />
+      <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} disabled={!endDate || !isFuture(endDate)} />
       <span>Automatically end the patrol at this time</span>
     </label>
   </>;
