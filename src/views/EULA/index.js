@@ -30,7 +30,7 @@ const EulaPage = ({ acceptEula, clearAuth, eula, fetchCurrentUser, fetchEula, us
   const [formAccepted, setFormAccepted] = useState(false);
   const [submitted, setSubmitState] = useState(false);
   const [canceled, setCancelState] = useState(false);
-  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(REACT_APP_ROUTE_PREFIX);
+  const [rerouteOnSuccess, setRerouteOnSuccess] = useState(location.state?.from || REACT_APP_ROUTE_PREFIX);
   const [formError, setFormError] = useState(false);
 
   const rerouteCookieValue = document.cookie.split(' ').find(item => item.startsWith('routeAfterEulaAccepted=')) ?

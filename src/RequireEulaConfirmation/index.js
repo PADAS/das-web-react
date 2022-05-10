@@ -39,7 +39,11 @@ const RequireEulaConfirmation = ({ children, fetchCurrentUser, fetchSystemStatus
   }, [eulaEnabled, user]);
 
   if (!eulaAccepted) {
-    return <Navigate replace to={{ pathname: `${REACT_APP_ROUTE_PREFIX}eula`, search: location.search }} />;
+    return <Navigate
+      replace
+      state={{ from: { ...location } }}
+      to={{ pathname: `${REACT_APP_ROUTE_PREFIX}eula`, search: location.search }}
+    />;
   }
   return eulaAccepted === 'unknown' ? null : children;
 };

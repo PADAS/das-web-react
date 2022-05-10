@@ -40,7 +40,7 @@ const LoginPage = ({
   const onFormSubmit = useCallback((event) => {
     event.preventDefault();
     postAuth({ username, password, hasError, error, errorMessage })
-      .then(() => navigate({ pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
+      .then(() => navigate(location.state?.from || { pathname: REACT_APP_ROUTE_PREFIX, search: location.search }))
       .catch((error) => {
         const errorObject = error.toJSON();
 
@@ -54,7 +54,7 @@ const LoginPage = ({
         setError(errorObject);
         setErrorMessage(errorMessage);
       });
-  }, [clearAuth, error, errorMessage, hasError, location.search, navigate, password, postAuth, username]);
+  }, [clearAuth, error, errorMessage, hasError, location.search, location.state?.from, navigate, password, postAuth, username]);
 
   const onInputChange = useCallback((event) => {
     event.preventDefault();

@@ -89,11 +89,11 @@ ReactDOM.render(
 
               <Route
                 path={`${REACT_APP_ROUTE_PREFIX}*`}
-                element={<RequireEulaConfirmation>
-                  <RequireAccessToken>
+                element={<RequireAccessToken>
+                  <RequireEulaConfirmation>
                     <AppWithTracker />
-                  </RequireAccessToken>
-                </RequireEulaConfirmation>}
+                  </RequireEulaConfirmation>
+                </RequireAccessToken>}
               />
 
               <Route path="*" element={<PathNormalizationRouteComponent />} />
