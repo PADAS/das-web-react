@@ -82,7 +82,7 @@ export const createClusterHTMLMarker = (
   injectStylesToElement(clusterHTMLMarkerContainer, CLUSTER_HTML_MARKER_CONTAINER_STYLES);
 
   getClusterIconFeatures(clusterFeatures).forEach((feature) => {
-    let featureImageHTML = getFeatureIcon(feature, mapImages);
+    let featureImageHTML = getFeatureIcon(feature, mapImages)?.cloneNode(true);
     if (!featureImageHTML) {
       featureImageHTML = document.createElement('img');
       featureImageHTML.src = feature.properties.image;
@@ -91,7 +91,7 @@ export const createClusterHTMLMarker = (
     if (subjectIsStatic(feature)) {
       injectStylesToElement(featureImageHTML, FEATURE_SS_ICON_HTML_STYLES);
     }
-    clusterHTMLMarkerContainer.appendChild(featureImageHTML.cloneNode(true));
+    clusterHTMLMarkerContainer.appendChild(featureImageHTML);
   });
 
   if (clusterFeatures.length > CLUSTER_ICON_DISPLAY_LENGTH) {
