@@ -2,8 +2,6 @@ import React, { useRef, memo } from 'react';
 import { connect } from 'react-redux';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-
 import MapLockControl from '../MapLockControl';
 import MapNamesControl from '../MapNamesControl';
 import UserLocationMapControl from '../UserLocationMapControl';
@@ -15,8 +13,6 @@ import { trackEventFactory, MAP_INTERACTION_CATEGORY } from '../utils/analytics'
 import ClusterMemberControl from './ClusterMemberControl';
 import InactiveRadioControl from '../InactiveRadioControl';
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -46,7 +42,7 @@ const MapSettingsControl = (props) => {
     mapInteractionTracker.track('Clicked Map Settings button');
   };
 
-  return <OverlayTrigger trigger="click" placement={ENABLE_UFA_NAVIGATION_UI ? 'left' : 'right'} rootClose={true} overlay={popover}>
+  return <OverlayTrigger trigger="click" placement='left' rootClose={true} overlay={popover}>
     <button type='button' className={styles.gearButton} ref={formRef}
       onClick={onButtonClick}>
       <GearIcon />

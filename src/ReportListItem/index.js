@@ -10,7 +10,6 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import { displayEventTypes } from '../selectors/event-types';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getCoordinatesForEvent, getCoordinatesForCollection, collectionHasMultipleValidLocations,
   displayTitleForEvent, getEventIdsForCollection } from '../utils/events';
 import { calcTopRatedReportAndTypeForCollection } from '../utils/event-types';
@@ -21,8 +20,6 @@ import { MAP_LAYERS_CATEGORY } from '../utils/analytics';
 import colorVariables from '../common/styles/vars/colors.module.scss';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const PRIORITY_COLOR_MAP = {
   300: {
@@ -89,7 +86,7 @@ const ReportListItem = ({ eventTypes, displayTime = null, title = null, map, rep
     themeBgColor={themeBgColor}
     themeColor={themeColor}
     IconComponent={
-      <button className={ENABLE_UFA_NAVIGATION_UI ? styles.icon : styles.oldNavigationIcon} type='button' onClick={() => iconClickHandler(report)}>
+      <button className={styles.icon} type='button' onClick={() => iconClickHandler(report)}>
         <EventIcon report={report} />
         {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
       </button>

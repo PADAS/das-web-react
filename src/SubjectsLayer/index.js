@@ -9,7 +9,7 @@ import { withMap } from '../EarthRangerMap';
 import withMapViewConfig from '../WithMapViewConfig';
 
 import { addFeatureCollectionImagesToMap } from '../utils/map';
-import { DEVELOPMENT_FEATURE_FLAGS, LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
+import { LAYER_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { getShouldSubjectsBeClustered } from '../selectors/clusters';
 

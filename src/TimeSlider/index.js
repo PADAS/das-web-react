@@ -8,7 +8,6 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import isEqual from 'react-fast-compare';
 import debounce from 'lodash/debounce';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { STANDARD_DATE_FORMAT, generateCurrentTimeZoneTitle, generateWeeksAgoDate, SHORTENED_DATE_FORMAT } from '../utils/datetime';
 import { setVirtualDate, clearVirtualDate } from '../ducks/timeslider';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -19,8 +18,6 @@ import EventFilterDateRangeSelector from '../EventFilter/DateRange';
 import { ReactComponent as ClockIcon } from '../common/images/icons/clock-icon.svg';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { Title, Content } = Popover;
 
@@ -127,10 +124,10 @@ const TimeSlider = (props) => {
 
   const RightPopoverContent = (props) => PopoverContent({ ...props, popoverClassName: styles.rightPopover });
 
-  const sidebarOpenStyles = ENABLE_UFA_NAVIGATION_UI ? styles.sidebarOpen : '';
+  const sidebarOpenStyles = styles.sidebarOpen;
 
   return <div
-    className={`${ENABLE_UFA_NAVIGATION_UI ? styles.wrapper : styles.oldNavigationWrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}
+    className={`${styles.wrapper} ${sidebarOpen ? sidebarOpenStyles : styles.sidebarClosed}`}
     >
     <OverlayTrigger target={leftPopoverTrigger.current} shouldUpdatePosition={true} rootClose trigger='click' placement='top' overlay={PopoverContent} flip={true}>
       <div ref={leftPopoverTrigger} onClick={() => onHandleClick('Left')} className={`${styles.handle} ${styles.left} ${startDateModified ? styles.modified : ''}`}>

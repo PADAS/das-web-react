@@ -9,17 +9,14 @@ import 'axios-progress-bar/dist/nprogress.css';
 import { fetchMaps } from './ducks/maps';
 import { setDirectMapBindingsForFeatureHighlightStates } from './utils/features';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
-import { DEVELOPMENT_FEATURE_FLAGS } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
-import { updateUserPreferences } from './ducks/user-preferences';
 import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
-import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -33,10 +30,6 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 import './App.scss';
 import { showToast } from './utils/toast';
 
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
-
-const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
-
 export const MapContext = createContext(null);
 
 // use this block to do direct map event binding.
@@ -48,7 +41,7 @@ const bindDirectMapEventing = (map) => {
 
 const App = (props) => {
   const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
+    sidebarOpen, trackLength, setTrackLength, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -74,11 +67,6 @@ const App = (props) => {
     disallowDragAndDrop(e);
     finishDrag(e);
   }, [disallowDragAndDrop, finishDrag]);
-
-  const onSidebarHandleClick = useCallback(() => {
-    updateUserPreferences({ sidebarOpen: !sidebarOpen });
-    drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
-  }, [sidebarOpen, updateUserPreferences]);
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
@@ -123,7 +111,7 @@ const App = (props) => {
   }, [showGeoPermWarningMessage]);
 
   return <div
-    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    className={`App ${isDragging ? 'dragging' : ''} ${pickingLocationOnMap ? 'picking-location' : ''}`}
     onDrop={onDrop}
     onDragLeave={finishDrag}
     onDragOver={disallowDragAndDrop}
@@ -135,7 +123,7 @@ const App = (props) => {
 
       <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
         <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} pickingLocationOnMap={pickingLocationOnMap} />
-        {!!map && <SideBar {...(ENABLE_UFA_NAVIGATION_UI ? {} : { onHandleClick: onSidebarHandleClick })} map={map} />}
+        {!!map && <SideBar map={map} />}
         <ModalRenderer map={map} />
       </div>
 
@@ -169,7 +157,7 @@ const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }
   };
 };
 
-export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, setTrackLength, setDefaultCustomTrackLength })(memo(App));
+export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 
 const AppWithSocketContext = () => <WithSocketContext>

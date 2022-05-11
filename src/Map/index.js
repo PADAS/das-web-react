@@ -87,7 +87,7 @@ import RightClickMarkerDropper from '../RightClickMarkerDropper';
 import './Map.scss';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
@@ -282,7 +282,7 @@ const Map = ({
 
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
 
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+    if (ENABLE_REPORT_NEW_UI) {
       showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
     } else {
       openModalForReport(event, map);
@@ -633,14 +633,14 @@ const Map = ({
 
   return <EarthRangerMap
     center={lngLatFromParams.current || homeMap.center}
-    className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
+    className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''}`}
     controls={<>
-      {ENABLE_UFA_NAVIGATION_UI && <AddReport
+      <AddReport
         className="general-add-button"
         variant="secondary"
         popoverPlacement="left"
         showLabel={false}
-      />}
+      />
       <MapBaseLayerControl />
       <MapMarkerDropper onMarkerDropped={onReportMarkerDrop} />
       <MapRulerControl />
@@ -686,14 +686,8 @@ const Map = ({
       </DelayedUnmount>
 
       <div className='map-legends'>
-        {!ENABLE_UFA_NAVIGATION_UI && <>
-          {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
-          {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
-          {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
-          {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
-        </>}
         <span className='compass-wrapper' onClick={onRotationControlClick} >
-          {ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
+          <CursorGpsDisplay />
           <RotationControl
             className='rotation-control'
             style={{
@@ -704,14 +698,13 @@ const Map = ({
               borderRadius: '0.25rem',
             }}
           />
-          {!ENABLE_UFA_NAVIGATION_UI && <CursorGpsDisplay />}
         </span>
-        {ENABLE_UFA_NAVIGATION_UI && <>
+        <>
           {subjectTracksVisible && <SubjectTrackLegend onClose={onTrackLegendClose} />}
           {subjectHeatmapAvailable && <SubjectHeatmapLegend onClose={onSubjectHeatmapClose} />}
           {showReportHeatmap && <ReportsHeatmapLegend onClose={onCloseReportHeatmap} />}
           {patrolTracksVisible && <PatrolTrackLegend onClose={onPatrolTrackLegendClose} />}
-        </>}
+        </>
       </div>
 
       <RightClickMarkerDropper />

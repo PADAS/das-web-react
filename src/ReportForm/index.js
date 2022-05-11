@@ -38,7 +38,7 @@ import ReportFormBody from './ReportFormBody';
 import NoteModal from '../NoteModal';
 import ImageModal from '../ImageModal';
 
-const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const ACTIVE_STATES = ['active', 'new'];
 
@@ -321,7 +321,7 @@ const ReportForm = (props) => {
       `Event Type:${report.event_type}`);
     return fetchEvent(report.id).then(({ data: { data } }) => {
       const formProps = { navigateRelationships: false };
-      if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      if (ENABLE_REPORT_NEW_UI) {
         showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: data });
       } else {
         openModalForReport(data, map, formProps);
@@ -377,7 +377,7 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(newIncident.id).then(({ data: { data } }) => {
-      if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      if (ENABLE_REPORT_NEW_UI) {
         showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
       } else {
         openModalForReport(data, map);
@@ -402,7 +402,7 @@ const ReportForm = (props) => {
     reportTracker.track('Click \'Add To Incident\' button');
 
     return fetchEvent(incident.id).then(({ data: { data } }) => {
-      if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+      if (ENABLE_REPORT_NEW_UI) {
         showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
       } else {
         openModalForReport(data, map);
@@ -430,7 +430,7 @@ const ReportForm = (props) => {
     reportTracker.track(`Add ${is_collection?'Incident':'Event'} to Patrol`);
 
     removeModal();
-    if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
+    if (ENABLE_PATROL_NEW_UI) {
       return showSideBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
     }
 
@@ -463,7 +463,7 @@ const ReportForm = (props) => {
           if (is_collection) {
             await addEventToIncident(newReport.id, thisReport.id);
             return fetchEvent(thisReport.id).then(({ data: { data } }) => {
-              if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+              if (ENABLE_REPORT_NEW_UI) {
                 showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
               } else {
                 openModalForReport(data, map);
@@ -478,7 +478,7 @@ const ReportForm = (props) => {
             return fetchEvent(incidentID).then((results) => {
               onSaveSuccess(results);
               const { data: { data } } = results;
-              if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
+              if (ENABLE_REPORT_NEW_UI) {
                 showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
               } else {
                 openModalForReport(data, map);

@@ -7,7 +7,6 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import PropTypes from 'prop-types';
 
 import { caseInsensitiveCompare } from '../utils/string';
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { getPatrolList } from '../selectors/patrols';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import { isFilterModified } from '../utils/patrol-filter';
@@ -22,8 +21,6 @@ import SearchBar from '../SearchBar';
 
 import patrolFilterStyles from './styles.module.scss';
 import styles from '../EventFilter/styles.module.scss';
-
-const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const PATROL_TEXT_FILTER_DEBOUNCE_TIME = 200;
 
@@ -76,11 +73,11 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
   return <>
     <div
       ref={containerRef}
-      className={`${ENABLE_UFA_NAVIGATION_UI ? patrolFilterStyles.form : patrolFilterStyles.oldNavigationForm} ${className}`}
+      className={`${patrolFilterStyles.form} ${className}`}
       onSubmit={e => e.preventDefault()}
       >
       <SearchBar
-        className={`${styles.search} ${ENABLE_UFA_NAVIGATION_UI ? patrolFilterStyles.search : patrolFilterStyles.oldNavigationSearch}`}
+        className={`${styles.search} ${patrolFilterStyles.search}`}
         placeholder='Search Patrols...'
         value={filterText}
         onChange={onSearchChange}
@@ -98,7 +95,7 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
         <Button
           variant={filtersModified ? 'primary' : 'light'}
           size='sm'
-          className={`${ENABLE_UFA_NAVIGATION_UI ? patrolFilterStyles.popoverTrigger : patrolFilterStyles.oldNavigationPopoverTrigger} ${patrolFilterStyles.filterButton}`}
+          className={`${patrolFilterStyles.popoverTrigger} ${patrolFilterStyles.filterButton}`}
           onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
           data-testid="patrolFilter-filtersButton"
         >
@@ -128,14 +125,14 @@ const PatrolFilter = ({ className, patrolFilter, patrols, updatePatrolFilter }) 
       </OverlayTrigger>
     </div>
 
-    {ENABLE_UFA_NAVIGATION_UI && <div className={`${styles.filterStringWrapper} ${className}`}>
+    <div className={`${styles.filterStringWrapper} ${className}`}>
       <FriendlyFilterString
         className={styles.friendlyFilterString}
         dateRange={patrolFilter.filter.date_range}
         isFiltered={isFilterModified(patrolFilter)}
         totalFeedCount={patrols?.results?.length ?? 0}
       />
-    </div>}
+    </div>
   </>;
 };
 

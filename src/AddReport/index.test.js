@@ -15,7 +15,6 @@ jest.mock('../constants', () => ({
   DEVELOPMENT_FEATURE_FLAGS: {
     ENABLE_PATROL_NEW_UI: true,
     ENABLE_REPORT_NEW_UI: true,
-    ENABLE_UFA_NAVIGATION_UI: true,
   },
 }));
 jest.mock('../utils/events', () => ({
@@ -92,7 +91,6 @@ describe('AddReport', () => {
   test('starts the addition of a new report', async () => {
     DEVELOPMENT_FEATURE_FLAGS.ENABLE_PATROL_NEW_UI = false;
     DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI = false;
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI = false;
 
     cleanup();
     render(
@@ -126,7 +124,6 @@ describe('AddReport', () => {
   test('opens the report detail view to add a new report', async () => {
     DEVELOPMENT_FEATURE_FLAGS.ENABLE_PATROL_NEW_UI = true;
     DEVELOPMENT_FEATURE_FLAGS.ENABLE_REPORT_NEW_UI = true;
-    DEVELOPMENT_FEATURE_FLAGS.ENABLE_UFA_NAVIGATION_UI = true;
 
     const createNewReportForEventTypeMock = jest.fn();
     createNewReportForEventType.mockImplementation(createNewReportForEventTypeMock);

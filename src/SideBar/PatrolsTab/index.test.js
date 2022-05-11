@@ -15,7 +15,6 @@ jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
   DEVELOPMENT_FEATURE_FLAGS: {
     ENABLE_PATROL_NEW_UI: true,
-    ENABLE_UFA_NAVIGATION_UI: true,
   },
 }));
 jest.mock('../../ducks/side-bar', () => ({
