@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { subjectIsStatic } from '../utils/subjects';
 
 import mockSubjectData from '../__test-helpers/fixtures/subjects';
 
@@ -21,11 +22,13 @@ jest.mock('../ducks/modals', () => {
 });
 
 describe('SubjectControls', () => {
-  let store;
+  let store, addModalMock;
   const [subject] = mockSubjectData;
   const buttonTestId = `history-button-${subject.id}`;
 
   beforeEach(() => {
+    addModalMock = jest.fn(() => () => {});
+    addModal.mockImplementation(addModalMock);
     store = mockStore({
       data: {
         tracks: {},
@@ -66,7 +69,6 @@ describe('SubjectControls', () => {
     const button = await screen.findByTestId(buttonTestId);
     userEvent.click(button);
 
-    expect(addModal).toHaveBeenCalled();
-
+    expect(addModal).toHaveBeenCalledWith(expect.objectContaining({ subjectId: subject.id, subjectIsStatic: subjectIsStatic(subject), title: `Historical Data: ${subject.name}` }));
   });
 });
