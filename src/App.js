@@ -13,7 +13,6 @@ import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 import { DEVELOPMENT_FEATURE_FLAGS } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
 import { fetchEventTypes } from './ducks/event-types';
-import { updateUserPreferences } from './ducks/user-preferences';
 import { setTrackLength, setDefaultCustomTrackLength } from './ducks/tracks';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchFeaturesets } from './ducks/features';
@@ -22,6 +21,7 @@ import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
 import { trackEventFactory, DRAWER_CATEGORY } from './utils/analytics';
 import { getCurrentTabFromURL } from './utils/navigation';
+import useNavigate from './hooks/useNavigate';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -35,7 +35,7 @@ import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites
 import './App.scss';
 import { showToast } from './utils/toast';
 
-const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const drawerTracker = trackEventFactory(DRAWER_CATEGORY);
 
@@ -49,13 +49,27 @@ const bindDirectMapEventing = (map) => {
 };
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen: sidebarOpen_OLD, trackLength, setTrackLength, updateUserPreferences, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
+  const {
+    fetchMaps,
+    fetchEventTypes,
+    fetchEventSchema,
+    fetchAnalyzers,
+    fetchPatrolTypes,
+    fetchSubjectGroups,
+    fetchFeaturesets,
+    fetchSystemStatus,
+    pickingLocationOnMap,
+    trackLength,
+    setTrackLength,
+    setDefaultCustomTrackLength,
+    showGeoPermWarningMessage,
+  } = props;
 
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const tab = getCurrentTabFromURL(location.pathname);
-  let sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
+  const currentTab = getCurrentTabFromURL(location.pathname);
+  let sidebarOpen = !!currentTab;
 
   const [map, setMap] = useState(null);
 
@@ -84,9 +98,9 @@ const App = (props) => {
   }, [disallowDragAndDrop, finishDrag]);
 
   const onSidebarHandleClick = useCallback(() => {
-    updateUserPreferences({ sidebarOpen: !sidebarOpen });
+    navigate(sidebarOpen ? '/' : '/reports');
     drawerTracker.track(`${sidebarOpen ? 'Close' : 'open'} Drawer`, null);
-  }, [sidebarOpen, updateUserPreferences]);
+  }, [navigate, sidebarOpen]);
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
@@ -164,20 +178,19 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap, userLocation }, data: { user } }) => {
+const mapStateToProps = ({ view: { trackLength, pickingLocationOnMap, userLocation }, data: { user } }) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
     trackLength,
     pickingLocationOnMap,
-    sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
     showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
     userIsGeoPermissionRestricted: geoPermRestricted,
   };
 };
 
-export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, updateUserPreferences, setTrackLength, setDefaultCustomTrackLength })(memo(App));
+export const ConnectedApp = connect(mapStateToProps, { fetchMaps, fetchEventSchema, fetchFeaturesets, fetchAnalyzers, fetchPatrolTypes, fetchEventTypes, fetchSubjectGroups, fetchSystemStatus, setTrackLength, setDefaultCustomTrackLength })(memo(App));
 
 
 const AppWithSocketContext = () => <WithSocketContext>

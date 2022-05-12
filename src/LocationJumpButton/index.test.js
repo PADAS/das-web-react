@@ -13,7 +13,6 @@ import useNavigate from '../hooks/useNavigate';
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
   BREAKPOINTS: { screenIsMediumLayoutOrLarger: { matches: false } },
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_URL_NAVIGATION: true },
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
 

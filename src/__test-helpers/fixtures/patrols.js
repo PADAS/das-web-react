@@ -1648,10 +1648,5 @@ export const patrolDefaultStoreData = {
     patrolTrackState: {
       pinned: [], visible: []
     },
-    sideBar: {
-      currentTab: TAB_KEYS.PATROLS,
-      data: newPatrol,
-      showDetailView: false,
-    },
   },
 };

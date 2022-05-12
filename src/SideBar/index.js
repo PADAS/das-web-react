@@ -15,7 +15,6 @@ import isEqual from 'react-fast-compare';
 import isUndefined from 'lodash/isUndefined';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { MapContext } from 'react-mapbox-gl';
-import Nav from 'react-bootstrap/Nav';
 import PropTypes from 'prop-types';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -31,13 +30,11 @@ import {
 } from '../constants';
 import { fetchPatrols } from '../ducks/patrols';
 import { getPatrolList } from '../selectors/patrols';
-import { hideDetailView, openTab } from '../ducks/side-bar';
 import { INITIAL_FILTER_STATE } from '../ducks/event-filter';
 import { SocketContext } from '../withSocketConnection';
 import { trackEventFactory, DRAWER_CATEGORY } from '../utils/analytics';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 import undoable, { calcInitialUndoableState, undo } from '../reducers/undoable';
-import { updateUserPreferences } from '../ducks/user-preferences';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -65,7 +62,7 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
 const PatrolsTabOld = lazy(() => import('./PatrolsTab'));
@@ -97,18 +94,16 @@ const SideBar = ({ map, onHandleClick }) => {
   const patrolFilter = useSelector((state) => state.data.patrolFilter);
   const patrols = useSelector((state) => getPatrolList(state));
   const sideBar = useSelector((state) => state.view.sideBar);
-  const sidebarOpen_OLD = useSelector((state) => state.view.userPreferences.sidebarOpen);
 
   const patrolFlagEnabled = useFeatureFlag(FEATURE_FLAGS.PATROL_MANAGEMENT);
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
 
   const socket = useContext(SocketContext);
 
-  const tab = getCurrentTabFromURL(location.pathname);
+  const currentTab = getCurrentTabFromURL(location.pathname);
   const itemId = getCurrentIdFromURL(location.pathname);
 
-  const currentTab = ENABLE_URL_NAVIGATION ? tab : sideBar.currentTab;
-  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!currentTab : sidebarOpen_OLD;
+  const sidebarOpen = !!currentTab;
 
   const patrolFetchRef = useRef(null);
 
@@ -151,25 +146,11 @@ const SideBar = ({ map, onHandleClick }) => {
 
   }, [dispatch]);
 
-  const onSelectTab = useCallback((clickedSidebarTab) => {
-    if (clickedSidebarTab === currentTab && sidebarOpen) {
-      if (ENABLE_URL_NAVIGATION) navigate('/');
-      else dispatch(updateUserPreferences({ sidebarOpen: false }));
-    } else {
-      if (ENABLE_URL_NAVIGATION) navigate(`/${clickedSidebarTab}`);
-      else dispatch(openTab(clickedSidebarTab));
-    }
-  }, [dispatch, sidebarOpen, currentTab, navigate]);
-
-  const handleCloseSideBar = useCallback(() => {
-    if (ENABLE_URL_NAVIGATION) navigate('/');
-    else dispatch(updateUserPreferences({ sidebarOpen: false }));
-  }, [dispatch, navigate]);
+  const handleCloseSideBar = useCallback(() => navigate('/'), [navigate]);
 
   const onClickBackFromDetailView = useCallback(() => {
-    if (ENABLE_URL_NAVIGATION) navigate(`/${currentTab}`);
-    else dispatch(hideDetailView());
-  }, [dispatch, currentTab, navigate]);
+    navigate(`/${currentTab}`);
+  }, [currentTab, navigate]);
 
   useEffect(() => {
     if (!!currentTab && !Object.values(TAB_KEYS).includes(currentTab.toLowerCase())) {
@@ -325,98 +306,6 @@ const SideBar = ({ map, onHandleClick }) => {
     </ErrorBoundary>;
   }
   /* --- OLD NAVIGATION STUFF ENDS HERE --- */
-
-  if (!ENABLE_URL_NAVIGATION) {
-    return <ErrorBoundary>
-      <aside className={styles.sideBar}>
-        <Tab.Container activeKey={currentTab} onSelect={onSelectTab}>
-          <Nav className={`${styles.verticalNav} ${sidebarOpen ? 'open' : ''}`}>
-            <Nav.Item>
-              <Nav.Link eventKey={TAB_KEYS.REPORTS}>
-                <DocumentIcon />
-                {!!showEventsBadge && <BadgeIcon className={styles.badge} />}
-                <span>Reports</span>
-              </Nav.Link>
-            </Nav.Item>
-
-            {showPatrols && <Nav.Item>
-              <Nav.Link eventKey={TAB_KEYS.PATROLS}>
-                <PatrolIcon />
-                <span>Patrols</span>
-              </Nav.Link>
-            </Nav.Item>}
-
-            <Nav.Item>
-              <Nav.Link eventKey={TAB_KEYS.LAYERS}>
-                <LayersIcon />
-                <span>Map Layers</span>
-              </Nav.Link>
-            </Nav.Item>
-          </Nav>
-
-          <div className={`${styles.tabsContainer} ${sidebarOpen ? 'open' : ''}`}>
-            <Tab.Content className={`${styles.tab} ${sidebarOpen ? 'open' : ''}`}>
-              <div className={styles.header}>
-                <div
-                  className={currentTab === TAB_KEYS.LAYERS ? 'hidden' : ''}
-                  data-testid="sideBar-addReportButton"
-                >
-                  {sideBar.showDetailView ?
-                    <button className={styles.backButton} type='button' onClick={onClickBackFromDetailView} data-testid="sideBar-backDetailViewButton">
-                      <ArrowLeftIcon />
-                    </button>
-                    :
-                    <AddReport
-                      className={styles.addReport}
-                      variant="secondary"
-                      formProps={{ hidePatrols: currentTab !== TAB_KEYS.PATROLS }}
-                      hideReports={currentTab !== TAB_KEYS.REPORTS}
-                      popoverPlacement="bottom"
-                      showLabel={false}
-                      type={currentTab}
-                    />
-                  }
-                </div>
-
-                <h3>{tabTitle}</h3>
-
-                <button
-                  data-testid="sideBar-closeButton"
-                  onClick={handleCloseSideBar}
-                >
-                  <CrossIcon />
-                </button>
-              </div>
-
-              <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.REPORTS}>
-                <ReportsTab map={map} sidebarOpen={sidebarOpen} className={styles.reportsTab}/>
-              </Tab.Pane>
-
-              {showPatrols && <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.PATROLS}>
-                <PatrolsTab loadingPatrols={loadingPatrols} map={map} patrolResults={patrols.results} />
-              </Tab.Pane>}
-
-              <Tab.Pane className={styles.tabBody} eventKey={TAB_KEYS.LAYERS}>
-                <ErrorBoundary>
-                  <MapLayerFilter />
-                  <div className={styles.mapLayers}>
-                    <ReportMapControl/>
-                    <SubjectGroupList map={map} />
-                    <FeatureLayerList map={map} />
-                    <AnalyzerLayerList map={map} />
-                    <div className={styles.noItems}>No items to display.</div>
-                  </div>
-                  <div className={styles.mapLayerFooter}>
-                    <ClearAllControl map={map} />
-                  </div>
-                </ErrorBoundary>
-              </Tab.Pane>
-            </Tab.Content>
-          </div>
-        </Tab.Container>
-      </aside>
-    </ErrorBoundary>;
-  }
 
   return <ErrorBoundary>
     <aside className={`${styles.sideBar} ${sideBar.showSideBar ? '' : 'hidden'}`}>

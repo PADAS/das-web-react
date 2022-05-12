@@ -27,7 +27,7 @@ import { ConnectedApp as App } from './App';
 
 jest.mock('./constants', () => ({
   ...jest.requireActual('./constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_GEOPERMISSION_UI: true, ENABLE_URL_NAVIGATION: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_GEOPERMISSION_UI: true },
 }));
 
 const generateEmptyResponse = () => ({ data: [] });
@@ -85,9 +85,6 @@ describe('The main app view', () => {
         },
         heatmapSubjectIDs: [],
         trackLength: 12,
-        userPreferences: {
-          sidebarOpen: true,
-        },
         userLocation: {
           coords: {
             longitude: 1,

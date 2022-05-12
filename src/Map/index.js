@@ -37,12 +37,9 @@ import {
 import { addModal } from '../ducks/modals';
 import { updatePatrolTrackState } from '../ducks/patrols';
 import { addUserNotification } from '../ducks/user-notifications';
-import { updateUserPreferences } from '../ducks/user-preferences';
-import { showDetailView } from '../ducks/side-bar';
 import useNavigate from '../hooks/useNavigate';
 
 import {
-  BREAKPOINTS,
   DEVELOPMENT_FEATURE_FLAGS,
   LAYER_IDS,
   LAYER_PICKER_IDS,
@@ -93,7 +90,6 @@ const {
   ENABLE_NEW_CLUSTERING,
   ENABLE_REPORT_NEW_UI,
   ENABLE_UFA_NAVIGATION_UI,
-  ENABLE_URL_NAVIGATION,
 } = DEVELOPMENT_FEATURE_FLAGS;
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
@@ -135,7 +131,6 @@ const Map = ({
   showPopup,
   showReportHeatmap,
   showReportsOnMap,
-  showSideBarDetailView,
   showTrackTimepoints,
   socket,
   subjectTrackState,
@@ -147,12 +142,11 @@ const Map = ({
   updateTrackState,
   user,
   userLocation,
-  userPreferences,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const tab = getCurrentTabFromURL(location.pathname);
+  const currentTab = getCurrentTabFromURL(location.pathname);
 
   const trackRequestCancelToken = useRef(CancelToken.source());
   const lngLatFromParams = useRef();
@@ -292,11 +286,7 @@ const Map = ({
     mapInteractionTracker.track('Click Map Event Icon', `Event Type:${event.event_type}`);
 
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      if (ENABLE_URL_NAVIGATION) {
-        navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
-      } else {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
-      }
+      navigate(`/${TAB_KEYS.REPORTS}/${event.id}`);
     } else {
       openModalForReport(event, map);
     }
@@ -495,11 +485,6 @@ const Map = ({
     }
 
     hideUnpinnedTrackLayers(map, event);
-
-    if (userPreferences.sidebarOpen && !BREAKPOINTS.screenIsLargeLayoutOrLarger.matches) {
-      if (ENABLE_URL_NAVIGATION) navigate('/');
-      else updateUserPreferences({ sidebarOpen: false });
-    }
   });
 
   // Workaround to lame issue with React Mapbox GL: https://github.com/alex3165/react-mapbox-gl/issues/963
@@ -697,7 +682,7 @@ const Map = ({
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
-      <DelayedUnmount isMounted={ENABLE_URL_NAVIGATION ? !tab : !userPreferences.sidebarOpen}>
+      <DelayedUnmount isMounted={!currentTab}>
         <div className='floating-report-filter'>
           <EventFilter className='report-filter'/>
         </div>
@@ -791,7 +776,6 @@ const mapStatetoProps = (state) => {
     showTrackTimepoints,
     trackLength: { length: trackLength, origin: trackLengthOrigin },
     userLocation,
-    userPreferences,
     showReportsOnMap,
   } = view;
 
@@ -822,7 +806,6 @@ const mapStatetoProps = (state) => {
     mapFeaturesFeatureCollection: getFeatureSetFeatureCollectionsByType(state),
     mapSubjectFeatureCollection: getMapSubjectFeatureCollectionWithVirtualPositioning(state),
     analyzersFeatureCollection: getAnalyzerFeatureCollectionsByType(state),
-    userPreferences,
     showReportHeatmap: state.view.showReportHeatmap,
   });
 };
@@ -839,8 +822,6 @@ export default connect(mapStatetoProps, {
   setReportHeatmapVisibility,
   setTrackLength,
   showPopup,
-  showSideBarDetailView: showDetailView,
-  updateUserPreferences,
   updateTrackState,
   updatePatrolTrackState,
   updateHeatmapSubjects,

@@ -3,19 +3,13 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Outlet, useLocation } from 'react-router-dom';
 
-import { DEVELOPMENT_FEATURE_FLAGS, TAB_KEYS } from '../../constants';
+import { TAB_KEYS } from '../../constants';
 import { fetchPatrol } from '../../ducks/patrols';
 import { getCurrentIdFromURL } from '../../utils/navigation';
-import { showDetailView } from '../../ducks/side-bar';
 import useNavigate from '../../hooks/useNavigate';
 
 import PatrolFilter from '../../PatrolFilter';
 import PatrolList from '../../PatrolList';
-import PatrolDetailView from '../../PatrolDetailView';
-
-import styles from '../styles.module.scss';
-
-const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const PatrolsTabContext = createContext();
 
@@ -41,32 +35,23 @@ const PatrolsTab = ({
       fetchPatrol(itemId)
         .then(() => setLoadingPatrolById(false))
         .catch(() => navigate(`/${TAB_KEYS.PATROLS}`, { replace: true }));
-    } else if (!itemId) {
+    } else {
       setLoadingPatrolById(false);
     }
   }, [fetchPatrol, itemId, navigate, patrolStore]);
 
   const loadingPatrols = !!itemId ? loadingPatrolById : loadingPatrolFeed;
   return <>
-    {ENABLE_URL_NAVIGATION
-      ? <PatrolsTabContext.Provider value={{ loadingPatrols }}>
-        <Outlet />
-      </PatrolsTabContext.Provider>
-      : sideBar.currentTab === TAB_KEYS.PATROLS && sideBar.showDetailView && <div data-testid="patrolDetailViewContainer">
-        <PatrolDetailView
-          className={styles.patrolDetailView}
-          loadingPatrols={loadingPatrols}
-        />
-      </div>}
+    <PatrolsTabContext.Provider value={{ loadingPatrols }}>
+      <Outlet />
+    </PatrolsTabContext.Provider>
 
     <PatrolFilter />
     <PatrolList
       loading={loadingPatrols}
       map={map}
       patrols={patrolResults}
-      onItemClick={(id) => ENABLE_URL_NAVIGATION
-        ? navigate(id)
-        : showSideBarDetailView(TAB_KEYS.PATROLS, { id })}
+      onItemClick={(id) =>  navigate(id)}
     />
   </>;
 };
@@ -86,4 +71,4 @@ const mapStateToProps = (state) => ({
   sideBar: state.view.sideBar,
 });
 
-export default connect(mapStateToProps, { fetchPatrol, showSideBarDetailView: showDetailView })(PatrolsTab);
+export default connect(mapStateToProps, { fetchPatrol })(PatrolsTab);
