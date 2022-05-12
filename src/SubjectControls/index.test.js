@@ -47,28 +47,32 @@ describe('SubjectControls', () => {
       </Provider>);
   });
 
-  test('showing the historical data button', async () => {
-    render(
-      <Provider store={store}>
-        <SubjectControls subject={subject} showHistoryButton={true} />
-      </Provider>
-    );
+  describe('the histrical data button', () => {
 
-    await screen.findByTestId(buttonTestId);
 
-  });
+    test('showing the historical data button', async () => {
+      render(
+        <Provider store={store}>
+          <SubjectControls subject={subject} showHistoryButton={true} />
+        </Provider>
+      );
 
-  test('showing the history modal on button click', async () => {
+      await screen.findByTestId(buttonTestId);
 
-    render(
-      <Provider store={store}>
-        <SubjectControls subject={subject} showHistoryButton={true} />
-      </Provider>
-    );
+    });
 
-    const button = await screen.findByTestId(buttonTestId);
-    userEvent.click(button);
+    test('showing the history modal on button click', async () => {
 
-    expect(addModal).toHaveBeenCalledWith(expect.objectContaining({ subjectId: subject.id, subjectIsStatic: subjectIsStatic(subject), title: `Historical Data: ${subject.name}` }));
+      render(
+        <Provider store={store}>
+          <SubjectControls subject={subject} showHistoryButton={true} />
+        </Provider>
+      );
+
+      const button = await screen.findByTestId(buttonTestId);
+      userEvent.click(button);
+
+      expect(addModal).toHaveBeenCalledWith(expect.objectContaining({ subjectId: subject.id, subjectIsStatic: subjectIsStatic(subject), title: `Historical Data: ${subject.name}` }));
+    });
   });
 });
