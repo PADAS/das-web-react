@@ -292,6 +292,10 @@ aside {
     }
   }
 
+  &-year-header {
+    padding: 0.375rem 0;
+  }
+
   &__month-dropdown-container {
     padding-right: 1.87rem;
   }
@@ -349,7 +353,7 @@ aside {
       cursor: not-allowed;
     }
 
-    &--selected {
+    &[class*=-selected] {
       color: white;
       border-radius: 0rem;
       background-color: $bright-blue;

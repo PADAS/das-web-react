@@ -1,6 +1,37 @@
 @import '../common/styles/inputs';
 @import '../common/styles/vars/colors';
 
+.customHeader {
+  padding: 0.375rem;
+  display: flex;
+  justify-content: center;
+  // background-color: $light-gray;
+  border-bottom: 0.062rem solid $light-gray;
+
+  > button {
+    border: none;
+    display: flex;
+    align-items: center;
+    color: $secondary-medium-light-gray;
+    background-color: transparent;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.headerTitle {
+  background-color: transparent;
+  border: none;
+  color: black;
+  font-size: 0.875rem;
+
+  &:focus {
+    outline: none;
+  }
+}
+
 .datePickerCustomInput {
   @include defaultTextInput;
   font-size: 0.875rem;
