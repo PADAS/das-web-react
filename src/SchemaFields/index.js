@@ -1,5 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Select, { components } from 'react-select';
+import addYears from 'date-fns/add_years';
 import isString from 'lodash/isString';
 import isPlainObject from 'lodash/isPlainObject';
 import debounce from 'lodash/debounce';
@@ -198,7 +199,7 @@ const DateTimeField = (props) => {
       value={date}
       disabled={disabled}
       popperPlacement={placement}
-      maxDate={maxDate || new Date('2050')}
+      maxDate={maxDate || new Date((new Date().getFullYear() + 15).toString())}
       onChange={handleChange}
       popoverClassName={styles.datepicker}
       popoverStyles={localCss}

@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 // Documentation
 // https://reactdatepicker.com/#example-custom-input
 
-const StyledDatePicker = ({ value,
+const CustomDatePicker = ({ value,
   onChange,
   disableCustomInput,
   customInput = null,
@@ -45,6 +45,7 @@ const StyledDatePicker = ({ value,
       ref={innerRef}
       selected={value}
       onChange={onChange}
+      className={className}
       showPopperArrow={false}
       timeInputLabel="Time:"
       onCalendarOpen={handleOpen}
@@ -79,7 +80,7 @@ const StyledDatePicker = ({ value,
             dateFormat="yyyy"
             showMonthYearPicker
             onChange={(date) => { changeMonth(getMonth(date)); changeYear(getYear(date)); }}
-            customInput={<button className={styles.headerTitle} onClick={increaseMonth}> {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`} </button>}
+            customInput={<button className={styles.headerTitle} onClick={increaseMonth}> {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`} <ArrowDown /> </button>}
           />
 
           <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}> <ChevronRight/> </button>
@@ -98,7 +99,7 @@ const StyledDatePicker = ({ value,
 const CustomDefaultInput = forwardRef(({
   value,
   onClick,
-  isPopperOpen = false,
+  isPopperOpen,
   placeholderText = null,
   className = null
 }, ref) => {
@@ -123,5 +124,4 @@ const CustomDefaultInput = forwardRef(({
   </>;
 });
 
-
-export default forwardRef(StyledDatePicker);
+export default forwardRef(CustomDatePicker);

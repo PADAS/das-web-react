@@ -34,6 +34,7 @@ const ReportFormTopLevelControls = (props) => {
         showTimeInput
         value={report.time ? new Date(report.time) : null}
         placement='bottom'
+        className={styles.datePopoverInput}
         popperClassName={styles.datePopover}
         required={true}
         maxDate={new Date()}
