@@ -133,7 +133,7 @@ const SubjectControls = (props) => {
       subject={subject}
     />}
 
-    {canShowHistoryButton && <SubjectHistoryButton showLabel={showLabels} onClick={onHistoricalDataClick} />}
+    {canShowHistoryButton && <SubjectHistoryButton data-testid={`history-button-${subject.id}`} showLabel={showLabels} onClick={onHistoricalDataClick} />}
 
     {showJumpButton && coordinates && <LocationJumpButton
       coordinates={coordinates}

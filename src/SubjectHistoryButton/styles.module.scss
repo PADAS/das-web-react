@@ -21,6 +21,7 @@ $background_image_url: '../common/images/icons/';
 
 .button {
   @include button('historical-data');
+  pointer-events: none;
   margin-top: 0.25rem;
 }
 
