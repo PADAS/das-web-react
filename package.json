@@ -38,7 +38,7 @@
     "react-jsonschema-form-bs4": "^1.7.1",
     "react-mapbox-gl": "4.8.3",
     "react-redux": "^7.0.3",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
     "react-select": "^3.0.3",
     "react-toastify": "^5.4.0",
@@ -92,10 +92,10 @@
   "jest": {
     "coverageThreshold": {
       "global": {
-        "branches": 29.31,
-        "functions": 31.25,
-        "lines": 43.42,
-        "statements": 41.91
+        "branches": 29.11,
+        "functions": 31.44,
+        "lines": 43.44,
+        "statements": 41.96
       }
     },
     "coverageReporters": [

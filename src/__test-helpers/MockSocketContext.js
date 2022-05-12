@@ -7,7 +7,7 @@ export const mockedSocket = new SocketMock();
 mockedSocket._on = mockedSocket.on.bind(mockedSocket);
 mockedSocket.on = (msg, fn) => [mockedSocket._on(msg, fn), fn];
 
-const MockSocketContext = (props) => { // eslint-disable-line react/display-name
+const MockSocketContext = (props) => {
   const { children } = props;
 
   const [websocket] = useState(mockedSocket);
