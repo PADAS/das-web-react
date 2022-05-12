@@ -27,6 +27,10 @@
   font-size: 0.875rem;
   margin-left: 0.75rem;
 
+  > span {
+    color: $secondary-medium-light-gray;
+  }
+
   &:focus {
     outline: none;
   }
@@ -61,6 +65,14 @@
   > span {
     &[class*=placeholder] {
       color: $secondary-medium-light-gray;
+    }
+  }
+
+  .arrowSymbol {
+    color: $secondary-medium-light-gray;
+
+    &[class*=open] {
+      transform: rotate(180deg);
     }
   }
 }

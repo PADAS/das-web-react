@@ -5,15 +5,13 @@ import getMonth from 'date-fns/get_month';
 import getYear from 'date-fns/get_year';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
-import { ReactComponent as ArrowDown } from '../common/images/icons/arrow-down-small.svg';
-import { ReactComponent as ArrowUp } from '../common/images/icons/arrow-up-small.svg';
 import { ReactComponent as ChevronLeft } from '../common/images/icons/chevron-left.svg';
 import { ReactComponent as ChevronRight } from '../common/images/icons/chevron-right.svg';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './styles.module.scss';
 
-// Documentation
+// Date picker documentation
 // https://reactdatepicker.com/#example-custom-input
 
 const CustomDatePicker = ({ value,
@@ -50,14 +48,15 @@ const CustomDatePicker = ({ value,
       timeInputLabel="Time:"
       onCalendarOpen={handleOpen}
       onCalendarClose={handleClose}
-      customInput={ !disableCustomInput ?
-      customInput || <CustomDefaultInput
-      value={value}
-      onClick={onChange}
-      className={className}
-      placeholderText={placeholderText}
-      isPopperOpen={isOpen}
-      /> : null}
+      customInput={
+        !disableCustomInput ? customInput || <CustomDefaultInput
+        value={value}
+        onClick={onChange}
+        className={className}
+        placeholderText={placeholderText}
+        isPopperOpen={isOpen}
+        /> : null
+      }
       showMonthDropdown
       showYearDropdown
       renderCustomHeader={({
@@ -80,7 +79,7 @@ const CustomDatePicker = ({ value,
             dateFormat="yyyy"
             showMonthYearPicker
             onChange={(date) => { changeMonth(getMonth(date)); changeYear(getYear(date)); }}
-            customInput={<button className={styles.headerTitle} onClick={increaseMonth}> {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`} <ArrowDown /> </button>}
+            customInput={<button className={styles.headerTitle} onClick={increaseMonth}> {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`} <span>▾</span> </button>}
           />
 
           <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}> <ChevronRight/> </button>
@@ -95,14 +94,7 @@ const CustomDatePicker = ({ value,
 
 };
 
-// eslint-disable-next-line react/display-name
-const CustomDefaultInput = forwardRef(({
-  value,
-  onClick,
-  isPopperOpen,
-  placeholderText = null,
-  className = null
-}, ref) => {
+const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = null, className = null }) => {
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -115,13 +107,12 @@ const CustomDefaultInput = forwardRef(({
       className={`${styles.datePickerCustomInput} ${className}`}
       data-testid="custom-datepicker-button"
       onClick={handleClick}
-      ref={ref}
       >
       <CalendarIcon/>
       <span className={!value && placeholderText ? 'placeholder' : ''}>{value || placeholderText}</span>
-      {isPopperOpen ? <ArrowUp /> : <ArrowDown />}
+      <span className={`${styles.arrowSymbol} ${isPopperOpen? 'open' : ''}`}>▾</span>
     </button>
   </>;
-});
+};
 
 export default forwardRef(CustomDatePicker);
