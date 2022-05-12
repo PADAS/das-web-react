@@ -57,7 +57,8 @@ describe('SubjectHistoricalDataModal', () => {
       expect(tableHeaders[2].childNodes[0]).toHaveTextContent('Temperature');
       expect(tableCells[2].childNodes[0]).toHaveTextContent('1000 c');
 
-      expect(tableHeaders[3]).toBe(undefined);
+      expect(tableHeaders[3].childNodes[0]).toHaveTextContent('Location');
+      expect(tableCells[3].childNodes[0]).toHaveTextContent('20.701133°, -103.572941°');
     });
   });
   describe('pagination', () => {
