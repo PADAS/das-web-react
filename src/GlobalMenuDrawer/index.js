@@ -24,7 +24,6 @@ import {
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
@@ -39,7 +38,7 @@ import { JIRA_WIDGET_IFRAME_SELECTOR, JIRA_IFRAME_HELP_BUTTON_SELECTOR, selectSu
 
 import styles from './styles.module.scss';
 
-const { ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const AlertsModal = lazy(() => import('../AlertsModal'));
 const DailyReportModal = lazy(() => import('../DailyReportModal'));
@@ -60,7 +59,6 @@ const GlobalMenuDrawer = ({
   eventTypes,
   fetchTableauDashboard,
   hideDrawer,
-  openTab,
   serverData,
   tableauEnabled,
   token,
@@ -190,9 +188,8 @@ const GlobalMenuDrawer = ({
   const onNavigationItemClick = useCallback((navigationItem) => () => {
     hideDrawer();
 
-    if (ENABLE_URL_NAVIGATION) navigate(`/${navigationItem.sidebarTab}`);
-    else openTab(navigationItem.sidebarTab);
-  }, [hideDrawer, openTab, navigate]);
+    navigate(`/${navigationItem.sidebarTab}`);
+  }, [hideDrawer, navigate]);
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
@@ -258,7 +255,6 @@ GlobalMenuDrawer.propTypes = {
   serverData: PropTypes.shape({ version: PropTypes.string }).isRequired,
   tableauEnabled: PropTypes.bool.isRequired,
   token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
-  openTab: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile, systemStatus, token, user }, view: { systemConfig } }) => ({
@@ -274,5 +270,5 @@ const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile,
 
 export default connect(
   mapStateToProps,
-  { addModal, fetchTableauDashboard, hideDrawer, openTab }
+  { addModal, fetchTableauDashboard, hideDrawer }
 )(GlobalMenuDrawer);

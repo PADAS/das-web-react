@@ -17,7 +17,7 @@ import useNavigate from '../hooks/useNavigate';
 
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true, ENABLE_URL_NAVIGATION: true },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),

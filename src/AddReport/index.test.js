@@ -16,7 +16,6 @@ jest.mock('../constants', () => ({
     ENABLE_PATROL_NEW_UI: true,
     ENABLE_REPORT_NEW_UI: true,
     ENABLE_UFA_NAVIGATION_UI: true,
-    ENABLE_URL_NAVIGATION: true,
   },
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());

@@ -20,7 +20,6 @@ import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsARadio, radioHasRecentActivity } from '../utils/subjects';
 import { generateSaveActionsForReportLikeObject, executeSaveActions } from '../utils/save';
 import { fetchTrackedBySchema } from '../ducks/trackedby';
-import { showDetailView } from '../ducks/side-bar';
 
 import { actualEndTimeForPatrol, actualStartTimeForPatrol, calcPatrolState, displayTitleForPatrol, displayStartTimeForPatrol, displayEndTimeForPatrol, displayDurationForPatrol,
   isSegmentActive, displayPatrolSegmentId, getReportsForPatrol, isSegmentEndScheduled, patrolTimeRangeIsValid, patrolShouldBeMarkedDone, patrolShouldBeMarkedOpen,
@@ -63,7 +62,7 @@ import styles from './styles.module.scss';
 import { openModalForReport } from '../utils/events';
 import useNavigate from '../hooks/useNavigate';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const STARTED_LABEL = 'Started';
 const SCHEDULED_LABEL = 'Scheduled';
@@ -88,7 +87,6 @@ const PatrolModal = (props) => {
     patrolLeaderSchema,
     autoEndPatrols,
     eventStore,
-    showSideBarDetailView,
   } = props;
 
   const navigate = useNavigate();
@@ -623,15 +621,11 @@ const PatrolModal = (props) => {
       navigateRelationships: false,
     };
     if (ENABLE_REPORT_NEW_UI && ENABLE_UFA_NAVIGATION_UI) {
-      if (ENABLE_URL_NAVIGATION) {
-        navigate(`${TAB_KEYS.REPORTS}/${item.id}`, null, { formProps });
-      } else {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { formProps, report: item });
-      }
+      navigate(`${TAB_KEYS.REPORTS}/${item.id}`, null, { formProps });
     } else {
       openModalForReport(item, map, formProps);
     }
-  }, [eventStore, fetchEvent, map, onAddReport, showSideBarDetailView, navigate]);
+  }, [eventStore, fetchEvent, map, onAddReport, navigate]);
 
   const saveButtonDisabled = useMemo(() => !canEditPatrol || isSaving, [canEditPatrol, isSaving]);
 
@@ -792,10 +786,8 @@ export default connect(mapStateToProps, {
   removeModal,
   updateUserPreferences,
   setModalVisibilityState,
-  showSideBarDetailView: showDetailView,
 })(memo(PatrolModal));
 
 PatrolModal.propTypes = {
   patrol: PropTypes.object.isRequired,
-  showSideBarDetailView: PropTypes.func.isRequired,
 };

@@ -13,11 +13,7 @@ import PatrolsTab from './';
 
 jest.mock('../../constants', () => ({
   ...jest.requireActual('../../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: {
-    ENABLE_PATROL_NEW_UI: true,
-    ENABLE_UFA_NAVIGATION_UI: true,
-    ENABLE_URL_NAVIGATION: true,
-  },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_PATROL_NEW_UI: true, ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
@@ -61,7 +57,6 @@ describe('PatrolsTab', () => {
   });
 
   test('opens the patrol detail view if an item from the list is clicked', async () => {
-    store.view.sideBar = { showDetailView: false };
     render(<Provider store={mockStore(store)}>
       <NavigationWrapper>
         <PatrolsTab

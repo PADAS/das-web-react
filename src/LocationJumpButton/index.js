@@ -1,25 +1,20 @@
 import React, { Fragment, memo, useContext } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { MapContext } from '../App';
-import { BREAKPOINTS, DEVELOPMENT_FEATURE_FLAGS } from '../constants';
+import { BREAKPOINTS } from '../constants';
 import { jumpToLocation } from '../utils/map';
 import { trackEvent } from '../utils/analytics';
 import { validateLngLat } from '../utils/location';
 import { ReactComponent as MarkerIcon } from '../common/images/icons/marker-feed.svg';
 import useNavigate from '../hooks/useNavigate';
 
-import { updateUserPreferences } from '../ducks/user-preferences';
-
 import styles from './styles.module.scss';
-
-const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const { screenIsMediumLayoutOrLarger } = BREAKPOINTS;
 
 const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, bypassLocationValidation,
-  zoom, updateUserPreferences, iconOverride, className, dispatch: _dispatch, ...rest }) => {
+  zoom, iconOverride, className, dispatch: _dispatch, ...rest }) => {
   const navigate = useNavigate();
 
   const buttonClass = className ? className : isMulti ? styles.multi : styles.jump;
@@ -33,8 +28,7 @@ const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, byp
 
   const closeSidebarForSmallViewports = () => {
     if (!screenIsMediumLayoutOrLarger.matches) {
-      if (ENABLE_URL_NAVIGATION) navigate('/');
-      else updateUserPreferences({ sidebarOpen: false });
+      navigate('/');
     }
   };
 
@@ -56,7 +50,7 @@ const LocationJumpButton = ({ clickAnalytics, onClick, coordinates, isMulti, byp
   </button>;
 };
 
-export default connect(null, { updateUserPreferences })(memo(LocationJumpButton));
+export default memo(LocationJumpButton);
 
 LocationJumpButton.propTypes = {
   coordinates: PropTypes.array,

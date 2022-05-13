@@ -24,11 +24,7 @@ jest.mock('react-router-dom', () => ({
 }));
 jest.mock('../constants', () => ({
   ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: {
-    ENABLE_NEW_CLUSTERING: true,
-    ENABLE_UFA_NAVIGATION_UI: true,
-    ENABLE_URL_NAVIGATION: true,
-  },
+  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_NEW_CLUSTERING: true, ENABLE_UFA_NAVIGATION_UI: true },
 }));
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
@@ -101,7 +97,7 @@ describe('SideBar', () => {
     };
   });
 
-  test('shows the patrols tab if user has permissions', () => {
+  test('shows the patrols tab if user has permissions', async () => {
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -112,7 +108,7 @@ describe('SideBar', () => {
       </Provider>
     );
 
-    expect(screen.findByText('Patrols')).toBeDefined();
+    expect(await screen.findByText('Patrols')).toBeDefined();
   });
 
   test('does not show the patrols tab if user has not permissions', () => {
@@ -178,8 +174,9 @@ describe('SideBar', () => {
     expect(screen.getAllByRole('heading')[0]).toHaveTextContent('Map Layers');
   });
 
-  test('shows the reports badge when an event update comes through the socket and sidebar is closed', () => {
-    store.view.userPreferences.sidebarOpen = false;
+  test('shows the reports badge when an event update comes through the socket and sidebar is closed', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/' })));
+    useLocation.mockImplementation(useLocationMock);
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -194,18 +191,14 @@ describe('SideBar', () => {
 
     mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();
-
-      const tabs = screen.getAllByRole('tab');
-      userEvent.click(tabs[0]);
-
-      expect(screen.queryByTestId('badgeIcon')).toBeNull();
     });
   });
 
-  test('shows the reports badge when a new event comes through the socket and sidebar is closed', () => {
-    store.view.userPreferences.sidebarOpen = false;
+  test('shows the reports badge when a new event comes through the socket and sidebar is closed', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/' })));
+    useLocation.mockImplementation(useLocationMock);
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -220,13 +213,14 @@ describe('SideBar', () => {
 
     mockedSocket.socketClient.emit('new_event', { matches_current_filter: true });
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();
     });
   });
 
-  test('shows the reports badge also when the sidebar is open but not in the reports tab', () => {
-    store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
+  test('shows the reports badge also when the sidebar is open but not in the reports tab', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
+    useLocation.mockImplementation(useLocationMock);
     render(
       <Provider store={mockStore(store)}>
         <NavigationWrapper>
@@ -241,28 +235,7 @@ describe('SideBar', () => {
 
     mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
 
-    waitFor(() => {
-      expect(screen.getByTestId('badgeIcon')).toBeDefined();
-    });
-  });
-
-  test('removes the reports badge when the user opens the reports tab', () => {
-    store.view.sideBar.currentTab = TAB_KEYS.PATROLS;
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <MockSocketProvider>
-            <SideBar map={map} />
-          </MockSocketProvider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    expect(screen.queryByTestId('badgeIcon')).toBeNull();
-
-    mockedSocket.socketClient.emit('update_event', { matches_current_filter: true });
-
-    waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();
     });
   });

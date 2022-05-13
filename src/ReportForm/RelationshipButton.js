@@ -7,7 +7,6 @@ import { openModalForPatrol } from '../utils/patrols';
 import { fetchEvent } from '../ducks/events';
 import { fetchPatrol } from '../ducks/patrols';
 import { eventBelongsToPatrol, eventBelongsToCollection, openModalForReport } from '../utils/events';
-import { showDetailView } from '../ducks/side-bar';
 import useNavigate from '../hooks/useNavigate';
 
 import { trackEventFactory, EVENT_REPORT_CATEGORY, INCIDENT_REPORT_CATEGORY, REPORT_MODAL_CATEGORY } from '../utils/analytics';
@@ -20,12 +19,7 @@ import { AttachmentButton } from '../EditableItem/AttachmentControls';
 import { ReactComponent as FieldReportIcon } from '../common/images/icons/go_to_incident.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/go_to_patrol.svg';
 
-const {
-  ENABLE_PATROL_NEW_UI,
-  ENABLE_REPORT_NEW_UI,
-  ENABLE_UFA_NAVIGATION_UI,
-  ENABLE_URL_NAVIGATION,
-} = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_PATROL_NEW_UI, ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 const RelationshipButton = (props) => {
   const {
@@ -36,7 +30,6 @@ const RelationshipButton = (props) => {
     onNewReportSaved,
     map,
     removeModal,
-    showSideBarDetailView,
   } = props;
 
   const navigate = useNavigate();
@@ -58,16 +51,12 @@ const RelationshipButton = (props) => {
     return fetchEvent(incidentID).then(({ data: { data } }) => {
       removeModal();
       if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-        if (ENABLE_URL_NAVIGATION) {
-          navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
-        } else {
-          showSideBarDetailView(TAB_KEYS.REPORTS, { report: data });
-        }
+        navigate(`/${TAB_KEYS.REPORTS}/${data.id}`);
       } else {
         openModalForReport(data, map);
       }
     });
-  }, [fetchEvent, map, removeModal, report, reportTracker, showSideBarDetailView, navigate]);
+  }, [fetchEvent, map, removeModal, report, reportTracker, navigate]);
 
   const goToParentPatrol = useCallback(() => {
     const [patrolId] = report.patrols;
@@ -76,16 +65,12 @@ const RelationshipButton = (props) => {
 
     removeModal();
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_PATROL_NEW_UI) {
-      if (ENABLE_URL_NAVIGATION) {
-        return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
-      } else {
-        return showSideBarDetailView(TAB_KEYS.PATROLS, { id: patrolId });
-      }
+      return navigate(`/${TAB_KEYS.PATROLS}/${patrolId}`);
     }
     return fetchPatrol(patrolId).then(({ data: { data } }) => {
       openModalForPatrol(data, map);
     });
-  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, showSideBarDetailView, navigate]);
+  }, [fetchPatrol, map, removeModal, report.patrols, reportTracker, navigate]);
 
   return <Fragment>
     {navigateRelationships && <Fragment>
@@ -110,7 +95,6 @@ const RelationshipButton = (props) => {
 export default memo(connect(null, {
   fetchEvent: (...args) => fetchEvent(...args),
   fetchPatrol: id => fetchPatrol(id),
-  showSideBarDetailView: showDetailView,
 })(RelationshipButton));
 
 RelationshipButton.propTypes = {
@@ -119,5 +103,4 @@ RelationshipButton.propTypes = {
   isPatrolReport: PropTypes.bool,
   onGoToCollection: PropTypes.func,
   map: PropTypes.object,
-  showSideBarDetailView: PropTypes.func.isRequired,
 };

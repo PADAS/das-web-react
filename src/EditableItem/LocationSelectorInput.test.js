@@ -13,10 +13,6 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useLocation: () => ({ pathname: '/reports' }),
 }));
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-  DEVELOPMENT_FEATURE_FLAGS: { ENABLE_URL_NAVIGATION: true },
-}));
 jest.mock('../ducks/side-bar', () => ({
   ...jest.requireActual('../ducks/side-bar'),
   hideSideBar: jest.fn(),

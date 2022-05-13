@@ -7,9 +7,7 @@ import { useLocation } from 'react-router-dom';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
 import { setModalVisibilityState } from '../ducks/modals';
-import { updateUserPreferences } from '../ducks/user-preferences';
 import { calcGpsDisplayString } from '../utils/location';
 import { getCurrentTabFromURL } from '../utils/navigation';
 import { hideSideBar, showSideBar } from '../ducks/side-bar';
@@ -23,8 +21,6 @@ import TextCopyBtn from '../TextCopyBtn';
 import { ReactComponent as LocationIcon } from '../common/images/icons/marker-feed.svg';
 
 import styles from './styles.module.scss';
-
-const { ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
 
 const eventReportTracker = trackEventFactory(EVENT_REPORT_CATEGORY);
 
@@ -67,9 +63,7 @@ const LocationSelectorInput = (props) => {
     map,
     onLocationChange,
     placeholder,
-    updateUserPreferences,
     setModalVisibilityState,
-    sidebarOpen: sidebarOpen_OLD,
     gpsFormat,
     showUserLocation,
     hideSideBar,
@@ -78,8 +72,8 @@ const LocationSelectorInput = (props) => {
 
   const routerLocation = useLocation();
 
-  const tab = getCurrentTabFromURL(routerLocation.pathname);
-  const sidebarOpen = ENABLE_URL_NAVIGATION ? !!tab : sidebarOpen_OLD;
+  const currentTab = getCurrentTabFromURL(routerLocation.pathname);
+  const sidebarOpen = !!currentTab;
 
   const gpsInputAnchorRef = useRef(null);
   const gpsInputLabelRef = useRef(null);
@@ -114,14 +108,12 @@ const LocationSelectorInput = (props) => {
     sidebarOpenBeforeGpsSelectStart.current = !!sidebarOpen;
     setModalVisibilityState(false);
 
-    if (ENABLE_URL_NAVIGATION) hideSideBar();
-    else updateUserPreferences({ sidebarOpen: false });
-  }, [setModalVisibilityState, sidebarOpen, updateUserPreferences, hideSideBar]);
+    hideSideBar();
+  }, [setModalVisibilityState, sidebarOpen, hideSideBar]);
 
   const onLocationSelectFromMapCancel = () => {
     if (sidebarOpenBeforeGpsSelectStart.current) {
-      if (ENABLE_URL_NAVIGATION) showSideBar();
-      else updateUserPreferences({ sidebarOpen: true });
+      showSideBar();
     }
 
     setModalVisibilityState(true);
@@ -139,15 +131,14 @@ const LocationSelectorInput = (props) => {
 
   const onLocationSelectFromMap = useCallback((event) => {
     if (sidebarOpenBeforeGpsSelectStart.current) {
-      if (ENABLE_URL_NAVIGATION) showSideBar();
-      else updateUserPreferences({ sidebarOpen: true });
+      showSideBar();
     }
 
     const { lngLat: { lat, lng } } = event;
     onLocationChange([lng, lat]);
     setModalVisibilityState(true);
     hideGpsPopover();
-  }, [hideGpsPopover, onLocationChange, setModalVisibilityState, updateUserPreferences, showSideBar]);
+  }, [hideGpsPopover, onLocationChange, setModalVisibilityState, showSideBar]);
 
   const handleEscapePress = useCallback((event) => {
     const { key } = event;
@@ -205,15 +196,13 @@ const LocationSelectorInput = (props) => {
   </label>;
 };
 
-const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat, sidebarOpen } } }) => ({
+const mapStateToProps = ({ view: { showUserLocation, userPreferences: { gpsFormat } } }) => ({
   gpsFormat,
   showUserLocation,
-  sidebarOpen,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   setModalVisibilityState: (state) => dispatch(setModalVisibilityState(state)),
-  updateUserPreferences: (preference) => dispatch(updateUserPreferences(preference)),
   hideSideBar: () => dispatch(hideSideBar()),
   showSideBar: () => dispatch(showSideBar()),
 });

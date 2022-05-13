@@ -13,7 +13,6 @@ import { openModalForReport } from '../../utils/events';
 import {  calcEventFilterForRequest, DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, EVENT_SORT_ORDER_OPTIONS } from '../../utils/event-filter';
 import { fetchEvent, fetchEventFeed, fetchNextEventFeedPage } from '../../ducks/events';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
-import { showDetailView } from '../../ducks/side-bar';
 import { trackEventFactory, FEED_CATEGORY } from '../../utils/analytics';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -26,11 +25,10 @@ import EventFilter from '../../EventFilter';
 import ColumnSort from '../../ColumnSort';
 import ErrorMessage from '../../ErrorMessage';
 import EventFeed from '../../EventFeed';
-import ReportDetailView from '../../ReportDetailView';
 
 import styles from './../styles.module.scss';
 
-const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI, ENABLE_URL_NAVIGATION } = DEVELOPMENT_FEATURE_FLAGS;
+const { ENABLE_REPORT_NEW_UI, ENABLE_UFA_NAVIGATION_UI } = DEVELOPMENT_FEATURE_FLAGS;
 
 export const ReportsTabContext = createContext();
 
@@ -46,8 +44,6 @@ const ReportsTab = ({
   fetchNextEventFeedPage,
   eventFilter,
   map,
-  showSideBarDetailView,
-  sideBar,
   userIsGeoPermRestricted,
 }) => {
   const location = useLocation();
@@ -87,7 +83,7 @@ const ReportsTab = ({
       fetchEvent(itemId)
         .then(() => setLoadingEventById(false))
         .catch(() => navigate(`/${TAB_KEYS.REPORTS}`, { replace: true }));
-    } else if (!itemId) {
+    } else {
       setLoadingEventById(false);
     }
   }, [fetchEvent, itemId, navigate, eventStore]);
@@ -112,11 +108,7 @@ const ReportsTab = ({
 
   const onEventTitleClick = (event) => {
     if (ENABLE_UFA_NAVIGATION_UI && ENABLE_REPORT_NEW_UI) {
-      if (ENABLE_URL_NAVIGATION) {
-        navigate(event.id);
-      } else {
-        showSideBarDetailView(TAB_KEYS.REPORTS, { report: event });
-      }
+      navigate(event.id);
     } else {
       openModalForReport(event, map);
     }
@@ -149,13 +141,9 @@ const ReportsTab = ({
 
   const loadingEvents = !!itemId ? loadingEventById : loadingEventFeed;
   return <>
-    {ENABLE_URL_NAVIGATION
-      ? <ReportsTabContext.Provider value={{ loadingEvents }}>
-        <Outlet />
-      </ReportsTabContext.Provider>
-      : sideBar.currentTab === TAB_KEYS.REPORTS && sideBar.showDetailView && <ReportDetailView
-        loadingEvents={loadingEvents}
-      />}
+    <ReportsTabContext.Provider value={{ loadingEvents }}>
+      <Outlet />
+    </ReportsTabContext.Provider>
 
     <DelayedUnmount isMounted={sidebarOpen}>
       <ErrorBoundary>
@@ -193,14 +181,13 @@ const mapStateToProps = (state) => ({
   eventFilter: state.data.eventFilter,
   events: getFeedEvents(state),
   eventStore: state.data.eventStore,
-  sideBar: state.view.sideBar,
   userIsGeoPermRestricted: userIsGeoPermissionRestricted(state?.data?.user),
   userLocationCoords: state?.view?.userLocation?.coords,
 });
 
 export default connect(
   mapStateToProps,
-  { fetchEvent, fetchEventFeed, fetchNextEventFeedPage, showSideBarDetailView: showDetailView }
+  { fetchEvent, fetchEventFeed, fetchNextEventFeedPage }
 )(memo(ReportsTab));
 
 ReportsTab.propTypes = {
@@ -210,9 +197,4 @@ ReportsTab.propTypes = {
   fetchNextEventFeedPage: PropTypes.func.isRequired,
   map: PropTypes.object,
   eventFilter: PropTypes.object.isRequired,
-  sideBar: PropTypes.shape({
-    currentTab: PropTypes.string,
-    showDetailView: PropTypes.bool,
-  }).isRequired,
-  showSideBarDetailView: PropTypes.func.isRequired,
 };
