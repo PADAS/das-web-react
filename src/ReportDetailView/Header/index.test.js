@@ -11,32 +11,28 @@ import { report } from '../../__test-helpers/fixtures/reports';
 
 describe('Header', () => {
   const setTitle = jest.fn();
+  beforeEach(() => {
+    render(
+      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
+        <Header report={report} setTitle={setTitle} />
+      </Provider>
+    );
+  });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test('renders correctly case of a 300 priority report', async () => {
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} title="title" />
-      </Provider>
-    );
-
     expect((await screen.findByTestId('reportDetailHeader-icon'))).toHaveClass('priority-300');
   });
 
-  test('triggers setTitle callback when changing the title', async () => {
-    render(
-      <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} />
-      </Provider>
-    );
-
+  test('triggers setTitle callback when the contenteditable loses focus', async () => {
     expect(setTitle).toHaveBeenCalledTimes(0);
 
-    const titleTextBox = await screen.findByRole('textbox');
+    const titleTextBox = await screen.findByTestId('reportDetailView-header-title');
     userEvent.type(titleTextBox, '2');
+    userEvent.tab();
 
     expect(setTitle).toHaveBeenCalledTimes(1);
     expect(setTitle).toHaveBeenCalledWith('Light2');

@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { mockStore } from '../__test-helpers/MockStore';
@@ -15,19 +15,18 @@ import useNavigate from '../hooks/useNavigate';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useLocation: () => ({
-    pathname: '/reports/new',
-    state: {},
-  }),
+  useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
 
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 describe('ReportDetailView', () => {
-  let navigate, useNavigateMock, store, useSearchParamsMock;
+  let navigate, useNavigateMock, store, useLocationMock, useSearchParamsMock;
 
   beforeEach(() => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/new', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
     useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'd0884b8c-4ecb-45da-841d-f2f8d6246abf' })]));
     useSearchParams.mockImplementation(useSearchParamsMock);
     navigate = jest.fn();
@@ -52,6 +51,48 @@ describe('ReportDetailView', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
+    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'invalid' })]));
+    useSearchParams.mockImplementation(useSearchParamsMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
+    });
+  });
+
+  test('redirects to /reports if user tries to open a report that cannot be found', async () => {
+    useLocationMock = jest.fn(() => ({ pathname: '/reports/456', state: {} }),);
+    useLocation.mockImplementation(useLocationMock);
+
+    cleanup();
+    render(
+      <Provider store={mockStore(store)}>
+        <NavigationWrapper>
+          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
+            <ReportDetailView />
+          </ReportsTabContext.Provider>
+        </NavigationWrapper>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
+    });
   });
 
   test('renders the Details view by default', async () => {
@@ -109,13 +150,13 @@ describe('ReportDetailView', () => {
   });
 
   test('updates the title when user types in it', async () => {
-    const titleInput = (await screen.findAllByRole('textbox'))[0];
+    const titleInput = await screen.findByTestId('reportDetailView-header-title');
 
-    expect(titleInput).toHaveAttribute('value', 'Jenae Test Auto Resolve');
+    expect(titleInput).toHaveTextContent('Jenae Test Auto Resolve');
 
     userEvent.type(titleInput, '2');
 
-    expect(titleInput).toHaveAttribute('value', 'Jenae Test Auto Resolve2');
+    expect(titleInput).toHaveTextContent('Jenae Test Auto Resolve2');
   });
 
   test('hides the detail view when clicking the cancel button', async () => {
@@ -155,26 +196,5 @@ describe('ReportDetailView', () => {
 
     expect((await screen.queryByText('Save'))).toBeNull();
     expect((await screen.queryByText('Cancel'))).toBeNull();
-  });
-
-  test('redirects to /reports if user tries to create a new report with an invalid reportType', async () => {
-    useSearchParamsMock = jest.fn(() => ([new URLSearchParams({ reportType: 'invalid' })]));
-    useSearchParams.mockImplementation(useSearchParamsMock);
-
-    cleanup();
-    render(
-      <Provider store={mockStore(store)}>
-        <NavigationWrapper>
-          <ReportsTabContext.Provider value={{ loadingEvents: false }}>
-            <ReportDetailView />
-          </ReportsTabContext.Provider>
-        </NavigationWrapper>
-      </Provider>
-    );
-
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/reports', { replace: true });
-    });
   });
 });

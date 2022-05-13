@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 import { PRIORITY_COLOR_MAP } from '../../utils/events';
@@ -16,6 +16,11 @@ const Header = ({ report, setTitle }) => {
 
   const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
 
+  const onTitleBlur = useCallback((event) => {
+    setTitle(event.target.textContent);
+    event.target.scrollTop = 0;
+  }, [setTitle]);
+
   return <div className={`${styles.header} ${styles[`priority-${report.priority}`]}`}>
     <div className={`${styles.icon} ${styles[`priority-${report.priority}`]}`} data-testid="reportDetailHeader-icon">
       <EventIcon report={report} />
@@ -27,10 +32,9 @@ const Header = ({ report, setTitle }) => {
       className={styles.title}
       contentEditable={true}
       data-testid="reportDetailView-header-title"
-      onBlur={(event) => { event.target.scrollTop = 0; }}
-      onChange={(event) => setTitle(event.target.value)}
+      onBlur={onTitleBlur}
     >
-      {report.title === null ? originalReportTitle : report.title}
+      {report.title === null || report.title === undefined ? originalReportTitle : report.title}
     </div>
 
     {!isNewReport && <div className={styles.priorityAndDate}>
