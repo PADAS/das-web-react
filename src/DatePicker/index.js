@@ -79,7 +79,10 @@ const CustomDatePicker = ({ value,
             dateFormat="yyyy"
             showMonthYearPicker
             onChange={(date) => { changeMonth(getMonth(date)); changeYear(getYear(date)); }}
-            customInput={<button className={styles.headerTitle} onClick={increaseMonth}> {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`} <span>▾</span> </button>}
+            customInput={<button className={styles.headerTitle} onClick={increaseMonth}>
+              {`${date.toLocaleString('en-US', { month: 'short' })} ${getYear(date)}`}
+              <div className={styles.triangle}></div>
+            </button>}
           />
 
           <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}> <ChevronRight/> </button>
@@ -110,7 +113,7 @@ const CustomDefaultInput = ({ value, onClick, isPopperOpen, placeholderText = nu
       >
       <CalendarIcon/>
       <span className={!value && placeholderText ? 'placeholder' : ''}>{value || placeholderText}</span>
-      <span className={`${styles.arrowSymbol} ${isPopperOpen? 'open' : ''}`}>▾</span>
+      <div className={`${styles.triangle} ${isPopperOpen? 'open' : ''}`}></div>
     </button>
   </>;
 };
