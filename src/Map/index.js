@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { RotationControl } from 'react-mapbox-gl';
 import { connect } from 'react-redux';
@@ -8,6 +8,7 @@ import xor from 'lodash/xor';
 import debounce from 'lodash/debounce';
 import { CancelToken } from 'axios';
 import differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
+import { featureCollection } from '@turf/helpers';
 
 import { clearSubjectData, fetchMapSubjects, mapSubjectsFetchCancelToken } from '../ducks/subjects';
 import { clearEventData, fetchMapEvents, cancelMapEventsFetch } from '../ducks/events';
@@ -626,15 +627,15 @@ const Map = ({
     }
   });
 
+  const stationarySubjects = useMemo(() => featureCollection(
+    (mapSubjectFeatureCollection?.features ?? [])
+      .filter(subjectFeature => subjectIsStatic(subjectFeature))
+  ), [mapSubjectFeatureCollection?.features]);
+
   if (!maps.length) return null;
 
   const timeSliderActive = timeSliderState.active;
   const enableEventClustering = timeSliderActive ? false : true;
-
-  const staticFeatures = (mapSubjectFeatureCollection?.features ?? [])
-    .filter(subjectFeature => subjectIsStatic(subjectFeature));
-  const staticSubjects = { ...mapSubjectFeatureCollection, ...{ features: staticFeatures } };
-
   return <EarthRangerMap
     center={lngLatFromParams.current || homeMap.center}
     className={`main-map mapboxgl-map ${mapIsLocked ? 'locked' : ''} ${timeSliderActive ? 'timeslider-active' : ''} ${ENABLE_UFA_NAVIGATION_UI ? '' : 'oldNavigation'}`}
@@ -679,7 +680,7 @@ const Map = ({
 
       <UserCurrentLocationLayer onIconClick={onCurrentUserLocationClick} />
 
-      <StaticSensorsLayer staticSensors={staticSubjects} isTimeSliderActive={timeSliderActive}/>
+      <StaticSensorsLayer staticSensors={stationarySubjects} isTimeSliderActive={timeSliderActive}/>
 
       <MessageBadgeLayer onBadgeClick={onMessageBadgeClick} />
 
