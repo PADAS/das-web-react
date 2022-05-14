@@ -2,7 +2,7 @@ import uniq from 'lodash/uniq';
 import isAfter from 'date-fns/is_after';
 import { createSelector } from 'reselect';
 
-import { createEqualitySelector, getTimeSliderState } from './';
+import { getTimeSliderState } from './';
 import { getSubjectStore } from './subjects';
 
 import { trimmedVisibleTrackData, tracks } from './tracks';
@@ -17,7 +17,13 @@ export const getTrackForPatrolFromProps = ({ data: { tracks } }, { patrol }) =>
   && !!patrol.patrol_segments.length
   && !!patrol.patrol_segments[0].leader
   && tracks[patrol.patrol_segments[0].leader.id];
-export const getLeaderForPatrolFromProps = ({ data: { subjectStore } }, { patrol }) => getLeaderForPatrol(patrol, subjectStore);
+export const getLeaderForPatrolFromProps = (_store, { patrol }) => {
+  const [firstLeg] = patrol.patrol_segments;
+  const { leader }  = firstLeg;
+  if (!leader) return null;
+
+  return leader;
+};
 const getPatrolTrackState = ({ view: { patrolTrackState } }) => uniq([...patrolTrackState.visible, ...patrolTrackState.pinned]);
 
 
@@ -79,8 +85,8 @@ const generatePatrolStartStopData = (patrolData, rawTrack, timeSliderState) => {
   };
 };
 
-export const createPatrolDataSelector = () => createEqualitySelector(
-  [getPatrolFromProps, getLeaderForPatrolFromProps,  getTrackForPatrolFromProps, getTimeSliderState],
+export const createPatrolDataSelector = () => createSelector(
+  [getPatrolFromProps, getLeaderForPatrolFromProps, getTrackForPatrolFromProps, getTimeSliderState],
   assemblePatrolDataForPatrol,
 );
 

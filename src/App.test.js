@@ -102,6 +102,13 @@ describe('The main app view', () => {
       },
       data: {
         selectedUserProfile: {},
+        eventFilter: {
+          filter: {
+            date_range: {
+              lower: '',
+            },
+          },
+        },
         maps: [],
         user: {
           name: 'joshua',
@@ -123,7 +130,7 @@ describe('The main app view', () => {
       } } );
 
 
-    jest.spyOn(socketExports, 'default').mockReturnValue(mockedSocket);
+    jest.spyOn(socketExports, 'createSocket').mockReturnValue(mockedSocket);
 
   });
 

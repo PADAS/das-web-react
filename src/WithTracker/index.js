@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactGA from 'react-ga';
+import { useLocation } from 'react-router-dom';
 
 const withTracker = (WrappedComponent, options = {}) => {
   const trackPage = page => {
@@ -11,9 +12,9 @@ const withTracker = (WrappedComponent, options = {}) => {
   };
 
   const HOC = props => {
-    useEffect(() => trackPage(props.location.pathname), [
-      props.location.pathname
-    ]);
+    const location = useLocation();
+
+    useEffect(() => trackPage(location.pathname), [location.pathname]);
 
     return <WrappedComponent {...props} />;
   };

@@ -343,7 +343,7 @@ $contrast: 25%;
   padding: 1rem 0 0;
   overflow: visible;
 
-  > div > div > label {
+  [class*=label] {
     width: 48%;
   }
 }

@@ -3,6 +3,7 @@
 @import './common/styles/buttons';
 @import './common/styles/layout';
 @import './common/styles/inputs';
+@import './common/styles/datepicker';
 
 *,
 *::before,
@@ -271,134 +272,7 @@ aside {
 }
 
 .react-datepicker {
-  font-weight: 400;
-  border: none;
-  border-radius: 0.125rem;
-  box-shadow: 0rem 0rem 0.93rem rgba(0, 0, 0, 0.15);
-  
-  &-popper {
-    z-index: 9999;
-  }
-
-  &__header {
-    border: none;
-    padding: 0rem;
-    background: white;
-
-    &__dropdown{
-      font-size: 1rem;
-      margin-top: -2rem;
-      margin-bottom: 0.4rem;
-    }
-  }
-
-  &__month-dropdown-container {
-    padding-right: 1.87rem;
-  }
-
-  &__month-read-view--down-arrow, &__year-read-view--down-arrow {
-    margin-top: 0.375rem;
-  }
-
-  &__current-month {
-    color: transparent;
-  }
-
-  &__current-month {
-    background-color: $very-light-gray;
-    padding: 0.312rem 0rem;
-  }
-
-  &__navigation {
-    color: $secondary-medium-light-gray;
-
-    &-icon {
-      top: 0.25rem;
-    }
-
-    &--years-upcoming::after {
-      content: '<'
-    }
-    
-    &--years-previous::after {
-      content: '>'
-    }
-
-    &:focus {
-      outline: none;
-    }
-  }
-  
-  &__day {
-    border: 0.062rem solid white;
-    width: 2.3rem;
-    height: 1.5rem;
-    font-size: 0.875rem;
-    line-height: 1.375rem;
-    border-radius: 0.125rem;
-    color: $dark-gray;
-    margin: 0.166rem 0rem;
-    
-    &:hover {
-      border-radius: 0.125rem;
-      background-color: $blue-highlight;
-      border: 0.062rem solid white;
-      border-left: solid white 0.375rem;
-      border-right: solid white 0.375rem;
-    }
-
-    &--disabled {
-      cursor: not-allowed;
-    }
-
-    &--selected {
-      color: white;
-      border-radius: 0rem;
-      border-left: solid white 0.375rem;
-      border-right: solid white 0.375rem;
-      background-color: $bright-blue;
-  
-      &:hover {
-        color: $bright-blue;
-      }
-    }
-
-    &--in-selecting-range:not([class*=--selected]) {
-      background-color: $blue-highlight;
-      border-top: none;
-      border-bottom: none;
-    }
-    
-    &--in-selecting-range {
-      &[class*=-range-end] {
-        border-left: solid white 0.1rem;
-        border-radius: 0px 9px 9px 0px;
-        border-top: none;
-        border-bottom: none;
-        border-right: none;
-      }
-      &[class*=-range-start] {
-        border-right: solid white 0.1rem;
-        border-radius: 9px 0px 0px 9px;
-        background-color: $blue-highlight;
-        border-top: none;
-        border-bottom: none;
-      }
-    }
-
-    &--outside-month {
-      color: $secondary-medium-light-gray;
-    }
-
-    &-name {
-      margin: 0.166rem 0.3rem;
-    }
-
-    &-names {
-      color: $dark-gray;
-      background-color: white;
-    }
-  }
+  @include customDatepicker;
 }
 
 .maplock {
@@ -678,7 +552,7 @@ div.mapboxgl-popup-tip {
   }
 
   .modal-content {
-    box-shadow: 0 0 3px $light-gray;
+    box-shadow: 0 0 0.187rem $light-gray;
   }
 
   .modal-header {
@@ -721,7 +595,7 @@ div.mapboxgl-popup-tip {
 }
 
 #jsd-widget {
-  pointer-events: none;
+  bottom: -30px !important;
 }
 
 /* --- OLD NAVIGATION STUFF STARTS HERE --- */
