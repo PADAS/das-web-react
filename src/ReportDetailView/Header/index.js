@@ -33,6 +33,7 @@ const Header = ({ report, setTitle }) => {
       contentEditable={true}
       data-testid="reportDetailView-header-title"
       onBlur={onTitleBlur}
+      suppressContentEditableWarning
     >
       {report.title === null || report.title === undefined ? originalReportTitle : report.title}
     </div>

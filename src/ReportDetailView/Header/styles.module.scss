@@ -122,9 +122,18 @@
   margin-left: auto;
   text-align: right;
   margin-right: 1rem;
+  font-size: 0.75rem;
+
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+  }
 }
 
 .dateTime span {
   color: $dark-gray;
-  font-size: 1rem;
+  font-size: 0.75rem;
+
+  @media (min-width: $md-layout-width-min) {
+    font-size: 1rem;
+  }
 }
