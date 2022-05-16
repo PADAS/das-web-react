@@ -1,19 +1,29 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-import { PRIORITY_COLOR_MAP } from '../../utils/events';
+import {
+  collectionHasMultipleValidLocations,
+  getCoordinatesForCollection,
+  getCoordinatesForEvent,
+  PRIORITY_COLOR_MAP,
+} from '../../utils/events';
+import { MAP_LAYERS_CATEGORY } from '../../utils/analytics';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useReport from '../../hooks/useReport';
 
 import DateTime from '../../DateTime';
 import EventIcon from '../../EventIcon';
+import LocationJumpButton from '../../LocationJumpButton';
 
 import styles from './styles.module.scss';
 
 const Header = ({ report, setTitle }) => {
+  const jumpToLocation = useJumpToLocation();
+
   const { title: originalReportTitle } = useReport(report);
 
+  const coordinates = report.is_collection ? getCoordinatesForCollection(report) : getCoordinatesForEvent(report);
   const isNewReport = !report.id;
-
   const priorityTheme = PRIORITY_COLOR_MAP[report.priority];
 
   const onTitleBlur = useCallback((event) => {
@@ -42,6 +52,19 @@ const Header = ({ report, setTitle }) => {
       <span style={{ color: priorityTheme.base }}>{priorityTheme.name}</span>
       <br />
       <DateTime className={styles.dateTime} date={report.updated_at || report.created_at} showElapsed={false} />
+    </div>}
+
+    {!!coordinates?.length && <div className={styles.locationJumpButton}>
+      <LocationJumpButton
+        clickAnalytics={[
+          MAP_LAYERS_CATEGORY,
+          'Click Jump To Report Location button',
+          `Report Type:${report.event_type}`,
+        ]}
+        coordinates={coordinates}
+        isMulti={collectionHasMultipleValidLocations(report)}
+        onClick={() => jumpToLocation(coordinates)}
+      />
     </div>}
   </div>;
 };
