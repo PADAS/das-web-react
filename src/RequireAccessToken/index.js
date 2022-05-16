@@ -12,11 +12,11 @@ const RequireAccessToken = ({ children, token }) => {
 
   return (temporaryAccessToken || token.access_token)
     ? children
-    : <Navigate replace to={{
-        pathname: `${REACT_APP_ROUTE_PREFIX}login`,
-        search: location.search,
-        state: { from: location }
-      }}/>;
+    : <Navigate
+        replace
+        state={{ from: { ...location } }}
+        to={{ pathname: `${REACT_APP_ROUTE_PREFIX}login`, search: location.search }}
+      />;
 };
 
 const mapStateToProps = ({ data: { token } }) => ({ token });
