@@ -23,8 +23,8 @@ import {
 } from '../constants';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
-import { openTab } from '../ducks/side-bar';
 import { useFeatureFlag, useMatchMedia, usePermissions } from '../hooks';
+import useNavigate from '../hooks/useNavigate';
 
 import EarthRangerLogo from '../EarthRangerLogo';
 
@@ -56,7 +56,6 @@ const GlobalMenuDrawer = ({
   eventTypes,
   fetchTableauDashboard,
   hideDrawer,
-  openTab,
   serverData,
   tableauEnabled,
   token,
@@ -70,6 +69,8 @@ const GlobalMenuDrawer = ({
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const hasPatrolViewPermissions = usePermissions(PERMISSION_KEYS.PATROLS, PERMISSIONS.READ);
+
+  const navigate = useNavigate();
 
   const [modals, setModals] = useState([]);
 
@@ -183,8 +184,9 @@ const GlobalMenuDrawer = ({
 
   const onNavigationItemClick = useCallback((navigationItem) => () => {
     hideDrawer();
-    openTab(navigationItem.sidebarTab);
-  }, [hideDrawer, openTab]);
+
+    navigate(`/${navigationItem.sidebarTab}`);
+  }, [hideDrawer, navigate]);
 
   const onClose = useCallback(() => hideDrawer(), [hideDrawer]);
 
@@ -250,7 +252,6 @@ GlobalMenuDrawer.propTypes = {
   serverData: PropTypes.shape({ version: PropTypes.string }).isRequired,
   tableauEnabled: PropTypes.bool.isRequired,
   token: PropTypes.shape({ access_token: PropTypes.string }).isRequired,
-  openTab: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile, systemStatus, token, user }, view: { systemConfig } }) => ({
@@ -266,5 +267,5 @@ const mapStateToProps = ({ data: { eventFilter, eventTypes, selectedUserProfile,
 
 export default connect(
   mapStateToProps,
-  { addModal, fetchTableauDashboard, hideDrawer, openTab }
+  { addModal, fetchTableauDashboard, hideDrawer }
 )(GlobalMenuDrawer);

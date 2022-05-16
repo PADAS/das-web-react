@@ -29,7 +29,7 @@ describe('Header', () => {
   test('triggers setTitle callback when changing the title', async () => {
     render(
       <Provider store={mockStore({ data: { eventTypes, patrolTypes } })}>
-        <Header report={report} setTitle={setTitle} title="title" />
+        <Header report={report} setTitle={setTitle} />
       </Provider>
     );
 
@@ -39,6 +39,6 @@ describe('Header', () => {
     userEvent.type(titleTextBox, '2');
 
     expect(setTitle).toHaveBeenCalledTimes(1);
-    expect(setTitle).toHaveBeenCalledWith('title2');
+    expect(setTitle).toHaveBeenCalledWith('Light2');
   });
 });

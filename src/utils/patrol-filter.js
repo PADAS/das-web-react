@@ -1,9 +1,5 @@
 import isEqual from 'react-fast-compare';
 import merge from 'lodash/merge';
-import isSameDay from 'date-fns/is_same_day';
-import isSameMonth from 'date-fns/is_same_month';
-import format from 'date-fns/format';
-import isThisYear from 'date-fns/is_this_year';
 
 import { displayEndTimeForPatrol, displayStartTimeForPatrol, isPatrolCancelled } from './patrols';
 import { objectToParamString } from './query';

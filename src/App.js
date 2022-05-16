@@ -4,6 +4,7 @@ import Nav from './Nav';
 import { connect } from 'react-redux';
 import { loadProgressBar } from 'axios-progress-bar';
 import { ToastContainer, toast, Slide } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 import 'axios-progress-bar/dist/nprogress.css';
 
 import { fetchMaps } from './ducks/maps';
@@ -17,6 +18,7 @@ import { fetchFeaturesets } from './ducks/features';
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchEventSchema } from './ducks/event-schemas';
+import { getCurrentTabFromURL } from './utils/navigation';
 
 import Drawer from './Drawer';
 import SideBar from './SideBar';
@@ -40,8 +42,27 @@ const bindDirectMapEventing = (map) => {
 };
 
 const App = (props) => {
-  const { fetchMaps, fetchEventTypes, fetchEventSchema, fetchAnalyzers, fetchPatrolTypes, fetchSubjectGroups, fetchFeaturesets, fetchSystemStatus, pickingLocationOnMap,
-    sidebarOpen, trackLength, setTrackLength, setDefaultCustomTrackLength, showGeoPermWarningMessage } = props;
+  const {
+    fetchMaps,
+    fetchEventTypes,
+    fetchEventSchema,
+    fetchAnalyzers,
+    fetchPatrolTypes,
+    fetchSubjectGroups,
+    fetchFeaturesets,
+    fetchSystemStatus,
+    pickingLocationOnMap,
+    trackLength,
+    setTrackLength,
+    setDefaultCustomTrackLength,
+    showGeoPermWarningMessage,
+  } = props;
+
+  const location = useLocation();
+
+  const currentTab = getCurrentTabFromURL(location.pathname);
+  let sidebarOpen = !!currentTab;
+
   const [map, setMap] = useState(null);
 
   const [isDragging, setDragState] = useState(false);
@@ -144,13 +165,12 @@ const App = (props) => {
   </div>;
 };
 
-const mapStateToProps = ({ view: { trackLength, userPreferences: { sidebarOpen }, pickingLocationOnMap, userLocation }, data: { user } }) => {
+const mapStateToProps = ({ view: { trackLength, pickingLocationOnMap, userLocation }, data: { user } }) => {
   const geoPermRestricted = userIsGeoPermissionRestricted(user);
 
   return {
     trackLength,
     pickingLocationOnMap,
-    sidebarOpen,
     lastSeenGeoPermSplashWarning: null,
     showGeoPermWarningMessage: !!userLocation && geoPermRestricted,
     userIsGeoPermissionRestricted: geoPermRestricted,

@@ -4,6 +4,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { eventWithoutPatrol, eventWithPatrol } from '../__test-helpers/fixtures/events';
+import NavigationWrapper from '../__test-helpers/navigationWrapper';
 
 import ReportListItem from './';
 
@@ -16,7 +17,9 @@ describe('list item icons', () => {
 
     render(
       <Provider store={store}>
-        <ReportListItem report={eventWithPatrol} />
+        <NavigationWrapper>
+          <ReportListItem report={eventWithPatrol} />
+        </NavigationWrapper>
       </Provider>);
 
     const icon = await screen.findByRole('img');
@@ -27,7 +30,9 @@ describe('list item icons', () => {
 
     render(
       <Provider store={store}>
-        <ReportListItem report={eventWithoutPatrol} />
+        <NavigationWrapper>
+          <ReportListItem report={eventWithoutPatrol} />
+        </NavigationWrapper>
       </Provider>);
 
     const icon = await screen.findByRole('img');

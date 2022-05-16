@@ -32,6 +32,7 @@ import RequestConfigManager from './RequestConfigManager';
 import { setClientReleaseIdentifier } from './utils/analytics';
 
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
+import NavigationContextProvider from './NavigationContextProvider';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 
@@ -53,7 +54,7 @@ setClientReleaseIdentifier();
 
 const persistor = persistStore(store);
 
-export const PathNormalizationRouteComponent = ({ location }) => {
+const PathNormalizationRouteComponent = ({ location }) => {
   const externalRedirectRef = useRef(null);
 
   useEffect(() => {
@@ -72,31 +73,33 @@ ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor} >
       <BrowserRouter>
-        <RequestConfigManager />
+        <NavigationContextProvider>
+          <RequestConfigManager />
 
-        <Suspense fallback={<LoadingOverlay />}>
-          <Routes>
-            <Route
-              path={REACT_APP_ROUTE_PREFIX}
-              element={<RequireEulaConfirmation>
-                <RequireAccessToken>
-                  <AppWithTracker />
-                </RequireAccessToken>
-              </RequireEulaConfirmation>}
-            />
+          <Suspense fallback={<LoadingOverlay />}>
+            <Routes>
+              <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
 
-            <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
+              <Route
+                path={`${REACT_APP_ROUTE_PREFIX}eula`}
+                element={<RequireAccessToken>
+                  <EulaPageWithTracker />
+                </RequireAccessToken>}
+              />
 
-            <Route
-              path={`${REACT_APP_ROUTE_PREFIX}eula`}
-              element={<RequireAccessToken>
-                <EulaPageWithTracker />
-              </RequireAccessToken>}
-            />
+              <Route
+                path={`${REACT_APP_ROUTE_PREFIX}*`}
+                element={<RequireAccessToken>
+                  <RequireEulaConfirmation>
+                    <AppWithTracker />
+                  </RequireEulaConfirmation>
+                </RequireAccessToken>}
+              />
 
-            <Route element={<PathNormalizationRouteComponent />} />
-          </Routes>
-        </Suspense>
+              <Route path="*" element={<PathNormalizationRouteComponent />} />
+            </Routes>
+          </Suspense>
+        </NavigationContextProvider>
       </BrowserRouter>
 
       <DetectOffline />
