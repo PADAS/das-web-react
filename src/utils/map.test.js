@@ -2,13 +2,8 @@ import { createMapMock } from '../__test-helpers/mocks';
 
 import { calculatePopoverPlacement, waitForMapBounds } from './map';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-}));
-
 let map;
 const errorObj = new Error('invalid LngLat');
-// const successValue =  [[12, 21], [22, 32]];
 
 describe('waitForMapBounds', () => {
   beforeEach(() => {

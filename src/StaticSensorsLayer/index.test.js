@@ -11,10 +11,6 @@ import { LAYER_IDS } from '../constants';
 import { BACKGROUND_LAYER, LABELS_LAYER } from './layerStyles';
 import StaticSensorsLayer from './';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-}));
-
 const { STATIC_SENSOR, SECOND_STATIC_SENSOR_PREFIX, UNCLUSTERED_STATIC_SENSORS_LAYER } = LAYER_IDS;
 let map;
 

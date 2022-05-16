@@ -17,9 +17,6 @@ import SideBar from '.';
 import { PERMISSION_KEYS, PERMISSIONS, TAB_KEYS } from '../constants';
 import { report } from '../__test-helpers/fixtures/reports';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-}));
 jest.mock('../ducks/patrols', () => ({
   ...jest.requireActual('../ducks/patrols'),
   fetchPatrols: jest.fn(),

@@ -9,10 +9,6 @@ import { hidePopup } from '../ducks/popup';
 import { mockStore } from '../__test-helpers/MockStore';
 import { uuid } from '../utils/string';
 
-jest.mock('../constants', () => ({
-  ...jest.requireActual('../constants'),
-}));
-
 jest.mock('../ducks/popup', () => ({
   ...jest.requireActual('../ducks/popup'),
   hidePopup: jest.fn(),
