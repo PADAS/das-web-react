@@ -26,8 +26,8 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   const displayTrackingSubject = useMemo(() => patrolForm.patrol_segments?.[0]?.leader, [patrolForm.patrol_segments]);
   const startDate = useMemo(() => displayStartTimeForPatrol(patrolForm), [patrolForm]);
   const endDate = useMemo(() => displayEndTimeForPatrol(patrolForm), [patrolForm]);
-  const [isAutoStart, setIsAutoStart] = useState(false);
-  const [isAutoEnd, setIsAutoEnd] = useState(false);
+  const [isAutoStart, setIsAutoStart] = useState(isFuture(startDate) && !patrolForm.patrol_segments[0].scheduled_start);
+  const [isAutoEnd, setIsAutoEnd] = useState(isFuture(endDate) && !patrolForm.patrol_segments[0].scheduled_end);
 
   useEffect(() => {
     if (isEmpty(patrolLeaderSchema)){
@@ -113,6 +113,15 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     updatePatrolTime('end', value, isAutoEnd);
   }, [isAutoEnd, updatePatrolTime]);
 
+  const onAutoStartChange = useCallback(() => {
+    setIsAutoStart(!isAutoStart);
+    updatePatrolTime('start', startDate, !isAutoStart);
+  }, [isAutoStart, startDate, updatePatrolTime]);
+
+  const onAutoEndChange = useCallback(() => {
+    setIsAutoEnd(!isAutoEnd);
+    updatePatrolTime('end', endDate, !isAutoEnd);
+  }, [isAutoEnd, endDate, updatePatrolTime]);
 
   return <>
     <label data-testid="reported-by-select" className={`${styles.trackedByLabel} ${loadingTrackedBy ? styles.loading : ''}`}>
@@ -142,6 +151,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
         <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={onStartDateChange}/>
       </label>
     </div>
+    <label className={styles.autoFieldCheckbox}>
+      <input type='checkbox' checked={isAutoStart} onChange={onAutoStartChange} disabled={!startDate || !isFuture(startDate)}/>
+      <span>Automatically start the patrol at this time</span>
+    </label>
     <div className={styles.timeLocationRow}>
       <label className={styles.subheaderLabel}>
         End Date
@@ -157,6 +170,10 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
           />
       </label>
     </div>
+    <label className={styles.autoFieldCheckbox}>
+      <input type='checkbox' checked={isAutoEnd} onChange={onAutoEndChange} disabled={!endDate || !isFuture(endDate)} />
+      <span>Automatically end the patrol at this time</span>
+    </label>
   </>;
 };
 
