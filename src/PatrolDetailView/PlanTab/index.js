@@ -18,6 +18,8 @@ import styles from './styles.module.scss';
 
 const { Control } = Form;
 const patrolModalTracker = trackEventFactory(PATROL_MODAL_CATEGORY);
+const START_KEY = 'start';
+const END_KEY = 'end';
 
 const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedBySchema }) => {
 
@@ -92,26 +94,15 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
   }, [updatePatrol]);
 
   const updatePatrolTime = useCallback((dateType, value, isAuto) => {
-    const segmentUpdate = { time_range: {} };
-    if (isAuto || !isFuture(value)) {
-      segmentUpdate.time_range[`${dateType}_time`] = value;
-      segmentUpdate[`scheduled_${dateType}`] = null;
-    } else {
-      segmentUpdate.time_range[`${dateType}_time`] = null;
-      segmentUpdate[`scheduled_${dateType}`] = value;
-    }
+    const isScheduled = !isAuto || isFuture(value);
+    const segmentUpdate = {
+      [`scheduled_${dateType}`]: isScheduled ? value : null,
+      time_range: { [`${dateType}_time`]: !isScheduled ? value : null },
+    };
+
     updatePatrol({ patrol_segments: [segmentUpdate] });
+    patrolModalTracker.track(`Set patrol ${dateType} time`);
   }, [updatePatrol]);
-
-  const onStartDateChange = useCallback((value) => {
-    patrolModalTracker.track('Set patrol start time');
-    updatePatrolTime('start', value, isAutoStart);
-  }, [isAutoStart, updatePatrolTime]);
-
-  const onEndDateChange = useCallback((value) => {
-    patrolModalTracker.track('Set patrol start time');
-    updatePatrolTime('end', value, isAutoEnd);
-  }, [isAutoEnd, updatePatrolTime]);
 
 
   return <>
@@ -135,24 +126,38 @@ const PlanTab = ({ patrolForm, onPatrolChange, patrolLeaderSchema, fetchTrackedB
     <div className={styles.timeLocationRow}>
       <label className={styles.subheaderLabel}>
         Start Date
-        <DatePicker selected={startDate ?? new Date()} onChange={onStartDateChange} dateFormat="dd MMM yyyy" selectsStart startDate={startDate}/>
+        <DatePicker
+          shouldCloseOnSelect
+          selected={startDate ?? new Date()}
+          onChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}
+          dateFormat="dd MMM yyyy"
+          selectsStart
+          startDate={startDate}/>
       </label>
       <label className={styles.subheaderLabel}>
         Start Time
-        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={onStartDateChange}/>
+        <TimeRangeInput dateValue={startDate ?? new Date()} onTimeChange={(value) => updatePatrolTime(START_KEY, value, isAutoStart)}/>
       </label>
     </div>
     <div className={styles.timeLocationRow}>
       <label className={styles.subheaderLabel}>
         End Date
-        <DatePicker selected={endDate} onChange={onEndDateChange} dateFormat="dd MMM yyyy" selectsEnd startDate={startDate} endDate={endDate} minDate={startDate} />
+        <DatePicker
+          shouldCloseOnSelect
+          selected={endDate}
+          onChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
+          dateFormat="dd MMM yyyy"
+          selectsEnd
+          startDate={startDate}
+          endDate={endDate}
+          minDate={startDate} />
       </label>
       <label className={styles.subheaderLabel}>
         End Time
         <TimeRangeInput
           dateValue={endDate}
           starDateRange={startDate}
-          onTimeChange={onEndDateChange}
+          onTimeChange={(value) => updatePatrolTime(END_KEY, value, isAutoEnd)}
           showOptionsDurationFromInitialValue={!endDate || startDate?.toDateString() === endDate?.toDateString()}
           />
       </label>
